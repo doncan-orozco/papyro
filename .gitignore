@@ -33,6 +33,8 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# Ignore vscode settings folder
+.vscode/
 
 /app/assets/builds/*
 !/app/assets/builds/.keep
