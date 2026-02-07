@@ -74,3 +74,5 @@ app/
 - Single responsibility, stateless when possible.
 - Accept explicit args; return Result or raise specific exceptions.
 - Live in `app/services/` or injected into Operations.
+
+> **For verification checklists, see [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-architecture--organization)**

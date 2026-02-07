@@ -1,5 +1,7 @@
 # AI Agent Entrypoint (Papyro)
 
+**🔴 MANDATORY: Read this file FIRST at every session start**
+
 Use this as the single source of truth. Load only the skill files needed for the task to minimize tokens.
 
 ## Quick rules (always)
@@ -10,10 +12,37 @@ Use this as the single source of truth. Load only the skill files needed for the
 - All validations in dry-validation contracts.
 - No ActiveRecord callbacks or model validations.
 
+## 🔴 MANDATORY: Self-Review Before Providing Code
+
+Before responding with code changes, I MUST use [SELF_REVIEW_CHECKLIST.md](SELF_REVIEW_CHECKLIST.md) to verify:
+- ✅ Views inherit from `Views::Base` (NOT `Phlex::HTML`)
+- ✅ Components inherit from `Components::Base` (NOT `Phlex::HTML`)
+- ✅ Proper namespaces: `Views::{Domain}`, `Components::{Domain}`
+- ✅ All user-facing text has i18n keys (no hardcoded strings)
+- ✅ Both English AND Spanish translations provided
+- ✅ Domain-based locale files: `config/locales/{en,es}/{domain}.yml`
+- ✅ Components include `**attrs` for Stimulus support
+- ✅ Views/Components organized by domain in correct directories
+- ✅ Controllers are thin (no business logic)
+- ✅ Turbo Frames have matching IDs and domain concepts
+- ✅ Routes are named with route helpers
+- ✅ No implicit dependencies or hidden magic
+
+**If I find issues, I MUST fix them before providing code.**
+
+## Pre-Implementation Checklist
+**When starting a task:**
+1. Review [SELF_REVIEW_CHECKLIST.md](SELF_REVIEW_CHECKLIST.md) - AI quick reference
+2. Review [VERIFICATION_CHECKLIST.md](VERIFICATION_CHECKLIST.md) - detailed guidelines
+3. Load relevant skill files (see Skill index below)
+4. Check prohibited patterns in skills/backend/prohibited.md
+5. **Self-review every file BEFORE providing it**
+
 ## Skill index (load on demand)
 - Backend architecture: skills/backend/architecture.md
 - Backend Rails 8 stack: skills/backend/rails8.md
 - Backend prohibited practices: skills/backend/prohibited.md
+- Backend Turbo Frames: skills/backend/turbo.md
 - Frontend (Hotwire/Stimulus/Phlex/Tailwind): skills/frontend/frontend.md
 - Frontend design system (shadcn/ui + Phlex): skills/frontend/design-system.md
 - Frontend I18n (English + Spanish): skills/frontend/i18n.md

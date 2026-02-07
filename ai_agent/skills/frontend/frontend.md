@@ -100,3 +100,5 @@ end
 ## Styling
 - Tailwind utility classes only (no custom CSS unless required).
 
+> **For verification checklists, see [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-frontend)**
+
