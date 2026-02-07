@@ -72,14 +72,16 @@ group :development, :test do
   gem "rubocop-rake", require: false
   gem "rubocop-capybara", require: false
   gem "rubocop-factory_bot", require: false
+
+  # Migration safety
+  gem "strong_migrations"
 end
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 
-  # Migration safety + data consistency
-  gem "strong_migrations"
+  # Data consistency
   gem "database_consistency"
 end
 
