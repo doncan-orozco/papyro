@@ -1,24 +1,49 @@
-# README
+# Papyro
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Papyro is a web publishing app for long‑form articles about web development.
 
-Things you may want to cover:
+## Goals
+- Publish‑first writing experience
+- Clean architecture (Trailblazer + dry‑rb)
+- Rails 8 native stack (Solid Queue, Solid Cache, SQLite)
+- Hotwire + Phlex for a fast, modern UI
 
-* Ruby version
+## Tech Stack
+- Ruby 4.0+
+- Rails 8.0+
+- Trailblazer 2.1, dry‑validation, dry‑monads
+- Phlex + Tailwind CSS
+- Hotwire (Turbo + Stimulus)
+- SQLite (production‑ready)
 
-* System dependencies
+## Project Structure
+```
+app/
+	concepts/        # Operations + contracts
+	components/      # Phlex UI components
+	views/           # Phlex page templates
+	controllers/     # Thin controllers
+	models/          # ActiveRecord persistence only
+	queries/         # Query objects
+	services/        # Domain services
+	channels/        # Action Cable
+	javascript/      # Stimulus controllers
+```
 
-* Configuration
+## Setup
+```
+bin/setup
+```
 
-* Database creation
+## Development
+```
+bin/rails server
+```
 
-* Database initialization
+## Tests
+```
+bin/rails test
+```
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## Docs
+See [docs/README.md](docs/README.md) for architecture, examples, and skills.
