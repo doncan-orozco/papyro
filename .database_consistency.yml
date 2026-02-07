@@ -1,0 +1,17 @@
+DatabaseConsistencySettings:
+  color: true
+  log_level: INFO
+
+DatabaseConsistencyCheckers:
+  All:
+    enabled: true
+
+DatabaseConsistencyDatabases:
+  primary:
+    enabled: true
+
+DatabaseConsistencyModels:
+  SchemaMigration:
+    enabled: false
+  ActiveRecord::InternalMetadata:
+    enabled: false
