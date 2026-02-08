@@ -7,6 +7,7 @@ module Views
 
           h1(class: "font-bold text-4xl") { t(".heading") }
 
+          whitespace
           form_with(url: session_path, class: "contents") do |form|
             div(class: "my-5") do
               form.email_field :email_address,
