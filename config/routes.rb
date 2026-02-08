@@ -9,6 +9,13 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  # Home (landing page)
+  root "home#index"
+
+  # Articles
+  resources :articles do
+    collection do
+      get :featured
+    end
+  end
 end
