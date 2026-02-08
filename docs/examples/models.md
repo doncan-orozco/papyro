@@ -1,6 +1,8 @@
 # Model Examples
 
-Models are for persistence only - associations, scopes, and simple queries.
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#models)**
+
+Models are for persistence only - associations, scopes, and simple queries. Code examples below.
 
 ## Basic Model
 
@@ -35,10 +37,4 @@ class Player < ApplicationRecord
 end
 ```
 
-## Rules
-- NO business logic
-- NO validations (use contracts instead)
-- NO callbacks (before_save, after_create, etc.)
-- Only associations, scopes, and simple query methods
-- Database constraints are allowed
-- Use Rails 8 features: normalizes, generates_token_for
+See [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#models) for complete model guidelines.

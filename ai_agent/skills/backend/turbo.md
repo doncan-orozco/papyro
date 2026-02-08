@@ -1,5 +1,9 @@
 # Turbo Frames Skill (Hotwire Decomposition)
 
+**Reference: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-turbo-frames)**
+
+This skill provides implementation patterns for Turbo Frames. For complete guidelines, see the verification checklist.
+
 ## Dependencies
 - hotwire-turbo-rails
 - turbo-rails

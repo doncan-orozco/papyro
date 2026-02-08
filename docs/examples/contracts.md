@@ -1,6 +1,8 @@
 # Contract Examples
 
-Contracts handle all validation using dry-validation. No validations in models.
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#contracts-dry-validation)**
+
+Contracts handle all validation using dry-validation. Code examples below.
 
 ## Basic Contract
 
@@ -27,8 +29,4 @@ module Game
 end
 ```
 
-## Rules
-- NO validations in ActiveRecord models
-- Define strict schemas with dry-validation
-- Validate types, presence, and business rules
-- Use custom predicates for game-specific validations
+See [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#contracts-dry-validation) for complete contract guidelines.

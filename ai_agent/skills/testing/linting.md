@@ -1,5 +1,9 @@
 # Linting Skill (RuboCop)
 
+**Reference: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md)**
+
+This skill provides RuboCop standards. For complete project guidelines, see the verification checklist.
+
 ## Dependencies
 - rubocop
 - rubocop-rails

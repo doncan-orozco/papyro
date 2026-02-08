@@ -1,5 +1,9 @@
 # Realtime Skill (Action Cable + Trailblazer 2.1)
 
+**Reference: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md)**
+
+This skill provides patterns for real-time communication. For complete project guidelines, see the verification checklist.
+
 ## Dependencies
 - actioncable
 - trailblazer-operation

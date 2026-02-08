@@ -1,5 +1,9 @@
 # Frontend Skill (Hotwire + Phlex + Tailwind)
 
+**Reference: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-frontend)**
+
+This skill provides implementation details for frontend code. For complete guidelines, see the verification checklist.
+
 ## Dependencies
 - phlex-rails
 - phlex

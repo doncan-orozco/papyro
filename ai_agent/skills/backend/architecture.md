@@ -1,5 +1,9 @@
 # Architecture Skill (Clean Architecture + Trailblazer 2.1)
 
+**Reference: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-architecture--organization)**
+
+This skill provides deep-dive implementation details. For guidelines and requirements, see the checklist.
+
 ## Dependencies
 - trailblazer-operation
 - trailblazer-rails
@@ -75,4 +79,6 @@ app/
 - Accept explicit args; return Result or raise specific exceptions.
 - Live in `app/services/` or injected into Operations.
 
-> **For verification checklists, see [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-architecture--organization)**
+
+## For Verification & Requirements
+> See [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-architecture--organization) for complete requirements and [SELF_REVIEW_CHECKLIST.md](../../SELF_REVIEW_CHECKLIST.md) for quick reference.

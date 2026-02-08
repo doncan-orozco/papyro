@@ -1,5 +1,9 @@
 # Rails 8 Stack Skill
 
+**Reference: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md)**
+
+This skill covers Rails 8 specifics. For complete project guidelines, see the verification checklist.
+
 ## Dependencies
 - rails
 - solid_queue

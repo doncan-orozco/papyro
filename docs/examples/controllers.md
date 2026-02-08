@@ -1,6 +1,8 @@
 # Controller Examples
 
-Controllers are thin - they only receive requests, call Operations, and return responses using pattern matching.
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#controllers)**
+
+Controllers are thin - they only receive requests, call Operations, and return responses using pattern matching. Code examples below.
 
 ## Basic CRUD Controller
 
@@ -26,10 +28,4 @@ class Game::MovesController < ApplicationController
 end
 ```
 
-## Rules
-- No business logic
-- No validations
-- No Strong Params filtering (done in Contracts)
-- Use pattern matching for result handling
-- Return appropriate HTTP status codes
-- Broadcasting happens in Operations, not controllers
+See [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#controllers) for complete controller guidelines.

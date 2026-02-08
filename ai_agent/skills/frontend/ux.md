@@ -1,5 +1,9 @@
 # UX/UI Skill (Papyro)
 
+**Reference: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-frontend) and [docs/ui-ux-brief.md](../../../docs/ui-ux-brief.md)**
+
+This skill provides UX/UI patterns. For complete project guidelines, see the verification checklist.
+
 ## Dependencies
 - phlex
 - phlex-rails

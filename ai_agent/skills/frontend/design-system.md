@@ -1,5 +1,9 @@
 # Design System Skill (shadcn/ui + Phlex)
 
+**Reference: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-frontend)**
+
+This skill provides design system patterns for Phlex components. For complete guidelines, see the verification checklist.
+
 ## Dependencies
 - phlex
 - phlex-rails

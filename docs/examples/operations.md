@@ -1,6 +1,8 @@
 # Operation Examples
 
-Operations encapsulate all write business logic using Railway Oriented Programming.
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#operations-trailblazer)**
+
+Operations encapsulate all write business logic using Railway Oriented Programming. Code examples below.
 
 ## Complete Operation Example
 
@@ -57,9 +59,4 @@ module Game
 end
 ```
 
-## Rules
-- All write operations must be in Operations
-- Use `step` for railway flow
-- Inject dependencies
-- Return dry-monads Result objects
-- Broadcast inside Operations after persistence
+See [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#operations-trailblazer) for complete operation guidelines.

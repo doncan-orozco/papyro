@@ -1,63 +1,29 @@
 # Architecture Overview
 
-Complete architecture guide for Papyro (web publishing app).
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md)**
+
+This page provides design philosophy and practical examples. All rules and requirements are documented in the checklist.
 
 ## Design Philosophy
 
 1. **Clean Architecture**: Complete separation of business logic from framework
 2. **Immutability**: Prefer immutable objects, avoid side effects
 3. **Explicit Flow**: No hidden magic or callbacks
-4. **Real-time First**: WebSockets for game mechanics
+4. **Real-time First**: WebSockets for real-time features
 5. **Rails 8 Native**: Embrace Rails 8 defaults (Solid Queue, Solid Cache, SQLite)
 
 ## Architecture Layers
 
-### Controllers (Rails Layer)
-- Thin - no business logic, validations, or Strong Params
-- Only receive requests and call Operations
-- Use pattern matching for Success/Failure results
-- Return appropriate HTTP responses
+Each layer has specific responsibilities. See the checklists for detailed requirements:
 
-### Operations (Business Logic)
-- All write operations in Trailblazer Operations
-- Use `step` for Railway Oriented Programming
-- Inject dependencies
-- Return dry-monads Result objects (Success/Failure)
-- Broadcast real-time updates within operations
-
-### Contracts (Validation)
-- All validations in dry-validation contracts
-- NO validations in ActiveRecord models
-- Define strict schemas
-- Validate types, presence, and business rules
-
-### Models (Persistence)
-- Associations, scopes, simple queries only
-- NO business logic, validations, or callbacks
-- Use Rails 8 features: normalizes, generates_token_for
-
-### Query Objects
-- Complex reads in isolated classes
-- Return ActiveRecord relations (chainable)
-- No business logic - just data retrieval
-
-### Services (Domain Logic)
-- Single Responsibility Principle
-- Stateless when possible
-- Injected into Operations
-- Return Result objects
-
-### Channels (Real-time)
-- WebSocket connections via Action Cable
-- One channel per game/room
-- Keep minimal - delegate to Operations
-- Broadcast inside Operations after persistence
-
-### Background Jobs
-- Use Solid Queue (Rails 8 native)
-- All jobs must be idempotent
-- Pass IDs, not objects
-- Handle failures gracefully
+- **Controllers**: Request handling, thin logic
+- **Operations**: Business logic (Trailblazer)
+- **Contracts**: Validation (dry-validation)
+- **Models**: Persistence only
+- **Query Objects**: Complex reads
+- **Services**: Domain logic
+- **Channels**: Real-time communication
+- **Background Jobs**: Async work (Solid Queue)
 
 ## Data Flow
 
@@ -85,27 +51,7 @@ Complete architecture guide for Papyro (web publishing app).
 4. Operation → Channel.broadcast_to
 5. All Clients ← Broadcast
 
-## Prohibited Practices
 
-❌ **NEVER:**
-- Use callbacks in models (before_save, after_create, etc.)
-- Put business logic in models or controllers
-- Use Strong Params (filtering in Contracts)
-- Use validations in ActiveRecord models
-- Use Redis when Solid Cache/Queue works
-- Poll when WebSockets available
-- Mix game logic with Rails framework code
-
-## Rails 8 Features to Embrace
-
-✅ **USE:**
-- Solid Queue for background jobs
-- Solid Cache for caching
-- SQLite in production
-- Kamal 2 for deployment
-- Propshaft for assets
-- normalizes for data normalization
-- generates_token_for for secure tokens
 
 ## File Structure
 

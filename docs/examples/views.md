@@ -1,6 +1,8 @@
 # Phlex Views Example
 
-Page-level views rendered by controllers. Views compose components and receive data from controllers.
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#views)**
+
+Page-level views rendered by controllers. Views compose components and receive data from controllers. Code examples below.
 
 ## Structure
 

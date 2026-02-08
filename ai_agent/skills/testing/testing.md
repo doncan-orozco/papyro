@@ -1,5 +1,9 @@
 # Testing Skill (Minitest + Trailblazer 2.1)
 
+**Reference: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md)**
+
+This skill provides testing strategies and patterns. For project guidelines, see the verification checklist.
+
 ## Dependencies
 - minitest
 - trailblazer-operation

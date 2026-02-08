@@ -4,6 +4,18 @@
 
 Use this as the single source of truth. Load only the skill files needed for the task to minimize tokens.
 
+## Documentation Structure
+
+See [DOCUMENTATION_STRUCTURE.md](DOCUMENTATION_STRUCTURE.md) for the complete documentation hierarchy and how to maintain DRY principles.
+
+**Quick summary:**
+- [VERIFICATION_CHECKLIST.md](VERIFICATION_CHECKLIST.md) = Rules & Requirements (single source of truth)
+- [SELF_REVIEW_CHECKLIST.md](SELF_REVIEW_CHECKLIST.md) = Quick reference for developers
+- `skills/` = Implementation details (reference checklist)
+- `docs/examples/` = Code examples (reference checklist)
+
+**To add new skills/docs:** See [ADD_NEW_SKILLS.md](ADD_NEW_SKILLS.md)
+
 ## Quick rules (always)
 - Keep responses concise, actionable, and code-first.
 - Preserve existing style; avoid unrelated refactors.

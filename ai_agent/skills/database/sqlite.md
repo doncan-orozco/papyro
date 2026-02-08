@@ -1,5 +1,9 @@
 # Database Skill (SQLite + Rails 8)
 
+**Reference: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md)**
+
+This skill provides SQLite-specific patterns. For complete project guidelines, see the verification checklist.
+
 ## Dependencies
 - strong_migrations
 - database_consistency

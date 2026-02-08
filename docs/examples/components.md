@@ -1,6 +1,8 @@
 # Phlex Component Examples
 
-Phlex components are pure, reusable UI elements with Tailwind styling. Keep them in `app/components/` organized by domain.
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#-frontend)**
+
+Phlex components are pure, reusable UI elements with Tailwind styling. Code examples below.
 
 ## Basic Component
 
@@ -85,11 +87,4 @@ app/components/
     navbar.rb
 ```
 
-## Rules
-- Use Phlex for all reusable UI
-- Components should be pure (no side effects)
-- Pass all data as arguments (no instance variables from views)
-- Use Tailwind utility classes
-- Keep components small and composable
-- Organize by domain: `game/`, `ui/`, `shared/`
-- Separate from `app/concepts/` (UI layer vs business logic layer)
+See [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#components) for complete component guidelines.

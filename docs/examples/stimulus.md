@@ -1,6 +1,8 @@
 # Stimulus Controller Examples
 
-Stimulus controllers handle frontend behavior and WebSocket integration.
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#stimulus)**
+
+Stimulus controllers handle frontend behavior and WebSocket integration. Code examples and naming conventions below.
 
 ## File Structure
 
@@ -215,10 +217,4 @@ app/javascript/controllers/
 └── hotkeys_controller.js           # data-controller="hotkeys"
 ```
 
-## Rules
-- One controller per feature
-- Use `static targets`, `values`, `outlets`
-- Dispatch custom events for loose coupling
-- Organize by domain (game/, ui/)
-- Connect to WebSocket channels for real-time
-- Keep controllers focused (single responsibility)
+See [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#stimulus) for complete Stimulus guidelines.
