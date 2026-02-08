@@ -21,7 +21,7 @@ module Admin
       post admin_session_path, params: { email_address: @user.email_address, password: "wrong" }
 
       assert_response :unauthorized
-      assert_nil cookies[:session_id]
+      assert cookies[:session_id].blank?
     end
 
     test "destroy logs out and redirects to admin login" do
@@ -30,7 +30,7 @@ module Admin
       delete admin_session_path
 
       assert_redirected_to admin_login_path
-      assert_nil cookies[:session_id]
+      assert cookies[:session_id].blank?, "Expected session cookie to be blank but was #{cookies[:session_id].inspect}"
     end
   end
 end

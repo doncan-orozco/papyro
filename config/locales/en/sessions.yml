@@ -1,10 +1,25 @@
 ---
 en:
   sessions:
+    new:
+      heading: "Sign in"
+      email_placeholder: "Enter your email address"
+      password_placeholder: "Enter your password"
+      submit: "Sign in"
+      forgot_password: "Forgot password?"
     create:
       rate_limit: "Too many attempts. Try again later."
       invalid_credentials: "Try another email address or password."
   passwords:
+    new:
+      heading: "Forgot your password?"
+      email_placeholder: "Enter your email address"
+      submit: "Email reset instructions"
+    edit:
+      heading: "Update your password"
+      password_placeholder: "Enter new password"
+      password_confirmation_placeholder: "Repeat new password"
+      submit: "Save"
     create:
       rate_limit: "Too many attempts. Try again later."
       instructions_sent: "Password reset instructions sent (if user with that email address exists)."
