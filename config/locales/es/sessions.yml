@@ -1,5 +1,17 @@
 ---
 es:
+  sessions:
+    create:
+      rate_limit: "Demasiados intentos. Inténtalo de nuevo más tarde."
+      invalid_credentials: "Prueba con otro correo electrónico o contraseña."
+  passwords:
+    create:
+      rate_limit: "Demasiados intentos. Inténtalo de nuevo más tarde."
+      instructions_sent: "Instrucciones de restablecimiento de contraseña enviadas (si existe un usuario con esa dirección de correo electrónico)."
+    update:
+      success: "La contraseña ha sido restablecida."
+      mismatch: "Las contraseñas no coinciden."
+      invalid_token: "El enlace de restablecimiento de contraseña no es válido o ha expirado."
   admin:
     errors:
       unauthorized: "Debes iniciar sesión para acceder a esta área."

@@ -1,5 +1,17 @@
 ---
 en:
+  sessions:
+    create:
+      rate_limit: "Too many attempts. Try again later."
+      invalid_credentials: "Try another email address or password."
+  passwords:
+    create:
+      rate_limit: "Too many attempts. Try again later."
+      instructions_sent: "Password reset instructions sent (if user with that email address exists)."
+    update:
+      success: "Password has been reset."
+      mismatch: "Passwords did not match."
+      invalid_token: "Password reset link is invalid or has expired."
   admin:
     errors:
       unauthorized: "You must be logged in to access this area."
