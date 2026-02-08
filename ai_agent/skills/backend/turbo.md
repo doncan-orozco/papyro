@@ -70,19 +70,47 @@ BAD (Atomic/UI only):
 
 ## Controller Structure for Frames
 
-Create dedicated controller actions for each frame:
+Create dedicated controller actions for each frame using **collection routes** (custom actions on a resource):
 
 ```ruby
+# config/routes.rb
+resources :articles do
+  collection do
+    get :featured  # Creates GET /articles/featured
+  end
+end
+
 # app/controllers/articles_controller.rb
 class ArticlesController < ApplicationController
   def featured
     render Views::Articles::Featured.new
   end
 end
-
-# config/routes.rb
-get "articles/featured", to: "articles#featured", as: :featured_articles
 ```
+
+### RESTful Pattern with Turbo Frames
+
+**Why custom collection actions are acceptable:**
+- ✓ Follow Hotwired's official Turbo Frames documentation patterns
+- ✓ Keep all domain logic in one controller (single responsibility)
+- ✓ Semantic route names that describe the frame's purpose
+- ✓ Not "pure REST" but valid Rails + Turbo pattern
+
+**Route naming convention:**
+```ruby
+resources :articles do
+  collection do
+    get :featured      # Articles domain, featured subset
+    get :popular       # Articles domain, popular subset
+    get :trending      # Articles domain, trending subset
+  end
+end
+```
+
+**Key principle:** Custom collection actions are only acceptable when:
+1. They represent a **domain concept subset** (featured articles, not "card_section")
+2. They have a **dedicated Turbo Frame** consuming them
+3. They belong to the **resource's domain** (ArticlesController for article views)
 
 ## Component vs Frame Trade-offs
 
