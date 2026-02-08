@@ -1,0 +1,31 @@
+es:
+  components:
+    landing:
+      hero:
+        title: "Doncan Orozco"
+        subtitle: "Desarrollador Full-Stack & Arquitecto de Soluciones"
+        description: "¡Hola! Me apasiona construir soluciones elegantes con Ruby on Rails y contribuir a la comunidad de código abierto. Me especializo en crear aplicaciones escalables y compartir conocimiento a través de artículos y proyectos."
+        cta: "Leer Mis Artículos"
+      
+      about:
+        title: "Sobre Mí"
+        bio_paragraph_1: "Ingeniero de software con un historial comprobado de diseño e implementación de soluciones escalables. Especializado en desarrollo full-stack con Ruby on Rails, tecnologías frontend modernas e infraestructura en la nube. Apasionado por escribir código limpio y mantenible, y resolver desafíos técnicos complejos."
+        bio_paragraph_2: "Tengo experiencia práctica construyendo sistemas listos para producción, optimizando el rendimiento de aplicaciones y mentorando equipos de desarrollo. Me impulsa la oportunidad de aprovechar la tecnología para crear un impacto significativo y mejorar las experiencias del usuario."
+        bio_paragraph_3: "Más allá de la programación, estoy comprometido con el aprendizaje continuo, contribuyendo a proyectos de código abierto y compartiendo conocimiento con la comunidad de desarrollo."
+        expertise_title: "Experiencia Principal"
+        expertise_1: "Ruby on Rails & Desarrollo Full-Stack"
+        expertise_2: "Tecnologías Frontend (React, Hotwire)"
+        expertise_3: "Diseño de Sistemas & Arquitectura"
+        expertise_4: "Infraestructura en la Nube & Deployment"
+      
+      article_card:
+        read_more: "Leer más"
+      
+      featured_articles:
+        title: "Últimos Artículos"
+        view_all: "Ver Todos los Artículos"
+      
+      contact:
+        title: "Conectemos"
+        description: "Abierto a oportunidades, colaboraciones y discusiones técnicas. ¡Construyamos algo genial juntos!"
+        email: "Ponte en Contacto"
