@@ -13,9 +13,5 @@ Rails.application.routes.draw do
   root "home#index"
 
   # Articles
-  resources :articles do
-    collection do
-      get :featured
-    end
-  end
+  get "articles/featured", to: "articles#featured", as: :featured_articles
 end

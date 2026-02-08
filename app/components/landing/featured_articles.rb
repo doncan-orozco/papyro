@@ -4,7 +4,7 @@ module Components
       def view_template
         section(class: "py-20 px-4 bg-slate-50") do
           div(class: "max-w-4xl mx-auto") do
-            h2(class: "text-4xl md:text-5xl font-bold text-slate-900 mb-12 text-center") { t(".title") }
+            h2(class: "text-4xl md:text-5xl font-bold text-slate-900 mb-12 text-center") { t("components.landing.featured_articles.title") }
 
             div(class: "grid md:grid-cols-2 gap-6") do
               render Components::Landing::ArticleCard.new(
@@ -40,7 +40,7 @@ module Components
               render Components::Ui::Button.new(
                 variant: :outline,
                 size: :lg
-              ) { t(".view_all") }
+              ) { t("components.landing.featured_articles.view_all") }
             end
           end
         end

@@ -4,14 +4,14 @@ module Components
       def view_template
         section(class: "py-20 px-4 bg-white") do
           div(class: "max-w-2xl mx-auto text-center") do
-            h2(class: "text-4xl md:text-5xl font-bold text-slate-900 mb-6") { t(".title") }
-            p(class: "text-xl text-slate-600 mb-12") { t(".description") }
+            h2(class: "text-4xl md:text-5xl font-bold text-slate-900 mb-6") { t("components.landing.contact.title") }
+            p(class: "text-xl text-slate-600 mb-12") { t("components.landing.contact.description") }
 
             div(class: "flex flex-col sm:flex-row gap-4 justify-center") do
               render Components::Ui::Button.new(
                 variant: :default,
                 size: :lg
-              ) { t(".email") }
+              ) { t("components.landing.contact.email") }
 
               div(class: "flex gap-4 justify-center") do
                 render Components::Ui::SocialLink.new(
