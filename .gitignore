@@ -40,3 +40,4 @@
 !/app/assets/builds/.keep
 /vendor/bundle
 vendor/writebook
+demo/
