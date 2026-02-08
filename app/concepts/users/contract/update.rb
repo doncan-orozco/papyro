@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-module User
+module Users
   module Contract
     class Update < Dry::Validation::Contract
+      option :user_id, optional: true
+      
       params do
         optional(:email_address).filled(:string)
         optional(:password).filled(:string)
@@ -26,9 +28,9 @@ module User
       end
 
       rule(:email_address) do
-        if key? && value
+        if key? && value && user_id
           normalized_email = value.strip.downcase
-          if User.where.not(id: context[:user_id]).exists?(email_address: normalized_email)
+          if ::User.where.not(id: user_id).exists?(email_address: normalized_email)
             key.failure("is already taken")
           end
         end

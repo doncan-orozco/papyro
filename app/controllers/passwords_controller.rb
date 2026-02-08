@@ -22,11 +22,17 @@ class PasswordsController < ApplicationController
   end
 
   def update
-    if @user.update(params.permit(:password, :password_confirmation))
+    result = Users::Operation::Update.call(
+      params: params.permit(:password, :password_confirmation).to_h,
+      user: @user
+    )
+
+    if result.success?
       @user.sessions.destroy_all
       redirect_to new_session_path, notice: t("passwords.update.success")
     else
-      redirect_to edit_password_path(params[:token]), alert: t("passwords.update.mismatch")
+      flash.now[:alert] = format_validation_errors(result[:errors])
+      render Views::Passwords::Edit.new(token: params[:token]), status: :unprocessable_entity
     end
   end
 
@@ -35,5 +41,9 @@ class PasswordsController < ApplicationController
       @user = User.find_by_password_reset_token!(params[:token])
     rescue ActiveSupport::MessageVerifier::InvalidSignature
       redirect_to new_password_path, alert: t("passwords.update.invalid_token")
+    end
+
+    def format_validation_errors(errors)
+      errors.map { |field, messages| "#{field.to_s.humanize}: #{messages.join(', ')}" }.join("; ")
     end
 end

@@ -64,12 +64,9 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_no_changes -> { @user.reload.password_digest } do
       put password_path(token), params: { password: "no", password_confirmation: "match" }
 
-      assert_redirected_to edit_password_path(token)
+      assert_response :unprocessable_entity
+      assert_match /Password confirmation.*must match password/, response.body
     end
-
-    follow_redirect!
-
-    assert_notice "Passwords did not match"
   end
 
   private

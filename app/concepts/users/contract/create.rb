@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module User
+module Users
   module Contract
     class Create < Dry::Validation::Contract
       params do
@@ -23,7 +23,7 @@ module User
 
       rule(:email_address) do
         normalized_email = value.strip.downcase
-        if User.exists?(email_address: normalized_email)
+        if ::User.exists?(email_address: normalized_email)
           key.failure("is already taken")
         end
       end
