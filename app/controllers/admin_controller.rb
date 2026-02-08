@@ -1,8 +1,5 @@
 # Base controller for admin panel requiring authentication
 class AdminController < ApplicationController
-  include Authentication
-
-  before_action :require_authentication
   before_action :require_admin_role
 
   layout "admin"
@@ -15,6 +12,10 @@ class AdminController < ApplicationController
     unless Current.user
       redirect_to admin_login_path, alert: t("admin.errors.unauthorized")
     end
+  end
+
+  def authentication_redirect_path
+    admin_login_path
   end
 
   def after_authentication_url
