@@ -51,6 +51,7 @@ app/
 - Each concept owns its domain: operations, contracts, business logic.
 - Use dry-monads Result (`Success`/`Failure`).
 - Broadcasting happens inside Operations, not controllers.
+- **Custom collection actions are allowed for Turbo Frames** (e.g., `articles#featured`) when they represent a domain concept subset.
 
 
 ## Operations Flow (typical)
