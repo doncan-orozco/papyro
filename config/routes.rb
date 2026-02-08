@@ -5,7 +5,7 @@ Rails.application.routes.draw do
 
   # Admin namespace - requires authentication
   namespace :admin do
-    resources :sessions, only: [:new, :create, :destroy]
+    resources :sessions, only: [ :new, :create, :destroy ]
 
     # Admin root will be articles index once created
     root "sessions#new"
@@ -29,7 +29,7 @@ Rails.application.routes.draw do
   root "home#index"
 
   # Public articles (by slug, no auth required)
-  resources :articles, only: [:show], param: :slug do
+  resources :articles, only: [ :show ], param: :slug do
     collection do
       get :featured
     end

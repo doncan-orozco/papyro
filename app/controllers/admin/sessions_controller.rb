@@ -2,7 +2,7 @@
 # Inspired by Writebook's session management but adapted to Papyro patterns
 module Admin
   class SessionsController < ApplicationController
-    allow_unauthenticated_access only: [:new, :create]
+    allow_unauthenticated_access only: [ :new, :create ]
     rate_limit to: 10, within: 3.minutes, only: :create,
                with: -> { render_rejection :too_many_requests }
 
