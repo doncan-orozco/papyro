@@ -1,4 +1,20 @@
 Rails.application.routes.draw do
+  # Public authentication (for future public users if needed)
+  resource :session
+  resources :passwords, param: :token
+
+  # Admin namespace - requires authentication
+  namespace :admin do
+    resources :sessions, only: [:new, :create, :destroy]
+
+    # Admin root will be articles index once created
+    root "sessions#new"
+  end
+
+  # Admin login shortcuts
+  get "/admin/login", to: "admin/sessions#new", as: :admin_login
+  delete "/admin/logout", to: "admin/sessions#destroy", as: :admin_logout
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -12,8 +28,8 @@ Rails.application.routes.draw do
   # Home (landing page)
   root "home#index"
 
-  # Articles
-  resources :articles do
+  # Public articles (by slug, no auth required)
+  resources :articles, only: [:show], param: :slug do
     collection do
       get :featured
     end

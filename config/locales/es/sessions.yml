@@ -1,0 +1,21 @@
+---
+es:
+  admin:
+    errors:
+      unauthorized: "Debes iniciar sesión para acceder a esta área."
+    sessions:
+      new:
+        title: "Inicio de Sesión de Administrador"
+        heading: "Iniciar sesión en Papyro Admin"
+        email_label: "Correo electrónico"
+        email_placeholder: "tu@email.com"
+        password_label: "Contraseña"
+        password_placeholder: "Ingresa tu contraseña"
+        submit: "Iniciar sesión"
+        forgot_password: "¿Olvidaste tu contraseña?"
+      create:
+        success: "¡Bienvenido de nuevo!"
+        unauthorized: "Correo electrónico o contraseña inválidos."
+        too_many_requests: "Demasiados intentos de inicio de sesión. Por favor, inténtalo de nuevo en unos minutos."
+      destroy:
+        signed_out: "Has cerrado sesión exitosamente."

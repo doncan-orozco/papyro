@@ -1,0 +1,21 @@
+---
+en:
+  admin:
+    errors:
+      unauthorized: "You must be logged in to access this area."
+    sessions:
+      new:
+        title: "Admin Login"
+        heading: "Sign in to Papyro Admin"
+        email_label: "Email address"
+        email_placeholder: "your@email.com"
+        password_label: "Password"
+        password_placeholder: "Enter your password"
+        submit: "Sign in"
+        forgot_password: "Forgot password?"
+      create:
+        success: "Welcome back!"
+        unauthorized: "Invalid email address or password."
+        too_many_requests: "Too many login attempts. Please try again in a few minutes."
+      destroy:
+        signed_out: "You've been signed out successfully."
