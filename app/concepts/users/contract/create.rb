@@ -11,20 +11,20 @@ module Users
 
       rule(:email_address) do
         unless URI::MailTo::EMAIL_REGEXP.match?(value)
-          key.failure("must be a valid email address")
+          key.failure(I18n.t('errors.messages.invalid_email'))
         end
       end
 
       rule(:password, :password_confirmation) do
         if values[:password] != values[:password_confirmation]
-          key(:password_confirmation).failure("must match password")
+          key(:password_confirmation).failure(I18n.t('errors.messages.password_mismatch'))
         end
       end
 
       rule(:email_address) do
         normalized_email = value.strip.downcase
         if ::User.exists?(email_address: normalized_email)
-          key.failure("is already taken")
+          key.failure(I18n.t('errors.messages.email_taken'))
         end
       end
     end

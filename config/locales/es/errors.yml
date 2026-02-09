@@ -1,0 +1,6 @@
+es:
+  errors:
+    messages:
+      invalid_email: "debe ser una dirección de correo electrónico válida"
+      password_mismatch: "debe coincidir con la contraseña"
+      email_taken: "ya está en uso"

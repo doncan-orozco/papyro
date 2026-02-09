@@ -2,7 +2,7 @@
 
 <%= t("passwords_mailer.reset.instructions") %>
 
-<%= edit_password_url(@user.password_reset_token) %>
+<%= edit_password_url(@user.generate_token_for(:password_reset)) %>
 
 <%= t("passwords_mailer.reset.expiry_notice") %>
 
