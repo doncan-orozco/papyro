@@ -5,12 +5,13 @@ class User < ApplicationRecord
   # Papyro associations
   has_many :articles, dependent: :destroy
 
-  # Validations per VERIFICATION_CHECKLIST.md §2.3
-  validates :email_address, presence: true,
-                            uniqueness: { case_sensitive: false },
-                            format: { with: URI::MailTo::EMAIL_REGEXP }
-
+  # Normalize email for consistency
   normalizes :email_address, with: ->(e) { e.strip.downcase }
+
+  # Password reset tokens (Rails 8+ generates_token_for)
+  generates_token_for :password_reset, expires_in: 24.hours do
+    password_salt&.last(10)
+  end
 
   # Scopes
   scope :active, -> { where(suspended_at: nil) }

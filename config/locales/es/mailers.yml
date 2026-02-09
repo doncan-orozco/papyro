@@ -1,0 +1,10 @@
+---
+es:
+  passwords_mailer:
+    reset:
+      subject: "Restablece tu contraseña"
+      greeting: "Hola %{email},"
+      instructions: "Alguien solicitó un restablecimiento de contraseña para tu cuenta. Si fuiste tú, haz clic en el enlace a continuación para restablecer tu contraseña:"
+      link_text: "Restablecer contraseña"
+      expiry_notice: "Este enlace expirará en 24 horas."
+      ignore_notice: "Si no solicitaste un restablecimiento de contraseña, puedes ignorar este correo de forma segura."

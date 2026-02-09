@@ -1,4 +1,9 @@
-You can reset your password on
-<%= edit_password_url(@user.password_reset_token) %>
+<%= t("passwords_mailer.reset.greeting", email: @user.email_address) %>
 
-This link will expire in <%= distance_of_time_in_words(0, @user.password_reset_token_expires_in) %>.
+<%= t("passwords_mailer.reset.instructions") %>
+
+<%= edit_password_url(@user.generate_token_for(:password_reset)) %>
+
+<%= t("passwords_mailer.reset.expiry_notice") %>
+
+<%= t("passwords_mailer.reset.ignore_notice") %>

@@ -1,0 +1,6 @@
+en:
+  errors:
+    messages:
+      invalid_email: "must be a valid email address"
+      password_mismatch: "must match password"
+      email_taken: "is already taken"

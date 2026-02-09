@@ -1,5 +1,32 @@
 ---
 es:
+  sessions:
+    new:
+      heading: "Iniciar sesión"
+      email_placeholder: "Ingresa tu correo electrónico"
+      password_placeholder: "Ingresa tu contraseña"
+      submit: "Iniciar sesión"
+      forgot_password: "¿Olvidaste tu contraseña?"
+    create:
+      rate_limit: "Demasiados intentos. Inténtalo de nuevo más tarde."
+      invalid_credentials: "Prueba con otro correo electrónico o contraseña."
+  passwords:
+    new:
+      heading: "¿Olvidaste tu contraseña?"
+      email_placeholder: "Ingresa tu correo electrónico"
+      submit: "Enviar instrucciones de restablecimiento"
+    edit:
+      heading: "Actualiza tu contraseña"
+      password_placeholder: "Ingresa nueva contraseña"
+      password_confirmation_placeholder: "Repite la nueva contraseña"
+      submit: "Guardar"
+    create:
+      rate_limit: "Demasiados intentos. Inténtalo de nuevo más tarde."
+      instructions_sent: "Instrucciones de restablecimiento de contraseña enviadas (si existe un usuario con esa dirección de correo electrónico)."
+    update:
+      success: "La contraseña ha sido restablecida."
+      mismatch: "Las contraseñas no coinciden."
+      invalid_token: "El enlace de restablecimiento de contraseña no es válido o ha expirado."
   admin:
     errors:
       unauthorized: "Debes iniciar sesión para acceder a esta área."

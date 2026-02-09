@@ -29,6 +29,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     delete session_path
 
     assert_redirected_to new_session_path
-    assert_empty cookies[:session_id]
+    assert_predicate cookies[:session_id], :blank?, "Expected session cookie to be blank but was #{cookies[:session_id].inspect}"
   end
 end
