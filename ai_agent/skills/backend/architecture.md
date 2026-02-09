@@ -63,17 +63,24 @@ app/
 6. Broadcast step
 
 ## Models
-- Persistence only: associations, scopes, simple queries.
-- No validations, no callbacks, no business logic.
+- Persistence only: associations only.
+- Database constraints in migrations (null: false, unique indexes, foreign keys).
+- NO ActiveRecord validations for business logic (use Contracts).
+- Optional: Safety-net validations (paranoid mode, should never trigger if Operations work).
+- Safety-net validations apply in all environments.
+- No callbacks, no business logic.
+- No scopes or query methods in models.
 - Shared across concepts in `app/models/`.
 
 ## Contracts
 - Live in `app/concepts/{domain}/contract/`.
-- All validations here, none in models.
+- ALL business validations here, not in models.
+- Context-specific: different contracts for create/update/admin operations.
 
 ## Query Objects
-- Complex reads live under `app/queries/`.
+- ALL read queries live under `app/queries/`.
 - Return relations when possible.
+- Models should not define scopes or query methods.
 
 ## Services
 - Single responsibility, stateless when possible.
