@@ -1,0 +1,10 @@
+---
+en:
+  passwords_mailer:
+    reset:
+      subject: "Reset your password"
+      greeting: "Hi %{email},"
+      instructions: "Someone requested a password reset for your account. If this was you, click the link below to reset your password:"
+      link_text: "Reset password"
+      expiry_notice: "This link will expire in 24 hours."
+      ignore_notice: "If you didn't request a password reset, you can safely ignore this email."
