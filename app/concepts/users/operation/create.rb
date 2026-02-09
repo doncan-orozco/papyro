@@ -5,11 +5,11 @@ module Users
     class Create < Trailblazer::Operation
       step :validate_input
       step :create_user
-      
+
       def validate_input(ctx, params:, **)
         contract = Users::Contract::Create.new
         result = contract.call(params)
-        
+
         if result.success?
           ctx[:validated_params] = result.to_h
           true
@@ -18,10 +18,10 @@ module Users
           false
         end
       end
-      
+
       def create_user(ctx, validated_params:, **)
         user = ::User.new(validated_params)
-        
+
         if user.save
           ctx[:model] = user
           true
