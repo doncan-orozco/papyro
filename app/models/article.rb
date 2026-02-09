@@ -11,15 +11,10 @@ class Article < ApplicationRecord
   # Enum for status - generates methods: draft?, published?, archived?
   enum :status, { draft: 0, published: 1, archived: 2 }, prefix: true
 
-  # Scopes for common queries
-  scope :published, -> { status_published.where.not(published_at: nil) }
-  scope :recent, -> { order(created_at: :desc) }
-  scope :by_slug, ->(slug) { find_by!(slug: slug) }
-
   # NO business validations here (use Contracts in Issue doncan-orozco/papyro#2)
-  # Optional: Safety-net validations for production only
-  validates :title, presence: true, if: -> { Rails.env.production? }
-  validates :slug, presence: true, uniqueness: true, if: -> { Rails.env.production? }
+  # Optional: Safety-net validations (paranoid mode, apply in all environments)
+  validates :title, presence: true
+  validates :slug, presence: true, uniqueness: true
 
   # Instance methods
   def published?
