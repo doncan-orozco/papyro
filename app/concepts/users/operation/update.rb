@@ -5,11 +5,11 @@ module Users
     class Update < Trailblazer::Operation
       step :validate_input
       step :update_user
-      
+
       def validate_input(ctx, params:, user:, **)
         contract = Users::Contract::Update.new(user_id: user.id)
         result = contract.call(params)
-        
+
         if result.success?
           ctx[:validated_params] = result.to_h
           true
@@ -18,7 +18,7 @@ module Users
           false
         end
       end
-      
+
       def update_user(ctx, validated_params:, user:, **)
         if user.update(validated_params)
           ctx[:model] = user

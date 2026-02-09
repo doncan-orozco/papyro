@@ -24,6 +24,8 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Live in `app/concepts/{domain}/contract/`
 - [ ] ALL validations here
 - [ ] Schema-based validation
+- [ ] Error messages use I18n: `key.failure(I18n.t('errors.messages.key_name'))`
+- [ ] All error messages translated in both English and Spanish
 
 ## 🎨 Frontend
 
@@ -65,6 +67,7 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - **Views**: Scoped keys `t(".title")`
 - **Components**: Full path `t("components.domain.section.key")`
 - **Models**: `t("activerecord.models.model_name")`
+- **Contract Error Messages**: `I18n.t('errors.messages.key_name')` in `config/locales/{en,es}/errors.yml`
 
 ## 🔄 Turbo Frames
 

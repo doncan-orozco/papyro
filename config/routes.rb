@@ -1,11 +1,11 @@
 Rails.application.routes.draw do
   # Public authentication (for future public users if needed)
-  resource :session, only: [:new, :create, :destroy]
-  resources :passwords, only: [:new, :create, :edit, :update], param: :token
+  resource :session, only: [ :new, :create, :destroy ]
+  resources :passwords, only: [ :new, :create, :edit, :update ], param: :token
 
   # Admin namespace - requires authentication
   namespace :admin do
-    resource :session, only: [:new, :create, :destroy]
+    resource :session, only: [ :new, :create, :destroy ]
 
     # Admin root will be articles index once created
     root "sessions#new"

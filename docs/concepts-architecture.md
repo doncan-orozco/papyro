@@ -34,7 +34,7 @@ module Users
 
       rule(:email_address) do
         unless URI::MailTo::EMAIL_REGEXP.match?(value)
-          key.failure("must be a valid email address")
+          key.failure(I18n.t('errors.messages.invalid_email'))
         end
       end
       
@@ -167,7 +167,7 @@ test "fails with invalid email" do
   result = Users::Operation::Create.call(params: params)
   
   assert result.failure?
-  assert_includes result[:errors][:email_address], "must be a valid email address"
+  assert_includes result[:errors][:email_address], I18n.t('errors.messages.invalid_email')
 end
 ```
 
