@@ -1,0 +1,9 @@
+<%= t("passwords_mailer.reset.greeting", email: @user.email_address) %>
+
+<%= t("passwords_mailer.reset.instructions") %>
+
+<%= edit_password_url(@user.generate_token_for(:password_reset)) %>
+
+<%= t("passwords_mailer.reset.expiry_notice") %>
+
+<%= t("passwords_mailer.reset.ignore_notice") %>
