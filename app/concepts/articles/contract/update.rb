@@ -18,8 +18,8 @@ module Articles
       # Custom validation rules beyond schema
       rule(:title) do
         if value
-          key.failure(I18n.t("errors.messages.title_too_long")) if value.length > 255
           key.failure(I18n.t("errors.messages.title_blank")) if value.strip.empty?
+          key.failure(I18n.t("errors.messages.title_too_long")) if value.length > 255
         end
       end
 
