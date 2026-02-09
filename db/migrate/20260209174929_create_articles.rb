@@ -18,7 +18,7 @@ class CreateArticles < ActiveRecord::Migration[8.1]
     add_index :articles, :slug, unique: true
     add_index :articles, :status
     add_index :articles, :published_at
-    add_index :articles, [:user_id, :status]
+    add_index :articles, [ :user_id, :status ]
 
     # Check constraint for status enum values
     add_check_constraint :articles, "status IN (0, 1, 2)", name: "valid_status"

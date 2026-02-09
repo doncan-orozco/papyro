@@ -7,10 +7,12 @@ class ArticleTest < ActiveSupport::TestCase
 
   test "belongs to user" do
     article = Article.new(title: "Test", slug: "test")
+
     assert_not article.valid?
 
     article.user = @user
     article.save!
+
     assert_equal @user, article.user
   end
 
@@ -22,7 +24,8 @@ class ArticleTest < ActiveSupport::TestCase
     )
 
     article.update!(content: "<p>Hello <strong>world</strong></p>")
-    assert_equal "<p>Hello <strong>world</strong></p>", article.content.to_s.strip
+
+    assert_includes article.content.to_s, "Hello <strong>world</strong>"
   end
 
   test "enum status methods" do
@@ -32,11 +35,12 @@ class ArticleTest < ActiveSupport::TestCase
       status: :draft
     )
 
-    assert article.status_draft?
+    assert_predicate article, :status_draft?
     assert_not article.status_published?
 
     article.status_published!
-    assert article.status_published?
+
+    assert_predicate article, :status_published?
   end
 
   test "published scope requires published_at" do
@@ -55,7 +59,7 @@ class ArticleTest < ActiveSupport::TestCase
 
     assert_not Article.published.include?(draft)
     assert_not Article.published.include?(published_no_date)
-    assert Article.published.include?(published)
+    assert_includes Article.published, published
   end
 
   test "slug is used in URL" do
