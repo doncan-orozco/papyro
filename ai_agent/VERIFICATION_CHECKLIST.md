@@ -16,9 +16,13 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 
 ### Models
 - [ ] Persistence only
-- [ ] NO validations
+- [ ] Database constraints in migrations (null: false, unique indexes, foreign keys)
+- [ ] NO ActiveRecord validations for business logic (use Contracts instead)
+- [ ] Optional: Safety-net validations for data integrity (paranoid mode, should never trigger)
+- [ ] Safety-net validations apply in all environments
 - [ ] NO callbacks
 - [ ] NO business logic
+- [ ] NO scopes or query methods in models (use Query Objects)
 
 ### Contracts (Dry-Validation)
 - [ ] Live in `app/concepts/{domain}/contract/`
@@ -106,8 +110,12 @@ Before committing:
    - [ ] Keys follow naming conventions
 
 3. **Business Logic**
-   - [ ] No validations in models
+   - [ ] No business validations in models (only safety-net validations allowed)
+   - [ ] Safety-net validations apply in all environments
+   - [ ] Database constraints defined in migrations
+   - [ ] All business validations in Contracts
    - [ ] No callbacks in models
+   - [ ] No scopes or query methods in models (use Query Objects)
    - [ ] No business logic in controllers
    - [ ] Logic in Operations/Services
 
