@@ -1,0 +1,23 @@
+draft_article:
+  user: admin
+  title: "Draft Article"
+  slug: "draft-article"
+  status: 0  # draft
+  created_at: <%= 2.days.ago %>
+
+published_article:
+  user: admin
+  title: "Published Article"
+  slug: "published-article"
+  status: 1  # published
+  published_at: <%= 1.day.ago %>
+  excerpt: "This is a published article excerpt"
+  created_at: <%= 3.days.ago %>
+
+archived_article:
+  user: admin
+  title: "Archived Article"
+  slug: "archived-article"
+  status: 2  # archived
+  published_at: <%= 5.days.ago %>
+  created_at: <%= 10.days.ago %>

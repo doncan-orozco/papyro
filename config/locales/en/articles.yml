@@ -1,0 +1,21 @@
+en:
+  activerecord:
+    models:
+      article:
+        one: "Article"
+        other: "Articles"
+    attributes:
+      article:
+        title: "Title"
+        slug: "URL Slug"
+        content: "Content"
+        status: "Status"
+        published_at: "Published Date"
+        excerpt: "Excerpt"
+        cover_image: "Cover Image"
+    enums:
+      article:
+        status:
+          draft: "Draft"
+          published: "Published"
+          archived: "Archived"
