@@ -33,6 +33,7 @@ en:
         publish: "Publish"
         unpublish: "Unpublish"
         confirm_delete: "Are you sure you want to delete this article?"
+        published_date: "Published: %{date}"
       new:
         title: "New Article"
       edit:
@@ -68,3 +69,6 @@ en:
       unpublish:
         success: "Article was successfully unpublished"
         error: "Failed to unpublish article"
+  articles:
+    show:
+      by_author: "by %{author}"

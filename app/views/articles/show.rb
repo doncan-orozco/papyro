@@ -19,12 +19,12 @@ module Views
             div(class: "flex items-center gap-4 text-sm text-gray-500") do
               if @article.published_at
                 time(datetime: @article.published_at.iso8601) do
-                  @article.published_at.strftime("%B %d, %Y")
+                  I18n.l(@article.published_at, format: :long)
                 end
               end
 
               if @article.user
-                span { "by #{@article.user.email_address}" }
+                span { t(".by_author", author: @article.user.email_address) }
               end
             end
           end

@@ -32,7 +32,7 @@ module Articles
       end
 
       def update_article(ctx, model:, validated_params:, **)
-        if model.update(validated_params.except(:id))
+        if model.update(validated_params.except(:id, :user_id))
           true
         else
           ctx[:errors] = model.errors.to_hash

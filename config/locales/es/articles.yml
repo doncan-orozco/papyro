@@ -33,6 +33,7 @@ es:
         publish: "Publicar"
         unpublish: "Despublicar"
         confirm_delete: "¿Está seguro de que desea eliminar este artículo?"
+        published_date: "Publicado: %{date}"
       new:
         title: "Nuevo Artículo"
       edit:
@@ -68,3 +69,6 @@ es:
       unpublish:
         success: "El artículo fue despublicado exitosamente"
         error: "No se pudo despublicar el artículo"
+  articles:
+    show:
+      by_author: "por %{author}"

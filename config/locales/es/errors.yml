@@ -21,3 +21,4 @@ es:
       article_already_published: "El artículo ya está publicado"
       article_not_published: "El artículo no está publicado"
       article_incomplete_for_publish: "El artículo debe tener título y contenido para ser publicado"
+      invalid_action: "Acción inválida"

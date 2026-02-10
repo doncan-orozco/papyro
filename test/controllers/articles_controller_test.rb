@@ -35,15 +35,13 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
   test "show redirects for draft article" do
     get article_path(@draft_article.slug)
 
-    assert_redirected_to root_path
-    assert_equal "Article not found", flash[:alert]
+    assert_response :not_found
   end
 
   test "show redirects for non-existent article" do
     get article_path("non-existent-slug")
 
-    assert_redirected_to root_path
-    assert_equal "Article not found", flash[:alert]
+    assert_response :not_found
   end
 
   test "show does not require authentication" do

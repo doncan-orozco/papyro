@@ -50,4 +50,23 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
     assert_predicate result, :success?
     assert_nil Article.find_by(id: article.id)
   end
+
+  test "note: authorization should be enforced at controller level" do
+    # This test documents that the operation itself doesn't enforce user scoping
+    # Authorization must be handled by the controller before calling the operation
+    user = users(:admin)
+    other_user = users(:one)
+    article = Article.create!(
+      title: "Other User Article",
+      slug: "other-user-article",
+      status: :draft,
+      user: other_user
+    )
+
+    # The operation will succeed if called directly
+    result = Articles::Operation::Destroy.call(params: { id: article.id })
+
+    assert_predicate result, :success?
+    # Controller must use Current.user.articles.find_by! to enforce scoping
+  end
 end

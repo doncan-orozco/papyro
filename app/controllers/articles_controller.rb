@@ -9,6 +9,6 @@ class ArticlesController < ApplicationController
     @article = Article.find_by!(slug: params[:slug], status: :published)
     render Views::Articles::Show.new(@article)
   rescue ActiveRecord::RecordNotFound
-    redirect_to root_path, alert: "Article not found"
+    render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
   end
 end

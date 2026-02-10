@@ -6,12 +6,16 @@ module Views
       class Index < Views::Base
         include Phlex::Rails::Helpers::ButtonTo
 
+        def initialize(articles)
+          @articles = articles
+        end
+
         def view_template
           turbo_frame_tag "admin_articles_list" do
             div(class: "mx-auto w-full") do
               div(class: "flex justify-between items-center mb-6") do
-                h1(class: "font-bold text-4xl") { t("admin.articles.index.title") }
-                link_to t("admin.articles.index.new_article"),
+                h1(class: "font-bold text-4xl") { t(".title") }
+                link_to t(".new_article"),
                   new_admin_article_path,
                   class: "rounded-lg py-3 px-5 bg-blue-600 text-white hover:bg-blue-700 font-medium"
               end
@@ -24,13 +28,11 @@ module Views
         private
 
         def render_articles
-          articles = ::Articles::AdminIndexQuery.call(user: Current.user)
-
-          if articles.empty?
-            p(class: "text-gray-500 italic") { t("admin.articles.index.no_articles") }
+          if @articles.empty?
+            p(class: "text-gray-500 italic") { t(".no_articles") }
           else
             div(class: "grid grid-cols-1 gap-4") do
-              articles.each do |article|
+              @articles.each do |article|
                 render_article_card(article)
               end
             end
@@ -52,33 +54,33 @@ module Views
                   render_status_badge(article)
                   if article.published_at
                     span(class: "text-sm text-gray-500") do
-                      "Published: #{article.published_at.strftime('%B %d, %Y')}"
+                      t(".published_date", date: I18n.l(article.published_at, format: :long))
                     end
                   end
                 end
               end
 
               div(class: "flex flex-col gap-2 ml-4") do
-                link_to t("admin.articles.index.edit"),
+                link_to t(".edit"),
                   edit_admin_article_path(article),
                   class: "text-blue-600 hover:text-blue-800 text-sm font-medium"
 
                 if article.status_draft?
-                  button_to t("admin.articles.index.publish"),
+                  button_to t(".publish"),
                     publish_admin_article_path(article, publish_action: "publish"),
                     method: :patch,
                     class: "text-green-600 hover:text-green-800 text-sm font-medium text-left"
                 elsif article.status_published?
-                  button_to t("admin.articles.index.unpublish"),
+                  button_to t(".unpublish"),
                     publish_admin_article_path(article, publish_action: "unpublish"),
                     method: :patch,
                     class: "text-orange-600 hover:text-orange-800 text-sm font-medium text-left"
                 end
 
-                button_to t("admin.articles.index.delete"),
+                button_to t(".delete"),
                   admin_article_path(article),
                   method: :delete,
-                  data: { turbo_confirm: t("admin.articles.index.confirm_delete") },
+                  data: { turbo_confirm: t(".confirm_delete") },
                   class: "text-red-600 hover:text-red-800 text-sm font-medium text-left"
               end
             end
@@ -98,7 +100,7 @@ module Views
           end
 
           span(class: "px-2 py-1 rounded text-xs font-medium #{color_class}") do
-            t("admin.articles.index.#{article.status}")
+            t(".#{article.status}")
           end
         end
       end

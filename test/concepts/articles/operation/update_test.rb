@@ -115,4 +115,29 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
 
     assert_predicate result, :success?
   end
+
+  test "fails when trying to reassign user_id" do
+    user = users(:admin)
+    other_user = users(:one)
+    article = Article.create!(
+      title: "Test Article",
+      slug: "test-slug-reassign",
+      status: :draft,
+      user: user
+    )
+
+    params = {
+      id: article.id,
+      title: "Test Article",
+      slug: "test-slug-reassign",
+      status: "draft",
+      user_id: other_user.id # Attempting to change ownership
+    }
+
+    result = Articles::Operation::Update.call(params: params)
+
+    assert_predicate result, :success?
+    # user_id should remain unchanged
+    assert_equal user.id, article.reload.user_id
+  end
 end

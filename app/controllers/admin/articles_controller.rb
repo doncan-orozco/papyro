@@ -2,7 +2,8 @@
 
 class Admin::ArticlesController < AdminController
   def index
-    render Views::Admin::Articles::Index.new
+    articles = Articles::AdminIndexQuery.call(user: Current.user)
+    render Views::Admin::Articles::Index.new(articles)
   end
 
   def new
@@ -28,7 +29,7 @@ class Admin::ArticlesController < AdminController
     @article = Current.user.articles.find_by!(id: params[:id])
     render Views::Admin::Articles::Edit.new(@article)
   rescue ActiveRecord::RecordNotFound
-    redirect_to admin_articles_path, alert: "Article not found"
+    redirect_to admin_articles_path, alert: t("errors.messages.article_not_found")
   end
 
   def update
@@ -45,7 +46,7 @@ class Admin::ArticlesController < AdminController
       render Views::Admin::Articles::Edit.new(@article, @errors), status: :unprocessable_entity
     end
   rescue ActiveRecord::RecordNotFound
-    redirect_to admin_articles_path, alert: "Article not found"
+    redirect_to admin_articles_path, alert: t("errors.messages.article_not_found")
   end
 
   def destroy
@@ -58,7 +59,7 @@ class Admin::ArticlesController < AdminController
       redirect_to admin_articles_path, alert: t("admin.articles.destroy.error"), status: :see_other
     end
   rescue ActiveRecord::RecordNotFound
-    redirect_to admin_articles_path, alert: "Article not found", status: :see_other
+    redirect_to admin_articles_path, alert: t("errors.messages.article_not_found"), status: :see_other
   end
 
   def publish

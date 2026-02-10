@@ -9,13 +9,14 @@ module Views
         include Phlex::Rails::Helpers::TextAreaTag
         include Phlex::Rails::Helpers::SelectTag
 
-        def initialize(article, errors = {})
+        def initialize(article, errors = {}, **attrs)
           @article = article
           @errors = errors
+          @attrs = attrs
         end
 
         def view_template
-          turbo_frame_tag "admin_article_form" do
+          turbo_frame_tag "admin_article_form", **@attrs do
             form_with(model: @article, url: form_url, method: form_method, class: "contents") do |form|
               div(class: "my-5") do
                 form.label :title, t("admin.articles.form.title_label"), class: "block font-medium mb-2"
