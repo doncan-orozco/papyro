@@ -16,3 +16,8 @@ en:
       published_at_future: "Published date can't be in the future"
       published_at_required_for_published: "Published date is required when status is 'published'"
       user_not_found: "User not found"
+      # Operation errors
+      article_not_found: "Article not found"
+      article_already_published: "Article is already published"
+      article_not_published: "Article is not published"
+      article_incomplete_for_publish: "Article must have title and content to be published"

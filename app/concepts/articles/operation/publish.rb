@@ -28,7 +28,7 @@ module Articles
             return false
           end
           # Must have title and content to publish
-          if model.title.blank? || model.content.blank?
+          if model.title.blank? || model.content.body.blank?
             ctx[:errors] = { base: [I18n.t("errors.messages.article_incomplete_for_publish")] }
             return false
           end
