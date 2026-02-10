@@ -16,6 +16,21 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
 
     assert_predicate result, :success?
     assert_instance_of Article, result[:model]
+  end
+
+  test "sets article attributes correctly" do
+    user = users(:admin)
+    params = {
+      title: "Test Article",
+      slug: "test-article",
+      status: "draft",
+      content: "<p>Test content</p>",
+      excerpt: "Test excerpt",
+      user_id: user.id
+    }
+
+    result = Articles::Operation::Create.call(params: params)
+
     assert_equal "Test Article", result[:model].title
     assert_equal "test-article", result[:model].slug
     assert_predicate result[:model], :status_draft?
