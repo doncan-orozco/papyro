@@ -112,6 +112,12 @@ end
 2. They have a **dedicated Turbo Frame** consuming them
 3. They belong to the **resource's domain** (ArticlesController for article views)
 
+## Frame ID & Route Requirements
+- **Always specify the Turbo Frame ID** in tasks/issues and use the same ID in the response.
+- **Always specify the route helper** that feeds the frame (e.g., `featured_articles_path`).
+- **Frame ID format**: `domain_concept` (e.g., `featured_articles`, `recent_posts`).
+- **Response must wrap** content with `turbo_frame_tag("<frame_id>")`.
+
 ## Component vs Frame Trade-offs
 
 | Aspect | Component | Frame |

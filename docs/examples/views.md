@@ -25,7 +25,7 @@ Views use the `Views::` namespace (different from `Components::`):
 # app/views/games/index.rb
 module Views
   module Games
-    class Index < ApplicationView
+    class Index < Views::Base
       def initialize(games:)
         @games = games
       end
@@ -55,6 +55,7 @@ end
 - Composes `Components::*` for UI elements
 - Uses Phlex syntax (`div`, `h1`, `link_to`, etc.)
 - No instance variables (pass all data via arguments)
+- Views must inherit `Views::Base`
 
 ## Controller Integration
 
@@ -95,7 +96,7 @@ end
 # app/views/players/new.rb
 module Views
   module Players
-    class New < ApplicationView
+    class New < Views::Base
       def initialize(form:)
         @form = form
       end

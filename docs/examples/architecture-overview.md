@@ -25,6 +25,14 @@ Each layer has specific responsibilities. See the checklists for detailed requir
 - **Channels**: Real-time communication
 - **Background Jobs**: Async work (Solid Queue)
 
+## Implementation Clarifications (Required)
+
+- **Explicit file paths**: tasks/issues must specify exact files to create or edit.
+- **Query objects only**: all read queries go in `app/queries/` (no model scopes).
+- **Phlex base classes**: Views inherit `Views::Base`, Components inherit `Components::Base`.
+- **Routes list required**: include HTTP verbs, paths, and helpers in tasks.
+- **Turbo Frame IDs**: specify frame IDs and ensure matching `turbo_frame_tag` wrappers.
+
 ## Data Flow
 
 ### Write Flow

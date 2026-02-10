@@ -53,6 +53,15 @@ app/
 - Broadcasting happens inside Operations, not controllers.
 - **Custom collection actions are allowed for Turbo Frames** (e.g., `articles#featured`) when they represent a domain concept subset.
 
+## Task Specification Requirements (Critical)
+When creating issues or implementation tasks, always include:
+
+- **Explicit file paths** for every artifact (controllers, operations, contracts, queries, views, components, tests, locales).
+- **Query object requirement** for ALL read queries (no model scopes). Provide the expected class name and file path under `app/queries/`.
+- **Phlex base classes**: Views inherit `Views::Base`, Components inherit `Components::Base`.
+- **Routes list**: define expected routes + helpers (including collection routes for Turbo Frames).
+- **Turbo Frame IDs**: specify the exact frame ID and require a matching `turbo_frame_tag` in the response.
+
 
 ## Operations Flow (typical)
 1. `Model` step (load record from `app/models/`)
