@@ -8,37 +8,39 @@ Phlex components are pure, reusable UI elements with Tailwind styling. Code exam
 
 ```ruby
 # app/components/game/player_card.rb
-module Game
-  class PlayerCard < Phlex::HTML
-    def initialize(player:, size: :medium)
-      @player = player
-      @size = size
-    end
-    
-    def template
-      div(
-        id: dom_id(@player), 
-        class: "player-card #{size_classes}",
-        data: { 
-          player_id: @player.id,
-          controller: "game--player",
-          game__player_x_value: @player.x,
-          game__player_y_value: @player.y
-        }
-      ) do
-        img(src: @player.avatar_url, alt: @player.name, class: "rounded-full")
-        span(class: "player-name text-white font-bold") { @player.name }
-        render UI::HealthBar.new(health: @player.health, max_health: @player.max_health)
+module Components
+  module Game
+    class PlayerCard < Components::Base
+      def initialize(player:, size: :medium)
+        @player = player
+        @size = size
       end
-    end
-    
-    private
-    
-    def size_classes
-      case @size
-      when :small then "w-8 h-8"
-      when :medium then "w-16 h-16"
-      when :large then "w-24 h-24"
+
+      def template
+        div(
+          id: dom_id(@player),
+          class: "player-card #{size_classes}",
+          data: {
+            player_id: @player.id,
+            controller: "game--player",
+            game__player_x_value: @player.x,
+            game__player_y_value: @player.y
+          }
+        ) do
+          img(src: @player.avatar_url, alt: @player.name, class: "rounded-full")
+          span(class: "player-name text-white font-bold") { @player.name }
+          render Components::UI::HealthBar.new(health: @player.health, max_health: @player.max_health)
+        end
+      end
+
+      private
+
+      def size_classes
+        case @size
+        when :small then "w-8 h-8"
+        when :medium then "w-16 h-16"
+        when :large then "w-24 h-24"
+        end
       end
     end
   end
@@ -49,23 +51,25 @@ end
 
 ```ruby
 # app/components/ui/button.rb
-module UI
-  class Button < Phlex::HTML
-    def initialize(text:, type: :button, variant: :primary, disabled: false, **attrs)
-      @text = text
-      @type = type
-      @variant = variant
-      @disabled = disabled
-      @attrs = attrs
-    end
-    
-    def template
-      button(
-        type: @type,
-        class: "btn btn-#{@variant}",
-        disabled: @disabled,
-        **@attrs
-      ) { @text }
+module Components
+  module UI
+    class Button < Components::Base
+      def initialize(text:, type: :button, variant: :primary, disabled: false, **attrs)
+        @text = text
+        @type = type
+        @variant = variant
+        @disabled = disabled
+        @attrs = attrs
+      end
+
+      def template
+        button(
+          type: @type,
+          class: "btn btn-#{@variant}",
+          disabled: @disabled,
+          **@attrs
+        ) { @text }
+      end
     end
   end
 end

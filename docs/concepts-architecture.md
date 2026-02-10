@@ -187,6 +187,14 @@ end
 - ✅ **Operations**: Business logic, orchestration, return Result monads
 - ✅ **Controllers**: Thin, call operations, handle HTTP concerns only
 
+## Implementation Clarifications (Required for tasks/issues)
+
+- **Explicit file paths**: every task must list the exact file paths to create/edit.
+- **Query objects only**: read queries go in `app/queries/` (no model scopes).
+- **Phlex base classes**: Views inherit `Views::Base`, Components inherit `Components::Base`.
+- **Routes list required**: specify route helpers, HTTP verbs, and paths in tasks.
+- **Turbo Frame IDs**: specify exact frame IDs and ensure responses wrap `turbo_frame_tag` with matching IDs.
+
 ## Further Reading
 
 - [Dry-Validation](https://dry-rb.org/gems/dry-validation/)

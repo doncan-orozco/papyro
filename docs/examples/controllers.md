@@ -4,6 +4,9 @@
 
 Controllers are thin - they only receive requests, call Operations, and return responses using pattern matching. Code examples below.
 
+## Task Requirements
+- When creating a controller, tasks/issues must specify the **routes and helpers** (HTTP verb + path + helper name).
+
 ## Basic CRUD Controller
 
 ```ruby

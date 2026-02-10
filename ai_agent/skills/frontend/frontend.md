@@ -45,12 +45,14 @@ app/views/
 - Pass data via arguments (no implicit instance vars).
 - Keep components pure (no side effects).
 - Compose larger components from smaller ones.
+- **Components must inherit `Components::Base`**.
 
 ## Views
 - Use Phlex for page-level views in `app/views/`.
 - Rendered by controllers, receive data from controller.
 - Compose views using components from `app/components/`.
 - One view per action (index, show, new, edit, create).
+- **Views must inherit `Views::Base`**.
 
 ## I18n (English + Spanish)
 - Use scoped keys in views: `t(".title")`.
