@@ -65,7 +65,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     result = Articles::Operation::Publish.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors][:base].any?
+    assert_predicate result[:errors][:base], :any?
   end
 
   test "fails to publish incomplete article" do
@@ -85,7 +85,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     result = Articles::Operation::Publish.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors][:base].any?
+    assert_predicate result[:errors][:base], :any?
   end
 
   test "fails to unpublish draft article" do
@@ -105,7 +105,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     result = Articles::Operation::Publish.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors][:base].any?
+    assert_predicate result[:errors][:base], :any?
   end
 
   test "fails with invalid article id" do
@@ -117,6 +117,6 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     result = Articles::Operation::Publish.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors][:base].any?
+    assert_predicate result[:errors][:base], :any?
   end
 end

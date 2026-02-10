@@ -11,7 +11,7 @@ module Views
         article(class: "mx-auto max-w-4xl px-4 py-8") do
           header(class: "mb-8") do
             h1(class: "font-bold text-5xl mb-4") { @article.title }
-            
+
             if @article.excerpt.present?
               p(class: "text-xl text-gray-600 mb-4") { @article.excerpt }
             end
@@ -22,7 +22,7 @@ module Views
                   @article.published_at.strftime("%B %d, %Y")
                 end
               end
-              
+
               if @article.user
                 span { "by #{@article.user.email_address}" }
               end

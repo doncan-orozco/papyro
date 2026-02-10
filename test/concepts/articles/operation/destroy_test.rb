@@ -28,7 +28,7 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
     result = Articles::Operation::Destroy.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors][:base].any?
+    assert_predicate result[:errors][:base], :any?
   end
 
   test "destroys published article" do

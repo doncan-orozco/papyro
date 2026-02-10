@@ -13,7 +13,7 @@ module Articles
           ctx[:model] = article
           true
         else
-          ctx[:errors] = { base: [I18n.t("errors.messages.article_not_found")] }
+          ctx[:errors] = { base: [ I18n.t("errors.messages.article_not_found") ] }
           false
         end
       end

@@ -62,7 +62,7 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     result = Articles::Operation::Update.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors][:base].any?
+    assert_predicate result[:errors][:base], :any?
   end
 
   test "fails with duplicate slug" do
@@ -91,7 +91,7 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     result = Articles::Operation::Update.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors][:slug].any?
+    assert_predicate result[:errors][:slug], :any?
   end
 
   test "allows same slug for same article" do

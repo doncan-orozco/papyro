@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   # Admin namespace - requires authentication
   namespace :admin do
     resource :session, only: [ :new, :create, :destroy ]
-    
+
     # Articles CRUD + publish action
     resources :articles do
       member do

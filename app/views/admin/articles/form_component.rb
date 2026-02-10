@@ -8,7 +8,7 @@ module Views
         include Phlex::Rails::Helpers::TextFieldTag
         include Phlex::Rails::Helpers::TextAreaTag
         include Phlex::Rails::Helpers::SelectTag
-        
+
         def initialize(article, errors = {})
           @article = article
           @errors = errors
@@ -59,9 +59,9 @@ module Views
                 form.label :status, t("admin.articles.form.status_label"), class: "block font-medium mb-2"
                 form.select :status,
                   [
-                    [t("admin.articles.form.status_draft"), "draft"],
-                    [t("admin.articles.form.status_published"), "published"],
-                    [t("admin.articles.form.status_archived"), "archived"]
+                    [ t("admin.articles.form.status_draft"), "draft" ],
+                    [ t("admin.articles.form.status_published"), "published" ],
+                    [ t("admin.articles.form.status_archived"), "archived" ]
                   ],
                   {},
                   class: "block w-full rounded-md border border-gray-400 px-3 py-2 #{error_class(:status)}"
@@ -71,7 +71,7 @@ module Views
               div(class: "flex gap-4") do
                 form.submit t("admin.articles.form.save"),
                   class: "rounded-lg py-3 px-5 bg-blue-600 text-white hover:bg-blue-700 font-medium cursor-pointer"
-                
+
                 link_to t("admin.articles.form.cancel"),
                   admin_articles_path,
                   class: "rounded-lg py-3 px-5 bg-gray-200 text-gray-800 hover:bg-gray-300 font-medium"
@@ -83,7 +83,7 @@ module Views
         private
 
         def form_url
-          @article.persisted? ? [:admin, @article] : admin_articles_path
+          @article.persisted? ? [ :admin, @article ] : admin_articles_path
         end
 
         def form_method

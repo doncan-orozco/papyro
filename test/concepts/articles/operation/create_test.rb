@@ -33,7 +33,7 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     result = Articles::Operation::Create.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors][:title].any?
+    assert_predicate result[:errors][:title], :any?
   end
 
   test "fails with invalid slug format" do
@@ -48,7 +48,7 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     result = Articles::Operation::Create.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors][:slug].any?
+    assert_predicate result[:errors][:slug], :any?
   end
 
   test "fails with duplicate slug" do
@@ -104,6 +104,6 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     result = Articles::Operation::Create.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors][:published_at].any?
+    assert_predicate result[:errors][:published_at], :any?
   end
 end

@@ -43,7 +43,7 @@ module Views
               div(class: "flex-1") do
                 h3(class: "font-bold text-xl mb-2") { article.title }
                 p(class: "text-gray-600 text-sm mb-2") { "/articles/#{article.slug}" }
-                
+
                 if article.excerpt.present?
                   p(class: "text-gray-700 mb-2") { article.excerpt }
                 end
