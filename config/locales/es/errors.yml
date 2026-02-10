@@ -16,3 +16,9 @@ es:
       published_at_future: "La fecha de publicación no puede ser en el futuro"
       published_at_required_for_published: "La fecha de publicación es requerida cuando el estado es 'published'"
       user_not_found: "Usuario no encontrado"
+      # Operation errors
+      article_not_found: "Artículo no encontrado"
+      article_already_published: "El artículo ya está publicado"
+      article_not_published: "El artículo no está publicado"
+      article_incomplete_for_publish: "El artículo debe tener título y contenido para ser publicado"
+      invalid_action: "Acción inválida"
