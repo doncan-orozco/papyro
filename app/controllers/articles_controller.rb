@@ -2,7 +2,8 @@ class ArticlesController < ApplicationController
   allow_unauthenticated_access
 
   def featured
-    render Views::Articles::Featured.new
+    @articles = Articles::PublishedQuery.call(limit: 4)
+    render Views::Articles::Featured.new(@articles)
   end
 
   def show

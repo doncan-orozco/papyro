@@ -24,7 +24,7 @@ module Views
               end
 
               if @article.user
-                span { t(".by_author", author: @article.user.email_address) }
+                span { t("articles.show.by_author", author: @article.user.email_address) }
               end
             end
           end

@@ -24,6 +24,7 @@ en:
       featured_articles:
         title: "Latest Articles"
         view_all: "View All Articles"
+        no_articles: "No articles published yet"
       
       contact:
         title: "Let's Connect"
