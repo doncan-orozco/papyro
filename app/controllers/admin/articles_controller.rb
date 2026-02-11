@@ -13,12 +13,13 @@ class Admin::ArticlesController < AdminController
 
   def create
     result = Articles::Operation::Create.call(
-      params: article_params.to_h.merge(user_id: Current.user.id)  # user_id only for create
+      params: article_params.to_h.merge(user_id: Current.user.id)
     )
 
-    if result.success?
+    case result
+    in Dry::Monads::Success
       redirect_to admin_articles_path, notice: t("admin.articles.operations.create.success")
-    else
+    in Dry::Monads::Failure
       @article = result[:model] || Article.new(article_params)
       @errors = result[:errors]
       render Views::Admin::Articles::New.new(@article, @errors), status: :unprocessable_entity
@@ -33,15 +34,16 @@ class Admin::ArticlesController < AdminController
   end
 
   def update
-    article = Current.user.articles.find_by!(id: params[:id])  # Authorization with scope
+    article = Current.user.articles.find_by!(id: params[:id])
     result = Articles::Operation::Update.call(
-      model: article,  # Pass pre-authorized model
-      params: article_params.to_h  # No user_id - ownership doesn't change
+      model: article,
+      params: article_params.to_h
     )
 
-    if result.success?
+    case result
+    in Dry::Monads::Success
       redirect_to admin_articles_path, notice: t("admin.articles.operations.update.success")
-    else
+    in Dry::Monads::Failure
       @article = result[:model]
       @errors = result[:errors]
       render Views::Admin::Articles::Edit.new(@article, @errors), status: :unprocessable_entity
@@ -51,12 +53,13 @@ class Admin::ArticlesController < AdminController
   end
 
   def destroy
-    article = Current.user.articles.find_by!(id: params[:id])  # Authorization with scope
-    result = Articles::Operation::Destroy.call(model: article)  # Pass pre-authorized model
+    article = Current.user.articles.find_by!(id: params[:id])
+    result = Articles::Operation::Destroy.call(model: article)
 
-    if result.success?
+    case result
+    in Dry::Monads::Success
       redirect_to admin_articles_path, notice: t("admin.articles.operations.destroy.success"), status: :see_other
-    else
+    in Dry::Monads::Failure
       redirect_to admin_articles_path, alert: t("admin.articles.operations.destroy.failure"), status: :see_other
     end
   rescue ActiveRecord::RecordNotFound
@@ -64,17 +67,18 @@ class Admin::ArticlesController < AdminController
   end
 
   def publish
-    article = Current.user.articles.find_by!(id: params[:id])  # Authorization with scope
+    article = Current.user.articles.find_by!(id: params[:id])
     action = params[:publish_action] || "publish"
     result = Articles::Operation::Publish.call(
-      model: article,  # Pass pre-authorized model
+      model: article,
       params: { action: action }
     )
 
-    if result.success?
+    case result
+    in Dry::Monads::Success
       operation_key = action == "publish" ? "publish" : "unpublish"
       redirect_to admin_articles_path, notice: t("admin.articles.operations.#{operation_key}.success")
-    else
+    in Dry::Monads::Failure
       operation_key = action == "publish" ? "publish" : "unpublish"
       redirect_to admin_articles_path, alert: t("admin.articles.operations.#{operation_key}.failure")
     end

@@ -24,6 +24,7 @@ es:
       featured_articles:
         title: "Últimos Artículos"
         view_all: "Ver Todos los Artículos"
+        no_articles: "Aún no hay artículos publicados"
       
       contact:
         title: "Conectemos"
