@@ -11,13 +11,13 @@ Models are for persistence only - associations only. Code examples below.
 class CreateArticles < ActiveRecord::Migration[8.0]
   def change
     create_table :articles do |t|
-      t.string :title, null: false          # NOT NULL constraint
-      t.string :slug, null: false           # NOT NULL constraint
-      t.string :status, null: false         # NOT NULL constraint
+      t.string :title, null: false
+      t.string :slug, null: false
+      t.string :status, null: false
       t.references :author, null: false, foreign_key: { to_table: :users }
       t.timestamps
 
-      t.index :slug, unique: true           # UNIQUE constraint
+      t.index :slug, unique: true
       t.check_constraint "status IN ('draft', 'published', 'archived')", name: "valid_status"
     end
   end
@@ -32,12 +32,10 @@ class Article < ApplicationRecord
   belongs_to :author, class_name: "User"
   has_many :comments, dependent: :destroy
 
-  # Rails 8: Normalize data automatically
   normalizes :title, with: -> { _1.strip }
   normalizes :slug, with: -> { _1.strip.downcase }
 
-  # NO business validations (use Contracts)
-  # Optional: Safety-net validations (paranoid mode, apply in all environments)
+  # Optional: Safety-net validations (paranoid mode, prevents bad data if contract bypassed)
   validates :title, presence: true
   validates :status, inclusion: { in: %w[draft published archived] }
 end

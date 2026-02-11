@@ -3,7 +3,6 @@
 module Articles
   module Contract
     class Update < Dry::Validation::Contract
-      # Schema definition - what fields we expect
       # NOTE: id is optional - used only for slug uniqueness validation
       params do
         optional(:id).maybe(:integer)
@@ -15,7 +14,6 @@ module Articles
         optional(:excerpt).maybe(:string)
       end
 
-      # Custom validation rules beyond schema
       rule(:title) do
         if value
           key.failure(I18n.t("errors.messages.title_blank")) if value.strip.empty?
@@ -66,7 +64,6 @@ module Articles
       private
 
       def slug_format_valid?(slug)
-        # Only lowercase, alphanumeric, hyphens
         slug.match?(/\A[a-z0-9-]+\z/)
       end
     end

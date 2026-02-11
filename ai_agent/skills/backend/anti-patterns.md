@@ -4,6 +4,125 @@
 
 This skill documents common mistakes and their correct alternatives for Papyro development.
 
+## Code Commenting Anti-Patterns
+
+**Principle: Comment WHY, not WHAT**  
+Ruby is verbose and self-documenting. Only add comments that explain reasoning, decisions, or context that code cannot express.
+
+### ❌ DON'T: Explain WHAT the Code Does
+
+```ruby
+# WRONG - These comments just describe obvious code
+class Article < ApplicationRecord
+  # Associations
+  belongs_to :user
+  has_many :comments, dependent: :destroy
+  
+  # Enum for status - generates methods: draft?, published?, archived?
+  enum :status, { draft: 0, published: 1, archived: 2 }
+  
+  # Rails 8 normalizations (data cleanup before save)
+  normalizes :slug, with: ->(slug) { slug.strip.downcase }
+  
+  # Instance methods
+  def to_param
+    slug
+  end
+end
+
+# WRONG - Section labels add no value
+class ArticlesController < ApplicationController
+  # GET /articles
+  def index
+    @articles = Article.published
+  end
+  
+  # POST /articles
+  def create
+    # ...
+  end
+end
+
+# WRONG - Referencing checklists or documenting standard patterns
+module Articles
+  module Contract
+    class Update < Dry::Validation::Contract
+      # Per VERIFICATION_CHECKLIST.md §2.3: Associations only
+      # NO business validations here (use Contracts in Issue #2)
+      params do
+        required(:title).filled(:string)
+      end
+    end
+  end
+end
+```
+
+### ✅ DO: Explain WHY and Provide Context
+
+```ruby
+# CORRECT - Comments explain decisions and future plans
+class User < ApplicationRecord
+  has_many :articles, dependent: :destroy
+  
+  # For MVP: all users are admins
+  # Later: add role enum or admin boolean column
+  def admin?
+    true
+  end
+  
+  # SQLite doesn't support case-insensitive UNIQUE indexes
+  # So we normalize email before validation to ensure uniqueness
+  normalizes :email, with: ->(email) { email.strip.downcase }
+end
+
+# CORRECT - Explains non-obvious constraint
+class Article < ApplicationRecord
+  belongs_to :user
+  
+  enum :status, { draft: 0, published: 1, archived: 2 }
+  
+  # Published articles cannot transition back to draft
+  # Business rule: prevent accidental unpublishing of live content
+  def can_revert_to_draft?
+    !published?
+  end
+end
+
+# CORRECT - Documents important architectural decision
+module Articles
+  module Operation
+    class Update < Trailblazer::Operation
+      step :validate_input
+      step :update_article
+      
+      # NOTE: Controller passes pre-authorized model (not ID)
+      # This prevents double queries and ensures authorization happens
+      # at the controller level with proper scoping
+      def update_article(ctx, model:, validated_params:, **)
+        model.update(validated_params.except(:id, :user_id))
+      end
+    end
+  end
+end
+```
+
+### When to Add Comments
+
+**✅ DO comment:**
+- Decisions and reasoning ("we chose X because Y")
+- TODOs and future plans ("Later: add role system")
+- Non-obvious constraints ("SQLite limitation", "Business rule")
+- Important architectural patterns (when not obvious)
+- Performance considerations ("N+1 query prevention")
+- Security notes ("Authorization happens at controller")
+
+**❌ DON'T comment:**
+- What Rails/Ruby syntax does (enums, associations, normalizations)
+- Section labels ("Instance methods", "Associations")
+- Checklist references ("Per VERIFICATION_CHECKLIST.md")
+- Standard patterns everyone knows
+- Things the method name already says
+
 ## Model Anti-Patterns
 
 ### ❌ DON'T: Business Logic in Models
