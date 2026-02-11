@@ -602,6 +602,205 @@ class ArticlesController < ApplicationController
 end
 ```
 
+## I18n Anti-Patterns
+
+### ❌ DON'T: Use Relative Translation Keys
+
+```ruby
+# WRONG - Relative keys in views
+class Articles::Show < Views::Base
+  def view_template
+    h1 { t(".title") }  # BAD: Magic scope resolution
+    p { t(".description") }
+  end
+end
+```
+
+✅ **DO**: Use Fully-Qualified Keys
+
+```ruby
+# CORRECT - Explicit, grep-able keys
+class Articles::Show < Views::Base
+  def view_template
+    h1 { t("articles.show.title") }  # GOOD: Explicit and portable
+    p { t("articles.show.description") }
+  end
+end
+```
+
+**Why?**
+- ✅ Explicit: You know exactly which translation is used
+- ✅ Grep-able: Easy to find all usages
+- ✅ Portable: Works in components/partials anywhere
+- ✅ No magic: No scope resolution confusion
+
+### ❌ DON'T: Use strftime for Date/Time Formatting
+
+```ruby
+# WRONG - Hardcoded format, no localization
+div { article.published_at.strftime("%B %-d, %Y") }
+div { article.updated_at.strftime("%Y-%m-%d %H:%M") }
+```
+
+✅ **DO**: Use I18n.l (localize)
+
+```ruby
+# CORRECT - Respects locale, centralized formats
+div { I18n.l(article.published_at, format: :long) }
+div { I18n.l(article.updated_at, format: :short) }
+div { I18n.l(article.created_at.to_date) }
+```
+
+```yaml
+# config/locales/en/app.yml
+en:
+  date:
+    formats:
+      long: "%B %-d, %Y"
+      short: "%b %-d"
+# config/locales/es/app.yml
+es:
+  date:
+    formats:
+      long: "%-d de %B de %Y"
+      short: "%-d %b"
+```
+
+### ❌ DON'T: Manual Currency/Number Formatting
+
+```ruby
+# WRONG - No localization, hardcoded format
+span { "$#{article.price.round(2)}" }
+span { "#{article.views} views" }
+```
+
+✅ **DO**: Use Number Helpers with I18n
+
+```ruby
+# CORRECT - Respects locale settings
+span { number_to_currency(article.price) }          # => "$1,234.56" (en) or "€1.234,56" (es)
+span { "#{number_with_delimiter(article.views)} views" }  # => "1,234,567 views"
+```
+
+### ❌ DON'T: Share Error Keys Without Domain Scoping
+
+```ruby
+# WRONG - Generic error keys clash across domains
+# config/locales/en/errors.yml
+en:
+  errors:
+    title_blank: "Title cannot be blank"  # Which title? Article? User profile?
+    name_invalid: "Name is invalid"       # Article name? User name?
+```
+
+✅ **DO**: Domain-Scope All Error Messages
+
+```ruby
+# CORRECT - Domain-scoped for context
+# config/locales/en/articles.yml
+en:
+  articles:
+    errors:
+      title_blank: "Article title cannot be blank"
+      title_too_short: "Article title must be at least 3 characters"
+
+# config/locales/en/users.yml
+en:
+  users:
+    errors:
+      name_blank: "User name is required"
+      name_invalid: "User name can only contain letters"
+```
+
+**Usage in Operations:**
+```ruby
+def validate(ctx, params:, **)
+  unless params[:title].present?
+    ctx[:errors] = { title: [I18n.t("articles.errors.title_blank")] }
+    return false
+  end
+  true
+end
+```
+
+### ❌ DON'T: Hardcode User-Facing Text
+
+```ruby
+# WRONG - English hardcoded in view
+class Articles::Index < Views::Base
+  def view_template
+    h1 { "All Articles" }  # BAD
+    if @articles.empty?
+      p { "No articles found" }  # BAD
+    end
+  end
+end
+```
+
+✅ **DO**: Use I18n for ALL User-Facing Text
+
+```ruby
+# CORRECT - Everything translatable
+class Articles::Index < Views::Base
+  def view_template
+    h1 { t("articles.index.title") }
+    if @articles.empty?
+      p { t("articles.index.empty") }
+    end
+  end
+end
+```
+
+```yaml
+# config/locales/en/articles.yml
+en:
+  articles:
+    index:
+      title: "All Articles"
+      empty: "No articles found"
+
+# config/locales/es/articles.yml
+es:
+  articles:
+    index:
+      title: "Todos los artículos"
+      empty: "No se encontraron artículos"
+```
+
+### ❌ DON'T: Mix Operation Messages with Domain Keys
+
+```ruby
+# WRONG - Operation success/failure mixed with views
+en:
+  articles:
+    show:
+      title: "Article"
+    create_success: "Created!"  # BAD: Not organized
+```
+
+✅ **DO**: Group Operation Messages Under `operations` Namespace
+
+```ruby
+# CORRECT - Clear organization
+en:
+  articles:
+    show:
+      title: "Article Details"
+    operations:
+      create:
+        success: "Article created successfully"
+        failure: "Failed to create article"
+      update:
+        success: "Article updated"
+      destroy:
+        success: "Article deleted"
+```
+
+```ruby
+# Usage in controller
+redirect_to articles_path, notice: I18n.t("articles.operations.create.success")
+```
+
 ## Summary
 
 **Key Takeaways:**
@@ -611,8 +810,9 @@ end
 - Services: Injected dependencies, single responsibility
 - Query Objects: All read logic instead of model scopes
 - Controllers: Authorization before Operations, only access documented ctx keys
-- Views/Components: i18n keys, proper base classes, **attrs support
+- Views/Components: Fully-qualified i18n keys, proper base classes, **attrs support
 - Jobs: Pass IDs not objects
 - Tests: Test behavior not implementation
+- I18n: Fully-qualified keys, I18n.l for dates, number helpers, domain-scoped errors
 
 For verification, see: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md)
