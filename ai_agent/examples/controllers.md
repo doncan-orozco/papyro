@@ -1,11 +1,13 @@
 # Controller Examples
 
-**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#controllers)**
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#controllers)**
 
 Controllers are thin - they only receive requests, call Operations, and return responses using pattern matching. Code examples below.
 
 ## Task Requirements
-- When creating a controller, tasks/issues must specify the **routes and helpers** (HTTP verb + path + helper name).
+
+Task requirements live in the checklist:
+- [Task and issue requirements](../VERIFICATION_CHECKLIST.md#taskissue-requirements)
 
 ## Basic CRUD Controller
 
@@ -31,4 +33,4 @@ class Game::MovesController < ApplicationController
 end
 ```
 
-See [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#controllers) for complete controller guidelines.
+See [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#controllers) for complete controller guidelines.

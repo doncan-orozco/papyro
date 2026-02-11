@@ -1,5 +1,7 @@
 # Deployment Examples (Kamal 2)
 
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#deployment-kamal)**
+
 Deploy with Kamal 2 using Rails 8 optimizations.
 
 ## Kamal Configuration
@@ -85,8 +87,6 @@ kamal app rollback
 ```
 
 ## Rules
-- Use Kamal 2 for deployment
-- Use SQLite with volumes for persistence
-- Use Solid Queue workers (no Redis)
-- Configure healthchecks
-- Use Traefik for load balancing
+
+Rules live in the checklist:
+- [Deployment](../VERIFICATION_CHECKLIST.md#deployment-kamal)

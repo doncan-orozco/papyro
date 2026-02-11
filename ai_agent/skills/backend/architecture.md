@@ -45,24 +45,16 @@ app/
   services/          ← Domain services
 ```
 
-## Core Rules
-- Controllers are thin: accept request, call Operation, pattern-match result, return response.
-- All writes live in `app/concepts/{domain}/operation/` (Railway flow with `step`).
-- Each concept owns its domain: operations, contracts, business logic.
-- Use dry-monads Result (`Success`/`Failure`).
-- Broadcasting happens inside Operations, not controllers.
-- **Custom collection actions are allowed for Turbo Frames** (e.g., `articles#featured`) when they represent a domain concept subset.
+## Implementation Notes
 
-## Task Specification Requirements (Critical)
-When creating issues or implementation tasks, always include:
+This file focuses on patterns and examples. For requirements, see:
+- [Architecture rules](../../VERIFICATION_CHECKLIST.md#-architecture--organization)
+- [Queries](../../VERIFICATION_CHECKLIST.md#queries-read-model)
+- [Services](../../VERIFICATION_CHECKLIST.md#services)
+- [Task and issue requirements](../../VERIFICATION_CHECKLIST.md#taskissue-requirements)
 
-- **Explicit file paths** for every artifact (controllers, operations, contracts, queries, views, components, tests, locales).
-- **Query object requirement** for ALL read queries (no model scopes). Provide the expected class name and file path under `app/queries/`.
-- **Phlex base classes**: Views inherit `Views::Base`, Components inherit `Components::Base`.
-- **Routes list**: define expected routes + helpers (including collection routes for Turbo Frames).
-- **Turbo Frame IDs**: specify the exact frame ID and require a matching `turbo_frame_tag` in the response.
-
-
+Example: custom collection actions can support Turbo Frames when they describe a domain subset. See:
+- [Turbo Frames](../../VERIFICATION_CHECKLIST.md#-turbo-frames)
 ## Operations Flow (typical)
 1. `Model` step (load record from `app/models/`)
 2. `Contract::Build` (from `app/concepts/{domain}/contract/`)
@@ -71,31 +63,180 @@ When creating issues or implementation tasks, always include:
 5. `Contract::Persist`
 6. Broadcast step
 
-## Models
-- Persistence only: associations only.
-- Database constraints in migrations (null: false, unique indexes, foreign keys).
-- NO ActiveRecord validations for business logic (use Contracts).
-- Optional: Safety-net validations (paranoid mode, should never trigger if Operations work).
-- Safety-net validations apply in all environments.
-- No callbacks, no business logic.
-- No scopes or query methods in models.
-- Shared across concepts in `app/models/`.
-
-## Contracts
-- Live in `app/concepts/{domain}/contract/`.
-- ALL business validations here, not in models.
-- Context-specific: different contracts for create/update/admin operations.
-
-## Query Objects
-- ALL read queries live under `app/queries/`.
-- Return relations when possible.
-- Models should not define scopes or query methods.
-
-## Services
-- Single responsibility, stateless when possible.
-- Accept explicit args; return Result or raise specific exceptions.
-- Live in `app/services/` or injected into Operations.
-
-
 ## For Verification & Requirements
-> See [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-architecture--organization) for complete requirements and [SELF_REVIEW_CHECKLIST.md](../../SELF_REVIEW_CHECKLIST.md) for quick reference.
+
+See [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-architecture--organization) for complete requirements.
+
+## Common Development Patterns
+
+### Adding a Page
+
+1. Create `app/controllers/{domain}_controller.rb`
+2. Create `app/views/{domain}/action.rb` (inherit from `Views::Base`)
+3. Create route in `config/routes.rb`
+4. Create `config/locales/{en,es}/{file}.yml`
+5. Use scoped keys: `t(".title")`
+
+**Example:**
+```ruby
+# app/controllers/articles_controller.rb
+class ArticlesController < ApplicationController
+  def index
+    @articles = Articles::PublishedQuery.call
+  end
+end
+
+# app/views/articles/index.rb
+module Views
+  module Articles
+    class Index < Views::Base
+      def view_template
+        h1 { t(".title") }
+        # ... rest of view
+      end
+    end
+  end
+end
+
+# config/routes.rb
+get "articles", to: "articles#index", as: :articles
+
+# config/locales/en/pages.yml
+en:
+  articles:
+    index:
+      title: "Articles"
+```
+
+### Adding a Component
+
+1. Create `app/components/{domain}/name.rb` (inherit from `Components::Base`)
+2. Create locale keys in `config/locales/{en,es}/components.yml`
+3. Use full path keys: `t("components.domain.section.key")`
+4. Include `**attrs` for Stimulus support
+
+**Example:**
+```ruby
+# app/components/articles/card.rb
+module Components
+  module Articles
+    class Card < Components::Base
+      def initialize(article:, **attrs)
+        @article = article
+        @attrs = attrs
+      end
+      
+      def view_template
+        div(class: "card", **@attrs) do
+          h2 { @article.title }
+          p { t("components.articles.card.read_more") }
+        end
+      end
+    end
+  end
+end
+
+# config/locales/en/components.yml
+en:
+  components:
+    articles:
+      card:
+        read_more: "Read more"
+```
+
+### Adding a Turbo Frame
+
+1. Create `app/controllers/{domain}_controller.rb` with action
+2. Create `app/views/{domain}/action.rb` with `turbo_frame_tag`
+3. Add route: `get "path", to: "{domain}#action", as: :route_name`
+4. In main view: `turbo_frame_tag("id", src: route_name_path, loading: :lazy)`
+5. Add i18n translations
+
+**Example:**
+```ruby
+# app/controllers/articles_controller.rb
+class ArticlesController < ApplicationController
+  def featured
+    @articles = Articles::FeaturedQuery.call.limit(3)
+  end
+end
+
+# app/views/articles/featured.rb
+module Views
+  module Articles
+    class Featured < Views::Base
+      def view_template
+        turbo_frame_tag("featured_articles") do
+          h2 { t(".title") }
+          @articles.each do |article|
+            render Components::Articles::Card.new(article: article)
+          end
+        end
+      end
+    end
+  end
+end
+
+# In main page view:
+turbo_frame_tag(
+  "featured_articles",
+  src: featured_articles_path,
+  loading: :lazy
+) do
+  p { t(".loading") }
+end
+
+# config/routes.rb
+get "articles/featured", to: "articles#featured", as: :featured_articles
+```
+
+### Adding Stimulus Interaction
+
+1. Create `app/javascript/controllers/{domain}/{feature}_controller.js`
+2. Add data attributes to component: `data: { controller: "domain--feature", ... }`
+3. Use `static targets`, `values` for data binding
+4. Dispatch custom events for communication
+
+**Example:**
+```javascript
+// app/javascript/controllers/articles/filter_controller.js
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  static targets = ["form", "results"]
+  static values = {
+    url: String
+  }
+  
+  async filter(event) {
+    event.preventDefault()
+    
+    const formData = new FormData(this.formTarget)
+    const params = new URLSearchParams(formData)
+    
+    const response = await fetch(`${this.urlValue}?${params}`)
+    const html = await response.text()
+    
+    this.resultsTarget.innerHTML = html
+    
+    // Dispatch event for other controllers
+    this.dispatch("filtered", { detail: { count: results.length } })
+  end
+}
+```
+
+```ruby
+# In component:
+div(data: { 
+  controller: "articles--filter",
+  articles__filter_url_value: articles_path
+}) do
+  form(data: { articles__filter_target: "form" }) do
+    # form fields
+  end
+  
+  div(data: { articles__filter_target: "results" }) do
+    # results
+  end
+end
+```

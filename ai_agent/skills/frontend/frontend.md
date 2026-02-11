@@ -39,26 +39,25 @@ app/views/
     edit.rb
 ```
 
-## Components
-- Use Phlex for all reusable UI.
-- Live in `app/components/` organized by domain.
-- Pass data via arguments (no implicit instance vars).
-- Keep components pure (no side effects).
-- Compose larger components from smaller ones.
-- **Components must inherit `Components::Base`**.
+## Components (Patterns)
+- Use Phlex for reusable UI
+- Organize by domain in `app/components/`
+- Pass data via arguments
+- Compose larger components from smaller ones
+- Example: components inherit `Components::Base` (see checklist)
 
-## Views
-- Use Phlex for page-level views in `app/views/`.
-- Rendered by controllers, receive data from controller.
-- Compose views using components from `app/components/`.
-- One view per action (index, show, new, edit, create).
-- **Views must inherit `Views::Base`**.
+## Views (Patterns)
+- Use Phlex for page-level views in `app/views/`
+- Rendered by controllers with data passed in
+- Compose views using components from `app/components/`
+- One view per action (index, show, new, edit, create)
+- Example: views inherit `Views::Base` (see checklist)
 
 ## I18n (English + Spanish)
-- Use scoped keys in views: `t(".title")`.
-- Components read from `components.*` keys.
-- Model attributes/enums come from `activerecord.*` keys.
-- Use domain-based locale files in `config/locales/en/` and `config/locales/es/`.
+- Scoped keys in views: `t(".title")`
+- Components read from `components.*` keys
+- Model attributes/enums come from `activerecord.*` keys
+- Domain-based locale files in `config/locales/en/` and `config/locales/es/`
 
 ## Stimulus File Structure
 
@@ -78,13 +77,13 @@ app/javascript/
       button_controller.js
 ```
 
-## Stimulus Rules
-- One controller per feature.
-- Use `static targets`, `values`, `outlets`.
-- Dispatch custom events for loose coupling.
-- Organize by domain (`game/`, `ui/`).
-- Name controllers as `domain--feature` (e.g., `data-controller="game--player"`).
-- Register controllers in `index.js` or use auto-registration.
+## Stimulus Patterns
+- One controller per feature
+- Use `static targets`, `values`, `outlets`
+- Dispatch custom events for loose coupling
+- Organize by domain (`game/`, `ui/`)
+- Name controllers as `domain--feature` (e.g., `data-controller="game--player"`)
+- Register controllers in `index.js` or use auto-registration
 
 ## Stimulus + Phlex Integration
 Connect Stimulus to Phlex components via data attributes:
@@ -104,7 +103,7 @@ end
 ```
 
 ## Styling
-- Tailwind utility classes only (no custom CSS unless required).
+- Tailwind utility classes are the common baseline
 
 > **For verification checklists, see [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-frontend)**
 

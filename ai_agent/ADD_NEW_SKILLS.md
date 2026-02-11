@@ -8,7 +8,7 @@
 |-----------|--------|----------|--------|
 | Found a new rule/requirement | Add to VERIFICATION_CHECKLIST.md | `ai_agent/VERIFICATION_CHECKLIST.md` | Checklist item |
 | Feature-specific implementation details | New skill file | `ai_agent/skills/{category}/{name}.md` | Implementation details |
-| Working code examples | Example file | `docs/examples/{name}.md` | Code + explanation |
+| Working code examples | Example file | `ai_agent/examples/{name}.md` | Code + explanation |
 | Troubleshooting/deep-dive | Update relevant skill | `ai_agent/skills/{category}/*.md` | Add section |
 
 ## Template: New Skill File
@@ -36,7 +36,7 @@ This skill provides {description}. For complete guidelines, see the verification
 ```markdown
 # {Feature} Example
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#{anchor})**
+**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#{anchor})**
 
 [Brief description]
 
@@ -66,7 +66,7 @@ Ask these questions:
    - NO → Continue
 
 4. **Is this a code example?**
-   - YES → Create in docs/examples/
+   - YES → Create in ai_agent/examples/
    - NO → Continue
 
 5. **Is this a new concept/area not covered?**
@@ -86,11 +86,12 @@ Ask these questions:
 ## Checklist: Updating Rules
 
 - [ ] Rule added/updated in VERIFICATION_CHECKLIST.md
-- [ ] SELF_REVIEW_CHECKLIST.md updated (if critical)
+- [ ] Relevant skill file updated (anti-patterns.md, error-handling.md, etc.) with patterns/examples
 - [ ] entrypoint.md quick rules updated (if critical)
 - [ ] All skills that reference this rule checked for accuracy
 - [ ] All examples that reference this rule checked for accuracy
 - [ ] No duplication of rules across files
+- [ ] Separation maintained: Checklist verifies, skills teach
 
 ## Example: Adding a New Skill
 
@@ -127,7 +128,7 @@ Ask these questions:
 
 4. Create example file if needed:
    ```
-   docs/examples/caching.md
+   ai_agent/examples/caching.md
    ```
 
 That's it! No other files need updating.
@@ -152,20 +153,25 @@ That's it! No other files need updating.
 
 ```
 ai_agent/
-├── VERIFICATION_CHECKLIST.md      ← Rules (source of truth)
-├── SELF_REVIEW_CHECKLIST.md       ← Quick ref
+├── VERIFICATION_CHECKLIST.md      ← Pure checklist (verifies)
 ├── entrypoint.md                  ← Entry point
+├── UI_UX_BRIEF.md                 ← Design system
 ├── DOCUMENTATION_STRUCTURE.md     ← This hierarchy
+├── examples/                      ← Code examples
+│   └── (Code examples only, reference checklists)
 ├── skills/
 │   ├── backend/
+│   │   ├── anti-patterns.md       ← What NOT to do
+│   │   ├── error-handling.md      ← Error & auth patterns
+│   │   └── (other backend skills)
 │   ├── frontend/
 │   ├── testing/
 │   └── database/
-└── (No rules here! Only reference)
+└── (Skills teach, checklist verifies)
 
 docs/
-└── examples/
-    └── (Code examples only, reference checklists)
+├── README.md                      ← Pointer to ai_agent/
+└── RAILS_MCP_SETUP.md             ← Infrastructure only
 
 .github/
 └── copilot-instructions.md        ← Points to checklists

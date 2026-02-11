@@ -1,6 +1,8 @@
 # Background Job Examples (Solid Queue)
 
-All background jobs use Solid Queue (Rails 8 native, no Redis).
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#background-jobs-solid-queue)**
+
+Examples assume Solid Queue for background jobs.
 
 ## Basic Job
 
@@ -67,10 +69,6 @@ end
 ```
 
 ## Rules
-- All jobs must be idempotent
-- Use `limits_concurrency` for resource control
-- Keep jobs small and focused
-- Pass IDs, not objects
-- Handle failures gracefully with retries
-- Use `discard_on` for non-retryable errors
-- Use Solid Queue (no Redis)
+
+Rules live in the checklist:
+- [Background jobs](../VERIFICATION_CHECKLIST.md#background-jobs-solid-queue)

@@ -1,5 +1,9 @@
 # Database Examples (SQLite - Rails 8)
 
+**For complete guidelines, see:**
+- [Database](../VERIFICATION_CHECKLIST.md#database-sqlite)
+- [Caching](../VERIFICATION_CHECKLIST.md#caching-solid-cache)
+
 SQLite is production-ready in Rails 8 with proper configuration.
 
 ## Database Configuration
@@ -78,8 +82,7 @@ end
 ```
 
 ## Rules
-- Use SQLite with production optimizations (WAL, busy_timeout)
-- Add indexes for spatial or frequent queries
-- Use database constraints for integrity
-- Use transactions for multi-step operations
-- Use Solid Cache for all caching (no Redis)
+
+Rules live in the checklist:
+- [Database](../VERIFICATION_CHECKLIST.md#database-sqlite)
+- [Caching](../VERIFICATION_CHECKLIST.md#caching-solid-cache)

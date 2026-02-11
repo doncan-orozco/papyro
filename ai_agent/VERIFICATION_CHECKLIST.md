@@ -8,11 +8,18 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Thin controller (request → Operation/Service → response)
 - [ ] No business logic
 - [ ] Explicit data passed to view/component
+- [ ] Handle Operation results using pattern matching: `result = Op.call(...); case result; in Success; ...; in Failure; ...; end`
+- [ ] Authorization checks BEFORE calling Operation
+- [ ] Format validation errors from Operation failures for display
 
 ### Operations (Trailblazer)
 - [ ] Live in `app/concepts/{domain}/operation/`
 - [ ] Railway flow: Model → Contract::Build → Validate → Logic → Persist → Broadcast
 - [ ] Return Result monads (Success/Failure)
+- [ ] Always set `ctx[:errors]` on failure (as Hash with field keys)
+- [ ] Always set `ctx[:model]` on success (for main domain object)
+- [ ] For chained operations: call first Op, check result, pass ctx to next Op
+- [ ] No hardcoded error messages (use I18n from contracts)
 
 ### Models
 - [ ] Persistence only
@@ -23,6 +30,19 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] NO callbacks
 - [ ] NO business logic
 - [ ] NO scopes or query methods in models (use Query Objects)
+
+### Services
+- [ ] Single responsibility and focused scope
+- [ ] Stateless when possible
+- [ ] Injected into Operations (no global dependencies)
+- [ ] Return Result objects or raise specific exceptions
+
+### Queries (Read Model)
+- [ ] Live in `app/queries/`
+- [ ] Use query objects for read logic (no model scopes)
+- [ ] Keep queries focused and composable
+- [ ] Return ActiveRecord relations (chainable) or arrays
+- [ ] Name queries by intent: `{Domain}::{Purpose}Query`
 
 ### Contracts (Dry-Validation)
 - [ ] Live in `app/concepts/{domain}/contract/`
@@ -93,6 +113,74 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Named route: `get "articles/featured", to: "articles#featured", as: :featured_articles`
 - [ ] Route helper used in view: `featured_articles_path`
 
+## 📡 Channels (Action Cable)
+
+- [ ] Authorize in `subscribed`
+- [ ] Use `stream_for` with domain model instances
+- [ ] Keep channels minimal; delegate logic to Operations
+- [ ] Broadcast from Operations after successful changes
+- [ ] Handle Operation failures with pattern matching: `case result; in Failure; ...; end`
+
+## 🧰 Background Jobs (Solid Queue)
+
+- [ ] Use Solid Queue (no Redis)
+- [ ] Jobs are idempotent
+- [ ] Pass IDs, not ActiveRecord objects
+- [ ] Use `limits_concurrency` for resource control when needed
+- [ ] Use `discard_on` for non-retryable errors
+
+## 🗄️ Database (SQLite)
+
+- [ ] Use SQLite production optimizations (WAL, busy_timeout)
+- [ ] Add indexes for frequent queries
+- [ ] Use transactions for multi-step operations
+
+## 🧠 Caching (Solid Cache)
+
+- [ ] Use Solid Cache for caching (no Redis)
+
+## 🚚 Deployment (Kamal)
+
+- [ ] Use Kamal 2 for deployment
+- [ ] Use SQLite with volumes for persistence
+- [ ] Configure healthchecks
+
+## Task/Issue Requirements
+
+- [ ] List the exact file paths to create or edit
+- [ ] Specify route helpers, HTTP verbs, and paths when routes change
+- [ ] Specify Turbo Frame IDs and ensure responses wrap matching `turbo_frame_tag`
+
+## ⚡ Error Handling & Authorization
+
+See [skills/backend/error-handling.md](skills/backend/error-handling.md) for patterns on:
+- Authorization at controller level
+- Handling Operation failures (controllers, channels, jobs)
+- Result extraction patterns
+- Required context keys (`ctx[:model]`, `ctx[:errors]`)
+
+## 🚫 Anti-Patterns
+
+See [skills/backend/anti-patterns.md](skills/backend/anti-patterns.md) for what NOT to do:
+- [ ] NO business logic in models → [See examples](skills/backend/anti-patterns.md#model-anti-patterns)
+- [ ] NO validations in models (use Contracts) → [See examples](skills/backend/anti-patterns.md#-dont-validations-in-models)
+- [ ] NO callbacks in models (explicit steps in Operations) → [See examples](skills/backend/anti-patterns.md#-dont-callbacks-in-models)
+- [ ] NO hardcoded error messages (use I18n) → [See examples](skills/backend/anti-patterns.md#-dont-hardcoded-error-messages)
+- [ ] NO passing ActiveRecord objects to jobs (pass IDs) → [See examples](skills/backend/anti-patterns.md#-dont-passing-activerecord-objects-to-jobs)
+- [ ] NO query scopes in models (use Query Objects) → [See examples](skills/backend/anti-patterns.md#-dont-query-logic-in-models-scopes)
+- [ ] NO implicit dependencies (inject everything) → [See examples](skills/backend/anti-patterns.md#-dont-implicit-dependencies)
+- [ ] NO accessing internal Operation ctx keys → [See examples](skills/backend/anti-patterns.md#-dont-accessing-internal-operation-context)
+- [ ] NO missing Turbo Frame wrapping → [See examples](skills/backend/anti-patterns.md#-dont-missing-turbo-frame-wrapping)
+- [ ] NO hardcoded strings in views (use i18n) → [See examples](skills/backend/anti-patterns.md#-dont-hardcoded-strings-in-views)
+
+## 🏗️ Common Development Patterns
+
+See [skills/backend/architecture.md](skills/backend/architecture.md#common-development-patterns) for step-by-step guides:
+- Adding a page (controller + view + route + i18n)
+- Adding a component (Phlex component + i18n + **attrs)
+- Adding a Turbo Frame (frame + route + lazy loading)
+- Adding Stimulus interaction (controller + data attributes)
+
 ## ✅ Pre-Commit Verification
 
 Before committing:
@@ -132,30 +220,100 @@ Before committing:
    - [ ] Stimulus controllers scoped to features
    - [ ] Routes named and documented
 
+## 🧹 Lint & Code Quality (RuboCop)
+
+All code MUST pass RuboCop linting.
+
+### Run locally before committing:
+```bash
+bin/rubocop                    # Check all files
+bin/rubocop --fix-layout       # Auto-fix formatting issues
+bin/rubocop app/controllers/   # Check specific directory
+```
+
+### Common RuboCop rules to watch:
+- [ ] Line length ≤ 120 characters
+- [ ] Proper indentation (2 spaces)
+- [ ] No trailing whitespace
+- [ ] Method/variable names use snake_case
+- [ ] Classes use PascalCase
+- [ ] No unnecessary parentheses: `method(arg)` not `method arg`
+- [ ] Use double quotes for strings (unless string contains quotes)
+- [ ] No commented-out code
+- [ ] Proper spacing around operators: `a = b`, not `a=b`
+- [ ] Empty lines between methods
+- [ ] Block parameters properly formatted: `{ |x| x }` not `{|x|x}`
+
+### Rails + Minitest specific:
+- [ ] No `test_` prefix in describe blocks (use `describe` syntax)
+- [ ] Factory Bot syntax correct: `create(:user)` not `FactoryBot.create(:user)`
+- [ ] Assertions use proper syntax: `assert_equal`, `assert_predicate`, not `assert` with manual comparisons
+
+## ✅ Testing Requirements
+
+All new features MUST have tests.
+
+### Types of tests:
+- **Unit tests**: Model validations, Contract schemas, Operation logic
+- **Integration tests**: Controller → Operation → Database flow
+- **System tests**: User workflows, JavaScript interactions, Turbo behavior
+
+### Test organization:
+```
+test/
+├── models/          # Unit tests for models
+├── concepts/        # Operation + Contract tests
+├── controllers/     # Controller integration tests
+├── system/          # Full user journey tests
+└── test_helpers/    # Shared test utilities
+```
+
+### Before committing - run all tests:
+```bash
+rake test                        # Run all tests
+rake test TEST=test/models/      # Run specific test directory
+bin/rails test test/models/user_test.rb  # Run specific file
+```
+
+### Test expectations:
+- [ ] All new code has corresponding tests
+- [ ] Tests verify both success and failure paths
+- [ ] Fixtures used for test data (see `test/fixtures/`)
+- [ ] Tests use proper assertions: `assert`, `assert_equal`, `assert_match`
+- [ ] System tests verify user interactions with JavaScript/Turbo
+- [ ] No hardcoded test data (use factories or fixtures)
+- [ ] Tests are isolated (no dependencies between tests)
+- [ ] Test database is clean before each test
+
+## 🔒 Security Scanning
+
+Project includes automated security checks (run in CI):
+
+### Local pre-commit checks:
+```bash
+bin/brakeman --no-pager          # Rails security vulnerabilities
+bin/bundler-audit                # Gem security vulnerabilities
+bin/importmap audit              # JavaScript dependency vulnerabilities
+```
+
+### Security checklist:
+- [ ] No SQL injection risks (use parameterized queries)
+- [ ] No hardcoded credentials (use credentials.yml.enc)
+- [ ] No password exposure in logs
+- [ ] CSRF protection enabled (Rails default)
+- [ ] Authentication required for admin routes
+- [ ] User input validated and escaped
+- [ ] No vulnerable gem versions (checked by bundler-audit)
+
 ## 🚀 Common Patterns
 
-### Adding a Page
-1. Create `app/controllers/{domain}_controller.rb`
-2. Create `app/views/{domain}/action.rb` (inherit from `Views::Base`)
-3. Create route in `config/routes.rb`
-4. Create `config/locales/{en,es}/{file}.yml`
-5. Use scoped keys: `t(".title")`
+For detailed implementation patterns and examples, see:
 
-### Adding a Component
-1. Create `app/components/{domain}/name.rb` (inherit from `Components::Base`)
-2. Create locale keys in `config/locales/{en,es}/components.yml`
-3. Use full path keys: `t("components.domain.section.key")`
-4. Include `**attrs` for Stimulus support
+- **[skills/backend/error-handling.md](skills/backend/error-handling.md)** - Authorization & error handling patterns
+- **[skills/backend/anti-patterns.md](skills/backend/anti-patterns.md)** - ❌ What NOT to do / ✅ What to do
+- **[skills/backend/architecture.md](skills/backend/architecture.md)** - Step-by-step development guides
+- **[examples/](examples/)** - Code examples and tutorials
 
-### Adding a Frame
-1. Create `app/controllers/{domain}_controller.rb` with action
-2. Create `app/views/{domain}/action.rb` with `turbo_frame_tag`
-3. Add route: `get "path", to: "{domain}#{action}", as: :route_name`
-4. In main view: `turbo_frame_tag("id", src: route_name_path, loading: :lazy)`
-5. Add i18n translations
+---
 
-### Adding Stimulus Interaction
-1. Create `app/javascript/controllers/{domain}/{feature}_controller.js`
-2. Add data attributes to component: `data: { controller: "domain--feature", ... }`
-3. Use `static targets`, `values` for data binding
-4. Dispatch custom events for communication
+**Remember:** This checklist verifies compliance. For learning and detailed patterns, dive into the skill files above.

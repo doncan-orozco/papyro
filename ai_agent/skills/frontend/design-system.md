@@ -67,18 +67,18 @@ module Components
 end
 ```
 
-## Component Generation Rules
+## Component Generation Steps (Example)
 
-1. **Analyze shadcn source** - Extract variants, sizes, states
-2. **Map Tailwind classes** - Group by: base, variant, size, state
-3. **Parameterize** - Use keyword args for customization
-4. **Compose** - Base components compose into domain components
-5. **Data attributes** - Support Stimulus via `**attrs`
+1. Analyze shadcn source - extract variants, sizes, states
+2. Map Tailwind classes - group by base/variant/size/state
+3. Parameterize - use keyword args for customization
+4. Compose - base components feed domain components
+5. Data attributes - support Stimulus via `**attrs`
 
 ## Variant System
 
 ```ruby
-# Always support these parameters:
+# Typical parameters:
 def initialize(variant: :default, size: :default, disabled: false, **attrs)
   @variant = variant
   @size = size
@@ -145,21 +145,17 @@ module Components
 end
 ```
 
-## Conversion Process
+## Conversion Process (Example)
 
-1. **Find shadcn component** (button, card, input, etc.)
-2. **Extract variants** from TypeScript/className
-3. **Map to Phlex** using hash-based variant system
-4. **Add size variants** (sm, default, lg)
-5. **Support disabled/states** via boolean flags
-6. **Pass through attrs** for Stimulus integration
-7. **Test with domain component** to validate composability
+1. Find shadcn component (button, card, input, etc.)
+2. Extract variants from TypeScript/className
+3. Map to Phlex using hash-based variant system
+4. Add size variants (sm, default, lg)
+5. Support disabled/states via boolean flags
+6. Pass through attrs for Stimulus integration
+7. Test with a domain component to validate composability
 
-## Rules
+## Checklist Reference
 
-- All UI components in `app/components/ui/`
-- Use keyword args for variants/sizes
-- Always support `**attrs` for Stimulus
-- Keep components pure (no side effects)
-- Document available variants in comments
-- Compose UI components into domain components
+Rules live in the checklist:
+- [Frontend](../../VERIFICATION_CHECKLIST.md#-frontend)
