@@ -1,5 +1,7 @@
 # Query Object Examples
 
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#queries-read-model)**
+
 Complex queries live in isolated classes under `app/queries/`.
 
 ## Basic Query
@@ -26,10 +28,6 @@ end
 ```
 
 ## Rules
-- Complex queries in isolated classes
-- Use composition over inheritance
-- Return ActiveRecord relations (chainable) or arrays
-- No business logic - just data retrieval
-- Leverage SQLite's JSON support for complex queries
-- **No model scopes**: keep query logic inside the query object
-- **Name queries by intent**: `{Domain}::{Purpose}Query` in `app/queries/{domain}/`
+
+Rules live in the checklist:
+- [Queries](../VERIFICATION_CHECKLIST.md#queries-read-model)

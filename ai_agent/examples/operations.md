@@ -1,6 +1,6 @@
 # Operation Examples
 
-**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#operations-trailblazer)**
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#operations-trailblazer)**
 
 Operations encapsulate all write business logic using Railway Oriented Programming. Code examples below.
 
@@ -59,4 +59,4 @@ module Game
 end
 ```
 
-See [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#operations-trailblazer) for complete operation guidelines.
+See [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#operations-trailblazer) for complete operation guidelines.

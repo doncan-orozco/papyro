@@ -1,5 +1,7 @@
 # Test Examples (Minitest)
 
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#-testing-requirements)**
+
 All tests use Minitest with fixtures.
 
 ## Operation Test
@@ -128,8 +130,6 @@ test/
 ```
 
 ## Rules
-- Use fixtures for test data
-- Test Operations in isolation
-- Test happy path AND failure scenarios
-- Test WebSocket interactions
-- Use descriptive test names
+
+Rules live in the checklist:
+- [Testing requirements](../VERIFICATION_CHECKLIST.md#-testing-requirements)

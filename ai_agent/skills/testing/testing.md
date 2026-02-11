@@ -28,18 +28,18 @@ test/
   fixtures/
 ```
 
-## Coverage
-- Test Operations in isolation (happy + failure paths).
-- Test Contracts for validation.
-- Test Channels for WebSocket authorization.
-- Assert broadcasts for realtime features.
-- Use fixtures for test data.
-- Keep tests small and explicit.
+## Coverage Examples
+- Operations in isolation (happy + failure paths)
+- Contracts for validation
+- Channels for WebSocket authorization
+- Broadcast assertions for realtime features
+- Fixtures for test data
+- Small, explicit tests
 
-## Recommendations
-- **Framework:** Minitest (Rails-native, fast, minimal).
-- **Test data:** Fixtures by default; add FactoryBot only if fixtures become unmanageable.
-- **System tests:** Playwright (more reliable than Selenium). Use Capybara + Playwright driver.
+## Suggestions
+- Framework: Minitest (Rails-native, fast, minimal)
+- Test data: fixtures by default; add FactoryBot if fixtures become unmanageable
+- System tests: Playwright (more reliable than Selenium) with Capybara driver
 
 ## UI Components (Phlex)
 - Render components and assert HTML output.

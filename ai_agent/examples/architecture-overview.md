@@ -1,6 +1,6 @@
 # Architecture Overview
 
-**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md)**
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md)**
 
 This page provides design philosophy and practical examples. All rules and requirements are documented in the checklist.
 
@@ -25,13 +25,14 @@ Each layer has specific responsibilities. See the checklists for detailed requir
 - **Channels**: Real-time communication
 - **Background Jobs**: Async work (Solid Queue)
 
-## Implementation Clarifications (Required)
+## Implementation Clarifications
 
-- **Explicit file paths**: tasks/issues must specify exact files to create or edit.
-- **Query objects only**: all read queries go in `app/queries/` (no model scopes).
-- **Phlex base classes**: Views inherit `Views::Base`, Components inherit `Components::Base`.
-- **Routes list required**: include HTTP verbs, paths, and helpers in tasks.
-- **Turbo Frame IDs**: specify frame IDs and ensure matching `turbo_frame_tag` wrappers.
+Rules live in the checklist. See:
+- [Task and issue requirements](../VERIFICATION_CHECKLIST.md#taskissue-requirements)
+- [Queries](../VERIFICATION_CHECKLIST.md#queries-read-model)
+- [Views](../VERIFICATION_CHECKLIST.md#views)
+- [Components](../VERIFICATION_CHECKLIST.md#components)
+- [Turbo Frames](../VERIFICATION_CHECKLIST.md#-turbo-frames)
 
 ## Data Flow
 

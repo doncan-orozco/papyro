@@ -9,7 +9,7 @@ This skill provides implementation patterns for Turbo Frames. For complete guide
 - turbo-rails
 
 ## Overview
-Use Turbo Frames to decompose complex pages into domain-based segments. Each frame should represent a meaningful domain concept, not just atomic UI elements.
+Use Turbo Frames to decompose complex pages into domain-based segments. Frames typically represent meaningful domain concepts rather than atomic UI elements.
 
 ## Frame Loading Strategies
 
@@ -41,9 +41,9 @@ turbo_frame_tag("featured_articles", src: featured_articles_path, loading: :lazy
 - ✓ Improving initial page load time
 - ✗ Critical above-fold content
 
-## Frame Response Structure
+## Frame Response Structure (Example)
 
-Frames must wrap content in matching `turbo-frame` tags with the same ID.
+Example response wraps content in a matching `turbo-frame` tag. See the checklist for requirements.
 
 ```ruby
 # app/views/articles/featured.rb (response)
@@ -54,7 +54,7 @@ end
 
 ## Domain-Based Frame Design
 
-Each frame should represent a complete domain concept, not just UI components:
+Example domain concepts for frames:
 
 ```
 GOOD (Domain Concepts):
@@ -70,7 +70,7 @@ BAD (Atomic/UI only):
 
 ## Controller Structure for Frames
 
-Create dedicated controller actions for each frame using **collection routes** (custom actions on a resource):
+Example: dedicated controller actions for frames using collection routes (custom actions on a resource):
 
 ```ruby
 # config/routes.rb
@@ -90,13 +90,7 @@ end
 
 ### RESTful Pattern with Turbo Frames
 
-**Why custom collection actions are acceptable:**
-- ✓ Follow Hotwired's official Turbo Frames documentation patterns
-- ✓ Keep all domain logic in one controller (single responsibility)
-- ✓ Semantic route names that describe the frame's purpose
-- ✓ Not "pure REST" but valid Rails + Turbo pattern
-
-**Route naming convention:**
+Route naming convention example:
 ```ruby
 resources :articles do
   collection do
@@ -107,16 +101,13 @@ resources :articles do
 end
 ```
 
-**Key principle:** Custom collection actions are only acceptable when:
-1. They represent a **domain concept subset** (featured articles, not "card_section")
-2. They have a **dedicated Turbo Frame** consuming them
-3. They belong to the **resource's domain** (ArticlesController for article views)
+Custom collection actions can work well when the action describes a domain subset consumed by a Turbo Frame.
 
-## Frame ID & Route Requirements
-- **Always specify the Turbo Frame ID** in tasks/issues and use the same ID in the response.
-- **Always specify the route helper** that feeds the frame (e.g., `featured_articles_path`).
-- **Frame ID format**: `domain_concept` (e.g., `featured_articles`, `recent_posts`).
-- **Response must wrap** content with `turbo_frame_tag("<frame_id>")`.
+## Frame ID and Route Notes
+
+See requirements in:
+- [Turbo Frames](../../VERIFICATION_CHECKLIST.md#-turbo-frames)
+- [Task and issue requirements](../../VERIFICATION_CHECKLIST.md#taskissue-requirements)
 
 ## Component vs Frame Trade-offs
 
@@ -128,19 +119,6 @@ end
 | **Caching** | Can be expensive (per-request) | HTTP caching friendly |
 | **Navigation** | No link/form handling | Full link/form scope |
 | **Use Case** | Article card in a list | Entire featured articles section |
-
-## Verification Checklist ✓
-
-- [ ] Frame represents a **complete domain concept** (not just UI)
-- [ ] Frame has a **dedicated controller action** with clear responsibility
-- [ ] Frame response is **wrapped in matching turbo-frame tag** with same ID
-- [ ] Frame src path **uses a route helper** (e.g., `featured_articles_path`)
-- [ ] **Loading strategy is intentional**: `loading: :lazy` for below-fold, no `loading` for eager
-- [ ] Frame is **scoped in views with `Views::` namespace**
-- [ ] Frame content uses **components from `app/components/`** for UI
-- [ ] No **implicit dependencies** between frames
-- [ ] Frame route is **named and documented** in routes.rb
-- [ ] Translation keys use **domain-based structure** (e.g., `components.landing.featured_articles.title`)
 
 > **For detailed frontend/backend checklists, see [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md)**
 

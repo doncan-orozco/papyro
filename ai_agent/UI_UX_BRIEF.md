@@ -80,8 +80,12 @@ Use this template to define the product voice, visual system, and page archetype
 
 ## 6) Output Expectations
 
-When generating views:
-- Use Phlex + shadcn‑style components
+This section is a template for product expectations. Required rules live in the checklist:
+- [Frontend rules](../ai_agent/VERIFICATION_CHECKLIST.md#-frontend)
+- [I18n rules](../ai_agent/VERIFICATION_CHECKLIST.md#-internationalization-i18n)
+
+When generating views (example expectations):
+- Use Phlex + shadcn-style components
 - Keep layouts clean, editorial, and readable
 - Prefer content-first structure over decorative UI
 - Ensure i18n keys are used for all copy

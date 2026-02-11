@@ -1,6 +1,6 @@
 # Phlex Views Example
 
-**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#views)**
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#views)**
 
 Page-level views rendered by controllers. Views compose components and receive data from controllers. Code examples below.
 
@@ -50,12 +50,8 @@ end
 
 ## Key Points
 
-- One view per controller action (index, show, new, edit, create)
-- Receives data from controller via constructor arguments
-- Composes `Components::*` for UI elements
-- Uses Phlex syntax (`div`, `h1`, `link_to`, etc.)
-- No instance variables (pass all data via arguments)
-- Views must inherit `Views::Base`
+Rules live in the checklist:
+- [Views](../VERIFICATION_CHECKLIST.md#views)
 
 ## Controller Integration
 

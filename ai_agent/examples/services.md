@@ -1,5 +1,7 @@
 # Service Examples
 
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#services)**
+
 Services contain domain logic following Single Responsibility Principle.
 
 ## Basic Service
@@ -41,7 +43,6 @@ end
 ```
 
 ## Rules
-- Single Responsibility Principle
-- Stateless when possible
-- Injected as dependencies into Operations
-- Return Result objects or raise specific exceptions
+
+Rules live in the checklist:
+- [Services](../VERIFICATION_CHECKLIST.md#services)

@@ -11,15 +11,15 @@ This skill covers Rails 8 specifics. For complete project guidelines, see the ve
 - propshaft
 - kamal
 
-## Stack
-- Ruby 4.0.0+, Rails 8.0+.
-- Solid Queue for jobs (no Redis).
-- Solid Cache for caching (no Redis).
-- SQLite production optimizations (WAL, busy_timeout).
-- Propshaft for assets.
-- Kamal 2 for deployment.
+## Stack Snapshot
+- Ruby 4.0.0+, Rails 8.0+
+- Solid Queue
+- Solid Cache
+- SQLite with production optimizations (WAL, busy_timeout)
+- Propshaft
+- Kamal 2
 
-## Conventions
-- Prefer Rails 8 defaults.
-- Use `normalizes` and `generates_token_for` when needed.
-- Use transactions for multi-step writes.
+## Conventions (Examples)
+- Prefer Rails 8 defaults when they fit
+- Use `normalizes` and `generates_token_for` when helpful
+- Use transactions for multi-step writes

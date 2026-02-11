@@ -1,6 +1,6 @@
 # Contract Examples
 
-**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#contracts-dry-validation)**
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#contracts-dry-validation)**
 
 Contracts handle all validation using dry-validation. Code examples below.
 
@@ -29,4 +29,4 @@ module Game
 end
 ```
 
-See [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#contracts-dry-validation) for complete contract guidelines.
+See [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#contracts-dry-validation) for complete contract guidelines.

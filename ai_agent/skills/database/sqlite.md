@@ -8,11 +8,13 @@ This skill provides SQLite-specific patterns. For complete project guidelines, s
 - strong_migrations
 - database_consistency
 
-## Rules
-- Use SQLite in production with WAL mode and busy_timeout.
-- Add indexes for spatial or frequent queries.
-- Use database constraints for integrity.
-- Use transactions for multi-step Operations.
+## Patterns
+- SQLite in production with WAL mode and busy_timeout
+- Indexes for spatial or frequent queries
+- Database constraints for integrity
+- Transactions for multi-step operations
+
+See [Database rules](../../VERIFICATION_CHECKLIST.md#database-sqlite) for requirements.
 
 ## Conventions
 - Use composite indexes for game coordinate queries.

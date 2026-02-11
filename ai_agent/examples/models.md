@@ -1,6 +1,6 @@
 # Model Examples
 
-**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#models)**
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#models)**
 
 Models are for persistence only - associations only. Code examples below.
 
@@ -86,4 +86,4 @@ module Article
 end
 ```
 
-See [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#models) for complete model guidelines.
+See [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#models) for complete model guidelines.

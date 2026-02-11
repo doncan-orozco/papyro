@@ -1,6 +1,6 @@
 # Phlex Component Examples
 
-**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#-frontend)**
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#-frontend)**
 
 Phlex components are pure, reusable UI elements with Tailwind styling. Code examples below.
 
@@ -91,4 +91,4 @@ app/components/
     navbar.rb
 ```
 
-See [VERIFICATION_CHECKLIST.md](../../ai_agent/VERIFICATION_CHECKLIST.md#components) for complete component guidelines.
+See [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#components) for complete component guidelines.

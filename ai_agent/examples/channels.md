@@ -1,5 +1,7 @@
 # Channel Examples (Action Cable)
 
+**For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#channels-action-cable)**
+
 Channels handle real-time WebSocket connections. Keep them minimal and delegate to Operations in `app/concepts/`.
 
 ## Channel with Operations
@@ -112,10 +114,6 @@ end
 ```
 
 ## Rules
-- One channel per game/room
-- Authorize in `subscribed`
-- Use `stream_for` with game instance
-- Keep channel minimal - delegate to Operations
-- JSON payloads with `type` and small deltas
-- Include timestamps
-- Broadcast inside Operations after successful changes
+
+Rules live in the checklist:
+- [Channels](../VERIFICATION_CHECKLIST.md#channels-action-cable)
