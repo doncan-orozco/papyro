@@ -83,15 +83,44 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 ## 🌐 Internationalization (I18n)
 
 ### File Structure
-- [ ] Domain-based: `config/locales/{en,es}/{file}.yml`
-- [ ] Separate files: `app.yml`, `pages.yml`, `components.yml`, `models.yml`, etc.
-- [ ] Both English and Spanish translations
+- [ ] Domain-based: `config/locales/{en,es}/{domain}.yml`
+- [ ] Separate files: `app.yml` (shared), `{domain}.yml`, `components.yml`, `models.yml`
+- [ ] Both English and Spanish translations required
 
-### Key Naming
-- **Views**: Scoped keys `t(".title")`
-- **Components**: Full path `t("components.domain.section.key")`
-- **Models**: `t("activerecord.models.model_name")`
-- **Contract Error Messages**: `I18n.t('errors.messages.key_name')` in `config/locales/{en,es}/errors.yml`
+### Key Naming (Fully-Qualified)
+- **Views**: `t("articles.show.title")` — always fully-qualified, NO relative keys like `t(".title")`
+- **Components**: `t("components.ui.button.submit")` — full path from components namespace
+- **Operations**: `t("articles.operations.create.success")` — grouped under domain
+- **Errors**: `t("articles.errors.title_blank")` — domain-scoped for context-specific messages
+- **Models**: `Article.model_name.human` or `Article.human_attribute_name(:title)`
+
+### Date/Time Formatting
+- [ ] Use `I18n.l(date, format: :long)` — NEVER use `strftime`
+- [ ] Define formats in `config/locales/{en,es}/app.yml`
+- [ ] Use named formats: `:short`, `:long`, `:month_year`, `:time_only`
+
+### Number/Currency Formatting
+- [ ] Use `number_to_currency(price)` — NEVER manually format with `"$#{price}"`
+- [ ] Use `number_with_delimiter(count)` for large numbers
+- [ ] Define currency formats in `config/locales/{en,es}/app.yml`
+
+### Translation Structure
+```yaml
+# config/locales/en/articles.yml
+en:
+  articles:
+    show:                    # View translations
+      title: "Article"
+    operations:              # Operation messages
+      create:
+        success: "Created"
+    errors:                  # Domain-scoped errors
+      title_blank: "Title cannot be blank"
+    attributes:              # Field names
+      title: "Title"
+```
+
+See [skills/frontend/i18n.md](skills/frontend/i18n.md) for complete patterns and examples.
 
 ## 🔄 Turbo Frames
 
