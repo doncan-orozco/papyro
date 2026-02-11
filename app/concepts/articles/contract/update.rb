@@ -4,8 +4,9 @@ module Articles
   module Contract
     class Update < Dry::Validation::Contract
       # Schema definition - what fields we expect
-      # NOTE: id and user_id are NOT in params - model is passed separately
+      # NOTE: id is optional - used only for slug uniqueness validation
       params do
+        optional(:id).maybe(:integer)
         required(:title).filled(:string)
         required(:slug).filled(:string)
         required(:status).filled(:string)
@@ -27,8 +28,7 @@ module Articles
           key.failure(I18n.t("errors.messages.slug_invalid_format")) unless slug_format_valid?(value)
           key.failure(I18n.t("errors.messages.slug_too_long")) if value.length > 255
           # Update-specific: check slug doesn't exist for other articles
-          # article_id is passed in context from the operation
-          if context[:article_id] && Article.where.not(id: context[:article_id]).exists?(slug: value)
+          if values[:id] && Article.where.not(id: values[:id]).exists?(slug: value)
             key.failure(I18n.t("errors.messages.slug_already_exists"))
           end
         end

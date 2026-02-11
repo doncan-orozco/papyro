@@ -38,26 +38,27 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
     # 2. Controller passes pre-authorized model to operation
     # 3. Operation performs destruction without re-querying
 
-    user = users(:adm in)
-    other_user = users(:one )
+    user = users(:admin)
+    other_user = users(:one)
     article = Article.create!(
-   e: "Other User Article",
+      title: "Other User Article",
       slug: "other-user-article",
       status: :draft,
       user: other_user
     )
 
     # Operation expects pre-authorized model from controller
-# Controller's scoped query (Current.user.articles.find_by!) prevents unauthorized access
-result = Articles::Operation::Destroy.call(mode l: article)
+    # Controller's scoped query (Current.user.articles.find_by!) prevents unauthorized access
+    result = Articles::Operation::Destroy.call(model: article)
 
-    assert_predicate resu lt, :success?
+    assert_predicate result, :success?
     # Security is enforced by controller's scoped find, not by operation
   end
-  test "req uires model parameter" do
+
+  test "requires model parameter" do
     # Operation now expects model to be passed from controller
-assert_raises(Argu mentError) do
-      Articles::Operation::Destroy.call(para ms: {id:123})
+    assert_raises(ArgumentError) do
+      Articles::Operation::Destroy.call(params: { id: 123 })
     end
   end
 end

@@ -8,8 +8,8 @@ module Articles
 
       def validate_input(ctx, params:, model:, **)
         contract = Articles::Contract::Update.new
-        # Pass model's id as context for slug uniqueness validation
-        result = contract.call(params, article_id: model.id)
+        # Include id in params for slug uniqueness validation
+        result = contract.call(params.merge(id: model.id))
 
         if result.success?
           ctx[:validated_params] = result.to_h
