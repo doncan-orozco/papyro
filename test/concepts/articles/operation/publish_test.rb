@@ -12,11 +12,10 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     )
 
     params = {
-      id: article.id,
       action: "publish"
     }
 
-    result = Articles::Operation::Publish.call(params: params)
+    result = Articles::Operation::Publish.call(model: article, params: params)
 
     assert_predicate result, :success?
     assert_predicate result[:model].reload, :status_published?
@@ -35,11 +34,10 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     )
 
     params = {
-      id: article.id,
       action: "unpublish"
     }
 
-    result = Articles::Operation::Publish.call(params: params)
+    result = Articles::Operation::Publish.call(model: article, params: params)
 
     assert_predicate result, :success?
     assert_predicate result[:model].reload, :status_draft?
@@ -58,11 +56,10 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     )
 
     params = {
-      id: article.id,
       action: "publish"
     }
 
-    result = Articles::Operation::Publish.call(params: params)
+    result = Articles::Operation::Publish.call(model: article, params: params)
 
     assert_predicate result, :failure?
     assert_predicate result[:errors][:base], :any?
@@ -78,11 +75,10 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     )
 
     params = {
-      id: article.id,
       action: "publish"
     }
 
-    result = Articles::Operation::Publish.call(params: params)
+    result = Articles::Operation::Publish.call(model: article, params: params)
 
     assert_predicate result, :failure?
     assert_predicate result[:errors][:base], :any?
@@ -98,23 +94,10 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     )
 
     params = {
-      id: article.id,
       action: "unpublish"
     }
 
-    result = Articles::Operation::Publish.call(params: params)
-
-    assert_predicate result, :failure?
-    assert_predicate result[:errors][:base], :any?
-  end
-
-  test "fails with invalid article id" do
-    params = {
-      id: 99999,
-      action: "publish"
-    }
-
-    result = Articles::Operation::Publish.call(params: params)
+    result = Articles::Operation::Publish.call(model: article, params: params)
 
     assert_predicate result, :failure?
     assert_predicate result[:errors][:base], :any?
@@ -131,19 +114,32 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     )
 
     params = {
-      id: article.id,
       action: "invalid_action"
     }
 
-    result = Articles::Operation::Publish.call(params: params)
+    result = Articles::Operation::Publish.call(model: article, params: params)
 
     assert_predicate result, :failure?
     assert_predicate result[:errors][:base], :any?
   end
 
-  test "note: authorization should be enforced at controller level" do
-    # This test documents that the operation itself doesn't enforce user scoping
-    # Authorization must be handled by the controller before calling the operation
+  test "requires model parameter" do
+    # Operation now expects model to be passed from controller
+    params = {
+      action: "publish"
+    }
+
+    assert_raises(ArgumentError) do
+      Articles::Operation::Publish.call(params: params)
+    end
+  end
+
+  test "note: authorization is enforced at controller level before passing model" do
+    # This test documents the new calling pattern:
+    # 1. Controller finds article with scoping: Current.user.articles.find_by!(id: params[:id])
+    # 2. Controller passes pre-authorized model to operation
+    # 3. Operation performs publish/unpublish without re-querying
+
     user = users(:admin)
     other_user = users(:one)
     article = Article.create!(
@@ -154,10 +150,11 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       user: other_user
     )
 
-    # The operation will succeed if called directly
-    result = Articles::Operation::Publish.call(params: { id: article.id, action: "publish" })
+    # Operation expects pre-authorized model from controller
+    # Controller's scoped query (Current.user.articles.find_by!) prevents unauthorized access
+    result = Articles::Operation::Publish.call(model: article, params: { action: "publish" })
 
     assert_predicate result, :success?
-    # Controller must use Current.user.articles.find_by! to enforce scoping
+    # Security is enforced by controller's scoped find, not by operation
   end
 end

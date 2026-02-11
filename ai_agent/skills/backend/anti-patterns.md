@@ -251,6 +251,105 @@ end
 
 ## Operation Anti-Patterns
 
+### ❌ DON'T: Finding Resources in Both Controller and Operation
+
+```ruby
+# WRONG - Double query + security risk
+# Controller
+def update
+  article = Current.user.articles.find_by!(id: params[:id])  # Query #1 WITH scope
+  result = Articles::Operation::Update.call(
+    params: article_params.to_h.merge(id: article.id)  # Pass ID only
+  )
+end
+
+# Operation
+def find_article(ctx, params:, **)
+  article = ::Article.find_by(id: params[:id])  # Query #2 WITHOUT scope!
+  ctx[:model] = article  # Could access resources user doesn't own!
+end
+```
+
+✅ **DO**: Pass Pre-Authorized Model to Operation
+
+```ruby
+# CORRECT - Single query, secure
+# Controller
+def update
+  # Authorization happens here with scope
+  article = Current.user.articles.find_by!(id: params[:id])
+  
+  # Pass pre-authorized model
+  result = Articles::Operation::Update.call(
+    model: article,  # Model already authorized
+    params: article_params.to_h
+  )
+end
+
+# Operation (no find step needed)
+module Articles
+  module Operation
+    class Update < Trailblazer::Operation
+      step :validate_input
+      step :update_article
+      
+      # No find_article step - model already provided
+      
+      def update_article(ctx, model:, validated_params:, **)
+        if model.update(validated_params)
+          ctx[:model] = model
+          true
+        else
+          ctx[:errors] = model.errors.to_hash
+          false
+        end
+      end
+    end
+  end
+end
+```
+
+**Why?**
+- ✅ Single DB query (performance)
+- ✅ Authorization enforced at controller level
+- ✅ No risk of bypassing scopes
+- ✅ Clear separation of concerns
+
+### ❌ DON'T: Updating Ownership in Update Operations
+
+```ruby
+# WRONG - Allows changing ownership
+def update
+  result = Articles::Operation::Update.call(
+    params: article_params.to_h.merge(user_id: params[:user_id])  # BAD!
+  )
+end
+
+# Operation
+def update_article(ctx, model:, validated_params:, **)
+  model.update(validated_params)  # Could change user_id!
+end
+```
+
+✅ **DO**: Protect Ownership Fields
+
+```ruby
+# CORRECT - Ownership doesn't change on update
+def update
+  article = Current.user.articles.find_by!(id: params[:id])
+  result = Articles::Operation::Update.call(
+    model: article,
+    params: article_params.to_h  # NO user_id
+  )
+end
+
+# Operation
+def update_article(ctx, model:, validated_params:, **)
+  # Explicitly exclude ownership fields
+  model.update(validated_params.except(:id, :user_id, :created_at))
+end
+```
+
 ### ❌ DON'T: Hardcoded Error Messages
 
 ```ruby

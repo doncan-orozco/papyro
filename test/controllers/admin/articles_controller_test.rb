@@ -39,7 +39,7 @@ module Admin
       end
 
       assert_redirected_to admin_articles_path
-      assert_equal I18n.t("admin.articles.create.success"), flash[:notice]
+      assert_equal I18n.t("admin.articles.operations.create.success"), flash[:notice]
     end
 
     test "create with invalid params renders new" do
@@ -72,7 +72,7 @@ module Admin
       }
 
       assert_redirected_to admin_articles_path
-      assert_equal I18n.t("admin.articles.update.success"), flash[:notice]
+      assert_equal I18n.t("admin.articles.operations.update.success"), flash[:notice]
       assert_equal "Updated Title", @article.reload.title
     end
 
@@ -94,7 +94,7 @@ module Admin
       end
 
       assert_redirected_to admin_articles_path
-      assert_equal I18n.t("admin.articles.destroy.success"), flash[:notice]
+      assert_equal I18n.t("admin.articles.operations.destroy.success"), flash[:notice]
     end
 
     test "publish changes status to published" do

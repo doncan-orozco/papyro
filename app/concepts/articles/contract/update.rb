@@ -4,15 +4,14 @@ module Articles
   module Contract
     class Update < Dry::Validation::Contract
       # Schema definition - what fields we expect
+      # NOTE: id and user_id are NOT in params - model is passed separately
       params do
-        required(:id).filled(:integer)
         required(:title).filled(:string)
         required(:slug).filled(:string)
         required(:status).filled(:string)
         optional(:content).maybe(:string)
         optional(:published_at).value(:time)
         optional(:excerpt).maybe(:string)
-        required(:user_id).filled(:integer)
       end
 
       # Custom validation rules beyond schema
@@ -28,7 +27,8 @@ module Articles
           key.failure(I18n.t("errors.messages.slug_invalid_format")) unless slug_format_valid?(value)
           key.failure(I18n.t("errors.messages.slug_too_long")) if value.length > 255
           # Update-specific: check slug doesn't exist for other articles
-          if Article.where.not(id: values[:id]).exists?(slug: value)
+          # article_id is passed in context from the operation
+          if context[:article_id] && Article.where.not(id: context[:article_id]).exists?(slug: value)
             key.failure(I18n.t("errors.messages.slug_already_exists"))
           end
         end
@@ -53,12 +53,6 @@ module Articles
       rule(:published_at) do
         if value && value > Time.current
           key.failure(I18n.t("errors.messages.published_at_future"))
-        end
-      end
-
-      rule(:user_id) do
-        unless User.exists?(values[:user_id])
-          key.failure(I18n.t("errors.messages.user_not_found"))
         end
       end
 

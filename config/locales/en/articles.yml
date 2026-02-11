@@ -54,21 +54,24 @@ en:
         status_archived: "Archived"
         save: "Save Article"
         cancel: "Cancel"
-      create:
-        success: "Article was successfully created"
-        error: "Failed to create article"
-      update:
-        success: "Article was successfully updated"
-        error: "Failed to update article"
-      destroy:
-        success: "Article was successfully deleted"
-        error: "Failed to delete article"
-      publish:
-        success: "Article was successfully published"
-        error: "Failed to publish article"
-      unpublish:
-        success: "Article was successfully unpublished"
-        error: "Failed to unpublish article"
+      operations:
+        create:
+          success: "Article was successfully created"
+          failure: "Failed to create article"
+        update:
+          success: "Article was successfully updated"
+          failure: "Failed to update article"
+        destroy:
+          success: "Article was successfully deleted"
+          failure: "Failed to delete article"
+        publish:
+          success: "Article was successfully published"
+          failure: "Failed to publish article"
+        unpublish:
+          success: "Article was successfully unpublished"
+          failure: "Failed to unpublish article"
   articles:
     show:
       by_author: "by %{author}"
+    errors:
+      not_found: "Article not found"
