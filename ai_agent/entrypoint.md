@@ -23,6 +23,7 @@ See [DOCUMENTATION_STRUCTURE.md](DOCUMENTATION_STRUCTURE.md) for the complete do
 ## Quick rules (always)
 - Keep responses concise, actionable, and code-first.
 - Preserve existing style; avoid unrelated refactors.
+- Comment WHY, not WHAT - Ruby is self-documenting.
 - No business logic in controllers or models.
 - All write logic in Trailblazer Operations.
 - All validations in dry-validation contracts.

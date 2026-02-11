@@ -275,6 +275,7 @@ bin/rubocop app/controllers/   # Check specific directory
 - [ ] No unnecessary parentheses: `method(arg)` not `method arg`
 - [ ] Use double quotes for strings (unless string contains quotes)
 - [ ] No commented-out code
+- [ ] Comments explain WHY, not WHAT (Ruby is self-documenting; see [anti-patterns](skills/backend/anti-patterns.md#code-commenting-anti-patterns))
 - [ ] Proper spacing around operators: `a = b`, not `a=b`
 - [ ] Empty lines between methods
 - [ ] Block parameters properly formatted: `{ |x| x }` not `{|x|x}`

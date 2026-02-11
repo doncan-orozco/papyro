@@ -15,7 +15,6 @@ module Articles
           ctx[:validated_params] = result.to_h
           true
         else
-          # Domain-scoped error keys
           ctx[:errors] = result.errors.to_h.transform_values do |messages|
             messages.map { |msg| I18n.t("articles.errors.#{msg}") }
           end
