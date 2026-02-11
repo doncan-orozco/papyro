@@ -3,20 +3,10 @@
 module Articles
   module Operation
     class Publish < Trailblazer::Operation
-      step :find_article
       step :validate_publishable
       step :publish_article
 
-      def find_article(ctx, params:, **)
-        article = ::Article.find_by(id: params[:id])
-        if article
-          ctx[:model] = article
-          true
-        else
-          ctx[:errors] = { base: [ I18n.t("errors.messages.article_not_found") ] }
-          false
-        end
-      end
+      # No find_article step - model is pre-authorized by controller
 
       def validate_publishable(ctx, model:, params:, **)
         action = params[:action] || "publish"

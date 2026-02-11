@@ -9,8 +9,11 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] No business logic
 - [ ] Explicit data passed to view/component
 - [ ] Handle Operation results using pattern matching: `result = Op.call(...); case result; in Success; ...; in Failure; ...; end`
-- [ ] Authorization checks BEFORE calling Operation
+- [ ] Authorization checks BEFORE calling Operation (find with scope: `Current.user.articles.find_by!`)
 - [ ] Format validation errors from Operation failures for display
+- [ ] **For Create**: Pass params with ownership: `Op::Create.call(params: params.merge(user_id: user.id))`
+- [ ] **For Update/Destroy**: Pass pre-authorized model: `Op::Update.call(model: article, params: params)`
+- [ ] Never pass `user_id` in update params (ownership doesn't change)
 
 ### Operations (Trailblazer)
 - [ ] Live in `app/concepts/{domain}/operation/`
@@ -20,6 +23,9 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Always set `ctx[:model]` on success (for main domain object)
 - [ ] For chained operations: call first Op, check result, pass ctx to next Op
 - [ ] No hardcoded error messages (use I18n from contracts)
+- [ ] **For Update/Destroy**: Receive pre-authorized `model:` param from controller (no find step)
+- [ ] **For Create**: Build new model from params
+- [ ] Never update ownership fields (`user_id`) in update operations
 
 ### Models
 - [ ] Persistence only

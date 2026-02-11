@@ -3,36 +3,31 @@
 module Articles
   module Operation
     class Update < Trailblazer::Operation
-      step :find_article
       step :validate_input
       step :update_article
 
-      def find_article(ctx, params:, **)
-        article = ::Article.find_by(id: params[:id])
-        if article
-          ctx[:model] = article
-          true
-        else
-          ctx[:errors] = { base: [ I18n.t("errors.messages.article_not_found") ] }
-          false
-        end
-      end
-
-      def validate_input(ctx, params:, **)
+      def validate_input(ctx, params:, model:, **)
         contract = Articles::Contract::Update.new
-        result = contract.call(params)
+        # Pass model's id as context for slug uniqueness validation
+        result = contract.call(params, article_id: model.id)
 
         if result.success?
           ctx[:validated_params] = result.to_h
           true
         else
-          ctx[:errors] = result.errors.to_h
+          # Domain-scoped error keys
+          ctx[:errors] = result.errors.to_h.transform_values do |messages|
+            messages.map { |msg| I18n.t("articles.errors.#{msg}") }
+          end
           false
         end
       end
 
       def update_article(ctx, model:, validated_params:, **)
+        # Model already pre-authorized by controller
+        # Do NOT update user_id or other ownership fields
         if model.update(validated_params.except(:id, :user_id))
+          ctx[:model] = model
           true
         else
           ctx[:errors] = model.errors.to_hash

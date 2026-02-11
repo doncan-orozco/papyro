@@ -11,14 +11,12 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     )
 
     params = {
-      id: article.id,
       title: "Updated Title",
       slug: "updated-slug",
-      status: "draft",
-      user_id: user.id
+      status: "draft"
     }
 
-    result = Articles::Operation::Update.call(params: params)
+    result = Articles::Operation::Update.call(model: article, params: params)
 
     assert_predicate result, :success?
     assert_equal "Updated Title", result[:model].reload.title
@@ -36,33 +34,37 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     )
 
     params = {
-      id: article.id,
       title: "Test Article",
       slug: "test-article",
       status: "draft",
-      content: "<p>Updated content</p>",
-      user_id: user.id
+      content: "<p>Updated content</p>"
     }
 
-    result = Articles::Operation::Update.call(params: params)
+    result = Articles::Operation::Update.call(model: article, params: params)
 
     assert_predicate result, :success?
     assert_includes result[:model].reload.content.to_s, "Updated content"
   end
 
   test "fails with invalid id" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Test Article",
+      slug: "test-article",
+      status: :draft,
+      user: user
+    )
+
     params = {
-      id: 99999,
-      title: "Test",
+      title: "",  # Invalid - title blank
       slug: "test",
-      status: "draft",
-      user_id: users(:admin).id
+      status: "draft"
     }
 
-    result = Articles::Operation::Update.call(params: params)
+    result = Articles::Operation::Update.call(model: article, params: params)
 
     assert_predicate result, :failure?
-    assert_predicate result[:errors][:base], :any?
+    assert_predicate result[:errors], :present?
   end
 
   test "fails with duplicate slug" do
@@ -81,14 +83,12 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     )
 
     params = {
-      id: article.id,
       title: "Test Article",
       slug: "existing-slug",
-      status: "draft",
-      user_id: user.id
+      status: "draft"
     }
 
-    result = Articles::Operation::Update.call(params: params)
+    result = Articles::Operation::Update.call(model: article, params: params)
 
     assert_predicate result, :failure?
     assert_predicate result[:errors][:slug], :any?
@@ -104,14 +104,12 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     )
 
     params = {
-      id: article.id,
       title: "Updated Title",
       slug: "test-slug",
-      status: "draft",
-      user_id: user.id
+      status: "draft"
     }
 
-    result = Articles::Operation::Update.call(params: params)
+    result = Articles::Operation::Update.call(model: article, params: params)
 
     assert_predicate result, :success?
   end
@@ -127,17 +125,16 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     )
 
     params = {
-      id: article.id,
       title: "Test Article",
       slug: "test-slug-reassign",
       status: "draft",
       user_id: other_user.id # Attempting to change ownership
     }
 
-    result = Articles::Operation::Update.call(params: params)
+    result = Articles::Operation::Update.call(model: article, params: params)
 
     assert_predicate result, :success?
-    # user_id should remain unchanged
+    # user_id should remain unchanged (excluded by operation)
     assert_equal user.id, article.reload.user_id
   end
 end

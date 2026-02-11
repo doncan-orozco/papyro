@@ -2,7 +2,186 @@
 
 **Reference: [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-architecture--organization)**
 
-This skill covers error handling, result extraction, and authorization patterns for Papyro.
+This skill covers error handling, result extraction, authorization patterns, and how to correctly call Operations from controllers.
+
+## Calling Operations from Controllers
+
+### Key Principle: Controller Authorizes → Operation Executes
+
+**Controllers are responsible for:**
+1. Authorization (before calling Operation)
+2. Loading pre-authorized resources with scoped queries
+3. Passing authorized resources to Operations
+
+**Operations are responsible for:**
+1. Business logic execution
+2. Validation
+3. Persistence
+
+---
+
+### Pattern 1: Create Operations (No Existing Model)
+
+Pass params only, including ownership field:
+
+```ruby
+# Controller
+def create
+  result = Articles::Operation::Create.call(
+    params: article_params.to_h.merge(user_id: Current.user.id)  # Set owner on create
+  )
+  
+  case result
+  in Dry::Monads::Success
+    redirect_to articles_path, notice: I18n.t("articles.operations.create.success")
+  in Dry::Monads::Failure
+    @article = result[:model] || Article.new(article_params)
+    @errors = result[:errors]
+    render :new, status: :unprocessable_entity
+  end
+end
+```
+
+### Pattern 2: Update/Destroy Operations (Existing Model)
+
+**✅ CORRECT: Pass pre-authorized model**
+
+```ruby
+# Controller
+def update
+  # 1. Authorize: find with scope
+  article = Current.user.articles.find_by!(id: params[:id])
+  
+  # 2. Call Operation with pre-authorized model
+  result = Articles::Operation::Update.call(
+    model: article,  # Pass the authorized model
+    params: article_params.to_h  # NO user_id - ownership doesn't change
+  )
+  
+  case result
+  in Dry::Monads::Success
+    redirect_to articles_path, notice: I18n.t("articles.operations.update.success")
+  in Dry::Monads::Failure
+    @article = result[:model]
+    @errors = result[:errors]
+    render :edit, status: :unprocessable_entity
+  end
+rescue ActiveRecord::RecordNotFound
+  redirect_to articles_path, alert: I18n.t("articles.errors.not_found")
+end
+
+def destroy
+  # 1. Authorize with scope
+  article = Current.user.articles.find_by!(id: params[:id])
+  
+  # 2. Pass pre-authorized model
+  result = Articles::Operation::Destroy.call(model: article)
+  
+  case result
+  in Dry::Monads::Success
+    redirect_to articles_path, notice: I18n.t("articles.operations.destroy.success"), status: :see_other
+  in Dry::Monads::Failure
+    redirect_to articles_path, alert: I18n.t("articles.operations.destroy.failure"), status: :see_other
+  end
+rescue ActiveRecord::RecordNotFound
+  redirect_to articles_path, alert: I18n.t("articles.errors.not_found"), status: :see_other
+end
+```
+
+**Operation receives pre-authorized model:**
+
+```ruby
+module Articles
+  module Operation
+    class Update < Trailblazer::Operation
+      step :validate_input
+      step :update_article
+      
+      # NO find_article step - model already provided and authorized
+      
+      def validate_input(ctx, params:, **)
+        contract = Articles::Contract::Update.new
+        result = contract.call(params)
+        
+        if result.success?
+          ctx[:validated_params] = result.to_h
+          true
+        else
+          ctx[:errors] = result.errors.to_h
+          false
+        end
+      end
+      
+      def update_article(ctx, model:, validated_params:, **)
+        # Model is pre-authorized by controller
+        # Do NOT update ownership fields
+        if model.update(validated_params.except(:id, :user_id))
+          ctx[:model] = model
+          true
+        else
+          ctx[:errors] = model.errors.to_hash
+          false
+        end
+      end
+    end
+  end
+end
+```
+
+---
+
+### Why This Pattern?
+
+**Benefits:**
+- ✅ **Single DB query**: Controller finds once with authorization scope
+- ✅ **Clear separation**: Controller authorizes, Operation executes business logic
+- ✅ **Security**: Operation can't bypass authorization by using unscoped queries
+- ✅ **Testability**: Operations test business logic, controllers test authorization
+- ✅ **Performance**: No duplicate queries
+
+**❌ WRONG: Finding in both controller and operation**
+```ruby
+# Controller
+article = Current.user.articles.find_by!(id: params[:id])  # Query #1 WITH scope
+result = Articles::Operation::Update.call(params: { id: article.id })  # Pass ID
+
+# Operation
+def find_article(ctx, params:, **)
+  article = ::Article.find_by(id: params[:id])  # Query #2 WITHOUT scope - SECURITY RISK!
+  ctx[:model] = article
+end
+```
+
+**Problems:**
+- 🔴 Two DB queries
+- 🔴 Operation bypasses authorization scope
+- 🔴 Can access resources user doesn't own
+
+---
+
+### Pattern 3: Operations Without Authorization (Background Jobs)
+
+For background jobs, pass IDs (not objects) because jobs are serialized to a queue:
+
+```ruby
+# Controller/Operation that enqueues job
+ArticlePublishJob.perform_later(article.id)  # Pass ID, not object
+
+# Job
+class ArticlePublishJob < ApplicationJob
+  def perform(article_id)
+    article = Article.find(article_id)  # Re-fetch in job context
+    # ... business logic
+  end
+end
+```
+
+**Why pass IDs to jobs?**
+- Jobs are serialized to a background queue
+- State might change between enqueue and execution
+- Cross-process communication requires serializable data
+
+---
 
 ## Authorization Patterns
 
