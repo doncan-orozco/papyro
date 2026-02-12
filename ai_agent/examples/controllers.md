@@ -2,7 +2,7 @@
 
 **For complete guidelines, see: [ai_agent/VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#controllers)**
 
-Controllers are thin - they only receive requests, call Operations, and return responses using pattern matching. Code examples below.
+Controllers are thin - they only receive requests, call Operations, and return responses. Trailblazer Operations return `Trailblazer::Operation::Result` objects (use `result.success?` / `result.failure?`).
 
 ## Task Requirements
 
@@ -20,14 +20,19 @@ class Game::MovesController < ApplicationController
       current_user: current_user
     )
 
-    case result
-    in Dry::Monads::Success(player:, **) 
+    if result.success?
       # Broadcast happens inside the Operation
       head :ok
-    in Dry::Monads::Failure[:invalid_move, error:]
-      render json: { error: error }, status: :unprocessable_entity
-    in Dry::Monads::Failure[:unauthorized]
-      head :forbidden
+    else
+      error_key = result[:error_key]
+      case error_key
+      when :invalid_move
+        render json: { error: result[:error] }, status: :unprocessable_entity
+      when :unauthorized
+        head :forbidden
+      else
+        head :internal_server_error
+      end
     end
   end
 end
