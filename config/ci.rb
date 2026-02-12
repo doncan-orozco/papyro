@@ -12,7 +12,7 @@ CI.run do
   step "Tests: Rails", "bin/rails test"
   step "Tests: System", "bin/rails test:system"
   step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
-  
+
   step "Database: Consistency audit", "bundle exec database_consistency"
 
   # Optional: set a green GitHub commit status to unblock PR merge.
