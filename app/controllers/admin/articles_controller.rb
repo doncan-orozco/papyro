@@ -16,10 +16,9 @@ class Admin::ArticlesController < AdminController
       params: article_params.to_h.merge(user_id: Current.user.id)
     )
 
-    case result
-    in Dry::Monads::Success
+    if result.success?
       redirect_to admin_articles_path, notice: t("admin.articles.operations.create.success")
-    in Dry::Monads::Failure
+    else
       @article = result[:model] || Article.new(article_params)
       @errors = result[:errors]
       render Views::Admin::Articles::New.new(@article, @errors), status: :unprocessable_entity
@@ -40,10 +39,9 @@ class Admin::ArticlesController < AdminController
       params: article_params.to_h
     )
 
-    case result
-    in Dry::Monads::Success
+    if result.success?
       redirect_to admin_articles_path, notice: t("admin.articles.operations.update.success")
-    in Dry::Monads::Failure
+    else
       @article = result[:model]
       @errors = result[:errors]
       render Views::Admin::Articles::Edit.new(@article, @errors), status: :unprocessable_entity
@@ -56,10 +54,9 @@ class Admin::ArticlesController < AdminController
     article = Current.user.articles.find_by!(id: params[:id])
     result = Articles::Operation::Destroy.call(model: article)
 
-    case result
-    in Dry::Monads::Success
+    if result.success?
       redirect_to admin_articles_path, notice: t("admin.articles.operations.destroy.success"), status: :see_other
-    in Dry::Monads::Failure
+    else
       redirect_to admin_articles_path, alert: t("admin.articles.operations.destroy.failure"), status: :see_other
     end
   rescue ActiveRecord::RecordNotFound
@@ -74,12 +71,10 @@ class Admin::ArticlesController < AdminController
       params: { action: action }
     )
 
-    case result
-    in Dry::Monads::Success
-      operation_key = action == "publish" ? "publish" : "unpublish"
+    operation_key = action == "publish" ? "publish" : "unpublish"
+    if result.success?
       redirect_to admin_articles_path, notice: t("admin.articles.operations.#{operation_key}.success")
-    in Dry::Monads::Failure
-      operation_key = action == "publish" ? "publish" : "unpublish"
+    else
       redirect_to admin_articles_path, alert: t("admin.articles.operations.#{operation_key}.failure")
     end
   rescue ActiveRecord::RecordNotFound

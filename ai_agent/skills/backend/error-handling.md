@@ -227,16 +227,19 @@ end
 
 ### Controllers Handling Operation Failures
 
+**Note:** Trailblazer Operations return `Trailblazer::Operation::Result` objects (not Dry::Monads). Use `result.success?` / `result.failure?` methods.
+
 ```ruby
 # Pattern 1: Simple redirect on success, render on failure
 def create
   result = Articles::Operation::Create.call(params: article_params)
 
-  case result
-  in Dry::Monads::Success
+  if result.success?
     redirect_to article_path(result[:model]), notice: t(".success")
-  in Dry::Monads::Failure[*, **]
-    flash.now[:alert] = format_errors(result[:errors])
+  else
+    @article = result[:model] || Article.new(article_params)
+    @errors = result[:errors]
+    flash.now[:alert] = format_errors(@errors)
     render :new, status: :unprocessable_entity
   end
 end
@@ -245,14 +248,14 @@ end
 def create
   result = Articles::Operation::Create.call(params: article_params)
 
-  case result
-  in Dry::Monads::Success
+  if result.success?
     respond_to do |format|
       format.turbo_stream
       format.html { redirect_to article_path(result[:model]) }
     end
-  in Dry::Monads::Failure[*, **]
-    flash.now[:alert] = format_errors(result[:errors])
+  else
+    @errors = result[:errors]
+    flash.now[:alert] = format_errors(@errors)
     render :new, status: :unprocessable_entity
   end
 end
@@ -277,20 +280,12 @@ class GameChannel < ApplicationCable::Channel
       current_user: current_user
     )
     
-    case result
-    in Dry::Monads::Success
+    if result.success?
       # Operation already broadcast; do nothing
-    in Dry::Monads::Failure[:invalid_move, error:]
-      transmit({ type: 'error', message: error })
-    in Dry::Monads::Failure[key, data]
-      transmit({ type: 'error', message: error_message(key, data) })
+    else
+      error_key = result[:error_key] || :unknown_error
+      transmit({ type: 'error', message: I18n.t("errors.game.#{error_key}", fallback: "An error occurred") })
     end
-  end
-  
-  private
-  
-  def error_message(key, data)
-    I18n.t("errors.game.#{key}", fallback: "An error occurred")
   end
 end
 ```
@@ -306,20 +301,22 @@ class RegeneratePlayerStatsJob < ApplicationJob
       params: { player_id: player_id }
     )
     
-    case result
-    in Dry::Monads::Success
-      # Success path (idempotent)
+    if result.success?
       logger.info "Stats regenerated for player #{player_id}"
-    in Dry::Monads::Failure[:not_found]
-      # Non-retryable error - discard
-      logger.warn "Player #{player_id} not found, skipping regeneration"
-    in Dry::Monads::Failure[:player_dead]
-      # Don't retry for dead players
-      logger.info "Player #{player_id} is dead, skipping stats"
-    in Dry::Monads::Failure[:server_error, error:]
-      # Retryable error (default retry behavior)
-      logger.error "Server error regenerating stats: #{error}"
-      raise error # Let Solid Queue retry
+    else
+      error_key = result[:error_key]
+      
+      case error_key
+      when :not_found
+        logger.warn "Player #{player_id} not found, skipping regeneration"
+      when :player_dead
+        logger.info "Player #{player_id} is dead, skipping stats"
+      when :server_error
+        logger.error "Server error regenerating stats: #{result[:error]}"
+        raise result[:error] # Let Solid Queue retry
+      else
+        logger.error "Unknown error regenerating stats for player #{player_id}"
+      end
     end
   end
 end

@@ -8,7 +8,7 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Thin controller (request → Operation/Service → response)
 - [ ] No business logic
 - [ ] Explicit data passed to view/component
-- [ ] Handle Operation results using pattern matching: `result = Op.call(...); case result; in Success; ...; in Failure; ...; end`
+- [ ] Handle Operation results using `result.success?` / `result.failure?` (Trailblazer returns `Trailblazer::Operation::Result`, not Dry::Monads)
 - [ ] Authorization checks BEFORE calling Operation (find with scope: `Current.user.articles.find_by!`)
 - [ ] Format validation errors from Operation failures for display
 - [ ] **For Create**: Pass params with ownership: `Op::Create.call(params: params.merge(user_id: user.id))`
@@ -154,7 +154,7 @@ See [skills/frontend/i18n.md](skills/frontend/i18n.md) for complete patterns and
 - [ ] Use `stream_for` with domain model instances
 - [ ] Keep channels minimal; delegate logic to Operations
 - [ ] Broadcast from Operations after successful changes
-- [ ] Handle Operation failures with pattern matching: `case result; in Failure; ...; end`
+- [ ] Handle Operation failures with `if result.failure?` checks
 
 ## 🧰 Background Jobs (Solid Queue)
 
