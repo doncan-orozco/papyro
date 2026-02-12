@@ -10,8 +10,9 @@ class Article < ApplicationRecord
 
   # Safety-net validations (paranoid mode, apply in all environments)
   # Business validations happen in Contracts
-  validates :title, presence: true
-  validates :slug, presence: true, uniqueness: true
+  validates :title, presence: true, length: { maximum: 255 }
+  validates :slug, presence: true, uniqueness: true, length: { maximum: 255 }
+  validates :excerpt, length: { maximum: 500 }, allow_nil: true
 
   def published?
     status_published? && published_at.present?

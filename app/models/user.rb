@@ -8,6 +8,10 @@ class User < ApplicationRecord
   # So we normalize email before validation to ensure uniqueness
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
+  # Safety-net validations (paranoid mode, apply in all environments)
+  validates :email_address, presence: true, uniqueness: true
+  validates :password_digest, presence: true
+
   generates_token_for :password_reset, expires_in: 24.hours do
     password_salt&.last(10)
   end
