@@ -97,3 +97,4 @@ See [examples/lint-and-tests.md](examples/lint-and-tests.md) for examples of fix
 - Testing (Minitest): skills/testing/testing.md
 - Testing (Linting/RuboCop): skills/testing/linting.md
 - Database (SQLite): skills/database/sqlite.md
+- Database anti-patterns: skills/database/anti-patterns.md

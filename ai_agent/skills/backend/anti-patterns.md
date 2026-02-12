@@ -820,6 +820,17 @@ class ArticlesController < ApplicationController
 end
 ```
 
+## Database Anti-Patterns
+
+For migration safety patterns and database anti-patterns, see [skills/database/anti-patterns.md](../database/anti-patterns.md):
+
+- ❌ DON'T: [Remove columns directly](../database/anti-patterns.md#-dont-remove-columns-directly)
+- ❌ DON'T: [Change column type in single step](../database/anti-patterns.md#-dont-change-column-type-in-single-step)
+- ❌ DON'T: [Backfill in transactions](../database/anti-patterns.md#-dont-backfill-data-in-transaction-with-column-addition)
+- ❌ DON'T: [Set NOT NULL on existing column](../database/anti-patterns.md#-dont-set-not-null-on-existing-column)
+- ❌ DON'T: [Add foreign keys without validate: false](../database/anti-patterns.md#-dont-add-foreign-key-without-validate-false)
+- ❌ DON'T: [Skip `database_consistency` check](../database/anti-patterns.md#-dont-skip-database_consistency-check)
+
 ## I18n Anti-Patterns
 
 ### ❌ DON'T: Use Relative Translation Keys
