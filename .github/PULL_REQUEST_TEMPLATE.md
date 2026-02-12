@@ -1,6 +1,6 @@
 # Checklist
 
-## Required
+## Required (All PRs)
 - [ ] `bin/rubocop` (use `bin/rubocop --fix-layout` first if needed)
 - [ ] `rake test`
 - [ ] `bin/brakeman --no-pager`
@@ -11,12 +11,18 @@
 - [ ] Controllers are thin; business logic in Operations
 - [ ] Views/Components inherit from Base classes and are properly namespaced
 
+## Required (If Changed DB)
+- [ ] **`bundle exec database_consistency` passes** - Audits data integrity
+- [ ] Migrations follow [strong_migrations patterns](../ai_agent/skills/database/sqlite.md#safe-migration-patterns-strong_migrations)
+- [ ] NO unsafe direct changes (column type → multi-step, column rename → multi-step)
+- [ ] Rollback tested locally: `rails db:migrate:down` then `rails db:migrate:up`
+
 ## Optional (if applicable)
 - [ ] Turbo Frames: matching IDs, dedicated action, named route
-- [ ] Migrations: constraints added and rollback tested
 - [ ] Stimulus: controller naming and `**attrs` support
 
 ## References
 - [ai_agent/VERIFICATION_CHECKLIST.md](../ai_agent/VERIFICATION_CHECKLIST.md) - Complete checklist
 - [ai_agent/skills/backend/anti-patterns.md](../ai_agent/skills/backend/anti-patterns.md) - What NOT to do
 - [ai_agent/skills/backend/error-handling.md](../ai_agent/skills/backend/error-handling.md) - Error patterns
+- [ai_agent/skills/database/sqlite.md](../ai_agent/skills/database/sqlite.md) - Safe migration patterns

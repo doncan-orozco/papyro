@@ -166,9 +166,16 @@ See [skills/frontend/i18n.md](skills/frontend/i18n.md) for complete patterns and
 
 ## 🗄️ Database (SQLite)
 
+- [ ] Migrations follow strong_migrations patterns (see [skills/database/sqlite.md](skills/database/sqlite.md#safe-migration-patterns-strong_migrations))
+- [ ] NO direct column changes (type, rename, removal → multi-step)
+- [ ] NO `safety_assured` without 3-deploy strategy
+- [ ] Backfills use `disable_ddl_transaction!` + batching + sleep
+- [ ] **MANDATORY: Run `bundle exec database_consistency` after all migrations**
 - [ ] Use SQLite production optimizations (WAL, busy_timeout)
 - [ ] Add indexes for frequent queries
 - [ ] Use transactions for multi-step operations
+- [ ] Database constraints in migrations (null: false, unique indexes, foreign keys)
+- [ ] Foreign keys validated: `validate: false` then separate validation migration
 
 ## 🧠 Caching (Solid Cache)
 
@@ -196,17 +203,23 @@ See [skills/backend/error-handling.md](skills/backend/error-handling.md) for pat
 
 ## 🚫 Anti-Patterns
 
-See [skills/backend/anti-patterns.md](skills/backend/anti-patterns.md) for what NOT to do:
+**Backend patterns:** See [skills/backend/anti-patterns.md](skills/backend/anti-patterns.md) for what NOT to do:
 - [ ] NO business logic in models → [See examples](skills/backend/anti-patterns.md#model-anti-patterns)
 - [ ] NO validations in models (use Contracts) → [See examples](skills/backend/anti-patterns.md#-dont-validations-in-models)
-- [ ] NO callbacks in models (explicit steps in Operations) → [See examples](skills/backend/anti-patterns.md#-dont-callbacks-in-models)
+- [ ] NO callbacks in models → [See examples](skills/backend/anti-patterns.md#-dont-callbacks-in-models)
 - [ ] NO hardcoded error messages (use I18n) → [See examples](skills/backend/anti-patterns.md#-dont-hardcoded-error-messages)
-- [ ] NO passing ActiveRecord objects to jobs (pass IDs) → [See examples](skills/backend/anti-patterns.md#-dont-passing-activerecord-objects-to-jobs)
+- [ ] NO passing ActiveRecord objects to jobs → [See examples](skills/backend/anti-patterns.md#-dont-passing-activerecord-objects-to-jobs)
 - [ ] NO query scopes in models (use Query Objects) → [See examples](skills/backend/anti-patterns.md#-dont-query-logic-in-models-scopes)
-- [ ] NO implicit dependencies (inject everything) → [See examples](skills/backend/anti-patterns.md#-dont-implicit-dependencies)
+- [ ] NO implicit dependencies → [See examples](skills/backend/anti-patterns.md#-dont-implicit-dependencies)
 - [ ] NO accessing internal Operation ctx keys → [See examples](skills/backend/anti-patterns.md#-dont-accessing-internal-operation-context)
 - [ ] NO missing Turbo Frame wrapping → [See examples](skills/backend/anti-patterns.md#-dont-missing-turbo-frame-wrapping)
 - [ ] NO hardcoded strings in views (use i18n) → [See examples](skills/backend/anti-patterns.md#-dont-hardcoded-strings-in-views)
+
+**Database patterns:** See [skills/database/anti-patterns.md](skills/database/anti-patterns.md) - Migration safety:
+- [ ] NO direct column removals (use 3-step rollout) → [See examples](skills/database/anti-patterns.md#-dont-remove-columns-directly)
+- [ ] NO single-step column type changes (6-step migration) → [See examples](skills/database/anti-patterns.md#-dont-change-column-type-in-single-step)
+- [ ] NO backfills in transactions (batch + sleep) → [See examples](skills/database/anti-patterns.md#-dont-backfill-data-in-transaction-with-column-addition)
+- [ ] NO direct NOT NULL on existing columns (check constraint strategy) → [See examples](skills/database/anti-patterns.md#-dont-set-not-null-on-existing-column)
 
 ## 🏗️ Common Development Patterns
 
