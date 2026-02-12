@@ -31,10 +31,9 @@ def create
     params: article_params.to_h.merge(user_id: Current.user.id)  # Set owner on create
   )
   
-  case result
-  in Dry::Monads::Success
+  if result.success?
     redirect_to articles_path, notice: I18n.t("articles.operations.create.success")
-  in Dry::Monads::Failure
+  else
     @article = result[:model] || Article.new(article_params)
     @errors = result[:errors]
     render :new, status: :unprocessable_entity
@@ -58,10 +57,9 @@ def update
     params: article_params.to_h  # NO user_id - ownership doesn't change
   )
   
-  case result
-  in Dry::Monads::Success
+  if result.success?
     redirect_to articles_path, notice: I18n.t("articles.operations.update.success")
-  in Dry::Monads::Failure
+  else
     @article = result[:model]
     @errors = result[:errors]
     render :edit, status: :unprocessable_entity
@@ -77,10 +75,9 @@ def destroy
   # 2. Pass pre-authorized model
   result = Articles::Operation::Destroy.call(model: article)
   
-  case result
-  in Dry::Monads::Success
+  if result.success?
     redirect_to articles_path, notice: I18n.t("articles.operations.destroy.success"), status: :see_other
-  in Dry::Monads::Failure
+  else
     redirect_to articles_path, alert: I18n.t("articles.operations.destroy.failure"), status: :see_other
   end
 rescue ActiveRecord::RecordNotFound
@@ -199,10 +196,10 @@ class ArticlesController < ApplicationController
       current_user: Current.user
     )
     
-    case result
-    in Dry::Monads::Success
+
+    if result.success?
       redirect_to article_path(result[:model]), notice: t(".success")
-    in Dry::Monads::Failure[*, **]
+    else
       flash.now[:alert] = format_errors(result[:errors])
       render :show, status: :unprocessable_entity
     end
@@ -404,10 +401,9 @@ end
 def create_and_publish
   result = publish_and_notify
   
-  case result
-  in Dry::Monads::Success
+  if result.success?
     redirect_to articles_path, notice: t(".success")
-  in Dry::Monads::Failure[*, **]
+  else
     flash.now[:alert] = format_errors(result[:errors])
     render :new, status: :unprocessable_entity
   end
