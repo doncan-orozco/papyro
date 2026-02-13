@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+# Development SSL Server Startup Script
+# This script starts the Rails server with HTTPS enabled using self-signed SSL certificates.
+#
+# Usage:
+#   bin/dev-ssl [port]
+#
+# Default port is 3030 if not specified.
+
+set -e
+
+# Change to the application directory
+cd "$(dirname "$0")/.."
+
+# Default port
+PORT="${1:-3030}"
+
+# SSL certificate paths (relative to Rails.root)
+CERT_FILE="config/ssl/localhost.pem"
+KEY_FILE="config/ssl/localhost-key.pem"
+
+# Convert relative paths to absolute paths
+CERT_PATH="$(pwd)/$CERT_FILE"
+KEY_PATH="$(pwd)/$KEY_FILE"
+
+# Check if certificates exist
+if [ ! -f "$CERT_PATH" ] || [ ! -f "$KEY_PATH" ]; then
+  echo "❌ SSL certificates not found!"
+  echo ""
+  echo "Please generate SSL certificates first:"
+  echo ""
+  echo "  mkdir -p config/ssl"
+  echo ""
+  echo "  openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes \\"
+  echo "    -keyout config/ssl/localhost-key.pem \\"
+  echo "    -out config/ssl/localhost.pem \\"
+  echo "    -subj \"/CN=localhost\" \\"
+  echo "    -addext \"subjectAltName=DNS:localhost,DNS:*.localhost,IP:127.0.0.1\""
+  echo ""
+  echo "Or use mkcert:"
+  echo ""
+  echo "  mkcert -install"
+  echo "  mkcert -key-file config/ssl/localhost-key.pem -cert-file config/ssl/localhost.pem localhost 127.0.0.1 ::1"
+  echo ""
+  exit 1
+fi
+
+echo "🔒 Starting Rails server with HTTPS..."
+echo "   Port: $PORT"
+echo "   Cert: $CERT_FILE"
+echo "   Key:  $KEY_FILE"
+echo ""
+echo "   Server will be available at: https://localhost:$PORT"
+echo ""
+echo "⚠️  Your browser will show a security warning for self-signed certificates."
+echo "   Click 'Advanced' and 'Proceed to localhost' to continue."
+echo ""
+
+# Construct the SSL binding URL for Puma
+BINDING="ssl://127.0.0.1:${PORT}?cert=${CERT_PATH}&key=${KEY_PATH}&verify_mode=none"
+
+# Start the server with SSL configuration
+export BINDING
+exec bin/rails server
