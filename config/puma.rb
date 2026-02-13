@@ -29,8 +29,6 @@ threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
 threads threads_count, threads_count
 
 # SSL Configuration for Development
-# When FORCE_SSL=true and SSL certificates are provided, this will set up Puma to use HTTPS
-# 
 # The BINDING environment variable takes precedence and is set by the startup command when SSL is enabled.
 # If BINDING is already set (e.g., "ssl://127.0.0.1:3030?cert=..."), Puma will use it directly.
 #
