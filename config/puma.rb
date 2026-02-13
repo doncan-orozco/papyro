@@ -28,8 +28,16 @@
 threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
 threads threads_count, threads_count
 
-# Specifies the `port` that Puma will listen on to receive requests; default is 3000.
-port ENV.fetch("PORT", 3000)
+# SSL Configuration for Development
+# The BINDING environment variable takes precedence and is set by the startup command when SSL is enabled.
+# If BINDING is already set (e.g., "ssl://127.0.0.1:3030?cert=..."), Puma will use it directly.
+#
+# Otherwise, we set up the standard HTTP port binding.
+
+unless ENV["BINDING"]
+  # Standard HTTP binding - specify the port that Puma will listen on
+  port ENV.fetch("PORT", 3000)
+end
 
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart

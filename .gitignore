@@ -33,6 +33,10 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# Ignore SSL certificates (developers should generate their own)
+/config/ssl/*.pem
+/config/ssl/*.key
+
 # Ignore vscode settings folder
 .vscode/
 
