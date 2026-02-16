@@ -2,40 +2,48 @@ module Views
   module Sessions
     class New < Views::Base
       def view_template
-        div(class: "mx-auto md:w-2/3 w-full") do
+        div(class: "mx-auto md:w-2/3 w-full max-w-md") do
           render_flash_messages
 
-          h1(class: "font-bold text-4xl") { t(".heading") }
-
-          whitespace
-          form_with(url: session_path, class: "contents") do |form|
-            div(class: "my-5") do
-              form.email_field :email_address,
-                required: true,
-                autofocus: true,
-                autocomplete: "username",
-                placeholder: t(".email_placeholder"),
-                value: view_context.params[:email_address],
-                class: "block shadow-sm rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full"
+          render Components::Ui::Card.new do
+            render Components::Ui::CardHeader.new do
+              h1(class: "font-bold text-2xl") { t(".heading") }
             end
 
-            div(class: "my-5") do
-              form.password_field :password,
-                required: true,
-                autocomplete: "current-password",
-                placeholder: t(".password_placeholder"),
-                maxlength: 72,
-                class: "block shadow-sm rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full"
-            end
+            render Components::Ui::CardContent.new do
+              form_with(url: session_path, class: "space-y-4") do |form|
+                div(class: "space-y-2") do
+                  render Components::Ui::Label.new(for_id: "email_address") { t(".email_label") }
+                  form.email_field :email_address,
+                    required: true,
+                    autofocus: true,
+                    autocomplete: "username",
+                    placeholder: t(".email_placeholder"),
+                    value: view_context.params[:email_address],
+                    class: "flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
+                end
 
-            div(class: "col-span-6 sm:flex sm:items-center sm:gap-4") do
-              div(class: "inline") do
-                form.submit t(".submit"),
-                  class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer"
-              end
+                div(class: "space-y-2") do
+                  render Components::Ui::Label.new(for_id: "password") { t(".password_label") }
+                  form.password_field :password,
+                    required: true,
+                    autocomplete: "current-password",
+                    placeholder: t(".password_placeholder"),
+                    maxlength: 72,
+                    class: "flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
+                end
 
-              div(class: "mt-4 text-sm text-gray-500 sm:mt-0") do
-                link_to t(".forgot_password"), new_password_path, class: "text-gray-700 underline hover:no-underline"
+                div(class: "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2") do
+                  render Components::Ui::Button.new(
+                    variant: :default,
+                    size: :default,
+                    type: "submit"
+                  ) { t(".submit") }
+
+                  div(class: "text-sm text-slate-500") do
+                    link_to t(".forgot_password"), new_password_path, class: "text-slate-700 underline underline-offset-4 hover:no-underline"
+                  end
+                end
               end
             end
           end
@@ -46,11 +54,15 @@ module Views
 
       def render_flash_messages
         if alert = view_context.flash[:alert]
-          p(class: "py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block", id: "alert") { alert }
+          div(class: "mb-6 rounded-lg border border-red-200 bg-red-50 p-4", id: "alert") do
+            p(class: "text-sm text-red-800 font-medium") { alert }
+          end
         end
 
         if notice = view_context.flash[:notice]
-          p(class: "py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block", id: "notice") { notice }
+          div(class: "mb-6 rounded-lg border border-green-200 bg-green-50 p-4", id: "notice") do
+            p(class: "text-sm text-green-800 font-medium") { notice }
+          end
         end
       end
     end

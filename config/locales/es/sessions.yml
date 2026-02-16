@@ -3,7 +3,9 @@ es:
   sessions:
     new:
       heading: "Iniciar sesión"
+      email_label: "Correo electrónico"
       email_placeholder: "Ingresa tu correo electrónico"
+      password_label: "Contraseña"
       password_placeholder: "Ingresa tu contraseña"
       submit: "Iniciar sesión"
       forgot_password: "¿Olvidaste tu contraseña?"

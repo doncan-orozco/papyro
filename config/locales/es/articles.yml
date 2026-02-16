@@ -28,6 +28,7 @@ es:
         draft: "Borrador"
         published: "Publicado"
         archived: "Archivado"
+        draft_status: "No publicado"
         edit: "Editar"
         delete: "Eliminar"
         publish: "Publicar"

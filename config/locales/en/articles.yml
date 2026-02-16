@@ -28,6 +28,7 @@ en:
         draft: "Draft"
         published: "Published"
         archived: "Archived"
+        draft_status: "Not published"
         edit: "Edit"
         delete: "Delete"
         publish: "Publish"
