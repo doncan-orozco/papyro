@@ -71,6 +71,6 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
 
   private
     def assert_notice(text)
-      assert_select "p#notice, p#alert", /#{text}/
+      assert_select "div#notice, div#alert, p#notice, p#alert", /#{text}/
     end
 end
