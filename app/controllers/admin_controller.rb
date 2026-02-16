@@ -7,12 +7,11 @@ class AdminController < ApplicationController
   private
 
   def require_admin_role
-    # Temporarily disabled for screenshots - will be re-enabled
     # For MVP: all authenticated users are admins
     # Later: add role column to users table
-    # unless Current.user
-    #   redirect_to admin_login_path, alert: t("admin.errors.unauthorized")
-    # end
+    unless Current.user
+      redirect_to admin_login_path, alert: t("admin.errors.unauthorized")
+    end
   end
 
   def authentication_redirect_path
