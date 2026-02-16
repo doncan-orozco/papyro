@@ -19,7 +19,7 @@ module Components
       private
 
       def classes
-        [base_classes, variant_classes[@variant]].compact.join(" ")
+        [ base_classes, variant_classes[@variant] ].compact.join(" ")
       end
 
       def base_classes

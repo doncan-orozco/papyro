@@ -605,3 +605,172 @@ When converting shadcn component to Phlex:
 6. ✅ Use `&block` for component children/content
 7. ✅ Keep class composition logic in private methods
 8. ✅ Test composition with domain components
+
+## Form Components (shadcn/ui → Phlex)
+
+### Overview
+
+Forms in Papyro follow the shadcn/ui form patterns using Rails' `form_with` helper combined with shadcn-styled components.
+
+### Form Pattern
+
+```ruby
+# app/views/admin/articles/form_component.rb
+module Views
+  module Admin
+    module Articles
+      class FormComponent < Components::Base
+        include Phlex::Rails::Helpers::FormWith
+        
+        def initialize(article, errors = {})
+          @article = article
+          @errors = errors
+        end
+        
+        def view_template
+          form_with(model: @article, url: form_url, class: "space-y-6") do |form|
+            # Title field
+            div(class: "space-y-2") do
+              form.label :title, class: "text-sm font-medium leading-none"
+              form.text_field :title,
+                class: "flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950",
+                placeholder: "Enter article title"
+              render_error(:title) if @errors[:title]
+            end
+            
+            # Content field (rich text)
+            div(class: "space-y-2") do
+              form.label :content, class: "text-sm font-medium leading-none"
+              form.rich_text_area :content,
+                class: "min-h-[200px] w-full rounded-md border border-slate-200"
+              render_error(:content) if @errors[:content]
+            end
+            
+            # Actions
+            div(class: "flex gap-4") do
+              form.submit "Save Article",
+                class: "inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-slate-50 hover:bg-slate-900/90"
+              
+              link_to "Cancel",
+                admin_articles_path,
+                class: "inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-100"
+            end
+          end
+        end
+        
+        private
+        
+        def render_error(field)
+          return unless @errors[field]&.any?
+          
+          div(class: "text-sm text-red-600 mt-1") do
+            @errors[field].each { |error| p { error } }
+          end
+        end
+      end
+    end
+  end
+end
+```
+
+### Using shadcn Form Components
+
+```ruby
+# With Label component
+render Components::Ui::Label.new(for: "email") { "Email address" }
+render Components::Ui::Input.new(
+  id: "email",
+  type: :email,
+  placeholder: "name@example.com"
+)
+
+# With Textarea component
+render Components::Ui::Label.new(for: "bio") { "Biography" }
+render Components::Ui::Textarea.new(
+  id: "bio",
+  rows: 4,
+  placeholder: "Tell us about yourself"
+)
+
+# With Select component
+render Components::Ui::Label.new(for: "status") { "Status" }
+render Components::Ui::Select.new(id: "status", name: "article[status]") do
+  option(value: "draft") { "Draft" }
+  option(value: "published") { "Published" }
+  option(value: "archived") { "Archived" }
+end
+```
+
+### Form Validation Errors
+
+Display validation errors using the pattern from shadcn forms:
+
+```ruby
+def error_class(field)
+  @errors[field]&.any? ? "border-red-500 focus-visible:ring-red-500" : ""
+end
+
+# Usage
+form.text_field :title,
+  class: "flex h-10 w-full rounded-md border bg-white px-3 py-2 #{error_class(:title)}"
+```
+
+### Complete Form Example with shadcn Components
+
+```ruby
+# Using pure shadcn components (without Rails helpers)
+div(class: "space-y-6") do
+  # Email field
+  div(class: "space-y-2") do
+    render Components::Ui::Label.new(for: "email") { "Email" }
+    render Components::Ui::Input.new(
+      id: "email",
+      name: "user[email]",
+      type: :email,
+      placeholder: "you@example.com",
+      required: true
+    )
+  end
+  
+  # Password field
+  div(class: "space-y-2") do
+    render Components::Ui::Label.new(for: "password") { "Password" }
+    render Components::Ui::Input.new(
+      id: "password",
+      name: "user[password]",
+      type: :password,
+      required: true
+    )
+  end
+  
+  # Bio field
+  div(class: "space-y-2") do
+    render Components::Ui::Label.new(for: "bio") { "Bio" }
+    render Components::Ui::Textarea.new(
+      id: "bio",
+      name: "user[bio]",
+      placeholder: "Tell us about yourself"
+    )
+  end
+  
+  # Submit button
+  render Components::Ui::Button.new(type: :submit) { "Create Account" }
+end
+```
+
+### Best Practices
+
+1. **Use Rails form helpers** (`form_with`, `form.text_field`, etc.) for model-backed forms
+2. **Use shadcn components** for standalone inputs or custom forms
+3. **Consistent spacing**: Use `space-y-2` for field groups, `space-y-6` between sections
+4. **Error handling**: Show errors below fields with red text and border highlights
+5. **Accessibility**: Always include labels, proper input types, and ARIA attributes
+6. **Responsive design**: Forms should work well on mobile (default shadcn styles handle this)
+
+### Key Files
+
+- Form components: `app/views/{domain}/form_component.rb`
+- UI components: `app/components/ui/input.rb`, `label.rb`, `textarea.rb`, `select.rb`, `button.rb`
+- Styling: Tailwind utility classes following shadcn patterns
+- I18n: All labels and placeholders use `t()` helper
+
