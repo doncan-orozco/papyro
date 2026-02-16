@@ -14,8 +14,8 @@ module Views
           turbo_frame_tag "admin_articles_list" do
             div(class: "mx-auto w-full") do
               div(class: "flex justify-between items-center mb-8") do
-                h1(class: "font-bold text-3xl") { t(".title") }
-                link_to t(".new_article"),
+                h1(class: "font-bold text-3xl") { t("admin.articles.index.title") }
+                link_to t("admin.articles.index.new_article"),
                   new_admin_article_path,
                   class: "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 h-10 px-4 py-2 text-sm bg-slate-900 text-slate-50 hover:bg-slate-900/90",
                   data: { turbo_frame: "_top" }
@@ -32,7 +32,7 @@ module Views
           if @articles.empty?
             render Components::Ui::Card.new do
               render Components::Ui::CardContent.new(class: "p-6") do
-                p(class: "text-slate-500 text-center") { t(".no_articles") }
+                p(class: "text-slate-500 text-center") { t("admin.articles.index.no_articles") }
               end
             end
           else
@@ -67,33 +67,33 @@ module Views
               div(class: "flex items-center justify-between") do
                 if article.published_at
                   span(class: "text-sm text-slate-500") do
-                    t(".published_date", date: I18n.l(article.published_at, format: :long))
+                    t("admin.articles.index.published_date", date: I18n.l(article.published_at, format: :long))
                   end
                 else
-                  span(class: "text-sm text-slate-500") { t(".draft_status") }
+                  span(class: "text-sm text-slate-500") { t("admin.articles.index.draft_status") }
                 end
 
                 div(class: "flex gap-2") do
-                  link_to t(".edit"),
+                  link_to t("admin.articles.index.edit"),
                     edit_admin_article_path(article),
                     class: "text-sm font-medium text-slate-900 hover:underline underline-offset-4"
 
                   if article.status_draft?
-                    button_to t(".publish"),
+                    button_to t("admin.articles.index.publish"),
                       publish_admin_article_path(article, publish_action: "publish"),
                       method: :patch,
                       class: "text-sm font-medium text-green-700 hover:underline underline-offset-4"
                   elsif article.status_published?
-                    button_to t(".unpublish"),
+                    button_to t("admin.articles.index.unpublish"),
                       publish_admin_article_path(article, publish_action: "unpublish"),
                       method: :patch,
                       class: "text-sm font-medium text-orange-700 hover:underline underline-offset-4"
                   end
 
-                  button_to t(".delete"),
+                  button_to t("admin.articles.index.delete"),
                     admin_article_path(article),
                     method: :delete,
-                    data: { turbo_confirm: t(".confirm_delete") },
+                    data: { turbo_confirm: t("admin.articles.index.confirm_delete") },
                     class: "text-sm font-medium text-red-700 hover:underline underline-offset-4"
                 end
               end
@@ -114,7 +114,7 @@ module Views
           end
 
           render Components::Ui::Badge.new(variant: variant) do
-            t(".#{article.status}")
+            t("admin.articles.index.#{article.status}")
           end
         end
       end

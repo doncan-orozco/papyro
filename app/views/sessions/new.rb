@@ -7,28 +7,28 @@ module Views
 
           render Components::Ui::Card.new do
             render Components::Ui::CardHeader.new do
-              h1(class: "font-bold text-2xl") { t(".heading") }
+              h1(class: "font-bold text-2xl") { t("sessions.new.heading") }
             end
 
             render Components::Ui::CardContent.new do
               form_with(url: session_path, class: "space-y-4") do |form|
                 div(class: "space-y-2") do
-                  render Components::Ui::Label.new(for_id: "email_address") { t(".email_label") }
+                  render Components::Ui::Label.new(for_id: "email_address") { t("sessions.new.email_label") }
                   form.email_field :email_address,
                     required: true,
                     autofocus: true,
                     autocomplete: "username",
-                    placeholder: t(".email_placeholder"),
+                    placeholder: t("sessions.new.email_placeholder"),
                     value: view_context.params[:email_address],
                     class: "flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
                 end
 
                 div(class: "space-y-2") do
-                  render Components::Ui::Label.new(for_id: "password") { t(".password_label") }
+                  render Components::Ui::Label.new(for_id: "password") { t("sessions.new.password_label") }
                   form.password_field :password,
                     required: true,
                     autocomplete: "current-password",
-                    placeholder: t(".password_placeholder"),
+                    placeholder: t("sessions.new.password_placeholder"),
                     maxlength: 72,
                     class: "flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
                 end
@@ -38,10 +38,10 @@ module Views
                     variant: :default,
                     size: :default,
                     type: "submit"
-                  ) { t(".submit") }
+                  ) { t("sessions.new.submit") }
 
                   div(class: "text-sm text-slate-500") do
-                    link_to t(".forgot_password"), new_password_path, class: "text-slate-700 underline underline-offset-4 hover:no-underline"
+                    link_to t("sessions.new.forgot_password"), new_password_path, class: "text-slate-700 underline underline-offset-4 hover:no-underline"
                   end
                 end
               end
