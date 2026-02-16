@@ -10,9 +10,11 @@ module Views
         end
 
         def view_template
-          div(class: "mx-auto md:w-2/3 w-full") do
-            h1(class: "font-bold text-4xl mb-6") { t("admin.articles.edit.title") }
-            render FormComponent.new(@article, @errors)
+          div(class: "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8") do
+            div(class: "max-w-3xl mx-auto") do
+              h1(class: "font-bold text-4xl mb-6") { t("admin.articles.edit.title") }
+              render FormComponent.new(@article, @errors)
+            end
           end
         end
       end

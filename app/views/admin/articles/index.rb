@@ -11,17 +11,16 @@ module Views
         end
 
         def view_template
-          turbo_frame_tag "admin_articles_list" do
-            div(class: "mx-auto w-full") do
-              div(class: "flex justify-between items-center mb-6") do
-                h1(class: "font-bold text-4xl") { t(".title") }
-                link_to t(".new_article"),
-                  new_admin_article_path,
-                  class: "rounded-lg py-3 px-5 bg-blue-600 text-white hover:bg-blue-700 font-medium"
-              end
-
-              render_articles
+          div(class: "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8") do
+            div(class: "flex justify-between items-center mb-6") do
+              h1(class: "font-bold text-4xl") { t(".title") }
+              link_to t(".new_article"),
+                new_admin_article_path,
+                data: { turbo_frame: "_top" },
+                class: "rounded-lg py-3 px-5 bg-blue-600 text-white hover:bg-blue-700 font-medium"
             end
+
+            render_articles
           end
         end
 
@@ -63,24 +62,27 @@ module Views
               div(class: "flex flex-col gap-2 ml-4") do
                 link_to t(".edit"),
                   edit_admin_article_path(article),
+                  data: { turbo_frame: "_top" },
                   class: "text-blue-600 hover:text-blue-800 text-sm font-medium"
 
                 if article.status_draft?
                   button_to t(".publish"),
                     publish_admin_article_path(article, publish_action: "publish"),
                     method: :patch,
+                    data: { turbo: "false" },
                     class: "text-green-600 hover:text-green-800 text-sm font-medium text-left"
                 elsif article.status_published?
                   button_to t(".unpublish"),
                     publish_admin_article_path(article, publish_action: "unpublish"),
                     method: :patch,
+                    data: { turbo: "false" },
                     class: "text-orange-600 hover:text-orange-800 text-sm font-medium text-left"
                 end
 
                 button_to t(".delete"),
                   admin_article_path(article),
                   method: :delete,
-                  data: { turbo_confirm: t(".confirm_delete") },
+                  data: { turbo_confirm: t(".confirm_delete"), turbo: "false" },
                   class: "text-red-600 hover:text-red-800 text-sm font-medium text-left"
               end
             end
