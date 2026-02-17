@@ -130,15 +130,13 @@ Component previews are stored in `test/components/previews/`. To create a new pr
 
 1. Create a preview file matching your component path:
    ```ruby
-   # test/components/previews/ui/button_preview.rb
-   module Ui
-     class ButtonPreview < Lookbook::Preview
-       # Default button
-       # @label Default
-       def default
-         render Components::Ui::Button.new do
-           "Click me"
-         end
+   # test/components/previews/button_preview.rb
+   class ButtonPreview < Lookbook::Preview
+     # Default button
+     # @label Default
+     def default
+       render Components::Ui::Button.new do
+         "Click me"
        end
      end
    end
