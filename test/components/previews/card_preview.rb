@@ -6,18 +6,84 @@ class CardPreview < Lookbook::Preview
   # Basic card with all sections
   # @label Default
   def default
-    "<div class='rounded-lg border border-border bg-card text-card-foreground shadow-sm max-w-md'><div class='flex flex-col space-y-1.5 p-6'><h3 class='font-semibold leading-none tracking-tight'>Card Title</h3><p class='text-sm text-muted-foreground'>Card description goes here</p></div><div class='p-6 pt-0'><p class='text-sm'>This is the main content area of the card.</p></div><div class='flex items-center p-6 pt-0'><button class='inline-flex items-center justify-center whitespace-nowrap shrink-0 rounded-lg border border-border bg-background text-foreground hover:bg-muted text-sm font-medium h-8 gap-1.5 px-3'>Cancel</button><button class='inline-flex items-center justify-center whitespace-nowrap shrink-0 rounded-lg border border-transparent bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium h-8 gap-1.5 px-2.5 ml-2'>Submit</button></div></div>".html_safe
+    render CardWithFooterExample.new
   end
 
   # Card without footer
   # @label Simple
   def simple
-    "<div class='rounded-lg border border-border bg-card text-card-foreground shadow-sm max-w-md'><div class='flex flex-col space-y-1.5 p-6'><h3 class='font-semibold leading-none tracking-tight'>Simple Card</h3><p class='text-sm text-muted-foreground'>A card without a footer</p></div><div class='p-6 pt-0'><p class='text-sm'>This card only has a header and content.</p></div></div>".html_safe
+    render SimpleCardExample.new
   end
 
   # Card with just content
   # @label Content Only
   def content_only
-    "<div class='rounded-lg border border-border bg-card text-card-foreground shadow-sm max-w-md'><div class='p-6'><p class='text-sm'>This is a card with just content.</p></div></div>".html_safe
+    render ContentOnlyCardExample.new
+  end
+end
+
+# Example component: Card with header, content, and footer
+class CardWithFooterExample < Components::Base
+  def view_template
+    render Components::Ui::Card.new(class: "max-w-md") do
+      render Components::Ui::CardHeader.new do
+        render Components::Ui::CardTitle.new do
+          "Card Title"
+        end
+        render Components::Ui::CardDescription.new do
+          "Card description goes here"
+        end
+      end
+
+      render Components::Ui::CardContent.new do
+        p(class: "text-sm") do
+          "This is the main content area of the card."
+        end
+      end
+
+      render Components::Ui::CardFooter.new do
+        render Components::Ui::Button.new(variant: :outline) do
+          "Cancel"
+        end
+        render Components::Ui::Button.new(class: "ml-2") do
+          "Submit"
+        end
+      end
+    end
+  end
+end
+
+# Example component: Simple card without footer
+class SimpleCardExample < Components::Base
+  def view_template
+    render Components::Ui::Card.new(class: "max-w-md") do
+      render Components::Ui::CardHeader.new do
+        render Components::Ui::CardTitle.new do
+          "Simple Card"
+        end
+        render Components::Ui::CardDescription.new do
+          "A card without a footer"
+        end
+      end
+
+      render Components::Ui::CardContent.new do
+        p(class: "text-sm") do
+          "This card only has a header and content."
+        end
+      end
+    end
+  end
+end
+
+# Example component: Card with only content
+class ContentOnlyCardExample < Components::Base
+  def view_template
+    render Components::Ui::Card.new(class: "max-w-md") do
+      div(class: "p-6") do
+        p(class: "text-sm") do
+          "This is a card with just content."
+        end
+      end
+    end
   end
 end
