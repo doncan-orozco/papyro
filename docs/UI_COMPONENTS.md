@@ -128,7 +128,7 @@ end
 div(class: "flex items-center space-x-2") do
   render Components::Ui::Switch.new(
     id: "notifications",
-    data: { state: "unchecked" }
+    checked: false
   ) do
     render Components::Ui::SwitchThumb.new(data: { state: "unchecked" })
   end
@@ -182,10 +182,14 @@ end
 # Note: Requires Stimulus controller for interactivity
 render Components::Ui::DialogOverlay.new(data: { state: "open" })
 
-render Components::Ui::DialogContent.new(data: { state: "open" }) do
+render Components::Ui::DialogContent.new(
+  data: { state: "open" },
+  labelledby_id: "dialog-title",
+  describedby_id: "dialog-description"
+) do
   render Components::Ui::DialogHeader.new do
-    render Components::Ui::DialogTitle.new { "Are you sure?" }
-    render Components::Ui::DialogDescription.new do
+    render Components::Ui::DialogTitle.new(id: "dialog-title") { "Are you sure?" }
+    render Components::Ui::DialogDescription.new(id: "dialog-description") do
       "This action cannot be undone."
     end
   end
@@ -208,10 +212,15 @@ end
 render Components::Ui::DropdownMenuContent.new do
   render Components::Ui::DropdownMenuLabel.new { "My Account" }
   render Components::Ui::DropdownMenuSeparator.new
+  
+  # Button-style items (default)
   render Components::Ui::DropdownMenuItem.new { "Profile" }
   render Components::Ui::DropdownMenuItem.new { "Settings" }
+  
   render Components::Ui::DropdownMenuSeparator.new
-  render Components::Ui::DropdownMenuItem.new { "Logout" }
+  
+  # Link-style items
+  render Components::Ui::DropdownMenuItem.new(href: "/logout") { "Logout" }
 end
 ```
 
@@ -236,8 +245,11 @@ end
 # Note: Requires Stimulus controller for interactivity
 render Components::Ui::Accordion.new do
   render Components::Ui::AccordionItem.new do
-    render Components::Ui::AccordionTrigger.new { "Section 1" }
-    render Components::Ui::AccordionContent.new do
+    render Components::Ui::AccordionTrigger.new(
+      expanded: false,
+      controls_id: "section-1-content"
+    ) { "Section 1" }
+    render Components::Ui::AccordionContent.new(id: "section-1-content") do
       render Components::Ui::AccordionContentInner.new do
         p { "Content for section 1" }
       end
@@ -245,8 +257,11 @@ render Components::Ui::Accordion.new do
   end
 
   render Components::Ui::AccordionItem.new do
-    render Components::Ui::AccordionTrigger.new { "Section 2" }
-    render Components::Ui::AccordionContent.new do
+    render Components::Ui::AccordionTrigger.new(
+      expanded: false,
+      controls_id: "section-2-content"
+    ) { "Section 2" }
+    render Components::Ui::AccordionContent.new(id: "section-2-content") do
       render Components::Ui::AccordionContentInner.new do
         p { "Content for section 2" }
       end
