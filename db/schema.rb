@@ -62,7 +62,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_12_032444) do
     t.index ["slug"], name: "index_articles_on_slug", unique: true
     t.index ["status"], name: "index_articles_on_status"
     t.index ["user_id", "status"], name: "index_articles_on_user_id_and_status"
-    t.check_constraint "status IN (0, 1, 2)", name: "valid_status"
   end
 
   create_table "sessions", force: :cascade do |t|

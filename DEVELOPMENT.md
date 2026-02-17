@@ -106,6 +106,66 @@ BINDING="$BINDING" bin/rails server
 bin/rails test
 ```
 
+## UI Component Development with Lookbook
+
+Lookbook is a UI development environment that allows you to browse and develop components in isolation.
+
+### Accessing Lookbook
+
+Start the Rails server and navigate to:
+
+```
+http://localhost:3000/lookbook
+```
+
+Or with SSL:
+
+```
+https://localhost:3030/lookbook
+```
+
+### Creating Component Previews
+
+Component previews are stored in `test/components/previews/`. To create a new preview:
+
+1. Create a preview file matching your component path:
+   ```ruby
+   # test/components/previews/ui/button_preview.rb
+   module Ui
+     class ButtonPreview < Lookbook::Preview
+       # Default button
+       # @label Default
+       def default
+         render Components::Ui::Button.new do
+           "Click me"
+         end
+       end
+     end
+   end
+   ```
+
+2. Add multiple examples using different methods:
+   ```ruby
+   # @label Destructive
+   def destructive
+     render Components::Ui::Button.new(variant: :destructive) do
+       "Delete"
+     end
+   end
+   ```
+
+3. Use annotations to customize the preview:
+   - `@label` - Display name in the UI
+   - `@display` - Set background color, width, etc.
+   - `@param` - Add interactive controls for parameters
+
+See the [Lookbook documentation](https://lookbook.build/guide) for more details.
+
+### Existing Preview Files
+
+- `test/components/previews/ui/button_preview.rb` - Button component examples
+- `test/components/previews/ui/card_preview.rb` - Card component examples
+
 ### Debugging
 
 #### Session Issues

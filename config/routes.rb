@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Lookbook UI development environment (development only)
+  mount Lookbook::Engine, at: "/lookbook" if Rails.env.development?
+
   # Public authentication (for future public users if needed)
   resource :session, only: [ :new, :create, :destroy ]
   resources :passwords, only: [ :new, :create, :edit, :update ], param: :token

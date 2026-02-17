@@ -89,6 +89,9 @@ group :development do
 
   # Data consistency
   gem "database_consistency"
+
+  # UI component development and documentation
+  gem "lookbook"
 end
 
 group :test do
