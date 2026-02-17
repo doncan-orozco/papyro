@@ -45,3 +45,5 @@
 /vendor/bundle
 vendor/writebook
 demo/
+
+.playwright-mcp/

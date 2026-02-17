@@ -34,25 +34,19 @@ const buttonVariants = cva(
 
 ```ruby
 # app/components/ui/button.rb
+# Uses shadcn/ui Radix exact classes with semantic tokens (Tailwind v4)
+# Updated: 2026-02-16 for pixel-perfect shadcn Radix UI compatibility
 module Components
   module Ui
-    class Button < Phlex::HTML
-      def initialize(variant: :default, size: :default, disabled: false, type: :button, **attrs)
+    class Button < Components::Base
+      def initialize(variant: :default, size: :default, **attrs)
         @variant = variant
         @size = size
-        @disabled = disabled
-        @type = type
         @attrs = attrs
       end
 
       def view_template(&block)
-        button(
-          type: @type,
-          class: classes,
-          disabled: @disabled,
-          **@attrs,
-          &block
-        )
+        button(class: classes, **@attrs, &block)
       end
 
       private
@@ -62,32 +56,64 @@ module Components
       end
 
       def base_classes
-        "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+        [
+          # Layout
+          "inline-flex items-center justify-center whitespace-nowrap",
+          # SVG handling
+          "[&_svg:not([class*='size-'])]:size-4",
+          "[&_svg]:pointer-events-none",
+          "shrink-0 [&_svg]:shrink-0",
+          # Focus and interaction states
+          "transition-all",
+          "focus-visible:ring-3",
+          "aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
+          "aria-invalid:border-destructive dark:aria-invalid:border-destructive/50",
+          # Disabled state
+          "disabled:pointer-events-none disabled:opacity-50",
+          # Styling
+          "rounded-lg border border-transparent bg-clip-padding text-sm font-medium outline-none group/button select-none"
+        ].join(" ")
       end
 
       def variant_classes
         {
-          default: "bg-slate-900 text-slate-50 hover:bg-slate-900/90",
-          destructive: "bg-red-500 text-slate-50 hover:bg-red-500/90",
-          outline: "border border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900",
-          secondary: "bg-slate-100 text-slate-900 hover:bg-slate-100/80",
-          ghost: "hover:bg-slate-100 hover:text-slate-900",
-          link: "text-slate-900 underline-offset-4 hover:underline"
+          default: "bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/40",
+          destructive: "bg-destructive/10 hover:bg-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 text-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 focus-visible:border-destructive/40",
+          outline: "border-border bg-background text-foreground hover:bg-muted hover:text-foreground dark:border-input dark:hover:bg-muted focus-visible:ring-ring/20",
+          secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 dark:bg-secondary dark:hover:bg-secondary/80 focus-visible:ring-secondary/20",
+          ghost: "text-foreground hover:bg-muted dark:hover:bg-muted focus-visible:ring-muted/20",
+          link: "text-foreground underline-offset-4 hover:underline dark:text-foreground"
         }
       end
 
       def size_classes
         {
-          default: "h-10 px-4 py-2",
-          sm: "h-9 rounded-md px-3",
-          lg: "h-11 rounded-md px-8",
-          icon: "h-10 w-10"
+          default: "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+          xs: "h-6 gap-1 px-2 text-xs has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
+          sm: "h-8 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+          lg: "h-10 gap-2 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+          icon: "h-8 w-8",
+          "icon-xs": "h-6 w-6",
+          "icon-sm": "h-8 w-8",
+          "icon-lg": "h-10 w-10"
         }
       end
     end
   end
 end
 ```
+
+**Key Implementation Notes:**
+- Uses **semantic color tokens** with Tailwind v4 CSS variables (`bg-primary`, `text-destructive`, etc.)
+- **Border radius**: `rounded-lg` (8px) - shadcn Radix standard
+- **Height**: `h-8` (32px) for default size - more compact than Base UI version
+- **Focus ring**: `ring-3` (thicker ring) with opacity modifiers for subtlety
+- **Transition**: `transition-all` for smooth animations on all properties
+- **Destructive variant**: Uses subtle `bg-destructive/10` background (10% opacity) with solid text color
+- **SVG handling**: Automatic icon sizing and pointer-events management
+- **ARIA support**: Built-in invalid state styling with rings and borders
+- **Icon spacing**: `has-data-[icon=inline-end]` attributes for proper padding with icons
+- Passes all HTML attributes via `**attrs` for Stimulus/data attributes support
 
 ### Usage
 
@@ -118,11 +144,19 @@ const CardHeader = ({ className, ...props }) => (
 )
 
 const CardTitle = ({ className, ...props }) => (
-  <h3 className={cn("text-2xl font-semibold leading-none tracking-tight", className)} {...props} />
+  <h3 className={cn("font-semibold leading-none tracking-tight", className)} {...props} />
+)
+
+const CardDescription = ({ className, ...props }) => (
+  <p className={cn("text-sm text-muted-foreground", className)} {...props} />
 )
 
 const CardContent = ({ className, ...props }) => (
   <div className={cn("p-6 pt-0", className)} {...props} />
+)
+
+const CardFooter = ({ className, ...props }) => (
+  <div className={cn("flex items-center p-6 pt-0", className)} {...props} />
 )
 ```
 
@@ -130,69 +164,166 @@ const CardContent = ({ className, ...props }) => (
 
 ```ruby
 # app/components/ui/card.rb
+# Uses shadcn/ui Radix semantic tokens (Tailwind v4)
+# Updated: 2026-02-16 for pixel-perfect shadcn Radix UI compatibility
 module Components
   module Ui
-    class Card < Phlex::HTML
+    # Main Card container
+    class Card < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
 
       def view_template(&block)
-        div(
-          class: "rounded-lg border bg-card text-card-foreground shadow-sm",
-          **@attrs,
-          &block
-        )
+        div(class: classes, **@attrs, &block)
+      end
+
+      private
+
+      def classes
+        "rounded-lg border border-border bg-card text-card-foreground shadow-sm"
       end
     end
 
-    class CardHeader < Phlex::HTML
+    # Card header with title and description
+    class CardHeader < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
 
       def view_template(&block)
-        div(class: "flex flex-col space-y-1.5 p-6", **@attrs, &block)
+        div(class: classes, **@attrs, &block)
+      end
+
+      private
+
+      def classes
+        "flex flex-col space-y-1.5 p-6"
       end
     end
 
-    class CardTitle < Phlex::HTML
-      def initialize(**attrs)
+    # Card title (h3 by default, customizable)
+    class CardTitle < Components::Base
+      def initialize(as: :h3, **attrs)
+        @as = as
         @attrs = attrs
       end
 
       def view_template(&block)
-        h3(
-          class: "text-2xl font-semibold leading-none tracking-tight",
-          **@attrs,
-          &block
-        )
+        public_send(@as, class: classes, **@attrs, &block)
+      end
+
+      private
+
+      def classes
+        "font-semibold leading-none tracking-tight"
       end
     end
 
-    class CardContent < Phlex::HTML
+    # Card description text
+    class CardDescription < Components::Base
+      def initialize(as: :p, **attrs)
+        @as = as
+        @attrs = attrs
+      end
+
+      def view_template(&block)
+        public_send(@as, class: classes, **@attrs, &block)
+      end
+
+      private
+
+      def classes
+        "text-sm text-muted-foreground"
+      end
+    end
+
+    # Card main content area
+    class CardContent < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
 
       def view_template(&block)
-        div(class: "p-6 pt-0", **@attrs, &block)
+        div(class: classes, **@attrs, &block)
+      end
+
+      private
+
+      def classes
+        "p-6 pt-0"
+      end
+    end
+
+    # Card footer for actions
+    class CardFooter < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
+      def view_template(&block)
+        div(class: classes, **@attrs, &block)
+      end
+
+      private
+
+      def classes
+        "flex items-center p-6 pt-0"
       end
     end
   end
 end
 ```
 
+**Key Implementation Notes:**
+- Uses **semantic color tokens**: `bg-card`, `text-card-foreground`, `text-muted-foreground`, `border-border`
+- **Border radius**: `rounded-lg` (8px) - shadcn Radix standard
+- **Shadow**: `shadow-sm` for subtle elevation
+- **Spacing**: Consistent padding of `p-6` with `pt-0` for content/footer to avoid double-spacing
+- **CardTitle/CardDescription**: Customizable HTML element via `as:` parameter (defaults to h3/p)
+- All components inherit from `Components::Base` NOT `Phlex::HTML`
+- Pass all attributes via `**attrs` for Stimulus/data attributes support
+- Simple classes (no variants) - cards are typically styled by composition
+
 ### Usage
 
 ```ruby
+# Basic card
 render Components::Ui::Card.new do
   render Components::Ui::CardHeader.new do
-    render Components::Ui::CardTitle.new { "Player Stats" }
+    render Components::Ui::CardTitle.new { "Card Title" }
+    render Components::Ui::CardDescription.new { "Card description text" }
   end
   
   render Components::Ui::CardContent.new do
-    p { "Level 42" }
+    p { "Main card content goes here" }
+  end
+end
+
+# Card with footer
+render Components::Ui::Card.new do
+  render Components::Ui::CardHeader.new do
+    render Components::Ui::CardTitle.new { "Settings" }
+  end
+  
+  render Components::Ui::CardContent.new do
+    p { "Configure your preferences" }
+  end
+  
+  render Components::Ui::CardFooter.new do
+    render Components::Ui::Button.new(variant: :outline) { "Cancel" }
+    render Components::Ui::Button.new(variant: :default) { "Save" }
+  end
+end
+
+# Custom heading level
+render Components::Ui::Card.new do
+  render Components::Ui::CardHeader.new do
+    render Components::Ui::CardTitle.new(as: :h2) { "Game Stats" }
+  end
+  
+  render Components::Ui::CardContent.new do
+    p { "Level: 42" }
     p { "HP: 1000" }
   end
 end
@@ -595,13 +726,22 @@ render Components::Ui::Avatar.new(
 
 ## Conversion Checklist
 
-When converting shadcn component to Phlex:
+When converting shadcn Radix UI component to Phlex:
 
 1. ✅ Extract all variants from `cva()` definition
-2. ✅ Map each variant to Ruby hash with Tailwind classes
-3. ✅ Add `size` parameter if multiple sizes exist
-4. ✅ Support `disabled` state for interactive elements
-5. ✅ Always include `**attrs` for Stimulus/data attributes
-6. ✅ Use `&block` for component children/content
-7. ✅ Keep class composition logic in private methods
-8. ✅ Test composition with domain components
+2. ✅ **Use semantic color tokens** with opacity modifiers (e.g., `bg-destructive/10` not `bg-red-500`)
+3. ✅ Map each variant to Ruby hash preserving exact class names
+4. ✅ Add `size` parameter if multiple sizes exist
+5. ✅ **Border-radius**: Use `rounded-lg` (8px) for buttons - Radix UI standard
+6. ✅ **Height**: Use `h-8` (32px) for default button size - more compact than Base UI
+7. ✅ **Transitions**: Use `transition-all` for smooth animations on all properties
+8. ✅ **Focus rings**: Use `ring-3` (thicker) with opacity modifiers (`ring-primary/20`)
+9. ✅ **SVG handling**: Include `[&_svg:not([class*='size-'])]:size-4` and pointer-events classes
+10. ✅ **ARIA states**: Include `aria-invalid` styling for form validation feedback
+11. ✅ **Icon spacing**: Add `has-data-[icon=inline-end]` classes for proper padding adjustments
+12. ✅ Always include `**attrs` for Stimulus/data attributes
+13. ✅ Use `&block` for component children/content
+14. ✅ Keep class composition logic in private methods
+15. ✅ Include helper classes: `bg-clip-padding`, `outline-none`, `group/button`, `select-none`
+
+**Color Philosophy:** Papyro uses shadcn's semantic color tokens (`--color-primary`, `--color-destructive`, etc.) defined in Tailwind v4 CSS variables. This enables theming while maintaining shadcn's visual design with opacity modifiers for subtle backgrounds.
