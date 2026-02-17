@@ -56,7 +56,7 @@ module Components
       def percentage
         return 0 if @max.zero?
 
-        [(@value.to_f / @max * 100).round(2), 100].min
+        [ (@value.to_f / @max * 100).round(2), 100 ].min
       end
     end
   end
