@@ -163,8 +163,8 @@ See the [Lookbook documentation](https://lookbook.build/guide) for more details.
 
 ### Existing Preview Files
 
-- `test/components/previews/ui/button_preview.rb` - Button component examples
-- `test/components/previews/ui/card_preview.rb` - Card component examples
+- `test/components/previews/button_preview.rb` - Button component examples
+- `test/components/previews/card_preview.rb` - Card component examples
 
 ### Debugging
 
