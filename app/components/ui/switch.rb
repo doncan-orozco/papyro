@@ -8,16 +8,45 @@ module Components
   module Ui
     # Switch root element (button)
     class Switch < Components::Base
-      def initialize(**attrs)
+      def initialize(checked: nil, **attrs)
+        @checked = checked
         @attrs = attrs
       end
 
       def view_template(&block)
+        dynamic_attrs = attrs_without_class.dup
+
+        # Determine checked state from explicit prop or data-state
+        checked =
+          if !@checked.nil?
+            @checked
+          else
+            state = dynamic_attrs[:"data-state"] || dynamic_attrs["data-state"]
+            case state
+            when "checked" then true
+            when "unchecked" then false
+            else
+              nil
+            end
+          end
+
+        # Set aria-checked unless consumer already provided it
+        if !checked.nil?
+          aria_hash = dynamic_attrs[:aria] || {}
+          aria_hash[:checked] = checked unless aria_hash.key?(:checked) || aria_hash.key?("checked")
+          dynamic_attrs[:aria] = aria_hash
+        end
+
+        # Keep visual state (data-state) in sync with ARIA state unless overridden
+        if !checked.nil? && !dynamic_attrs.key?(:"data-state") && !dynamic_attrs.key?("data-state")
+          dynamic_attrs[:"data-state"] = checked ? "checked" : "unchecked"
+        end
+
         button(
           type: :button,
           role: :switch,
           class: merged_classes,
-          **attrs_without_class,
+          **dynamic_attrs,
           &block
         )
       end

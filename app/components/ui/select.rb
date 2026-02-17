@@ -31,9 +31,7 @@ module Components
           "disabled:cursor-not-allowed disabled:opacity-50",
           # ARIA states
           "aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
-          "aria-invalid:border-destructive dark:aria-invalid:border-destructive/50",
-          # Chevron icon styling
-          "[&>span]:line-clamp-1"
+          "aria-invalid:border-destructive dark:aria-invalid:border-destructive/50"
         ].join(" ")
       end
     end

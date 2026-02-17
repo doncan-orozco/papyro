@@ -50,15 +50,47 @@ module Components
 
     # Accordion trigger (header button)
     class AccordionTrigger < Components::Base
-      def initialize(**attrs)
+      def initialize(expanded: nil, controls_id: nil, **attrs)
+        @expanded = expanded
+        @controls_id = controls_id
         @attrs = attrs
       end
 
       def view_template(&block)
+        dynamic_attrs = attrs_without_class.dup
+
+        # Determine expanded state: explicit prop wins, otherwise derive from data-state
+        expanded =
+          if !@expanded.nil?
+            @expanded
+          else
+            state = dynamic_attrs[:"data-state"] || dynamic_attrs["data-state"]
+            case state
+            when "open" then true
+            when "closed" then false
+            else
+              nil
+            end
+          end
+
+        # Set aria-expanded unless consumer already provided it
+        if !expanded.nil? && !dynamic_attrs.key?(:"aria-expanded") && !dynamic_attrs.key?("aria-expanded")
+          aria_hash = dynamic_attrs[:aria] || {}
+          aria_hash[:expanded] = expanded
+          dynamic_attrs[:aria] = aria_hash
+        end
+
+        # Set aria-controls when an ID is provided and not already set
+        if @controls_id && !dynamic_attrs.key?(:"aria-controls") && !dynamic_attrs.key?("aria-controls")
+          aria_hash = dynamic_attrs[:aria] || {}
+          aria_hash[:controls] = @controls_id
+          dynamic_attrs[:aria] = aria_hash
+        end
+
         button(
           type: :button,
           class: merged_classes,
-          **attrs_without_class,
+          **dynamic_attrs,
           &block
         )
       end
@@ -95,8 +127,7 @@ module Components
       def classes
         [
           "overflow-hidden text-sm",
-          "data-[state=closed]:animate-accordion-up",
-          "data-[state=open]:animate-accordion-down"
+          "transition-all duration-200"
         ].join(" ")
       end
     end

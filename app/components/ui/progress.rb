@@ -56,7 +56,9 @@ module Components
       def percentage
         return 0 if @max.zero?
 
-        [ (@value.to_f / @max * 100).round(2), 100 ].min
+        # Clamp value to valid range
+        clamped_value = [ [ @value, 0 ].max, @max ].min
+        [ (clamped_value.to_f / @max * 100).round(2), 100 ].min
       end
     end
   end

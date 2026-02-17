@@ -30,7 +30,7 @@ module Components
           "text-sm font-medium",
           "transition-colors",
           "hover:bg-muted",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          "focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20",
           "disabled:pointer-events-none disabled:opacity-50"
         ].join(" ")
       end
@@ -59,42 +59,49 @@ module Components
           "overflow-hidden",
           "rounded-lg border border-border bg-popover p-1",
           "text-popover-foreground shadow-md",
-          "data-[state=open]:animate-in data-[state=closed]:animate-out",
-          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-          "data-[side=bottom]:slide-in-from-top-2",
-          "data-[side=left]:slide-in-from-right-2",
-          "data-[side=right]:slide-in-from-left-2",
-          "data-[side=top]:slide-in-from-bottom-2"
+          "transition-all duration-200"
         ].join(" ")
       end
     end
 
     # Dropdown menu item
     class DropdownMenuItem < Components::Base
-      def initialize(**attrs)
+      def initialize(href: nil, **attrs)
+        @href = href
         @attrs = attrs
       end
 
       def view_template(&block)
-        div(
-          role: :menuitem,
-          class: merged_classes,
-          **attrs_without_class,
-          &block
-        )
+        if @href
+          a(
+            href: @href,
+            role: :menuitem,
+            class: merged_classes,
+            **attrs_without_class,
+            &block
+          )
+        else
+          button(
+            type: :button,
+            role: :menuitem,
+            class: merged_classes,
+            **attrs_without_class,
+            &block
+          )
+        end
       end
 
       private
 
       def classes
         [
-          "relative flex cursor-pointer select-none items-center",
+          "relative flex cursor-pointer select-none items-center w-full",
           "rounded-md px-2 py-1.5",
-          "text-sm outline-none",
+          "text-sm text-left outline-none",
           "transition-colors",
           "focus:bg-accent focus:text-accent-foreground",
-          "data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+          "hover:bg-accent hover:text-accent-foreground",
+          "disabled:pointer-events-none disabled:opacity-50"
         ].join(" ")
       end
     end

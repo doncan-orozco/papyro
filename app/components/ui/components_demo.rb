@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Components
   module Ui
     # Comprehensive demo component showing all UI components

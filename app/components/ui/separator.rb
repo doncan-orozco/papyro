@@ -13,11 +13,24 @@ module Components
       end
 
       def view_template
+        dynamic_attrs = attrs_without_class.dup
+
+        # Set ARIA attributes based on decorative flag
+        if @decorative
+          aria_hash = dynamic_attrs[:aria] || {}
+          aria_hash[:hidden] = true unless aria_hash.key?(:hidden) || aria_hash.key?("hidden")
+          dynamic_attrs[:aria] = aria_hash
+        else
+          aria_hash = dynamic_attrs[:aria] || {}
+          aria_hash[:orientation] = @orientation unless aria_hash.key?(:orientation) || aria_hash.key?("orientation")
+          dynamic_attrs[:aria] = aria_hash
+        end
+
         div(
           role: @decorative ? :none : :separator,
           data: { orientation: @orientation },
           class: merged_classes,
-          **attrs_without_class
+          **dynamic_attrs
         )
       end
 
