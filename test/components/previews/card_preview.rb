@@ -79,7 +79,7 @@ end
 class ContentOnlyCardExample < Components::Base
   def view_template
     render Components::Ui::Card.new(class: "max-w-md") do
-      div(class: "p-6") do
+      render Components::Ui::CardContent.new do
         p(class: "text-sm") do
           "This is a card with just content."
         end
