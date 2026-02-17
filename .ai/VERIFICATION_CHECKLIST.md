@@ -84,7 +84,10 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 ### Styling
 - [ ] Tailwind utility classes only
 - [ ] No custom CSS (unless absolutely required)
-- [ ] Use shadcn/ui patterns
+- [ ] Use shadcn/ui Radix patterns (see [skills/design-system/](skills/design-system/))
+- [ ] Semantic color tokens (NOT hardcoded colors): `bg-primary`, `text-destructive`
+- [ ] OKLCH color space for CSS variables (see [skills/design-system/references/css-variables-guide.md](skills/design-system/references/css-variables-guide.md))
+- [ ] When converting shadcn components, follow [skills/design-system/references/shadcn-conversion-guide.md](skills/design-system/references/shadcn-conversion-guide.md)
 
 ## 🌐 Internationalization (I18n)
 
