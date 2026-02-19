@@ -17,7 +17,7 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Add data attributes for configuration
         data_hash = dynamic_attrs[:data] || {}
         data_hash[:min] = @min unless data_hash.key?(:min) || data_hash.key?("min")
@@ -28,7 +28,7 @@ module Components
 
         # Add role for accessibility
         dynamic_attrs[:role] = :slider unless dynamic_attrs.key?(:role) || dynamic_attrs.key?("role")
-        
+
         # Add aria attributes
         aria_hash = dynamic_attrs[:aria] || {}
         aria_hash[:valuemin] = @min unless aria_hash.key?(:valuemin) || aria_hash.key?("valuemin")

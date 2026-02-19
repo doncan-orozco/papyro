@@ -15,7 +15,7 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Add role for accessibility
         dynamic_attrs[:role] = :radiogroup unless dynamic_attrs.key?(:role) || dynamic_attrs.key?("role")
 
@@ -45,7 +45,7 @@ module Components
 
       def view_template
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Set aria-checked for accessibility
         aria_hash = dynamic_attrs[:aria] || {}
         aria_hash[:checked] = @checked unless aria_hash.key?(:checked) || aria_hash.key?("checked")

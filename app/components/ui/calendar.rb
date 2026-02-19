@@ -15,7 +15,7 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Add data attributes
         data_hash = dynamic_attrs[:data] || {}
         data_hash[:mode] = @mode unless data_hash.key?(:mode) || data_hash.key?("mode")
@@ -205,7 +205,7 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Add aria-selected
         aria_hash = dynamic_attrs[:aria] || {}
         aria_hash[:selected] = @selected unless aria_hash.key?(:selected) || aria_hash.key?("selected")

@@ -37,12 +37,12 @@ module Components
               s.line(x1: 8, y1: 2, x2: 8, y2: 6)
               s.line(x1: 3, y1: 10, x2: 21, y2: 10)
             end
-            
+
             span(class: @value ? "" : "text-muted-foreground") do
               @value || @placeholder
             end
           end
-          
+
           # Popover content with calendar
           render Components::Ui::PopoverContent.new(
             class: "w-auto p-0",

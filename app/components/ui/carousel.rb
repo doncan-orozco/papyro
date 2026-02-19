@@ -14,7 +14,7 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Add data attributes
         data_hash = dynamic_attrs[:data] || {}
         data_hash[:orientation] = @orientation unless data_hash.key?(:orientation) || data_hash.key?("orientation")

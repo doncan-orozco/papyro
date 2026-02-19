@@ -17,7 +17,7 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Add data attributes for features
         data_hash = dynamic_attrs[:data] || {}
         data_hash[:sortable] = @sortable if @sortable

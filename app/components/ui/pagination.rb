@@ -60,7 +60,7 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Add aria-current if active
         if @active
           aria_hash = dynamic_attrs[:aria] || {}
@@ -141,7 +141,7 @@ module Components
           ) do |s|
             s.path(d: "m15 18-6-6 6-6")
           end
-          
+
           if block
             span { yield }
           else
@@ -170,7 +170,7 @@ module Components
           else
             span { "Next" }
           end
-          
+
           # Chevron right icon
           svg(
             class: "h-4 w-4",

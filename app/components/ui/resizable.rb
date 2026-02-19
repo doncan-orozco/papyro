@@ -14,7 +14,7 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Add data attributes
         data_hash = dynamic_attrs[:data] || {}
         data_hash[:direction] = @direction unless data_hash.key?(:direction) || data_hash.key?("direction")
@@ -49,7 +49,7 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Add data attributes for sizing
         data_hash = dynamic_attrs[:data] || {}
         data_hash[:default_size] = @default_size if @default_size

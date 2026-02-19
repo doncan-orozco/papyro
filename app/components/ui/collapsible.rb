@@ -14,7 +14,7 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Set data-state for CSS styling
         unless dynamic_attrs.key?(:"data-state") || dynamic_attrs.key?("data-state")
           dynamic_attrs[:"data-state"] = @open ? "open" : "closed"

@@ -108,7 +108,7 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
-        
+
         # Add data-active if active
         if @active
           data_hash = dynamic_attrs[:data] || {}
