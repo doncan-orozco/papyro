@@ -6,6 +6,10 @@ module Components
   module Ui
     # Main breadcrumb container
     class Breadcrumb < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         nav(aria: { label: "breadcrumb" }, class: merged_classes, **attrs_without_class, &block)
       end
@@ -19,6 +23,10 @@ module Components
 
     # Breadcrumb list wrapper
     class BreadcrumbList < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         ol(class: merged_classes, **attrs_without_class, &block)
       end
@@ -32,6 +40,10 @@ module Components
 
     # Individual breadcrumb item
     class BreadcrumbItem < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         li(class: merged_classes, **attrs_without_class, &block)
       end
@@ -67,6 +79,10 @@ module Components
 
     # Current breadcrumb page (no link)
     class BreadcrumbPage < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         span(
           role: :link,
@@ -86,6 +102,10 @@ module Components
 
     # Breadcrumb separator
     class BreadcrumbSeparator < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         li(
           role: :presentation,
@@ -124,6 +144,10 @@ module Components
 
     # Breadcrumb ellipsis for collapsed items
     class BreadcrumbEllipsis < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template
         span(
           role: :presentation,

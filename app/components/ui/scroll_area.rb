@@ -12,12 +12,19 @@ module Components
       end
 
       def view_template(&block)
+        dynamic_attrs = attrs_without_class.dup
+        data_hash = (dynamic_attrs[:data] || {}).dup
+
+        unless data_hash.key?(:orientation) || data_hash.key?("orientation")
+          data_hash[:orientation] = @orientation
+        end
+
+        dynamic_attrs[:data] = data_hash
+
         div(class: "relative overflow-hidden") do
           div(
             class: merged_classes,
-            **attrs_without_class.merge(
-              data: { orientation: @orientation }
-            ),
+            **dynamic_attrs,
             &block
           )
         end
@@ -32,6 +39,10 @@ module Components
 
     # Scroll Area Viewport - scrollable content container
     class ScrollAreaViewport < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -51,11 +62,18 @@ module Components
       end
 
       def view_template(&block)
+        dynamic_attrs = attrs_without_class.dup
+        data_hash = (dynamic_attrs[:data] || {}).dup
+
+        unless data_hash.key?(:orientation) || data_hash.key?("orientation")
+          data_hash[:orientation] = @orientation
+        end
+
+        dynamic_attrs[:data] = data_hash
+
         div(
           class: merged_classes,
-          **attrs_without_class.merge(
-            data: { orientation: @orientation }
-          ),
+          **dynamic_attrs,
           &block
         )
       end
@@ -75,6 +93,10 @@ module Components
 
     # Scroll Area Thumb - draggable scrollbar thumb
     class ScrollAreaThumb < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template
         div(class: merged_classes, **attrs_without_class)
       end
@@ -88,6 +110,10 @@ module Components
 
     # Scroll Area Corner - corner element when both scrollbars are present
     class ScrollAreaCorner < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template
         div(class: merged_classes, **attrs_without_class)
       end

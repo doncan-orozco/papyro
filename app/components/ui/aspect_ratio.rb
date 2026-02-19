@@ -6,7 +6,7 @@ module Components
   module Ui
     class AspectRatio < Components::Base
       def initialize(ratio: "16/9", **attrs)
-        @ratio = ratio
+        @ratio = sanitize_ratio(ratio)
         @attrs = attrs
       end
 
@@ -14,6 +14,13 @@ module Components
         div(class: "relative w-full", style: "padding-bottom: calc(100% / (#{@ratio}))") do
           div(class: merged_classes, **attrs_without_class, &block)
         end
+      end
+
+      # Sanitize ratio to prevent XSS
+      def sanitize_ratio(ratio)
+        # Only allow numbers, forward slash, decimal point, and colon
+        return "16/9" unless ratio.to_s.match?(/\A[\d.\/: ]+\z/)
+        ratio
       end
 
       private

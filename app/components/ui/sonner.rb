@@ -26,15 +26,20 @@ module Components
       end
 
       def view_template(&block)
+        dynamic_attrs = attrs_without_class.dup
+        data_hash = (dynamic_attrs[:data] || {}).dup
+
+        unless data_hash.key?(:position) || data_hash.key?("position")
+          data_hash[:position] = @position
+        end
+
+        dynamic_attrs[:data] = data_hash
+
         div(
           role: :region,
           aria: { label: "Notifications" },
           class: merged_classes,
-          **attrs_without_class.merge(
-            data: (attrs_without_class[:data] || {}).merge(
-              position: @position
-            )
-          ),
+          **dynamic_attrs,
           &block
         )
       end

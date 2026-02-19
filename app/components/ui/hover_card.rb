@@ -5,8 +5,29 @@
 # Note: Requires Stimulus controller for positioning and interactivity
 module Components
   module Ui
+    # Hover Card root container
+    class HoverCard < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
+      def view_template(&block)
+        div(class: merged_classes, **attrs_without_class, &block)
+      end
+
+      private
+
+      def classes
+        ""
+      end
+    end
+
     # Hover Card Trigger - element that triggers the hover card
     class HoverCardTrigger < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         span(class: merged_classes, **attrs_without_class, &block)
       end
@@ -27,14 +48,22 @@ module Components
       end
 
       def view_template(&block)
+        dynamic_attrs = attrs_without_class.dup
+        data_hash = (dynamic_attrs[:data] || {}).dup
+
+        unless data_hash.key?(:align) || data_hash.key?("align")
+          data_hash[:align] = @align
+        end
+
+        unless data_hash.key?(:side) || data_hash.key?("side")
+          data_hash[:side] = @side
+        end
+
+        dynamic_attrs[:data] = data_hash
+
         div(
           class: merged_classes,
-          **attrs_without_class.merge(
-            data: (attrs_without_class[:data] || {}).merge(
-              align: @align,
-              side: @side
-            )
-          ),
+          **dynamic_attrs,
           &block
         )
       end

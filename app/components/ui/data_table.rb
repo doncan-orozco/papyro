@@ -62,15 +62,23 @@ module Components
 
       def view_template(&block)
         if @sortable
+          dynamic_attrs = attrs_without_class.dup
+          data_hash = (dynamic_attrs[:data] || {}).dup
+
+          unless data_hash.key?(:sortable) || data_hash.key?("sortable")
+            data_hash[:sortable] = true
+          end
+
+          unless data_hash.key?(:sort_direction) || data_hash.key?("sort_direction")
+            data_hash[:sort_direction] = @sort_direction
+          end
+
+          dynamic_attrs[:data] = data_hash
+
           button(
             type: :button,
             class: merged_classes,
-            **attrs_without_class.merge(
-              data: (attrs_without_class[:data] || {}).merge(
-                sortable: true,
-                sort_direction: @sort_direction
-              )
-            ),
+            **dynamic_attrs,
             &block
           )
         else

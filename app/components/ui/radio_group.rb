@@ -63,8 +63,8 @@ module Components
           class: merged_classes,
           **dynamic_attrs
         ) do
-          # Radio indicator (circle)
-          span(class: indicator_classes) do
+          # Radio indicator (circle) - inherit state from parent
+          span(class: indicator_classes, data: { state: dynamic_attrs[:"data-state"] }) do
             # Inner dot when checked
             span(class: "h-2 w-2 rounded-full bg-current")
           end
