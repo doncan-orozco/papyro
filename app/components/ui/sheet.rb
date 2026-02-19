@@ -5,8 +5,29 @@
 # Note: Requires Stimulus controller for animation and focus management
 module Components
   module Ui
+    # Sheet root container
+    class Sheet < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
+      def view_template(&block)
+        div(class: merged_classes, **attrs_without_class, &block)
+      end
+
+      private
+
+      def classes
+        ""
+      end
+    end
+
     # Sheet Overlay - backdrop
     class SheetOverlay < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template
         div(class: merged_classes, **attrs_without_class)
       end
@@ -48,7 +69,7 @@ module Components
         dynamic_attrs[:aria] = aria_hash
 
         # Add side data attribute
-        data_hash = dynamic_attrs[:data] || {}
+        data_hash = (dynamic_attrs[:data] || {}).dup
         data_hash[:side] = @side unless data_hash.key?(:side) || data_hash.key?("side")
         dynamic_attrs[:data] = data_hash
 
@@ -86,6 +107,10 @@ module Components
 
     # Sheet Header - header section
     class SheetHeader < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -99,6 +124,10 @@ module Components
 
     # Sheet Footer - footer section
     class SheetFooter < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -112,6 +141,10 @@ module Components
 
     # Sheet Title - title element
     class SheetTitle < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         h2(class: merged_classes, **attrs_without_class, &block)
       end
@@ -125,6 +158,10 @@ module Components
 
     # Sheet Description - description text
     class SheetDescription < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         p(class: merged_classes, **attrs_without_class, &block)
       end

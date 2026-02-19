@@ -17,7 +17,7 @@ module Components
         dynamic_attrs = attrs_without_class.dup
 
         # Add data attributes for type
-        data_hash = dynamic_attrs[:data] || {}
+        data_hash = (dynamic_attrs[:data] || {}).dup
         data_hash[:type] = @type unless data_hash.key?(:type) || data_hash.key?("type")
         dynamic_attrs[:data] = data_hash
 
@@ -49,7 +49,7 @@ module Components
         dynamic_attrs = attrs_without_class.dup
 
         # Add value to data attributes
-        data_hash = dynamic_attrs[:data] || {}
+        data_hash = (dynamic_attrs[:data] || {}).dup
         data_hash[:value] = @value unless data_hash.key?(:value) || data_hash.key?("value")
         dynamic_attrs[:data] = data_hash
 

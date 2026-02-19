@@ -17,7 +17,7 @@ module Components
         dynamic_attrs = attrs_without_class.dup
 
         # Add data attributes
-        data_hash = dynamic_attrs[:data] || {}
+        data_hash = (dynamic_attrs[:data] || {}).dup
         data_hash[:mode] = @mode unless data_hash.key?(:mode) || data_hash.key?("mode")
         dynamic_attrs[:data] = data_hash
 

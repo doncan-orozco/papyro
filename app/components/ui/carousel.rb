@@ -16,7 +16,7 @@ module Components
         dynamic_attrs = attrs_without_class.dup
 
         # Add data attributes
-        data_hash = dynamic_attrs[:data] || {}
+        data_hash = (dynamic_attrs[:data] || {}).dup
         data_hash[:orientation] = @orientation unless data_hash.key?(:orientation) || data_hash.key?("orientation")
         dynamic_attrs[:data] = data_hash
 

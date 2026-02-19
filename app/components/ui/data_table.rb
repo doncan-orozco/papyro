@@ -19,7 +19,7 @@ module Components
         dynamic_attrs = attrs_without_class.dup
 
         # Add data attributes for features
-        data_hash = dynamic_attrs[:data] || {}
+        data_hash = (dynamic_attrs[:data] || {}).dup
         data_hash[:sortable] = @sortable if @sortable
         data_hash[:filterable] = @filterable if @filterable
         data_hash[:paginated] = @paginated if @paginated

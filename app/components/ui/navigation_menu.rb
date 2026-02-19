@@ -111,7 +111,7 @@ module Components
 
         # Add data-active if active
         if @active
-          data_hash = dynamic_attrs[:data] || {}
+          data_hash = (dynamic_attrs[:data] || {}).dup
           data_hash[:active] = "" unless data_hash.key?(:active) || data_hash.key?("active")
           dynamic_attrs[:data] = data_hash
         end

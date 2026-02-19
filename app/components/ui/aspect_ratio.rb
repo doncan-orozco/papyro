@@ -16,14 +16,14 @@ module Components
         end
       end
 
+      private
+
       # Sanitize ratio to prevent XSS
       def sanitize_ratio(ratio)
         # Only allow numbers, forward slash, decimal point, and colon
         return "16/9" unless ratio.to_s.match?(/\A[\d.\/: ]+\z/)
         ratio
       end
-
-      private
 
       def classes
         "absolute inset-0"

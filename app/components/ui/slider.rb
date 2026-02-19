@@ -19,7 +19,7 @@ module Components
         dynamic_attrs = attrs_without_class.dup
 
         # Add data attributes for configuration
-        data_hash = dynamic_attrs[:data] || {}
+        data_hash = (dynamic_attrs[:data] || {}).dup
         data_hash[:min] = @min unless data_hash.key?(:min) || data_hash.key?("min")
         data_hash[:max] = @max unless data_hash.key?(:max) || data_hash.key?("max")
         data_hash[:step] = @step unless data_hash.key?(:step) || data_hash.key?("step")

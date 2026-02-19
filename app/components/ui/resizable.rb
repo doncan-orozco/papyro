@@ -16,7 +16,7 @@ module Components
         dynamic_attrs = attrs_without_class.dup
 
         # Add data attributes
-        data_hash = dynamic_attrs[:data] || {}
+        data_hash = (dynamic_attrs[:data] || {}).dup
         data_hash[:direction] = @direction unless data_hash.key?(:direction) || data_hash.key?("direction")
         dynamic_attrs[:data] = data_hash
 
@@ -51,7 +51,7 @@ module Components
         dynamic_attrs = attrs_without_class.dup
 
         # Add data attributes for sizing
-        data_hash = dynamic_attrs[:data] || {}
+        data_hash = (dynamic_attrs[:data] || {}).dup
         data_hash[:default_size] = @default_size if @default_size
         data_hash[:min_size] = @min_size if @min_size
         data_hash[:max_size] = @max_size if @max_size
