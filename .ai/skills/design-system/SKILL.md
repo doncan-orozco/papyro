@@ -13,6 +13,13 @@ description: shadcn/ui design patterns translated to Phlex components for consis
 ## Overview
 Use shadcn/ui **Radix UI** design patterns translated to Phlex components. All base UI components live in `app/components/ui/`.
 
+## Catalog Requirement
+Maintain the design system catalog in `app/views/design_system/index.rb`.
+
+- Every new UI component or variant must be added to the catalog.
+- Add English and Spanish strings in `config/locales/{en,es}/design_system.yml`.
+- Keep catalog examples professional and aligned with semantic tokens.
+
 **IMPORTANT:** This project uses shadcn **Radix UI** components (not Base UI). Always verify component specifications from https://ui.shadcn.com when converting.
 
 ## Key Principles
@@ -379,6 +386,37 @@ module Components
 end
 ```
 
+## Interactive Components (Switch, Tabs, Accordion, Dropdown, Tooltip, Dialog)
+
+For components that require JavaScript interactivity (state management, keyboard navigation, positioning), use the **Stimulus controller pattern**. See [references/stimulus-interactive-components.md](references/stimulus-interactive-components.md) for the complete guide.
+
+### Pattern Summary
+1. **Phlex Component** — Pure markup + semantic tokens, receives `data-*` attributes via `**attrs`
+2. **Stimulus Controller** — Manages state, targets, actions, keyboard nav, and positioning
+3. **Design System Examples** — Fully wired interactive examples in `app/views/design_system/index.rb`
+
+### Quick Checklist
+- ✅ Component passes `**attrs` including `data-controller`, `data-action`, `data-targets`
+- ✅ Controller has `static values`, `static targets`, `connect()`, and expected actions
+- ✅ Controller updates `data-state` for CSS styling (not class mutations)
+- ✅ ARIA attributes updated: `aria-selected`, `aria-expanded`, `aria-checked`, etc.
+- ✅ Keyboard navigation: Arrow keys (Tabs/Accordion), Escape (modals), Tab focus management
+- ✅ Custom events dispatched for loose coupling: `ui:switch:changed`, `ui:dialog:closed`, etc.
+- ✅ Importmap configured for Floating UI (`@floating-ui/dom`) if needed
+- ✅ Base controller pinned explicitly: `pin "controllers/ui/base_controller"`
+- ✅ Console logs with emoji prefixes for debugging
+- ✅ Design system view has interactive examples (copy-paste ready)
+
+### Currently Implemented
+- **Switch** — Toggle on/off with click or Space/Enter, form integration
+- **Tabs** — Tab switching with arrow key navigation, ARIA updates
+- **Accordion** — Expand/collapse with arrow key navigation, smooth height transitions
+- **Dropdown** — Menu with keyboard navigation, Floating UI positioning, click-outside
+- **Tooltip** — Hover/focus trigger with delay, Floating UI margin-aware positioning
+- **Dialog** — Modal with focus trap, scroll lock, overlay click to close, ESC key
+
+All controllers use shared utilities from `base_controller.js` (focus management, state helpers, event dispatching).
+
 ## Conversion Process (Example)
 
 1. Find shadcn component (button, card, input, etc.)
@@ -387,7 +425,19 @@ end
 4. Add size variants (sm, default, lg)
 5. Support disabled/states via boolean flags
 6. Pass through attrs for Stimulus integration
-7. Test with a domain component to validate composability
+7. For interactive components: Create Stimulus controller with state, targets, keyboard handling
+8. Test with design system examples — copy from `app/views/design_system/index.rb`
+
+## References
+
+- [shadcn-conversion-guide.md](references/shadcn-conversion-guide.md) — Complete step-by-step guide for converting React shadcn components to Phlex
+- [stimulus-interactive-components.md](references/stimulus-interactive-components.md) — Pattern for building interactive components with Stimulus (Switch, Tabs, Accordion, etc.)
+- [css-variables-guide.md](references/css-variables-guide.md) — Tailwind CSS v4 OKLCH color space and semantic tokens
+- [design-system.md](references/design-system.md) — Design system principles and component organization
+
+## Examples
+
+- [interactive-components-examples.md](examples/interactive-components-examples.md) — Copy-paste ready code for all 6 implemented interactive components (Switch, Tabs, Accordion, Dropdown, Tooltip, Dialog)
 
 ## Checklist Reference
 

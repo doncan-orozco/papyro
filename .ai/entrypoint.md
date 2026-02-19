@@ -103,6 +103,7 @@ See [skills/linting/examples/lint-and-tests.md](skills/linting/examples/lint-and
 - **[skills/web-artifacts/web-artifacts.md](skills/web-artifacts/SKILL.md)** - Standalone HTML/CSS/JS artifacts, dashboards, embeddable components
 - **[skills/i18n/i18n.md](skills/i18n/i18n.md)** - ⚠️ REQUIRED for all user-facing text
 - **[skills/design-system/design-system.md](skills/design-system/SKILL.md)** - shadcn/ui + Phlex components
+  - **→ Interactive Components:** See [design-system/references/stimulus-interactive-components.md](skills/design-system/references/stimulus-interactive-components.md) for Switch, Tabs, Accordion, Dropdown, Tooltip, Dialog patterns
 - **[skills/ux/ux.md](skills/ux/SKILL.md)** - UX/UI guidelines
 
 ### Database

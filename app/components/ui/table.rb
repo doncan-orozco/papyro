@@ -5,27 +5,6 @@
 # Updated: 2026-02-17 for pixel-perfect shadcn Radix UI compatibility
 module Components
   module Ui
-    # Table container wrapper
-    class TableContainer < Components::Base
-      def initialize(**attrs)
-        @attrs = attrs
-      end
-
-      def view_template(&block)
-        div(
-          class: merged_classes,
-          **attrs_without_class,
-          &block
-        )
-      end
-
-      private
-
-      def classes
-        "relative w-full overflow-auto"
-      end
-    end
-
     # Table element
     class Table < Components::Base
       def initialize(**attrs)

@@ -1,5 +1,12 @@
 en:
   components:
+    ui:
+      social_link:
+        aria:
+          twitter: "Follow on Twitter"
+          github: "View GitHub profile"
+          linkedin: "Connect on LinkedIn"
+          default: "Visit %{platform}"
     landing:
       hero:
         title: "Doncan Orozco"
