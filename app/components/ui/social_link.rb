@@ -12,9 +12,9 @@ module Components
           href: @url,
           target: "_blank",
           rel: "noopener noreferrer",
-          class: "inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-900 hover:bg-slate-200 transition-colors",
+          class: merged_classes,
           "aria-label": aria_label,
-          **@attrs
+          **attrs_without_class
         ) do
           case @platform
           when "twitter"
@@ -29,16 +29,29 @@ module Components
 
       private
 
+      def classes
+        [
+          "inline-flex items-center justify-center",
+          "h-10 w-10 rounded-full",
+          "border border-border",
+          "bg-muted text-foreground",
+          "transition-colors",
+          "hover:bg-muted/80",
+          "focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20",
+          "disabled:pointer-events-none disabled:opacity-50"
+        ].join(" ")
+      end
+
       def aria_label
         case @platform
         when "twitter"
-          "Follow on Twitter"
+          t("components.ui.social_link.aria.twitter")
         when "github"
-          "View GitHub profile"
+          t("components.ui.social_link.aria.github")
         when "linkedin"
-          "Connect on LinkedIn"
+          t("components.ui.social_link.aria.linkedin")
         else
-          "Visit #{@platform.capitalize}"
+          t("components.ui.social_link.aria.default", platform: @platform.to_s.capitalize)
         end
       end
 

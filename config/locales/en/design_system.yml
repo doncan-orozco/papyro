@@ -1,0 +1,182 @@
+en:
+  design_system:
+    page:
+      badge: "Component Catalog"
+      title: "Design System"
+      description: "A living index of every UI component and variant used across Papyro."
+      chip_one: "Semantic tokens"
+      chip_two: "Phlex + Tailwind"
+      chip_three: "Radix patterns"
+      note: "Interactive components are shown in static states."
+    sections:
+      buttons:
+        title: "Buttons"
+        description: "Action hierarchy, states, and icon treatments."
+      forms:
+        title: "Form Controls"
+        description: "Inputs, selections, and toggles with clear validation states."
+      feedback:
+        title: "Feedback"
+        description: "Status indicators and alerts that reinforce system state."
+      data_display:
+        title: "Data Display"
+        description: "Tables, progress, skeletons, and identity cues."
+      layout:
+        title: "Layout"
+        description: "Containers, tabs, accordions, and structural dividers."
+      overlays:
+        title: "Overlays"
+        description: "Dialogs, dropdowns, and tooltips shown as static previews."
+      media:
+        title: "Media"
+        description: "Social and identity elements for profiles and links."
+    buttons:
+      variants:
+        title: "Variants"
+        description: "Primary and secondary emphasis options."
+        default: "Default"
+        secondary: "Secondary"
+        outline: "Outline"
+        ghost: "Ghost"
+        destructive: "Destructive"
+        link: "Link"
+      sizes:
+        title: "Sizes"
+        description: "Compact to roomy densities."
+        xs: "Extra Small"
+        sm: "Small"
+        default: "Default"
+        lg: "Large"
+      icons:
+        title: "Icon Buttons"
+        description: "Icon-only buttons across size scale."
+        label: "Icon button"
+      states:
+        disabled: "Disabled"
+        invalid: "Invalid"
+        expanded: "Expanded"
+    forms:
+      inputs:
+        title: "Text Inputs"
+        description: "Base fields with consistent focus and spacing."
+        email_label: "Email"
+        email_placeholder: "name@company.com"
+        message_label: "Message"
+        message_placeholder: "Share a short update"
+        role_label: "Role"
+        role_placeholder: "Select a role"
+        role_admin: "Admin"
+        role_editor: "Editor"
+        role_viewer: "Viewer"
+      toggles:
+        title: "Choices & Toggles"
+        description: "Single and multi-select controls."
+        terms_label: "I agree to the terms"
+        notifications_label: "Notification method"
+        notification_email: "Email"
+        notification_sms: "SMS"
+        switch_label: "Airplane Mode"
+        disabled_label: "Disabled field"
+        disabled_placeholder: "Unavailable"
+        invalid_label: "Invalid field"
+        invalid_placeholder: "Needs attention"
+    feedback:
+      badges:
+        title: "Badges"
+        description: "Compact status labels."
+        default: "Default"
+        secondary: "Secondary"
+        destructive: "Destructive"
+        outline: "Outline"
+      alerts:
+        title: "Alerts"
+        description: "Prominent feedback for critical states."
+        info_title: "Heads up"
+        info_body: "A new release is scheduled for Friday."
+        destructive_title: "Action required"
+        destructive_body: "Your session expired. Please sign in again."
+    data_display:
+      table:
+        title: "Table"
+        description: "Structured data with status indicators."
+        head_name: "Member"
+        head_status: "Status"
+        head_amount: "Monthly"
+        row_one_name: "Jordan Lee"
+        row_one_status: "Active"
+        row_one_amount: "$250.00"
+        row_two_name: "Avery Chen"
+        row_two_status: "Pending"
+        row_two_amount: "$150.00"
+      progress:
+        title: "Progress"
+        description: "Milestones with clear completion signals."
+        step_one: "Discovery"
+        step_two: "Production"
+        step_three: "Launch"
+      skeleton:
+        title: "Skeletons"
+        description: "Loading placeholders to hold layout rhythm."
+      avatars:
+        title: "Avatars"
+        description: "Identity cues with fallbacks."
+        primary_alt: "Primary profile"
+        primary_fallback: "AL"
+        secondary_fallback: "BK"
+    layout:
+      cards:
+        title: "Cards"
+        description: "Modular containers with header, body, and actions."
+        primary_title: "Editorial Card"
+        primary_description: "Quiet framing for core content."
+        primary_body: "Use this card to highlight summaries and metadata."
+        secondary_title: "Action Card"
+        secondary_description: "Clear structure with a call to action."
+        secondary_body: "Keep supporting copy short and direct."
+        secondary_action: "Cancel"
+        secondary_primary: "Save"
+      tabs:
+        title: "Tabs"
+        description: "Horizontal navigation for grouped content."
+        first: "Overview"
+        second: "Details"
+        first_body: "A high-level snapshot of the content."
+        second_body: "Supporting details and secondary information."
+      accordion:
+        title: "Accordion"
+        description: "Stacked disclosure for progressive detail."
+        first_title: "Design principles"
+        first_body: "Keep type, spacing, and feedback consistent."
+        second_title: "Interaction notes"
+        second_body: "Static previews here, live in product flows."
+      separator:
+        title: "Separators"
+        description: "Visual dividers for grouping content."
+        horizontal_label: "Horizontal divider"
+        vertical_left: "Left"
+        vertical_right: "Right"
+    overlays:
+      dialog:
+        title: "Dialog"
+        description: "Modal layout for critical confirmation."
+        headline: "Confirm changes"
+        body: "Review the summary before publishing."
+        cancel: "Cancel"
+        confirm: "Confirm"
+      dropdown:
+        title: "Dropdown Menu"
+        description: "Quick actions anchored to a trigger."
+        trigger: "Open menu"
+        label: "Workspace"
+        item_profile: "Profile"
+        item_settings: "Settings"
+        item_sign_out: "Sign out"
+      tooltip:
+        title: "Tooltip"
+        description: "Context hints shown on hover or focus."
+        trigger: "Hover for details"
+        body: "Use this to explain icon-only actions."
+    media:
+      social:
+        title: "Social Links"
+        description: "Icon links for external profiles."

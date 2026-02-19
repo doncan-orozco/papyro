@@ -73,6 +73,7 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Pure functions (no side effects)
 - [ ] All data via constructor arguments
 - [ ] Support `**attrs` for Stimulus
+- [ ] Design system catalog updated for new UI components (view + i18n)
 
 ### Stimulus
 - [ ] Live in `app/javascript/controllers/{domain}/`

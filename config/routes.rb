@@ -35,6 +35,9 @@ Rails.application.routes.draw do
   # Home (landing page)
   root "home#index"
 
+  # Design system catalog
+  get "design-system", to: "design_system#index", as: :design_system
+
   # Public articles (by slug, no auth required)
   resources :articles, only: [ :show ], param: :slug do
     collection do

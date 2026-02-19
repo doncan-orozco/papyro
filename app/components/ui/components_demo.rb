@@ -11,6 +11,7 @@ module Components
           render_header
           render_buttons
           render_forms
+          render_interactive_components
           render_cards
           render_badges
           render_alerts
@@ -114,10 +115,304 @@ module Components
 
               # Switch
               div(class: "flex items-center space-x-2") do
-                render Switch.new(id: "airplane-mode", data: { state: "unchecked" }) do
-                  render SwitchThumb.new(data: { state: "unchecked" })
+                render Switch.new(
+                  id: "airplane-mode",
+                  data: {
+                    controller: "ui--switch",
+                    ui__switch_checked_value: false,
+                    action: "click->ui--switch#toggle"
+                  }
+                ) do
+                  render SwitchThumb.new(data: { ui__switch_target: "thumb" })
                 end
                 render Label.new(for: "airplane-mode") { "Airplane Mode" }
+              end
+            end
+          end
+        end
+      end
+
+      def render_interactive_components
+        section(class: "space-y-8") do
+          h2(class: "text-3xl font-bold") { "Interactive Components" }
+          p(class: "text-muted-foreground") { "Components with Stimulus controllers for full interactivity" }
+
+          # Accordion
+          div(class: "space-y-4") do
+            h3(class: "text-xl font-semibold") { "Accordion" }
+            render Accordion.new(
+              class: "w-full max-w-md",
+              data: {
+                controller: "ui--accordion",
+                ui__accordion_allow_multiple_value: false
+              }
+            ) do
+              # Item 1
+              render AccordionItem.new do
+                render AccordionTrigger.new(
+                  data: {
+                    ui__accordion_target: "trigger",
+                    action: "click->ui--accordion#toggle keydown->ui--accordion#keydown"
+                  }
+                ) do
+                  plain "Is it accessible?"
+                  svg(
+                    xmlns: "http://www.w3.org/2000/svg",
+                    class: "h-4 w-4 shrink-0 transition-transform duration-200",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor"
+                  ) do |s|
+                    s.path(
+                      stroke_linecap: "round",
+                      stroke_linejoin: "round",
+                      stroke_width: "2",
+                      d: "M19 9l-7 7-7-7"
+                    )
+                  end
+                end
+                render AccordionContent.new(
+                  data: { ui__accordion_target: "content" },
+                  style: "max-height: 0"
+                ) do
+                  render AccordionContentInner.new do
+                    plain "Yes. It adheres to the WAI-ARIA design pattern with full keyboard navigation support."
+                  end
+                end
+              end
+
+              # Item 2
+              render AccordionItem.new do
+                render AccordionTrigger.new(
+                  data: {
+                    ui__accordion_target: "trigger",
+                    action: "click->ui--accordion#toggle keydown->ui--accordion#keydown"
+                  }
+                ) do
+                  plain "Is it styled?"
+                  svg(
+                    xmlns: "http://www.w3.org/2000/svg",
+                    class: "h-4 w-4 shrink-0 transition-transform duration-200",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor"
+                  ) do |s|
+                    s.path(
+                      stroke_linecap: "round",
+                      stroke_linejoin: "round",
+                      stroke_width: "2",
+                      d: "M19 9l-7 7-7-7"
+                    )
+                  end
+                end
+                render AccordionContent.new(
+                  data: { ui__accordion_target: "content" },
+                  style: "max-height: 0"
+                ) do
+                  render AccordionContentInner.new do
+                    plain "Yes. Styled with Tailwind CSS and follows shadcn/ui design patterns."
+                  end
+                end
+              end
+
+              # Item 3
+              render AccordionItem.new do
+                render AccordionTrigger.new(
+                  data: {
+                    ui__accordion_target: "trigger",
+                    action: "click->ui--accordion#toggle keydown->ui--accordion#keydown"
+                  }
+                ) do
+                  plain "Is it animated?"
+                  svg(
+                    xmlns: "http://www.w3.org/2000/svg",
+                    class: "h-4 w-4 shrink-0 transition-transform duration-200",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor"
+                  ) do |s|
+                    s.path(
+                      stroke_linecap: "round",
+                      stroke_linejoin: "round",
+                      stroke_width: "2",
+                      d: "M19 9l-7 7-7-7"
+                    )
+                  end
+                end
+                render AccordionContent.new(
+                  data: { ui__accordion_target: "content" },
+                  style: "max-height: 0"
+                ) do
+                  render AccordionContentInner.new do
+                    plain "Yes. Smooth transitions powered by CSS with JavaScript state management."
+                  end
+                end
+              end
+            end
+          end
+
+          # Tabs
+          div(class: "space-y-4") do
+            h3(class: "text-xl font-semibold") { "Tabs" }
+            render Tabs.new(
+              class: "w-full max-w-md",
+              data: {
+                controller: "ui--tabs",
+                ui__tabs_active_index_value: 0
+              }
+            ) do
+              render TabsList.new do
+                render TabsTrigger.new(
+                  data: {
+                    ui__tabs_target: "trigger",
+                    action: "click->ui--tabs#select keydown->ui--tabs#keydown"
+                  }
+                ) { "Account" }
+                render TabsTrigger.new(
+                  data: {
+                    ui__tabs_target: "trigger",
+                    action: "click->ui--tabs#select keydown->ui--tabs#keydown"
+                  }
+                ) { "Password" }
+                render TabsTrigger.new(
+                  data: {
+                    ui__tabs_target: "trigger",
+                    action: "click->ui--tabs#select keydown->ui--tabs#keydown"
+                  }
+                ) { "Preferences" }
+              end
+              render TabsContent.new(data: { ui__tabs_target: "content" }) do
+                render Card.new do
+                  render CardHeader.new do
+                    render CardTitle.new { "Account" }
+                    render CardDescription.new { "Make changes to your account settings here." }
+                  end
+                  render CardContent.new do
+                    p { "Account details and settings." }
+                  end
+                end
+              end
+              render TabsContent.new(data: { ui__tabs_target: "content" }) do
+                render Card.new do
+                  render CardHeader.new do
+                    render CardTitle.new { "Password" }
+                    render CardDescription.new { "Change your password here." }
+                  end
+                  render CardContent.new do
+                    p { "Password management options." }
+                  end
+                end
+              end
+              render TabsContent.new(data: { ui__tabs_target: "content" }) do
+                render Card.new do
+                  render CardHeader.new do
+                    render CardTitle.new { "Preferences" }
+                    render CardDescription.new { "Update your preferences." }
+                  end
+                  render CardContent.new do
+                    p { "User preferences and options." }
+                  end
+                end
+              end
+            end
+          end
+
+          # Tooltip
+          div(class: "space-y-4") do
+            h3(class: "text-xl font-semibold") { "Tooltip" }
+            div(
+              data: {
+                controller: "ui--tooltip",
+                ui__tooltip_delay_value: 200,
+                ui__tooltip_placement_value: "top"
+              }
+            ) do
+              render TooltipTrigger.new(
+                data: {
+                  ui__tooltip_target: "trigger",
+                  action: "mouseenter->ui--tooltip#show mouseleave->ui--tooltip#hide focus->ui--tooltip#show blur->ui--tooltip#hide"
+                }
+              ) do
+                render Button.new(variant: :outline) { "Hover me" }
+              end
+              render TooltipContent.new(data: { ui__tooltip_target: "content" }) do
+                plain "This is a tooltip with dynamic positioning"
+              end
+            end
+          end
+
+          # Dropdown Menu
+          div(class: "space-y-4") do
+            h3(class: "text-xl font-semibold") { "Dropdown Menu" }
+            div(
+              data: {
+                controller: "ui--dropdown",
+                ui__dropdown_placement_value: "bottom-start"
+              }
+            ) do
+              render DropdownMenuTrigger.new(
+                data: {
+                  ui__dropdown_target: "trigger",
+                  action: "click->ui--dropdown#toggle"
+                }
+              ) { "Open Menu" }
+              render DropdownMenuContent.new(data: { ui__dropdown_target: "content" }) do
+                render DropdownMenuLabel.new { "My Account" }
+                render DropdownMenuSeparator.new
+                render DropdownMenuItem.new(
+                  data: {
+                    ui__dropdown_target: "item",
+                    action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown"
+                  }
+                ) { "Profile" }
+                render DropdownMenuItem.new(
+                  data: {
+                    ui__dropdown_target: "item",
+                    action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown"
+                  }
+                ) { "Settings" }
+                render DropdownMenuSeparator.new
+                render DropdownMenuItem.new(
+                  data: {
+                    ui__dropdown_target: "item",
+                    action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown"
+                  }
+                ) { "Log out" }
+              end
+            end
+          end
+
+          # Dialog
+          div(class: "space-y-4") do
+            h3(class: "text-xl font-semibold") { "Dialog" }
+            div(
+              data: {
+                controller: "ui--dialog",
+                ui__dialog_open_value: false,
+                ui__dialog_close_on_overlay_click_value: true,
+                ui__dialog_close_on_esc_value: true
+              }
+            ) do
+              render Button.new(data: { action: "click->ui--dialog#open" }) { "Open Dialog" }
+
+              render DialogOverlay.new(data: { ui__dialog_target: "overlay" }, hidden: true)
+              render DialogContent.new(data: { ui__dialog_target: "content" }, hidden: true) do
+                render DialogHeader.new do
+                  render DialogTitle.new { "Are you absolutely sure?" }
+                  render DialogDescription.new do
+                    plain "This action cannot be undone. This will permanently delete your account and remove your data from our servers."
+                  end
+                end
+                render DialogFooter.new do
+                  render Button.new(
+                    variant: :outline,
+                    data: { action: "click->ui--dialog#close" }
+                  ) { "Cancel" }
+                  render Button.new(
+                    variant: :destructive,
+                    data: { action: "click->ui--dialog#close" }
+                  ) { "Continue" }
+                end
               end
             end
           end

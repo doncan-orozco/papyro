@@ -1,0 +1,182 @@
+es:
+  design_system:
+    page:
+      badge: "Catálogo de Componentes"
+      title: "Sistema de Diseño"
+      description: "Un índice vivo de cada componente y variante de UI en Papyro."
+      chip_one: "Tokens semánticos"
+      chip_two: "Phlex + Tailwind"
+      chip_three: "Patrones Radix"
+      note: "Los componentes interactivos se muestran en estados estáticos."
+    sections:
+      buttons:
+        title: "Botones"
+        description: "Jerarquía de acción, estados y tratamiento de iconos."
+      forms:
+        title: "Controles de Formulario"
+        description: "Entradas, selecciones y toggles con estados claros."
+      feedback:
+        title: "Feedback"
+        description: "Indicadores de estado y alertas del sistema."
+      data_display:
+        title: "Visualización de Datos"
+        description: "Tablas, progreso, skeletons y pistas de identidad."
+      layout:
+        title: "Estructura"
+        description: "Contenedores, tabs, accordions y divisores."
+      overlays:
+        title: "Capas"
+        description: "Dialogs, dropdowns y tooltips como previews estáticos."
+      media:
+        title: "Medios"
+        description: "Elementos sociales e identidad para perfiles."
+    buttons:
+      variants:
+        title: "Variantes"
+        description: "Opciones de énfasis primario y secundario."
+        default: "Default"
+        secondary: "Secondary"
+        outline: "Outline"
+        ghost: "Ghost"
+        destructive: "Destructive"
+        link: "Link"
+      sizes:
+        title: "Tamaños"
+        description: "Densidades compactas a amplias."
+        xs: "Extra Pequeño"
+        sm: "Pequeño"
+        default: "Default"
+        lg: "Grande"
+      icons:
+        title: "Botones de Icono"
+        description: "Icono único en diferentes tamaños."
+        label: "Botón de icono"
+      states:
+        disabled: "Deshabilitado"
+        invalid: "Inválido"
+        expanded: "Expandido"
+    forms:
+      inputs:
+        title: "Entradas de Texto"
+        description: "Campos base con foco y espaciado consistentes."
+        email_label: "Email"
+        email_placeholder: "nombre@empresa.com"
+        message_label: "Mensaje"
+        message_placeholder: "Comparte una actualización breve"
+        role_label: "Rol"
+        role_placeholder: "Selecciona un rol"
+        role_admin: "Admin"
+        role_editor: "Editor"
+        role_viewer: "Viewer"
+      toggles:
+        title: "Opciones y Toggles"
+        description: "Controles de selección simple y múltiple."
+        terms_label: "Acepto los términos"
+        notifications_label: "Método de notificación"
+        notification_email: "Email"
+        notification_sms: "SMS"
+        switch_label: "Modo avión"
+        disabled_label: "Campo deshabilitado"
+        disabled_placeholder: "No disponible"
+        invalid_label: "Campo inválido"
+        invalid_placeholder: "Requiere atención"
+    feedback:
+      badges:
+        title: "Badges"
+        description: "Etiquetas de estado compactas."
+        default: "Default"
+        secondary: "Secondary"
+        destructive: "Destructive"
+        outline: "Outline"
+      alerts:
+        title: "Alertas"
+        description: "Feedback prominente para estados críticos."
+        info_title: "Atención"
+        info_body: "Una nueva versión está programada para el viernes."
+        destructive_title: "Acción requerida"
+        destructive_body: "Tu sesión expiró. Inicia sesión de nuevo."
+    data_display:
+      table:
+        title: "Tabla"
+        description: "Datos estructurados con indicadores de estado."
+        head_name: "Miembro"
+        head_status: "Estado"
+        head_amount: "Mensual"
+        row_one_name: "Jordan Lee"
+        row_one_status: "Activo"
+        row_one_amount: "$250.00"
+        row_two_name: "Avery Chen"
+        row_two_status: "Pendiente"
+        row_two_amount: "$150.00"
+      progress:
+        title: "Progreso"
+        description: "Hitos con señales claras de avance."
+        step_one: "Descubrimiento"
+        step_two: "Producción"
+        step_three: "Lanzamiento"
+      skeleton:
+        title: "Skeletons"
+        description: "Placeholders de carga para mantener el ritmo."
+      avatars:
+        title: "Avatares"
+        description: "Pistas de identidad con fallback."
+        primary_alt: "Perfil principal"
+        primary_fallback: "AL"
+        secondary_fallback: "BK"
+    layout:
+      cards:
+        title: "Cards"
+        description: "Contenedores modulares con header, body y acciones."
+        primary_title: "Card Editorial"
+        primary_description: "Enmarcado discreto para contenido clave."
+        primary_body: "Usa esta card para resaltar resúmenes y metadata."
+        secondary_title: "Card de Acción"
+        secondary_description: "Estructura clara con llamada a la acción."
+        secondary_body: "Mantiene el texto de apoyo breve y directo."
+        secondary_action: "Cancelar"
+        secondary_primary: "Guardar"
+      tabs:
+        title: "Tabs"
+        description: "Navegación horizontal para contenido agrupado."
+        first: "Resumen"
+        second: "Detalles"
+        first_body: "Una vista general del contenido."
+        second_body: "Detalles y información secundaria."
+      accordion:
+        title: "Accordion"
+        description: "Desglose progresivo para más detalle."
+        first_title: "Principios de diseño"
+        first_body: "Mantener tipografía, espacio y feedback consistentes."
+        second_title: "Notas de interacción"
+        second_body: "Previews estáticos aquí, vivos en flujos reales."
+      separator:
+        title: "Separadores"
+        description: "Divisores visuales para agrupar contenido."
+        horizontal_label: "Divisor horizontal"
+        vertical_left: "Izquierda"
+        vertical_right: "Derecha"
+    overlays:
+      dialog:
+        title: "Dialog"
+        description: "Layout modal para confirmaciones críticas."
+        headline: "Confirmar cambios"
+        body: "Revisa el resumen antes de publicar."
+        cancel: "Cancelar"
+        confirm: "Confirmar"
+      dropdown:
+        title: "Dropdown Menu"
+        description: "Acciones rápidas ancladas al trigger."
+        trigger: "Abrir menú"
+        label: "Workspace"
+        item_profile: "Perfil"
+        item_settings: "Ajustes"
+        item_sign_out: "Cerrar sesión"
+      tooltip:
+        title: "Tooltip"
+        description: "Pistas de contexto en hover o focus."
+        trigger: "Hover para detalles"
+        body: "Úsalo para explicar acciones con icono."
+    media:
+      social:
+        title: "Links Sociales"
+        description: "Links con iconos para perfiles externos."

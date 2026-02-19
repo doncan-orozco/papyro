@@ -86,6 +86,35 @@ app/javascript/
 - Name controllers as `domain--feature` (e.g., `data-controller="game--player"`)
 - Register controllers in `index.js` or use auto-registration
 
+### Interactive Component Pattern
+For shadcn UI components requiring interactivity (Switch, Tabs, Accordion, Dropdown, Tooltip, Dialog), use the standardized pattern:
+
+**Files:**
+- Phlex component (static) → receives `data-*` attributes via `**attrs`
+- Stimulus controller → manages state, keyboard nav, positioning
+- Design system examples → test with interactive demo
+
+**Reference:** See [design-system/references/stimulus-interactive-components.md](../design-system/references/stimulus-interactive-components.md)
+
+**Example Integration:**
+```ruby
+# Component passes Stimulus bindings
+render Components::Ui::Switch.new(
+  data: {
+    controller: "ui--switch",
+    ui__switch_checked_value: false,
+    action: "click->ui--switch#toggle"
+  }
+)
+
+# Controller manages state and updates DOM
+export default class extends BaseController {
+  static values = { checked: Boolean }
+  toggle() { this.checkedValue = !this.checkedValue }
+  // Updates data-state → CSS responds via data-[state=checked]:...
+}
+```
+
 ## Stimulus + Phlex Integration
 Connect Stimulus to Phlex components via data attributes:
 
