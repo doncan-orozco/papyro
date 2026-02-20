@@ -36,6 +36,10 @@ module Components
 
     # Collapsible Trigger - button to toggle collapse
     class CollapsibleTrigger < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         button(
           type: :button,
@@ -54,6 +58,10 @@ module Components
 
     # Collapsible Content - content that expands/collapses
     class CollapsibleContent < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         div(
           class: merged_classes,

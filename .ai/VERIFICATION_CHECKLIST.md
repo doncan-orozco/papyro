@@ -4,6 +4,13 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 
 ## 🏗️ Architecture & Organization
 
+### Phlex Components (CRITICAL for UI Components)
+- [ ] **EVERY component class that accepts keyword arguments MUST have `initialize(**attrs)` method** (including child/nested classes)
+- [ ] Apply pattern to root component AND all child components (e.g., if building `Tabs.rb`, both `TabsList` and `TabsTrigger` need initialize)
+- [ ] Without this, instantiation like `Component.new(data: {...})` causes ArgumentError
+- [ ] Pattern: `def initialize(**attrs); @attrs = attrs; end` at minimum
+- [ ] Pass keyword arguments when instantiating: `Calendar.new(mode: :single, data: {...})`
+
 ### Controllers
 - [ ] Thin controller (request → Operation/Service → response)
 - [ ] No business logic
@@ -81,6 +88,8 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Use `static targets`, `values`, `outlets`
 - [ ] Dispatch custom events (loose coupling)
 - [ ] Organized by domain
+- [ ] Avoid calling close handlers on initial connect when the component is closed; do not restore focus or scroll on first render
+- [ ] Only return focus to triggers after the component has actually been opened at least once
 
 ### Styling
 - [ ] Tailwind utility classes only

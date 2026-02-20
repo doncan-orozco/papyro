@@ -57,6 +57,10 @@ module Components
 
     # Slider Track - background track
     class SliderTrack < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -70,6 +74,10 @@ module Components
 
     # Slider Range - filled portion of track
     class SliderRange < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template
         div(class: merged_classes, **attrs_without_class)
       end
@@ -83,6 +91,10 @@ module Components
 
     # Slider Thumb - draggable handle
     class SliderThumb < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template
         div(class: merged_classes, **attrs_without_class)
       end

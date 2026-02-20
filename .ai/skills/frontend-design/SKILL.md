@@ -201,6 +201,7 @@ div(class: "relative overflow-hidden rounded-2xl") {
 - Overuse of rounded corners on everything
 - Centered layouts for every section
 - Generic AI-generated aesthetics
+- Auto-focus or focus restoration on initial page load that scrolls the viewport unexpectedly
 
 ✅ **DO**:
 - Vary between light and dark themes

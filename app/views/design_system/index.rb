@@ -1,9 +1,15 @@
 # frozen_string_literal: true
+include Phlex::Rails::Helpers::ContentFor
 
 module Views
   module DesignSystem
     class Index < Views::Base
       def view_template
+        content_for :head do
+          tag(:meta, name: "turbo-cache-control", content: "no-cache")
+          tag(:meta, name: "turbo-visit-control", content: "reload")
+        end
+
         div(class: "min-h-screen bg-background text-foreground font-['Manrope']") do
           render_background
 
@@ -19,6 +25,12 @@ module Views
               render_layout_section
               render_interactive_section
               render_media_section
+              render_navigation_section
+              render_advanced_forms_section
+              render_overlays_section
+              render_toggles_section
+              render_data_display_advanced_section
+              render_notifications_section
             end
           end
         end
@@ -66,8 +78,14 @@ module Views
           nav_link("design_system.sections.feedback.title", "#feedback")
           nav_link("design_system.sections.data_display.title", "#data-display")
           nav_link("design_system.sections.layout.title", "#layout")
-          nav_link("design_system.sections.overlays.title", "#overlays")
+          nav_link("Interactive", "#interactive")
           nav_link("design_system.sections.media.title", "#media")
+          nav_link("Navigation", "#navigation")
+          nav_link("Advanced Forms", "#advanced-forms")
+          nav_link("Overlays", "#overlays")
+          nav_link("Toggles", "#toggles")
+          nav_link("Data Display Advanced", "#data-display-advanced")
+          nav_link("Notifications", "#notifications")
         end
       end
 
@@ -635,6 +653,522 @@ module Views
                 render Components::Ui::SocialLink.new(platform: "twitter", url: "https://twitter.com")
                 render Components::Ui::SocialLink.new(platform: "github", url: "https://github.com")
                 render Components::Ui::SocialLink.new(platform: "linkedin", url: "https://linkedin.com")
+              end
+            end
+          end
+        end
+      end
+
+      def render_navigation_section
+        section(
+          id: "navigation",
+          class: "space-y-6 motion-safe:animate-[catalog-fade_0.6s_ease-out]",
+          style: "animation-delay: 500ms"
+        ) do
+          render_section_header("Navigation Components", "Components for navigating content")
+
+          div(class: "grid gap-6 lg:grid-cols-2") do
+            render_card("Breadcrumb", "Navigation path showing location hierarchy") do
+              render Components::Ui::Breadcrumb.new do
+                plain "Home / Products / Electronics"
+              end
+            end
+
+            render_card("Pagination", "Navigate through pages of content") do
+              render Components::Ui::Pagination.new do
+                plain "1 2 3 ... 10"
+              end
+            end
+          end
+        end
+      end
+
+      def render_advanced_forms_section
+        section(
+          id: "advanced-forms",
+          class: "space-y-6 motion-safe:animate-[catalog-fade_0.6s_ease-out]",
+          style: "animation-delay: 560ms"
+        ) do
+          render_section_header("Advanced Form Components", "Complex form inputs and pickers")
+
+          div(class: "grid gap-6 lg:grid-cols-2") do
+            render_card("Calendar", "Date selection with calendar UI") do
+              render Components::Ui::Calendar.new(
+                mode: :single,
+                data: {
+                  controller: "ui--calendar",
+                  ui__calendar_month_value: Date.today.month - 1,
+                  ui__calendar_year_value: Date.today.year
+                }
+              ) do
+                render Components::Ui::CalendarHeader.new do
+                  render Components::Ui::Button.new(
+                    variant: :outline,
+                    size: :icon,
+                    data: { action: "click->ui--calendar#previousMonth" }
+                  ) { "←" }
+                  render Components::Ui::CalendarHeading.new(
+                    data: { ui__calendar_target: "monthYear" }
+                  ) { "#{Date::MONTHNAMES[Date.today.month]} #{Date.today.year}" }
+                  render Components::Ui::Button.new(
+                    variant: :outline,
+                    size: :icon,
+                    data: { action: "click->ui--calendar#nextMonth" }
+                  ) { "→" }
+                end
+                render Components::Ui::CalendarGrid.new do
+                  render Components::Ui::CalendarHead.new do
+                    render Components::Ui::CalendarHeadRow.new do
+                      %w[Su Mo Tu We Th Fr Sa].each do |day|
+                        render Components::Ui::CalendarHeadCell.new { day }
+                      end
+                    end
+                  end
+                  render Components::Ui::CalendarBody.new(
+                    data: { ui__calendar_target: "days" }
+                  )
+                end
+              end
+            end
+
+            render_card("Collapsible", "Expandable/collapsible content sections") do
+              render Components::Ui::Collapsible.new(
+                open: false,
+                data: {
+                  controller: "ui--collapsible",
+                  ui__collapsible_open_value: false
+                }
+              ) do
+                render Components::Ui::CollapsibleTrigger.new(
+                  data: {
+                    ui__collapsible_target: "trigger",
+                    action: "click->ui--collapsible#toggle"
+                  }
+                ) { "Click to expand" }
+                render Components::Ui::CollapsibleContent.new(
+                  data: {
+                    ui__collapsible_target: "content"
+                  }
+                ) do
+                  p(class: "text-sm text-muted-foreground") { "Hidden content that can be toggled" }
+                end
+              end
+            end
+
+            render_card("Radio Group", "Select one option from a group") do
+              render Components::Ui::RadioGroup.new(
+                name: "demo-radio",
+                data: {
+                  controller: "ui--radio-group",
+                  ui__radio_group_value_value: "option1"
+                }
+              ) do
+                div(class: "flex items-center space-x-2") do
+                  render Components::Ui::Radio.new(
+                    id: "option1",
+                    value: "option1",
+                    name: "demo-radio",
+                    checked: true,
+                    data: {
+                      ui__radio_group_target: "item",
+                      action: "click->ui--radio-group#select"
+                    }
+                  )
+                  render Components::Ui::Label.new(for: "option1") { "Option 1" }
+                end
+                div(class: "flex items-center space-x-2") do
+                  render Components::Ui::Radio.new(
+                    id: "option2",
+                    value: "option2",
+                    name: "demo-radio",
+                    data: {
+                      ui__radio_group_target: "item",
+                      action: "click->ui--radio-group#select"
+                    }
+                  )
+                  render Components::Ui::Label.new(for: "option2") { "Option 2" }
+                end
+              end
+            end
+
+            render_card("Slider", "Numeric range selection") do
+              render Components::Ui::Slider.new(
+                min: 0,
+                max: 100,
+                step: 1,
+                value: 50,
+                data: {
+                  controller: "ui--slider",
+                  ui__slider_value_value: 50,
+                  ui__slider_min_value: 0,
+                  ui__slider_max_value: 100,
+                  action: "keydown->ui--slider#keydown mousedown->ui--slider#startDrag"
+                }
+              ) do
+                render Components::Ui::SliderTrack.new(
+                  data: { ui__slider_target: "track" }
+                ) do
+                  render Components::Ui::SliderRange.new(
+                    data: { ui__slider_target: "range" },
+                    style: "width: 50%"
+                  )
+                end
+                render Components::Ui::SliderThumb.new(
+                  data: { ui__slider_target: "thumb" },
+                  style: "left: 50%"
+                )
+              end
+              p(class: "mt-2 text-xs text-muted-foreground") { "Value: 50" }
+            end
+          end
+        end
+      end
+
+      def render_overlays_section
+        section(
+          id: "overlays",
+          class: "space-y-6 motion-safe:animate-[catalog-fade_0.6s_ease-out]",
+          style: "animation-delay: 620ms"
+        ) do
+          render_section_header("Overlay Components", "Floating panels and popovers")
+
+          div(class: "grid gap-6 lg:grid-cols-2") do
+            render_card("Popover", "Floating content anchored to a trigger") do
+              render Components::Ui::Popover.new(
+                data: {
+                  controller: "ui--popover",
+                  ui__popover_open_value: false,
+                  ui__popover_placement_value: "top"
+                }
+              ) do
+                render Components::Ui::Button.new(
+                  variant: :outline,
+                  data: {
+                    ui__popover_target: "trigger",
+                    action: "click->ui--popover#toggle"
+                  }
+                ) { "Open Popover" }
+                render Components::Ui::PopoverContent.new(
+                  data: {
+                    ui__popover_target: "content"
+                  },
+                  class: "z-50 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none",
+                  style: "opacity: 0; transition: opacity 150ms ease-in-out"
+                ) do
+                  p(class: "text-sm") { "Popover content goes here" }
+                end
+              end
+            end
+
+            render_card("Hover Card", "Content revealed on hover") do
+              render Components::Ui::HoverCard.new(
+                data: {
+                  controller: "ui--hover-card",
+                  ui__hover_card_open_value: false,
+                  ui__hover_card_delay_value: 200,
+                  ui__hover_card_placement_value: "top"
+                }
+              ) do
+                render Components::Ui::HoverCardTrigger.new(
+                  data: {
+                    ui__hover_card_target: "trigger",
+                    action: "mouseenter->ui--hover-card#show mouseleave->ui--hover-card#hide focus->ui--hover-card#show blur->ui--hover-card#hide"
+                  }
+                ) do
+                  render Components::Ui::Button.new(variant: :outline) { "Hover for more" }
+                end
+                render Components::Ui::HoverCardContent.new(
+                  data: {
+                    ui__hover_card_target: "content"
+                  },
+                  class: "z-50 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none",
+                  style: "opacity: 0; visibility: hidden; transition: opacity 150ms ease-in-out"
+                ) do
+                  p(class: "text-sm") { "Additional information appears on hover" }
+                end
+              end
+            end
+
+            render_card("Sheet", "Side panel that slides in") do
+              render Components::Ui::Sheet.new(
+                data: {
+                  controller: "ui--dialog",
+                  ui__dialog_open_value: false,
+                  ui__dialog_close_on_overlay_click_value: true
+                }
+              ) do
+                div(class: "space-y-4") do
+                  render Components::Ui::Button.new(
+                    variant: :outline,
+                    data: {
+                      action: "click->ui--dialog#open"
+                    }
+                  ) { "Open Sheet" }
+                  p(class: "text-xs text-muted-foreground") do
+                    "Sheet is a slide-out panel variant of Dialog for displaying content from the side"
+                  end
+                end
+
+                div(
+                  data: {
+                    ui__dialog_target: "overlay",
+                    dialog_transition: "fade"
+                  },
+                  class: "fixed inset-0 z-40 bg-background/80 backdrop-blur-sm",
+                  style: "opacity: 0; transition: opacity 150ms ease-in-out",
+                  hidden: true
+                )
+
+                div(
+                  data: {
+                    ui__dialog_target: "content",
+                    dialog_transition: "slide"
+                  },
+                  class: "fixed right-0 top-0 z-50 h-screen w-3/4 border-l bg-background shadow-lg md:w-1/2 lg:w-[400px]",
+                  role: "dialog",
+                  aria: { modal: true },
+                  style: "transform: translateX(100%); transition: transform 300ms ease-in-out",
+                  hidden: true
+                ) do
+                  div(class: "space-y-4 p-6") do
+                    div(class: "flex items-center justify-between") do
+                      h2(class: "text-lg font-semibold") { "Sheet Title" }
+                      render Components::Ui::Button.new(
+                        variant: :ghost,
+                        size: :sm,
+                        data: {
+                          action: "click->ui--dialog#close",
+                          ui__dialog_target: "closeButton"
+                        }
+                      ) { "✕" }
+                    end
+                    p(class: "text-sm text-muted-foreground") { "Sheet content goes here" }
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      def render_toggles_section
+        section(
+          id: "toggles",
+          class: "space-y-6 motion-safe:animate-[catalog-fade_0.6s_ease-out]",
+          style: "animation-delay: 680ms"
+        ) do
+          render_section_header("Toggle Components", "State indicators and selectors")
+
+          div(class: "grid gap-6 lg:grid-cols-2") do
+            render_card("Toggle", "Button that toggles between two states") do
+              render Components::Ui::Toggle.new(
+                variant: :default,
+                pressed: false,
+                data: {
+                  controller: "ui--toggle",
+                  ui__toggle_pressed_value: false,
+                  action: "click->ui--toggle#toggle"
+                }
+              ) do
+                plain "Bold"
+              end
+            end
+
+            render_card("Toggle Group", "Multiple toggleable options") do
+              render Components::Ui::ToggleGroup.new(
+                type: :single,
+                data: {
+                  controller: "ui--toggle-group",
+                  ui__toggle_group_type_value: "single",
+                  ui__toggle_group_value_value: ""
+                }
+              ) do
+                render Components::Ui::Toggle.new(
+                  data: {
+                    ui__toggle_group_target: "toggle",
+                    action: "click->ui--toggle-group#selectToggle",
+                    value: "a"
+                  }
+                ) { "Option A" }
+                render Components::Ui::Toggle.new(
+                  data: {
+                    ui__toggle_group_target: "toggle",
+                    action: "click->ui--toggle-group#selectToggle",
+                    value: "b"
+                  }
+                ) { "Option B" }
+                render Components::Ui::Toggle.new(
+                  data: {
+                    ui__toggle_group_target: "toggle",
+                    action: "click->ui--toggle-group#selectToggle",
+                    value: "c"
+                  }
+                ) { "Option C" }
+              end
+            end
+          end
+        end
+      end
+
+      def render_data_display_advanced_section
+        section(
+          id: "data-display-advanced",
+          class: "space-y-6 motion-safe:animate-[catalog-fade_0.6s_ease-out]",
+          style: "animation-delay: 740ms"
+        ) do
+          render_section_header("Advanced Data Display", "Tables, carousels, and complex layouts")
+
+          div(class: "grid gap-6 lg:grid-cols-1") do
+            render_card("Carousel", "Rotating carousel of items") do
+              render Components::Ui::Carousel.new(
+                data: {
+                  controller: "ui--carousel",
+                  ui__carousel_current_index_value: 0,
+                  ui__carousel_loop_value: true,
+                  ui__carousel_auto_play_value: false
+                }
+              ) do
+                div(class: "relative w-full") do
+                  div(class: "flex overflow-hidden", data: { ui__carousel_target: "viewport" }) do
+                    div(class: "min-w-0 shrink-0 grow-0 basis-full bg-muted p-8 rounded text-center", data: { ui__carousel_target: "item" }) { "Slide 1" }
+                    div(class: "min-w-0 shrink-0 grow-0 basis-full bg-muted p-8 rounded text-center", data: { ui__carousel_target: "item" }) { "Slide 2" }
+                    div(class: "min-w-0 shrink-0 grow-0 basis-full bg-muted p-8 rounded text-center", data: { ui__carousel_target: "item" }) { "Slide 3" }
+                  end
+
+                  div(class: "absolute inset-0 flex items-center justify-between px-4 pointer-events-none") do
+                    render Components::Ui::Button.new(
+                      variant: :outline,
+                      size: :icon,
+                      class: "pointer-events-auto",
+                      data: { action: "click->ui--carousel#previous" }
+                    ) { "←" }
+                    render Components::Ui::Button.new(
+                      variant: :outline,
+                      size: :icon,
+                      class: "pointer-events-auto",
+                      data: { action: "click->ui--carousel#next" }
+                    ) { "→" }
+                  end
+                end
+              end
+            end
+
+            render_card("Data Table", "Structured data with sorting and filtering") do
+              div(
+                data: {
+                  controller: "ui--data-table",
+                  ui__data_table_sort_by_value: "",
+                  ui__data_table_sort_order_value: "asc"
+                }
+              ) do
+                render Components::Ui::Table.new(class: "w-full") do
+                  render Components::Ui::TableHeader.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableHead.new(
+                        data: {
+                          ui__data_table_target: "sortable",
+                          column: "name",
+                          action: "click->ui--data-table#sort"
+                        },
+                        class: "cursor-pointer"
+                      ) { "Name" }
+                      render Components::Ui::TableHead.new(
+                        data: {
+                          ui__data_table_target: "sortable",
+                          column: "status",
+                          action: "click->ui--data-table#sort"
+                        },
+                        class: "cursor-pointer"
+                      ) { "Status" }
+                      render Components::Ui::TableHead.new(class: "text-right") { "Amount" }
+                    end
+                  end
+                  render Components::Ui::TableBody.new(
+                    data: { ui__data_table_target: "body" }
+                  ) do
+                    render Components::Ui::TableRow.new(data: { ui__data_table_target: "row", name: "Alice" }) do
+                      render Components::Ui::TableCell.new(class: "font-medium") { "Alice" }
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Badge.new(variant: :outline) { "Active" }
+                      end
+                      render Components::Ui::TableCell.new(class: "text-right") { "$250.00" }
+                    end
+                    render Components::Ui::TableRow.new(data: { ui__data_table_target: "row", name: "Bob" }) do
+                      render Components::Ui::TableCell.new(class: "font-medium") { "Bob" }
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Badge.new(variant: :secondary) { "Pending" }
+                      end
+                      render Components::Ui::TableCell.new(class: "text-right") { "$150.00" }
+                    end
+                  end
+                end
+              end
+            end
+
+            render_card("Scroll Area", "Content with custom scrolling") do
+              render Components::Ui::ScrollArea.new(class: "h-48 w-full rounded-md border") do
+                div(class: "space-y-2 p-4") do
+                  p { "Item 1" }
+                  p { "Item 2" }
+                  p { "Item 3" }
+                  p { "Item 4" }
+                  p { "Item 5" }
+                end
+              end
+            end
+          end
+        end
+      end
+
+      def render_notifications_section
+        section(
+          id: "notifications",
+          class: "space-y-6 motion-safe:animate-[catalog-fade_0.6s_ease-out]",
+          style: "animation-delay: 800ms"
+        ) do
+          render_section_header("Notifications", "Toast and notification components")
+
+          div(
+            data: {
+              controller: "ui--sonner",
+              ui__sonner_max_toasts_value: 3,
+              ui__sonner_position_value: "bottom-right"
+            }
+          ) do
+            render Components::Ui::SonnerToaster.new(
+              position: :bottom_right,
+              data: {
+                ui__sonner_target: "viewport"
+              }
+            )
+
+            div(class: "grid gap-6 lg:grid-cols-2") do
+              render_card("Toast", "Temporary notification messages") do
+                div(class: "space-y-4") do
+                  p(class: "text-sm text-muted-foreground") { "Toast notifications appear in corners and auto-dismiss" }
+                  render Components::Ui::Button.new(
+                    variant: :outline,
+                    data: {
+                      action: "click->ui--sonner#showDemo",
+                      message: "Toast notification example",
+                      type: "default"
+                    }
+                  ) { "Show Toast" }
+                end
+              end
+
+              render_card("Sonner", "Advanced toast notification system") do
+                div(class: "space-y-4") do
+                  p(class: "text-sm text-muted-foreground") { "Rich toast notifications with customization" }
+                  render Components::Ui::Button.new(
+                    variant: :outline,
+                    data: {
+                      action: "click->ui--sonner#showDemo",
+                      message: "Sonner notification example!",
+                      type: "success"
+                    }
+                  ) { "Show Sonner Toast" }
+                end
               end
             end
           end

@@ -7,9 +7,25 @@ module Components
   module Ui
     # Calendar root container
     class Calendar < Components::Base
-      def initialize(mode: :single, selected: nil, **attrs)
+      def initialize(
+        mode: :single,
+        selected: nil,
+        selected_dates: nil,
+        range_start: nil,
+        range_end: nil,
+        min_date: nil,
+        max_date: nil,
+        disabled_dates: nil,
+        **attrs
+      )
         @mode = mode # :single or :multiple or :range
         @selected = selected
+        @selected_dates = selected_dates
+        @range_start = range_start
+        @range_end = range_end
+        @min_date = min_date
+        @max_date = max_date
+        @disabled_dates = disabled_dates
         @attrs = attrs
       end
 
@@ -19,6 +35,13 @@ module Components
         # Add data attributes
         data_hash = (dynamic_attrs[:data] || {}).dup
         data_hash[:mode] = @mode unless data_hash.key?(:mode) || data_hash.key?("mode")
+        data_hash[:ui__calendar_selected_date_value] = normalize_date(@selected) if @selected && !data_hash.key?(:ui__calendar_selected_date_value)
+        data_hash[:ui__calendar_selected_dates_value] = normalize_date_list(@selected_dates) if @selected_dates && !data_hash.key?(:ui__calendar_selected_dates_value)
+        data_hash[:ui__calendar_range_start_value] = normalize_date(@range_start) if @range_start && !data_hash.key?(:ui__calendar_range_start_value)
+        data_hash[:ui__calendar_range_end_value] = normalize_date(@range_end) if @range_end && !data_hash.key?(:ui__calendar_range_end_value)
+        data_hash[:ui__calendar_min_date_value] = normalize_date(@min_date) if @min_date && !data_hash.key?(:ui__calendar_min_date_value)
+        data_hash[:ui__calendar_max_date_value] = normalize_date(@max_date) if @max_date && !data_hash.key?(:ui__calendar_max_date_value)
+        data_hash[:ui__calendar_disabled_dates_value] = normalize_date_list(@disabled_dates) if @disabled_dates && !data_hash.key?(:ui__calendar_disabled_dates_value)
         dynamic_attrs[:data] = data_hash
 
         div(
@@ -35,10 +58,28 @@ module Components
       def classes
         "p-3"
       end
+
+      def normalize_date(value)
+        case value
+        when Date, Time, DateTime
+          value.to_date.iso8601
+        else
+          value.to_s
+        end
+      end
+
+      def normalize_date_list(values)
+        return values.to_json if values.is_a?(Array)
+        values.to_s
+      end
     end
 
     # Calendar Header - navigation and month/year display
     class CalendarHeader < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -52,6 +93,10 @@ module Components
 
     # Calendar Heading - month and year text
     class CalendarHeading < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         div(
           role: :heading,
@@ -71,6 +116,10 @@ module Components
 
     # Calendar Nav - navigation button group
     class CalendarNav < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -84,6 +133,10 @@ module Components
 
     # Calendar Grid - table of dates
     class CalendarGrid < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         table(
           role: :grid,
@@ -102,6 +155,10 @@ module Components
 
     # Calendar Head - table header with day names
     class CalendarHead < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         thead(class: merged_classes, **attrs_without_class, &block)
       end
@@ -115,6 +172,10 @@ module Components
 
     # Calendar HeadRow - row of day names
     class CalendarHeadRow < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         tr(class: merged_classes, **attrs_without_class, &block)
       end
@@ -122,12 +183,16 @@ module Components
       private
 
       def classes
-        "flex"
+        ""
       end
     end
 
     # Calendar HeadCell - individual day name cell
     class CalendarHeadCell < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         th(
           scope: :col,
@@ -140,14 +205,35 @@ module Components
       private
 
       def classes
-        "w-9 rounded-md text-[0.8rem] font-normal text-muted-foreground"
+        "w-9 rounded-md text-center text-[0.8rem] font-normal text-muted-foreground"
       end
     end
 
     # Calendar Body - table body with dates
     class CalendarBody < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         tbody(class: merged_classes, **attrs_without_class, &block)
+      end
+
+      private
+
+      def classes
+        "pt-2 text-center"
+      end
+    end
+
+    # Calendar Row - week row
+    class CalendarRow < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
+      def view_template(&block)
+        tr(class: merged_classes, **attrs_without_class, &block)
       end
 
       private
@@ -157,21 +243,12 @@ module Components
       end
     end
 
-    # Calendar Row - week row
-    class CalendarRow < Components::Base
-      def view_template(&block)
-        tr(class: merged_classes, **attrs_without_class, &block)
-      end
-
-      private
-
-      def classes
-        "mt-2 flex w-full"
-      end
-    end
-
     # Calendar Cell - individual date cell
     class CalendarCell < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         td(
           role: :gridcell,
