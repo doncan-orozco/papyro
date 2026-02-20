@@ -5,6 +5,11 @@ description: Frontend development with Hotwire, Phlex, and Tailwind CSS. Use whe
 
 # Frontend (Hotwire + Phlex + Tailwind)
 
+## Development Server
+- Development server runs on **port 3030** (not 3000)
+- Command: `bin/dev` from workspace root
+- Design System page: http://localhost:3030/design-system
+
 ## Dependencies
 - phlex-rails
 - phlex
@@ -85,6 +90,8 @@ app/javascript/
 - Organize by domain (`game/`, `ui/`)
 - Name controllers as `domain--feature` (e.g., `data-controller="game--player"`)
 - Register controllers in `index.js` or use auto-registration
+- Avoid calling close handlers on initial connect when a component starts closed; do not restore focus or scroll on first render
+- Only return focus to triggers after the component has actually been opened at least once
 
 ### Interactive Component Pattern
 For shadcn UI components requiring interactivity (Switch, Tabs, Accordion, Dropdown, Tooltip, Dialog), use the standardized pattern:

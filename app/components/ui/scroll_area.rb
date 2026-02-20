@@ -21,19 +21,31 @@ module Components
 
         dynamic_attrs[:data] = data_hash
 
-        div(class: "relative overflow-hidden") do
-          div(
-            class: merged_classes,
-            **dynamic_attrs,
-            &block
-          )
+        div(
+          class: merged_classes,
+          **dynamic_attrs
+        ) do
+          render Components::Ui::ScrollAreaViewport.new(class: viewport_classes, &block)
         end
       end
 
       private
 
       def classes
-        "h-full w-full rounded-[inherit]"
+        "relative overflow-hidden"
+      end
+
+      def viewport_classes
+        base = "h-full w-full rounded-[inherit] overflow-auto ui-scroll-area-viewport"
+
+        case @orientation
+        when :horizontal
+          "#{base} overflow-x-auto overflow-y-hidden"
+        when :vertical
+          "#{base} overflow-y-auto"
+        else
+          base
+        end
       end
     end
 

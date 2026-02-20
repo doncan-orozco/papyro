@@ -47,6 +47,8 @@ export default class extends BaseController {
     this.previouslyFocusedElement = null
     this.keydownHandler = this.handleKeydown.bind(this)
     this.overlayClickHandler = this.handleOverlayClick.bind(this)
+    this.hasOpened = false
+    this.hasInitialized = false
   }
 
   disconnect() {
@@ -86,6 +88,11 @@ export default class extends BaseController {
    * Update when open value changes
    */
   openValueChanged() {
+    if (!this.hasInitialized) {
+      this.hasInitialized = true
+      if (!this.openValue) return
+    }
+
     if (this.openValue) {
       this.openDialog()
     } else {
@@ -97,6 +104,7 @@ export default class extends BaseController {
    * Open the dialog
    */
   openDialog() {
+    this.hasOpened = true
     // Save currently focused element
     this.previouslyFocusedElement = document.activeElement
 
@@ -138,7 +146,7 @@ export default class extends BaseController {
     this.restoreBodyScroll()
 
     // Restore focus to previously focused element
-    if (this.previouslyFocusedElement) {
+    if (this.previouslyFocusedElement && this.hasOpened) {
       this.previouslyFocusedElement.focus()
       this.previouslyFocusedElement = null
     }
@@ -155,12 +163,19 @@ export default class extends BaseController {
    */
   showElement(element) {
     element.hidden = false
+    if (element.style.display === 'none') {
+      element.style.display = ''
+    }
     element.style.opacity = '0'
     
     // Force reflow for transition
     element.offsetHeight
     
     element.style.opacity = '1'
+
+    if (element.dataset.dialogTransition === 'slide') {
+      element.style.transform = 'translateX(0)'
+    }
   }
 
   /**
@@ -169,6 +184,10 @@ export default class extends BaseController {
    */
   hideElement(element) {
     element.style.opacity = '0'
+
+    if (element.dataset.dialogTransition === 'slide') {
+      element.style.transform = 'translateX(100%)'
+    }
     
     // Hide after transition
     setTimeout(() => {

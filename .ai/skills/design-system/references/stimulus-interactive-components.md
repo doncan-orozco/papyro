@@ -50,6 +50,26 @@ config/importmap.rb
   pin "@floating-ui/dom"                 # For positioning
 ```
 
+## Critical Patterns (From Implementation Experience)
+
+### JavaScript Syntax in Controllers
+- ✅ NO escaped newlines (`\n`) in multi-line comments — write comments naturally
+- ✅ Multi-line comment strings use actual line breaks, not escape sequences
+- ✅ Console logging: `console.log('🔔 Toast controller connected', this.element)` for debugging
+- ❌ ❌ DO NOT write: `* Values:\n *   - item` in JSDoc — write actual newlines instead
+
+### Phlex Component Initialization (Critical)
+- ✅ EVERY component class needs `def initialize(**attrs)` method
+- ✅ Applies to ROOT component AND all nested/child components
+- ✅ Without this: `Component.new(data: {...})` throws `ArgumentError (wrong number of arguments)`
+- ✅ Pattern: `def initialize(**attrs); @attrs = attrs; end`
+- ✅ Pass keyword args on instantiation: `Calendar.new(mode: :single, open: false, data: {...})`
+
+### Asset Pipeline Registration
+- Pin base controller explicitly: `pin "controllers/ui/base_controller"`
+- All other UI controllers auto-register if named `app/javascript/controllers/ui/*_controller.js`
+- Syntax errors in ANY controller prevent it from loading — check console for "Failed to register"
+
 ## Implementation Steps
 
 ### Step 1: Create Stimulus Base Controller

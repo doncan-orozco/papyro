@@ -28,6 +28,11 @@ See [DOCUMENTATION_STRUCTURE.md](DOCUMENTATION_STRUCTURE.md) for the complete do
 - All validations in dry-validation contracts.
 - No ActiveRecord callbacks or model validations.
 
+## Development Environment
+- **Port:** 3030 (NOT 3000)
+- **Start server:** `bin/dev` from workspace root
+- **Design System:** http://localhost:3030/design-system (for testing UI components)
+
 ## Simplified Flow (per task)
 1. Read [VERIFICATION_CHECKLIST.md](VERIFICATION_CHECKLIST.md) for rules.
 2. Load relevant [skills/](skills/) for patterns ([anti-patterns](skills/backend-anti-patterns/backend-anti-patterns.md), [error-handling](skills/error-handling/error-handling.md), etc.)

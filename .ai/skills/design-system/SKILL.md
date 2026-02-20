@@ -98,6 +98,8 @@ Example: `bg-card` shows white in light mode, dark gray in dark mode — same cl
 
 ## Base Component Pattern
 
+**CRITICAL:** Every component class must have an `initialize(**attrs)` method, including nested child components.
+
 ```ruby
 # app/components/ui/button.rb (Radix UI compliant)
 module Components
@@ -260,6 +262,11 @@ def view_template(&block)
   button(class: merged_classes, **attrs_without_class, &block)
 end
 ```
+
+❌ **Restoring focus on initial connect for closed overlays**
+- This can scroll the page to a trigger on load and cause a jumpy layout
+- Guard close handlers so they do not restore focus unless the component has actually opened
+- Use a `hasInitialized` or `hasOpened` flag in Stimulus controllers
 
 ❌ **Hardcoded colors instead of semantic tokens**
 ```ruby
@@ -427,6 +434,43 @@ All controllers use shared utilities from `base_controller.js` (focus management
 6. Pass through attrs for Stimulus integration
 7. For interactive components: Create Stimulus controller with state, targets, keyboard handling
 8. Test with design system examples — copy from `app/views/design_system/index.rb`
+
+## Testing UI Components
+
+### Design System Page (http://localhost:3030/design-system)
+After implementing a new UI component or Stimulus controller:
+
+1. **Add to design system:**
+   - Edit `app/views/design_system/index.rb`
+   - Add example under appropriate section (Buttons, Forms, Interactive, etc.)
+   - Wire Stimulus `data-*` attributes: `data-controller="ui--{name}"`, `data-ui__{name}_{prop}_value`
+
+2. **Verify browser console** (`Cmd+F12` or `Cmd+Opt+J`):
+   - ✅ No JavaScript errors
+   - ✅ Controller connection logs present: `📌 {Component} controller connected`
+   - ✅ No "Failed to register controller" messages
+
+3. **Test component behavior:**
+   - Click interactions work
+   - Keyboard navigation works (Arrow keys, Tab, Escape, Space/Enter)
+   - ARIA attributes update (`aria-expanded`, `aria-selected`, `aria-checked`)
+   - States visible (hover, focus, active, disabled)
+   - Dark mode switches automatically (if using semantic tokens)
+
+4. **Troubleshooting:**
+   - **"Failed to register controller: ui--{name}"** → Check JavaScript for syntax errors (no escaped newlines in comments)
+   - **Controller not connecting** → Verify `data-controller` attribute matches filename, check import map
+   - **Component renders but no interaction** → Verify all `static targets` and `values` listed in JavaScript
+   - **ArgumentError on page load** → Check the component file has `initialize(**attrs)` method on ALL classes
+   - **Styling issues** → Use semantic tokens (`bg-primary`), not hardcoded colors (`bg-slate-900`)
+
+### Critical Checks Before Committing
+- ✅ All UI component classes have `initialize(**attrs)` method
+- ✅ Stimulus controller file has ZERO syntax errors (multiline comments use real newlines, not `\n`)
+- ✅ Component wired in design system with correct `data-controller` and `data-*-value` attributes
+- ✅ Browser console shows 0 JavaScript errors and connection logs for new controller
+- ✅ All keyboard navigation works as per Radix UI spec
+- ✅ ARIA attributes properly set and updated
 
 ## References
 

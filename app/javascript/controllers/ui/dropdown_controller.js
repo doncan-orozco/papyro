@@ -50,6 +50,8 @@ export default class extends BaseController {
     this.focusedItemIndex = -1
     this.clickOutsideHandler = this.handleClickOutside.bind(this)
     this.escapeHandler = this.handleEscape.bind(this)
+    this.hasOpened = false
+    this.hasInitialized = false
     
     // Setup content
     if (this.hasContentTarget) {
@@ -153,6 +155,11 @@ export default class extends BaseController {
    * Update when open value changes
    */
   async openValueChanged() {
+    if (!this.hasInitialized) {
+      this.hasInitialized = true
+      if (!this.openValue) return
+    }
+
     if (this.openValue) {
       await this.openDropdown()
     } else {
@@ -165,6 +172,8 @@ export default class extends BaseController {
    */
   async openDropdown() {
     if (!this.hasContentTarget || !this.hasTriggerTarget) return
+
+    this.hasOpened = true
 
     // Show content
     this.contentTarget.hidden = false
@@ -208,8 +217,10 @@ export default class extends BaseController {
     // Update trigger ARIA
     this.triggerTarget.setAttribute('aria-expanded', 'false')
     
-    // Return focus to trigger
-    this.triggerTarget.focus()
+    // Return focus to trigger only after an actual open
+    if (this.hasOpened) {
+      this.triggerTarget.focus()
+    }
     
     // Reset focus index
     this.focusedItemIndex = -1
