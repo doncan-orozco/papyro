@@ -15,6 +15,7 @@ See [DOCUMENTATION_STRUCTURE.md](DOCUMENTATION_STRUCTURE.md) for the complete do
 - **[CI_VERIFICATION.md](CI_VERIFICATION.md)** = What CI checks, troubleshooting failures
 - **[.github/PULL_REQUEST_TEMPLATE.md](../.github/PULL_REQUEST_TEMPLATE.md)** = Pre-commit checklist
 - `skills/` = Implementation patterns, anti-patterns, error handling
+  - Each skill folder contains `SKILL.md` + `references/` (implementation examples specific to that skill)
 - Each skill folder contains `examples/` subdirectories with code examples
 
 **To add new skills/docs:** See [ADD_NEW_SKILLS.md](ADD_NEW_SKILLS.md)
@@ -35,7 +36,7 @@ See [DOCUMENTATION_STRUCTURE.md](DOCUMENTATION_STRUCTURE.md) for the complete do
 
 ## Simplified Flow (per task)
 1. Read [VERIFICATION_CHECKLIST.md](VERIFICATION_CHECKLIST.md) for rules.
-2. Load relevant [skills/](skills/) for patterns ([anti-patterns](skills/backend-anti-patterns/backend-anti-patterns.md), [error-handling](skills/error-handling/error-handling.md), etc.)
+2. Load relevant [skills/](skills/) for patterns ([anti-patterns](skills/backend-anti-patterns/SKILL.md), [error-handling](skills/error-handling/SKILL.md), etc.)
 3. Use [skills/linting/examples/lint-and-tests.md](skills/linting/examples/lint-and-tests.md) for lint/test patterns.
 4. Use [.github/PULL_REQUEST_TEMPLATE.md](../.github/PULL_REQUEST_TEMPLATE.md) for pre-commit checks.
 
@@ -66,8 +67,8 @@ Before responding with code changes, verify against [VERIFICATION_CHECKLIST.md](
 Before responding with code changes, ensure all code WILL PASS checks:
 
 **For architectural rules:** Use [VERIFICATION_CHECKLIST.md](VERIFICATION_CHECKLIST.md)  
-**For anti-patterns:** See [skills/backend-anti-patterns/backend-anti-patterns.md](skills/backend-anti-patterns/backend-anti-patterns.md)  
-**For error handling:** See [skills/error-handling/error-handling.md](skills/error-handling/error-handling.md)  
+**For anti-patterns:** See [skills/backend-anti-patterns/SKILL.md](skills/backend-anti-patterns/SKILL.md)  
+**For error handling:** See [skills/error-handling/SKILL.md](skills/error-handling/SKILL.md)  
 **For lint/test details:** See [skills/linting/examples/lint-and-tests.md](skills/linting/examples/lint-and-tests.md)  
 **For pre-commit checklist:** See [.github/PULL_REQUEST_TEMPLATE.md](../.github/PULL_REQUEST_TEMPLATE.md)
 
@@ -83,38 +84,39 @@ See [skills/linting/examples/lint-and-tests.md](skills/linting/examples/lint-and
 
 ## Pre-Implementation Checklist
 1. Read [VERIFICATION_CHECKLIST.md](VERIFICATION_CHECKLIST.md) - complete rules (architecture + lint + tests)
-2. Review [skills/backend-anti-patterns/backend-anti-patterns.md](skills/backend-anti-patterns/backend-anti-patterns.md) - what NOT to do
+2. Review [skills/backend-anti-patterns/SKILL.md](skills/backend-anti-patterns/SKILL.md) - what NOT to do
 3. Review [skills/linting/examples/lint-and-tests.md](skills/linting/examples/lint-and-tests.md) - common errors and test patterns
 4. Load relevant skill files (see Skill index below)
 5. **Self-review every file BEFORE providing it** - use checklists above
 
 ## Core skills (ALWAYS load for every task)
-- **[skills/backend-anti-patterns/backend-anti-patterns.md](skills/backend-anti-patterns/backend-anti-patterns.md)** - What NOT to do
-- **[skills/error-handling/error-handling.md](skills/error-handling/error-handling.md)** - Error & auth patterns
-- **[skills/playwright-cli/playwright-cli.md](skills/playwright-cli/playwright-cli.md)** - Browser automation for web testing, form filling, screenshots, and data extraction
+- **[skills/backend-anti-patterns/SKILL.md](skills/backend-anti-patterns/SKILL.md)** - What NOT to do
+- **[skills/error-handling/SKILL.md](skills/error-handling/SKILL.md)** - Error & auth patterns
+- **[skills/playwright-cli/SKILL.md](skills/playwright-cli/SKILL.md)** - Browser automation for web testing, form filling, screenshots, and data extraction
 
 ## Specialized skills (load on demand based on task)
 
 ### Backend
-- **[skills/architecture/architecture.md](skills/architecture/architecture.md)** - Controllers, Operations, Models, Contracts
-- **[skills/rails8/rails8.md](skills/rails8/rails8.md)** - Rails 8 stack features
-- **[skills/turbo/turbo.md](skills/turbo/turbo.md)** - ⚠️ REQUIRED for all interactive features/forms
-- **[skills/realtime/realtime.md](skills/realtime/realtime.md)** - Action Cable, live updates
+- **[skills/architecture/SKILL.md](skills/architecture/SKILL.md)** - Controllers, Operations, Models, Contracts
+- **[skills/rails8/SKILL.md](skills/rails8/SKILL.md)** - Rails 8 stack features
+- **[skills/turbo/SKILL.md](skills/turbo/SKILL.md)** - ⚠️ REQUIRED for all interactive features/forms
+- **[skills/realtime/SKILL.md](skills/realtime/SKILL.md)** - Action Cable, live updates
 
 ### Frontend
-- **[skills/frontend/frontend.md](skills/frontend/SKILL.md)** - Hotwire, Stimulus, Phlex, Tailwind
-- **[skills/frontend-design/frontend-design.md](skills/frontend-design/SKILL.md)** - Bold aesthetics, design thinking, avoiding AI slop
-- **[skills/theme-factory/theme-factory.md](skills/theme-factory/SKILL.md)** - UI theming with Tailwind CSS, pre-configured themes
-- **[skills/web-artifacts/web-artifacts.md](skills/web-artifacts/SKILL.md)** - Standalone HTML/CSS/JS artifacts, dashboards, embeddable components
-- **[skills/i18n/i18n.md](skills/i18n/i18n.md)** - ⚠️ REQUIRED for all user-facing text
-- **[skills/design-system/design-system.md](skills/design-system/SKILL.md)** - shadcn/ui + Phlex components
+- **[skills/frontend/SKILL.md](skills/frontend/SKILL.md)** - Hotwire, Stimulus, Phlex, Tailwind
+- **[skills/frontend-design/SKILL.md](skills/frontend-design/SKILL.md)** - Bold aesthetics, design thinking, avoiding AI slop
+- **[skills/theme-factory/SKILL.md](skills/theme-factory/SKILL.md)** - UI theming with Tailwind CSS, pre-configured themes
+- **[skills/web-artifacts/SKILL.md](skills/web-artifacts/SKILL.md)** - Standalone HTML/CSS/JS artifacts, dashboards, embeddable components
+- **[skills/i18n/SKILL.md](skills/i18n/SKILL.md)** - ⚠️ REQUIRED for all user-facing text
+- **[skills/design-system/SKILL.md](skills/design-system/SKILL.md)** - shadcn/ui + Phlex components
   - **→ Interactive Components:** See [design-system/references/stimulus-interactive-components.md](skills/design-system/references/stimulus-interactive-components.md) for Switch, Tabs, Accordion, Dropdown, Tooltip, Dialog patterns
-- **[skills/ux/ux.md](skills/ux/SKILL.md)** - UX/UI guidelines
+- **[skills/ux/SKILL.md](skills/ux/SKILL.md)** - UX/UI guidelines
 
 ### Database
-- **[skills/sqlite/sqlite.md](skills/sqlite/sqlite.md)** - SQLite-specific patterns
-- **[skills/database-anti-patterns/database-anti-patterns.md](skills/database-anti-patterns/database-anti-patterns.md)** - ⚠️ REQUIRED for migrations
+- **[skills/sqlite/SKILL.md](skills/sqlite/SKILL.md)** - SQLite-specific patterns
+- **[skills/database-anti-patterns/SKILL.md](skills/database-anti-patterns/SKILL.md)** - ⚠️ REQUIRED for migrations
 
 ### Testing
-- **[skills/testing/testing.md](skills/testing/SKILL.md)** - Minitest, Playwright system tests, unit & integration patterns
+- **[skills/testing/SKILL.md](skills/testing/SKILL.md)** - Minitest, Playwright system tests, unit & integration patterns
+- **[skills/linting/SKILL.md](skills/linting/SKILL.md)** - RuboCop, style guide
 - **[skills/linting/linting.md](skills/linting/SKILL.md)** - RuboCop, style guide

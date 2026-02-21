@@ -8,7 +8,7 @@ es:
       article:
         title: "Título"
         slug: "Slug de URL"
-        content: "Contenido"
+        body: "Contenido"
         status: "Estado"
         published_at: "Fecha de publicación"
         excerpt: "Extracto"
@@ -29,6 +29,7 @@ es:
         published: "Publicado"
         archived: "Archivado"
         edit: "Editar"
+        show: "Ver"
         delete: "Eliminar"
         publish: "Publicar"
         unpublish: "Despublicar"
@@ -44,7 +45,7 @@ es:
         slug_label: "Slug de URL"
         slug_placeholder: "slug-del-articulo"
         slug_hint: "Usado en la URL del artículo. Solo letras minúsculas, números y guiones."
-        content_label: "Contenido"
+        body_label: "Contenido"
         excerpt_label: "Extracto"
         excerpt_placeholder: "Breve resumen del artículo"
         excerpt_hint: "Máximo 500 caracteres"
@@ -54,21 +55,31 @@ es:
         status_archived: "Archivado"
         save: "Guardar Artículo"
         cancel: "Cancelar"
-      create:
-        success: "El artículo fue creado exitosamente"
-        error: "No se pudo crear el artículo"
-      update:
-        success: "El artículo fue actualizado exitosamente"
-        error: "No se pudo actualizar el artículo"
-      destroy:
-        success: "El artículo fue eliminado exitosamente"
-        error: "No se pudo eliminar el artículo"
-      publish:
-        success: "El artículo fue publicado exitosamente"
-        error: "No se pudo publicar el artículo"
-      unpublish:
-        success: "El artículo fue despublicado exitosamente"
-        error: "No se pudo despublicar el artículo"
+      operations:
+        create:
+          success: "El artículo fue creado exitosamente"
+          failure: "No se pudo crear el artículo"
+        update:
+          success: "El artículo fue actualizado exitosamente"
+          failure: "No se pudo actualizar el artículo"
+        destroy:
+          success: "El artículo fue eliminado exitosamente"
+          failure: "No se pudo eliminar el artículo"
+        publish:
+          success: "El artículo fue publicado exitosamente"
+          failure: "No se pudo publicar el artículo"
+        unpublish:
+          success: "El artículo fue despublicado exitosamente"
+          failure: "No se pudo despublicar el artículo"
   articles:
     show:
       by_author: "por %{author}"
+      back_to_list: "Volver a Artículos"
+      fullscreen: "Pantalla completa"
+      published: "Publicado"
+      author: "Autor"
+      status: "Estado"
+      content_length: "Longitud del contenido"
+      words: "palabras"
+      previous: "Artículo anterior"
+      next: "Siguiente artículo"

@@ -23,8 +23,8 @@ module Articles
             ctx[:errors] = { base: [ I18n.t("errors.messages.article_already_published") ] }
             return false
           end
-          # Must have title and content to publish
-          if model.title.blank? || model.content.body.blank?
+          # Must have title to publish
+          if model.title.blank?
             ctx[:errors] = { base: [ I18n.t("errors.messages.article_incomplete_for_publish") ] }
             return false
           end

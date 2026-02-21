@@ -13,7 +13,7 @@
 
 ## Required (If Changed DB)
 - [ ] **`bundle exec database_consistency` passes** - Audits data integrity
-- [ ] Migrations follow [strong_migrations patterns](../.ai/skills/database/sqlite.md#safe-migration-patterns-strong_migrations)
+- [ ] Migrations follow [strong_migrations patterns](../.ai/skills/sqlite/SKILL.md#safe-migration-patterns-strong_migrations)
 - [ ] NO unsafe direct changes (column type → multi-step, column rename → multi-step)
 - [ ] Rollback tested locally: `rails db:migrate:down` then `rails db:migrate:up`
 
@@ -23,6 +23,6 @@
 
 ## References
 - [.ai/VERIFICATION_CHECKLIST.md](../.ai/VERIFICATION_CHECKLIST.md) - Complete checklist
-- [.ai/skills/backend/anti-patterns.md](../.ai/skills/backend/anti-patterns.md) - What NOT to do
-- [.ai/skills/backend/error-handling.md](../.ai/skills/backend/error-handling.md) - Error patterns
-- [.ai/skills/database/sqlite.md](../.ai/skills/database/sqlite.md) - Safe migration patterns
+- [.ai/skills/backend-anti-patterns/SKILL.md](../.ai/skills/backend-anti-patterns/SKILL.md) - What NOT to do
+- [.ai/skills/error-handling/SKILL.md](../.ai/skills/error-handling/SKILL.md) - Error patterns
+- [.ai/skills/sqlite/SKILL.md](../.ai/skills/sqlite/SKILL.md) - Safe migration patterns

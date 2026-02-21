@@ -9,15 +9,15 @@ module Articles
       def validate_input(ctx, params:, model:, **)
         contract = Articles::Contract::Update.new
         # Include id in params for slug uniqueness validation
-        result = contract.call(params.merge(id: model.id))
+        params_with_defaults = params.merge(id: model.id)
+        params_with_defaults[:published_at] ||= model.published_at
+        result = contract.call(params_with_defaults)
 
         if result.success?
           ctx[:validated_params] = result.to_h
           true
         else
-          ctx[:errors] = result.errors.to_h.transform_values do |messages|
-            messages.map { |msg| I18n.t("articles.errors.#{msg}") }
-          end
+          ctx[:errors] = result.errors.to_h
           false
         end
       end

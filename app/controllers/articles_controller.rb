@@ -8,7 +8,10 @@ class ArticlesController < ApplicationController
 
   def show
     @article = Article.find_by!(slug: params[:slug], status: :published)
-    render Views::Articles::Show.new(@article)
+    @all_articles = Article.where(status: :published).order(published_at: :desc)
+    @prev_article = @all_articles.where("published_at < ?", @article.published_at).first
+    @next_article = @all_articles.where("published_at > ?", @article.published_at).last
+    render Views::Articles::Show.new(@article, prev_article: @prev_article, next_article: @next_article)
   rescue ActiveRecord::RecordNotFound
     render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
   end

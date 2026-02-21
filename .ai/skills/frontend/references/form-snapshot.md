@@ -1,0 +1,29 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - heading "New Article" [level=1] [ref=e4]
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]: Title
+        - textbox "Title" [active] [ref=e9]:
+          - /placeholder: Enter article title
+      - generic [ref=e10]:
+        - generic [ref=e11]: URL Slug
+        - textbox "URL Slug" [ref=e12]:
+          - /placeholder: article-url-slug
+        - paragraph [ref=e13]: Used in the article URL. Only lowercase letters, numbers, and hyphens.
+      - generic [ref=e15]: Content
+      - generic [ref=e18]:
+        - generic [ref=e19]: Excerpt
+        - textbox "Excerpt" [ref=e20]:
+          - /placeholder: Brief summary of the article
+        - paragraph [ref=e21]: Maximum 500 characters
+      - generic [ref=e22]:
+        - generic [ref=e23]: Status
+        - combobox "Status" [ref=e24]:
+          - option "Draft" [selected]
+          - option "Published"
+          - option "Archived"
+      - generic [ref=e25]:
+        - button "Save Article" [ref=e26] [cursor=pointer]
+        - link "Cancel" [ref=e27] [cursor=pointer]:
+          - /url: /admin/articles

@@ -11,7 +11,7 @@ description: Database migration anti-patterns to avoid with SQLite. Use when cre
 
 Causes runtime errors when app restarts - app tries to read cached column that no longer exists.
 
-**See [sqlite.md - Remove Column Directly](sqlite.md#-dont-remove-column-directly) for the safe 3-step pattern:**
+**See [sqlite.md - Remove Column Directly](../sqlite/SKILL.md#-dont-remove-column-directly) for the safe 3-step pattern:**
 1. Ignore column in app code
 2. Remove in migration with `safety_assured`
 3. Clean up ignored_columns line
@@ -20,7 +20,7 @@ Causes runtime errors when app restarts - app tries to read cached column that n
 
 Entire table rewritten and locked during change - risks downtime and data corruption.
 
-**See [sqlite.md - Change Column Type](sqlite.md#-dont-change-column-type) for the safe 6-step pattern:**
+**See [sqlite.md - Change Column Type](../sqlite/SKILL.md#-dont-change-column-type) for the safe 6-step pattern:**
 1. Create new column
 2. Double-write (app writes to both)
 3. Backfill with batches + sleep
@@ -32,7 +32,7 @@ Entire table rewritten and locked during change - risks downtime and data corrup
 
 One massive `update_all` within a transaction locks the entire table for the duration - blocks all reads and writes.
 
-**See [sqlite.md - Backfilling Data](sqlite.md#-backfilling-data-large-tables) for safe pattern:**
+**See [sqlite.md - Backfilling Data](../sqlite/SKILL.md#-backfilling-data-large-tables) for safe pattern:**
 - Use `in_batches(of: 10000)` with `disable_ddl_transaction!`
 - Add `sleep(0.01)` between batches to prevent lock starvation
 - Never backfill in change block with column addition
@@ -41,7 +41,7 @@ One massive `update_all` within a transaction locks the entire table for the dur
 
 `change_column_null` checks ALL rows and locks entire table - data consistency issue if violations exist.
 
-**See [sqlite.md - Set NOT NULL](sqlite.md#-dont-set-not-null-on-existing-column) for safe pattern:**
+**See [sqlite.md - Set NOT NULL](../sqlite/SKILL.md#-dont-set-not-null-on-existing-column) for safe pattern:**
 1. Add check constraint with `validate: false`
 2. Validate constraint in separate migration
 3. Then apply `change_column_null` + remove constraint
@@ -50,7 +50,7 @@ One massive `update_all` within a transaction locks the entire table for the dur
 
 Locks both tables while validating all existing rows - prevents all operations during validation.
 
-**See [sqlite.md - Add Foreign Key](sqlite.md#-dont-add-foreign-key-without-validate-false) for safe pattern:**
+**See [sqlite.md - Add Foreign Key](../sqlite/SKILL.md#-dont-add-foreign-key-without-validate-false) for safe pattern:**
 1. Add foreign key with `validate: false`
 2. Validate in separate migration with `validate_foreign_key`
 
@@ -58,7 +58,7 @@ Locks both tables while validating all existing rows - prevents all operations d
 
 App code conflicts with renamed column - causes runtime errors on active code reading old name.
 
-**See [sqlite.md - Rename Column](sqlite.md#-dont-rename-column-directly) for safe pattern (same as type change):**
+**See [sqlite.md - Rename Column](../sqlite/SKILL.md#-dont-rename-column-directly) for safe pattern (same as type change):**
 1. Create new column with new name
 2. Write to both columns in app
 3. Backfill data
@@ -94,7 +94,7 @@ Catches:
 1. App already deployed with `ignored_columns += ["field_name"]`
 2. No production traffic will encounter old code reading the column
 
-**See [sqlite.md - safety_assured Pattern](sqlite.md#safety_assured-pattern) for details.**
+**See [sqlite.md - safety_assured Pattern](../sqlite/SKILL.md#safety_assured-pattern) for details.**
 
 ## Schema Constraint Anti-Patterns
 

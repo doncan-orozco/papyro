@@ -16,8 +16,7 @@ module Views
         end
 
         def view_template
-          turbo_frame_tag "admin_article_form", **@attrs do
-            form_with(model: @article, url: form_url, method: form_method, class: "contents") do |form|
+          form_with(model: @article, url: form_url, method: form_method, class: "contents", data: { turbo: false }) do |form|
               div(class: "my-5") do
                 form.label :title, t("admin.articles.form.title_label"), class: "block font-medium mb-2"
                 form.text_field :title,
@@ -39,10 +38,10 @@ module Views
               end
 
               div(class: "my-5") do
-                form.label :content, t("admin.articles.form.content_label"), class: "block font-medium mb-2"
-                form.rich_text_area :content,
-                  class: "block w-full rounded-md border border-gray-400 #{error_class(:content)}"
-                render_errors(:content)
+                form.label :body, t("admin.articles.form.body_label"), class: "block font-medium mb-2"
+                render_markdown_editor(form)
+                render_errors(:body)
+                p(class: "text-sm text-gray-500 mt-1") { t("admin.articles.form.body_hint", default: "Markdown-formatted content for the article") }
               end
 
               div(class: "my-5") do
@@ -75,9 +74,9 @@ module Views
 
                 link_to t("admin.articles.form.cancel"),
                   admin_articles_path,
-                  class: "rounded-lg py-3 px-5 bg-gray-200 text-gray-800 hover:bg-gray-300 font-medium"
+                  class: "rounded-lg py-3 px-5 bg-gray-200 text-gray-800 hover:bg-gray-300 font-medium",
+                  data: { turbo_frame: "_top" }
               end
-            end
           end
         end
 
@@ -103,6 +102,14 @@ module Views
               p(class: "text-sm text-red-600") { error }
             end
           end
+        end
+
+        def render_markdown_editor(form)
+          tag(:"house-md-toolbar", id: "house_toolbar")
+          form.markdown_area :body,
+            toolbar: "house_toolbar",
+            required: true,
+            class: "block w-full rounded-md border border-gray-400 #{error_class(:body)}"
         end
       end
     end
