@@ -8,7 +8,7 @@ en:
       article:
         title: "Title"
         slug: "URL Slug"
-        content: "Content"
+        body: "Content"
         status: "Status"
         published_at: "Published Date"
         excerpt: "Excerpt"
@@ -29,6 +29,7 @@ en:
         published: "Published"
         archived: "Archived"
         edit: "Edit"
+        show: "View"
         delete: "Delete"
         publish: "Publish"
         unpublish: "Unpublish"
@@ -44,7 +45,7 @@ en:
         slug_label: "URL Slug"
         slug_placeholder: "article-url-slug"
         slug_hint: "Used in the article URL. Only lowercase letters, numbers, and hyphens."
-        content_label: "Content"
+        body_label: "Content"
         excerpt_label: "Excerpt"
         excerpt_placeholder: "Brief summary of the article"
         excerpt_hint: "Maximum 500 characters"
@@ -73,5 +74,14 @@ en:
   articles:
     show:
       by_author: "by %{author}"
+      back_to_list: "Back to Articles"
+      fullscreen: "Fullscreen"
+      published: "Published"
+      author: "Author"
+      status: "Status"
+      content_length: "Content Length"
+      words: "words"
+      previous: "Previous Article"
+      next: "Next Article"
     errors:
       not_found: "Article not found"

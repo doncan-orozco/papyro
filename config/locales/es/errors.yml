@@ -11,7 +11,7 @@ es:
       slug_too_long: "El slug es demasiado largo (máximo 255 caracteres)"
       slug_already_exists: "El slug ya ha sido utilizado"
       status_invalid: "El estado debe ser 'draft', 'published' o 'archived'"
-      content_too_long: "El contenido es demasiado largo (máximo 100,000 caracteres)"
+      body_too_long: "El contenido es demasiado largo (máximo 100,000 caracteres)"
       excerpt_too_long: "El extracto es demasiado largo (máximo 500 caracteres)"
       published_at_future: "La fecha de publicación no puede ser en el futuro"
       published_at_required_for_published: "La fecha de publicación es requerida cuando el estado es 'published'"

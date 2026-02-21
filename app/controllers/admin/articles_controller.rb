@@ -26,14 +26,14 @@ class Admin::ArticlesController < AdminController
   end
 
   def edit
-    @article = Current.user.articles.find_by!(id: params[:id])
+    @article = find_user_article_by_id_or_slug!
     render Views::Admin::Articles::Edit.new(@article)
   rescue ActiveRecord::RecordNotFound
     redirect_to admin_articles_path, alert: t("articles.errors.not_found")
   end
 
   def update
-    article = Current.user.articles.find_by!(id: params[:id])
+    article = find_user_article_by_id_or_slug!
     result = Articles::Operation::Update.call(
       model: article,
       params: article_params.to_h
@@ -51,7 +51,7 @@ class Admin::ArticlesController < AdminController
   end
 
   def destroy
-    article = Current.user.articles.find_by!(id: params[:id])
+    article = find_user_article_by_id_or_slug!
     result = Articles::Operation::Destroy.call(model: article)
 
     if result.success?
@@ -64,7 +64,7 @@ class Admin::ArticlesController < AdminController
   end
 
   def publish
-    article = Current.user.articles.find_by!(id: params[:id])
+    article = find_user_article_by_id_or_slug!
     action = params[:publish_action] || "publish"
     result = Articles::Operation::Publish.call(
       model: article,
@@ -84,6 +84,11 @@ class Admin::ArticlesController < AdminController
   private
 
   def article_params
-    params.require(:article).permit(:title, :slug, :content, :excerpt, :status, :published_at)
+    params.require(:article).permit(:title, :slug, :body, :excerpt, :status, :published_at)
+  end
+
+  def find_user_article_by_id_or_slug!
+    # Try to find by numeric ID first, then by slug (since to_param returns slug)
+    Current.user.articles.find_by(id: params[:id]) || Current.user.articles.find_by!(slug: params[:id])
   end
 end

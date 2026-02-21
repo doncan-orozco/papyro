@@ -17,7 +17,8 @@ module Views
                 h1(class: "font-bold text-4xl") { t(".title") }
                 link_to t(".new_article"),
                   new_admin_article_path,
-                  class: "rounded-lg py-3 px-5 bg-blue-600 text-white hover:bg-blue-700 font-medium"
+                  class: "rounded-lg py-3 px-5 bg-blue-600 text-white hover:bg-blue-700 font-medium",
+                  target: "_top"
               end
 
               render_articles
@@ -63,7 +64,15 @@ module Views
               div(class: "flex flex-col gap-2 ml-4") do
                 link_to t(".edit"),
                   edit_admin_article_path(article),
-                  class: "text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  class: "text-blue-600 hover:text-blue-800 text-sm font-medium",
+                  target: "_top"
+
+                if article.status_published?
+                  link_to t(".show"),
+                    article_path(article),
+                    class: "text-indigo-600 hover:text-indigo-800 text-sm font-medium",
+                    target: "_blank"
+                end
 
                 if article.status_draft?
                   button_to t(".publish"),

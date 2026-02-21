@@ -4,6 +4,7 @@ module Articles
   module Operation
     class Create < Trailblazer::Operation
       step :validate_input
+      step :prepare_body
       step :create_article
 
       def validate_input(ctx, params:, **)
@@ -17,6 +18,12 @@ module Articles
           ctx[:errors] = result.errors.to_h
           false
         end
+      end
+
+      def prepare_body(ctx, validated_params:, **)
+        # Ensure body is never nil to prevent NOT NULL constraint violations
+        validated_params[:body] = validated_params[:body].presence || ""
+        true
       end
 
       def create_article(ctx, validated_params:, **)

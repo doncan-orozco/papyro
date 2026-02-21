@@ -44,4 +44,10 @@ Rails.application.routes.draw do
       get :featured
     end
   end
+
+  # ActionText Markdown uploads
+  namespace :action_text, path: nil do
+    get "/u/*slug" => "markdown/uploads#show", as: :markdown_upload
+    post "/admin/uploads" => "markdown/uploads#create", as: :markdown_uploads
+  end
 end

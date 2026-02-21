@@ -1,6 +1,6 @@
 class Article < ApplicationRecord
   belongs_to :user
-  has_rich_text :content
+  has_markdown :body
   has_one_attached :cover_image
 
   normalizes :title, with: ->(value) { value.strip }
@@ -16,6 +16,17 @@ class Article < ApplicationRecord
 
   def published?
     status_published? && published_at.present?
+  end
+
+  # Render markdown to HTML
+  def html_body
+    body.to_html
+  end
+
+  # Extract plain text for search/preview
+  def searchable_content
+    html_content = body.to_html
+    ActionText::Content.new(html_content).to_plain_text
   end
 
   # Use slug in URLs instead of ID

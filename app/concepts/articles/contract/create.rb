@@ -8,7 +8,7 @@ module Articles
         required(:title).filled(:string)
         required(:slug).filled(:string)
         required(:status).filled(:string)
-        optional(:content).maybe(:string)
+        optional(:body).maybe(:string)
         optional(:published_at).value(:time)
         optional(:excerpt).maybe(:string)
         required(:user_id).filled(:integer)
@@ -35,9 +35,9 @@ module Articles
         key.failure(I18n.t("errors.messages.status_invalid")) unless %w[draft published archived].include?(value)
       end
 
-      rule(:content) do
+      rule(:body) do
         if value
-          key.failure(I18n.t("errors.messages.content_too_long")) if value.length > 100_000
+          key.failure(I18n.t("errors.messages.body_too_long")) if value.length > 100_000
         end
       end
 
