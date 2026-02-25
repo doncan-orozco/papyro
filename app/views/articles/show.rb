@@ -10,22 +10,14 @@ module Views
       end
 
       def view_template
-        div(class: "article-reader flex flex-col min-h-screen bg-white", data: { controller: "lightbox fullscreen" }) do
-          # Header Navigation
+        div(class: "article-reader flex flex-col min-h-screen bg-background", data: { controller: "lightbox fullscreen" }) do
           render_header
-
-          # Main Reader Layout
           div(class: "flex flex-1 overflow-hidden") do
-            # Sidebar
             render_sidebar
-
-            # Main Content
             div(class: "flex-1 overflow-y-auto") do
               render_content
             end
           end
-
-          # Footer Navigation
           render_footer_navigation
         end
       end
@@ -33,11 +25,10 @@ module Views
       private
 
       def render_header
-        header(class: "sticky top-0 z-20 bg-white border-b border-gray-200 px-6 py-4") do
+        header(class: "sticky top-0 z-20 bg-card border-b border-border px-6 py-4 shadow-sm") do
           div(class: "flex items-center justify-between") do
-            # Back Button
             a(href: root_path,
-              class: "inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition",
+              class: "inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition",
               data: { turbo_frame: "_top" }) do
               svg(class: "w-5 h-5", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
                 s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M15 19l-7-7 7-7")
@@ -45,11 +36,10 @@ module Views
               span(class: "text-sm font-medium") { t("articles.show.back_to_list") }
             end
 
-            # Fullscreen Button
             button(
               type: "button",
               data: { action: "fullscreen#toggle:prevent", fullscreen_target: "button" },
-              class: "inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition",
+              class: "inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition",
               aria: { label: t("articles.show.fullscreen") }
             ) do
               svg(class: "w-5 h-5", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
@@ -62,21 +52,18 @@ module Views
       end
 
       def render_sidebar
-        aside(class: "w-80 border-r border-gray-200 p-6 sticky top-20 h-fit space-y-6") do
-          # Article Title Section
+        aside(class: "w-80 border-r border-border p-6 flex-shrink-0 space-y-6 bg-card/50 overflow-y-auto") do
           div do
-            h1(class: "text-2xl font-bold text-gray-900 mb-2") { @article.title }
-
+            h1(class: "text-2xl font-bold text-foreground mb-2") { @article.title }
             if @article.excerpt.present?
-              p(class: "text-sm text-gray-600") { @article.excerpt }
+              p(class: "text-sm text-muted-foreground") { @article.excerpt }
             end
           end
 
-          # Metadata
-          div(class: "space-y-3 text-sm text-gray-600") do
+          div(class: "space-y-3 text-sm text-muted-foreground") do
             if @article.published_at
               div(class: "flex items-center gap-2") do
-                span(class: "font-medium text-gray-700") { t("articles.show.published") }
+                span(class: "font-medium text-foreground") { t("articles.show.published") }
                 time(datetime: @article.published_at.iso8601) do
                   I18n.l(@article.published_at, format: :long)
                 end
@@ -85,26 +72,25 @@ module Views
 
             if @article.user
               div(class: "flex items-center gap-2") do
-                span(class: "font-medium text-gray-700") { t("articles.show.author") }
+                span(class: "font-medium text-foreground") { t("articles.show.author") }
                 span { @article.user.email_address }
               end
             end
 
             div(class: "flex items-center gap-2") do
-              span(class: "font-medium text-gray-700") { t("articles.show.status") }
-              span(class: "px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700") do
+              span(class: "font-medium text-foreground") { t("articles.show.status") }
+              render Components::Ui::Badge.new(variant: status_variant(@article)) do
                 @article.status.humanize
               end
             end
           end
 
-          # Content Summary
           if @article.body.present?
-            div(class: "pt-4 border-t border-gray-200") do
-              p(class: "text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide") do
+            div(class: "pt-4 border-t border-border") do
+              p(class: "text-xs font-medium text-foreground mb-2 uppercase tracking-wide") do
                 t("articles.show.content_length")
               end
-              p(class: "text-sm text-gray-600") do
+              p(class: "text-sm text-muted-foreground") do
                 "#{@article.body.to_s.split.length} #{t('articles.show.words')}"
               end
             end
@@ -114,56 +100,55 @@ module Views
 
       def render_content
         article(class: "max-w-3xl mx-auto px-6 py-12") do
-          div(class: "prose prose-lg max-w-none") do
+          div(class: "prose prose-lg max-w-none text-foreground dark:prose-invert") do
             raw @article.html_body
           end
         end
       end
 
       def render_footer_navigation
-        footer(class: "border-t border-gray-200 bg-gray-50 px-6 py-8") do
+        footer(class: "border-t border-border bg-card/50 px-6 py-8") do
           div(class: "max-w-6xl mx-auto") do
-            # Navigation Links
             if @prev_article.present? || @next_article.present?
-              nav(class: "flex justify-between gap-4") do
-                # Previous Article
+              nav(class: "grid grid-cols-2 gap-4") do
                 if @prev_article.present?
-                  a(href: @prev_article.to_param,
-                    class: "flex-1 p-4 rounded-lg border border-gray-200 hover:border-gray-400 hover:bg-white transition group",
-                    data: { turbo_frame: "_top" }) do
-                    span(class: "text-xs font-medium text-gray-500 group-hover:text-gray-700") { t("articles.show.previous") }
-                    p(class: "font-medium text-gray-900 mt-1 group-hover:text-blue-600") { @prev_article.title }
-                    if @prev_article.published_at
-                      time(datetime: @prev_article.published_at.iso8601,
-                           class: "text-xs text-gray-500 block mt-2") do
-                        I18n.l(@prev_article.published_at, format: :short)
-                      end
-                    end
-                  end
+                  render_nav_card(@prev_article, t("articles.show.previous"), is_next: false)
                 else
-                  div(class: "flex-1")
+                  div
                 end
 
-                # Next Article
                 if @next_article.present?
-                  a(href: @next_article.to_param,
-                    class: "flex-1 p-4 rounded-lg border border-gray-200 hover:border-gray-400 hover:bg-white transition group text-right",
-                    data: { turbo_frame: "_top" }) do
-                    span(class: "text-xs font-medium text-gray-500 group-hover:text-gray-700") { t("articles.show.next") }
-                    p(class: "font-medium text-gray-900 mt-1 group-hover:text-blue-600") { @next_article.title }
-                    if @next_article.published_at
-                      time(datetime: @next_article.published_at.iso8601,
-                           class: "text-xs text-gray-500 block mt-2") do
-                        I18n.l(@next_article.published_at, format: :short)
-                      end
-                    end
-                  end
+                  render_nav_card(@next_article, t("articles.show.next"), is_next: true)
                 else
-                  div(class: "flex-1")
+                  div
                 end
               end
             end
           end
+        end
+      end
+
+      def render_nav_card(article, label, is_next: false)
+        a(href: article.to_param,
+          class: "p-4 rounded-lg border border-border bg-background hover:bg-muted transition group #{is_next ? 'text-right' : ''}",
+          data: { turbo_frame: "_top" }) do
+          span(class: "text-xs font-medium text-muted-foreground group-hover:text-foreground") { label }
+          p(class: "font-medium text-foreground mt-1 group-hover:text-primary line-clamp-2") { article.title }
+          if article.published_at
+            time(datetime: article.published_at.iso8601,
+                 class: "text-xs text-muted-foreground block mt-2") do
+              I18n.l(article.published_at, format: :short)
+            end
+          end
+        end
+      end
+
+      def status_variant(article)
+        case article.status
+        when "draft" then :secondary
+        when "published" then :default
+        when "archived" then :outline
+        else :default
         end
       end
     end

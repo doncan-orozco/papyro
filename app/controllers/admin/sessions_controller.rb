@@ -9,7 +9,7 @@ module Admin
     layout "admin"
 
     def new
-      # Render admin login form
+      render Views::Admin::Sessions::New.new
     end
 
     def create
@@ -30,7 +30,7 @@ module Admin
 
     def render_rejection(status)
       flash.now[:alert] = t(".#{status}")
-      render :new, status: status
+      render Views::Admin::Sessions::New.new, status: status
     end
   end
 end
