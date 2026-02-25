@@ -1,5 +1,27 @@
 ---
 es:
+  views:
+    sessions:
+      new:
+        heading: "Iniciar sesión"
+        description: "Inicia sesión en tu cuenta"
+        email_label: "Correo electrónico"
+        email_placeholder: "Ingresa tu correo electrónico"
+        password_label: "Contraseña"
+        password_placeholder: "Ingresa tu contraseña"
+        submit: "Iniciar sesión"
+        forgot_password_prompt: "¿Olvidaste tu contraseña?"
+        forgot_password: "Restablécela aquí"
+    admin:
+      sessions:
+        new:
+          heading: "Iniciar sesión en Papyro Admin"
+          description: "Autenticación de administrador"
+          email_label: "Correo electrónico"
+          email_placeholder: "tu@email.com"
+          password_label: "Contraseña"
+          password_placeholder: "Ingresa tu contraseña"
+          submit: "Iniciar sesión"
   sessions:
     new:
       heading: "Iniciar sesión"

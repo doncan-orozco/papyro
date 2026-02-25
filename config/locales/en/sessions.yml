@@ -1,5 +1,27 @@
 ---
 en:
+  views:
+    sessions:
+      new:
+        heading: "Sign in"
+        description: "Sign in to your account"
+        email_label: "Email Address"
+        email_placeholder: "Enter your email address"
+        password_label: "Password"
+        password_placeholder: "Enter your password"
+        submit: "Sign in"
+        forgot_password_prompt: "Forgot your password?"
+        forgot_password: "Reset it here"
+    admin:
+      sessions:
+        new:
+          heading: "Sign in to Papyro Admin"
+          description: "Admin authentication"
+          email_label: "Email Address"
+          email_placeholder: "your@email.com"
+          password_label: "Password"
+          password_placeholder: "Enter your password"
+          submit: "Sign in"
   sessions:
     new:
       heading: "Sign in"

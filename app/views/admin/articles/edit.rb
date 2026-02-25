@@ -10,9 +10,19 @@ module Views
         end
 
         def view_template
-          div(class: "mx-auto md:w-2/3 w-full") do
-            h1(class: "font-bold text-4xl mb-6") { t("admin.articles.edit.title") }
-            render FormComponent.new(@article, @errors)
+          div(class: "min-h-screen bg-background px-4 py-12") do
+            div(class: "mx-auto max-w-2xl") do
+              div(class: "mb-8") do
+                h1(class: "text-3xl font-bold tracking-tight mb-2") { t("admin.articles.edit.title") }
+                p(class: "text-muted-foreground") { t("admin.articles.edit.subtitle", default: "Edit this article") }
+              end
+
+              render Components::Ui::Card.new do
+                render Components::Ui::CardContent.new(class: "pt-6") do
+                  render FormComponent.new(@article, @errors)
+                end
+              end
+            end
           end
         end
       end

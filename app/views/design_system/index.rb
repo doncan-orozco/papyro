@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 include Phlex::Rails::Helpers::ContentFor
 
 module Views
