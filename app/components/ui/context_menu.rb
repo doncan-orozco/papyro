@@ -6,6 +6,11 @@
 # Note: Requires Stimulus controller for positioning and interactivity
 module Components
   module Ui
+    # Context Menu root class (required for Zeitwerk autoloading)
+    class ContextMenu < Components::Base
+      # This class can be used as a namespace or entrypoint for the context menu component system.
+    end
+
     # Context Menu Trigger - element that triggers the context menu on right-click
     class ContextMenuTrigger < Components::Base
       def view_template(&block)
