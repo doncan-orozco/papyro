@@ -6,12 +6,12 @@ module Maintenance
 
     CPU_THREAD_COUNT = 1
     CPU_LOOP_DURATION = 57 * 60 # seconds (57 minutes)
-    CPU_SLEEP = 0.02 # seconds, throttle for ~30% usage
+    CPU_SLEEP = 0.03 # seconds, throttle for ~30% usage
 
-    MEMORY_ARRAYS = 8
-    FLOATS_PER_ARRAY = 134_217_728 # 1GB per array
-    FLOATS_PER_ARRAY = 134_217_728 # 1GB per array assuming 64-bit floats (8 bytes each)
-    MEMORY_SLEEP = 10 # seconds
+    MEMORY_ARRAYS = 4
+    FLOATS_PER_ARRAY = 67_108_864 # ~2GB per array assuming 64-bit floats (8 bytes each)
+    MEMORY_LOOP_DURATION = 57 * 60 # seconds (57 minutes)
+    MEMORY_SLEEP = 5 # seconds
 
     NETWORK_DOMAINS = [ "https://papyro.net" ]
     NETWORK_REQUESTS_PER_DOMAIN = 10
@@ -60,8 +60,8 @@ module Maintenance
           end
           sleep NETWORK_SLEEP
         end
-      rescue
       rescue StandardError
+        # Network errors are acceptable during load generation
       end
 
       threads.each(&:join)
