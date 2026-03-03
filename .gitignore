@@ -9,6 +9,7 @@
 
 # Ignore all environment files.
 /.env*
+!/.env.example
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -47,3 +48,6 @@ vendor/writebook
 demo/
 
 .playwright-mcp/
+
+scripts/create_oracle_instance.sh
+scripts/create_oracle_instance.attempt

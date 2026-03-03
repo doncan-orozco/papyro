@@ -1,5 +1,5 @@
 ---
-name: turbo-frames
+name: turbo
 description: Turbo Frames patterns for decomposing pages into domain-based segments with Hotwire. Use when implementing lazy-loading content, creating frame-based interactions, or organizing complex pages. Covers frame loading strategies (eager/lazy), frame response structure, and domain-driven decomposition.
 ---
 

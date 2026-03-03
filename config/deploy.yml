@@ -2,12 +2,12 @@
 service: papyro
 
 # Name of the container image (use your-user/app-name on external registries).
-image: <%= ENV["KAMAL_REGISTRY_SERVER"] %>/doncan-orozco/papyro
+image: ghcr.io/doncan-orozco/papyro
 
 # Deploy to these servers.
 servers:
   web:
-    - <%= ENV["KAMAL_WEB_SERVER"] %>
+    - 163.192.128.99
   # job:
   #   hosts:
   #     - 192.168.0.1
@@ -22,19 +22,19 @@ servers:
 #
 proxy:
   ssl: true
-  host: <%= ENV["KAMAL_PROXY_HOST"] %>
+  host: papyro.net
 
 # Where you keep your container images.
 registry:
   # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: <%= ENV["KAMAL_REGISTRY_SERVER"] %>
+  server: ghcr.io
 
   # Needed for authenticated registries.
-  username: <%= ENV["KAMAL_REGISTRY_USERNAME"] %>
+  username: doncan-orozco
 
   # Always use an access token rather than real password when possible.
   password:
-    - KAMAL_REGISTRY_PASSWORD
+    - GITHUB_TOKEN
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
@@ -70,7 +70,6 @@ aliases:
 # Recommended to change this to a mounted volume path that is backed up off server.
 volumes:
   - "papyro_storage:/rails/storage"
-  - "papyro_db:/rails/db"
 
 # Bridge fingerprinted assets, like JS and CSS, between versions to avoid
 # hitting 404 on in-flight requests. Combines all files from new and old
@@ -94,9 +93,9 @@ builder:
 
 # Use a different ssh user than root
 ssh:
-  user: <%= ENV["KAMAL_SSH_USER"] %>
+  user: ubuntu
   keys:
-    - ~/.ssh/<%= ENV["KAMAL_SSH_KEY_NAME"] %>
+    - ~/.ssh/oracle_cloud_key
 
 # Use accessory services (secrets come from .kamal/secrets).
 # accessories:

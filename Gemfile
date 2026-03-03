@@ -1,5 +1,7 @@
 source "https://rubygems.org"
 
+# Load environment variables from .env
+gem "dotenv", groups: [ :development, :test ], require: "dotenv/load"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.1.1"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
@@ -54,6 +56,9 @@ gem "image_processing", "~> 1.2"
 # Markdown rendering with syntax highlighting
 gem "redcarpet"
 gem "rouge"
+
+# Job monitoring UI
+gem "mission_control-jobs"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
