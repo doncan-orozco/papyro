@@ -43,7 +43,7 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     result = Articles::Operation::Update.call(model: article, params: params)
 
     assert_predicate result, :success?
-    assert_includes result[:model].reload.body.to_s, "Updated content"
+    assert_includes result[:model].reload.body.to_html, "Updated content"
   end
 
   test "fails with invalid id" do

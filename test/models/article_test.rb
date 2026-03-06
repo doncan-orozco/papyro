@@ -25,7 +25,7 @@ class ArticleTest < ActiveSupport::TestCase
 
     article.update!(body: "<p>Hello <strong>world</strong></p>")
 
-    assert_includes article.body.to_s, "Hello <strong>world</strong>"
+    assert_includes article.body.to_html, "Hello <strong>world</strong>"
   end
 
   test "enum status methods" do
