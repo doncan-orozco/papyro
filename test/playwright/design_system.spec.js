@@ -12,6 +12,34 @@ const { test, expect } = require("@playwright/test");
  */
 
 const DESIGN_SYSTEM_URL = "/design-system";
+const REACT_CATALOG_URL = "/react-catalog/";
+const REACT_PAGE = "/design-system-react";
+const COMPARE_PAGE = "/design-system-compare";
+
+// sections we expect in both catalogs
+const SECTIONS = [
+  "buttons",
+  "forms",
+  "feedback",
+  "data-display",
+  "layout",
+  "interactive",
+  "media",
+  "navigation",
+  "advanced-forms",
+  "overlays",
+  "toggles",
+  "data-display-advanced",
+  "notifications",
+];
+
+async function ensureLightMode(page) {
+  await page.evaluate(() => {
+    document.documentElement.classList.remove("dark");
+    document.documentElement.classList.add("light");
+    localStorage.setItem("papyro-theme", "light");
+  });
+}
 
 test.describe("Design System — visual regression", () => {
   test.beforeEach(async ({ page }) => {
@@ -133,4 +161,95 @@ test.describe("Design System — visual regression", () => {
     const htmlClass = await page.evaluate(() => document.documentElement.className);
     expect(htmlClass).toMatch(/dark|light/);
   });
+
+  // ---------------------------------------------------------------------------
+  // React catalog and automated audit tests
+  // ---------------------------------------------------------------------------
+
+  test("react catalog page — light mode", async ({ page }) => {
+    await page.goto(REACT_PAGE);
+    await page.waitForLoadState("networkidle");
+
+    await ensureLightMode(page);
+    await expect(page).toHaveScreenshot("react-catalog-light.png", {
+      fullPage: true,
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+
+  test("react catalog page — dark mode", async ({ page }) => {
+    await page.goto(REACT_PAGE);
+    await page.waitForLoadState("networkidle");
+
+    // force dark theme
+    await page.evaluate(() => {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    });
+
+    await expect(page).toHaveScreenshot("react-catalog-dark.png", {
+      fullPage: true,
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+
+  // iterate through each section to confirm presence in the Phlex catalog
+  for (const section of SECTIONS) {
+    test(`section exists in phlex catalog: ${section}`, async ({ page }) => {
+      await page.goto(`${DESIGN_SYSTEM_URL}#${section}`);
+      await page.waitForLoadState("networkidle");
+
+      const locator = page.locator(`#${section}`);
+      await expect(locator).toHaveCount(1);
+
+      // take a small screenshot for manual comparison if needed
+      await locator.scrollIntoViewIfNeeded();
+      await expect(locator).toHaveScreenshot(`section-${section}-phlex.png`, {
+        maxDiffPixelRatio: 0.02,
+      });
+    });
+  }
+
+  // react category navigation tests
+  const CATEGORIES = [
+    { id: 'foundation', label: 'Foundation' },
+    { id: 'forms', label: 'Forms' },
+    { id: 'feedback', label: 'Feedback' },
+    { id: 'overlays', label: 'Overlays' },
+    { id: 'complex', label: 'Complex' },
+  ];
+
+  for (const cat of CATEGORIES) {
+    test(`react category ${cat.id} renders`, async ({ page }) => {
+      await page.goto(REACT_PAGE);
+      await page.waitForLoadState('networkidle');
+
+      // clear theme for consistency
+      await ensureLightMode(page);
+
+      // click the category button
+      const btn = page.locator('button', { hasText: cat.label });
+      await expect(btn).toBeVisible();
+      await btn.click();
+
+      // ensure there is at least one card title displayed
+      const title = page.locator('h3').first();
+      await expect(title).toBeVisible();
+
+      // screenshot the viewport for manual comparison
+      await page.screenshot({
+        path: `react-category-${cat.id}.png`,
+        fullPage: false,
+      });
+    });
+  }
+
+  test("compare page contains both catalog iframes", async ({ page }) => {
+    await page.goto(COMPARE_PAGE);
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.locator("iframe[src='/react-catalog/']")).toHaveCount(1);
+    await expect(page.locator("iframe[src='/design-system']")).toHaveCount(1);
+  });
+
 });
