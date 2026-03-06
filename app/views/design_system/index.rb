@@ -88,14 +88,14 @@ module Views
           data: {
             controller: "ui--theme",
             action: "click->ui--theme#toggle",
-            "ui--theme-light-label": t("design_system.page.toggle_dark"),
-            "ui--theme-dark-label": t("design_system.page.toggle_light")
+            "ui--theme-light-label": t("design_system.page.toggle_light"),
+            "ui--theme-dark-label": t("design_system.page.toggle_dark")
           }
         ) do
           # Sun icon — shown in dark mode
           svg(
             xmlns: "http://www.w3.org/2000/svg",
-            viewbox: "0 0 24 24",
+            viewBox: "0 0 24 24",
             fill: "none",
             stroke: "currentColor",
             stroke_width: "2",
@@ -111,7 +111,7 @@ module Views
           # Moon icon — shown in light mode
           svg(
             xmlns: "http://www.w3.org/2000/svg",
-            viewbox: "0 0 24 24",
+            viewBox: "0 0 24 24",
             fill: "none",
             stroke: "currentColor",
             stroke_width: "2",

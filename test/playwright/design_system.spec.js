@@ -16,13 +16,15 @@ const DESIGN_SYSTEM_URL = "/design-system";
 test.describe("Design System — visual regression", () => {
   test.beforeEach(async ({ page }) => {
     // Disable animations and transitions to get stable screenshots
-    await page.addStyleTag({
-      content: `
+    await page.addInitScript(() => {
+      const style = document.createElement("style");
+      style.textContent = `
         *, *::before, *::after {
           animation-duration: 0s !important;
           transition-duration: 0s !important;
         }
-      `,
+      `;
+      document.head.appendChild(style);
     });
   });
 
@@ -62,6 +64,13 @@ test.describe("Design System — visual regression", () => {
     await page.goto(DESIGN_SYSTEM_URL);
     await page.waitForLoadState("networkidle");
 
+    // Force light theme for consistent screenshots
+    await page.evaluate(() => {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+      localStorage.setItem("papyro-theme", "light");
+    });
+
     const section = page.locator("#buttons");
     await section.scrollIntoViewIfNeeded();
 
@@ -74,6 +83,13 @@ test.describe("Design System — visual regression", () => {
     await page.goto(DESIGN_SYSTEM_URL);
     await page.waitForLoadState("networkidle");
 
+    // Force light theme for consistent screenshots
+    await page.evaluate(() => {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+      localStorage.setItem("papyro-theme", "light");
+    });
+
     const section = page.locator("#forms");
     await section.scrollIntoViewIfNeeded();
 
@@ -85,6 +101,13 @@ test.describe("Design System — visual regression", () => {
   test("feedback section", async ({ page }) => {
     await page.goto(DESIGN_SYSTEM_URL);
     await page.waitForLoadState("networkidle");
+
+    // Force light theme for consistent screenshots
+    await page.evaluate(() => {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+      localStorage.setItem("papyro-theme", "light");
+    });
 
     const section = page.locator("#feedback");
     await section.scrollIntoViewIfNeeded();
