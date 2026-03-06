@@ -7,7 +7,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       title: "Test Article",
       slug: "test-article",
       status: :draft,
-      content: "<p>Test content</p>",
+      body: "<p>Test content</p>",
       user: user
     )
 
@@ -28,7 +28,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       title: "Test Article",
       slug: "test-article",
       status: :published,
-      content: "<p>Test content</p>",
+      body: "<p>Test content</p>",
       published_at: Time.current,
       user: user
     )
@@ -50,7 +50,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       title: "Test Article",
       slug: "test-article",
       status: :published,
-      content: "<p>Test content</p>",
+      body: "<p>Test content</p>",
       published_at: Time.current,
       user: user
     )
@@ -109,7 +109,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       title: "Test Article",
       slug: "test-article-invalid",
       status: :draft,
-      content: "<p>Test content</p>",
+      body: "<p>Test content</p>",
       user: user
     )
 
@@ -146,7 +146,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       title: "Other User Article",
       slug: "other-user-publish",
       status: :draft,
-      content: "<p>Test content</p>",
+      body: "<p>Test content</p>",
       user: other_user
     )
 

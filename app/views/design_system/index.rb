@@ -55,7 +55,7 @@ module Views
 
             div(class: "flex items-center gap-2") do
               render_theme_toggle
-              
+
               # Navigation to React catalog
               link_to(
                 "React Catalog →",

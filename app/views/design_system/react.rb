@@ -17,7 +17,7 @@ module Views
               div(class: "flex items-center justify-between") do
                 div(class: "flex items-center gap-6") do
                   h1(class: "text-xl font-bold") { "React shadcn/ui Catalog" }
-                  
+
                   nav(class: "flex gap-2 text-sm") do
                     link_to(
                       "← Phlex Catalog",

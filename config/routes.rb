@@ -40,10 +40,10 @@ Rails.application.routes.draw do
 
   # Design system catalog (Phlex components)
   get "design-system", to: "design_system#index", as: :design_system
-  
+
   # React shadcn catalog (reference)
   get "design-system-react", to: "design_system#react", as: :design_system_react
-  
+
   # Split-screen comparison (React vs Phlex)
   get "design-system-compare", to: "design_system#compare", as: :design_system_compare
 

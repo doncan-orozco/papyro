@@ -16,7 +16,7 @@ module Views
 
             render Components::Ui::CardFooter.new do
               p(class: "text-xs text-muted-foreground text-center") do
-                text t(".forgot_password_prompt", default: "Forgot your password? ")
+                plain t(".forgot_password_prompt", default: "Forgot your password? ")
                 link_to t(".forgot_password"), new_password_path, class: "text-primary hover:underline font-medium"
               end
             end

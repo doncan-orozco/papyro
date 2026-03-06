@@ -16,7 +16,7 @@ module Views
             div(class: "max-w-full mx-auto px-6 py-4 lg:px-10") do
               div(class: "flex items-center justify-between") do
                 h1(class: "text-xl font-bold") { "Component Comparison: React vs Phlex" }
-                
+
                 nav(class: "flex gap-2 text-sm") do
                   link_to(
                     "← Phlex Catalog",
@@ -41,7 +41,7 @@ module Views
                 div(class: "bg-muted/50 px-4 py-3 border-b border-border") do
                   p(class: "text-sm font-medium") { "React shadcn/ui (Source of Truth)" }
                 end
-                
+
                 iframe(
                   src: "/react-catalog/",
                   title: "React shadcn/ui Components",
@@ -57,7 +57,7 @@ module Views
                 div(class: "bg-muted/50 px-4 py-3 border-b border-border") do
                   p(class: "text-sm font-medium") { "Phlex Components (Implementation)" }
                 end
-                
+
                 iframe(
                   src: design_system_path,
                   title: "Phlex Design System Components",

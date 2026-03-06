@@ -26,7 +26,7 @@ module Views
       def render_form
         form_with(url: password_path(@token), method: :put, class: "contents") do |form|
           div(class: "space-y-4") do
-            render Components::Ui::FormGroup.new(class: "space-y-2") do
+            div(class: "space-y-2") do
               render Components::Ui::Label.new(for: "password") { t(".password_label", default: "Password") }
               form.password_field :password,
                 required: true,
@@ -36,7 +36,7 @@ module Views
                 class: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             end
 
-            render Components::Ui::FormGroup.new(class: "space-y-2") do
+            div(class: "space-y-2") do
               render Components::Ui::Label.new(for: "password_confirmation") { t(".password_confirmation_label", default: "Confirm Password") }
               form.password_field :password_confirmation,
                 required: true,
