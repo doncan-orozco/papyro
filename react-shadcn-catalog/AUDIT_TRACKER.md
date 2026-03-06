@@ -31,12 +31,33 @@ High-usage, simple components. Start here.
 
 | Component | React File | Phlex File | Classes | Structure | Variants | Behavior | Status | Notes |
 |-----------|-----------|-----------|---------|-----------|----------|----------|--------|-------|
-| badge | badge.tsx | badge.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | 4 variants: default, secondary, destructive, outline |
+| badge | badge.tsx | badge.rb | ⬜ | ⬜ | ⬜ | ⬜ | � In Progress | Started audit; checking variants |
 | button | button.tsx | button.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | 6 variants, 4+ sizes, icon support |
 | card | card.tsx | card.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | CardHeader, CardContent, CardFooter, CardTitle, CardDescription |
 | separator | separator.tsx | separator.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | Horizontal/vertical orientation |
 | skeleton | skeleton.tsx | skeleton.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | Loading placeholder animation |
+### Badge Audit Notes
 
+**Date:** 2026-03-06
+**Auditor:** Doncan
+**Time Spent:** 0h 15m
+
+#### Findings:
+- [ ] Base classes match? Yes
+- [ ] Structure/markup identical? Reviewing container and span
+- [ ] All variants implemented: default, secondary, destructive, outline
+- [ ] Size modifiers not applicable (badge only has default size)
+- [ ] States (hover/focus) present
+- [ ] ARIA attributes: none needed
+- [ ] Keyboard navigation: not interactive
+
+#### Changes Made:
+1. None yet; component already matches React
+
+#### Playwright Tests:
+- [ ] Visual regression test added? (pending)
+- [ ] Behavior test added? (n/a)
+- [ ] All tests passing
 **Foundation Total:** 0/5 complete
 
 ---
