@@ -1,3 +1,10 @@
+---
+name: copilot-instructions
+description: 'Project‑wide Copilot instructions and review guidelines for Papyro'
+argument-hint: What aspect of Papyro standards are you enforcing?
+agent: agent
+---
+
 # Copilot Instructions (Papyro)
 
 **Code Review & Development Guidelines**
@@ -49,3 +56,15 @@ When reviewing code:
 - Do NOT duplicate rules in this file
 - Always cite the checklist when flagging issues
 - Keep reviews focused on Papyro standards compliance
+
+### Reviewing Skills & References
+
+This repository has a rich set of skills under `.ai/skills/`.  Each skill contains a `SKILL.md` with patterns, examples, and sometimes a `references/` subfolder with concrete code snippets.  Before starting work, you should:
+
+1. Open **.ai/entrypoint.md** – it lists every available skill along with when to load it.
+2. For a given task, load the relevant `SKILL.md` (e.g. architecture, frontend, testing).  The entrypoint can be used as a quick index.
+3. Browse the `references/` folder for that skill if you need sample implementations or deeper guidance.
+
+New skills or updated patterns should be added following the existing directory conventions; update this instructions file or the entrypoint when you introduce a new skill.
+
+No additional high‑level instructions are currently required – the current setup already covers the full set of topics.  Supplementary rules can be added later as the codebase evolves.
