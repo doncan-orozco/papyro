@@ -48,8 +48,12 @@ module Views
 
       def render_header
         div(class: "space-y-6 border-b border-border pb-10 motion-safe:animate-[catalog-fade_0.6s_ease-out]") do
-          render Components::Ui::Badge.new(variant: :secondary, class: "uppercase tracking-[0.2em]") do
-            t("design_system.page.badge")
+          div(class: "flex items-start justify-between gap-4") do
+            render Components::Ui::Badge.new(variant: :secondary, class: "uppercase tracking-[0.2em]") do
+              t("design_system.page.badge")
+            end
+
+            render_theme_toggle
           end
 
           h1(class: "text-4xl font-['Fraunces'] tracking-tight md:text-5xl") do
@@ -68,6 +72,55 @@ module Views
 
           p(class: "text-sm text-muted-foreground") do
             t("design_system.page.note")
+          end
+        end
+      end
+
+      def render_theme_toggle
+        button(
+          type: "button",
+          class: [
+            "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border",
+            "bg-background text-foreground transition-colors",
+            "hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          ].join(" "),
+          aria: { label: t("design_system.page.toggle_dark") },
+          data: {
+            controller: "ui--theme",
+            action: "click->ui--theme#toggle",
+            "ui--theme-light-label": t("design_system.page.toggle_dark"),
+            "ui--theme-dark-label": t("design_system.page.toggle_light")
+          }
+        ) do
+          # Sun icon — shown in dark mode
+          svg(
+            xmlns: "http://www.w3.org/2000/svg",
+            viewbox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            stroke_width: "2",
+            stroke_linecap: "round",
+            stroke_linejoin: "round",
+            class: "hidden h-4 w-4 dark:block",
+            aria: { hidden: "true" }
+          ) do |s|
+            s.circle(cx: "12", cy: "12", r: "4")
+            s.path(d: "M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41")
+          end
+
+          # Moon icon — shown in light mode
+          svg(
+            xmlns: "http://www.w3.org/2000/svg",
+            viewbox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            stroke_width: "2",
+            stroke_linecap: "round",
+            stroke_linejoin: "round",
+            class: "block h-4 w-4 dark:hidden",
+            aria: { hidden: "true" }
+          ) do |s|
+            s.path(d: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z")
           end
         end
       end

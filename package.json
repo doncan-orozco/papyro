@@ -1,0 +1,30 @@
+{
+  "name": "papyro",
+  "version": "1.0.0",
+  "description": "Papyro is a web publishing app for long\u2011form articles about web development.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test:visual": "playwright test",
+    "test:visual:update": "playwright test --update-snapshots"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doncan-orozco/papyro.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/doncan-orozco/papyro/issues"
+  },
+  "homepage": "https://github.com/doncan-orozco/papyro#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  }
+}

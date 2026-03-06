@@ -8,6 +8,8 @@ es:
       chip_two: "Phlex + Tailwind"
       chip_three: "Patrones Radix"
       note: "Los componentes interactivos se muestran en estados estáticos."
+      toggle_dark: "Cambiar a modo oscuro"
+      toggle_light: "Cambiar a modo claro"
     sections:
       buttons:
         title: "Botones"

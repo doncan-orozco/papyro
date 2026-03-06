@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Components::Base < Phlex::HTML
+  SHADCN_VERSION = "2.3.0"
+
   # Include any helpers you want to be available across all components
   include Phlex::Rails::Helpers::Routes
   include Phlex::Rails::Helpers::T
