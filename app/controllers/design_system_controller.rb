@@ -6,4 +6,12 @@ class DesignSystemController < ApplicationController
   def index
     render Views::DesignSystem::Index.new
   end
+
+  def react
+    render Views::DesignSystem::React.new
+  end
+
+  def compare
+    render Views::DesignSystem::Compare.new
+  end
 end

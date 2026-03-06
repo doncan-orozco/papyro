@@ -53,7 +53,20 @@ module Views
               t("design_system.page.badge")
             end
 
-            render_theme_toggle
+            div(class: "flex items-center gap-2") do
+              render_theme_toggle
+              
+              # Navigation to React catalog
+              link_to(
+                "React Catalog →",
+                design_system_react_path,
+                class: [
+                  "inline-flex h-8 px-3 items-center justify-center rounded-lg border border-border",
+                  "bg-muted text-foreground text-xs font-medium transition-colors",
+                  "hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                ].join(" ")
+              )
+            end
           end
 
           h1(class: "text-4xl font-['Fraunces'] tracking-tight md:text-5xl") do
@@ -68,7 +81,7 @@ module Views
             render Components::Ui::Badge.new(variant: :outline) { t("design_system.page.chip_one") }
             render Components::Ui::Badge.new(variant: :outline) { t("design_system.page.chip_two") }
             render Components::Ui::Badge.new(variant: :outline) { t("design_system.page.chip_three") }
-          end
+          </div>
 
           p(class: "text-sm text-muted-foreground") do
             t("design_system.page.note")

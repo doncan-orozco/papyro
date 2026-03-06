@@ -38,8 +38,14 @@ Rails.application.routes.draw do
   get "/admin/login", to: "admin/sessions#new", as: :admin_login
   delete "/admin/logout", to: "admin/sessions#destroy", as: :admin_logout
 
-  # Design system catalog
+  # Design system catalog (Phlex components)
   get "design-system", to: "design_system#index", as: :design_system
+  
+  # React shadcn catalog (reference)
+  get "design-system-react", to: "design_system#react", as: :design_system_react
+  
+  # Split-screen comparison (React vs Phlex)
+  get "design-system-compare", to: "design_system#compare", as: :design_system_compare
 
   # Public articles (by slug, no auth required)
   resources :articles, only: [ :show ], param: :slug do
