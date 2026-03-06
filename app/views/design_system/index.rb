@@ -81,7 +81,7 @@ module Views
             render Components::Ui::Badge.new(variant: :outline) { t("design_system.page.chip_one") }
             render Components::Ui::Badge.new(variant: :outline) { t("design_system.page.chip_two") }
             render Components::Ui::Badge.new(variant: :outline) { t("design_system.page.chip_three") }
-          </div>
+          end
 
           p(class: "text-sm text-muted-foreground") do
             t("design_system.page.note")

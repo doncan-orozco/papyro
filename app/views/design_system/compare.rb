@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 include Phlex::Rails::Helpers::ContentFor
-include Phlex::Rails::Helpers::Routes
 
 module Views
   module DesignSystem
@@ -32,7 +31,7 @@ module Views
                 end
               end
             end
-          </header>
+          end
 
           # Split-screen layout
           div(class: "grid grid-cols-2 gap-0 h-[calc(100vh-65px)] overflow-hidden") do

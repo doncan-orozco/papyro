@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 include Phlex::Rails::Helpers::ContentFor
-include Phlex::Rails::Helpers::Routes
 
 module Views
   module DesignSystem
@@ -38,7 +37,7 @@ module Views
                 end
               end
             end
-          </header>
+          end
 
           # React catalog iframe
           main(class: "relative w-full h-[calc(100vh-65px)]") do
