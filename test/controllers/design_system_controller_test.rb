@@ -27,11 +27,16 @@ class DesignSystemControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "compare view renders split-screen layout" do
+  test "compare view renders header and title" do
     get design_system_compare_path
 
     assert_response :success
     assert_select "h1", text: "Component Comparison: React vs Phlex"
+  end
+
+  test "compare view renders both catalog iframes" do
+    get design_system_compare_path
+
     assert_select "iframe[src='/react-catalog/']"
     assert_select "iframe[src='/design-system']"
     assert_select ".grid-cols-2"
