@@ -8,7 +8,20 @@
 
 ## Audit Process
 
-For each component:
+This tracker can be driven manually or automated via the visual regression
+suite included in `test/playwright/design_system.spec.js`.  Running
+
+```bash
+npm install        # install node dependencies, including Playwright
+npm run test:visual
+```
+
+will visit both the Phlex and React catalogs, take screenshots for every
+section and category, and surface differences.  The images are saved next
+to the specs and can be compared against the audit tracker screenshots.
+Use the generated output to inform updates to the Phlex components.
+
+For each component (manual or assisted):
 
 1. ✅ **Open Comparison View** at `/design-system-compare`
 2. ✅ **Navigate to component** in both React and Phlex catalogs
@@ -20,7 +33,7 @@ For each component:
    - ARIA attributes and accessibility
    - Interactive behavior (clicks, keyboard nav, etc.)
 4. ✅ **Update Phlex** if needed (in `app/components/ui/[component].rb`)
-5. ✅ **Run Playwright tests** (optional per component)
+5. ✅ **Run Playwright tests to capture screenshots**
 6. ✅ **Mark complete** and document findings
 
 ---
