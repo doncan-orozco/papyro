@@ -167,7 +167,7 @@ test.describe("Design System — visual regression", () => {
   // ---------------------------------------------------------------------------
 
   test("react catalog page — light mode", async ({ page }) => {
-    await page.goto(REACT_PAGE);
+    await page.goto(REACT_CATALOG_URL);
     await page.waitForLoadState("networkidle");
 
     await ensureLightMode(page);
@@ -178,7 +178,7 @@ test.describe("Design System — visual regression", () => {
   });
 
   test("react catalog page — dark mode", async ({ page }) => {
-    await page.goto(REACT_PAGE);
+    await page.goto(REACT_CATALOG_URL);
     await page.waitForLoadState("networkidle");
 
     // force dark theme
@@ -221,7 +221,7 @@ test.describe("Design System — visual regression", () => {
 
   for (const cat of CATEGORIES) {
     test(`react category ${cat.id} renders`, async ({ page }) => {
-      await page.goto(REACT_PAGE);
+      await page.goto(REACT_CATALOG_URL);
       await page.waitForLoadState('networkidle');
 
       // clear theme for consistency
