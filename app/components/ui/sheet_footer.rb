@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
-# Sheet - slide-in panel component (Dialog variant)
-# Following shadcn/ui Radix patterns with semantic tokens
-# Note: Requires Stimulus controller for animation and focus management
 module Components
   module Ui
-    # Sheet root container
-    class Sheet < Components::Base
+    # Sheet Footer - footer section
+    class SheetFooter < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -18,7 +15,7 @@ module Components
       private
 
       def classes
-        ""
+        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2"
       end
     end
   end

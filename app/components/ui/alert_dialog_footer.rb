@@ -5,6 +5,10 @@
 module Components
   module Ui
     class AlertDialogFooter < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end

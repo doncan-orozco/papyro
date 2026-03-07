@@ -20,7 +20,7 @@ module Components
       private
 
       def classes
-        "animate-pulse rounded-lg bg-primary/10"
+        "animate-pulse rounded-md bg-primary/10"
       end
     end
   end

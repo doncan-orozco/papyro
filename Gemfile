@@ -23,6 +23,7 @@ gem "jbuilder"
 gem "phlex"
 gem "phlex-rails"
 gem "tailwindcss-rails"
+gem "tailwind_merge"
 
 # Business logic (Trailblazer + dry-rb)
 gem "trailblazer-operation"

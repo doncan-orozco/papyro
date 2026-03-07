@@ -21,10 +21,17 @@ section and category, and surface differences.  The images are saved next
 to the specs and can be compared against the audit tracker screenshots.
 Use the generated output to inform updates to the Phlex components.
 
+**Note:** the Phlex catalog has been refactored to mirror the React layout
+— a top navigation bar with five categories (Foundation, Forms, Feedback,
+Overlays, Complex) is now present, and sections are shown/hidden using a
+Stimulus controller (`design-system`).  Playwright tests include assertions
+that the category buttons toggle the appropriate sections.
+
 For each component (manual or assisted):
 
 1. ✅ **Open Comparison View** at `/design-system-compare`
-2. ✅ **Navigate to component** in both React and Phlex catalogs
+2. ✅ **Navigate to component** in both React and Phlex catalogs (use the
+   new category nav if helpful)
 3. ✅ **Compare:**
    - Base classes and structure
    - All variants (default, secondary, destructive, outline, ghost, link)
@@ -44,8 +51,8 @@ High-usage, simple components. Start here.
 
 | Component | React File | Phlex File | Classes | Structure | Variants | Behavior | Status | Notes |
 |-----------|-----------|-----------|---------|-----------|----------|----------|--------|-------|
-| badge | badge.tsx | badge.rb | ⬜ | ⬜ | ⬜ | ⬜ | � In Progress | Started audit; checking variants |
-| button | button.tsx | button.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | 6 variants, 4+ sizes, icon support |
+| badge | badge.tsx | badge.rb | ⬜ | ⬜ | ⬜ | ⬜ | � In Progress | Started audit; checking variants || separator | separator.tsx | separator.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | move to foundation |
+| skeleton | skeleton.tsx | skeleton.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | move to foundation || button | button.tsx | button.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | 6 variants, 4+ sizes, icon support |
 | card | card.tsx | card.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | CardHeader, CardContent, CardFooter, CardTitle, CardDescription |
 | separator | separator.tsx | separator.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | Horizontal/vertical orientation |
 | skeleton | skeleton.tsx | skeleton.rb | ⬜ | ⬜ | ⬜ | ⬜ | 🔴 Not Started | Loading placeholder animation |
