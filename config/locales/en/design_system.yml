@@ -165,6 +165,7 @@ en:
         body: "Review the summary before publishing."
         cancel: "Cancel"
         confirm: "Confirm"
+        close: "Close"
       dropdown:
         title: "Dropdown Menu"
         description: "Quick actions anchored to a trigger."

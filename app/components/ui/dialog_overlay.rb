@@ -20,10 +20,13 @@ module Components
       private
 
       def classes
+        # copy of React's overlay utility classes, including animation data-state helpers
+        # include state‑specific duration so the fade is noticeable
         [
-          "fixed inset-0 z-50",
-          "bg-black/80",
-          "transition-opacity duration-200"
+          "fixed inset-0 z-50 bg-black/80",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=open]:duration-500 data-[state=closed]:duration-300"
         ].join(" ")
       end
     end

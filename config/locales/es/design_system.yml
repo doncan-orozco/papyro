@@ -165,6 +165,7 @@ es:
         body: "Revisa el resumen antes de publicar."
         cancel: "Cancelar"
         confirm: "Confirmar"
+        close: "Cerrar"
       dropdown:
         title: "Dropdown Menu"
         description: "Acciones rápidas ancladas al trigger."
