@@ -80,6 +80,7 @@ app/javascript/
     ui/
       modal_controller.js
       dropdown_controller.js
+      select_controller.js
       button_controller.js
 ```
 
@@ -94,7 +95,7 @@ app/javascript/
 - Only return focus to triggers after the component has actually been opened at least once
 
 ### Interactive Component Pattern
-For shadcn UI components requiring interactivity (Switch, Tabs, Accordion, Dropdown, Tooltip, Dialog), use the standardized pattern:
+For shadcn UI components requiring interactivity (Switch, Tabs, Accordion, Dropdown, Select, Tooltip, Dialog), use the standardized pattern:
 
 **Files:**
 - Phlex component (static) → receives `data-*` attributes via `**attrs`
@@ -102,6 +103,15 @@ For shadcn UI components requiring interactivity (Switch, Tabs, Accordion, Dropd
 - Design system examples → test with interactive demo
 
 **Reference:** See [design-system/references/stimulus-interactive-components.md](../design-system/references/stimulus-interactive-components.md)
+
+### Overlay Positioning Pattern (Dropdown/Select/Tooltip)
+- Use `strategy: 'fixed'` with Floating UI for overlays that can be clipped by parent containers
+- Keep overlay hidden while computing position, then show after coordinates are applied
+- Avoid `transition-all` on overlay containers because it animates `top/left` and causes position-jump artifacts
+- Prefer opacity-only transition for open/close animations
+
+### Stimulus Debugging Hygiene
+- Remove temporary `console.log` statements before finalizing changes
 
 **Example Integration:**
 ```ruby

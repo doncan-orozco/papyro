@@ -43,22 +43,29 @@ See [references/css-variables-guide.md](references/css-variables-guide.md) for c
 Colors must be defined as CSS custom properties in `:root`, then referenced in `@theme`:
 ```css
 :root {
-  --color-primary: oklch(0.205 0 0);  /* Light mode */
+  --primary: 0.205 0 0;
+  --border: 0.88 0 0;
+
+  --color-primary: oklch(var(--primary));
+  --color-border: oklch(var(--border));
   --tw-shadow-color: oklch(0 0 0 / 10%);
 }
 
 @theme {
   --color-primary: var(--color-primary);  /* Reference, not define */
+  --color-border: var(--color-border);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-primary: oklch(0.922 0 0);  /* Dark mode override */
-    --tw-shadow-color: oklch(0 0 0 / 30%);
-  }
+html.dark {
+  --primary: 0.922 0 0;
+  --border: 0.269 0 0;
+
+  --color-primary: oklch(var(--primary));
+  --color-border: oklch(var(--border));
+  --tw-shadow-color: oklch(0 0 0 / 30%);
 }
 ```
-This pattern enables automatic dark mode switching without `dark:` prefixes.
+Use `@custom-variant dark (&:where(.dark, .dark *));` with `html.dark` for class-based dark mode.
 
 ### 4. Shadow & Elevation Control
 Use Tailwind's shadow utilities — they automatically use `--tw-shadow-color`:
@@ -80,11 +87,11 @@ Use `/10`, `/20`, `/40` opacity modifiers for subtle backgrounds:
 "bg-destructive/10 hover:bg-destructive/20 text-destructive"
 ```
 
-### 6. Dark Mode Automatic Switching
-No `dark:` classes needed! The system uses `@media (prefers-color-scheme: dark)`:
-- User toggles dark mode in OS settings
-- Browser applies media query automatically
-- `:root` variables override automatically
+### 6. Class-Based Dark Mode
+The system uses class-based dark mode (`html.dark`):
+- App toggles `dark` class on `<html>`
+- `html.dark` overrides base token values
+- Wrapped `--color-*` tokens stay in sync automatically
 - All semantic colors change instantly
 - Works across all components
 
@@ -302,16 +309,19 @@ end
 
 ❌ **CSS colors defined in @theme instead of :root**
 ```css
-/* WRONG - Dark mode won't switch colors */
+/* WRONG - Defining fixed values in @theme */
 @theme {
   --color-primary: oklch(0.205 0 0);
   --color-card: oklch(1 0 0);
 }
 
-/* CORRECT - Uses :root + override in @media */
+/* CORRECT - Uses base tokens + wrapped tokens + html.dark overrides */
 :root {
-  --color-primary: oklch(0.205 0 0);
-  --color-card: oklch(1 0 0);
+  --primary: 0.205 0 0;
+  --card: 1 0 0;
+
+  --color-primary: oklch(var(--primary));
+  --color-card: oklch(var(--card));
   --tw-shadow-color: oklch(0 0 0 / 10%);
 }
 
@@ -320,12 +330,13 @@ end
   --color-card: var(--color-card);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-primary: oklch(0.922 0 0);
-    --color-card: oklch(0.205 0 0);
-    --tw-shadow-color: oklch(0 0 0 / 30%);
-  }
+html.dark {
+  --primary: 0.922 0 0;
+  --card: 0.205 0 0;
+
+  --color-primary: oklch(var(--primary));
+  --color-card: oklch(var(--card));
+  --tw-shadow-color: oklch(0 0 0 / 30%);
 }
 ```
 
@@ -421,6 +432,15 @@ For components that require JavaScript interactivity (state management, keyboard
 - **Dropdown** — Menu with keyboard navigation, Floating UI positioning, click-outside
 - **Tooltip** — Hover/focus trigger with delay, Floating UI margin-aware positioning
 - **Dialog** — Modal with focus trap, scroll lock, overlay click to close, ESC key
+  
+  - Controller now keeps logic tiny: showElement/unhide then flip `data-state` in `requestAnimationFrame`,
+    `hideElement` waits on `animationend` and never touches opacity or transforms directly.  Tailwind utilities
+    handle all animation durations (`data-[state=open]:duration-500`, `:animate-in`, etc.).
+
+  - Duration helpers have been added to the Ruby components so closing/opening is
+    visibly animated; avoid timeouts or manual styling in JS.
+
+  - The pattern is now generic and can be copied to other overlay-like controllers (sheet, alert-dialog, etc.).
 
 All controllers use shared utilities from `base_controller.js` (focus management, state helpers, event dispatching).
 
