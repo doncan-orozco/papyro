@@ -56,7 +56,8 @@ export default class extends BaseController {
     // Setup content
     if (this.hasContentTarget) {
       this.contentTarget.hidden = true
-      this.contentTarget.style.position = 'absolute'
+      this.contentTarget.style.position = 'fixed'
+      this.contentTarget.style.visibility = 'hidden'
     }
     
     // Setup trigger ARIA
@@ -69,6 +70,7 @@ export default class extends BaseController {
   disconnect() {
     this.removeEventListeners()
     this.stopAutoUpdate()
+    this.restoreBodyScroll()
   }
 
   /**
@@ -175,17 +177,23 @@ export default class extends BaseController {
 
     this.hasOpened = true
 
-    // Show content
-    this.contentTarget.hidden = false
+    // Disable transitions to prevent position animation
+    this.contentTarget.style.transition = 'none'
+    this.contentTarget.style.visibility = 'hidden'
     this.contentTarget.style.opacity = '0'
+    this.contentTarget.hidden = false
     
     // Update trigger ARIA
     this.triggerTarget.setAttribute('aria-expanded', 'true')
     
-    // Position dropdown
+    // Calculate and apply position (no transition)
     await this.updatePosition()
     
-    // Fade in
+    // Re-enable transitions for opacity fade only
+    this.contentTarget.style.transition = 'opacity 200ms'
+    this.contentTarget.style.visibility = 'visible'
+    // Force reflow to ensure transition property is applied
+    this.contentTarget.offsetHeight
     this.contentTarget.style.opacity = '1'
     
     // Focus first item
@@ -200,6 +208,9 @@ export default class extends BaseController {
     
     // Add event listeners
     this.addEventListeners()
+
+    // Prevent background page scroll while menu is open
+    this.preventBodyScroll()
     
     this.dispatchStateChange("ui:dropdown:opened")
   }
@@ -213,6 +224,8 @@ export default class extends BaseController {
     // Hide content
     this.contentTarget.hidden = true
     this.contentTarget.style.opacity = '0'
+    this.contentTarget.style.visibility = 'hidden'
+    this.contentTarget.style.transition = ''
     
     // Update trigger ARIA
     this.triggerTarget.setAttribute('aria-expanded', 'false')
@@ -230,6 +243,9 @@ export default class extends BaseController {
     
     // Remove event listeners
     this.removeEventListeners()
+
+    // Restore background page scroll
+    this.restoreBodyScroll()
     
     this.dispatchStateChange("ui:dropdown:closed")
   }
@@ -240,10 +256,15 @@ export default class extends BaseController {
   async updatePosition() {
     if (!this.hasContentTarget || !this.hasTriggerTarget) return
 
+    // Disable transitions during position update
+    const currentTransition = this.contentTarget.style.transition
+    this.contentTarget.style.transition = 'none'
+
     const { x, y } = await computePosition(
       this.triggerTarget,
       this.contentTarget,
       {
+        strategy: 'fixed',
         placement: this.placementValue,
         middleware: [
           offset(this.offsetValue),
@@ -257,6 +278,13 @@ export default class extends BaseController {
       left: `${x}px`,
       top: `${y}px`
     })
+
+    // Restore transition (for opacity changes)
+    if (currentTransition) {
+      // Force reflow before restoring transition
+      this.contentTarget.offsetHeight
+      this.contentTarget.style.transition = currentTransition
+    }
   }
 
   /**
@@ -375,4 +403,5 @@ export default class extends BaseController {
       this.close()
     }
   }
+
 }

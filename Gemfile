@@ -23,6 +23,10 @@ gem "jbuilder"
 gem "phlex"
 gem "phlex-rails"
 gem "tailwindcss-rails"
+gem "tailwind_merge"
+
+# icons – server‑rendered SVGs via lucide-rails (used by Components::Ui::Icon)
+gem "lucide-rails"
 
 # Business logic (Trailblazer + dry-rb)
 gem "trailblazer-operation"
@@ -68,7 +72,8 @@ group :development, :test do
   gem "bundler-audit", require: false
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-  gem "brakeman", require: false
+  # bump to latest version to satisfy CI scan
+  gem "brakeman", "~> 8.0.4", require: false
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false

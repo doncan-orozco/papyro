@@ -2,7 +2,7 @@
 
 **Purpose:** Guide for converting interactive shadcn Radix UI components to Phlex with custom Stimulus controllers. This pattern enables full JavaScript interactivity while maintaining type-safety and Rails conventions.
 
-**Applies to:** Switch, Tabs, Accordion, Dropdown, Tooltip, Dialog, and all complex interactive components.
+**Applies to:** Switch, Tabs, Accordion, Dropdown, Select, Tooltip, Dialog, and all complex interactive components.
 
 ## Pattern Overview
 
@@ -33,6 +33,7 @@ app/components/ui/
   tabs.rb / tabs_list.rb / tabs_trigger.rb / tabs_content.rb
   accordion.rb / accordion_item.rb / accordion_trigger.rb / accordion_content.rb
   dropdown_menu_*rb files
+  select_trigger.rb / select_content.rb / select_item.rb
   tooltip_trigger.rb / tooltip_content.rb
   dialog_*.rb files
 
@@ -42,6 +43,7 @@ app/javascript/controllers/ui/
   tabs_controller.js                    # Tab switching
   accordion_controller.js                # Expand/collapse
   dropdown_controller.js                 # Menu navigation
+  select_controller.js                   # Listbox selection
   tooltip_controller.js                  # Smart positioning
   dialog_controller.js                   # Modal management
 
@@ -64,6 +66,17 @@ config/importmap.rb
 - ✅ Without this: `Component.new(data: {...})` throws `ArgumentError (wrong number of arguments)`
 - ✅ Pattern: `def initialize(**attrs); @attrs = attrs; end`
 - ✅ Pass keyword args on instantiation: `Calendar.new(mode: :single, open: false, data: {...})`
+
+### Data Attribute Merging (Critical)
+- ✅ If a component sets internal `data-*` attributes (for example `data-value` in Select items), merge internal and external data hashes
+- ✅ Preserve internal required keys while allowing caller-provided Stimulus attributes/targets/actions
+- ❌ Do not pass `data:` twice or overwrite internal keys with `**attrs` expansion
+
+Example:
+```ruby
+merged_data = (@attrs[:data] || {}).merge(value: @value)
+div(data: merged_data, **attrs_without_class.except(:data))
+```
 
 ### Asset Pipeline Registration
 - Pin base controller explicitly: `pin "controllers/ui/base_controller"`
@@ -215,6 +228,22 @@ pin "@floating-ui/dom"
 ### 1. Data Attributes for State
 ```javascript
 // Controller updates data-state for styling
+//
+// Dialog (modal) controllers should *not* animate manually. instead use
+// Tailwind's data-state helpers and flip the state on the next animation frame:
+//
+//     showElement(el) {
+//       el.hidden = false
+//       requestAnimationFrame(() => { el.dataset.state = 'open' })
+//     }
+//
+//     hideElement(el) {
+//       el.addEventListener('animationend', e => el.hidden = true, { once: true })
+//       el.dataset.state = 'closed'
+//     }
+//
+// the animation durations are controlled in the Ruby components via
+// `data-[state=open]:duration-500` / `data-[state=closed]:duration-300` etc.
 this.element.dataset.state = 'open'  // or 'checked', 'active', etc.
 
 // CSS responds to state changes (no additional classes needed)
@@ -275,6 +304,11 @@ async positionContent() {
   })
 }
 ```
+
+For Dropdown/Select overlays:
+- Use `strategy: 'fixed'`
+- Keep content hidden while computing position
+- Use opacity-only transitions (not `transition-all`) to avoid animated jumps between old and new coordinates
 
 ### 5. Keyboard Navigation
 - **Tab key:** Focus management, focus trap (Dialog)

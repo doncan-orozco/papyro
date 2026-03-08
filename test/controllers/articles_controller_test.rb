@@ -8,14 +8,14 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
       slug: "published-article-ctrl-#{Time.current.to_i}",
       status: :published,
       published_at: Time.current,
-      content: "<p>Published content</p>",
+      body: "<p>Published content</p>",
       user: @user
     )
     @draft_article = Article.create!(
       title: "Draft Article",
       slug: "draft-article-ctrl-#{Time.current.to_i}",
       status: :draft,
-      content: "<p>Draft content</p>",
+      body: "<p>Draft content</p>",
       user: @user
     )
   end

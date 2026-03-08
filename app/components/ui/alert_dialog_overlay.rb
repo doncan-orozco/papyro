@@ -5,6 +5,10 @@
 module Components
   module Ui
     class AlertDialogOverlay < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template
         div(class: merged_classes, **attrs_without_class)
       end

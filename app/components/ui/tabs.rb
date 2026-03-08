@@ -112,3 +112,12 @@ module Components
     end
   end
 end
+
+# Zeitwerk autoload helpers for nested classes defined above
+# Without these, requesting Components::Ui::TabsList (etc.) would try to
+# load tabs_list.rb which doesn’t exist. By registering them here we point
+# Zeitwerk at this file as their source.
+
+Components::Ui.autoload :TabsList, __FILE__
+Components::Ui.autoload :TabsTrigger, __FILE__
+Components::Ui.autoload :TabsContent, __FILE__

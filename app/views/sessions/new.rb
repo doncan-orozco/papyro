@@ -5,8 +5,8 @@ module Views
         div(class: "min-h-screen bg-background flex items-center justify-center px-4 py-12") do
           render Components::Ui::Card.new(class: "w-full max-w-md") do
             render Components::Ui::CardHeader.new do
-              render Components::Ui::CardTitle.new { t(".heading") }
-              render Components::Ui::CardDescription.new { t(".description", default: "Sign in to your account") }
+              render Components::Ui::CardTitle.new { t("views.sessions.new.heading") }
+              render Components::Ui::CardDescription.new { t("views.sessions.new.description") }
             end
 
             render Components::Ui::CardContent.new do
@@ -16,8 +16,8 @@ module Views
 
             render Components::Ui::CardFooter.new do
               p(class: "text-xs text-muted-foreground text-center") do
-                text t(".forgot_password_prompt", default: "Forgot your password? ")
-                link_to t(".forgot_password"), new_password_path, class: "text-primary hover:underline font-medium"
+                plain t("views.sessions.new.forgot_password_prompt")
+                link_to t("views.sessions.new.forgot_password"), new_password_path, class: "text-primary hover:underline font-medium"
               end
             end
           end
@@ -30,29 +30,29 @@ module Views
         form_with(url: session_path, class: "space-y-5", local: true) do |form|
           # Email field
           div(class: "space-y-2") do
-            render Components::Ui::Label.new(for: "email_address") { t(".email_label", default: "Email Address") }
+            render Components::Ui::Label.new(for: "email_address") { t("views.sessions.new.email_label") }
             form.email_field :email_address,
               required: true,
               autofocus: true,
               autocomplete: "username",
-              placeholder: t(".email_placeholder"),
+              placeholder: t("views.sessions.new.email_placeholder"),
               value: view_context.params[:email_address],
               class: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           end
 
           # Password field
           div(class: "space-y-2") do
-            render Components::Ui::Label.new(for: "password") { t(".password_label", default: "Password") }
+            render Components::Ui::Label.new(for: "password") { t("views.sessions.new.password_label") }
             form.password_field :password,
               required: true,
               autocomplete: "current-password",
-              placeholder: t(".password_placeholder"),
+              placeholder: t("views.sessions.new.password_placeholder"),
               maxlength: 72,
               class: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           end
 
           # Submit button
-          form.submit t(".submit"),
+          form.submit t("views.sessions.new.submit"),
             class: "w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 bg-primary text-primary-foreground shadow hover:bg-primary/90"
         end
       end

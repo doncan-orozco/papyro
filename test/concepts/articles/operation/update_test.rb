@@ -29,7 +29,7 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
       title: "Test Article",
       slug: "test-article",
       status: :draft,
-      content: "<p>Original content</p>",
+      body: "<p>Original content</p>",
       user: user
     )
 
@@ -37,13 +37,13 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
       title: "Test Article",
       slug: "test-article",
       status: "draft",
-      content: "<p>Updated content</p>"
+      body: "<p>Updated content</p>"
     }
 
     result = Articles::Operation::Update.call(model: article, params: params)
 
     assert_predicate result, :success?
-    assert_includes result[:model].reload.content.to_s, "Updated content"
+    assert_includes result[:model].reload.body.to_html, "Updated content"
   end
 
   test "fails with invalid id" do

@@ -9,7 +9,7 @@ module Admin
         title: "Test Article",
         slug: "test-article",
         status: :draft,
-        content: "<p>Test content</p>",
+        body: "<p>Test content</p>",
         user: @user
       )
     end
@@ -33,7 +33,7 @@ module Admin
             title: "New Article",
             slug: "new-article",
             status: "draft",
-            content: "<p>New content</p>"
+            body: "<p>New content</p>"
           }
         }
       end
