@@ -644,3 +644,18 @@ es:
           - "Todos los componentes de formulario (input, select, checkbox, radio, switch, textarea)"
           - "Todos los overlays (dialog, sheet, alert dialog, tooltip)"
           - "Listo para integracion con Phlex"
+    react:
+      title: "Catálogo React shadcn/ui"
+      back_to_phlex: "← Catálogo Phlex"
+      compare: "Comparar Lado a Lado"
+      subtitle: "42 componentes • Tema Zinc • Colores OKLCH"
+      iframe_title: "Catálogo React shadcn/ui"
+    compare:
+      title: "Comparación de Componentes: React vs Phlex"
+      back_to_phlex: "← Catálogo Phlex"
+      react_catalog: "Catálogo React →"
+      react_panel: "React shadcn/ui (Fuente de verdad)"
+      phlex_panel: "Componentes Phlex (Implementación)"
+      react_iframe_title: "Componentes React shadcn/ui"
+      phlex_iframe_title: "Componentes Phlex Design System"
+      hint: "💡 Abre ambos paneles para comparar componentes pixel a pixel"

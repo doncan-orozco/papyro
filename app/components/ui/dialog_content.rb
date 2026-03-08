@@ -49,7 +49,7 @@ module Components
             ) do |s|
               s.path(d: "M6 18L18 6M6 6l12 12", stroke_width: 2, stroke_linecap: "round", stroke_linejoin: "round")
             end
-            span(class: "sr-only") { I18n.t("design_system.catalog.overlays.dialog.close") }
+            span(class: "sr-only") { I18n.t("design_system.sections.overlays.dialog.close") }
           end
         end
       end

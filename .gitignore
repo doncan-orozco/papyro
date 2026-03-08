@@ -56,3 +56,8 @@ playwright-report/
 
 scripts/create_oracle_instance.sh
 scripts/create_oracle_instance.attempt
+# React shadcn catalog build artifacts
+react-shadcn-catalog/tsconfig.tsbuildinfo
+
+# Test result artifacts
+test-results/

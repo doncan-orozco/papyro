@@ -16,16 +16,16 @@ module Views
             div(class: "max-w-7xl mx-auto px-6 py-4 lg:px-10") do
               div(class: "flex items-center justify-between") do
                 div(class: "flex items-center gap-6") do
-                  h1(class: "text-xl font-bold") { "React shadcn/ui Catalog" }
+                  h1(class: "text-xl font-bold") { t("design_system.react.title") }
 
                   nav(class: "flex gap-2 text-sm") do
                     link_to(
-                      "← Phlex Catalog",
+                      t("design_system.react.back_to_phlex"),
                       design_system_path,
                       class: "px-3 py-2 rounded-lg hover:bg-muted transition-colors"
                     )
                     link_to(
-                      "Compare Side-by-Side",
+                      t("design_system.react.compare"),
                       design_system_compare_path,
                       class: "px-3 py-2 rounded-lg hover:bg-muted transition-colors"
                     )
@@ -33,7 +33,7 @@ module Views
                 end
 
                 div(class: "text-xs text-muted-foreground") do
-                  "42 components • Zinc theme • OKLCH colors"
+                  t("design_system.react.subtitle")
                 end
               end
             end
@@ -43,9 +43,8 @@ module Views
           main(class: "relative w-full h-[calc(100vh-65px)]") do
             iframe(
               src: "/react-catalog/",
-              title: "shadcn/ui React Catalog",
-              class: "w-full h-full border-0",
-              allow: "same-origin"
+              title: t("design_system.react.iframe_title"),
+              class: "w-full h-full border-0"
             )
           end
         end

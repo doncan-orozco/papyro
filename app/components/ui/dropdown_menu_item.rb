@@ -40,6 +40,7 @@ module Components
           "text-sm text-left outline-none",
           "transition-colors",
           "hover:bg-accent hover:text-accent-foreground",
+          "focus:bg-accent focus:text-accent-foreground",
           "disabled:pointer-events-none disabled:opacity-50",
           variant_classes.fetch(@variant, variant_classes[:default])
         ].join(" ")

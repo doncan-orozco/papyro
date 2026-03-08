@@ -20,7 +20,6 @@ export default class extends Controller {
   static values = { current: { type: String, default: "system" } }
 
   connect() {
-    console.log("🌙 Theme controller connected")
     const saved = localStorage.getItem("papyro-theme")
     if (saved) {
       this.currentValue = saved

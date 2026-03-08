@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install all remaining shadcn components
 
-cd /Users/doncan/Documents/papyro/react-shadcn-catalog
+cd "$(dirname "$0")"
 
 echo "Installing Priority 4 (Complex) components..."
 npx shadcn@latest add command --yes

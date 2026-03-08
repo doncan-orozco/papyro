@@ -15,16 +15,16 @@ module Views
           header(class: "border-b border-border bg-card/50 sticky top-0 z-40") do
             div(class: "max-w-full mx-auto px-6 py-4 lg:px-10") do
               div(class: "flex items-center justify-between") do
-                h1(class: "text-xl font-bold") { "Component Comparison: React vs Phlex" }
+                h1(class: "text-xl font-bold") { t("design_system.compare.title") }
 
                 nav(class: "flex gap-2 text-sm") do
                   link_to(
-                    "← Phlex Catalog",
+                    t("design_system.compare.back_to_phlex"),
                     design_system_path,
                     class: "px-3 py-2 rounded-lg hover:bg-muted transition-colors"
                   )
                   link_to(
-                    "React Catalog →",
+                    t("design_system.compare.react_catalog"),
                     design_system_react_path,
                     class: "px-3 py-2 rounded-lg hover:bg-muted transition-colors"
                   )
@@ -39,14 +39,13 @@ module Views
             div(class: "border-r border-border overflow-hidden") do
               div(class: "h-full flex flex-col") do
                 div(class: "bg-muted/50 px-4 py-3 border-b border-border") do
-                  p(class: "text-sm font-medium") { "React shadcn/ui (Source of Truth)" }
+                  p(class: "text-sm font-medium") { t("design_system.compare.react_panel") }
                 end
 
                 iframe(
                   src: "/react-catalog/",
-                  title: "React shadcn/ui Components",
-                  class: "flex-1 border-0 w-full",
-                  allow: "same-origin"
+                  title: t("design_system.compare.react_iframe_title"),
+                  class: "flex-1 border-0 w-full"
                 )
               end
             end
@@ -55,14 +54,13 @@ module Views
             div(class: "overflow-hidden") do
               div(class: "h-full flex flex-col") do
                 div(class: "bg-muted/50 px-4 py-3 border-b border-border") do
-                  p(class: "text-sm font-medium") { "Phlex Components (Implementation)" }
+                  p(class: "text-sm font-medium") { t("design_system.compare.phlex_panel") }
                 end
 
                 iframe(
                   src: design_system_path,
-                  title: "Phlex Design System Components",
-                  class: "flex-1 border-0 w-full",
-                  allow: "same-origin"
+                  title: t("design_system.compare.phlex_iframe_title"),
+                  class: "flex-1 border-0 w-full"
                 )
               end
             end
@@ -70,7 +68,7 @@ module Views
 
           # Keyboard shortcuts hint
           div(class: "fixed bottom-4 right-4 px-3 py-2 bg-muted/80 rounded-lg text-xs text-muted-foreground pointer-events-none") do
-            "💡 Open both side panels to pixel-compare components"
+            t("design_system.compare.hint")
           end
         end
       end
