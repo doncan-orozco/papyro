@@ -10,7 +10,7 @@ module Articles
         required(:slug).filled(:string)
         required(:status).filled(:string)
         optional(:body).maybe(:string)
-        optional(:published_at).value(:time)
+        optional(:published_at).maybe(:time)
         optional(:excerpt).maybe(:string)
       end
 

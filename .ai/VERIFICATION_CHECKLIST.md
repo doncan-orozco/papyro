@@ -80,6 +80,7 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Pure functions (no side effects)
 - [ ] All data via constructor arguments
 - [ ] Support `**attrs` for Stimulus
+- [ ] If component sets internal `data-*` attributes, merge with caller `data` hash and preserve required internal keys
 - [ ] Design system catalog updated for new UI components (view + i18n)
 
 ### Stimulus
@@ -90,6 +91,8 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Organized by domain
 - [ ] Avoid calling close handlers on initial connect when the component is closed; do not restore focus or scroll on first render
 - [ ] Only return focus to triggers after the component has actually been opened at least once
+- [ ] Overlay components (Dropdown/Select/Tooltip) use stable positioning (`strategy: 'fixed'`) and remain hidden until coordinates are applied
+- [ ] Remove debug `console.log` statements before finalizing
 
 ### Styling
 - [ ] Tailwind utility classes only

@@ -49,5 +49,15 @@ demo/
 
 .playwright-mcp/
 
+# Node.js / Playwright
+node_modules/
+test/playwright/snapshots/
+playwright-report/
+
 scripts/create_oracle_instance.sh
 scripts/create_oracle_instance.attempt
+# React shadcn catalog build artifacts
+react-shadcn-catalog/tsconfig.tsbuildinfo
+
+# Test result artifacts
+test-results/

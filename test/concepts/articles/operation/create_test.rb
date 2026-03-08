@@ -24,7 +24,7 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       title: "Test Article",
       slug: "test-article",
       status: "draft",
-      content: "<p>Test content</p>",
+      body: "<p>Test content</p>",
       excerpt: "Test excerpt",
       user_id: user.id
     }
@@ -95,7 +95,7 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       title: "Published Article",
       slug: "published-article-unique-#{Time.current.to_i}",
       status: "published",
-      content: "<p>Published content</p>",
+      body: "<p>Published content</p>",
       published_at: published_at,
       user_id: user.id
     }

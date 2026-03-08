@@ -113,9 +113,8 @@ The `--tw-shadow-color` variable is used by Tailwind's shadow utilities (like `s
   --color-ring: var(--color-ring);
 }
 
-/* Dark mode - override :root variables */
-@media (prefers-color-scheme: dark) {
-  :root {
+/* Dark mode - override base values via html.dark */
+html.dark {
     /* Primary (light gray for dark backgrounds) */
     --color-primary: oklch(0.922 0 0);
     --color-primary-foreground: oklch(0.205 0 0);
@@ -148,29 +147,40 @@ The `--tw-shadow-color` variable is used by Tailwind's shadow utilities (like `s
     --color-popover: oklch(0.269 0 0);
     --color-popover-foreground: oklch(0.989 0 0);
 
-    /* Border (subtle separation, white with opacity) */
-    --color-border: oklch(1 0 0 / 15%);
+    /* Border (subtle separation) */
+    --border: 0.269 0 0;
+    --color-border: oklch(var(--border));
 
-    /* Input (form controls, white with opacity) */
-    --color-input: oklch(1 0 0 / 15%);
+    /* Input (form controls) */
+    --input: 0.269 0 0;
+    --color-input: oklch(var(--input));
 
     /* Ring (focus indicators) */
     --color-ring: oklch(0.556 0 0);
 
     /* Shadow color (more opaque on dark backgrounds) */
     --tw-shadow-color: oklch(0 0 0 / 30%);
+}
+```
+
+For opacity-aware borders, keep base values and apply opacity in base styles:
+
+```css
+@layer base {
+  * {
+    --tw-border-opacity: 1;
+    border-color: oklch(var(--border) / var(--tw-border-opacity, 1));
   }
 }
 ```
 
 ## How Dark Mode Works
 
-**The magic:** When user toggles dark mode in OS settings:
-1. Browser applies `prefers-color-scheme: dark` media query
-2. `:root` variables inside `@media (prefers-color-scheme: dark)` override light mode values
-3. `@theme` references those variables via `var()`
+**The magic:** When app toggles `dark` class on `<html>`:
+1. `html.dark` overrides base token values (`--border`, `--primary`, etc.)
+2. Wrapped semantic tokens (`--color-*`) resolve from those base values
+3. `@theme` references wrapped variables via `var()`
 4. All Tailwind classes automatically use the new colors
-5. No need to add `dark:` classes — it's automatic!
 
 Example:
 - Light: `--color-card: oklch(1 0 0)` = white card
@@ -335,21 +345,28 @@ Hex #ef4444 → oklch(0.627 0.258 14.463)
 --color-custom-foreground: oklch(0.205 0 0);  /* Dark gray */
 ```
 
-### Step 4: Add to @theme Block
+### Step 4: Add Base + Wrapped Tokens
 
 ```css
-@theme {
-  /* Light mode */
-  --color-custom: oklch(0.627 0.258 14.463);
-  --color-custom-foreground: oklch(0.989 0 0);
+:root {
+  --custom: 0.627 0.258 14.463;
+  --custom-foreground: 0.989 0 0;
+
+  --color-custom: oklch(var(--custom));
+  --color-custom-foreground: oklch(var(--custom-foreground));
 }
 
-@media (prefers-color-scheme: dark) {
-  @theme {
-    /* Dark mode */
-    --color-custom: oklch(0.704 0.258 14.463);
-    --color-custom-foreground: oklch(0.205 0 0);
-  }
+html.dark {
+  --custom: 0.704 0.258 14.463;
+  --custom-foreground: 0.205 0 0;
+
+  --color-custom: oklch(var(--custom));
+  --color-custom-foreground: oklch(var(--custom-foreground));
+}
+
+@theme {
+  --color-custom: var(--color-custom);
+  --color-custom-foreground: var(--color-custom-foreground);
 }
 ```
 
@@ -392,9 +409,9 @@ Hex #ef4444 → oklch(0.627 0.258 14.463)
 **Problem:** Colors don't change in dark mode
 
 **Solution:**
-1. Verify `@media (prefers-color-scheme: dark)` exists
-2. Check browser dark mode is enabled
-3. Ensure both light and dark @theme blocks have same tokens
+1. Verify `html.dark` override block exists
+2. Check `html.dark` is toggled on `<html>`
+3. Ensure both light and dark sections define the same base tokens
 4. Test with browser DevTools dark mode toggle
 
 ### Opacity Not Working
@@ -411,10 +428,7 @@ Hex #ef4444 → oklch(0.627 0.258 14.463)
 # Then use: "bg-destructive/10"
 ```
 
-Exception: `border` and `input` tokens in dark mode CAN include opacity:
-```css
---color-border: oklch(0.264 0.004 256.848 / 0.1);  /* OK in @theme */
-```
+For borders, keep opacity outside the token and use `--tw-border-opacity`.
 
 ### Color Looks Different Than shadcn
 
@@ -479,8 +493,8 @@ end
 
 **Causes:**
 1. Colors defined in `@theme` directly instead of `:root`
-2. Missing `@media (prefers-color-scheme: dark)` block
-3. Dark mode values not set in `:root` inside media query
+2. Missing `html.dark` override block
+3. Dark mode base values not set in `html.dark`
 4. Browser cache not cleared
 
 **Solution:**
@@ -499,10 +513,9 @@ end
   --color-card: var(--color-card);  /* Reference variable */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-card: oklch(0.205 0 0);  /* Dark mode override */
-  }
+html.dark {
+  --card: 0.205 0 0;                  /* Dark mode base */
+  --color-card: oklch(var(--card));   /* Wrapped token */
 }
 ```
 
@@ -534,10 +547,8 @@ end
   --tw-shadow-color: oklch(0 0 0 / 10%);  /* Light mode */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --tw-shadow-color: oklch(0 0 0 / 30%);  /* Dark mode */
-  }
+html.dark {
+  --tw-shadow-color: oklch(0 0 0 / 30%);
 }
 ```
 

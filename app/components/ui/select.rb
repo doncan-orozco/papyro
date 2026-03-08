@@ -21,12 +21,12 @@ module Components
           # Layout
           "flex h-9 w-full items-center justify-between",
           # Styling
-          "rounded-lg border border-input bg-background",
-          "px-3 py-1 text-sm",
+          "rounded-md border border-input bg-transparent",
+          "px-3 py-1 text-base",
           # Shadows and transitions
-          "shadow-sm transition-all",
+          "shadow-sm transition-colors",
           # Focus state
-          "focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20",
+          "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
           # Disabled state
           "disabled:cursor-not-allowed disabled:opacity-50",
           # ARIA states

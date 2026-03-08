@@ -21,12 +21,12 @@ module Components
           # Layout
           "flex min-h-[60px] w-full",
           # Styling
-          "rounded-lg border border-input bg-background",
-          "px-3 py-2 text-sm",
+          "rounded-md border border-input bg-transparent",
+          "px-3 py-2 text-base",
           # Shadows and transitions
-          "shadow-sm transition-all",
+          "shadow-sm transition-colors",
           # Focus state
-          "focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20",
+          "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
           # Placeholder
           "placeholder:text-muted-foreground",
           # Disabled state

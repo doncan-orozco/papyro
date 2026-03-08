@@ -26,12 +26,12 @@ module Components
           # Layout
           "flex h-9 w-full",
           # Styling
-          "rounded-lg border border-input bg-background",
-          "px-3 py-1 text-sm",
+          "rounded-md border border-input bg-transparent",
+          "px-3 py-1 text-base",
           # Shadows and transitions
-          "shadow-sm transition-all",
-          # Focus state
-          "focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20",
+          "shadow-sm transition-colors",
+          # Focus state (match React: 1px ring, full opacity)
+          "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
           # File input styling
           "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
           # Placeholder

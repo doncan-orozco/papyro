@@ -13,7 +13,7 @@ class Articles::Contract::CreateTest < ActiveSupport::TestCase
       title: "Valid Article",
       slug: "valid-article",
       status: "draft",
-      content: "<p>Content</p>",
+      body: "<p>Content</p>",
       user_id: @user.id
     )
 
@@ -139,7 +139,7 @@ class Articles::Contract::CreateTest < ActiveSupport::TestCase
       title: "Test",
       slug: "test-optional-fields",
       status: "draft",
-      content: nil,
+      body: nil,
       excerpt: nil,
       user_id: @user.id
     )
@@ -153,12 +153,12 @@ class Articles::Contract::CreateTest < ActiveSupport::TestCase
       title: "Test",
       slug: "test-long-content",
       status: "draft",
-      content: "a" * 100_001,
+      body: "a" * 100_001,
       user_id: @user.id
     )
 
     assert_predicate result, :failure?
-    assert result.errors[:content].any? { |e| e.include?("too long") }
+    assert result.errors[:body].any? { |e| e.include?("too long") }
   end
 
   test "rejects excerpt longer than 500 characters" do
