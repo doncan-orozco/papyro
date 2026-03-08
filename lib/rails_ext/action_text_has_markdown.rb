@@ -4,19 +4,18 @@ module ActionText
 
     class_methods do
       def has_markdown(name, strict_loading: strict_loading_by_default)
-        class_eval <<-CODE, __FILE__, __LINE__ + 1
-          def #{name}
-            markdown_#{name} || build_markdown_#{name}
-          end
+        define_method(name) do
+          markdown = public_send("markdown_#{name}")
+          markdown || public_send("build_markdown_#{name}")
+        end
 
-          def #{name}?
-            markdown_#{name}.present?
-          end
+        define_method("#{name}?") do
+          public_send("markdown_#{name}").present?
+        end
 
-          def #{name}=(content)
-            self.#{name}.content = content
-          end
-        CODE
+        define_method("#{name}=") do |content|
+          public_send(name).content = content
+        end
 
         has_one :"markdown_#{name}", -> { where(name: name) },
           class_name: "ActionText::Markdown", as: :record, inverse_of: :record, autosave: true, dependent: :destroy,
