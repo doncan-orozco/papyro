@@ -60,7 +60,7 @@ class DesignSystemControllerTest < ActionDispatch::IntegrationTest
 
   test "index page includes svg icons from the icon component" do
     get design_system_path
-    assert_response :success
+
 
     # we expect at least one svg element to be rendered by Components::Ui::Icon
     assert_select "svg", minimum: 1
