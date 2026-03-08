@@ -19,6 +19,8 @@ module ActionText
 
     belongs_to :record, polymorphic: true, touch: true
 
+    validates :name, presence: true
+
     def to_html
       (renderer.try(:call) || renderer).render(content).html_safe
     end
