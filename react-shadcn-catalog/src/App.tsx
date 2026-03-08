@@ -13,6 +13,8 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -55,6 +57,7 @@ export default function App() {
                 { id: 'forms', label: 'Forms' },
                 { id: 'feedback', label: 'Feedback' },
                 { id: 'overlays', label: 'Overlays' },
+                { id: 'tables', label: 'Tables' },
                 { id: 'complex', label: 'Complex' },
               ].map(cat => (
                 <Button
@@ -404,6 +407,372 @@ export default function App() {
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Tables */}
+          {selectedCategory === 'tables' && (
+            <div className="space-y-8">
+              <h2 className="text-2xl font-bold">Tables & Data</h2>
+              
+              {/* Basic Table */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Basic Table</CardTitle>
+                  <CardDescription>Simple data table with status indicators</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Invoice</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Method</TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">INV001</TableCell>
+                        <TableCell>Paid</TableCell>
+                        <TableCell>Credit Card</TableCell>
+                        <TableCell className="text-right">$250.00</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">INV002</TableCell>
+                        <TableCell>Pending</TableCell>
+                        <TableCell>PayPal</TableCell>
+                        <TableCell className="text-right">$150.00</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">INV003</TableCell>
+                        <TableCell>Unpaid</TableCell>
+                        <TableCell>Bank Transfer</TableCell>
+                        <TableCell className="text-right">$350.00</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {/* With Footer */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>With Footer</CardTitle>
+                  <CardDescription>Table with summary row</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Invoice</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Method</TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">INV001</TableCell>
+                        <TableCell>Paid</TableCell>
+                        <TableCell>Credit Card</TableCell>
+                        <TableCell className="text-right">$250.00</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">INV002</TableCell>
+                        <TableCell>Pending</TableCell>
+                        <TableCell>PayPal</TableCell>
+                        <TableCell className="text-right">$150.00</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">INV003</TableCell>
+                        <TableCell>Unpaid</TableCell>
+                        <TableCell>Bank Transfer</TableCell>
+                        <TableCell className="text-right">$350.00</TableCell>
+                      </TableRow>
+                    </TableBody>
+                    <TableFooter>
+                      <TableRow>
+                        <TableCell colSpan={3}>Total</TableCell>
+                        <TableCell className="text-right">$750.00</TableCell>
+                      </TableRow>
+                    </TableFooter>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {/* Simple */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Simple</CardTitle>
+                  <CardDescription>Minimal user list</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Sarah Chen</TableCell>
+                        <TableCell>sarah.chen@acme.com</TableCell>
+                        <TableCell>Admin</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Marc Rodriguez</TableCell>
+                        <TableCell>marcus.rodriguez@acme.com</TableCell>
+                        <TableCell>User</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Emily Watson</TableCell>
+                        <TableCell>emily.watson@acme.com</TableCell>
+                        <TableCell>User</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {/* With Badges */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>With Badges</CardTitle>
+                  <CardDescription>Status badges in cells</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Task</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Priority</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Design homepage</TableCell>
+                        <TableCell>
+                          <Badge>Completed</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="destructive">High</Badge>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Implement API</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">In Progress</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">Medium</Badge>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Write tests</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">Pending</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">Low</Badge>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {/* With Actions */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>With Actions</CardTitle>
+                  <CardDescription>Table with dropdown menu</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Wireless Mouse</TableCell>
+                        <TableCell>$29.99</TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm">Open menu</Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem>Edit</DropdownMenuItem>
+                              <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Mechanical Keyboard</TableCell>
+                        <TableCell>$129.99</TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm">Open menu</Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem>Edit</DropdownMenuItem>
+                              <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">USB-C Hub</TableCell>
+                        <TableCell>$49.99</TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm">Open menu</Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem>Edit</DropdownMenuItem>
+                              <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {/* With Select */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>With Select</CardTitle>
+                  <CardDescription>Inline select controls</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Task</TableHead>
+                        <TableHead>Assigned To</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Design homepage</TableCell>
+                        <TableCell>Sarah Chen</TableCell>
+                        <TableCell>
+                          <Select defaultValue="progress">
+                            <SelectTrigger className="w-[140px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="progress">In Progress</SelectItem>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="not-started">Not Started</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Implement API</TableCell>
+                        <TableCell>Marc Rodriguez</TableCell>
+                        <TableCell>
+                          <Select defaultValue="pending">
+                            <SelectTrigger className="w-[140px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="progress">In Progress</SelectItem>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="not-started">Not Started</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Write tests</TableCell>
+                        <TableCell>Emily Watson</TableCell>
+                        <TableCell>
+                          <Select defaultValue="not-started">
+                            <SelectTrigger className="w-[140px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="progress">In Progress</SelectItem>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="not-started">Not Started</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {/* With Input */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>With Input</CardTitle>
+                  <CardDescription>Editable quantity fields</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead>Quantity</TableHead>
+                        <TableHead className="text-right">Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Wireless Mouse</TableCell>
+                        <TableCell>
+                          <Input type="number" defaultValue="1" className="w-20" />
+                        </TableCell>
+                        <TableCell className="text-right">$29.99</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Mechanical Keyboard</TableCell>
+                        <TableCell>
+                          <Input type="number" defaultValue="2" className="w-20" />
+                        </TableCell>
+                        <TableCell className="text-right">$129.99</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">USB-C Hub</TableCell>
+                        <TableCell>
+                          <Input type="number" defaultValue="1" className="w-20" />
+                        </TableCell>
+                        <TableCell className="text-right">$49.99</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </CardContent>
               </Card>
             </div>

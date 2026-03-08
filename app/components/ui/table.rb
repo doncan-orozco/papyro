@@ -22,7 +22,7 @@ module Components
       private
 
       def classes
-        "w-full caption-bottom text-sm"
+        "w-full caption-bottom text-sm border-collapse"
       end
     end
 

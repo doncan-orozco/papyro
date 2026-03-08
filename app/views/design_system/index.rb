@@ -49,6 +49,7 @@ module Views
                   category_button(id: "forms", label: t("design_system.catalog.categories.forms"))
                   category_button(id: "feedback", label: t("design_system.catalog.categories.feedback"))
                   category_button(id: "overlays", label: t("design_system.catalog.categories.overlays"))
+                  category_button(id: "tables", label: t("design_system.catalog.categories.tables"))
                   category_button(id: "complex", label: t("design_system.catalog.categories.complex"))
                 end
               end
@@ -59,6 +60,7 @@ module Views
               forms_section
               feedback_section
               overlays_section
+              tables_section
               complex_section
 
               div(class: "mt-12 p-6 bg-muted rounded-lg") do
@@ -521,6 +523,342 @@ module Views
               data: { ui__tooltip_target: "content" }
             ) do
               t("design_system.catalog.overlays.tooltip.content")
+            end
+          end
+        end
+      end
+
+      def tables_section
+        section_container(id: "tables") do
+          div(class: "space-y-8") do
+            h2(class: "text-2xl font-bold") { t("design_system.catalog.tables.title") }
+
+            # Basic Table
+            component_card(
+              title: t("design_system.catalog.tables.basic.title"),
+              description: t("design_system.catalog.tables.basic.description")
+            ) do
+              render Components::Ui::TableContainer.new do
+                render Components::Ui::Table.new do
+                  render Components::Ui::TableHeader.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_invoice") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_status") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_method") }
+                      render Components::Ui::TableHead.new(class: "text-right") { t("design_system.catalog.tables.basic.head_amount") }
+                    end
+                  end
+
+                  render Components::Ui::TableBody.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_001") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_paid") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_credit") }
+                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_250") }
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_002") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_pending") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_paypal") }
+                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_150") }
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_003") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_unpaid") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_bank") }
+                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_350") }
+                    end
+                  end
+                end
+              end
+            end
+
+            # With Footer
+            component_card(
+              title: t("design_system.catalog.tables.with_footer.title"),
+              description: t("design_system.catalog.tables.with_footer.description")
+            ) do
+              render Components::Ui::TableContainer.new do
+                render Components::Ui::Table.new do
+                  render Components::Ui::TableHeader.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_invoice") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_status") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_method") }
+                      render Components::Ui::TableHead.new(class: "text-right") { t("design_system.catalog.tables.basic.head_amount") }
+                    end
+                  end
+
+                  render Components::Ui::TableBody.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_001") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_paid") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_credit") }
+                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_250") }
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_002") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_pending") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_paypal") }
+                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_150") }
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_003") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_unpaid") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_bank") }
+                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_350") }
+                    end
+                  end
+
+                  render Components::Ui::TableFooter.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(colspan: 3) { t("design_system.catalog.tables.with_footer.total_label") }
+                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.with_footer.total_amount") }
+                    end
+                  end
+                end
+              end
+            end
+
+            # Simple
+            component_card(
+              title: t("design_system.catalog.tables.simple.title"),
+              description: t("design_system.catalog.tables.simple.description")
+            ) do
+              render Components::Ui::TableContainer.new do
+                render Components::Ui::Table.new do
+                  render Components::Ui::TableHeader.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.simple.head_name") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.simple.head_email") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.simple.head_role") }
+                    end
+                  end
+
+                  render Components::Ui::TableBody.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.simple.user_1_name") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_1_email") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_1_role") }
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.simple.user_2_name") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_2_email") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_2_role") }
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.simple.user_3_name") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_3_email") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_3_role") }
+                    end
+                  end
+                end
+              end
+            end
+
+            # With Badges
+            component_card(
+              title: t("design_system.catalog.tables.with_badges.title"),
+              description: t("design_system.catalog.tables.with_badges.description")
+            ) do
+              render Components::Ui::TableContainer.new do
+                render Components::Ui::Table.new do
+                  render Components::Ui::TableHeader.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_badges.head_task") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_badges.head_status") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_badges.head_priority") }
+                    end
+                  end
+
+                  render Components::Ui::TableBody.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_badges.task_1") }
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Badge.new { t("design_system.catalog.tables.with_badges.status_completed") }
+                      end
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Badge.new(variant: :destructive) { t("design_system.catalog.tables.with_badges.priority_high") }
+                      end
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_badges.task_2") }
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Badge.new(variant: :secondary) { t("design_system.catalog.tables.with_badges.status_progress") }
+                      end
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Badge.new(variant: :outline) { t("design_system.catalog.tables.with_badges.priority_medium") }
+                      end
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_badges.task_3") }
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Badge.new(variant: :outline) { t("design_system.catalog.tables.with_badges.status_pending") }
+                      end
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Badge.new(variant: :secondary) { t("design_system.catalog.tables.with_badges.priority_low") }
+                      end
+                    end
+                  end
+                end
+              end
+            end
+
+            # With Actions
+            component_card(
+              title: t("design_system.catalog.tables.with_actions.title"),
+              description: t("design_system.catalog.tables.with_actions.description")
+            ) do
+              render Components::Ui::TableContainer.new do
+                render Components::Ui::Table.new do
+                  render Components::Ui::TableHeader.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_actions.head_product") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_actions.head_price") }
+                      render Components::Ui::TableHead.new(class: "text-right") { t("design_system.catalog.tables.with_actions.head_actions") }
+                    end
+                  end
+
+                  render Components::Ui::TableBody.new do
+                    3.times do |i|
+                      render Components::Ui::TableRow.new do
+                        render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_actions.product_#{i + 1}") }
+                        render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_actions.price_#{i + 1}") }
+                        render Components::Ui::TableCell.new(class: "text-right") do
+                          div(data: { controller: "ui--dropdown" }) do
+                            render Components::Ui::Button.new(
+                              variant: :outline,
+                              size: :sm,
+                              data: { action: "click->ui--dropdown#toggle", ui__dropdown_target: "trigger" }
+                            ) { t("design_system.catalog.tables.with_actions.menu_trigger") }
+
+                            render Components::Ui::DropdownMenuContent.new(
+                              hidden: true,
+                              data: { ui__dropdown_target: "menu" },
+                              class: "right-0"
+                            ) do
+                              render Components::Ui::DropdownMenuLabel.new { "Actions" }
+                              render Components::Ui::DropdownMenuSeparator.new
+                              render Components::Ui::DropdownMenuItem.new { t("design_system.catalog.tables.with_actions.menu_edit") }
+                              render Components::Ui::DropdownMenuItem.new { t("design_system.catalog.tables.with_actions.menu_duplicate") }
+                              render Components::Ui::DropdownMenuSeparator.new
+                              render Components::Ui::DropdownMenuItem.new(class: "text-destructive") { t("design_system.catalog.tables.with_actions.menu_delete") }
+                            end
+                          end
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+
+            # With Select
+            component_card(
+              title: t("design_system.catalog.tables.with_select.title"),
+              description: t("design_system.catalog.tables.with_select.description")
+            ) do
+              render Components::Ui::TableContainer.new do
+                render Components::Ui::Table.new do
+                  render Components::Ui::TableHeader.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_select.head_task") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_select.head_assigned") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_select.head_status") }
+                    end
+                  end
+
+                  render Components::Ui::TableBody.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_select.task_1") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_select.user_1") }
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Select.new(class: "w-[140px]") do
+                          option(value: "progress", selected: true) { t("design_system.catalog.tables.with_select.status_progress") }
+                          option(value: "pending") { t("design_system.catalog.tables.with_select.status_pending") }
+                          option(value: "not-started") { t("design_system.catalog.tables.with_select.status_not_started") }
+                        end
+                      end
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_select.task_2") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_select.user_2") }
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Select.new(class: "w-[140px]") do
+                          option(value: "progress") { t("design_system.catalog.tables.with_select.status_progress") }
+                          option(value: "pending", selected: true) { t("design_system.catalog.tables.with_select.status_pending") }
+                          option(value: "not-started") { t("design_system.catalog.tables.with_select.status_not_started") }
+                        end
+                      end
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_select.task_3") }
+                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_select.user_3") }
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Select.new(class: "w-[140px]") do
+                          option(value: "progress") { t("design_system.catalog.tables.with_select.status_progress") }
+                          option(value: "pending") { t("design_system.catalog.tables.with_select.status_pending") }
+                          option(value: "not-started", selected: true) { t("design_system.catalog.tables.with_select.status_not_started") }
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+
+            # With Input
+            component_card(
+              title: t("design_system.catalog.tables.with_input.title"),
+              description: t("design_system.catalog.tables.with_input.description")
+            ) do
+              render Components::Ui::TableContainer.new do
+                render Components::Ui::Table.new do
+                  render Components::Ui::TableHeader.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_input.head_product") }
+                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_input.head_quantity") }
+                      render Components::Ui::TableHead.new(class: "text-right") { t("design_system.catalog.tables.with_input.head_total") }
+                    end
+                  end
+
+                  render Components::Ui::TableBody.new do
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_input.product_1") }
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Input.new(type: :number, value: "1", class: "w-20")
+                      end
+                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.with_input.price_1") }
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_input.product_2") }
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Input.new(type: :number, value: "2", class: "w-20")
+                      end
+                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.with_input.price_2") }
+                    end
+
+                    render Components::Ui::TableRow.new do
+                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_input.product_3") }
+                      render Components::Ui::TableCell.new do
+                        render Components::Ui::Input.new(type: :number, value: "1", class: "w-20")
+                      end
+                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.with_input.price_3") }
+                    end
+                  end
+                end
+              end
             end
           end
         end
