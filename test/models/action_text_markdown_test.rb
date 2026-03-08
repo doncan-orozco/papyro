@@ -14,6 +14,7 @@ class ActionText::MarkdownTest < ActiveSupport::TestCase
     # satisfied. Article is a convenient model for this test.
     article = Article.create!(title: "X", slug: "x", status: :draft, user: users(:admin))
     markdown = ActionText::Markdown.new(name: "body", record: article, content: "foo")
-    assert markdown.valid?
+
+    assert_predicate markdown, :valid?
   end
 end
