@@ -1,6 +1,6 @@
 ---
 name: design-system
-description: shadcn/ui design patterns translated to Phlex components for consistent UI development. Use when creating or modifying UI components in app/components/ui/. Covers button, card, badge, input, label, and other base component patterns with variants and composition. Includes guidance for pixel-perfect shadcn Radix UI conversion with semantic tokens.
+description: shadcn/ui design patterns translated to Phlex components for consistent UI development. Use when creating or modifying UI components in app/components/ui/. Covers button, card, badge, input, label, and other base component patterns with variants and composition. Includes guidance for pixel-perfect shadcn Radix UI conversion with semantic tokens, class-based dark mode via ui--theme Stimulus controller, and SHADCN_VERSION tracking.
 ---
 
 # Design System (shadcn/ui + Phlex)
@@ -9,6 +9,16 @@ description: shadcn/ui design patterns translated to Phlex components for consis
 - phlex
 - phlex-rails
 - tailwindcss-rails (v4 with OKLCH color space support)
+
+## Tracked Version
+The shadcn component library version in use is stored as a constant on the base class:
+
+```ruby
+# app/components/base.rb
+Components::Base::SHADCN_VERSION  # => "2.3.0"
+```
+
+Update this constant when upgrading shadcn components.
 
 ## Overview
 Use shadcn/ui **Radix UI** design patterns translated to Phlex components. All base UI components live in `app/components/ui/`.
@@ -88,14 +98,39 @@ Use `/10`, `/20`, `/40` opacity modifiers for subtle backgrounds:
 ```
 
 ### 6. Class-Based Dark Mode
-The system uses class-based dark mode (`html.dark`):
-- App toggles `dark` class on `<html>`
-- `html.dark` overrides base token values
-- Wrapped `--color-*` tokens stay in sync automatically
-- All semantic colors change instantly
-- Works across all components
+The system uses class-based dark mode (`html.dark`), toggled by the `ui--theme` Stimulus controller:
+- `@custom-variant dark (&:where(.dark, .dark *));` in `application.css` enables `dark:` Tailwind prefixes to respond to the `html.dark` class (not OS media query alone)
+- `html.dark { }` CSS block in `application.css` overrides all token variables for dark palette
+- All semantic colors change instantly when the class is toggled
+- Works across all components that use semantic tokens
 
-Example: `bg-card` shows white in light mode, dark gray in dark mode — same class!
+**`ui--theme` Stimulus controller** (`app/javascript/controllers/ui/theme_controller.js`):
+- Reads saved preference from `localStorage("papyro-theme")` on `connect()`
+- Falls back to `window.matchMedia("prefers-color-scheme: dark")` when no preference is saved
+- Applies `dark` or `light` class on `<html>` and persists the choice to localStorage
+- Dispatches `ui--theme:changed` event after each toggle
+
+**Wiring the toggle button in a view:**
+```ruby
+render Components::Ui::Button.new(
+  variant: :outline,
+  size: :sm,
+  type: :button,
+  data: {
+    controller: "ui--theme",
+    action: "click->ui--theme#toggle",
+    ui_theme_dark_label: t("design_system.catalog.toggle_dark"),   # label when switching TO dark
+    ui_theme_light_label: t("design_system.catalog.toggle_light")  # label when switching TO light
+  }
+) do
+  span(class: "dark:hidden") { "🌙 #{t("design_system.catalog.dark")}" }
+  span(class: "hidden dark:inline") { "☀️ #{t("design_system.catalog.light")}" }
+end
+```
+
+**Note on ARIA labels:** `ui_theme_dark_label` is shown when the page is currently in light mode (the action being offered is "switch to dark"), and `ui_theme_light_label` is shown when in dark mode (offering "switch to light"). These must NOT be swapped.
+
+Example: `bg-card` shows white in light mode, dark gray in dark mode — same class, no `dark:` needed!
 
 ### 7. Radix UI Sizing Standards
 - Button default height: `h-8` (32px) - more compact than Base UI
@@ -432,6 +467,7 @@ For components that require JavaScript interactivity (state management, keyboard
 - **Dropdown** — Menu with keyboard navigation, Floating UI positioning, click-outside
 - **Tooltip** — Hover/focus trigger with delay, Floating UI margin-aware positioning
 - **Dialog** — Modal with focus trap, scroll lock, overlay click to close, ESC key
+- **Theme** (`ui--theme`) — Dark/light toggle: applies class on `<html>`, persists to localStorage, falls back to OS preference
   
   - Controller now keeps logic tiny: showElement/unhide then flip `data-state` in `requestAnimationFrame`,
     `hideElement` waits on `animationend` and never touches opacity or transforms directly.  Tailwind utilities
