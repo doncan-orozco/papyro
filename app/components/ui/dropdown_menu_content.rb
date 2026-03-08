@@ -5,7 +5,8 @@
 module Components
   module Ui
     class DropdownMenuContent < Components::Base
-      def initialize(**attrs)
+      def initialize(align: :start, **attrs)
+        @align = align
         @attrs = attrs
       end
 
@@ -22,12 +23,22 @@ module Components
 
       def classes
         [
+          "!fixed",
           "z-50 min-w-[8rem]",
           "overflow-hidden",
           "rounded-lg border border-border bg-popover p-1",
           "text-popover-foreground shadow-md",
-          "transition-all duration-200"
+          alignment_classes
         ].join(" ")
+      end
+
+      def alignment_classes
+        case @align
+        when :end
+          nil
+        else
+          nil
+        end
       end
     end
   end

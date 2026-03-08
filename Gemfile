@@ -25,6 +25,9 @@ gem "phlex-rails"
 gem "tailwindcss-rails"
 gem "tailwind_merge"
 
+# icons – server‑rendered SVGs via lucide-rails (used by Components::Ui::Icon)
+gem "lucide-rails"
+
 # Business logic (Trailblazer + dry-rb)
 gem "trailblazer-operation"
 gem "trailblazer-rails"

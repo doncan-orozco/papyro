@@ -118,19 +118,57 @@ export default class extends Controller {
    * Prevent body scroll (for dialogs/modals)
    */
   preventBodyScroll() {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
-    document.body.style.overflow = 'hidden'
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`
+    if (this.__bodyScrollLocked) return
+
+    const root = document.documentElement
+    const body = document.body
+    const count = Number(body.dataset.uiScrollLockCount || "0")
+
+    if (count === 0) {
+      const scrollbarWidth = window.innerWidth - root.clientWidth
+
+      body.dataset.uiPrevOverflow = body.style.overflow || ""
+      root.dataset.uiPrevOverflow = root.style.overflow || ""
+      body.dataset.uiPrevPaddingRight = body.style.paddingRight || ""
+
+      const computedPaddingRight = Number.parseFloat(window.getComputedStyle(body).paddingRight || "0") || 0
+      if (scrollbarWidth > 0) {
+        body.style.paddingRight = `${computedPaddingRight + scrollbarWidth}px`
+      }
+
+      body.style.overflow = "hidden"
+      root.style.overflow = "hidden"
     }
+
+    body.dataset.uiScrollLockCount = String(count + 1)
+    this.__bodyScrollLocked = true
   }
 
   /**
    * Restore body scroll
    */
   restoreBodyScroll() {
-    document.body.style.overflow = ''
-    document.body.style.paddingRight = ''
+    if (!this.__bodyScrollLocked) return
+
+    const root = document.documentElement
+    const body = document.body
+    const count = Number(body.dataset.uiScrollLockCount || "0")
+    const nextCount = Math.max(0, count - 1)
+
+    if (nextCount === 0) {
+      body.style.overflow = body.dataset.uiPrevOverflow || ""
+      root.style.overflow = root.dataset.uiPrevOverflow || ""
+      body.style.paddingRight = body.dataset.uiPrevPaddingRight || ""
+
+      delete body.dataset.uiPrevOverflow
+      delete root.dataset.uiPrevOverflow
+      delete body.dataset.uiPrevPaddingRight
+      delete body.dataset.uiScrollLockCount
+    } else {
+      body.dataset.uiScrollLockCount = String(nextCount)
+    }
+
+    this.__bodyScrollLocked = false
   }
 
   /**

@@ -292,11 +292,55 @@ module Views
               title: t("design_system.catalog.forms.select.title"),
               description: t("design_system.catalog.forms.select.description")
             ) do
-              render Components::Ui::Select.new do
-                option(value: "") { t("design_system.catalog.forms.select.placeholder") }
-                option(value: "option-1") { t("design_system.catalog.forms.select.option_one") }
-                option(value: "option-2") { t("design_system.catalog.forms.select.option_two") }
-                option(value: "option-3") { t("design_system.catalog.forms.select.option_three") }
+              div(
+                data: {
+                  controller: "ui--select",
+                  ui__select_placeholder_value: t("design_system.catalog.forms.select.placeholder")
+                }
+              ) do
+                render Components::Ui::SelectTrigger.new(
+                  data: {
+                    ui__select_target: "trigger",
+                    action: "click->ui--select#toggle keydown->ui--select#navigate"
+                  }
+                ) do
+                  span(data: { ui__select_target: "valueDisplay" })
+                  render Components::Ui::Icon.new(:"chevron-down", source: :lucide, class: "h-4 w-4 opacity-50")
+                end
+
+                render Components::Ui::SelectContent.new(
+                  hidden: true,
+                  data: {
+                    ui__select_target: "content"
+                  }
+                ) do
+                  render Components::Ui::SelectItem.new(
+                    value: "apple",
+                    tabindex: "0",
+                    data: {
+                      ui__select_target: "item",
+                      action: "click->ui--select#selectItem"
+                    }
+                  ) { t("design_system.catalog.forms.select.option_one") }
+
+                  render Components::Ui::SelectItem.new(
+                    value: "banana",
+                    tabindex: "0",
+                    data: {
+                      ui__select_target: "item",
+                      action: "click->ui--select#selectItem"
+                    }
+                  ) { t("design_system.catalog.forms.select.option_two") }
+
+                  render Components::Ui::SelectItem.new(
+                    value: "orange",
+                    tabindex: "0",
+                    data: {
+                      ui__select_target: "item",
+                      action: "click->ui--select#selectItem"
+                    }
+                  ) { t("design_system.catalog.forms.select.option_three") }
+                end
               end
             end
           end
@@ -733,24 +777,45 @@ module Views
                         render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_actions.product_#{i + 1}") }
                         render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_actions.price_#{i + 1}") }
                         render Components::Ui::TableCell.new(class: "text-right") do
-                          div(data: { controller: "ui--dropdown" }) do
+                          div(data: { controller: "ui--dropdown", ui__dropdown_placement_value: "bottom-end" }) do
                             render Components::Ui::Button.new(
-                              variant: :outline,
-                              size: :sm,
+                              variant: :ghost,
+                              size: :icon,
+                              class: "size-8",
                               data: { action: "click->ui--dropdown#toggle", ui__dropdown_target: "trigger" }
-                            ) { t("design_system.catalog.tables.with_actions.menu_trigger") }
+                            ) do
+                              render Components::Ui::Icon.new(:"more-horizontal", class: "h-4 w-4")
+                              span(class: "sr-only") { t("design_system.catalog.tables.with_actions.menu_trigger") }
+                            end
 
                             render Components::Ui::DropdownMenuContent.new(
                               hidden: true,
-                              data: { ui__dropdown_target: "menu" },
-                              class: "right-0"
+                              align: :end,
+                              data: {
+                                ui__dropdown_target: "content",
+                                action: "keydown->ui--dropdown#navigate"
+                              }
                             ) do
-                              render Components::Ui::DropdownMenuLabel.new { "Actions" }
+                              render Components::Ui::DropdownMenuItem.new(
+                                data: {
+                                  ui__dropdown_target: "item",
+                                  action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown"
+                                }
+                              ) { t("design_system.catalog.tables.with_actions.menu_edit") }
+                              render Components::Ui::DropdownMenuItem.new(
+                                data: {
+                                  ui__dropdown_target: "item",
+                                  action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown"
+                                }
+                              ) { t("design_system.catalog.tables.with_actions.menu_duplicate") }
                               render Components::Ui::DropdownMenuSeparator.new
-                              render Components::Ui::DropdownMenuItem.new { t("design_system.catalog.tables.with_actions.menu_edit") }
-                              render Components::Ui::DropdownMenuItem.new { t("design_system.catalog.tables.with_actions.menu_duplicate") }
-                              render Components::Ui::DropdownMenuSeparator.new
-                              render Components::Ui::DropdownMenuItem.new(class: "text-destructive") { t("design_system.catalog.tables.with_actions.menu_delete") }
+                              render Components::Ui::DropdownMenuItem.new(
+                                variant: :destructive,
+                                data: {
+                                  ui__dropdown_target: "item",
+                                  action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown"
+                                }
+                              ) { t("design_system.catalog.tables.with_actions.menu_delete") }
                             end
                           end
                         end
@@ -781,10 +846,55 @@ module Views
                       render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_select.task_1") }
                       render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_select.user_1") }
                       render Components::Ui::TableCell.new do
-                        render Components::Ui::Select.new(class: "w-[140px]") do
-                          option(value: "progress", selected: true) { t("design_system.catalog.tables.with_select.status_progress") }
-                          option(value: "pending") { t("design_system.catalog.tables.with_select.status_pending") }
-                          option(value: "not-started") { t("design_system.catalog.tables.with_select.status_not_started") }
+                        div(
+                          data: {
+                            controller: "ui--select",
+                            ui__select_value_value: "progress",
+                            ui__select_placeholder_value: t("design_system.catalog.tables.with_select.status_placeholder")
+                          },
+                          class: "w-[140px]"
+                        ) do
+                          render Components::Ui::SelectTrigger.new(
+                            data: {
+                              ui__select_target: "trigger",
+                              action: "click->ui--select#toggle keydown->ui--select#navigate"
+                            }
+                          ) do
+                            span(data: { ui__select_target: "valueDisplay" })
+                            render Components::Ui::Icon.new(:"chevron-down", source: :lucide, class: "h-4 w-4 opacity-50")
+                          end
+
+                          render Components::Ui::SelectContent.new(
+                            hidden: true,
+                            data: { ui__select_target: "content" }
+                          ) do
+                            render Components::Ui::SelectItem.new(
+                              value: "progress",
+                              tabindex: "0",
+                              data: {
+                                ui__select_target: "item",
+                                action: "click->ui--select#selectItem"
+                              }
+                            ) { t("design_system.catalog.tables.with_select.status_progress") }
+
+                            render Components::Ui::SelectItem.new(
+                              value: "pending",
+                              tabindex: "0",
+                              data: {
+                                ui__select_target: "item",
+                                action: "click->ui--select#selectItem"
+                              }
+                            ) { t("design_system.catalog.tables.with_select.status_pending") }
+
+                            render Components::Ui::SelectItem.new(
+                              value: "not-started",
+                              tabindex: "0",
+                              data: {
+                                ui__select_target: "item",
+                                action: "click->ui--select#selectItem"
+                              }
+                            ) { t("design_system.catalog.tables.with_select.status_not_started") }
+                          end
                         end
                       end
                     end
@@ -793,10 +903,55 @@ module Views
                       render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_select.task_2") }
                       render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_select.user_2") }
                       render Components::Ui::TableCell.new do
-                        render Components::Ui::Select.new(class: "w-[140px]") do
-                          option(value: "progress") { t("design_system.catalog.tables.with_select.status_progress") }
-                          option(value: "pending", selected: true) { t("design_system.catalog.tables.with_select.status_pending") }
-                          option(value: "not-started") { t("design_system.catalog.tables.with_select.status_not_started") }
+                        div(
+                          data: {
+                            controller: "ui--select",
+                            ui__select_value_value: "pending",
+                            ui__select_placeholder_value: t("design_system.catalog.tables.with_select.status_placeholder")
+                          },
+                          class: "w-[140px]"
+                        ) do
+                          render Components::Ui::SelectTrigger.new(
+                            data: {
+                              ui__select_target: "trigger",
+                              action: "click->ui--select#toggle keydown->ui--select#navigate"
+                            }
+                          ) do
+                            span(data: { ui__select_target: "valueDisplay" })
+                            render Components::Ui::Icon.new(:"chevron-down", source: :lucide, class: "h-4 w-4 opacity-50")
+                          end
+
+                          render Components::Ui::SelectContent.new(
+                            hidden: true,
+                            data: { ui__select_target: "content" }
+                          ) do
+                            render Components::Ui::SelectItem.new(
+                              value: "progress",
+                              tabindex: "0",
+                              data: {
+                                ui__select_target: "item",
+                                action: "click->ui--select#selectItem"
+                              }
+                            ) { t("design_system.catalog.tables.with_select.status_progress") }
+
+                            render Components::Ui::SelectItem.new(
+                              value: "pending",
+                              tabindex: "0",
+                              data: {
+                                ui__select_target: "item",
+                                action: "click->ui--select#selectItem"
+                              }
+                            ) { t("design_system.catalog.tables.with_select.status_pending") }
+
+                            render Components::Ui::SelectItem.new(
+                              value: "not-started",
+                              tabindex: "0",
+                              data: {
+                                ui__select_target: "item",
+                                action: "click->ui--select#selectItem"
+                              }
+                            ) { t("design_system.catalog.tables.with_select.status_not_started") }
+                          end
                         end
                       end
                     end
@@ -805,10 +960,55 @@ module Views
                       render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_select.task_3") }
                       render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_select.user_3") }
                       render Components::Ui::TableCell.new do
-                        render Components::Ui::Select.new(class: "w-[140px]") do
-                          option(value: "progress") { t("design_system.catalog.tables.with_select.status_progress") }
-                          option(value: "pending") { t("design_system.catalog.tables.with_select.status_pending") }
-                          option(value: "not-started", selected: true) { t("design_system.catalog.tables.with_select.status_not_started") }
+                        div(
+                          data: {
+                            controller: "ui--select",
+                            ui__select_value_value: "not-started",
+                            ui__select_placeholder_value: t("design_system.catalog.tables.with_select.status_placeholder")
+                          },
+                          class: "w-[140px]"
+                        ) do
+                          render Components::Ui::SelectTrigger.new(
+                            data: {
+                              ui__select_target: "trigger",
+                              action: "click->ui--select#toggle keydown->ui--select#navigate"
+                            }
+                          ) do
+                            span(data: { ui__select_target: "valueDisplay" })
+                            render Components::Ui::Icon.new(:"chevron-down", source: :lucide, class: "h-4 w-4 opacity-50")
+                          end
+
+                          render Components::Ui::SelectContent.new(
+                            hidden: true,
+                            data: { ui__select_target: "content" }
+                          ) do
+                            render Components::Ui::SelectItem.new(
+                              value: "progress",
+                              tabindex: "0",
+                              data: {
+                                ui__select_target: "item",
+                                action: "click->ui--select#selectItem"
+                              }
+                            ) { t("design_system.catalog.tables.with_select.status_progress") }
+
+                            render Components::Ui::SelectItem.new(
+                              value: "pending",
+                              tabindex: "0",
+                              data: {
+                                ui__select_target: "item",
+                                action: "click->ui--select#selectItem"
+                              }
+                            ) { t("design_system.catalog.tables.with_select.status_pending") }
+
+                            render Components::Ui::SelectItem.new(
+                              value: "not-started",
+                              tabindex: "0",
+                              data: {
+                                ui__select_target: "item",
+                                action: "click->ui--select#selectItem"
+                              }
+                            ) { t("design_system.catalog.tables.with_select.status_not_started") }
+                          end
                         end
                       end
                     end

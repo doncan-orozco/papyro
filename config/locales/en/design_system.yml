@@ -403,6 +403,12 @@ en:
       light: "Light"
       react_catalog: "React Catalog"
       compare: "Compare Side-by-Side"
+      status:
+        title: "Component Status"
+        items:
+          - "✅ 42 shadcn components installed"
+          - "✅ All foundation components (badge, button, card, separator, skeleton)"
+          - "✅ Icon component available via lucide-rails"
       categories:
         foundation: "Foundation"
         forms: "Forms"
@@ -439,6 +445,9 @@ en:
         skeleton:
           title: "Skeleton"
           description: "Loading placeholder"
+        icon:
+          title: "Icon"
+          description: "Standalone SVG icon rendered by Components::Ui::Icon"
       forms:
         title: "Forms & Inputs"
         input:
@@ -470,9 +479,9 @@ en:
           title: "Select"
           description: "Dropdown selection"
           placeholder: "Select an option"
-          option_one: "Option 1"
-          option_two: "Option 2"
-          option_three: "Option 3"
+          option_one: "Apple"
+          option_two: "Banana"
+          option_three: "Orange"
       feedback:
         title: "Feedback & Status"
         alert:
@@ -606,6 +615,7 @@ en:
           user_1: "Sarah Chen"
           user_2: "Marc Rodriguez"
           user_3: "Emily Watson"
+          status_placeholder: "Select status"
           status_progress: "In Progress"
           status_pending: "Pending"
           status_not_started: "Not Started"

@@ -119,6 +119,9 @@ es:
       skeleton:
         title: "Skeletons"
         description: "Placeholders de carga para mantener el ritmo."
+      icon:
+        title: "Icono"
+        description: "Icono SVG independiente renderizado por Components::Ui::Icon"
       avatars:
         title: "Avatares"
         description: "Pistas de identidad con fallback."
@@ -403,6 +406,12 @@ es:
       light: "Claro"
       react_catalog: "Catalogo React"
       compare: "Comparar lado a lado"
+      status:
+        title: "Estado del Componente"
+        items:
+          - "✅ 42 componentes shadcn instalados"
+          - "✅ Todos los componentes foundation (badge, button, card, separator, skeleton)"
+          - "✅ Componente de icono disponible via lucide-rails"
       categories:
         foundation: "Fundacion"
         forms: "Formularios"
@@ -470,9 +479,9 @@ es:
           title: "Select"
           description: "Seleccion desplegable"
           placeholder: "Selecciona una opcion"
-          option_one: "Opcion 1"
-          option_two: "Opcion 2"
-          option_three: "Opcion 3"
+          option_one: "Manzana"
+          option_two: "Banana"
+          option_three: "Naranja"
       feedback:
         title: "Feedback y Estado"
         alert:
@@ -606,6 +615,7 @@ es:
           user_1: "Sarah Chen"
           user_2: "Marc Rodriguez"
           user_3: "Emily Watson"
+          status_placeholder: "Seleccionar estado"
           status_progress: "En Progreso"
           status_pending: "Pendiente"
           status_not_started: "No Iniciado"

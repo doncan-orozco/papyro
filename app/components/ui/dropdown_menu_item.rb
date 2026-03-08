@@ -5,8 +5,9 @@
 module Components
   module Ui
     class DropdownMenuItem < Components::Base
-      def initialize(href: nil, **attrs)
+      def initialize(href: nil, variant: :default, **attrs)
         @href = href
+        @variant = variant
         @attrs = attrs
       end
 
@@ -38,10 +39,17 @@ module Components
           "rounded-md px-2 py-1.5",
           "text-sm text-left outline-none",
           "transition-colors",
-          "focus:bg-accent focus:text-accent-foreground",
           "hover:bg-accent hover:text-accent-foreground",
-          "disabled:pointer-events-none disabled:opacity-50"
+          "disabled:pointer-events-none disabled:opacity-50",
+          variant_classes.fetch(@variant, variant_classes[:default])
         ].join(" ")
+      end
+
+      def variant_classes
+        {
+          default: nil,
+          destructive: "text-destructive hover:bg-destructive/10 hover:text-destructive"
+        }
       end
     end
   end

@@ -14,11 +14,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { MoreHorizontal as MoreHorizontalIcon } from 'lucide-react'
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false)
@@ -609,15 +610,16 @@ export default function App() {
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="sm">Open menu</Button>
+                              <Button variant="ghost" size="icon" className="size-8">
+                                <MoreHorizontalIcon />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
                               <DropdownMenuItem>Edit</DropdownMenuItem>
                               <DropdownMenuItem>Duplicate</DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                              <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -628,15 +630,16 @@ export default function App() {
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="sm">Open menu</Button>
+                              <Button variant="ghost" size="icon" className="size-8">
+                                <MoreHorizontalIcon />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
                               <DropdownMenuItem>Edit</DropdownMenuItem>
                               <DropdownMenuItem>Duplicate</DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                              <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -647,15 +650,16 @@ export default function App() {
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="sm">Open menu</Button>
+                              <Button variant="ghost" size="icon" className="size-8">
+                                <MoreHorizontalIcon />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
                               <DropdownMenuItem>Edit</DropdownMenuItem>
                               <DropdownMenuItem>Duplicate</DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                              <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
