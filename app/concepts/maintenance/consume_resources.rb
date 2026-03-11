@@ -8,7 +8,7 @@ module Maintenance
     CPU_LOOP_DURATION = 57 * 60 # seconds (57 minutes)
     CPU_CYCLE_SECONDS = 0.1
     CPU_DUTY_CYCLE = 0.4 # ~40% per worker across 4 workers -> ~40% on 4 OCPU
-    MAX_RUNTIME_SECONDS = 58 * 60
+    MAX_RUNTIME_SECONDS = 57 * 60
 
     INSTANCE_MEMORY_GB = 24
     TARGET_MEMORY_PERCENT = 40
@@ -16,6 +16,7 @@ module Maintenance
     MEMORY_CHUNK_BYTES = MEMORY_CHUNK_MB * 1024 * 1024
     TARGET_MEMORY_BYTES = ((INSTANCE_MEMORY_GB * 1024 * 1024 * 1024) * TARGET_MEMORY_PERCENT / 100.0).to_i
     MEMORY_CHUNKS = [ (TARGET_MEMORY_BYTES.to_f / MEMORY_CHUNK_BYTES).ceil, 1 ].max
+    MEMORY_WORKER_PROCESSES = 1
     MEMORY_LOOP_DURATION = 57 * 60 # seconds (57 minutes)
     MEMORY_SLEEP = 5 # seconds
 
@@ -41,7 +42,7 @@ module Maintenance
 
       # Memory load
       threads << Thread.new do
-        run_memory_load(deadline)
+        run_memory_worker_processes(deadline)
       rescue StandardError => e
         errors_lock.synchronize { errors << "memory_error: #{e.class}: #{e.message}" }
       end
@@ -118,16 +119,44 @@ module Maintenance
       end
     end
 
-    def run_memory_load(deadline)
-      chunks = Array.new(MEMORY_CHUNKS) { Random.bytes(MEMORY_CHUNK_BYTES) }
-      t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    def run_memory_worker_processes(deadline)
+      duration = [ MEMORY_LOOP_DURATION, remaining_time(deadline) ].min
+      return if duration <= 0
 
-      while Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0 < MEMORY_LOOP_DURATION
-        break if remaining_time(deadline) <= 0
+      worker_script = <<~RUBY
+        duration = ARGV[0].to_f
+        chunks_count = ARGV[1].to_i
+        chunk_bytes = ARGV[2].to_i
+        sleep_seconds = ARGV[3].to_f
 
-        # Touch each chunk so memory stays active and not optimized away.
-        chunks.each { |chunk| chunk.setbyte(0, (chunk.getbyte(0) + 1) % 255) }
-        sleep MEMORY_SLEEP
+        chunks = Array.new(chunks_count) { Random.bytes(chunk_bytes) }
+        started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
+        while Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at < duration
+          chunks.each { |chunk| chunk.setbyte(0, (chunk.getbyte(0) + 1) % 255) }
+          sleep(sleep_seconds)
+        end
+      RUBY
+
+      pids = []
+      raise_on_failure = true
+      begin
+        MEMORY_WORKER_PROCESSES.times do
+          pids << Process.spawn(
+            RbConfig.ruby,
+            "-e", worker_script,
+            duration.to_s,
+            MEMORY_CHUNKS.to_s,
+            MEMORY_CHUNK_BYTES.to_s,
+            MEMORY_SLEEP.to_s
+          )
+        end
+      rescue SystemCallError
+        raise_on_failure = false
+        terminate_processes(pids)
+        raise
+      ensure
+        wait_for_processes(pids, raise_on_failure: raise_on_failure)
       end
     end
 
