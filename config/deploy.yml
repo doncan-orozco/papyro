@@ -2,7 +2,7 @@
 service: papyro
 
 # Name of the container image (use your-user/app-name on external registries).
-image: ghcr.io/doncan-orozco/papyro
+image: doncan-orozco/papyro
 
 # Deploy to these servers.
 servers:
@@ -79,7 +79,7 @@ asset_path: /rails/public/assets
 
 # Configure the image builder.
 builder:
-  arch: amd64
+  arch: arm64
 
   # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
   # remote: ssh://docker@docker-builder-server
