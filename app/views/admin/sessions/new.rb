@@ -4,6 +4,10 @@ module Views
   module Admin
     module Sessions
       class New < Views::Base
+        def initialize(form)
+          @form = form
+        end
+
         def view_template
           div(class: "min-h-screen bg-background flex items-center justify-center px-4 py-12") do
             render Components::Ui::Card.new(class: "w-full max-w-md") do
@@ -13,6 +17,7 @@ module Views
               end
 
               render Components::Ui::CardContent.new do
+                render_flash_messages
                 render_login_form
               end
             end
@@ -21,33 +26,37 @@ module Views
 
         private
 
+        def render_flash_messages
+          return unless (alert = view_context.flash[:alert])
+
+          render Components::Ui::Alert.new(variant: :destructive, class: "mb-4") do
+            p(class: "text-sm") { alert }
+          end
+        end
+
         def render_login_form
-          form_with(url: admin_session_path, method: :post, class: "space-y-5", local: true) do |form|
-            # Email field
-            div(class: "space-y-2") do
-              render Components::Ui::Label.new(for: "email_address") { t(".email_label", default: "Email Address") }
-              form.email_field :email_address,
+          form_with(model: @form, url: admin_session_path, method: :post, class: "space-y-5", local: true) do |form|
+            form.field :email_address,
+              as: :email_field,
+              label: t(".email_label", default: "Email Address"),
+              options: {
                 required: true,
                 autofocus: true,
                 autocomplete: "username",
-                placeholder: t(".email_placeholder"),
-                class: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            end
+                placeholder: t(".email_placeholder")
+              }
 
-            # Password field
-            div(class: "space-y-2") do
-              render Components::Ui::Label.new(for: "password") { t(".password_label", default: "Password") }
-              form.password_field :password,
+            form.field :password,
+              as: :password_field,
+              label: t(".password_label", default: "Password"),
+              options: {
                 required: true,
                 autocomplete: "current-password",
                 placeholder: t(".password_placeholder"),
-                maxlength: 72,
-                class: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            end
+                maxlength: 72
+              }
 
-            # Submit button
-            form.submit t(".submit"),
-              class: "w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
+            form.submit t(".submit"), class: "w-full"
           end
         end
       end

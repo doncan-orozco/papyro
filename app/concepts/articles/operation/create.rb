@@ -8,33 +8,48 @@ module Articles
       step :create_article
 
       def validate_input(ctx, params:, **)
-        contract = Articles::Contract::Create.new
-        result = contract.call(params)
+        # Support legacy `content` key on the API tests and public forms.
+        params = params.dup
+        params[:body] = params.delete(:content) if params.key?(:content)
 
-        if result.success?
-          ctx[:validated_params] = result.to_h
+        form = Articles::Form::Create.new(::Article.new)
+
+        if form.validate(params)
+          form.sync
+          ctx[:model] = form.model
           true
         else
-          ctx[:errors] = result.errors.to_h
+          form.sync
+          model = form.model
+          apply_form_errors_to_model(model, form)
+          ctx[:model] = model
+          ctx[:errors] = model.errors.to_hash
           false
         end
       end
 
-      def prepare_body(ctx, validated_params:, **)
+      def prepare_body(_ctx, model:, **)
         # Ensure body is never nil to prevent NOT NULL constraint violations
-        validated_params[:body] = validated_params[:body].presence || ""
+        model.body = model.body.presence || ""
         true
       end
 
-      def create_article(ctx, validated_params:, **)
-        article = ::Article.new(validated_params)
-
-        if article.save
-          ctx[:model] = article
+      def create_article(ctx, model:, **)
+        if model.save
+          ctx[:model] = model
           true
         else
-          ctx[:errors] = article.errors.to_hash
+          ctx[:model] = model
+          ctx[:errors] = model.errors.to_hash
           false
+        end
+      end
+
+      private
+
+      def apply_form_errors_to_model(model, form)
+        form.errors.messages.each do |attribute, messages|
+          Array(messages).each { |message| model.errors.add(attribute, message) }
         end
       end
     end

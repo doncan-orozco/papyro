@@ -1,6 +1,10 @@
 module Views
   module Sessions
     class New < Views::Base
+      def initialize(form)
+        @form = form
+      end
+
       def view_template
         div(class: "min-h-screen bg-background flex items-center justify-center px-4 py-12") do
           render Components::Ui::Card.new(class: "w-full max-w-md") do
@@ -27,33 +31,28 @@ module Views
       private
 
       def render_login_form
-        form_with(url: session_path, class: "space-y-5", local: true) do |form|
-          # Email field
-          div(class: "space-y-2") do
-            render Components::Ui::Label.new(for: "email_address") { t("views.sessions.new.email_label") }
-            form.email_field :email_address,
+        form_with(model: @form, url: session_path, class: "space-y-5", local: true) do |form|
+          form.field :email_address,
+            as: :email_field,
+            label: t("views.sessions.new.email_label"),
+            options: {
               required: true,
               autofocus: true,
               autocomplete: "username",
-              placeholder: t("views.sessions.new.email_placeholder"),
-              value: view_context.params[:email_address],
-              class: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          end
+              placeholder: t("views.sessions.new.email_placeholder")
+            }
 
-          # Password field
-          div(class: "space-y-2") do
-            render Components::Ui::Label.new(for: "password") { t("views.sessions.new.password_label") }
-            form.password_field :password,
+          form.field :password,
+            as: :password_field,
+            label: t("views.sessions.new.password_label"),
+            options: {
               required: true,
               autocomplete: "current-password",
               placeholder: t("views.sessions.new.password_placeholder"),
-              maxlength: 72,
-              class: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          end
+              maxlength: 72
+            }
 
-          # Submit button
-          form.submit t("views.sessions.new.submit"),
-            class: "w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 bg-primary text-primary-foreground shadow hover:bg-primary/90"
+          form.submit t("views.sessions.new.submit"), class: "w-full"
         end
       end
 

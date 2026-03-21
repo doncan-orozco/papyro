@@ -24,6 +24,11 @@ es:
       breadcrumbs:
         home: "Inicio"
         articles: "Artículos"
+        new: "Nuevo Artículo"
+    forms:
+      validation:
+        slug_invalid_format: "debe contener solo letras minúsculas, números y guiones"
+        status_invalid: "debe ser 'draft', 'published' o 'archived'"
       index:
         title: "Artículos"
         subtitle: "Gestiona y publica tus artículos"

@@ -1,8 +1,9 @@
 module Views
   module Passwords
     class Edit < Views::Base
-      def initialize(token:)
+      def initialize(token:, form:)
         @token = token
+        @form = form
       end
 
       def view_template
@@ -24,30 +25,29 @@ module Views
       private
 
       def render_form
-        form_with(url: password_path(@token), method: :put, class: "contents") do |form|
+        form_with(model: @form, url: password_path(@token), method: :put, class: "contents") do |form|
           div(class: "space-y-4") do
-            div(class: "space-y-2") do
-              render Components::Ui::Label.new(for: "password") { t(".password_label", default: "Password") }
-              form.password_field :password,
+            form.field :password,
+              as: :password_field,
+              label: t(".password_label", default: "Password"),
+              options: {
                 required: true,
                 autocomplete: "new-password",
                 placeholder: t(".password_placeholder"),
-                maxlength: 72,
-                class: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            end
+                maxlength: 72
+              }
 
-            div(class: "space-y-2") do
-              render Components::Ui::Label.new(for: "password_confirmation") { t(".password_confirmation_label", default: "Confirm Password") }
-              form.password_field :password_confirmation,
+            form.field :password_confirmation,
+              as: :password_field,
+              label: t(".password_confirmation_label", default: "Confirm Password"),
+              options: {
                 required: true,
                 autocomplete: "new-password",
                 placeholder: t(".password_confirmation_placeholder"),
-                maxlength: 72,
-                class: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            end
+                maxlength: 72
+              }
 
-            form.submit t(".submit"),
-              class: "w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
+            form.submit t(".submit"), class: "w-full"
           end
         end
       end

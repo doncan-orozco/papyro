@@ -20,8 +20,7 @@ class Admin::ArticlesController < AdminController
       redirect_to admin_articles_path, notice: t("admin.articles.operations.create.success")
     else
       @article = result[:model] || Article.new(article_params)
-      @errors = result[:errors]
-      render Views::Admin::Articles::New.new(@article, @errors), status: :unprocessable_entity
+      render Views::Admin::Articles::New.new(@article), status: :unprocessable_entity
     end
   end
 
@@ -42,9 +41,8 @@ class Admin::ArticlesController < AdminController
     if result.success?
       redirect_to admin_articles_path, notice: t("admin.articles.operations.update.success")
     else
-      @article = result[:model]
-      @errors = result[:errors]
-      render Views::Admin::Articles::Edit.new(@article, @errors), status: :unprocessable_entity
+      @article = result[:model] || article
+      render Views::Admin::Articles::Edit.new(@article), status: :unprocessable_entity
     end
   rescue ActiveRecord::RecordNotFound
     redirect_to admin_articles_path, alert: t("articles.errors.not_found")

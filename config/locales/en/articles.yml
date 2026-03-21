@@ -24,6 +24,7 @@ en:
       breadcrumbs:
         home: "Home"
         articles: "Articles"
+        new: "New Article"
       index:
         title: "Articles"
         subtitle: "Manage and publish your articles"
@@ -57,6 +58,10 @@ en:
         title: "Edit Article"
       form:
         title_label: "Title"
+    forms:
+      validation:
+        slug_invalid_format: "must contain only lowercase letters, numbers, and hyphens"
+        status_invalid: "must be 'draft', 'published', or 'archived'"
         title_placeholder: "Enter article title"
         slug_label: "URL Slug"
         slug_placeholder: "article-url-slug"
