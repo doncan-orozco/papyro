@@ -16,7 +16,9 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-50">
+  <body class="min-h-screen bg-background text-foreground antialiased">
+    <%= render Components::Admin::Navbar.new %>
+
     <main id="main-content">
       <%= yield %>
     </main>

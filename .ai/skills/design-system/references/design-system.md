@@ -745,3 +745,183 @@ When converting shadcn Radix UI component to Phlex:
 15. ✅ Include helper classes: `bg-clip-padding`, `outline-none`, `group/button`, `select-none`
 
 **Color Philosophy:** Papyro uses shadcn's semantic color tokens (`--color-primary`, `--color-destructive`, etc.) defined in Tailwind v4 CSS variables. This enables theming while maintaining shadcn's visual design with opacity modifiers for subtle backgrounds.
+
+---
+
+## Table Component
+
+### Component Anatomy
+
+```
+TableContainer   ← overflow-x-auto wrapper
+  Table          ← <table> with w-full text-sm
+    TableHeader  ← <thead>
+      TableRow   ← <tr> with border-bottom hover
+        TableHead  ← <th> text-left h-10 px-4 font-medium text-muted-foreground
+    TableBody    ← <tbody>
+      TableRow   ← <tr> per data row
+        TableCell  ← <td> p-4 align-middle (shadcn default — do NOT override)
+```
+
+### Phlex Usage
+
+```ruby
+render Components::Ui::TableContainer.new do
+  render Components::Ui::Table.new do
+    render Components::Ui::TableHeader.new do
+      render Components::Ui::TableRow.new do
+        render Components::Ui::TableHead.new { "Name" }
+        render Components::Ui::TableHead.new { "Status" }
+        render Components::Ui::TableHead.new(class: "text-right") { "Actions" }
+      end
+    end
+
+    render Components::Ui::TableBody.new do
+      @items.each do |item|
+        render Components::Ui::TableRow.new do
+          render Components::Ui::TableCell.new(class: "font-medium") { item.name }
+          render Components::Ui::TableCell.new do
+            render Components::Ui::Badge.new(variant: :default) { item.status }
+          end
+          render Components::Ui::TableCell.new(class: "text-right") do
+            # action button/dropdown here
+          end
+        end
+      end
+    end
+  end
+end
+```
+
+### Critical Rules
+
+**`align-middle` is the `TableCell` shadcn default — never override with `align-top`.**
+
+**Never use `<p>` tags inside `TableCell`** — block-level boxes break `align-middle`.
+- ✅ Plain text directly in `TableCell`
+- ✅ `span(class: "block line-clamp-2 max-w-[36ch]")` for truncated multi-line text  
+- ✅ `span(class: "italic")` for placeholder text
+- ❌ `p(class: "font-medium") { text }` inside a cell
+
+**Putting a class on `TableCell` instead of a wrapper:**
+- ✅ `render Components::Ui::TableCell.new(class: "font-medium") { item.name }`
+- ❌ `render Components::Ui::TableCell.new { p(class: "font-medium") { item.name } }`
+
+### Per-Row Action Menus (Dropdown)
+
+Use a ghost icon button (`MoreHorizontal`) as the trigger for a `DropdownMenuContent` scoped to its row:
+
+```ruby
+render Components::Ui::TableCell.new(class: "text-right") do
+  div(data: { controller: "ui--dropdown", ui__dropdown_placement_value: "bottom-end" }) do
+    render Components::Ui::Button.new(
+      variant: :ghost,
+      size: :icon,
+      class: "size-8",
+      data: { action: "click->ui--dropdown#toggle", ui__dropdown_target: "trigger" }
+    ) do
+      render Components::Ui::Icon.new(:"more-horizontal", class: "h-4 w-4")
+      span(class: "sr-only") { t("...menu_trigger") }
+    end
+
+    render Components::Ui::DropdownMenuContent.new(
+      hidden: true,
+      align: :end,
+      data: { ui__dropdown_target: "content", action: "keydown->ui--dropdown#navigate" }
+    ) do
+      render Components::Ui::DropdownMenuItem.new(
+        href: edit_path(item),
+        data: {
+          ui__dropdown_target: "item",
+          action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown",
+          turbo_frame: "_top"
+        }
+      ) { "Edit" }
+
+      render Components::Ui::DropdownMenuSeparator.new
+
+      render Components::Ui::DropdownMenuItem.new(
+        href: item_path(item),
+        variant: :destructive,
+        data: {
+          ui__dropdown_target: "item",
+          action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown",
+          turbo_frame: "_top",
+          turbo_method: :delete,
+          turbo_confirm: "Are you sure?"
+        }
+      ) { "Delete" }
+    end
+  end
+end
+```
+
+- Each row gets its own `data-controller="ui--dropdown"` scope — menus are independent.
+- Use `data-turbo-method` and `data-turbo-confirm` on links, not `button_to` form helpers.
+- Use `data-turbo-frame="_top"` on all action links inside dropdown items.
+- For external links (e.g., "View in new tab"), add `target: "_blank"` and `rel: "noopener noreferrer"`.
+
+### i18n Keys for Tables
+
+Follow the fully-qualified key pattern. Standard table keys under `admin.{resource}.index`:
+
+```yaml
+# config/locales/en/{resource}.yml
+en:
+  admin:
+    articles:
+      index:
+        title: "Articles"
+        subtitle: "Manage and publish your articles"
+        new_article: "New Article"
+        empty_title: "No articles yet"
+        empty_description: "Get started by creating your first article."
+        columns:
+          article: "Article"
+          status: "Status"
+          published: "Published"
+          excerpt: "Excerpt"
+          actions: "Actions"
+        statuses:
+          draft: "Draft"
+          published: "Published"
+          archived: "Archived"
+        menu_trigger: "Open actions"
+        not_published: "Not published"
+        no_excerpt: "No excerpt"
+```
+
+---
+
+## Card + Table Layout (shadcn Page Pattern)
+
+The standard shadcn data-table page puts the header and table inside a **single Card**. Use `CardHeader` for the title/description + action button row, and `CardContent` with `p-0` so the table renders edge-to-edge:
+
+```ruby
+render Components::Ui::Card.new do
+  # Header: title + description (left) | primary action (right)
+  render Components::Ui::CardHeader.new(class: "flex flex-row items-center justify-between space-y-0") do
+    div do
+      render Components::Ui::CardTitle.new(as: :h1) { t("admin.articles.index.title") }
+      render Components::Ui::CardDescription.new { t("admin.articles.index.subtitle") }
+    end
+
+    render Components::Ui::Button.new(as: :a, href: new_admin_article_path) { t("admin.articles.index.new_article") }
+  end
+
+  # Table (edge-to-edge, no inner padding)
+  render Components::Ui::CardContent.new(class: "p-0") do
+    render Components::Ui::TableContainer.new do
+      render Components::Ui::Table.new do
+        # ... TableHeader + TableBody
+      end
+    end
+  end
+end
+```
+
+**Key details:**
+- `CardHeader` needs `flex flex-row items-center justify-between space-y-0` to override the default `flex-col space-y-1.5` and place the button on the right.
+- `CardContent` needs `p-0` so the table border reaches the card edges (no inner padding gap).
+- `CardTitle` supports `as: :h1` to use the correct heading level semantically while keeping the `CardTitle` style.
+- Empty state also lives inside `CardContent` (same card, same padding override), so the card stays unified regardless of whether data exists.

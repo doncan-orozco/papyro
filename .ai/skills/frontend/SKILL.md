@@ -60,7 +60,7 @@ app/views/
 - Example: views inherit `Views::Base` (see checklist)
 
 ## I18n (English + Spanish)
-- Scoped keys in views: `t(".title")`
+- **Always use fully-qualified keys** — `t("admin.articles.index.title")`, never `t(".title")`
 - Components read from `components.*` keys
 - Model attributes/enums come from `activerecord.*` keys
 - Domain-based locale files in `config/locales/en/` and `config/locales/es/`

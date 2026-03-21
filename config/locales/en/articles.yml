@@ -21,13 +21,29 @@ en:
           archived: "Archived"
   admin:
     articles:
+      breadcrumbs:
+        home: "Home"
+        articles: "Articles"
       index:
         title: "Articles"
+        subtitle: "Manage and publish your articles"
         new_article: "New Article"
         no_articles: "No articles yet"
-        draft: "Draft"
-        published: "Published"
-        archived: "Archived"
+        empty_title: "No articles yet"
+        empty_description: "Create your first article to start publishing content."
+        columns:
+          article: "Article"
+          status: "Status"
+          published: "Published"
+          excerpt: "Excerpt"
+          actions: "Actions"
+        statuses:
+          draft: "Draft"
+          published: "Published"
+          archived: "Archived"
+        menu_trigger: "Open actions"
+        not_published: "Not published"
+        no_excerpt: "No excerpt"
         edit: "Edit"
         show: "View"
         delete: "Delete"
