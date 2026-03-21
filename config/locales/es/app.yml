@@ -2,3 +2,9 @@ es:
   app:
     title: "Doncan Orozco"
     description: "Desarrollador full-stack | Ruby on Rails | Entusiasta de código abierto"
+  admin:
+    navbar:
+      title: "Papyro"
+      logo_alt: "Logo de Papyro"
+      sign_out: "Cerrar sesion"
+      confirm_sign_out: "Estas seguro de que quieres cerrar sesion?"

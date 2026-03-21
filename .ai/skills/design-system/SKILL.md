@@ -288,7 +288,29 @@ end
 
 ## Common Pitfalls (Avoid These)
 
-❌ **Redefining merged_classes in every component**
+❌ **`<p>` tags inside `TableCell`**
+Block-level `<p>` elements disrupt `TableCell`'s built-in `align-middle`. Never wrap cell content in a paragraph element.
+```ruby
+# WRONG — p creates a block box that fights align-middle
+render Components::Ui::TableCell.new { p(class: "font-medium") { item.name } }
+
+# CORRECT — class on the cell itself, plain text inside
+render Components::Ui::TableCell.new(class: "font-medium") { item.name }
+
+# CORRECT — span.block for truncated multi-line content
+render Components::Ui::TableCell.new { span(class: "block line-clamp-2 max-w-[36ch]") { item.excerpt } }
+```
+
+❌ **Overriding `align-middle` on `TableCell`**
+`align-middle` is the shadcn default. Do NOT add `align-top` unless there is an explicit design reason.
+
+❌ **Separate header div outside the Card**
+The standard shadcn pattern puts the page title, description, and primary action button all inside `CardHeader`, not in a standalone div above the card.
+
+❌ **Nested Card for empty state**
+The empty state should render inside the same `CardContent` as the table — not as a second Card.
+
+
 ```ruby
 # WRONG - Don't do this, it's inherited from Components::Base
 def merged_classes
@@ -379,7 +401,7 @@ html.dark {
 
 **Load these as needed during conversion:**
 
-- **[references/design-system.md](references/design-system.md)** - Complete shadcn → Phlex examples (button, card, input, badge, etc.)
+- **[references/design-system.md](references/design-system.md)** - Complete shadcn → Phlex examples (button, card, **table**, badge, etc.) — includes Table anatomy, cell rules, dropdown-per-row pattern, and the Card+Table page layout
 - **[references/shadcn-conversion-guide.md](references/shadcn-conversion-guide.md)** - Step-by-step conversion process with troubleshooting
 - **[references/css-variables-guide.md](references/css-variables-guide.md)** - OKLCH color setup for Tailwind v4
 
