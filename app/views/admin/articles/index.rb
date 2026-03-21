@@ -10,7 +10,7 @@ module Views
 
         def view_template
           turbo_frame_tag "admin_articles_list" do
-            div(class: "min-h-screen bg-background") do
+            div(class: "bg-background") do
               div(class: "mx-auto max-w-6xl px-4 py-8") do
                 render_breadcrumb
                 render Components::Ui::Card.new do

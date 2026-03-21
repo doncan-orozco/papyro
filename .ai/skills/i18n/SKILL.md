@@ -165,6 +165,57 @@ es:
 
 **Key Principle**: Error messages are scoped to **domain** to allow different messages for same field across models.
 
+## Reform + Dry-Schema Error Message Strategy
+
+When using `Reform::Form::Dry`, there are two distinct message sources:
+
+1. **Schema predicate messages** from `params do` (e.g. `filled?`, `max_size?`, `format?`)
+2. **Business/context rule messages** from `rule(...) do key.failure(...) end`
+
+### Required configuration
+
+```ruby
+# config/initializers/reform.rb
+Dry::Schema.config.messages.backend = :i18n
+```
+
+### Message scoping rules
+
+- Put shared predicate defaults in `dry_schema.errors.*`
+- Keep those messages generic (reusable across all forms)
+- Do **not** put domain-specific messages under `dry_schema.errors.rules.<field>.*`
+  - `rules.<field>` keys are field-name based, not model-based (`title` in multiple forms will collide)
+- Put domain-specific wording under form/domain keys like `articles.forms.validation.*`
+- In `rule(...)`, always use explicit `key.failure(I18n.t("...") )` for business rules and contextual phrasing
+
+### Practical pattern
+
+```ruby
+validation do
+  params do
+    required(:title).filled(:string, max_size?: 255)
+    required(:status).filled(:string)
+  end
+
+  rule(:status) do
+    key.failure(I18n.t("articles.forms.validation.status_invalid")) if value && !%w[draft published archived].include?(value)
+  end
+end
+```
+
+```yaml
+en:
+  dry_schema:
+    errors:
+      filled?: "cannot be blank"
+      max_size?: "is too long (maximum is %{num} characters)"
+
+  articles:
+    forms:
+      validation:
+        status_invalid: "must be 'draft', 'published', or 'archived'"
+```
+
 ### Contract Error Messages
 
 ```ruby

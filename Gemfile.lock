@@ -352,6 +352,9 @@ GEM
       disposable (>= 0.5.0, < 1.0.0)
       representable (>= 3.1.1, < 4)
       uber (< 0.2.0)
+    reform-rails (0.3.1)
+      activemodel (>= 5.0)
+      reform (>= 2.3.1, < 3.0.0)
     refract (1.1.0)
       prism
       zeitwerk
@@ -566,6 +569,8 @@ DEPENDENCIES
   puma (>= 5.0)
   rails (~> 8.1.1)
   redcarpet
+  reform
+  reform-rails
   rouge
   rubocop
   rubocop-capybara
@@ -718,6 +723,7 @@ CHECKSUMS
   rdoc (7.2.0) sha256=8650f76cd4009c3b54955eb5d7e3a075c60a57276766ebf36f9085e8c9f23192
   redcarpet (3.6.1) sha256=d444910e6aa55480c6bcdc0cdb057626e8a32c054c29e793fa642ba2f155f445
   reform (2.6.2) sha256=59f228401d2971708e1a97940279ea81f86c648fb57cb41b0dfba33244e94608
+  reform-rails (0.3.1) sha256=2e5d7cd1fbf6ef1a15e83debfe4ad96f184e7ba5af016d0df52eda1f1d415801
   refract (1.1.0) sha256=ee3b9627e39f7692831101e2fedd73e0d09a592ff5d5c05f171d14211fc7a9c7
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835

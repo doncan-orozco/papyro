@@ -22,3 +22,14 @@ es:
       article_not_published: "El artículo no está publicado"
       article_incomplete_for_publish: "El artículo debe tener título y contenido para ser publicado"
       invalid_action: "Acción inválida"
+
+  # dry-schema predicate messages (used by Reform forms via params do ... end)
+  dry_schema:
+    errors:
+      filled?: "no puede estar vacío"
+      str?: "debe ser una cadena de texto"
+      int?: "debe ser un número"
+      format?: "tiene un formato inválido"
+      max_size?: "es demasiado largo (máximo %{num} caracteres)"
+      min_size?: "es demasiado corto (mínimo %{num} caracteres)"
+      included_in?: "no es un valor válido"

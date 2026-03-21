@@ -116,6 +116,14 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - **Errors**: `t("articles.errors.title_blank")` — domain-scoped for context-specific messages
 - **Models**: `Article.model_name.human` or `Article.human_attribute_name(:title)`
 
+### Reform + Dry-Schema Messages
+- [ ] `Dry::Schema.config.messages.backend = :i18n` configured in initializer when using Reform dry validations
+- [ ] Keep predicate fallback messages generic in `dry_schema.errors.*` (shared across forms)
+- [ ] Avoid domain-specific copy under `dry_schema.errors.rules.<field>.*` (field name collisions across forms)
+- [ ] Use form/domain-scoped keys for business/context rules, e.g. `articles.forms.validation.*`
+- [ ] In Reform `rule(...)` blocks, use explicit `key.failure(I18n.t("...") )` for model-specific messages
+- [ ] If a setter normalizes input (e.g. `title.strip`), prefer schema `filled?` for blank checks and avoid redundant whitespace-only predicates
+
 ### Date/Time Formatting
 - [ ] Use `I18n.l(date, format: :long)` — NEVER use `strftime`
 - [ ] Define formats in `config/locales/{en,es}/app.yml`

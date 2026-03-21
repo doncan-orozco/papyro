@@ -4,7 +4,7 @@ module Components
       def view_template
         section(class: "relative grid grid-cols-1 md:grid-cols-2 bg-background text-foreground") do
           # Photo Section - Left Side
-          div(class: "relative h-96 md:h-[75vh]") do
+          div(class: "relative h-96 max-h-[540px] md:h-full md:max-h-[700px]") do
             img(
               src: "/doncan-photo.png",
               alt: "Doncan Orozco",
@@ -13,7 +13,7 @@ module Components
           end
 
           # Content Section - Right Side
-          div(class: "flex items-start md:items-center px-6 md:px-12 py-16 md:py-24 bg-primary text-primary-foreground") do
+          div(class: "flex items-start max-h-[540px] md:items-center md:max-h-[700px] px-6 md:px-12 py-16 md:py-24 bg-primary text-primary-foreground") do
             div(class: "max-w-xl") do
               h1(class: "text-5xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight") { t("components.landing.hero.title") }
 

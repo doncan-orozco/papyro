@@ -108,6 +108,7 @@ See [skills/linting/examples/lint-and-tests.md](skills/linting/examples/lint-and
 - **[skills/theme-factory/SKILL.md](skills/theme-factory/SKILL.md)** - UI theming with Tailwind CSS, pre-configured themes
 - **[skills/web-artifacts/SKILL.md](skills/web-artifacts/SKILL.md)** - Standalone HTML/CSS/JS artifacts, dashboards, embeddable components
 - **[skills/i18n/SKILL.md](skills/i18n/SKILL.md)** - ⚠️ REQUIRED for all user-facing text
+  - **→ Reform + dry-schema messages:** See [skills/i18n/references/i18n.md#reform--dry-schema-shared-vs-domain-specific-errors](skills/i18n/references/i18n.md#reform--dry-schema-shared-vs-domain-specific-errors)
 - **[skills/design-system/SKILL.md](skills/design-system/SKILL.md)** - shadcn/ui + Phlex components
   - **→ Interactive Components:** See [design-system/references/stimulus-interactive-components.md](skills/design-system/references/stimulus-interactive-components.md) for Switch, Tabs, Accordion, Dropdown, Tooltip, Dialog patterns
 - **[skills/ux/SKILL.md](skills/ux/SKILL.md)** - UX/UI guidelines

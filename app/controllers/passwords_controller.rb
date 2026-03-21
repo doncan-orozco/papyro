@@ -4,26 +4,30 @@ class PasswordsController < ApplicationController
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_password_path, alert: t("passwords.create.rate_limit") }
 
   def new
-    render Views::Passwords::New.new
+    render Views::Passwords::New.new(password_reset_request_form)
   end
 
   def create
-    email = params[:email_address].to_s.strip.downcase
+    @form = password_reset_request_form
 
-    if user = User.find_by(email_address: email)
-      PasswordsMailer.reset(user).deliver_later
+    if @form.validate(password_reset_request_params)
+      if user = User.find_by(email_address: @form.email_address)
+        PasswordsMailer.reset(user).deliver_later
+      end
+
+      redirect_to new_session_path, notice: t("passwords.create.instructions_sent")
+    else
+      render Views::Passwords::New.new(@form), status: :unprocessable_entity
     end
-
-    redirect_to new_session_path, notice: t("passwords.create.instructions_sent")
   end
 
   def edit
-    render Views::Passwords::Edit.new(token: params[:token])
+    render Views::Passwords::Edit.new(token: params[:token], form: password_update_form)
   end
 
   def update
     result = Users::Operation::Update.call(
-      params: params.permit(:password, :password_confirmation).to_h,
+      params: password_update_params,
       user: @user
     )
 
@@ -31,8 +35,8 @@ class PasswordsController < ApplicationController
       @user.sessions.destroy_all
       redirect_to new_session_path, notice: t("passwords.update.success")
     else
-      flash.now[:alert] = format_validation_errors(result[:errors])
-      render Views::Passwords::Edit.new(token: params[:token]), status: :unprocessable_entity
+      form = result[:form] || password_update_form
+      render Views::Passwords::Edit.new(token: params[:token], form: form), status: :unprocessable_entity
     end
   end
 
@@ -43,7 +47,21 @@ class PasswordsController < ApplicationController
       redirect_to new_password_path, alert: t("passwords.update.invalid_token")
     end
 
-    def format_validation_errors(errors)
-      errors.map { |field, messages| "#{field.to_s.humanize}: #{messages.join(', ')}" }.join("; ")
+    def password_reset_request_form
+      Users::Form::PasswordResetRequest.new(User.new)
+    end
+
+    def password_update_form
+      Users::Form::Update.new(@user)
+    end
+
+    def password_reset_request_params
+      params_key = password_reset_request_form.model_name.param_key
+      params.fetch(params_key, params).permit(:email_address).to_h
+    end
+
+    def password_update_params
+      params_key = password_update_form.model_name.param_key
+      params.fetch(params_key, params).permit(:password, :password_confirmation).to_h
     end
 end

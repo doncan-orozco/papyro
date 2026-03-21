@@ -47,6 +47,39 @@ For detailed examples and corrections, see:
 6. **Relative I18n Keys** → Use fully-qualified keys
 7. **Hardcoded Strings** → Use I18n for all user-facing text
 8. **Missing **attrs** → Include in all components for Stimulus support
+9. **Domain-specific copy in `dry_schema.errors.rules.<field>`** → Causes cross-form collisions for shared field names (e.g. `title`)
+
+### ❌ DON'T: Put Domain-Specific Messages in `dry_schema.errors.rules.<field>`
+
+```yaml
+# WRONG - applies to every form with a title field
+en:
+  dry_schema:
+    errors:
+      rules:
+        title:
+          max_size?: "Article title is too long"
+```
+
+### ✅ DO: Keep Predicate Defaults Generic + Use Domain Keys in Rules
+
+```yaml
+en:
+  dry_schema:
+    errors:
+      max_size?: "is too long (maximum is %{num} characters)"
+
+  articles:
+    forms:
+      validation:
+        title_too_long: "Article title is too long"
+```
+
+```ruby
+rule(:title) do
+  key.failure(I18n.t("articles.forms.validation.title_too_long")) if value && value.length > 255
+end
+```
 
 ## When to Read References
 

@@ -4,13 +4,12 @@ module Views
   module Admin
     module Articles
       class Edit < Views::Base
-        def initialize(article, errors = {})
+        def initialize(article)
           @article = article
-          @errors = errors
         end
 
         def view_template
-          div(class: "min-h-screen bg-background px-4 py-12") do
+          div(class: "bg-background px-4 py-12") do
             div(class: "mx-auto max-w-2xl") do
               render_breadcrumb
               div(class: "mb-8") do
@@ -20,7 +19,7 @@ module Views
 
               render Components::Ui::Card.new do
                 render Components::Ui::CardContent.new(class: "pt-6") do
-                  render FormComponent.new(@article, @errors)
+                  render FormComponent.new(@article)
                 end
               end
             end

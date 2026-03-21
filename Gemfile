@@ -31,6 +31,8 @@ gem "lucide-rails"
 # Business logic (Trailblazer + dry-rb)
 gem "trailblazer-operation"
 gem "trailblazer-rails"
+gem "reform"
+gem "reform-rails"
 gem "dry-monads"
 gem "dry-validation"
 

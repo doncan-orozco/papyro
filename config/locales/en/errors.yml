@@ -22,3 +22,15 @@ en:
       article_not_published: "Article is not published"
       article_incomplete_for_publish: "Article must have title and content to be published"
       invalid_action: "Invalid action"
+
+  # dry-schema predicate messages (used by Reform forms via params do ... end)
+  # Global fallbacks apply to any field; per-field rules take precedence.
+  dry_schema:
+    errors:
+      filled?: "cannot be blank"
+      str?: "must be a string"
+      int?: "must be a number"
+      format?: "is in invalid format"
+      max_size?: "is too long (maximum is %{num} characters)"
+      min_size?: "is too short (minimum is %{num} characters)"
+      included_in?: "is not a valid value"
