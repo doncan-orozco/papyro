@@ -9,7 +9,7 @@ module Views
         end
 
         def view_template
-          div(class: "min-h-screen bg-background flex items-center justify-center px-4 py-12") do
+          div(class: "min-h-full bg-background flex items-center justify-center px-4 py-12") do
             render Components::Ui::Card.new(class: "w-full max-w-md") do |card|
               card.header do
                 card.title { t("admin.sessions.new.heading") }

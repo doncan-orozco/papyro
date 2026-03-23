@@ -54,10 +54,43 @@ en:
         published_date: "Published: %{date}"
       new:
         title: "New Article"
+        subtitle: "Create a new article"
       edit:
         title: "Edit Article"
+        subtitle: "Edit this article"
       form:
         title_label: "Title"
+        title_placeholder: "Enter article title"
+        slug_label: "URL Slug"
+        slug_placeholder: "article-url-slug"
+        slug_hint: "Used in the article URL. Only lowercase letters, numbers, and hyphens."
+        body_label: "Content"
+        body_hint: "Markdown-formatted content for the article"
+        excerpt_label: "Excerpt"
+        excerpt_placeholder: "Brief summary of the article"
+        excerpt_hint: "Maximum 500 characters"
+        status_label: "Status"
+        status_draft: "Draft"
+        status_published: "Published"
+        status_archived: "Archived"
+        save: "Save Article"
+        cancel: "Cancel"
+      operations:
+        create:
+          success: "Article was successfully created"
+          failure: "Failed to create article"
+        update:
+          success: "Article was successfully updated"
+          failure: "Failed to update article"
+        destroy:
+          success: "Article was successfully deleted"
+          failure: "Failed to delete article"
+        publish:
+          success: "Article was successfully published"
+          failure: "Failed to publish article"
+        unpublish:
+          success: "Article was successfully unpublished"
+          failure: "Failed to unpublish article"
     forms:
       validation:
         slug_invalid_format: "must contain only lowercase letters, numbers, and hyphens"
