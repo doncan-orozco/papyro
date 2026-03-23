@@ -18,8 +18,29 @@ module Components
           aria: { live: "polite", atomic: true },
           class: merged_classes,
           **attrs_without_class,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def viewport(**attrs, &block)
+        render Viewport.new(**attrs), &block
+      end
+
+      def title(**attrs, &block)
+        render Title.new(**attrs), &block
+      end
+
+      def description(**attrs, &block)
+        render Description.new(**attrs), &block
+      end
+
+      def action(**attrs, &block)
+        render Action.new(**attrs), &block
+      end
+
+      def close(**attrs, &block)
+        render Close.new(**attrs), &block
       end
 
       private
@@ -49,7 +70,7 @@ module Components
     end
 
     # Toast Viewport - container for all toasts
-    class ToastViewport < Components::Base
+    class Toast::Viewport < Components::Base
       def view_template(&block)
         ol(
           role: :region,
@@ -71,7 +92,7 @@ module Components
     end
 
     # Toast Title - title element
-    class ToastTitle < Components::Base
+    class Toast::Title < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -84,7 +105,7 @@ module Components
     end
 
     # Toast Description - description text
-    class ToastDescription < Components::Base
+    class Toast::Description < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -97,7 +118,7 @@ module Components
     end
 
     # Toast Action - action button
-    class ToastAction < Components::Base
+    class Toast::Action < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -113,7 +134,7 @@ module Components
     end
 
     # Toast Close - close button
-    class ToastClose < Components::Base
+    class Toast::Close < Components::Base
       def view_template
         button(
           type: :button,
@@ -150,5 +171,12 @@ module Components
         ].join(" ")
       end
     end
+
+    ToastViewport = Toast::Viewport
+    ToastTitle = Toast::Title
+    ToastDescription = Toast::Description
+    ToastAction = Toast::Action
+    ToastClose = Toast::Close
+
   end
 end

@@ -28,8 +28,29 @@ module Components
         div(
           class: merged_classes,
           **dynamic_attrs,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def toolbar(**attrs, &block)
+        render Toolbar.new(**attrs), &block
+      end
+
+      def header(**attrs, &block)
+        render Header.new(**attrs), &block
+      end
+
+      def pagination(**attrs, &block)
+        render Pagination.new(**attrs), &block
+      end
+
+      def row_actions(**attrs, &block)
+        render RowActions.new(**attrs), &block
+      end
+
+      def view_options(**attrs, &block)
+        render ViewOptions.new(**attrs), &block
       end
 
       private
@@ -40,7 +61,7 @@ module Components
     end
 
     # Data Table Toolbar - filter and action controls
-    class DataTableToolbar < Components::Base
+    class DataTable::Toolbar < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -53,7 +74,7 @@ module Components
     end
 
     # Data Table Header - sortable column header
-    class DataTableHeader < Components::Base
+    class DataTable::Header < Components::Base
       def initialize(sortable: false, sort_direction: nil, **attrs)
         @sortable = sortable
         @sort_direction = sort_direction # :asc, :desc, or nil
@@ -103,7 +124,7 @@ module Components
     end
 
     # Data Table Pagination - pagination controls
-    class DataTablePagination < Components::Base
+    class DataTable::Pagination < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -116,7 +137,7 @@ module Components
     end
 
     # Data Table Row Actions - action buttons for rows
-    class DataTableRowActions < Components::Base
+    class DataTable::RowActions < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -129,9 +150,9 @@ module Components
     end
 
     # Data Table View Options - column visibility toggle
-    class DataTableViewOptions < Components::Base
+    class DataTable::ViewOptions < Components::Base
       def view_template(&block)
-        render Components::Ui::DropdownMenuTrigger.new(**attrs_without_class) do
+        render Components::Ui::DropdownMenu::Trigger.new(**attrs_without_class) do
           render Components::Ui::Button.new(variant: :outline, size: :sm) do
             # Columns icon
             svg(
@@ -154,5 +175,12 @@ module Components
         end
       end
     end
+
+    DataTableToolbar = DataTable::Toolbar
+    DataTableHeader = DataTable::Header
+    DataTablePagination = DataTable::Pagination
+    DataTableRowActions = DataTable::RowActions
+    DataTableViewOptions = DataTable::ViewOptions
+
   end
 end

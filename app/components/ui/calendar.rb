@@ -49,8 +49,53 @@ module Components
           aria: { label: "Calendar" },
           class: merged_classes,
           **dynamic_attrs,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def header(**attrs, &block)
+        render Header.new(**attrs), &block
+      end
+
+      def heading(**attrs, &block)
+        render Heading.new(**attrs), &block
+      end
+
+      def nav(**attrs, &block)
+        render Nav.new(**attrs), &block
+      end
+
+      def grid(**attrs, &block)
+        render Grid.new(**attrs), &block
+      end
+
+      def head(**attrs, &block)
+        render Head.new(**attrs), &block
+      end
+
+      def head_row(**attrs, &block)
+        render HeadRow.new(**attrs), &block
+      end
+
+      def head_cell(**attrs, &block)
+        render HeadCell.new(**attrs), &block
+      end
+
+      def body(**attrs, &block)
+        render Body.new(**attrs), &block
+      end
+
+      def row(**attrs, &block)
+        render Row.new(**attrs), &block
+      end
+
+      def cell(**attrs, &block)
+        render Cell.new(**attrs), &block
+      end
+
+      def day(**attrs, &block)
+        render Day.new(**attrs), &block
       end
 
       private
@@ -75,7 +120,7 @@ module Components
     end
 
     # Calendar Header - navigation and month/year display
-    class CalendarHeader < Components::Base
+    class Calendar::Header < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -92,7 +137,7 @@ module Components
     end
 
     # Calendar Heading - month and year text
-    class CalendarHeading < Components::Base
+    class Calendar::Heading < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -115,7 +160,7 @@ module Components
     end
 
     # Calendar Nav - navigation button group
-    class CalendarNav < Components::Base
+    class Calendar::Nav < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -132,7 +177,7 @@ module Components
     end
 
     # Calendar Grid - table of dates
-    class CalendarGrid < Components::Base
+    class Calendar::Grid < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -154,7 +199,7 @@ module Components
     end
 
     # Calendar Head - table header with day names
-    class CalendarHead < Components::Base
+    class Calendar::Head < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -171,7 +216,7 @@ module Components
     end
 
     # Calendar HeadRow - row of day names
-    class CalendarHeadRow < Components::Base
+    class Calendar::HeadRow < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -188,7 +233,7 @@ module Components
     end
 
     # Calendar HeadCell - individual day name cell
-    class CalendarHeadCell < Components::Base
+    class Calendar::HeadCell < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -210,7 +255,7 @@ module Components
     end
 
     # Calendar Body - table body with dates
-    class CalendarBody < Components::Base
+    class Calendar::Body < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -227,7 +272,7 @@ module Components
     end
 
     # Calendar Row - week row
-    class CalendarRow < Components::Base
+    class Calendar::Row < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -244,7 +289,7 @@ module Components
     end
 
     # Calendar Cell - individual date cell
-    class CalendarCell < Components::Base
+    class Calendar::Cell < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -272,7 +317,7 @@ module Components
     end
 
     # Calendar Day - clickable day button
-    class CalendarDay < Components::Base
+    class Calendar::Day < Components::Base
       def initialize(selected: false, today: false, outside: false, **attrs)
         @selected = selected
         @today = today
@@ -312,5 +357,18 @@ module Components
         ].compact.join(" ")
       end
     end
+
+    CalendarHeader = Calendar::Header
+    CalendarHeading = Calendar::Heading
+    CalendarNav = Calendar::Nav
+    CalendarGrid = Calendar::Grid
+    CalendarHead = Calendar::Head
+    CalendarHeadRow = Calendar::HeadRow
+    CalendarHeadCell = Calendar::HeadCell
+    CalendarBody = Calendar::Body
+    CalendarRow = Calendar::Row
+    CalendarCell = Calendar::Cell
+    CalendarDay = Calendar::Day
+
   end
 end

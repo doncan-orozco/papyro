@@ -9,7 +9,7 @@ module Admin
     layout "admin"
 
     def new
-      render Views::Admin::Sessions::New.new(login_form)
+      render Views::Admin::Sessions::New.new(form: login_form)
     end
 
     def create
@@ -23,7 +23,7 @@ module Admin
           render_rejection :unauthorized, form: @form
         end
       else
-        render Views::Admin::Sessions::New.new(@form), status: :unprocessable_entity
+        render Views::Admin::Sessions::New.new(form: @form), status: :unprocessable_entity
       end
     end
 
@@ -36,7 +36,7 @@ module Admin
 
     def render_rejection(status, form: login_form)
       flash.now[:alert] = t(".#{status}")
-      render Views::Admin::Sessions::New.new(form), status: status
+      render Views::Admin::Sessions::New.new(form: form), status: status
     end
 
     def login_form

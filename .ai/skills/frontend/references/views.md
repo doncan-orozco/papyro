@@ -1,124 +1,61 @@
-# Phlex Views Example
+# Phlex Views Reference
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#views)**
+For complete rules, use [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#views).
 
-Page-level views rendered by controllers. Views compose components and receive data from controllers. Code examples below.
+## Core Conventions
 
-## Structure
+- Views inherit from `Views::Base`.
+- Use namespace `Views::{Domain}::{Action}`.
+- Use `view_template` and compose pages with components.
+- Keep controllers thin and pass explicit data into the view initializer.
+- Use fully-qualified i18n keys for user-facing text.
 
-```
-app/views/
-  games/
-    index.rb      # List all games
-    show.rb       # Display single game
-  players/
-    index.rb
-    new.rb        # Create form
-    edit.rb       # Edit form
-```
-
-## Namespace
-
-Views use the `Views::` namespace (different from `Components::`):
+## View Example
 
 ```ruby
-# app/views/games/index.rb
 module Views
-  module Games
-    class Index < Views::Base
-      def initialize(games:)
-        @games = games
-      end
+  module Admin
+    module Articles
+      class Index < Views::Base
+        def initialize(articles)
+          @articles = articles
+        end
 
-      def view_template
-        div(class: "container mx-auto py-8") do
-          h1(class: "text-3xl font-bold mb-6") { "Games" }
-          
-          div(class: "grid grid-cols-1 md:grid-cols-3 gap-4") do
-            @games.each do |game|
-              render Components::Game::PlayerCard.new(game: game)
+        def view_template
+          div(class: "bg-background") do
+            div(class: "mx-auto max-w-6xl px-4 py-8") do
+              render Components::Ui::Breadcrumb.new(class: "mb-6") do |breadcrumb|
+                breadcrumb.list do
+                  breadcrumb.item do
+                    breadcrumb.link(href: admin_root_path) { t("admin.articles.breadcrumbs.home") }
+                  end
+                  breadcrumb.separator
+                  breadcrumb.item do
+                    breadcrumb.page { t("admin.articles.breadcrumbs.articles") }
+                  end
+                end
+              end
+
+              render Components::Ui::Card.new do
+                render Components::Ui::CardHeader.new do
+                  render Components::Ui::CardTitle.new { t("admin.articles.index.title") }
+                end
+              end
             end
           end
-          
-          link_to("New Game", new_game_path, class: "btn btn-primary")
         end
       end
     end
   end
 end
 ```
-
-## Key Points
-
-Rules live in the checklist:
-- [Views](../VERIFICATION_CHECKLIST.md#views)
 
 ## Controller Integration
 
 ```ruby
-# app/controllers/games_controller.rb
-class GamesController < ApplicationController
+class Admin::ArticlesController < ApplicationController
   def index
-    games = Game.all
-    render Views::Games::Index.new(games: games)
-  end
-
-  def show
-    game = Game.find(params[:id])
-    render Views::Games::Show.new(game: game)
-  end
-
-  def new
-    form = Games::Contract::Create.new
-    render Views::Games::New.new(form: form)
-  end
-end
-```
-
-## Differences from Components
-
-| Aspect | Views | Components |
-|--------|-------|-----------|
-| **Location** | `app/views/` | `app/components/` |
-| **Namespace** | `Views::` | `Components::` |
-| **Purpose** | Page-level templates | Reusable UI elements |
-| **Rendered By** | Controllers | Views and other components |
-| **Data** | From controller (large datasets) | From parent component (focused params) |
-| **Composition** | Top-level layout, includes components | Smaller UI pieces |
-
-## Example: New Player Form
-
-```ruby
-# app/views/players/new.rb
-module Views
-  module Players
-    class New < Views::Base
-      def initialize(form:)
-        @form = form
-      end
-
-      def view_template
-        div(class: "max-w-2xl mx-auto") do
-          h1(class: "text-2xl font-bold mb-4") { "Create Player" }
-          
-          form_with(model: Player.new, local: true) do |f|
-            render Components::Ui::FormErrors.new(form: @form) if @form.errors.any?
-            
-            div(class: "mb-4") do
-              f.label :name
-              f.text_field :name, class: "input"
-            end
-            
-            div(class: "mb-4") do
-              f.label :class_name
-              f.select :class_name, ["Warrior", "Mage", "Rogue"], {}, class: "select"
-            end
-            
-            f.submit "Create", class: "btn btn-primary"
-          end
-        end
-      end
-    end
+    render Views::Admin::Articles::Index.new(Current.user.articles)
   end
 end
 ```

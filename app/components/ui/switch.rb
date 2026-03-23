@@ -15,6 +15,19 @@ module Components
 
       def view_template(&block)
         dynamic_attrs = attrs_without_class.dup
+        dynamic_attrs = with_required_data(
+          dynamic_attrs,
+          controller: "ui--switch",
+          action: "click->ui--switch#toggle keydown->ui--switch#keydown"
+        )
+
+        if !@checked.nil?
+          data_hash = dynamic_attrs[:data] || {}
+          unless data_hash.key?(:ui__switch_checked_value) || data_hash.key?("ui__switch_checked_value")
+            data_hash[:ui__switch_checked_value] = @checked
+          end
+          dynamic_attrs[:data] = data_hash
+        end
 
         # Determine checked state from explicit prop or data-state
         checked =
@@ -47,8 +60,13 @@ module Components
           role: :switch,
           class: merged_classes,
           **dynamic_attrs,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def thumb(**attrs, &block)
+        render Thumb.new(**with_required_data(attrs, data: { ui__switch_target: "thumb" })), &block
       end
 
       private
@@ -70,10 +88,30 @@ module Components
           "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"
         ].join(" ")
       end
+
+      def with_required_data(attrs, controller: nil, action: nil, data: nil)
+        merged_attrs = attrs.dup
+        existing_data = (merged_attrs[:data] || {}).dup
+        required_data = (data || {}).dup
+        required_data[:controller] = controller if controller
+        required_data[:action] = action if action
+
+        if required_data.key?(:action) && (existing_data.key?(:action) || existing_data.key?("action"))
+          existing_action = existing_data[:action] || existing_data["action"]
+          required_data[:action] = merge_action_tokens(existing_action, required_data[:action])
+        end
+
+        merged_attrs[:data] = existing_data.merge(required_data)
+        merged_attrs
+      end
+
+      def merge_action_tokens(existing_actions, required_actions)
+        (existing_actions.to_s.split + required_actions.to_s.split).uniq.join(" ")
+      end
     end
 
     # Switch thumb (the moving circle)
-    class SwitchThumb < Components::Base
+    class Switch::Thumb < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -97,5 +135,8 @@ module Components
         ].join(" ")
       end
     end
+
+    SwitchThumb = Switch::Thumb
+
   end
 end

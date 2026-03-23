@@ -8,11 +8,57 @@ module Components
   module Ui
     # Context Menu root class (required for Zeitwerk autoloading)
     class ContextMenu < Components::Base
-      # This class can be used as a namespace or entrypoint for the context menu component system.
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
+      def view_template(&block)
+        div(class: merged_classes, **attrs_without_class) do
+          yield self if block
+        end
+      end
+
+      def trigger(**attrs, &block)
+        render Trigger.new(**attrs), &block
+      end
+
+      def content(**attrs, &block)
+        render Content.new(**attrs), &block
+      end
+
+      def item(**attrs, &block)
+        render Item.new(**attrs), &block
+      end
+
+      def checkbox_item(**attrs, &block)
+        render CheckboxItem.new(**attrs), &block
+      end
+
+      def radio_item(**attrs, &block)
+        render RadioItem.new(**attrs), &block
+      end
+
+      def label(**attrs, &block)
+        render Label.new(**attrs), &block
+      end
+
+      def separator(**attrs, &block)
+        render Separator.new(**attrs), &block
+      end
+
+      def shortcut(**attrs, &block)
+        render Shortcut.new(**attrs), &block
+      end
+
+      private
+
+      def classes
+        ""
+      end
     end
 
     # Context Menu Trigger - element that triggers the context menu on right-click
-    class ContextMenuTrigger < Components::Base
+    class ContextMenu::Trigger < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -25,7 +71,7 @@ module Components
     end
 
     # Context Menu Content - the popup menu
-    class ContextMenuContent < Components::Base
+    class ContextMenu::Content < Components::Base
       def view_template(&block)
         div(
           role: :menu,
@@ -50,7 +96,7 @@ module Components
     end
 
     # Context Menu Item - individual menu item
-    class ContextMenuItem < Components::Base
+    class ContextMenu::Item < Components::Base
       def view_template(&block)
         div(
           role: :menuitem,
@@ -73,7 +119,7 @@ module Components
     end
 
     # Context Menu Checkbox Item - checkbox menu item
-    class ContextMenuCheckboxItem < Components::Base
+    class ContextMenu::CheckboxItem < Components::Base
       def view_template(&block)
         div(
           role: :menuitemcheckbox,
@@ -96,7 +142,7 @@ module Components
     end
 
     # Context Menu Radio Item - radio menu item
-    class ContextMenuRadioItem < Components::Base
+    class ContextMenu::RadioItem < Components::Base
       def view_template(&block)
         div(
           role: :menuitemradio,
@@ -119,7 +165,7 @@ module Components
     end
 
     # Context Menu Label - non-interactive label
-    class ContextMenuLabel < Components::Base
+    class ContextMenu::Label < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -132,7 +178,7 @@ module Components
     end
 
     # Context Menu Separator - visual divider
-    class ContextMenuSeparator < Components::Base
+    class ContextMenu::Separator < Components::Base
       def view_template
         div(class: merged_classes, **attrs_without_class)
       end
@@ -145,7 +191,7 @@ module Components
     end
 
     # Context Menu Shortcut - keyboard shortcut display
-    class ContextMenuShortcut < Components::Base
+    class ContextMenu::Shortcut < Components::Base
       def view_template(&block)
         span(class: merged_classes, **attrs_without_class, &block)
       end
@@ -156,5 +202,15 @@ module Components
         "ml-auto text-xs tracking-widest opacity-60"
       end
     end
+
+    ContextMenuTrigger = ContextMenu::Trigger
+    ContextMenuContent = ContextMenu::Content
+    ContextMenuItem = ContextMenu::Item
+    ContextMenuCheckboxItem = ContextMenu::CheckboxItem
+    ContextMenuRadioItem = ContextMenu::RadioItem
+    ContextMenuLabel = ContextMenu::Label
+    ContextMenuSeparator = ContextMenu::Separator
+    ContextMenuShortcut = ContextMenu::Shortcut
+
   end
 end

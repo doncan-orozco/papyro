@@ -199,7 +199,7 @@ class ArticlesController < ApplicationController
     
 
     if result.success?
-      redirect_to article_path(result[:model]), notice: t(".success")
+      redirect_to article_path(result[:model]), notice: t("articles.operations.publish.success")
     else
       flash.now[:alert] = format_errors(result[:errors])
       render :show, status: :unprocessable_entity
@@ -233,7 +233,7 @@ def create
   result = Articles::Operation::Create.call(params: article_params)
 
   if result.success?
-    redirect_to article_path(result[:model]), notice: t(".success")
+    redirect_to article_path(result[:model]), notice: t("articles.operations.create.success")
   else
     @article = result[:model] || Article.new(article_params)
     @errors = result[:errors]
@@ -403,7 +403,7 @@ def create_and_publish
   result = publish_and_notify
   
   if result.success?
-    redirect_to articles_path, notice: t(".success")
+    redirect_to articles_path, notice: t("articles.operations.create_and_publish.success")
   else
     flash.now[:alert] = format_errors(result[:errors])
     render :new, status: :unprocessable_entity

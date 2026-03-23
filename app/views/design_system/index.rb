@@ -22,7 +22,6 @@ module Views
                   end
 
                   div(class: "flex items-center gap-3") do
-                    # use the shared Button component so style matches React catalog
                     render Components::Ui::Button.new(
                       variant: :outline,
                       size: :sm,
@@ -107,13 +106,13 @@ module Views
       end
 
       def component_card(title:, description:, &block)
-        render Components::Ui::Card.new(class: "mb-6") do
-          render Components::Ui::CardHeader.new do
-            render Components::Ui::CardTitle.new { title }
-            render Components::Ui::CardDescription.new { description }
+        render Components::Ui::Card.new(class: "mb-6") do |card|
+          card.header do
+            card.title { title }
+            card.description { description }
           end
 
-          render Components::Ui::CardContent.new(class: "space-y-4", &block)
+          card.content(class: "space-y-4", &block)
         end
       end
 
@@ -254,13 +253,9 @@ module Views
             ) do
               div(class: "flex items-center space-x-2") do
                 render Components::Ui::Switch.new(
-                  id: "notifications",
-                  data: {
-                    controller: "ui--switch",
-                    action: "click->ui--switch#toggle keydown->ui--switch#keydown"
-                  }
-                ) do
-                  render Components::Ui::SwitchThumb.new(data: { ui__switch_target: "thumb" })
+                  id: "notifications"
+                ) do |switch|
+                  switch.thumb
                 end
                 render Components::Ui::Label.new(for: "notifications") { t("design_system.catalog.forms.switch.label") }
               end
@@ -268,14 +263,9 @@ module Views
               div(class: "flex items-center space-x-2") do
                 render Components::Ui::Switch.new(
                   checked: true,
-                  id: "notifications-checked",
-                  data: {
-                    controller: "ui--switch",
-                    ui__switch_checked_value: true,
-                    action: "click->ui--switch#toggle keydown->ui--switch#keydown"
-                  }
-                ) do
-                  render Components::Ui::SwitchThumb.new(data: { ui__switch_target: "thumb" })
+                  id: "notifications-checked"
+                ) do |switch|
+                  switch.thumb
                 end
                 render Components::Ui::Label.new(for: "notifications-checked") { t("design_system.catalog.forms.switch.checked") }
               end
@@ -292,53 +282,28 @@ module Views
               title: t("design_system.catalog.forms.select.title"),
               description: t("design_system.catalog.forms.select.description")
             ) do
-              div(
-                data: {
-                  controller: "ui--select",
-                  ui__select_placeholder_value: t("design_system.catalog.forms.select.placeholder")
-                }
-              ) do
-                render Components::Ui::SelectTrigger.new(
-                  data: {
-                    ui__select_target: "trigger",
-                    action: "click->ui--select#toggle keydown->ui--select#navigate"
-                  }
-                ) do
-                  span(data: { ui__select_target: "valueDisplay" })
+              render Components::Ui::Select.new(
+                placeholder: t("design_system.catalog.forms.select.placeholder")
+              ) do |select|
+                select.trigger do
+                  select.value
                   render Components::Ui::Icon.new(:"chevron-down", source: :lucide, class: "h-4 w-4 opacity-50")
                 end
 
-                render Components::Ui::SelectContent.new(
-                  hidden: true,
-                  data: {
-                    ui__select_target: "content"
-                  }
-                ) do
-                  render Components::Ui::SelectItem.new(
+                select.content(hidden: true) do
+                  select.item(
                     value: "apple",
-                    tabindex: "0",
-                    data: {
-                      ui__select_target: "item",
-                      action: "click->ui--select#selectItem"
-                    }
+                    tabindex: "0"
                   ) { t("design_system.catalog.forms.select.option_one") }
 
-                  render Components::Ui::SelectItem.new(
+                  select.item(
                     value: "banana",
-                    tabindex: "0",
-                    data: {
-                      ui__select_target: "item",
-                      action: "click->ui--select#selectItem"
-                    }
+                    tabindex: "0"
                   ) { t("design_system.catalog.forms.select.option_two") }
 
-                  render Components::Ui::SelectItem.new(
+                  select.item(
                     value: "orange",
-                    tabindex: "0",
-                    data: {
-                      ui__select_target: "item",
-                      action: "click->ui--select#selectItem"
-                    }
+                    tabindex: "0"
                   ) { t("design_system.catalog.forms.select.option_three") }
                 end
               end
@@ -356,14 +321,14 @@ module Views
               title: t("design_system.catalog.feedback.alert.title"),
               description: t("design_system.catalog.feedback.alert.description")
             ) do
-              render Components::Ui::Alert.new do
-                render Components::Ui::AlertTitle.new { t("design_system.catalog.feedback.alert.info_title") }
-                render Components::Ui::AlertDescription.new { t("design_system.catalog.feedback.alert.info_body") }
+              render Components::Ui::Alert.new do |alert|
+                alert.title { t("design_system.catalog.feedback.alert.info_title") }
+                alert.description { t("design_system.catalog.feedback.alert.info_body") }
               end
 
-              render Components::Ui::Alert.new(variant: :destructive) do
-                render Components::Ui::AlertTitle.new { t("design_system.catalog.feedback.alert.error_title") }
-                render Components::Ui::AlertDescription.new { t("design_system.catalog.feedback.alert.error_body") }
+              render Components::Ui::Alert.new(variant: :destructive) do |alert|
+                alert.title { t("design_system.catalog.feedback.alert.error_title") }
+                alert.description { t("design_system.catalog.feedback.alert.error_body") }
               end
             end
 
@@ -371,34 +336,23 @@ module Views
               title: t("design_system.catalog.feedback.tabs.title"),
               description: t("design_system.catalog.feedback.tabs.description")
             ) do
-              div(data: { controller: "ui--tabs", ui__tabs_active_index_value: 0 }) do
-                # tabs list
-                div(role: :tablist, class: "inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground") do
+              render Components::Ui::Tabs.new(data: { ui__tabs_active_index_value: 0 }) do |tabs|
+                tabs.list do
                   [
                     t("design_system.catalog.feedback.tabs.tab_one"),
                     t("design_system.catalog.feedback.tabs.tab_two"),
                     t("design_system.catalog.feedback.tabs.tab_three")
                   ].each do |label|
-                    button(
-                      type: :button,
-                      role: :tab,
-                      class: "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow",
-                      data: { ui__tabs_target: "trigger", action: "click->ui--tabs#select keydown->ui--tabs#keydown" }
-                    ) { label }
+                    tabs.trigger { label }
                   end
                 end
 
-                # panels
                 [
                   t("design_system.catalog.feedback.tabs.content_one"),
                   t("design_system.catalog.feedback.tabs.content_two"),
                   t("design_system.catalog.feedback.tabs.content_three")
                 ].each do |content|
-                  div(
-                    data: { ui__tabs_target: "content" },
-                    role: :tabpanel,
-                    class: "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  ) { content }
+                  tabs.content { content }
                 end
               end
             end
@@ -411,10 +365,70 @@ module Views
           div(class: "space-y-8") do
             h2(class: "text-2xl font-bold") { t("design_system.catalog.overlays.title") }
 
+            popover_card
+            hover_card_card
             dialog_card
             alert_dialog_card
             sheet_card
             tooltip_card
+          end
+        end
+      end
+
+      def popover_card
+        component_card(
+          title: t("design_system.popover.title"),
+          description: t("design_system.popover.description")
+        ) do
+          render Components::Ui::Popover.new do |popover|
+            popover.trigger do
+              render Components::Ui::Button.new(variant: :outline) do
+                t("design_system.popover.trigger")
+              end
+            end
+
+            popover.content(hidden: true, class: "w-80") do
+              div(class: "space-y-4") do
+                div(class: "space-y-1") do
+                  h4(class: "font-medium leading-none") { t("design_system.popover.heading") }
+                end
+
+                div(class: "grid gap-2") do
+                  div(class: "grid grid-cols-[1fr_auto] items-center gap-4") do
+                    span(class: "text-sm text-muted-foreground") { t("design_system.popover.width_label") }
+                    span(class: "text-sm font-medium") { t("design_system.popover.width_value") }
+                  end
+
+                  div(class: "grid grid-cols-[1fr_auto] items-center gap-4") do
+                    span(class: "text-sm text-muted-foreground") { t("design_system.popover.height_label") }
+                    span(class: "text-sm font-medium") { t("design_system.popover.height_value") }
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      def hover_card_card
+        component_card(
+          title: t("design_system.hover_card.title"),
+          description: t("design_system.hover_card.description")
+        ) do
+          render Components::Ui::HoverCard.new(delay: 150) do |hover_card|
+            hover_card.trigger do
+              render Components::Ui::Button.new(variant: :outline) do
+                t("design_system.hover_card.trigger")
+              end
+            end
+
+            hover_card.content(hidden: true, class: "w-80") do
+              div(class: "space-y-2") do
+                p(class: "text-sm font-semibold") { t("design_system.hover_card.username") }
+                p(class: "text-sm text-muted-foreground") { t("design_system.hover_card.bio") }
+                p(class: "text-xs text-muted-foreground") { t("design_system.hover_card.joined") }
+              end
+            end
           end
         end
       end
@@ -424,27 +438,18 @@ module Views
           title: t("design_system.catalog.overlays.dialog.title"),
           description: t("design_system.catalog.overlays.dialog.description")
         ) do
-          div(data: { controller: "ui--dialog", ui__dialog_open_value: false }) do
-            render Components::Ui::Button.new(
-              variant: :outline,
-              data: { action: "click->ui--dialog#open" }
-            ) { t("design_system.catalog.overlays.dialog.trigger") }
+          render Components::Ui::Dialog.new do |dialog|
+            dialog.trigger do
+              render Components::Ui::Button.new(variant: :outline) { t("design_system.catalog.overlays.dialog.trigger") }
+            end
 
-            render Components::Ui::DialogOverlay.new(
-              hidden: true,
-              data: { ui__dialog_target: "overlay" }
-            )
-
-            render Components::Ui::DialogContent.new(
-              hidden: true,
-              data: { ui__dialog_target: "content" }
-            ) do
-              render Components::Ui::DialogHeader.new do
-                render Components::Ui::DialogTitle.new { t("design_system.catalog.overlays.dialog.content_title") }
-                render Components::Ui::DialogDescription.new { t("design_system.catalog.overlays.dialog.content_body") }
+            dialog.content(hidden: true) do
+              dialog.header do
+                dialog.title { t("design_system.catalog.overlays.dialog.content_title") }
+                dialog.description { t("design_system.catalog.overlays.dialog.content_body") }
               end
 
-              render Components::Ui::DialogFooter.new(class: "mt-4") do
+              dialog.footer(class: "mt-4") do
                 render Components::Ui::Button.new(
                   variant: :outline,
                   data: { action: "click->ui--dialog#close" }
@@ -463,33 +468,26 @@ module Views
           title: t("design_system.catalog.overlays.alert_dialog.title"),
           description: t("design_system.catalog.overlays.alert_dialog.description")
         ) do
-          div(data: { controller: "ui--dialog", ui__dialog_open_value: false }) do
-            render Components::Ui::Button.new(
-              variant: :destructive,
-              data: { action: "click->ui--dialog#open" }
-            ) { t("design_system.catalog.overlays.alert_dialog.trigger") }
+          render Components::Ui::AlertDialog.new do |dialog|
+            dialog.trigger do
+              render Components::Ui::Button.new(variant: :destructive) do
+                t("design_system.catalog.overlays.alert_dialog.trigger")
+              end
+            end
 
-            render Components::Ui::AlertDialogOverlay.new(
-              hidden: true,
-              data: { ui__dialog_target: "overlay" }
-            )
-
-            render Components::Ui::AlertDialogContent.new(
-              hidden: true,
-              data: { ui__dialog_target: "content" }
-            ) do
-              render Components::Ui::AlertDialogHeader.new do
-                render Components::Ui::AlertDialogTitle.new { t("design_system.catalog.overlays.alert_dialog.content_title") }
-                render Components::Ui::AlertDialogDescription.new do
+            dialog.content(hidden: true) do
+              dialog.header do
+                dialog.title { t("design_system.catalog.overlays.alert_dialog.content_title") }
+                dialog.description do
                   t("design_system.catalog.overlays.alert_dialog.content_body")
                 end
               end
 
-              render Components::Ui::AlertDialogFooter.new(class: "mt-4") do
-                render Components::Ui::AlertDialogCancel.new(data: { action: "click->ui--dialog#close" }) do
+              dialog.footer(class: "mt-4") do
+                dialog.cancel do
                   t("design_system.catalog.overlays.alert_dialog.cancel")
                 end
-                render Components::Ui::AlertDialogAction.new(data: { action: "click->ui--dialog#close" }) do
+                dialog.action do
                   t("design_system.catalog.overlays.alert_dialog.continue")
                 end
               end
@@ -503,31 +501,20 @@ module Views
           title: t("design_system.catalog.overlays.sheet.title"),
           description: t("design_system.catalog.overlays.sheet.description")
         ) do
-          div(data: { controller: "ui--dialog", ui__dialog_open_value: false }) do
-            render Components::Ui::Button.new(
-              variant: :outline,
-              data: { action: "click->ui--dialog#open" }
-            ) { t("design_system.catalog.overlays.sheet.trigger") }
+          render Components::Ui::Sheet.new do |sheet|
+            sheet.trigger do
+              render Components::Ui::Button.new(variant: :outline) do
+                t("design_system.catalog.overlays.sheet.trigger")
+              end
+            end
 
-            render Components::Ui::SheetOverlay.new(
-              hidden: true,
-              data: { ui__dialog_target: "overlay" }
-            )
-
-            render Components::Ui::SheetContent.new(
-              hidden: true,
-              side: :right,
-              data: {
-                ui__dialog_target: "content",
-                dialog_transition: "slide"
-              }
-            ) do
-              render Components::Ui::SheetHeader.new do
-                render Components::Ui::SheetTitle.new { t("design_system.catalog.overlays.sheet.content_title") }
-                render Components::Ui::SheetDescription.new { t("design_system.catalog.overlays.sheet.content_body") }
+            sheet.content(hidden: true, side: :right) do
+              sheet.header do
+                sheet.title { t("design_system.catalog.overlays.sheet.content_title") }
+                sheet.description { t("design_system.catalog.overlays.sheet.content_body") }
               end
 
-              render Components::Ui::SheetFooter.new(class: "mt-4") do
+              sheet.footer(class: "mt-4") do
                 render Components::Ui::Button.new(
                   variant: :outline,
                   data: { action: "click->ui--dialog#close" }
@@ -546,27 +533,15 @@ module Views
           title: t("design_system.catalog.overlays.tooltip.title"),
           description: t("design_system.catalog.overlays.tooltip.description")
         ) do
-          div(
-            class: "inline-block",
-            data: {
-              controller: "ui--tooltip",
-              ui__tooltip_delay_value: 200
-            }
-          ) do
-            render Components::Ui::TooltipTrigger.new(
-              data: {
-                ui__tooltip_target: "trigger",
-                action: "mouseenter->ui--tooltip#show mouseleave->ui--tooltip#hide focus->ui--tooltip#show blur->ui--tooltip#hide"
-              }
-            ) do
-              render Components::Ui::Button.new(variant: :outline) { t("design_system.catalog.overlays.tooltip.trigger") }
-            end
+          render Components::Ui::TooltipProvider.new do |provider|
+            provider.tooltip(delay: 200, class: "inline-block") do |tooltip|
+              tooltip.trigger do
+                render Components::Ui::Button.new(variant: :outline) { t("design_system.catalog.overlays.tooltip.trigger") }
+              end
 
-            render Components::Ui::TooltipContent.new(
-              hidden: true,
-              data: { ui__tooltip_target: "content" }
-            ) do
-              t("design_system.catalog.overlays.tooltip.content")
+              tooltip.content(hidden: true) do
+                t("design_system.catalog.overlays.tooltip.content")
+              end
             end
           end
         end
@@ -582,41 +557,39 @@ module Views
               title: t("design_system.catalog.tables.basic.title"),
               description: t("design_system.catalog.tables.basic.description")
             ) do
-              render Components::Ui::TableContainer.new do
-                render Components::Ui::Table.new do
-                  render Components::Ui::TableHeader.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_invoice") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_status") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_method") }
-                      render Components::Ui::TableHead.new(class: "text-right") { t("design_system.catalog.tables.basic.head_amount") }
+              render Components::Ui::Table.new do |table|
+                  table.header do
+                    table.row do
+                      table.head { t("design_system.catalog.tables.basic.head_invoice") }
+                      table.head { t("design_system.catalog.tables.basic.head_status") }
+                      table.head { t("design_system.catalog.tables.basic.head_method") }
+                      table.head(class: "text-right") { t("design_system.catalog.tables.basic.head_amount") }
                     end
                   end
 
-                  render Components::Ui::TableBody.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_001") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_paid") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_credit") }
-                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_250") }
+                  table.body do
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.basic.inv_001") }
+                      table.cell { t("design_system.catalog.tables.basic.status_paid") }
+                      table.cell { t("design_system.catalog.tables.basic.method_credit") }
+                      table.cell(class: "text-right") { t("design_system.catalog.tables.basic.amount_250") }
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_002") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_pending") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_paypal") }
-                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_150") }
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.basic.inv_002") }
+                      table.cell { t("design_system.catalog.tables.basic.status_pending") }
+                      table.cell { t("design_system.catalog.tables.basic.method_paypal") }
+                      table.cell(class: "text-right") { t("design_system.catalog.tables.basic.amount_150") }
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_003") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_unpaid") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_bank") }
-                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_350") }
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.basic.inv_003") }
+                      table.cell { t("design_system.catalog.tables.basic.status_unpaid") }
+                      table.cell { t("design_system.catalog.tables.basic.method_bank") }
+                      table.cell(class: "text-right") { t("design_system.catalog.tables.basic.amount_350") }
                     end
                   end
                 end
-              end
             end
 
             # With Footer
@@ -624,48 +597,46 @@ module Views
               title: t("design_system.catalog.tables.with_footer.title"),
               description: t("design_system.catalog.tables.with_footer.description")
             ) do
-              render Components::Ui::TableContainer.new do
-                render Components::Ui::Table.new do
-                  render Components::Ui::TableHeader.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_invoice") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_status") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.basic.head_method") }
-                      render Components::Ui::TableHead.new(class: "text-right") { t("design_system.catalog.tables.basic.head_amount") }
+              render Components::Ui::Table.new do |table|
+                  table.header do
+                    table.row do
+                      table.head { t("design_system.catalog.tables.basic.head_invoice") }
+                      table.head { t("design_system.catalog.tables.basic.head_status") }
+                      table.head { t("design_system.catalog.tables.basic.head_method") }
+                      table.head(class: "text-right") { t("design_system.catalog.tables.basic.head_amount") }
                     end
                   end
 
-                  render Components::Ui::TableBody.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_001") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_paid") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_credit") }
-                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_250") }
+                  table.body do
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.basic.inv_001") }
+                      table.cell { t("design_system.catalog.tables.basic.status_paid") }
+                      table.cell { t("design_system.catalog.tables.basic.method_credit") }
+                      table.cell(class: "text-right") { t("design_system.catalog.tables.basic.amount_250") }
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_002") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_pending") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_paypal") }
-                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_150") }
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.basic.inv_002") }
+                      table.cell { t("design_system.catalog.tables.basic.status_pending") }
+                      table.cell { t("design_system.catalog.tables.basic.method_paypal") }
+                      table.cell(class: "text-right") { t("design_system.catalog.tables.basic.amount_150") }
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.basic.inv_003") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.status_unpaid") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.basic.method_bank") }
-                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.basic.amount_350") }
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.basic.inv_003") }
+                      table.cell { t("design_system.catalog.tables.basic.status_unpaid") }
+                      table.cell { t("design_system.catalog.tables.basic.method_bank") }
+                      table.cell(class: "text-right") { t("design_system.catalog.tables.basic.amount_350") }
                     end
                   end
 
-                  render Components::Ui::TableFooter.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(colspan: 3) { t("design_system.catalog.tables.with_footer.total_label") }
-                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.with_footer.total_amount") }
+                  table.footer do
+                    table.row do
+                      table.cell(colspan: 3) { t("design_system.catalog.tables.with_footer.total_label") }
+                      table.cell(class: "text-right") { t("design_system.catalog.tables.with_footer.total_amount") }
                     end
                   end
                 end
-              end
             end
 
             # Simple
@@ -673,37 +644,35 @@ module Views
               title: t("design_system.catalog.tables.simple.title"),
               description: t("design_system.catalog.tables.simple.description")
             ) do
-              render Components::Ui::TableContainer.new do
-                render Components::Ui::Table.new do
-                  render Components::Ui::TableHeader.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.simple.head_name") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.simple.head_email") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.simple.head_role") }
+              render Components::Ui::Table.new do |table|
+                  table.header do
+                    table.row do
+                      table.head { t("design_system.catalog.tables.simple.head_name") }
+                      table.head { t("design_system.catalog.tables.simple.head_email") }
+                      table.head { t("design_system.catalog.tables.simple.head_role") }
                     end
                   end
 
-                  render Components::Ui::TableBody.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.simple.user_1_name") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_1_email") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_1_role") }
+                  table.body do
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.simple.user_1_name") }
+                      table.cell { t("design_system.catalog.tables.simple.user_1_email") }
+                      table.cell { t("design_system.catalog.tables.simple.user_1_role") }
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.simple.user_2_name") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_2_email") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_2_role") }
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.simple.user_2_name") }
+                      table.cell { t("design_system.catalog.tables.simple.user_2_email") }
+                      table.cell { t("design_system.catalog.tables.simple.user_2_role") }
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.simple.user_3_name") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_3_email") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.simple.user_3_role") }
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.simple.user_3_name") }
+                      table.cell { t("design_system.catalog.tables.simple.user_3_email") }
+                      table.cell { t("design_system.catalog.tables.simple.user_3_role") }
                     end
                   end
                 end
-              end
             end
 
             # With Badges
@@ -711,49 +680,47 @@ module Views
               title: t("design_system.catalog.tables.with_badges.title"),
               description: t("design_system.catalog.tables.with_badges.description")
             ) do
-              render Components::Ui::TableContainer.new do
-                render Components::Ui::Table.new do
-                  render Components::Ui::TableHeader.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_badges.head_task") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_badges.head_status") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_badges.head_priority") }
+              render Components::Ui::Table.new do |table|
+                  table.header do
+                    table.row do
+                      table.head { t("design_system.catalog.tables.with_badges.head_task") }
+                      table.head { t("design_system.catalog.tables.with_badges.head_status") }
+                      table.head { t("design_system.catalog.tables.with_badges.head_priority") }
                     end
                   end
 
-                  render Components::Ui::TableBody.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_badges.task_1") }
-                      render Components::Ui::TableCell.new do
+                  table.body do
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.with_badges.task_1") }
+                      table.cell do
                         render Components::Ui::Badge.new { t("design_system.catalog.tables.with_badges.status_completed") }
                       end
-                      render Components::Ui::TableCell.new do
+                      table.cell do
                         render Components::Ui::Badge.new(variant: :destructive) { t("design_system.catalog.tables.with_badges.priority_high") }
                       end
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_badges.task_2") }
-                      render Components::Ui::TableCell.new do
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.with_badges.task_2") }
+                      table.cell do
                         render Components::Ui::Badge.new(variant: :secondary) { t("design_system.catalog.tables.with_badges.status_progress") }
                       end
-                      render Components::Ui::TableCell.new do
+                      table.cell do
                         render Components::Ui::Badge.new(variant: :outline) { t("design_system.catalog.tables.with_badges.priority_medium") }
                       end
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_badges.task_3") }
-                      render Components::Ui::TableCell.new do
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.with_badges.task_3") }
+                      table.cell do
                         render Components::Ui::Badge.new(variant: :outline) { t("design_system.catalog.tables.with_badges.status_pending") }
                       end
-                      render Components::Ui::TableCell.new do
+                      table.cell do
                         render Components::Ui::Badge.new(variant: :secondary) { t("design_system.catalog.tables.with_badges.priority_low") }
                       end
                     end
                   end
                 end
-              end
             end
 
             # With Actions
@@ -761,60 +728,44 @@ module Views
               title: t("design_system.catalog.tables.with_actions.title"),
               description: t("design_system.catalog.tables.with_actions.description")
             ) do
-              render Components::Ui::TableContainer.new do
-                render Components::Ui::Table.new do
-                  render Components::Ui::TableHeader.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_actions.head_product") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_actions.head_price") }
-                      render Components::Ui::TableHead.new(class: "text-right") { t("design_system.catalog.tables.with_actions.head_actions") }
+              render Components::Ui::Table.new do |table|
+                  table.header do
+                    table.row do
+                      table.head { t("design_system.catalog.tables.with_actions.head_product") }
+                      table.head { t("design_system.catalog.tables.with_actions.head_price") }
+                      table.head(class: "text-right") { t("design_system.catalog.tables.with_actions.head_actions") }
                     end
                   end
 
-                  render Components::Ui::TableBody.new do
+                  table.body do
                     3.times do |i|
-                      render Components::Ui::TableRow.new do
-                        render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_actions.product_#{i + 1}") }
-                        render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_actions.price_#{i + 1}") }
-                        render Components::Ui::TableCell.new(class: "text-right") do
-                          div(data: { controller: "ui--dropdown", ui__dropdown_placement_value: "bottom-end" }) do
-                            render Components::Ui::Button.new(
+                      table.row do
+                        table.cell(class: "font-medium") { t("design_system.catalog.tables.with_actions.product_#{i + 1}") }
+                        table.cell { t("design_system.catalog.tables.with_actions.price_#{i + 1}") }
+                        table.cell(class: "text-right") do
+                          render Components::Ui::DropdownMenu.new(
+                            data: { ui__dropdown_placement_value: "bottom-end" }
+                          ) do |dropdown|
+                            dropdown.trigger(
                               variant: :ghost,
                               size: :icon,
-                              class: "size-8",
-                              data: { action: "click->ui--dropdown#toggle", ui__dropdown_target: "trigger" }
+                              class: "size-8"
                             ) do
                               render Components::Ui::Icon.new(:"more-horizontal", class: "h-4 w-4")
                               span(class: "sr-only") { t("design_system.catalog.tables.with_actions.menu_trigger") }
                             end
 
-                            render Components::Ui::DropdownMenuContent.new(
+                            dropdown.content(
                               hidden: true,
-                              align: :end,
-                              data: {
-                                ui__dropdown_target: "content",
-                                action: "keydown->ui--dropdown#navigate"
-                              }
+                              align: :end
                             ) do
-                              render Components::Ui::DropdownMenuItem.new(
-                                data: {
-                                  ui__dropdown_target: "item",
-                                  action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown"
-                                }
+                              dropdown.item(
                               ) { t("design_system.catalog.tables.with_actions.menu_edit") }
-                              render Components::Ui::DropdownMenuItem.new(
-                                data: {
-                                  ui__dropdown_target: "item",
-                                  action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown"
-                                }
+                              dropdown.item(
                               ) { t("design_system.catalog.tables.with_actions.menu_duplicate") }
-                              render Components::Ui::DropdownMenuSeparator.new
-                              render Components::Ui::DropdownMenuItem.new(
-                                variant: :destructive,
-                                data: {
-                                  ui__dropdown_target: "item",
-                                  action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown"
-                                }
+                              dropdown.separator
+                              dropdown.item(
+                                variant: :destructive
                               ) { t("design_system.catalog.tables.with_actions.menu_delete") }
                             end
                           end
@@ -823,7 +774,6 @@ module Views
                     end
                   end
                 end
-              end
             end
 
             # With Select
@@ -831,182 +781,112 @@ module Views
               title: t("design_system.catalog.tables.with_select.title"),
               description: t("design_system.catalog.tables.with_select.description")
             ) do
-              render Components::Ui::TableContainer.new do
-                render Components::Ui::Table.new do
-                  render Components::Ui::TableHeader.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_select.head_task") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_select.head_assigned") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_select.head_status") }
+              render Components::Ui::Table.new do |table|
+                  table.header do
+                    table.row do
+                      table.head { t("design_system.catalog.tables.with_select.head_task") }
+                      table.head { t("design_system.catalog.tables.with_select.head_assigned") }
+                      table.head { t("design_system.catalog.tables.with_select.head_status") }
                     end
                   end
 
-                  render Components::Ui::TableBody.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_select.task_1") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_select.user_1") }
-                      render Components::Ui::TableCell.new do
-                        div(
-                          data: {
-                            controller: "ui--select",
-                            ui__select_value_value: "progress",
-                            ui__select_placeholder_value: t("design_system.catalog.tables.with_select.status_placeholder")
-                          },
+                  table.body do
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.with_select.task_1") }
+                      table.cell { t("design_system.catalog.tables.with_select.user_1") }
+                      table.cell do
+                        render Components::Ui::Select.new(
+                          default_value: "progress",
+                          placeholder: t("design_system.catalog.tables.with_select.status_placeholder"),
                           class: "w-[140px]"
-                        ) do
-                          render Components::Ui::SelectTrigger.new(
-                            data: {
-                              ui__select_target: "trigger",
-                              action: "click->ui--select#toggle keydown->ui--select#navigate"
-                            }
-                          ) do
-                            span(data: { ui__select_target: "valueDisplay" })
+                        ) do |select|
+                          select.trigger do
+                            select.value
                             render Components::Ui::Icon.new(:"chevron-down", source: :lucide, class: "h-4 w-4 opacity-50")
                           end
 
-                          render Components::Ui::SelectContent.new(
-                            hidden: true,
-                            data: { ui__select_target: "content" }
-                          ) do
-                            render Components::Ui::SelectItem.new(
+                          select.content(hidden: true) do
+                            select.item(
                               value: "progress",
-                              tabindex: "0",
-                              data: {
-                                ui__select_target: "item",
-                                action: "click->ui--select#selectItem"
-                              }
+                              tabindex: "0"
                             ) { t("design_system.catalog.tables.with_select.status_progress") }
 
-                            render Components::Ui::SelectItem.new(
+                            select.item(
                               value: "pending",
-                              tabindex: "0",
-                              data: {
-                                ui__select_target: "item",
-                                action: "click->ui--select#selectItem"
-                              }
+                              tabindex: "0"
                             ) { t("design_system.catalog.tables.with_select.status_pending") }
 
-                            render Components::Ui::SelectItem.new(
+                            select.item(
                               value: "not-started",
-                              tabindex: "0",
-                              data: {
-                                ui__select_target: "item",
-                                action: "click->ui--select#selectItem"
-                              }
+                              tabindex: "0"
                             ) { t("design_system.catalog.tables.with_select.status_not_started") }
                           end
                         end
                       end
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_select.task_2") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_select.user_2") }
-                      render Components::Ui::TableCell.new do
-                        div(
-                          data: {
-                            controller: "ui--select",
-                            ui__select_value_value: "pending",
-                            ui__select_placeholder_value: t("design_system.catalog.tables.with_select.status_placeholder")
-                          },
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.with_select.task_2") }
+                      table.cell { t("design_system.catalog.tables.with_select.user_2") }
+                      table.cell do
+                        render Components::Ui::Select.new(
+                          default_value: "pending",
+                          placeholder: t("design_system.catalog.tables.with_select.status_placeholder"),
                           class: "w-[140px]"
-                        ) do
-                          render Components::Ui::SelectTrigger.new(
-                            data: {
-                              ui__select_target: "trigger",
-                              action: "click->ui--select#toggle keydown->ui--select#navigate"
-                            }
-                          ) do
-                            span(data: { ui__select_target: "valueDisplay" })
+                        ) do |select|
+                          select.trigger do
+                            select.value
                             render Components::Ui::Icon.new(:"chevron-down", source: :lucide, class: "h-4 w-4 opacity-50")
                           end
 
-                          render Components::Ui::SelectContent.new(
-                            hidden: true,
-                            data: { ui__select_target: "content" }
-                          ) do
-                            render Components::Ui::SelectItem.new(
+                          select.content(hidden: true) do
+                            select.item(
                               value: "progress",
-                              tabindex: "0",
-                              data: {
-                                ui__select_target: "item",
-                                action: "click->ui--select#selectItem"
-                              }
+                              tabindex: "0"
                             ) { t("design_system.catalog.tables.with_select.status_progress") }
 
-                            render Components::Ui::SelectItem.new(
+                            select.item(
                               value: "pending",
-                              tabindex: "0",
-                              data: {
-                                ui__select_target: "item",
-                                action: "click->ui--select#selectItem"
-                              }
+                              tabindex: "0"
                             ) { t("design_system.catalog.tables.with_select.status_pending") }
 
-                            render Components::Ui::SelectItem.new(
+                            select.item(
                               value: "not-started",
-                              tabindex: "0",
-                              data: {
-                                ui__select_target: "item",
-                                action: "click->ui--select#selectItem"
-                              }
+                              tabindex: "0"
                             ) { t("design_system.catalog.tables.with_select.status_not_started") }
                           end
                         end
                       end
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_select.task_3") }
-                      render Components::Ui::TableCell.new { t("design_system.catalog.tables.with_select.user_3") }
-                      render Components::Ui::TableCell.new do
-                        div(
-                          data: {
-                            controller: "ui--select",
-                            ui__select_value_value: "not-started",
-                            ui__select_placeholder_value: t("design_system.catalog.tables.with_select.status_placeholder")
-                          },
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.with_select.task_3") }
+                      table.cell { t("design_system.catalog.tables.with_select.user_3") }
+                      table.cell do
+                        render Components::Ui::Select.new(
+                          default_value: "not-started",
+                          placeholder: t("design_system.catalog.tables.with_select.status_placeholder"),
                           class: "w-[140px]"
-                        ) do
-                          render Components::Ui::SelectTrigger.new(
-                            data: {
-                              ui__select_target: "trigger",
-                              action: "click->ui--select#toggle keydown->ui--select#navigate"
-                            }
-                          ) do
-                            span(data: { ui__select_target: "valueDisplay" })
+                        ) do |select|
+                          select.trigger do
+                            select.value
                             render Components::Ui::Icon.new(:"chevron-down", source: :lucide, class: "h-4 w-4 opacity-50")
                           end
 
-                          render Components::Ui::SelectContent.new(
-                            hidden: true,
-                            data: { ui__select_target: "content" }
-                          ) do
-                            render Components::Ui::SelectItem.new(
+                          select.content(hidden: true) do
+                            select.item(
                               value: "progress",
-                              tabindex: "0",
-                              data: {
-                                ui__select_target: "item",
-                                action: "click->ui--select#selectItem"
-                              }
+                              tabindex: "0"
                             ) { t("design_system.catalog.tables.with_select.status_progress") }
 
-                            render Components::Ui::SelectItem.new(
+                            select.item(
                               value: "pending",
-                              tabindex: "0",
-                              data: {
-                                ui__select_target: "item",
-                                action: "click->ui--select#selectItem"
-                              }
+                              tabindex: "0"
                             ) { t("design_system.catalog.tables.with_select.status_pending") }
 
-                            render Components::Ui::SelectItem.new(
+                            select.item(
                               value: "not-started",
-                              tabindex: "0",
-                              data: {
-                                ui__select_target: "item",
-                                action: "click->ui--select#selectItem"
-                              }
+                              tabindex: "0"
                             ) { t("design_system.catalog.tables.with_select.status_not_started") }
                           end
                         end
@@ -1014,7 +894,6 @@ module Views
                     end
                   end
                 end
-              end
             end
 
             # With Input
@@ -1022,43 +901,41 @@ module Views
               title: t("design_system.catalog.tables.with_input.title"),
               description: t("design_system.catalog.tables.with_input.description")
             ) do
-              render Components::Ui::TableContainer.new do
-                render Components::Ui::Table.new do
-                  render Components::Ui::TableHeader.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_input.head_product") }
-                      render Components::Ui::TableHead.new { t("design_system.catalog.tables.with_input.head_quantity") }
-                      render Components::Ui::TableHead.new(class: "text-right") { t("design_system.catalog.tables.with_input.head_total") }
+              render Components::Ui::Table.new do |table|
+                  table.header do
+                    table.row do
+                      table.head { t("design_system.catalog.tables.with_input.head_product") }
+                      table.head { t("design_system.catalog.tables.with_input.head_quantity") }
+                      table.head(class: "text-right") { t("design_system.catalog.tables.with_input.head_total") }
                     end
                   end
 
-                  render Components::Ui::TableBody.new do
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_input.product_1") }
-                      render Components::Ui::TableCell.new do
+                  table.body do
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.with_input.product_1") }
+                      table.cell do
                         render Components::Ui::Input.new(type: :number, value: "1", class: "w-20")
                       end
-                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.with_input.price_1") }
+                      table.cell(class: "text-right") { t("design_system.catalog.tables.with_input.price_1") }
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_input.product_2") }
-                      render Components::Ui::TableCell.new do
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.with_input.product_2") }
+                      table.cell do
                         render Components::Ui::Input.new(type: :number, value: "2", class: "w-20")
                       end
-                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.with_input.price_2") }
+                      table.cell(class: "text-right") { t("design_system.catalog.tables.with_input.price_2") }
                     end
 
-                    render Components::Ui::TableRow.new do
-                      render Components::Ui::TableCell.new(class: "font-medium") { t("design_system.catalog.tables.with_input.product_3") }
-                      render Components::Ui::TableCell.new do
+                    table.row do
+                      table.cell(class: "font-medium") { t("design_system.catalog.tables.with_input.product_3") }
+                      table.cell do
                         render Components::Ui::Input.new(type: :number, value: "1", class: "w-20")
                       end
-                      render Components::Ui::TableCell.new(class: "text-right") { t("design_system.catalog.tables.with_input.price_3") }
+                      table.cell(class: "text-right") { t("design_system.catalog.tables.with_input.price_3") }
                     end
                   end
                 end
-              end
             end
           end
         end
@@ -1069,15 +946,15 @@ module Views
           div(class: "space-y-8") do
             h2(class: "text-2xl font-bold") { t("design_system.catalog.complex.title") }
 
-            render Components::Ui::Card.new do
-              render Components::Ui::CardHeader.new do
-                render Components::Ui::CardTitle.new { t("design_system.catalog.complex.card_title") }
-                render Components::Ui::CardDescription.new do
+            render Components::Ui::Card.new do |card|
+              card.header do
+                card.title { t("design_system.catalog.complex.card_title") }
+                card.description do
                   t("design_system.catalog.complex.card_description")
                 end
               end
 
-              render Components::Ui::CardContent.new do
+              card.content do
                 p(class: "text-muted-foreground") { t("design_system.catalog.complex.body") }
 
                 div(class: "mt-4 grid grid-cols-2 gap-2 text-sm") do

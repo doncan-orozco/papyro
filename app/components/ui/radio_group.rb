@@ -22,8 +22,17 @@ module Components
         div(
           class: merged_classes,
           **dynamic_attrs,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def item(**attrs, &block)
+        render Item.new(**attrs), &block
+      end
+
+      def label(**attrs, &block)
+        render Label.new(**attrs), &block
       end
 
       private
@@ -34,7 +43,7 @@ module Components
     end
 
     # Radio Group Item - individual radio button
-    class RadioGroupItem < Components::Base
+    class RadioGroup::Item < Components::Base
       def initialize(value:, id: nil, name: nil, checked: false, **attrs)
         @value = value
         @id = id || "radio-#{value}"
@@ -91,7 +100,7 @@ module Components
     end
 
     # Radio Group Label - label for radio group items
-    class RadioGroupLabel < Components::Base
+    class RadioGroup::Label < Components::Base
       def initialize(for_id: nil, **attrs)
         @for_id = for_id
         @attrs = attrs
@@ -117,5 +126,9 @@ module Components
         ].join(" ")
       end
     end
+
+    RadioGroupItem = RadioGroup::Item
+    RadioGroupLabel = RadioGroup::Label
+
   end
 end

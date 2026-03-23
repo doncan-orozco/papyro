@@ -144,7 +144,7 @@ end
 
 ### ✅ Backfilling Data (Large Tables)
 
-**DO: Batch + Sleep (prevents locks)**
+**✅ DO: Batch + Sleep (prevents locks)**
 
 ```ruby
 class BackfillStatus < ActiveRecord::Migration[8.1]
@@ -163,7 +163,7 @@ class BackfillStatus < ActiveRecord::Migration[8.1]
 end
 ```
 
-**DON'T: Update All in Transaction**
+**❌ DON'T: Update All in Transaction**
 ```ruby
 # UNSAFE - locks entire table during backfill
 class BackfillStatus < ActiveRecord::Migration[8.1]

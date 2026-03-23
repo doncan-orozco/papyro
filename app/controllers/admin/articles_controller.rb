@@ -3,12 +3,12 @@
 class Admin::ArticlesController < AdminController
   def index
     articles = Articles::AdminIndexQuery.call(user: Current.user)
-    render Views::Admin::Articles::Index.new(articles)
+    render Views::Admin::Articles::Index.new(articles: articles)
   end
 
   def new
     @article = Article.new
-    render Views::Admin::Articles::New.new(@article)
+    render Views::Admin::Articles::New.new(article: @article)
   end
 
   def create
@@ -20,13 +20,13 @@ class Admin::ArticlesController < AdminController
       redirect_to admin_articles_path, notice: t("admin.articles.operations.create.success")
     else
       @article = result[:model] || Article.new(article_params)
-      render Views::Admin::Articles::New.new(@article), status: :unprocessable_entity
+      render Views::Admin::Articles::New.new(article: @article), status: :unprocessable_entity
     end
   end
 
   def edit
     @article = find_user_article_by_id_or_slug!
-    render Views::Admin::Articles::Edit.new(@article)
+    render Views::Admin::Articles::Edit.new(article: @article)
   rescue ActiveRecord::RecordNotFound
     redirect_to admin_articles_path, alert: t("articles.errors.not_found")
   end
@@ -42,7 +42,7 @@ class Admin::ArticlesController < AdminController
       redirect_to admin_articles_path, notice: t("admin.articles.operations.update.success")
     else
       @article = result[:model] || article
-      render Views::Admin::Articles::Edit.new(@article), status: :unprocessable_entity
+      render Views::Admin::Articles::Edit.new(article: @article), status: :unprocessable_entity
     end
   rescue ActiveRecord::RecordNotFound
     redirect_to admin_articles_path, alert: t("articles.errors.not_found")

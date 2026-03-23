@@ -12,8 +12,37 @@ module Components
           role: :navigation,
           class: merged_classes,
           **attrs_without_class,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def list(**attrs, &block)
+        render List.new(**attrs), &block
+      end
+
+      def item(**attrs, &block)
+        render Item.new(**attrs), &block
+      end
+
+      def trigger(**attrs, &block)
+        render Trigger.new(**attrs), &block
+      end
+
+      def content(**attrs, &block)
+        render Content.new(**attrs), &block
+      end
+
+      def link(**attrs, &block)
+        render Link.new(**attrs), &block
+      end
+
+      def viewport(**attrs, &block)
+        render Viewport.new(**attrs), &block
+      end
+
+      def indicator(**attrs, &block)
+        render Indicator.new(**attrs), &block
       end
 
       private
@@ -24,7 +53,7 @@ module Components
     end
 
     # Navigation Menu List - list of menu items
-    class NavigationMenuList < Components::Base
+    class NavigationMenu::List < Components::Base
       def view_template(&block)
         ul(class: merged_classes, **attrs_without_class, &block)
       end
@@ -37,7 +66,7 @@ module Components
     end
 
     # Navigation Menu Item - individual menu item container
-    class NavigationMenuItem < Components::Base
+    class NavigationMenu::Item < Components::Base
       def view_template(&block)
         li(class: merged_classes, **attrs_without_class, &block)
       end
@@ -50,7 +79,7 @@ module Components
     end
 
     # Navigation Menu Trigger - button that triggers submenu
-    class NavigationMenuTrigger < Components::Base
+    class NavigationMenu::Trigger < Components::Base
       def view_template(&block)
         button(
           type: :button,
@@ -75,7 +104,7 @@ module Components
     end
 
     # Navigation Menu Content - dropdown content container
-    class NavigationMenuContent < Components::Base
+    class NavigationMenu::Content < Components::Base
       def view_template(&block)
         div(
           class: merged_classes,
@@ -99,7 +128,7 @@ module Components
     end
 
     # Navigation Menu Link - link within the menu
-    class NavigationMenuLink < Components::Base
+    class NavigationMenu::Link < Components::Base
       def initialize(href: nil, active: false, **attrs)
         @href = href
         @active = active
@@ -136,7 +165,7 @@ module Components
     end
 
     # Navigation Menu Viewport - container for the content
-    class NavigationMenuViewport < Components::Base
+    class NavigationMenu::Viewport < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -154,7 +183,7 @@ module Components
     end
 
     # Navigation Menu Indicator - visual indicator for active item
-    class NavigationMenuIndicator < Components::Base
+    class NavigationMenu::Indicator < Components::Base
       def view_template
         div(class: merged_classes, **attrs_without_class) do
           div(class: "relative top-[60%] h-2 w-2 rotate-45 rounded-tl-sm bg-border shadow-md")
@@ -171,5 +200,14 @@ module Components
         ].join(" ")
       end
     end
+
+    NavigationMenuList = NavigationMenu::List
+    NavigationMenuItem = NavigationMenu::Item
+    NavigationMenuTrigger = NavigationMenu::Trigger
+    NavigationMenuContent = NavigationMenu::Content
+    NavigationMenuLink = NavigationMenu::Link
+    NavigationMenuViewport = NavigationMenu::Viewport
+    NavigationMenuIndicator = NavigationMenu::Indicator
+
   end
 end

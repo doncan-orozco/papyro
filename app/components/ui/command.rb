@@ -12,8 +12,41 @@ module Components
           role: :application,
           class: merged_classes,
           **attrs_without_class,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def dialog(**attrs, &block)
+        render Dialog.new(**attrs), &block
+      end
+
+      def input(**attrs, &block)
+        render Input.new(**attrs), &block
+      end
+
+      def list(**attrs, &block)
+        render List.new(**attrs), &block
+      end
+
+      def empty(**attrs, &block)
+        render Empty.new(**attrs), &block
+      end
+
+      def group(**attrs, &block)
+        render Group.new(**attrs), &block
+      end
+
+      def separator(**attrs, &block)
+        render Separator.new(**attrs), &block
+      end
+
+      def item(**attrs, &block)
+        render Item.new(**attrs), &block
+      end
+
+      def shortcut(**attrs, &block)
+        render Shortcut.new(**attrs), &block
       end
 
       private
@@ -26,7 +59,7 @@ module Components
     end
 
     # Command Dialog - modal wrapper for command palette
-    class CommandDialog < Components::Base
+    class Command::Dialog < Components::Base
       def view_template(&block)
         div(
           role: :dialog,
@@ -52,7 +85,7 @@ module Components
     end
 
     # Command Input - search input
-    class CommandInput < Components::Base
+    class Command::Input < Components::Base
       def initialize(placeholder: nil, **attrs)
         @placeholder = placeholder
         @attrs = attrs
@@ -98,7 +131,7 @@ module Components
     end
 
     # Command List - scrollable list of results
-    class CommandList < Components::Base
+    class Command::List < Components::Base
       def view_template(&block)
         div(
           role: :listbox,
@@ -116,7 +149,7 @@ module Components
     end
 
     # Command Empty - empty state message
-    class CommandEmpty < Components::Base
+    class Command::Empty < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -129,7 +162,7 @@ module Components
     end
 
     # Command Group - grouped list items
-    class CommandGroup < Components::Base
+    class Command::Group < Components::Base
       def view_template(&block)
         div(
           role: :group,
@@ -150,7 +183,7 @@ module Components
     end
 
     # Command Separator - visual divider
-    class CommandSeparator < Components::Base
+    class Command::Separator < Components::Base
       def view_template
         div(class: merged_classes, **attrs_without_class)
       end
@@ -163,7 +196,7 @@ module Components
     end
 
     # Command Item - individual result item
-    class CommandItem < Components::Base
+    class Command::Item < Components::Base
       def view_template(&block)
         div(
           role: :option,
@@ -185,7 +218,7 @@ module Components
     end
 
     # Command Shortcut - keyboard shortcut display
-    class CommandShortcut < Components::Base
+    class Command::Shortcut < Components::Base
       def view_template(&block)
         span(class: merged_classes, **attrs_without_class, &block)
       end
@@ -196,5 +229,15 @@ module Components
         "ml-auto text-xs tracking-widest text-muted-foreground"
       end
     end
+
+    CommandDialog = Command::Dialog
+    CommandInput = Command::Input
+    CommandList = Command::List
+    CommandEmpty = Command::Empty
+    CommandGroup = Command::Group
+    CommandSeparator = Command::Separator
+    CommandItem = Command::Item
+    CommandShortcut = Command::Shortcut
+
   end
 end

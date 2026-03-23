@@ -1,24 +1,24 @@
 module Views
   module Sessions
     class New < Views::Base
-      def initialize(form)
+      def initialize(form:)
         @form = form
       end
 
       def view_template
         div(class: "min-h-screen bg-background flex items-center justify-center px-4 py-12") do
-          render Components::Ui::Card.new(class: "w-full max-w-md") do
-            render Components::Ui::CardHeader.new do
-              render Components::Ui::CardTitle.new { t("views.sessions.new.heading") }
-              render Components::Ui::CardDescription.new { t("views.sessions.new.description") }
+          render Components::Ui::Card.new(class: "w-full max-w-md") do |card|
+            card.header do
+              card.title { t("views.sessions.new.heading") }
+              card.description { t("views.sessions.new.description") }
             end
 
-            render Components::Ui::CardContent.new do
+            card.content do
               render_flash_messages
               render_login_form
             end
 
-            render Components::Ui::CardFooter.new do
+            card.footer do
               p(class: "text-xs text-muted-foreground text-center") do
                 plain t("views.sessions.new.forgot_password_prompt")
                 link_to t("views.sessions.new.forgot_password"), new_password_path, class: "text-primary hover:underline font-medium"

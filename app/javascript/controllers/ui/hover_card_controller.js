@@ -43,15 +43,15 @@ export default class extends BaseController {
   static targets = ["trigger", "content"]
 
   connect() {
-    console.log('🎯 Hover Card controller connected', this.element)
     this.showTimeout = null
     this.hideTimeout = null
     this.cleanupAutoUpdate = null
-    
-    // Setup content
+
     if (this.hasContentTarget) {
       this.contentTarget.hidden = true
-      this.contentTarget.style.position = 'absolute'
+      this.contentTarget.dataset.state = 'closed'
+      this.contentTarget.dataset.side = this.sideFromPlacement(this.placementValue)
+      this.contentTarget.style.position = 'fixed'
       this.contentTarget.style.zIndex = '1000'
     }
   }
@@ -66,13 +66,10 @@ export default class extends BaseController {
    * @param {Event} event - Mouse/focus event
    */
   show(event) {
-    console.log('🎯 Hover Card show')
     event?.preventDefault()
-    
-    // Cancel any pending hide
+
     this.clearHideTimeout()
-    
-    // Delay showing
+
     this.showTimeout = setTimeout(() => {
       this.openValue = true
     }, this.delayValue)
@@ -83,14 +80,13 @@ export default class extends BaseController {
    * @param {Event} event - Mouse/blur event
    */
   hide(event) {
-    console.log('🎯 Hover Card hide')
     event?.preventDefault()
-    
-    // Cancel any pending show
+
     this.clearShowTimeout()
-    
-    // Immediately hide on mouse leave
-    this.openValue = false
+
+    this.hideTimeout = setTimeout(() => {
+      this.openValue = false
+    }, 80)
   }
 
   /**
@@ -110,22 +106,18 @@ export default class extends BaseController {
   async openCard() {
     if (!this.hasContentTarget || !this.hasTriggerTarget) return
 
-    // Show content
     this.contentTarget.hidden = false
-    this.contentTarget.style.visibility = 'visible'
-    this.contentTarget.style.opacity = '0'
-    
-    // Position card
+    this.contentTarget.style.visibility = 'hidden'
+
     await this.updatePosition()
-    
-    // Fade in
+
+    this.contentTarget.dataset.state = 'open'
     requestAnimationFrame(() => {
-      this.contentTarget.style.opacity = '1'
+      this.contentTarget.style.visibility = 'visible'
     })
-    
-    // Start auto-updating position
+
     this.startAutoUpdate()
-    
+
     this.dispatchStateChange("ui:hover-card:opened")
   }
 
@@ -135,19 +127,11 @@ export default class extends BaseController {
   closeCard() {
     if (!this.hasContentTarget) return
 
-    // Hide content
-    this.contentTarget.style.opacity = '0'
-    this.contentTarget.style.visibility = 'hidden'
-    
-    setTimeout(() => {
-      if (this.hasContentTarget) {
-        this.contentTarget.hidden = true
-      }
-    }, 150)
-    
-    // Stop auto-updating position
+    this.contentTarget.dataset.state = 'closed'
+    this.hideAfterAnimation(this.contentTarget, 200)
+
     this.stopAutoUpdate()
-    
+
     this.dispatchStateChange("ui:hover-card:closed")
   }
 
@@ -157,10 +141,11 @@ export default class extends BaseController {
   async updatePosition() {
     if (!this.hasContentTarget || !this.hasTriggerTarget) return
 
-    const { x, y } = await computePosition(
+    const { x, y, placement } = await computePosition(
       this.triggerTarget,
       this.contentTarget,
       {
+        strategy: 'fixed',
         placement: this.placementValue,
         middleware: [
           flip(),
@@ -172,6 +157,11 @@ export default class extends BaseController {
 
     this.contentTarget.style.left = `${x}px`
     this.contentTarget.style.top = `${y}px`
+    this.contentTarget.dataset.side = this.sideFromPlacement(placement)
+    this.contentTarget.style.setProperty(
+      '--radix-hover-card-content-transform-origin',
+      this.transformOriginFromPlacement(placement)
+    )
   }
 
   /**
@@ -229,5 +219,26 @@ export default class extends BaseController {
   clearTimeouts() {
     this.clearShowTimeout()
     this.clearHideTimeout()
+  }
+
+  sideFromPlacement(placement) {
+    return placement.split('-')[0]
+  }
+
+  transformOriginFromPlacement(placement) {
+    const side = this.sideFromPlacement(placement)
+
+    switch (side) {
+      case 'top':
+        return 'center bottom'
+      case 'bottom':
+        return 'center top'
+      case 'left':
+        return 'right center'
+      case 'right':
+        return 'left center'
+      default:
+        return 'center center'
+    }
   }
 }

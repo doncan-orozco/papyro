@@ -12,8 +12,33 @@ module Components
           aria: { label: "pagination" },
           class: merged_classes,
           **attrs_without_class,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def content(**attrs, &block)
+        render Content.new(**attrs), &block
+      end
+
+      def item(**attrs, &block)
+        render Item.new(**attrs), &block
+      end
+
+      def link(**attrs, &block)
+        render Link.new(**attrs), &block
+      end
+
+      def previous(**attrs, &block)
+        render Previous.new(**attrs), &block
+      end
+
+      def next(**attrs, &block)
+        render Next.new(**attrs), &block
+      end
+
+      def ellipsis(**attrs, &block)
+        render Ellipsis.new(**attrs), &block
       end
 
       private
@@ -24,7 +49,7 @@ module Components
     end
 
     # Pagination Content wrapper
-    class PaginationContent < Components::Base
+    class Pagination::Content < Components::Base
       def view_template(&block)
         ul(class: merged_classes, **attrs_without_class, &block)
       end
@@ -37,7 +62,7 @@ module Components
     end
 
     # Pagination Item - wrapper for individual pagination elements
-    class PaginationItem < Components::Base
+    class Pagination::Item < Components::Base
       def view_template(&block)
         li(class: merged_classes, **attrs_without_class, &block)
       end
@@ -50,7 +75,7 @@ module Components
     end
 
     # Pagination Link - clickable page number
-    class PaginationLink < Components::Base
+    class Pagination::Link < Components::Base
       def initialize(href: nil, active: false, size: :default, **attrs)
         @href = href
         @active = active
@@ -113,7 +138,7 @@ module Components
     end
 
     # Pagination Previous - previous page button
-    class PaginationPrevious < Components::Base
+    class Pagination::Previous < Components::Base
       def initialize(href: nil, **attrs)
         @href = href
         @attrs = attrs
@@ -152,7 +177,7 @@ module Components
     end
 
     # Pagination Next - next page button
-    class PaginationNext < Components::Base
+    class Pagination::Next < Components::Base
       def initialize(href: nil, **attrs)
         @href = href
         @attrs = attrs
@@ -191,7 +216,7 @@ module Components
     end
 
     # Pagination Ellipsis - indicator for skipped pages
-    class PaginationEllipsis < Components::Base
+    class Pagination::Ellipsis < Components::Base
       def view_template
         span(
           aria: { hidden: true },
@@ -225,5 +250,13 @@ module Components
         "flex h-9 w-9 items-center justify-center"
       end
     end
+
+    PaginationContent = Pagination::Content
+    PaginationItem = Pagination::Item
+    PaginationLink = Pagination::Link
+    PaginationPrevious = Pagination::Previous
+    PaginationNext = Pagination::Next
+    PaginationEllipsis = Pagination::Ellipsis
+
   end
 end

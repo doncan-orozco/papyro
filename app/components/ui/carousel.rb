@@ -25,8 +25,25 @@ module Components
           aria: { roledescription: "carousel" },
           class: merged_classes,
           **dynamic_attrs,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def content(**attrs, &block)
+        render Content.new(**attrs), &block
+      end
+
+      def item(**attrs, &block)
+        render Item.new(**attrs), &block
+      end
+
+      def previous(**attrs, &block)
+        render Previous.new(**attrs), &block
+      end
+
+      def next(**attrs, &block)
+        render Next.new(**attrs), &block
       end
 
       private
@@ -37,7 +54,7 @@ module Components
     end
 
     # Carousel Content - slides container
-    class CarouselContent < Components::Base
+    class Carousel::Content < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -50,7 +67,7 @@ module Components
     end
 
     # Carousel Item - individual slide
-    class CarouselItem < Components::Base
+    class Carousel::Item < Components::Base
       def view_template(&block)
         div(
           role: :group,
@@ -69,7 +86,7 @@ module Components
     end
 
     # Carousel Previous - previous slide button
-    class CarouselPrevious < Components::Base
+    class Carousel::Previous < Components::Base
       def view_template(&block)
         render Components::Ui::Button.new(
           variant: :outline,
@@ -102,7 +119,7 @@ module Components
     end
 
     # Carousel Next - next slide button
-    class CarouselNext < Components::Base
+    class Carousel::Next < Components::Base
       def view_template(&block)
         render Components::Ui::Button.new(
           variant: :outline,
@@ -133,5 +150,11 @@ module Components
         end
       end
     end
+
+    CarouselContent = Carousel::Content
+    CarouselItem = Carousel::Item
+    CarouselPrevious = Carousel::Previous
+    CarouselNext = Carousel::Next
+
   end
 end

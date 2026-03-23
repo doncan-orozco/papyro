@@ -50,10 +50,14 @@ h1 { t(".title") }  # WRONG - relative key
 **✅ DO use fully-qualified keys:**
 ```ruby
 # app/views/articles/show.rb
-class Articles::Show < Views::Base
-  def view_template
-    h1 { t("articles.show.title") }
-    p { t("articles.show.description") }
+module Views
+  module Articles
+    class Show < Views::Base
+      def view_template
+        h1 { t("articles.show.title") }
+        p { t("articles.show.description") }
+      end
+    end
   end
 end
 ```
@@ -406,17 +410,21 @@ es:
 
 ```ruby
 # Phlex view
-class Articles::Show < Views::Base
-  def view_template
-    div do
-      h1 { @article.title }
-      p(class: "text-sm text-gray-500") do
-        plain "Published: "
-        plain I18n.l(@article.published_at, format: :long)
-      end
-      p(class: "text-sm") do
-        plain "Last updated: "
-        plain I18n.l(@article.updated_at.to_date, format: :short)
+module Views
+  module Articles
+    class Show < Views::Base
+      def view_template
+        div do
+          h1 { @article.title }
+          p(class: "text-sm text-gray-500") do
+            plain "Published: "
+            plain I18n.l(@article.published_at, format: :long)
+          end
+          p(class: "text-sm") do
+            plain "Last updated: "
+            plain I18n.l(@article.updated_at.to_date, format: :short)
+          end
+        end
       end
     end
   end

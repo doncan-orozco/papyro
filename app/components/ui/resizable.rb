@@ -23,8 +23,17 @@ module Components
         div(
           class: merged_classes,
           **dynamic_attrs,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def panel(**attrs, &block)
+        render Panel.new(**attrs), &block
+      end
+
+      def handle(**attrs, &block)
+        render Handle.new(**attrs), &block
       end
 
       private
@@ -39,7 +48,7 @@ module Components
     end
 
     # Resizable Panel - individual resizable panel
-    class ResizablePanel < Components::Base
+    class Resizable::Panel < Components::Base
       def initialize(default_size: nil, min_size: nil, max_size: nil, **attrs)
         @default_size = default_size
         @min_size = min_size
@@ -72,7 +81,7 @@ module Components
     end
 
     # Resizable Handle - draggable divider between panels
-    class ResizableHandle < Components::Base
+    class Resizable::Handle < Components::Base
       def view_template(&block)
         div(
           role: :separator,
@@ -106,5 +115,9 @@ module Components
         ].join(" ")
       end
     end
+
+    ResizablePanel = Resizable::Panel
+    ResizableHandle = Resizable::Handle
+
   end
 end

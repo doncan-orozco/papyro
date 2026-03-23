@@ -4,7 +4,7 @@ class PasswordsController < ApplicationController
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_password_path, alert: t("passwords.create.rate_limit") }
 
   def new
-    render Views::Passwords::New.new(password_reset_request_form)
+    render Views::Passwords::New.new(form: password_reset_request_form)
   end
 
   def create
@@ -17,7 +17,7 @@ class PasswordsController < ApplicationController
 
       redirect_to new_session_path, notice: t("passwords.create.instructions_sent")
     else
-      render Views::Passwords::New.new(@form), status: :unprocessable_entity
+      render Views::Passwords::New.new(form: @form), status: :unprocessable_entity
     end
   end
 

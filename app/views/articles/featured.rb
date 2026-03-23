@@ -1,7 +1,7 @@
 module Views
   module Articles
     class Featured < Views::Base
-      def initialize(articles)
+      def initialize(articles:)
         @articles = articles
       end
 

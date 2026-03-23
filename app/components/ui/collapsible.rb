@@ -23,8 +23,17 @@ module Components
         div(
           class: merged_classes,
           **dynamic_attrs,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def trigger(**attrs, &block)
+        render Trigger.new(**attrs), &block
+      end
+
+      def content(**attrs, &block)
+        render Content.new(**attrs), &block
       end
 
       private
@@ -35,7 +44,7 @@ module Components
     end
 
     # Collapsible Trigger - button to toggle collapse
-    class CollapsibleTrigger < Components::Base
+    class Collapsible::Trigger < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -57,7 +66,7 @@ module Components
     end
 
     # Collapsible Content - content that expands/collapses
-    class CollapsibleContent < Components::Base
+    class Collapsible::Content < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -80,5 +89,9 @@ module Components
         ].join(" ")
       end
     end
+
+    CollapsibleTrigger = Collapsible::Trigger
+    CollapsibleContent = Collapsible::Content
+
   end
 end

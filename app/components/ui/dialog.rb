@@ -2,7 +2,7 @@
 
 module Components
   module Ui
-    class Sheet < Components::Base
+    class Dialog < Components::Base
       def initialize(open: nil, close_on_overlay_click: nil, close_on_esc: nil, **attrs)
         @attrs = attrs
         @attrs[:data] ||= {}
@@ -33,21 +33,17 @@ module Components
         render Trigger.new(**with_required_data(attrs, data: { action: "click->ui--dialog#open" })), &block
       end
 
-      def content(side: :right, hidden: true, overlay_hidden: true, labelledby_id: nil, describedby_id: nil, **attrs, &block)
+      def content(hidden: true, overlay_hidden: true, labelledby_id: nil, describedby_id: nil, **attrs, &block)
         render Overlay.new(
           hidden: overlay_hidden,
           **with_required_data({}, data: { ui__dialog_target: "overlay" })
         )
 
         render Content.new(
-          side: side,
           hidden: hidden,
           labelledby_id: labelledby_id,
           describedby_id: describedby_id,
-          **with_required_data(attrs, data: {
-            ui__dialog_target: "content",
-            dialog_transition: "slide"
-          }),
+          **with_required_data(attrs, data: { ui__dialog_target: "content" }),
           &block
         )
       end
@@ -66,6 +62,10 @@ module Components
 
       def footer(**attrs, &block)
         render Footer.new(**attrs, &block)
+      end
+
+      def close(**attrs, &block)
+        render Close.new(**with_required_data(attrs, data: { action: "click->ui--dialog#close" }), &block)
       end
 
       private
@@ -123,14 +123,14 @@ module Components
           [
             "fixed inset-0 z-50 bg-black/80",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
-            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+            "data-[state=open]:duration-500 data-[state=closed]:duration-300"
           ].join(" ")
         end
       end
 
       class Content < Components::Base
-        def initialize(side: :right, labelledby_id: nil, describedby_id: nil, **attrs)
-          @side = side
+        def initialize(labelledby_id: nil, describedby_id: nil, **attrs)
           @labelledby_id = labelledby_id
           @describedby_id = describedby_id
           @attrs = attrs
@@ -152,34 +152,39 @@ module Components
 
           dynamic_attrs[:aria] = aria_hash
 
-          data_hash = (dynamic_attrs[:data] || {}).dup
-          data_hash[:side] = @side unless data_hash.key?(:side) || data_hash.key?("side")
-          dynamic_attrs[:data] = data_hash
+          div(role: :dialog, class: merged_classes, **dynamic_attrs) do
+            yield if block
 
-          div(
-            role: :dialog,
-            class: merged_classes,
-            **dynamic_attrs,
-            &block
-          )
+            render Close.new(data: { action: "click->ui--dialog#close" }) do
+              svg(
+                xmlns: "http://www.w3.org/2000/svg",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                class: "h-4 w-4"
+              ) do |s|
+                s.path(d: "M6 18L18 6M6 6l12 12", stroke_width: 2, stroke_linecap: "round", stroke_linejoin: "round")
+              end
+              span(class: "sr-only") { I18n.t("design_system.overlays.dialog.close") }
+            end
+          end
         end
 
         private
 
         def classes
           [
-            "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out",
-            "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
-            "data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:border-b",
-            "data-[side=top]:data-[state=closed]:slide-out-to-top data-[side=top]:data-[state=open]:slide-in-from-top",
-            "data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:border-t",
-            "data-[side=bottom]:data-[state=closed]:slide-out-to-bottom data-[side=bottom]:data-[state=open]:slide-in-from-bottom",
-            "data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r",
-            "data-[side=left]:data-[state=closed]:slide-out-to-left data-[side=left]:data-[state=open]:slide-in-from-left",
-            "data-[side=left]:sm:max-w-sm",
-            "data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l",
-            "data-[side=right]:data-[state=closed]:slide-out-to-right data-[side=right]:data-[state=open]:slide-in-from-right",
-            "data-[side=right]:sm:max-w-sm"
+            "fixed left-[50%] top-[50%] z-50",
+            "grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4",
+            "border border-border bg-background p-6 shadow-lg",
+            "transition-all duration-200",
+            "data-[state=open]:animate-in data-[state=closed]:animate-out",
+            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+            "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
+            "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
+            "data-[state=open]:duration-500 data-[state=closed]:duration-300",
+            "sm:rounded-lg"
           ].join(" ")
         end
       end
@@ -196,7 +201,7 @@ module Components
         private
 
         def classes
-          "flex flex-col space-y-2 text-center sm:text-left"
+          "flex flex-col space-y-1.5 text-center sm:text-left"
         end
       end
 
@@ -212,7 +217,7 @@ module Components
         private
 
         def classes
-          "text-lg font-semibold text-foreground"
+          "text-lg font-semibold leading-none tracking-tight"
         end
       end
 
@@ -248,13 +253,36 @@ module Components
         end
       end
 
-      SheetTrigger = Trigger
-      SheetContent = Content
-      SheetOverlay = Overlay
-      SheetHeader = Header
-      SheetTitle = Title
-      SheetDescription = Description
-      SheetFooter = Footer
+      class Close < Components::Base
+        def initialize(**attrs)
+          @attrs = attrs
+        end
+
+        def view_template(&block)
+          button(type: :button, class: merged_classes, **attrs_without_class, &block)
+        end
+
+        private
+
+        def classes
+          [
+            "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background",
+            "transition-opacity hover:opacity-100",
+            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            "disabled:pointer-events-none",
+            "data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+          ].join(" ")
+        end
+      end
+
+      DialogTrigger = Trigger
+      DialogOverlay = Overlay
+      DialogContent = Content
+      DialogHeader = Header
+      DialogTitle = Title
+      DialogDescription = Description
+      DialogFooter = Footer
+      DialogClose = Close
     end
   end
 end

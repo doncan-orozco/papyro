@@ -1,19 +1,19 @@
 module Views
   module Passwords
     class New < Views::Base
-      def initialize(form)
+      def initialize(form:)
         @form = form
       end
 
       def view_template
         div(class: "min-h-screen bg-background flex items-center justify-center px-4 py-12") do
-          render Components::Ui::Card.new(class: "w-full max-w-md") do
-            render Components::Ui::CardHeader.new do
-              render Components::Ui::CardTitle.new { t(".heading") }
-              render Components::Ui::CardDescription.new { t(".description", default: "Reset your password") }
+          render Components::Ui::Card.new(class: "w-full max-w-md") do |card|
+            card.header do
+              card.title { t("views.passwords.new.heading") }
+              card.description { t("views.passwords.new.description", default: "Reset your password") }
             end
 
-            render Components::Ui::CardContent.new do
+            card.content do
               render_flash_messages
               render_password_reset_form
             end
@@ -27,19 +27,19 @@ module Views
         form_with(model: @form, url: passwords_path, class: "space-y-5", local: true) do |form|
           form.field :email_address,
             as: :email_field,
-            label: t(".email_label", default: "Email Address"),
+            label: t("views.passwords.new.email_label", default: "Email Address"),
             options: {
               required: true,
               autofocus: true,
               autocomplete: "username",
-              placeholder: t(".email_placeholder")
+              placeholder: t("views.passwords.new.email_placeholder")
             }
 
           p(class: "text-xs text-muted-foreground") do
-            t(".instruction", default: "We will send you an email with instructions to reset your password.")
+            t("views.passwords.new.instruction", default: "We will send you an email with instructions to reset your password.")
           end
 
-          form.submit t(".submit"), class: "w-full"
+          form.submit t("views.passwords.new.submit"), class: "w-full"
         end
       end
 

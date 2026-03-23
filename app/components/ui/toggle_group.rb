@@ -25,8 +25,13 @@ module Components
           role: :group,
           class: merged_classes,
           **dynamic_attrs,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def item(**attrs, &block)
+        render Item.new(**attrs), &block
       end
 
       private
@@ -37,7 +42,7 @@ module Components
     end
 
     # Toggle Group Item - individual toggle within a group
-    class ToggleGroupItem < Components::Base
+    class ToggleGroup::Item < Components::Base
       def initialize(value:, variant: :default, size: :default, **attrs)
         @value = value
         @variant = variant
@@ -62,5 +67,8 @@ module Components
         )
       end
     end
+
+    ToggleGroupItem = ToggleGroup::Item
+
   end
 end

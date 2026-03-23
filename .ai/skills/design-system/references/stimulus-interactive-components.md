@@ -29,13 +29,13 @@
 
 ```
 app/components/ui/
-  switch.rb / switch_thumb.rb          # Static Phlex components
-  tabs.rb / tabs_list.rb / tabs_trigger.rb / tabs_content.rb
-  accordion.rb / accordion_item.rb / accordion_trigger.rb / accordion_content.rb
-  dropdown_menu_*rb files
-  select_trigger.rb / select_content.rb / select_item.rb
-  tooltip_trigger.rb / tooltip_content.rb
-  dialog_*.rb files
+  switch.rb                            # Switch + nested thumb helper
+  tabs.rb                              # Tabs + nested list/trigger/content helpers
+  accordion.rb                         # Accordion compound component
+  dropdown_menu.rb                     # Dropdown compound component
+  select.rb                            # Select + nested trigger/content/item/value helpers
+  tooltip.rb                           # Tooltip + nested trigger/content helpers
+  dialog.rb (+ dialog_* child files)
 
 app/javascript/controllers/ui/
   base_controller.js                    # Shared utilities
@@ -57,7 +57,6 @@ config/importmap.rb
 ### JavaScript Syntax in Controllers
 - ✅ NO escaped newlines (`\n`) in multi-line comments — write comments naturally
 - ✅ Multi-line comment strings use actual line breaks, not escape sequences
-- ✅ Console logging: `console.log('🔔 Toast controller connected', this.element)` for debugging
 - ❌ ❌ DO NOT write: `* Values:\n *   - item` in JSDoc — write actual newlines instead
 
 ### Phlex Component Initialization (Critical)
@@ -131,7 +130,6 @@ export default class extends BaseController {
   static targets = ["thumb", "input"]
 
   connect() {
-    console.log('🔘 Switch controller connected')
     this.updateUI()
   }
 
@@ -253,7 +251,10 @@ this.element.dataset.state = 'open'  // or 'checked', 'active', etc.
 ### 2. Stimulus Target Naming Convention
 ```ruby
 # Phlex component passes target attribute
-render Components::Ui::DialogOverlay.new(data: { "ui--dialog-target": "overlay" })
+render Components::Ui::Dialog.new do |dialog|
+  dialog.trigger { "Open" }
+  dialog.content(hidden: true) { "Dialog body" }
+end
 
 # Controller declares targets
 static targets = ["overlay", "content", "trigger"]
@@ -329,15 +330,7 @@ keydown(event) {
 
 ## Testing the Pattern
 
-### 1. Browser Console Logs
-Add emoji-prefixed logs for visibility:
-```javascript
-connect() {
-  console.log('🔘 Switch controller connected', this.element)
-}
-```
-
-### 2. Verify DOM Updates
+### 1. Verify DOM Updates
 Inspect that `data-state`, `aria-*` attributes update on interaction:
 ```javascript
 // In browser DevTools, expand element and verify:
@@ -346,7 +339,7 @@ Inspect that `data-state`, `aria-*` attributes update on interaction:
 // aria-expanded="false"
 ```
 
-### 3. Check Imports
+### 2. Check Imports
 If controllers don't load:
 ```bash
 # Verify importmap pins are correct
@@ -364,22 +357,16 @@ node --check app/javascript/controllers/ui/switch_controller.js
 ```ruby
 # app/components/ui/switch.rb
 class Switch < Components::Base
-  def view_template
-    button(
-      type: :button,
-      role: :switch,
-      class: "... semantic tokens ...",
-      data: {
-        controller: "ui--switch",
-        ui__switch_checked_value: false,
-        ui__switch_disabled_value: false,
-        action: "click->ui--switch#toggle"
-      }
-    ) do
-      render SwitchThumb.new(
-        data: { "ui--switch-target": "thumb" }
-      )
+  def view_template(&block)
+    # Switch injects required controller/actions as defaults
+    button(type: :button, role: :switch, class: "... semantic tokens ...") do
+      yield self if block
     end
+  end
+
+  def thumb(**attrs, &block)
+    # Thumb helper injects required target as default
+    render Thumb.new(**attrs), &block
   end
 end
 
@@ -391,9 +378,9 @@ export default class extends BaseController {
 }
 
 # app/views/design_system/index.rb
-render Switch.new(data: {
-  action: "click->ui--switch#toggle"
-})
+render Components::Ui::Switch.new(checked: false) do |switch|
+  switch.thumb
+end
 ```
 
 ## What's Included in Controllers
@@ -405,10 +392,8 @@ render Switch.new(data: {
 - Focus trap and scroll lock (Dialog)
 - ARIA attribute updates
 - Custom event dispatching
-- Console logging with emoji markers
 
 ✅ **Ready for Production:**
-- All 6 controllers have console logs for debugging
 - All state changes verified in DOM
 - All keyboard shortcuts tested
 - All focus management patterns implemented
@@ -437,8 +422,8 @@ This pattern applies to **all** shadcn interactive components:
 **Fix:** Add explicit pin for base_controller: `pin "controllers/ui/base_controller", to: "controllers/ui/base_controller.js"`
 
 ### Issue: Data attributes not updating
-**Cause:** Using wrong attribute naming convention  
-**Fix:** Use DOUBLE HYPHENS for targets: `data-ui--dialog-target="content"`
+**Cause:** Wrong key shape in Phlex data hash  
+**Fix:** In Ruby component calls, use underscore key form (for example `ui__dialog_target: "content"`), which renders as `data-ui--dialog-target="content"` in HTML
 
 ### Issue: Stimulus values not working
 **Cause:** Attribute name doesn't match value declaration  

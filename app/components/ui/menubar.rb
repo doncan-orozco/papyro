@@ -12,8 +12,45 @@ module Components
           role: :menubar,
           class: merged_classes,
           **attrs_without_class,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def menu(**attrs, &block)
+        render Menu.new(**attrs), &block
+      end
+
+      def trigger(**attrs, &block)
+        render Trigger.new(**attrs), &block
+      end
+
+      def content(**attrs, &block)
+        render Content.new(**attrs), &block
+      end
+
+      def item(**attrs, &block)
+        render Item.new(**attrs), &block
+      end
+
+      def checkbox_item(**attrs, &block)
+        render CheckboxItem.new(**attrs), &block
+      end
+
+      def radio_item(**attrs, &block)
+        render RadioItem.new(**attrs), &block
+      end
+
+      def label(**attrs, &block)
+        render Label.new(**attrs), &block
+      end
+
+      def separator(**attrs, &block)
+        render Separator.new(**attrs), &block
+      end
+
+      def shortcut(**attrs, &block)
+        render Shortcut.new(**attrs), &block
       end
 
       private
@@ -24,7 +61,7 @@ module Components
     end
 
     # Menubar Menu - individual menu in the menubar
-    class MenubarMenu < Components::Base
+    class Menubar::Menu < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -37,7 +74,7 @@ module Components
     end
 
     # Menubar Trigger - button that triggers a menu
-    class MenubarTrigger < Components::Base
+    class Menubar::Trigger < Components::Base
       def view_template(&block)
         button(
           type: :button,
@@ -60,7 +97,7 @@ module Components
     end
 
     # Menubar Content - dropdown content
-    class MenubarContent < Components::Base
+    class Menubar::Content < Components::Base
       def view_template(&block)
         div(
           role: :menu,
@@ -85,7 +122,7 @@ module Components
     end
 
     # Menubar Item - individual menu item
-    class MenubarItem < Components::Base
+    class Menubar::Item < Components::Base
       def view_template(&block)
         div(
           role: :menuitem,
@@ -108,7 +145,7 @@ module Components
     end
 
     # Menubar Checkbox Item - checkbox menu item
-    class MenubarCheckboxItem < Components::Base
+    class Menubar::CheckboxItem < Components::Base
       def view_template(&block)
         div(
           role: :menuitemcheckbox,
@@ -131,7 +168,7 @@ module Components
     end
 
     # Menubar Radio Item - radio menu item
-    class MenubarRadioItem < Components::Base
+    class Menubar::RadioItem < Components::Base
       def view_template(&block)
         div(
           role: :menuitemradio,
@@ -154,7 +191,7 @@ module Components
     end
 
     # Menubar Label - non-interactive label
-    class MenubarLabel < Components::Base
+    class Menubar::Label < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -167,7 +204,7 @@ module Components
     end
 
     # Menubar Separator - visual divider
-    class MenubarSeparator < Components::Base
+    class Menubar::Separator < Components::Base
       def view_template
         div(class: merged_classes, **attrs_without_class)
       end
@@ -180,7 +217,7 @@ module Components
     end
 
     # Menubar Shortcut - keyboard shortcut display
-    class MenubarShortcut < Components::Base
+    class Menubar::Shortcut < Components::Base
       def view_template(&block)
         span(class: merged_classes, **attrs_without_class, &block)
       end
@@ -191,5 +228,16 @@ module Components
         "ml-auto text-xs tracking-widest text-muted-foreground"
       end
     end
+
+    MenubarMenu = Menubar::Menu
+    MenubarTrigger = Menubar::Trigger
+    MenubarContent = Menubar::Content
+    MenubarItem = Menubar::Item
+    MenubarCheckboxItem = Menubar::CheckboxItem
+    MenubarRadioItem = Menubar::RadioItem
+    MenubarLabel = Menubar::Label
+    MenubarSeparator = Menubar::Separator
+    MenubarShortcut = Menubar::Shortcut
+
   end
 end

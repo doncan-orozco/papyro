@@ -8,13 +8,13 @@ module Views
 
       def view_template
         div(class: "min-h-screen bg-background flex items-center justify-center px-4 py-12") do
-          render Components::Ui::Card.new(class: "w-full max-w-md") do
-            render Components::Ui::CardHeader.new do
-              render Components::Ui::CardTitle.new { t(".heading") }
-              render Components::Ui::CardDescription.new { t(".description", default: "Enter your new password") }
+          render Components::Ui::Card.new(class: "w-full max-w-md") do |card|
+            card.header do
+              card.title { t("views.passwords.edit.heading") }
+              card.description { t("views.passwords.edit.description", default: "Enter your new password") }
             end
 
-            render Components::Ui::CardContent.new do
+            card.content do
               render_flash_messages
               render_form
             end
@@ -29,25 +29,25 @@ module Views
           div(class: "space-y-4") do
             form.field :password,
               as: :password_field,
-              label: t(".password_label", default: "Password"),
+              label: t("views.passwords.edit.password_label", default: "Password"),
               options: {
                 required: true,
                 autocomplete: "new-password",
-                placeholder: t(".password_placeholder"),
+                placeholder: t("views.passwords.edit.password_placeholder"),
                 maxlength: 72
               }
 
             form.field :password_confirmation,
               as: :password_field,
-              label: t(".password_confirmation_label", default: "Confirm Password"),
+              label: t("views.passwords.edit.password_confirmation_label", default: "Confirm Password"),
               options: {
                 required: true,
                 autocomplete: "new-password",
-                placeholder: t(".password_confirmation_placeholder"),
+                placeholder: t("views.passwords.edit.password_confirmation_placeholder"),
                 maxlength: 72
               }
 
-            form.submit t(".submit"), class: "w-full"
+            form.submit t("views.passwords.edit.submit"), class: "w-full"
           end
         end
       end

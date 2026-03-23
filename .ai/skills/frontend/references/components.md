@@ -1,94 +1,62 @@
-# Phlex Component Examples
+# Phlex Component Reference
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#-frontend)**
+For complete rules, use [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#components).
 
-Phlex components are pure, reusable UI elements with Tailwind styling. Code examples below.
+## Core Conventions
 
-## Basic Component
+- Components inherit from `Components::Base`.
+- Use `view_template` (not `template`).
+- Use `initialize(..., **attrs)` and pass attrs via `attrs_without_class` + `merged_classes` helpers when rendering tags.
+- Use proper namespace casing: `Components::Ui`, not `Components::UI`.
+
+## Compound Component Convention
+
+For compound components, the parent yields itself and child helpers render directly.
 
 ```ruby
-# app/components/game/player_card.rb
+render Components::Ui::Breadcrumb.new(class: "mb-6") do |breadcrumb|
+  breadcrumb.list do
+    breadcrumb.item do
+      breadcrumb.link(href: admin_root_path) { t("admin.articles.breadcrumbs.home") }
+    end
+    breadcrumb.separator
+    breadcrumb.item do
+      breadcrumb.page { t("admin.articles.breadcrumbs.articles") }
+    end
+  end
+end
+```
+
+Do not use child `.new` calls inside yielded APIs.
+
+## Minimal Component Example
+
+```ruby
 module Components
-  module Game
-    class PlayerCard < Components::Base
-      def initialize(player:, size: :medium)
-        @player = player
-        @size = size
+  module Ui
+    class Notice < Components::Base
+      def initialize(variant: :info, **attrs)
+        @variant = variant
+        @attrs = attrs
       end
 
-      def template
-        div(
-          id: dom_id(@player),
-          class: "player-card #{size_classes}",
-          data: {
-            player_id: @player.id,
-            controller: "game--player",
-            game__player_x_value: @player.x,
-            game__player_y_value: @player.y
-          }
-        ) do
-          img(src: @player.avatar_url, alt: @player.name, class: "rounded-full")
-          span(class: "player-name text-white font-bold") { @player.name }
-          render Components::UI::HealthBar.new(health: @player.health, max_health: @player.max_health)
-        end
+      def view_template(&block)
+        div(class: classes, **attrs_without_class, &block)
       end
 
       private
 
-      def size_classes
-        case @size
-        when :small then "w-8 h-8"
-        when :medium then "w-16 h-16"
-        when :large then "w-24 h-24"
-        end
+      def classes
+        ["rounded-lg border px-3 py-2 text-sm", variant_classes[@variant], @attrs[:class]].compact.join(" ")
+      end
+
+      def variant_classes
+        {
+          info: "border-border bg-muted text-foreground",
+          danger: "border-destructive/30 bg-destructive/10 text-destructive"
+        }
       end
     end
   end
 end
 ```
-
-## Reusable UI Component
-
-```ruby
-# app/components/ui/button.rb
-module Components
-  module UI
-    class Button < Components::Base
-      def initialize(text:, type: :button, variant: :primary, disabled: false, **attrs)
-        @text = text
-        @type = type
-        @variant = variant
-        @disabled = disabled
-        @attrs = attrs
-      end
-
-      def template
-        button(
-          type: @type,
-          class: "btn btn-#{@variant}",
-          disabled: @disabled,
-          **@attrs
-        ) { @text }
-      end
-    end
-  end
-end
-```
-
-## File Organization
-
-```
-app/components/
-  game/
-    player_card.rb
-    move_button.rb
-    map_viewport.rb
-  ui/
-    button.rb
-    card.rb
-    modal.rb
-  shared/
-    navbar.rb
-```
-
-See [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#components) for complete component guidelines.

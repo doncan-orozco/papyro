@@ -1,39 +1,50 @@
 # frozen_string_literal: true
 
-# Popover - click-triggered popup component
-# Following shadcn/ui Radix patterns with semantic tokens
-# Note: Requires Stimulus controller for positioning and interactivity
 module Components
   module Ui
-    # Popover root container
     class Popover < Components::Base
-      def initialize(**attrs)
+      def initialize(open: nil, placement: nil, offset: nil, **attrs)
         @attrs = attrs
+        @attrs[:data] ||= {}
+        @attrs[:data][:controller] = "ui--popover" unless @attrs[:data][:controller]
+
+        if !open.nil? && !@attrs[:data].key?(:ui__popover_open_value) && !@attrs[:data].key?("ui__popover_open_value")
+          @attrs[:data][:ui__popover_open_value] = open
+        elsif !@attrs[:data].key?(:ui__popover_open_value) && !@attrs[:data].key?("ui__popover_open_value")
+          @attrs[:data][:ui__popover_open_value] = false
+        end
+
+        if !placement.nil? && !@attrs[:data].key?(:ui__popover_placement_value) && !@attrs[:data].key?("ui__popover_placement_value")
+          @attrs[:data][:ui__popover_placement_value] = placement
+        end
+
+        if !offset.nil? && !@attrs[:data].key?(:ui__popover_offset_value) && !@attrs[:data].key?("ui__popover_offset_value")
+          @attrs[:data][:ui__popover_offset_value] = offset
+        end
       end
 
       def view_template(&block)
-        div(class: merged_classes, **attrs_without_class, &block)
+        div(class: merged_classes, **attrs_without_class) do
+          yield self if block
+        end
       end
 
-      private
-
-      def classes
-        ""
-      end
-    end
-
-    # Popover Trigger - button that triggers the popover
-    class PopoverTrigger < Components::Base
-      def initialize(**attrs)
-        @attrs = attrs
+      def trigger(**attrs, &block)
+        render Trigger.new(**with_required_data(
+          attrs,
+          data: {
+            ui__popover_target: "trigger",
+            action: "click->ui--popover#toggle"
+          }
+        )), &block
       end
 
-      def view_template(&block)
-        # Typically a button, but can be any interactive element
-        button(
-          type: :button,
-          class: merged_classes,
-          **attrs_without_class,
+      def content(hidden: true, align: nil, side: nil, **attrs, &block)
+        render Content.new(
+          hidden: hidden,
+          align: align,
+          side: side,
+          **with_required_data(attrs, data: { ui__popover_target: "content" }),
           &block
         )
       end
@@ -43,49 +54,79 @@ module Components
       def classes
         ""
       end
-    end
 
-    # Popover Content - the popup content
-    class PopoverContent < Components::Base
-      def initialize(align: "center", side: "bottom", **attrs)
-        @align = align
-        @side = side
-        @attrs = attrs
-      end
+      def with_required_data(attrs, data:)
+        merged_attrs = attrs.dup
+        existing_data = (merged_attrs[:data] || {}).dup
+        required_data = data.dup
 
-      def view_template(&block)
-        dynamic_attrs = attrs_without_class.dup
-        data_hash = (dynamic_attrs[:data] || {}).dup
-
-        unless data_hash.key?(:align) || data_hash.key?("align")
-          data_hash[:align] = @align
+        if required_data.key?(:action) && (existing_data.key?(:action) || existing_data.key?("action"))
+          existing_action = existing_data[:action] || existing_data["action"]
+          required_data[:action] = merge_action_tokens(existing_action, required_data[:action])
         end
 
-        unless data_hash.key?(:side) || data_hash.key?("side")
-          data_hash[:side] = @side
+        merged_attrs[:data] = existing_data.merge(required_data)
+        merged_attrs
+      end
+
+      def merge_action_tokens(existing_actions, required_actions)
+        (existing_actions.to_s.split + required_actions.to_s.split).uniq.join(" ")
+      end
+
+      class Trigger < Components::Base
+        def initialize(**attrs)
+          @attrs = attrs
         end
 
-        dynamic_attrs[:data] = data_hash
+        def view_template(&block)
+          div(class: merged_classes, **attrs_without_class, &block)
+        end
 
-        div(
-          class: merged_classes,
-          **dynamic_attrs,
-          &block
-        )
+        private
+
+        def classes
+          "inline-block"
+        end
       end
 
-      private
+      class Content < Components::Base
+        def initialize(align: nil, side: nil, **attrs)
+          @align = align
+          @side = side
+          @attrs = attrs
+        end
 
-      def classes
-        [
-          "z-50 w-72 rounded-md border border-border bg-popover p-4 text-popover-foreground shadow-md outline-none",
-          "data-[state=open]:animate-in data-[state=closed]:animate-out",
-          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-          "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2",
-          "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
-        ].join(" ")
+        def view_template(&block)
+          dynamic_attrs = attrs_without_class.dup
+          data_hash = (dynamic_attrs[:data] || {}).dup
+
+          data_hash[:align] = @align if @align && !data_hash.key?(:align) && !data_hash.key?("align")
+          data_hash[:side] = @side if @side && !data_hash.key?(:side) && !data_hash.key?("side")
+          dynamic_attrs[:data] = data_hash
+
+          dynamic_attrs[:role] = :dialog unless dynamic_attrs.key?(:role) || dynamic_attrs.key?("role")
+
+          div(class: merged_classes, **dynamic_attrs, &block)
+        end
+
+        private
+
+        def classes
+          [
+            "z-50 w-72 rounded-md border border-border bg-popover p-4 text-popover-foreground shadow-md outline-none",
+            "transition-opacity duration-200",
+            "data-[state=open]:animate-in data-[state=closed]:animate-out",
+            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+            "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2",
+            "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+            "origin-[--radix-popover-content-transform-origin]"
+          ].join(" ")
+        end
       end
+
+      PopoverTrigger = Trigger
+      PopoverContent = Content
     end
   end
 end

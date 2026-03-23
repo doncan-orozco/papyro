@@ -40,8 +40,21 @@ module Components
           class: merged_classes,
           tabindex: 0,
           **dynamic_attrs,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def track(**attrs, &block)
+        render Track.new(**attrs), &block
+      end
+
+      def range(**attrs, &block)
+        render Range.new(**attrs), &block
+      end
+
+      def thumb(**attrs, &block)
+        render Thumb.new(**attrs), &block
       end
 
       private
@@ -56,7 +69,7 @@ module Components
     end
 
     # Slider Track - background track
-    class SliderTrack < Components::Base
+    class Slider::Track < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -73,7 +86,7 @@ module Components
     end
 
     # Slider Range - filled portion of track
-    class SliderRange < Components::Base
+    class Slider::Range < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -90,7 +103,7 @@ module Components
     end
 
     # Slider Thumb - draggable handle
-    class SliderThumb < Components::Base
+    class Slider::Thumb < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -111,5 +124,10 @@ module Components
         ].join(" ")
       end
     end
+
+    SliderTrack = Slider::Track
+    SliderRange = Slider::Range
+    SliderThumb = Slider::Thumb
+
   end
 end
