@@ -12,6 +12,14 @@ en:
         submit: "Sign in"
         forgot_password_prompt: "Forgot your password?"
         forgot_password: "Reset it here"
+    passwords:
+      new:
+        heading: "Forgot your password?"
+        description: "Reset your password"
+        email_label: "Email Address"
+        email_placeholder: "Enter your email address"
+        instruction: "We will send you an email with instructions to reset your password."
+        submit: "Email reset instructions"
     admin:
       sessions:
         new:

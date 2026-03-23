@@ -12,6 +12,14 @@ es:
         submit: "Iniciar sesión"
         forgot_password_prompt: "¿Olvidaste tu contraseña?"
         forgot_password: "Restablécela aquí"
+    passwords:
+      new:
+        heading: "¿Olvidaste tu contraseña?"
+        description: "Restablece tu contraseña"
+        email_label: "Correo electrónico"
+        email_placeholder: "Ingresa tu correo electrónico"
+        instruction: "Te enviaremos un correo con instrucciones para restablecer tu contraseña."
+        submit: "Enviar instrucciones de restablecimiento"
     admin:
       sessions:
         new:

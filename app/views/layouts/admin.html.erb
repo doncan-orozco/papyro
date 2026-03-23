@@ -16,10 +16,10 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-background text-foreground antialiased">
+  <body class="min-h-dvh bg-background text-foreground antialiased">
     <%= render Components::Admin::Navbar.new %>
 
-    <main id="main-content">
+    <main id="main-content" class="min-h-[calc(100dvh-3.5rem)]">
       <%= yield %>
     </main>
   </body>
