@@ -198,4 +198,74 @@ export default class extends Controller {
       timeout = setTimeout(() => func.apply(this, args), wait)
     }
   }
+
+  /**
+   * Parse a CSS duration value into milliseconds
+   * @param {string} value - CSS duration token (e.g. "200ms", "0.3s")
+   * @returns {number} Duration in milliseconds
+   */
+  durationToMs(value) {
+    const token = value?.toString().trim() || "0s"
+    if (token.endsWith("ms")) return Number.parseFloat(token) || 0
+    if (token.endsWith("s")) return (Number.parseFloat(token) || 0) * 1000
+    return Number.parseFloat(token) || 0
+  }
+
+  /**
+   * Resolve the longest animation/transition total duration for an element
+   * @param {HTMLElement} element - Target element
+   * @param {number} fallbackMs - Fallback duration when styles are unavailable
+   * @returns {number} Maximum duration in milliseconds
+   */
+  getAnimationDurationMs(element, fallbackMs = 0) {
+    if (!element) return fallbackMs
+
+    const styles = window.getComputedStyle(element)
+    const parseList = (value) => value.split(",").map((part) => this.durationToMs(part))
+
+    const transitionDurations = parseList(styles.transitionDuration || "0s")
+    const transitionDelays = parseList(styles.transitionDelay || "0s")
+    const animationDurations = parseList(styles.animationDuration || "0s")
+    const animationDelays = parseList(styles.animationDelay || "0s")
+
+    const pairMax = (durations, delays) => {
+      const size = Math.max(durations.length, delays.length)
+      if (size === 0) return 0
+
+      let max = 0
+      for (let i = 0; i < size; i += 1) {
+        const d = durations[i % durations.length] || 0
+        const delay = delays[i % delays.length] || 0
+        max = Math.max(max, d + delay)
+      }
+      return max
+    }
+
+    const total = Math.max(
+      pairMax(transitionDurations, transitionDelays),
+      pairMax(animationDurations, animationDelays)
+    )
+
+    return total > 0 ? total : fallbackMs
+  }
+
+  /**
+   * Hide an element after its active animation/transition completes
+   * @param {HTMLElement} element - Target element
+   * @param {number} fallbackMs - Fallback delay when no durations are detected
+   */
+  hideAfterAnimation(element, fallbackMs = 0) {
+    if (!element) return
+
+    const existingTimer = element.__uiHideTimer
+    if (existingTimer) {
+      clearTimeout(existingTimer)
+    }
+
+    const waitMs = this.getAnimationDurationMs(element, fallbackMs)
+    element.__uiHideTimer = setTimeout(() => {
+      element.hidden = true
+      element.__uiHideTimer = null
+    }, waitMs)
+  }
 }

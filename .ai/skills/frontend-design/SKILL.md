@@ -43,7 +43,7 @@ Then implement working code (Phlex components or views) that is:
 
 ### Component Structure
 ```ruby
-module Components::UI
+module Components::Ui
   class Button < Components::Base
     attr_reader :label, :variant, :size
 

@@ -763,8 +763,8 @@ end
 # CORRECT
 class Views::Home::Index < Views::Base
   def view_template
-    h1 { t(".title") }
-    p { t(".subtitle") }
+    h1 { t("home.index.title") }
+    p { t("home.index.subtitle") }
   end
 end
 
@@ -789,7 +789,7 @@ es:
 
 ```ruby
 # WRONG - can't use Stimulus attributes
-class Components::UI::Button < Components::Base
+class Components::Ui::Button < Components::Base
   def initialize(text:)
     @text = text
   end
@@ -798,13 +798,14 @@ class Components::UI::Button < Components::Base
     button(class: "btn") { @text }
   end
 end
+
 ```
 
 ✅ **DO**: Include **attrs for Stimulus support
 
 ```ruby
 # CORRECT
-class Components::UI::Button < Components::Base
+class Components::Ui::Button < Components::Base
   def initialize(text:, **attrs)
     @text = text
     @attrs = attrs
@@ -816,7 +817,7 @@ class Components::UI::Button < Components::Base
 end
 
 # Usage with Stimulus
-render Components::UI::Button.new(
+render Components::Ui::Button.new(
   text: "Click me",
   data: { 
     controller: "button", 
@@ -917,10 +918,14 @@ For migration safety patterns and database anti-patterns, see [skills/database/a
 
 ```ruby
 # WRONG - Relative keys in views
-class Articles::Show < Views::Base
-  def view_template
-    h1 { t(".title") }  # BAD: Magic scope resolution
-    p { t(".description") }
+module Views
+  module Articles
+    class Show < Views::Base
+      def view_template
+        h1 { t(".title") }  # BAD: Magic scope resolution
+        p { t(".description") }
+      end
+    end
   end
 end
 ```
@@ -929,10 +934,14 @@ end
 
 ```ruby
 # CORRECT - Explicit, grep-able keys
-class Articles::Show < Views::Base
-  def view_template
-    h1 { t("articles.show.title") }  # GOOD: Explicit and portable
-    p { t("articles.show.description") }
+module Views
+  module Articles
+    class Show < Views::Base
+      def view_template
+        h1 { t("articles.show.title") }  # GOOD: Explicit and portable
+        p { t("articles.show.description") }
+      end
+    end
   end
 end
 ```
@@ -1036,11 +1045,15 @@ end
 
 ```ruby
 # WRONG - English hardcoded in view
-class Articles::Index < Views::Base
-  def view_template
-    h1 { "All Articles" }  # BAD
-    if @articles.empty?
-      p { "No articles found" }  # BAD
+module Views
+  module Articles
+    class Index < Views::Base
+      def view_template
+        h1 { "All Articles" }  # BAD
+        if @articles.empty?
+          p { "No articles found" }  # BAD
+        end
+      end
     end
   end
 end
@@ -1050,11 +1063,15 @@ end
 
 ```ruby
 # CORRECT - Everything translatable
-class Articles::Index < Views::Base
-  def view_template
-    h1 { t("articles.index.title") }
-    if @articles.empty?
-      p { t("articles.index.empty") }
+module Views
+  module Articles
+    class Index < Views::Base
+      def view_template
+        h1 { t("articles.index.title") }
+        if @articles.empty?
+          p { t("articles.index.empty") }
+        end
+      end
     end
   end
 end

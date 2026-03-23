@@ -76,7 +76,7 @@ See [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-architecture--o
 2. Create `app/views/{domain}/action.rb` (inherit from `Views::Base`)
 3. Create route in `config/routes.rb`
 4. Create `config/locales/{en,es}/{file}.yml`
-5. Use scoped keys: `t(".title")`
+5. Use fully-qualified keys: `t("articles.index.title")`
 
 **Example:**
 ```ruby
@@ -92,7 +92,7 @@ module Views
   module Articles
     class Index < Views::Base
       def view_template
-        h1 { t(".title") }
+        h1 { t("articles.index.title") }
         # ... rest of view
       end
     end
@@ -168,7 +168,7 @@ module Views
     class Featured < Views::Base
       def view_template
         turbo_frame_tag("featured_articles") do
-          h2 { t(".title") }
+          h2 { t("articles.featured.title") }
           @articles.each do |article|
             render Components::Articles::Card.new(article: article)
           end
@@ -184,7 +184,7 @@ turbo_frame_tag(
   src: featured_articles_path,
   loading: :lazy
 ) do
-  p { t(".loading") }
+  p { t("articles.featured.loading") }
 end
 
 # config/routes.rb

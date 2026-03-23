@@ -12,7 +12,29 @@ module Components
       end
 
       def view_template(&block)
-        div(class: merged_classes, **attrs_without_class, &block)
+        div(class: merged_classes, **attrs_without_class) do
+          yield self if block
+        end
+      end
+
+      def header(**attrs, &block)
+        render Header.new(**attrs), &block
+      end
+
+      def title(**attrs, &block)
+        render Title.new(**attrs), &block
+      end
+
+      def description(**attrs, &block)
+        render Description.new(**attrs), &block
+      end
+
+      def content(**attrs, &block)
+        render Content.new(**attrs), &block
+      end
+
+      def footer(**attrs, &block)
+        render Footer.new(**attrs), &block
       end
 
       private
@@ -23,7 +45,7 @@ module Components
     end
 
     # Card header with title and description
-    class CardHeader < Components::Base
+    class Card::Header < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -40,7 +62,7 @@ module Components
     end
 
     # Card title (h3 by default, customizable)
-    class CardTitle < Components::Base
+    class Card::Title < Components::Base
       def initialize(as: :h3, **attrs)
         @as = as
         @attrs = attrs
@@ -58,7 +80,7 @@ module Components
     end
 
     # Card description text
-    class CardDescription < Components::Base
+    class Card::Description < Components::Base
       def initialize(as: :p, **attrs)
         @as = as
         @attrs = attrs
@@ -76,7 +98,7 @@ module Components
     end
 
     # Card main content area
-    class CardContent < Components::Base
+    class Card::Content < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -93,7 +115,7 @@ module Components
     end
 
     # Card footer for actions
-    class CardFooter < Components::Base
+    class Card::Footer < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -108,5 +130,12 @@ module Components
         "flex items-center p-6 pt-0"
       end
     end
+
+    CardHeader = Card::Header
+    CardTitle = Card::Title
+    CardDescription = Card::Description
+    CardContent = Card::Content
+    CardFooter = Card::Footer
+
   end
 end

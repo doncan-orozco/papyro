@@ -3,7 +3,7 @@
 module Views
   module Articles
     class Show < Views::Base
-      def initialize(article, prev_article: nil, next_article: nil)
+      def initialize(article:, prev_article: nil, next_article: nil)
         @article = article
         @prev_article = prev_article
         @next_article = next_article

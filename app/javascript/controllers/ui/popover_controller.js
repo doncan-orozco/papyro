@@ -42,17 +42,17 @@ export default class extends BaseController {
   static targets = ["trigger", "content"]
 
   connect() {
-    console.log('💬 Popover controller connected', this.element)
     this.clickOutsideHandler = this.handleClickOutside.bind(this)
     this.escapeHandler = this.handleEscape.bind(this)
     this.cleanupAutoUpdate = null
     this.hasOpened = false
     this.hasInitialized = false
     
-    // Setup content
     if (this.hasContentTarget) {
       this.contentTarget.hidden = true
-      this.contentTarget.style.position = 'absolute'
+      this.contentTarget.dataset.state = 'closed'
+      this.contentTarget.dataset.side = this.sideFromPlacement(this.placementValue)
+      this.contentTarget.style.position = 'fixed'
       this.contentTarget.style.zIndex = '1000'
     }
   }
@@ -67,7 +67,6 @@ export default class extends BaseController {
    * @param {Event} event - Click event
    */
   toggle(event) {
-    console.log('💬 Popover toggle clicked', { open: this.openValue })
     event?.preventDefault()
     this.openValue = !this.openValue
   }
@@ -105,32 +104,27 @@ export default class extends BaseController {
 
     this.hasOpened = true
 
-    // Show content
     this.contentTarget.hidden = false
-    this.contentTarget.style.opacity = '0'
-    
-    // Position popover
+    this.contentTarget.style.visibility = 'hidden'
+
     await this.updatePosition()
-    
-    // Fade in
+
+    this.contentTarget.dataset.state = 'open'
     requestAnimationFrame(() => {
-      this.contentTarget.style.opacity = '1'
+      this.contentTarget.style.visibility = 'visible'
     })
-    
-    // Start auto-updating position
+
     this.startAutoUpdate()
-    
-    // Add event listeners
     this.addEventListeners()
-    
-    // Focus first focusable element in popover
+
     const focusable = this.findFocusable(this.contentTarget)
     if (focusable.length > 0) {
       focusable[0].focus()
     } else {
+      this.contentTarget.tabIndex = -1
       this.contentTarget.focus()
     }
-    
+
     this.dispatchStateChange("ui:popover:opened")
   }
 
@@ -140,26 +134,16 @@ export default class extends BaseController {
   closePopover() {
     if (!this.hasContentTarget) return
 
-    // Hide content
-    this.contentTarget.style.opacity = '0'
-    
-    setTimeout(() => {
-      if (this.hasContentTarget) {
-        this.contentTarget.hidden = true
-      }
-    }, 150)
-    
-    // Stop auto-updating position
+    this.contentTarget.dataset.state = 'closed'
+    this.hideAfterAnimation(this.contentTarget, 200)
+
     this.stopAutoUpdate()
-    
-    // Remove event listeners
     this.removeEventListeners()
-    
-    // Restore focus to trigger only after an actual open
+
     if (this.hasTriggerTarget && this.hasOpened) {
       this.triggerTarget.focus()
     }
-    
+
     this.dispatchStateChange("ui:popover:closed")
   }
 
@@ -169,10 +153,11 @@ export default class extends BaseController {
   async updatePosition() {
     if (!this.hasContentTarget || !this.hasTriggerTarget) return
 
-    const { x, y } = await computePosition(
+    const { x, y, placement } = await computePosition(
       this.triggerTarget,
       this.contentTarget,
       {
+        strategy: 'fixed',
         placement: this.placementValue,
         middleware: [
           flip(),
@@ -184,6 +169,11 @@ export default class extends BaseController {
 
     this.contentTarget.style.left = `${x}px`
     this.contentTarget.style.top = `${y}px`
+    this.contentTarget.dataset.side = this.sideFromPlacement(placement)
+    this.contentTarget.style.setProperty(
+      '--radix-popover-content-transform-origin',
+      this.transformOriginFromPlacement(placement)
+    )
   }
 
   /**
@@ -234,6 +224,27 @@ export default class extends BaseController {
   handleEscape(event) {
     if (event.key === 'Escape' && this.openValue) {
       this.close()
+    }
+  }
+
+  sideFromPlacement(placement) {
+    return placement.split('-')[0]
+  }
+
+  transformOriginFromPlacement(placement) {
+    const side = this.sideFromPlacement(placement)
+
+    switch (side) {
+      case 'top':
+        return 'center bottom'
+      case 'bottom':
+        return 'center top'
+      case 'left':
+        return 'right center'
+      case 'right':
+        return 'left center'
+      default:
+        return 'center center'
     }
   }
 

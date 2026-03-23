@@ -4,19 +4,19 @@ module Views
   module Admin
     module Sessions
       class New < Views::Base
-        def initialize(form)
+        def initialize(form:)
           @form = form
         end
 
         def view_template
           div(class: "min-h-screen bg-background flex items-center justify-center px-4 py-12") do
-            render Components::Ui::Card.new(class: "w-full max-w-md") do
-              render Components::Ui::CardHeader.new do
-                render Components::Ui::CardTitle.new { t(".heading") }
-                render Components::Ui::CardDescription.new { t(".description", default: "Admin authentication") }
+            render Components::Ui::Card.new(class: "w-full max-w-md") do |card|
+              card.header do
+                card.title { t("admin.sessions.new.heading") }
+                card.description { t("admin.sessions.new.description", default: "Admin authentication") }
               end
 
-              render Components::Ui::CardContent.new do
+              card.content do
                 render_flash_messages
                 render_login_form
               end
@@ -38,25 +38,25 @@ module Views
           form_with(model: @form, url: admin_session_path, method: :post, class: "space-y-5", local: true) do |form|
             form.field :email_address,
               as: :email_field,
-              label: t(".email_label", default: "Email Address"),
+              label: t("admin.sessions.new.email_label", default: "Email Address"),
               options: {
                 required: true,
                 autofocus: true,
                 autocomplete: "username",
-                placeholder: t(".email_placeholder")
+                placeholder: t("admin.sessions.new.email_placeholder")
               }
 
             form.field :password,
               as: :password_field,
-              label: t(".password_label", default: "Password"),
+              label: t("admin.sessions.new.password_label", default: "Password"),
               options: {
                 required: true,
                 autocomplete: "current-password",
-                placeholder: t(".password_placeholder"),
+                placeholder: t("admin.sessions.new.password_placeholder"),
                 maxlength: 72
               }
 
-            form.submit t(".submit"), class: "w-full"
+            form.submit t("admin.sessions.new.submit"), class: "w-full"
           end
         end
       end

@@ -13,11 +13,35 @@ module Components
       end
 
       def view_template(&block)
+        dynamic_attrs = attrs_without_class.dup
+        dynamic_attrs = with_required_data(dynamic_attrs, data: { controller: "ui--tabs" })
+
         div(
           class: merged_classes,
-          **attrs_without_class,
-          &block
-        )
+          **dynamic_attrs,
+        ) do
+          yield self if block
+        end
+      end
+
+      def list(**attrs, &block)
+        render List.new(**attrs), &block
+      end
+
+      def trigger(**attrs, &block)
+        render Trigger.new(
+          **with_required_data(
+            attrs,
+            data: {
+              ui__tabs_target: "trigger",
+              action: "click->ui--tabs#select keydown->ui--tabs#keydown"
+            }
+          )
+        ), &block
+      end
+
+      def content(**attrs, &block)
+        render Content.new(**with_required_data(attrs, data: { ui__tabs_target: "content" })), &block
       end
 
       private
@@ -25,10 +49,28 @@ module Components
       def classes
         "w-full"
       end
+
+      def with_required_data(attrs, data:)
+        merged_attrs = attrs.dup
+        existing_data = (merged_attrs[:data] || {}).dup
+        required_data = data.dup
+
+        if required_data.key?(:action) && (existing_data.key?(:action) || existing_data.key?("action"))
+          existing_action = existing_data[:action] || existing_data["action"]
+          required_data[:action] = merge_action_tokens(existing_action, required_data[:action])
+        end
+
+        merged_attrs[:data] = existing_data.merge(required_data)
+        merged_attrs
+      end
+
+      def merge_action_tokens(existing_actions, required_actions)
+        (existing_actions.to_s.split + required_actions.to_s.split).uniq.join(" ")
+      end
     end
 
     # Tabs list (the tab buttons container)
-    class TabsList < Components::Base
+    class Tabs::List < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -54,7 +96,7 @@ module Components
     end
 
     # Tab trigger button
-    class TabsTrigger < Components::Base
+    class Tabs::Trigger < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -86,7 +128,7 @@ module Components
     end
 
     # Tab content panel
-    class TabsContent < Components::Base
+    class Tabs::Content < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -110,14 +152,10 @@ module Components
         ].join(" ")
       end
     end
+
+    TabsList = Tabs::List
+    TabsTrigger = Tabs::Trigger
+    TabsContent = Tabs::Content
+
   end
 end
-
-# Zeitwerk autoload helpers for nested classes defined above
-# Without these, requesting Components::Ui::TabsList (etc.) would try to
-# load tabs_list.rb which doesn’t exist. By registering them here we point
-# Zeitwerk at this file as their source.
-
-Components::Ui.autoload :TabsList, __FILE__
-Components::Ui.autoload :TabsTrigger, __FILE__
-Components::Ui.autoload :TabsContent, __FILE__

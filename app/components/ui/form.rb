@@ -18,8 +18,29 @@ module Components
           method: @method,
           class: merged_classes,
           **attrs_without_class,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def item(**attrs, &block)
+        render Item.new(**attrs), &block
+      end
+
+      def label(**attrs, &block)
+        render Label.new(**attrs), &block
+      end
+
+      def control(**attrs, &block)
+        render Control.new(**attrs), &block
+      end
+
+      def description(**attrs, &block)
+        render Description.new(**attrs), &block
+      end
+
+      def message(**attrs, &block)
+        render Message.new(**attrs), &block
       end
 
       private
@@ -30,7 +51,7 @@ module Components
     end
 
     # Form Item - individual form field wrapper
-    class FormItem < Components::Base
+    class Form::Item < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -43,7 +64,7 @@ module Components
     end
 
     # Form Label - label for form fields
-    class FormLabel < Components::Base
+    class Form::Label < Components::Base
       def initialize(for_id: nil, **attrs)
         @for_id = for_id
         @attrs = attrs
@@ -71,7 +92,7 @@ module Components
     end
 
     # Form Control - wrapper for form inputs
-    class FormControl < Components::Base
+    class Form::Control < Components::Base
       def view_template(&block)
         div(class: merged_classes, **attrs_without_class, &block)
       end
@@ -84,7 +105,7 @@ module Components
     end
 
     # Form Description - help text for form fields
-    class FormDescription < Components::Base
+    class Form::Description < Components::Base
       def view_template(&block)
         p(class: merged_classes, **attrs_without_class, &block)
       end
@@ -97,7 +118,7 @@ module Components
     end
 
     # Form Message - validation error message
-    class FormMessage < Components::Base
+    class Form::Message < Components::Base
       def view_template(&block)
         p(class: merged_classes, **attrs_without_class, &block)
       end
@@ -108,5 +129,12 @@ module Components
         "text-sm font-medium text-destructive"
       end
     end
+
+    FormItem = Form::Item
+    FormLabel = Form::Label
+    FormControl = Form::Control
+    FormDescription = Form::Description
+    FormMessage = Form::Message
+
   end
 end

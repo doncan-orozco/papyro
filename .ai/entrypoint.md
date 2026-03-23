@@ -28,6 +28,7 @@ See [DOCUMENTATION_STRUCTURE.md](DOCUMENTATION_STRUCTURE.md) for the complete do
 - All write logic in Trailblazer Operations.
 - All validations in dry-validation contracts.
 - No ActiveRecord callbacks or model validations.
+- Compound Phlex components must use direct yielded child methods (for example `breadcrumb.list { ... }`), never child `.new` calls.
 
 ## Development Environment
 - **Port:** 3030 (NOT 3000)

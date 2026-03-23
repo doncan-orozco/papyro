@@ -15,8 +15,17 @@ module Components
         span(
           class: merged_classes,
           **attrs_without_class,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def image(**attrs, &block)
+        render Image.new(**attrs), &block
+      end
+
+      def fallback(**attrs, &block)
+        render Fallback.new(**attrs), &block
       end
 
       private
@@ -27,7 +36,7 @@ module Components
     end
 
     # Avatar image
-    class AvatarImage < Components::Base
+    class Avatar::Image < Components::Base
       def initialize(src:, alt: "", **attrs)
         @src = src
         @alt = alt
@@ -51,7 +60,7 @@ module Components
     end
 
     # Avatar fallback (shown when image fails to load)
-    class AvatarFallback < Components::Base
+    class Avatar::Fallback < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -70,5 +79,9 @@ module Components
         "flex h-full w-full items-center justify-center rounded-full bg-muted"
       end
     end
+
+    AvatarImage = Avatar::Image
+    AvatarFallback = Avatar::Fallback
+
   end
 end

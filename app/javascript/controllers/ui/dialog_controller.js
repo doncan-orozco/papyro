@@ -43,12 +43,19 @@ export default class extends BaseController {
   static targets = ["overlay", "content", "closeButton"]
 
   connect() {
-    console.log('🗨️ Dialog controller connected', this.element)
     this.previouslyFocusedElement = null
     this.keydownHandler = this.handleKeydown.bind(this)
     this.overlayClickHandler = this.handleOverlayClick.bind(this)
     this.hasOpened = false
     this.hasInitialized = false
+
+    if (this.hasOverlayTarget) {
+      this.overlayTarget.dataset.state = 'closed'
+    }
+
+    if (this.hasContentTarget) {
+      this.contentTarget.dataset.state = 'closed'
+    }
   }
 
   disconnect() {
@@ -61,7 +68,6 @@ export default class extends BaseController {
    * @param {Event} event - Event
    */
   open(event) {
-    console.log('🗨️ Dialog open clicked')
     event?.preventDefault()
     this.openValue = true
   }
@@ -163,19 +169,11 @@ export default class extends BaseController {
    */
   showElement(element) {
     element.hidden = false
-    if (element.style.display === 'none') {
-      element.style.display = ''
-    }
-    element.style.opacity = '0'
-    
-    // Force reflow for transition
-    element.offsetHeight
-    
-    element.style.opacity = '1'
+    element.dataset.state = 'closed'
 
-    if (element.dataset.dialogTransition === 'slide') {
-      element.style.transform = 'translateX(0)'
-    }
+    requestAnimationFrame(() => {
+      element.dataset.state = 'open'
+    })
   }
 
   /**
@@ -183,16 +181,8 @@ export default class extends BaseController {
    * @param {HTMLElement} element - Element to hide
    */
   hideElement(element) {
-    element.style.opacity = '0'
-
-    if (element.dataset.dialogTransition === 'slide') {
-      element.style.transform = 'translateX(100%)'
-    }
-    
-    // Hide after transition
-    setTimeout(() => {
-      element.hidden = true
-    }, 200) // Match transition-all duration-200
+    element.dataset.state = 'closed'
+    this.hideAfterAnimation(element, 300)
   }
 
   /**

@@ -753,7 +753,7 @@ When converting shadcn Radix UI component to Phlex:
 ### Component Anatomy
 
 ```
-TableContainer   ← overflow-x-auto wrapper
+div wrapper      ← class="relative w-full overflow-auto"
   Table          ← <table> with w-full text-sm
     TableHeader  ← <thead>
       TableRow   ← <tr> with border-bottom hover
@@ -766,7 +766,7 @@ TableContainer   ← overflow-x-auto wrapper
 ### Phlex Usage
 
 ```ruby
-render Components::Ui::TableContainer.new do
+div(class: "relative w-full overflow-auto") do
   render Components::Ui::Table.new do
     render Components::Ui::TableHeader.new do
       render Components::Ui::TableRow.new do
@@ -813,39 +813,26 @@ Use a ghost icon button (`MoreHorizontal`) as the trigger for a `DropdownMenuCon
 
 ```ruby
 render Components::Ui::TableCell.new(class: "text-right") do
-  div(data: { controller: "ui--dropdown", ui__dropdown_placement_value: "bottom-end" }) do
-    render Components::Ui::Button.new(
-      variant: :ghost,
-      size: :icon,
-      class: "size-8",
-      data: { action: "click->ui--dropdown#toggle", ui__dropdown_target: "trigger" }
-    ) do
+  render Components::Ui::DropdownMenu.new(
+    data: { ui__dropdown_placement_value: "bottom-end" }
+  ) do |dropdown|
+    dropdown.trigger(variant: :ghost, size: :icon, class: "size-8") do
       render Components::Ui::Icon.new(:"more-horizontal", class: "h-4 w-4")
       span(class: "sr-only") { t("...menu_trigger") }
     end
 
-    render Components::Ui::DropdownMenuContent.new(
-      hidden: true,
-      align: :end,
-      data: { ui__dropdown_target: "content", action: "keydown->ui--dropdown#navigate" }
-    ) do
-      render Components::Ui::DropdownMenuItem.new(
+    dropdown.content(hidden: true, align: :end) do
+      dropdown.item(
         href: edit_path(item),
-        data: {
-          ui__dropdown_target: "item",
-          action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown",
-          turbo_frame: "_top"
-        }
+        data: { turbo_frame: "_top" }
       ) { "Edit" }
 
-      render Components::Ui::DropdownMenuSeparator.new
+      dropdown.separator
 
-      render Components::Ui::DropdownMenuItem.new(
+      dropdown.item(
         href: item_path(item),
         variant: :destructive,
         data: {
-          ui__dropdown_target: "item",
-          action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown",
           turbo_frame: "_top",
           turbo_method: :delete,
           turbo_confirm: "Are you sure?"
@@ -911,7 +898,7 @@ render Components::Ui::Card.new do
 
   # Table (edge-to-edge, no inner padding)
   render Components::Ui::CardContent.new(class: "p-0") do
-    render Components::Ui::TableContainer.new do
+    div(class: "relative w-full overflow-auto") do
       render Components::Ui::Table.new do
         # ... TableHeader + TableBody
       end

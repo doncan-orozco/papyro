@@ -142,6 +142,291 @@ Example: `bg-card` shows white in light mode, dark gray in dark mode — same cl
 
 **CRITICAL:** Every component class must have an `initialize(**attrs)` method, including nested child components.
 
+## Compound Component Yielding Convention (MANDATORY FOR ALL MULTI-PART COMPONENTS)
+
+**Applies to: Accordion, Alert, AlertDialog, Avatar, Breadcrumb, Calendar, Card, Carousel, Collapsible, Command, ContextMenu, DataTable, Dialog, Dropdown, Form, HoverCard, MenuBar, NavigationMenu, Pagination, Popover, RadioGroup, Resizable, ScrollArea, Sheet, Table, Tabs, Toast, ToggleGroup**
+
+The parent component yields itself to the view, exposing child render methods. This eliminates `.new` calls and provides a clean, composable API.
+
+### Component Structure
+
+```ruby
+# app/components/ui/card.rb
+module Components
+  module Ui
+    class Card < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
+      def view_template(&block)
+        div(class: merged_classes, **attrs_without_class) do
+          yield self if block
+        end
+      end
+
+      # Helper methods that views call
+      def header(**attrs, &block)
+        render Header.new(**attrs, &block)
+      end
+
+      def title(**attrs, &block)
+        render Title.new(**attrs, &block)
+      end
+
+      def description(**attrs, &block)
+        render Description.new(**attrs, &block)
+      end
+
+      def content(**attrs, &block)
+        render Content.new(**attrs, &block)
+      end
+
+      def footer(**attrs, &block)
+        render Footer.new(**attrs, &block)
+      end
+
+      # Nested child classes (one for each part)
+      class Header < Components::Base
+        def initialize(**attrs)
+          @attrs = attrs
+        end
+
+        def view_template(&block)
+          div(class: merged_classes, **attrs_without_class, &block)
+        end
+
+        private
+
+        def classes
+          "flex flex-col space-y-1.5 p-6"
+        end
+      end
+
+      class Title < Components::Base
+        def initialize(**attrs)
+          @attrs = attrs
+        end
+
+        def view_template(&block)
+          h2(class: merged_classes, **attrs_without_class, &block)
+        end
+
+        private
+
+        def classes
+          "text-2xl font-semibold leading-none tracking-tight"
+        end
+      end
+
+      # ... other child classes
+
+      # Legacy compatibility aliases (gradual migration)
+      CardHeader = Header
+      CardTitle = Title
+      CardDescription = Description
+      CardContent = Content
+      CardFooter = Footer
+    end
+  end
+end
+```
+
+### Usage in Views
+
+```ruby
+# NEW — The standard pattern
+render Components::Ui::Card.new(class: "mb-6") do |card|
+  card.header do
+    card.title { "Settings" }
+    card.description { "Manage your account preferences" }
+  end
+  
+  card.content(class: "space-y-4") do
+    # form fields...
+  end
+  
+  card.footer do
+    render Components::Ui::Button.new { "Save" }
+  end
+end
+
+# OLD (still works via aliases, but avoid for new code)
+render Components::Ui::CardHeader.new do
+  render Components::Ui::CardTitle.new { "Settings" }
+  render Components::Ui::CardDescription.new { "..." }
+end
+```
+
+### Why This Pattern
+
+| Aspect | Old Pattern | New Pattern |
+|--------|-----------|-----------|
+| **Readability** | Nested render calls | Clean method chain (`card.header {...}`) |
+| **Type Safety** | Loose (pass any class) | Tight (methods defined on parent) |
+| **Defaults** | Per-component defaults | Inherited from parent context if needed |
+| **Discoverability** | View docs to find children | IDE autocomplete on parent variable |
+| **Testing** | More setup | Simpler parent-only setup |
+| **Backward Compat** | N/A | Aliases provided for migration |
+
+### Set Default Stimulus Controller
+
+For interactive components (DropdownMenu, Dialog, Tabs, etc.), inject the default Stimulus controller in `initialize`:
+
+```ruby
+def initialize(**attrs)
+  @attrs = attrs
+  # Set default controller if not already provided by caller
+  @attrs[:data] ||= {}
+  @attrs[:data][:controller] = "ui--dropdown" unless @attrs[:data][:controller]
+end
+```
+
+This eliminates boilerplate in views:
+
+```ruby
+# View code is cleaner
+render Components::Ui::DropdownMenu.new(
+  data: { ui__dropdown_placement_value: "bottom-end" }
+) do |dropdown|
+  dropdown.trigger { "Menu" }
+  dropdown.content do
+    dropdown.item { "Edit" }
+    dropdown.item(variant: :destructive) { "Delete" }
+  end
+end
+
+# Instead of repeating the controller everywhere
+render Components::Ui::DropdownMenu.new(
+  data: { controller: "ui--dropdown", ui__dropdown_placement_value: "bottom-end" }
+) do |dropdown|
+  # ...
+end
+```
+
+### Required Child Data Defaults (Interactive Compound Components)
+
+For interactive compound components, required `data-*` targets/actions must be injected by parent helper methods. Views should not have to repeat mandatory bindings.
+
+For `DropdownMenu`, enforce these defaults in helper methods:
+
+```ruby
+def trigger(**attrs, &block)
+  render Trigger.new(
+    **with_required_data(attrs, target: "trigger", required_action: "click->ui--dropdown#toggle"),
+    &block
+  )
+end
+
+def content(**attrs, &block)
+  render Content.new(
+    **with_required_data(attrs, target: "content", required_action: "keydown->ui--dropdown#navigate"),
+    &block
+  )
+end
+
+def item(**attrs, &block)
+  render Item.new(
+    **with_required_data(attrs, target: "item", required_action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown"),
+    &block
+  )
+end
+```
+
+Implementation rules:
+- Merge `data` hashes; never discard caller-provided `data`.
+- Preserve caller actions while appending required actions.
+- Required bindings must always be present, even when caller omits `data`.
+
+Also enforce the same rule for other interactive components:
+
+```ruby
+# Switch
+def view_template(&block)
+  dynamic_attrs = attrs_without_class.dup
+  dynamic_attrs[:data] = with_required_data(
+    dynamic_attrs[:data],
+    controller: "ui--switch",
+    action: "click->ui--switch#toggle keydown->ui--switch#keydown"
+  )
+  button(**dynamic_attrs) { yield self if block }
+end
+
+def thumb(**attrs, &block)
+  render Thumb.new(**with_required_data(attrs, data: { ui__switch_target: "thumb" })), &block
+end
+
+# Tabs
+def view_template(&block)
+  dynamic_attrs = attrs_without_class.dup
+  dynamic_attrs[:data] = with_required_data(dynamic_attrs[:data], controller: "ui--tabs")
+  div(**dynamic_attrs) { yield self if block }
+end
+
+def trigger(**attrs, &block)
+  render Trigger.new(
+    **with_required_data(attrs, data: { ui__tabs_target: "trigger", action: "click->ui--tabs#select keydown->ui--tabs#keydown" }),
+    &block
+  )
+end
+
+def content(**attrs, &block)
+  render Content.new(**with_required_data(attrs, data: { ui__tabs_target: "content" })), &block
+end
+
+# Select family
+# select.trigger => ui__select_target: "trigger" + toggle/navigate actions
+# select.content => ui__select_target: "content"
+# select.item => ui__select_target: "item" + selectItem action
+# select.value => ui__select_target: "valueDisplay"
+
+# Tooltip family
+# tooltip.trigger => ui__tooltip_target: "trigger" + hover/focus show/hide actions
+# tooltip.content => ui__tooltip_target: "content"
+
+# Popover family
+# parent Popover => controller: "ui--popover" + ui__popover_open_value default
+# popover.trigger => ui__popover_target: "trigger" + click->ui--popover#toggle
+# popover.content => ui__popover_target: "content"
+
+# HoverCard family
+# parent HoverCard => controller: "ui--hover-card" + ui__hover_card_open_value default
+# hover_card.trigger => ui__hover_card_target: "trigger" + hover/focus show/hide actions
+# hover_card.content => ui__hover_card_target: "content" + hover/focus show/hide actions
+
+# Sheet family
+# parent Sheet => controller: "ui--dialog" + ui__dialog_open_value default
+# sheet.trigger => action: "click->ui--dialog#open"
+# sheet.content => ui__dialog_target: "content" + dialog_transition: "slide"
+# sheet.content also renders overlay internally with ui__dialog_target: "overlay"
+
+# Dialog family
+# parent Dialog => controller: "ui--dialog" + ui__dialog_open_value default
+# dialog.trigger => action: "click->ui--dialog#open"
+# dialog.content => ui__dialog_target: "content"
+# dialog.content also renders overlay internally with ui__dialog_target: "overlay"
+
+# AlertDialog family
+# parent AlertDialog => controller: "ui--dialog" + ui__dialog_open_value default
+# alert_dialog.trigger => action: "click->ui--dialog#open"
+# alert_dialog.content => ui__dialog_target: "content"
+# alert_dialog.content also renders overlay internally with ui__dialog_target: "overlay"
+# alert_dialog.cancel / alert_dialog.action => action: "click->ui--dialog#close"
+```
+
+### Checklist for New Compound Components
+
+- [ ] Parent class has `initialize(**attrs)` storing to `@attrs`
+- [ ] Parent's `view_template` yields `self if block`
+- [ ] Each child type has a helper method on parent (e.g., `def item(**attrs, &block)`)
+- [ ] Each child is a nested class inheriting `Components::Base`
+- [ ] Each nested child class has `initialize(**attrs)` and stores to `@attrs`
+- [ ] Each nested child has proper `classes` private method
+- [ ] Legacy aliases provided at end of parent class (e.g., `ItemAlias = Item`)
+- [ ] Default Stimulus controller injected in parent's `initialize` (if interactive)
+- [ ] Design system examples in `app/views/design_system/index.rb` use new yielding pattern
+- [ ] All child types documented in design system with variants
+
 ```ruby
 # app/components/ui/button.rb (Radix UI compliant)
 module Components
@@ -479,7 +764,6 @@ For components that require JavaScript interactivity (state management, keyboard
 - ✅ Custom events dispatched for loose coupling: `ui:switch:changed`, `ui:dialog:closed`, etc.
 - ✅ Importmap configured for Floating UI (`@floating-ui/dom`) if needed
 - ✅ Base controller pinned explicitly: `pin "controllers/ui/base_controller"`
-- ✅ Console logs with emoji prefixes for debugging
 - ✅ Design system view has interactive examples (copy-paste ready)
 
 ### Currently Implemented
@@ -525,7 +809,6 @@ After implementing a new UI component or Stimulus controller:
 
 2. **Verify browser console** (`Cmd+F12` or `Cmd+Opt+J`):
    - ✅ No JavaScript errors
-   - ✅ Controller connection logs present: `📌 {Component} controller connected`
    - ✅ No "Failed to register controller" messages
 
 3. **Test component behavior:**
@@ -564,4 +847,4 @@ After implementing a new UI component or Stimulus controller:
 ## Checklist Reference
 
 Rules live in the checklist:
-- [Frontend](../../VERIFICATION_CHECKLIST.md#-frontend)
+- [Frontend](../../VERIFICATION_CHECKLIST.md)

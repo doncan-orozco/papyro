@@ -16,8 +16,25 @@ module Components
         div(
           class: merged_classes,
           **attrs_without_class,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def item(**attrs, &block)
+        render Item.new(**attrs), &block
+      end
+
+      def trigger(**attrs, &block)
+        render Trigger.new(**attrs), &block
+      end
+
+      def content(**attrs, &block)
+        render Content.new(**attrs), &block
+      end
+
+      def content_inner(**attrs, &block)
+        render ContentInner.new(**attrs), &block
       end
 
       private
@@ -28,7 +45,7 @@ module Components
     end
 
     # Accordion item
-    class AccordionItem < Components::Base
+    class Accordion::Item < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -49,7 +66,7 @@ module Components
     end
 
     # Accordion trigger (header button)
-    class AccordionTrigger < Components::Base
+    class Accordion::Trigger < Components::Base
       def initialize(expanded: nil, controls_id: nil, **attrs)
         @expanded = expanded
         @controls_id = controls_id
@@ -109,7 +126,7 @@ module Components
     end
 
     # Accordion content panel
-    class AccordionContent < Components::Base
+    class Accordion::Content < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -133,7 +150,7 @@ module Components
     end
 
     # Accordion content inner wrapper (for padding)
-    class AccordionContentInner < Components::Base
+    class Accordion::ContentInner < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -152,5 +169,11 @@ module Components
         "pb-4 pt-0"
       end
     end
+
+    AccordionItem = Accordion::Item
+    AccordionTrigger = Accordion::Trigger
+    AccordionContent = Accordion::Content
+    AccordionContentInner = Accordion::ContentInner
+
   end
 end

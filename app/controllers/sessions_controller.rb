@@ -3,7 +3,7 @@ class SessionsController < ApplicationController
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_path, alert: t("sessions.create.rate_limit") }
 
   def new
-    render Views::Sessions::New.new(login_form)
+    render Views::Sessions::New.new(form: login_form)
   end
 
   def create
@@ -18,7 +18,7 @@ class SessionsController < ApplicationController
         redirect_to new_session_path, status: :see_other
       end
     else
-      render Views::Sessions::New.new(@form), status: :unprocessable_entity
+      render Views::Sessions::New.new(form: @form), status: :unprocessable_entity
     end
   end
 

@@ -71,17 +71,92 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Live in `app/views/{domain}/`
 - [ ] Module namespace: `Views::{Domain}::{Action}`
 - [ ] Phlex only (no ERB/HAML)
-- [ ] Scoped i18n keys: `t(".title")`
+- [ ] Fully-qualified i18n keys: `t("articles.index.title")`
 
 ### Components
+
+**Base Setup:**
 - [ ] Inherit from `Components::Base`
-- [ ] Live in `app/components/{domain}/`
-- [ ] Module namespace: `Components::{Domain}::{Name}`
+- [ ] Live in `app/components/{domain}/` or `app/components/ui/` for design system
+- [ ] Module namespace: `Components::{Domain}::{Name}` or `Components::Ui::{Name}`
+- [ ] All components have `initialize(**attrs)` with `@attrs = attrs`
 - [ ] Pure functions (no side effects)
 - [ ] All data via constructor arguments
-- [ ] Support `**attrs` for Stimulus
+- [ ] Support `**attrs` for Stimulus data attributes
 - [ ] If component sets internal `data-*` attributes, merge with caller `data` hash and preserve required internal keys
-- [ ] Design system catalog updated for new UI components (view + i18n)
+
+**Compound Components (MANDATORY for All Multi-Part Components):**
+- [ ] Applies to: Accordion, Alert, AlertDialog, Avatar, Breadcrumb, Calendar, Card, Carousel, Collapsible, Command, ContextMenu, DataTable, Dialog, Dropdown, Form, HoverCard, MenuBar, NavigationMenu, Pagination, Popover, RadioGroup, Resizable, ScrollArea, Sheet, Table, Tabs, Toast, ToggleGroup
+- [ ] Parent yields itself: `div { yield self if block }`
+- [ ] Each child part has a helper method on parent: `def list(**attrs, &block); render List.new(**attrs, &block); end`
+- [ ] Each child is a nested class: `class List < Components::Base`
+- [ ] EVERY nested child class has `initialize(**attrs)` storing to `@attrs`
+- [ ] EVERY nested child class has private `classes` method with the styles
+- [ ] Default Stimulus controller injected in parent's `initialize` if interactive (e.g., `DropdownMenu`, `Dialog`)
+  ```ruby
+  def initialize(**attrs)
+    @attrs = attrs
+    @attrs[:data] ||= {}
+    @attrs[:data][:controller] = "ui--dropdown" unless @attrs[:data][:controller]
+  end
+  ```
+- [ ] Interactive child helper methods set required `data-*` defaults and merge caller data (do not force repetition in views)
+  ```ruby
+  # Parent helper method should inject required target/action defaults
+  def trigger(**attrs, &block)
+    render Trigger.new(**with_required_data(attrs, target: "trigger", required_action: "click->ui--dropdown#toggle"), &block)
+  end
+  ```
+- [ ] For DropdownMenu specifically, defaults are enforced in component helpers:
+  - `trigger` includes `data: { ui__dropdown_target: "trigger", action: "click->ui--dropdown#toggle" }`
+  - `content` includes `data: { ui__dropdown_target: "content", action: "keydown->ui--dropdown#navigate" }`
+  - `item` includes `data: { ui__dropdown_target: "item", action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown" }`
+- [ ] For Switch specifically, defaults are enforced in component helpers:
+  - parent includes `data: { controller: "ui--switch", action: "click->ui--switch#toggle keydown->ui--switch#keydown" }`
+  - `checked:` prop maps to `data: { ui__switch_checked_value: ... }` unless caller already set it
+  - `thumb` includes `data: { ui__switch_target: "thumb" }`
+- [ ] For Tabs specifically, defaults are enforced in component helpers:
+  - parent includes `data: { controller: "ui--tabs" }`
+  - `trigger` includes `data: { ui__tabs_target: "trigger", action: "click->ui--tabs#select keydown->ui--tabs#keydown" }`
+  - `content` includes `data: { ui__tabs_target: "content" }`
+- [ ] For Select specifically, defaults are enforced in component helpers:
+  - parent `Select` includes `data: { controller: "ui--select" }` and supports `default_value:`/`value:` plus `placeholder:` defaults
+  - `select.trigger` includes `data: { ui__select_target: "trigger", action: "click->ui--select#toggle keydown->ui--select#navigate" }`
+  - `select.content` includes `data: { ui__select_target: "content" }`
+  - `select.item` includes `data: { ui__select_target: "item", action: "click->ui--select#selectItem" }`
+  - `select.value` includes `data: { ui__select_target: "valueDisplay" }`
+- [ ] For Tooltip specifically, defaults are enforced in component helpers:
+  - parent `Tooltip` includes `data: { controller: "ui--tooltip" }` and supports `delay:`/`placement:`/`offset:` defaults
+  - `tooltip.trigger` includes `data: { ui__tooltip_target: "trigger", action: "mouseenter->ui--tooltip#show mouseleave->ui--tooltip#hide focus->ui--tooltip#show blur->ui--tooltip#hide" }`
+  - `tooltip.content` includes `data: { ui__tooltip_target: "content" }`
+- [ ] For Popover specifically, defaults are enforced in component helpers:
+  - parent `Popover` includes `data: { controller: "ui--popover", ui__popover_open_value: false }` and supports `placement:`/`offset:` defaults
+  - `popover.trigger` includes `data: { ui__popover_target: "trigger", action: "click->ui--popover#toggle" }`
+  - `popover.content` includes `data: { ui__popover_target: "content" }`
+- [ ] For HoverCard specifically, defaults are enforced in component helpers:
+  - parent `HoverCard` includes `data: { controller: "ui--hover-card", ui__hover_card_open_value: false }` and supports `delay:`/`placement:`/`offset:` defaults
+  - `hover_card.trigger` includes `data: { ui__hover_card_target: "trigger", action: "mouseenter->ui--hover-card#show mouseleave->ui--hover-card#hide focusin->ui--hover-card#show focusout->ui--hover-card#hide" }`
+  - `hover_card.content` includes `data: { ui__hover_card_target: "content", action: "mouseenter->ui--hover-card#show mouseleave->ui--hover-card#hide focusin->ui--hover-card#show focusout->ui--hover-card#hide" }`
+- [ ] For Sheet specifically, defaults are enforced in component helpers:
+  - parent `Sheet` includes `data: { controller: "ui--dialog", ui__dialog_open_value: false }`
+  - `sheet.trigger` includes `data: { action: "click->ui--dialog#open" }`
+  - `sheet.content` includes `data: { ui__dialog_target: "content", dialog_transition: "slide" }` and renders overlay with `data: { ui__dialog_target: "overlay" }`
+- [ ] For Dialog specifically, defaults are enforced in component helpers:
+  - parent `Dialog` includes `data: { controller: "ui--dialog", ui__dialog_open_value: false }`
+  - `dialog.trigger` includes `data: { action: "click->ui--dialog#open" }`
+  - `dialog.content` includes `data: { ui__dialog_target: "content" }` and renders overlay with `data: { ui__dialog_target: "overlay" }`
+- [ ] For AlertDialog specifically, defaults are enforced in component helpers:
+  - parent `AlertDialog` includes `data: { controller: "ui--dialog", ui__dialog_open_value: false }`
+  - `alert_dialog.trigger` includes `data: { action: "click->ui--dialog#open" }`
+  - `alert_dialog.content` includes `data: { ui__dialog_target: "content" }` and renders overlay with `data: { ui__dialog_target: "overlay" }`
+  - `alert_dialog.cancel` and `alert_dialog.action` include `data: { action: "click->ui--dialog#close" }`
+- [ ] Legacy compatibility aliases at end of parent class: `DropdownMenuTrigger = Trigger`
+- [ ] Views use only helper methods (no child `.new` calls): `dropdown.trigger { ... }` NOT `Components::Ui::DropdownMenuTrigger.new`
+
+**Design System:**
+- [ ] Design system catalog (`app/views/design_system/index.rb`) updated for new UI components
+- [ ] English + Spanish translations added in `config/locales/{en,es}/design_system.yml`
+- [ ] New component or variant tested in catalog with interactive demo
 
 ### Stimulus
 - [ ] Live in `app/javascript/controllers/{domain}/`

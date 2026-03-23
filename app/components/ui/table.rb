@@ -12,11 +12,42 @@ module Components
       end
 
       def view_template(&block)
-        table(
-          class: merged_classes,
-          **attrs_without_class,
-          &block
-        )
+        div(class: "relative w-full overflow-auto") do
+          table(
+            class: merged_classes,
+            **attrs_without_class,
+          ) do
+            yield self if block
+          end
+        end
+      end
+
+      def header(**attrs, &block)
+        render Header.new(**attrs), &block
+      end
+
+      def body(**attrs, &block)
+        render Body.new(**attrs), &block
+      end
+
+      def footer(**attrs, &block)
+        render Footer.new(**attrs), &block
+      end
+
+      def row(**attrs, &block)
+        render Row.new(**attrs), &block
+      end
+
+      def head(**attrs, &block)
+        render Head.new(**attrs), &block
+      end
+
+      def cell(**attrs, &block)
+        render Cell.new(**attrs), &block
+      end
+
+      def caption(**attrs, &block)
+        render Caption.new(**attrs), &block
       end
 
       private
@@ -27,7 +58,7 @@ module Components
     end
 
     # Table header
-    class TableHeader < Components::Base
+    class Table::Header < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -48,7 +79,7 @@ module Components
     end
 
     # Table body
-    class TableBody < Components::Base
+    class Table::Body < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -69,7 +100,7 @@ module Components
     end
 
     # Table footer
-    class TableFooter < Components::Base
+    class Table::Footer < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -90,7 +121,7 @@ module Components
     end
 
     # Table row
-    class TableRow < Components::Base
+    class Table::Row < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -115,7 +146,7 @@ module Components
     end
 
     # Table header cell
-    class TableHead < Components::Base
+    class Table::Head < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -141,7 +172,7 @@ module Components
     end
 
     # Table cell
-    class TableCell < Components::Base
+    class Table::Cell < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -166,7 +197,7 @@ module Components
     end
 
     # Table caption
-    class TableCaption < Components::Base
+    class Table::Caption < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -185,5 +216,14 @@ module Components
         "mt-4 text-sm text-muted-foreground"
       end
     end
+
+    TableHeader = Table::Header
+    TableBody = Table::Body
+    TableFooter = Table::Footer
+    TableRow = Table::Row
+    TableHead = Table::Head
+    TableCell = Table::Cell
+    TableCaption = Table::Caption
+
   end
 end

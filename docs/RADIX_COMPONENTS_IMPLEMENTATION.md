@@ -32,6 +32,30 @@ Accordion, Alert, Avatar, Badge, Button, Card, Checkbox, Dialog, Dropdown Menu, 
 - Data attributes for Stimulus
 - Fully localized (en/es)
 
+## Convention Update (March 2026)
+
+- Compound components must follow direct Phlex yielding composition.
+- Parent component yields itself and exposes child helpers as methods.
+- Child helpers render directly (no `.new` call in view usage).
+- Required Stimulus controller/target/action bindings must be component defaults (merged with caller data), not repeated in views.
+- Applied explicitly to DropdownMenu, Switch, Tabs, and Select family (`Select` with `select.trigger`, `select.content`, `select.item`, `select.value`).
+
+Example pattern:
+
+```ruby
+render Components::Ui::Breadcrumb.new(class: "mb-6") do |breadcrumb|
+	breadcrumb.list do
+		breadcrumb.item do
+			breadcrumb.link(href: admin_root_path) { t("admin.articles.breadcrumbs.home") }
+		end
+		breadcrumb.separator
+		breadcrumb.item do
+			breadcrumb.page { t("admin.articles.breadcrumbs.articles") }
+		end
+	end
+end
+```
+
 ## Files Modified
 
 - 32 new files in `app/components/ui/`

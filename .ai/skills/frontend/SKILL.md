@@ -46,6 +46,155 @@ app/views/
 ```
 
 ## Components (Patterns)
+
+### All Components Use `initialize(**attrs)` 
+Every component must accept keyword arguments and store them in `@attrs`:
+```ruby
+class Button < Components::Base
+  def initialize(**attrs)
+    @attrs = attrs
+  end
+  
+  def view_template(&block)
+    button(class: merged_classes, **attrs_without_class, &block)
+  end
+end
+```
+
+### Compound Component Pattern (For ALL Multi-Part Components)
+**All components with child parts (Accordion, Alert, Breadcrumb, Card, Dialog, Dropdown, etc.) MUST use the compound pattern.**
+
+The parent component:
+1. **Yields itself** to the block (not individual child components)
+2. **Exposes helper methods** for each child type (not direct class access)
+3. **Defines nested classes** for each child part
+4. **Provides backward-compatibility aliases** for legacy code
+
+**Pattern Structure:**
+```ruby
+class Accordion < Components::Base
+  def initialize(**attrs)
+    @attrs = attrs
+  end
+
+  def view_template(&block)
+    div(class: merged_classes, **attrs_without_class) do
+      yield self if block
+    end
+  end
+
+  # Helper methods — these are what views call
+  def item(**attrs, &block)
+    render Item.new(**attrs, &block)
+  end
+
+  def trigger(**attrs, &block)
+    render Trigger.new(**attrs, &block)
+  end
+
+  # Nested child classes
+  class Item < Components::Base
+    def initialize(**attrs)
+      @attrs = attrs
+    end
+    
+    def view_template(&block)
+      div(class: merged_classes, **attrs_without_class, &block)
+    end
+  end
+
+  class Trigger < Components::Base
+    def initialize(**attrs)
+      @attrs = attrs
+    end
+    
+    def view_template(&block)
+      button(type: :button, class: merged_classes, **attrs_without_class, &block)
+    end
+  end
+
+  # Legacy compatibility aliases (for gradual migration)
+  AccordionItem = Item
+  AccordionTrigger = Trigger
+end
+```
+
+**Usage in Views:**
+```ruby
+# NEW — Cleaner, strongly typed, no `.new` calls on children
+render Components::Ui::Accordion.new do |accordion|
+  accordion.item do
+    accordion.trigger { "Question 1" }
+    accordion.content { "Answer 1" }
+  end
+end
+
+# OLD (still works via aliases, but avoid for new code)
+render Components::Ui::AccordionItem.new do
+  render Components::Ui::AccordionTrigger.new { "Question" }
+end
+```
+
+**When to Use Compound Pattern:**
+- ✅ **ANY** component with multiple related parts (Accordion, Alert, Breadcrumb, Card, Carousel, Collapsible, Command, Context Menu, Data Table, Dialog, Dropdown, Form, Hover Card, Menu Bar, Navigation Menu, Pagination, Popover, Radio Group, Resizable, Scroll Area, Sheet, Table, Tabs, Toast, Toggle Group)
+- ❌ Simple components without children (Button, Badge, Input, Label, Separator, Skeleton, Slider)
+
+### Set Default Stimulus Data in `initialize`
+For components that require a Stimulus controller, set it as a default:
+```ruby
+def initialize(**attrs)
+  @attrs = attrs
+  # Set default controller if not already provided
+  @attrs[:data] ||= {}
+  @attrs[:data][:controller] = "ui--dropdown" unless @attrs[:data][:controller]
+end
+```
+
+This eliminates repetitive `data: { controller: "..." }` in views.
+
+### Required Child `data-*` Defaults for Interactive Compound Components
+For interactive compound components, required child target/action bindings must be defaults in parent helper methods (not repeated in views).
+
+Example for `DropdownMenu`:
+```ruby
+def trigger(**attrs, &block)
+  render Trigger.new(
+    **with_required_data(attrs, target: "trigger", required_action: "click->ui--dropdown#toggle"),
+    &block
+  )
+end
+
+def content(**attrs, &block)
+  render Content.new(
+    **with_required_data(attrs, target: "content", required_action: "keydown->ui--dropdown#navigate"),
+    &block
+  )
+end
+
+def item(**attrs, &block)
+  render Item.new(
+    **with_required_data(attrs, target: "item", required_action: "click->ui--dropdown#select keydown->ui--dropdown#itemKeydown"),
+    &block
+  )
+end
+```
+
+Rules:
+- Merge caller-provided `data` with defaults.
+- Ensure required target/action keys are always present.
+- Append required actions without removing caller actions.
+
+Current required defaults in this codebase:
+- `Switch` injects parent `controller/action`, checked value (from `checked:`), and thumb target via `switch.thumb`.
+- `Tabs` injects parent controller and trigger/content targets/actions via `tabs.trigger` and `tabs.content`.
+- `Select` injects parent controller/value/placeholder defaults; `select.trigger`, `select.content`, `select.item`, and `select.value` inject required select target/action bindings.
+- `Tooltip` injects parent controller/delay/placement/offset defaults; `tooltip.trigger` and `tooltip.content` inject required tooltip target/action bindings.
+- `Popover` injects parent `ui--popover` controller/open state defaults; `popover.trigger` injects the toggle action and trigger target, and `popover.content` injects the content target.
+- `HoverCard` injects parent `ui--hover-card` controller/open state defaults; `hover_card.trigger` and `hover_card.content` inject the required hover/focus actions and targets.
+- `Sheet` injects parent `ui--dialog` controller/open state defaults; `sheet.trigger` injects open action and `sheet.content` injects content target/slide transition while rendering overlay target internally.
+- `Dialog` injects parent `ui--dialog` controller/open state defaults; `dialog.trigger` injects open action and `dialog.content` injects content target while rendering overlay internally.
+- `AlertDialog` injects parent `ui--dialog` controller/open state defaults; `alert_dialog.trigger`, `alert_dialog.content`, `alert_dialog.cancel`, and `alert_dialog.action` inject required dialog actions/targets.
+
 - Use Phlex for reusable UI
 - Organize by domain in `app/components/`
 - Pass data via arguments
@@ -95,7 +244,7 @@ app/javascript/
 - Only return focus to triggers after the component has actually been opened at least once
 
 ### Interactive Component Pattern
-For shadcn UI components requiring interactivity (Switch, Tabs, Accordion, Dropdown, Select, Tooltip, Dialog), use the standardized pattern:
+For shadcn UI components requiring interactivity (Switch, Tabs, Accordion, Dropdown, Select, Tooltip, Popover, HoverCard, Dialog), use the standardized pattern:
 
 **Files:**
 - Phlex component (static) → receives `data-*` attributes via `**attrs`
@@ -104,7 +253,7 @@ For shadcn UI components requiring interactivity (Switch, Tabs, Accordion, Dropd
 
 **Reference:** See [design-system/references/stimulus-interactive-components.md](../design-system/references/stimulus-interactive-components.md)
 
-### Overlay Positioning Pattern (Dropdown/Select/Tooltip)
+### Overlay Positioning Pattern (Dropdown/Select/Tooltip/Popover/HoverCard)
 - Use `strategy: 'fixed'` with Floating UI for overlays that can be clipped by parent containers
 - Keep overlay hidden while computing position, then show after coordinates are applied
 - Avoid `transition-all` on overlay containers because it animates `top/left` and causes position-jump artifacts
@@ -115,14 +264,10 @@ For shadcn UI components requiring interactivity (Switch, Tabs, Accordion, Dropd
 
 **Example Integration:**
 ```ruby
-# Component passes Stimulus bindings
-render Components::Ui::Switch.new(
-  data: {
-    controller: "ui--switch",
-    ui__switch_checked_value: false,
-    action: "click->ui--switch#toggle"
-  }
-)
+# Component owns required Stimulus bindings
+render Components::Ui::Switch.new(checked: false) do |switch|
+  switch.thumb
+end
 
 # Controller manages state and updates DOM
 export default class extends BaseController {
@@ -152,5 +297,5 @@ end
 ## Styling
 - Tailwind utility classes are the common baseline
 
-> **For verification checklists, see [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-frontend)**
+> **For verification checklists, see [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md)**
 

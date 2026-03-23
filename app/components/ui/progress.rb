@@ -13,15 +13,23 @@ module Components
         @attrs = attrs
       end
 
-      def view_template
+      def view_template(&block)
         div(
           role: :progressbar,
           aria: { valuemin: 0, valuemax: @max, valuenow: @value },
           class: merged_classes,
           **attrs_without_class
         ) do
-          render ProgressIndicator.new(value: @value, max: @max)
+          if block
+            yield self
+          else
+            render ProgressIndicator.new(value: @value, max: @max)
+          end
         end
+      end
+
+      def indicator(**attrs, &block)
+        render Indicator.new(**attrs), &block
       end
 
       private
@@ -32,7 +40,7 @@ module Components
     end
 
     # Progress indicator (the filled part)
-    class ProgressIndicator < Components::Base
+    class Progress::Indicator < Components::Base
       def initialize(value: 0, max: 100, **attrs)
         @value = value
         @max = max
@@ -61,5 +69,8 @@ module Components
         [ (clamped_value.to_f / @max * 100).round(2), 100 ].min
       end
     end
+
+    ProgressIndicator = Progress::Indicator
+
   end
 end

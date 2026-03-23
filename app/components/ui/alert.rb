@@ -17,8 +17,17 @@ module Components
           role: :alert,
           class: merged_classes,
           **attrs_without_class,
-          &block
-        )
+        ) do
+          yield self if block
+        end
+      end
+
+      def title(**attrs, &block)
+        render Title.new(**attrs), &block
+      end
+
+      def description(**attrs, &block)
+        render Description.new(**attrs), &block
       end
 
       private
@@ -50,7 +59,7 @@ module Components
     end
 
     # Alert title
-    class AlertTitle < Components::Base
+    class Alert::Title < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -67,7 +76,7 @@ module Components
     end
 
     # Alert description
-    class AlertDescription < Components::Base
+    class Alert::Description < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -82,5 +91,9 @@ module Components
         "text-sm [&_p]:leading-relaxed"
       end
     end
+
+    AlertTitle = Alert::Title
+    AlertDescription = Alert::Description
+
   end
 end

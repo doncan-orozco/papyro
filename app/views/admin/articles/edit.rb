@@ -4,7 +4,7 @@ module Views
   module Admin
     module Articles
       class Edit < Views::Base
-        def initialize(article)
+        def initialize(article:)
           @article = article
         end
 
@@ -17,8 +17,8 @@ module Views
                 p(class: "text-muted-foreground") { t("admin.articles.edit.subtitle", default: "Edit this article") }
               end
 
-              render Components::Ui::Card.new do
-                render Components::Ui::CardContent.new(class: "pt-6") do
+              render Components::Ui::Card.new do |card|
+                card.content(class: "pt-6") do
                   render FormComponent.new(@article)
                 end
               end
@@ -29,18 +29,18 @@ module Views
         private
 
         def render_breadcrumb
-          render Components::Ui::Breadcrumb.new(class: "mb-6") do
-            render Components::Ui::BreadcrumbList.new do
-              render Components::Ui::BreadcrumbItem.new do
-                render Components::Ui::BreadcrumbLink.new(href: admin_root_path) { t("admin.articles.breadcrumbs.home") }
+          render Components::Ui::Breadcrumb.new(class: "mb-6") do |breadcrumb|
+            breadcrumb.list do
+              breadcrumb.item do
+                breadcrumb.link(href: admin_root_path) { t("admin.articles.breadcrumbs.home") }
               end
-              render Components::Ui::BreadcrumbSeparator.new
-              render Components::Ui::BreadcrumbItem.new do
-                render Components::Ui::BreadcrumbLink.new(href: admin_articles_path) { t("admin.articles.breadcrumbs.articles") }
+              breadcrumb.separator
+              breadcrumb.item do
+                breadcrumb.link(href: admin_articles_path) { t("admin.articles.breadcrumbs.articles") }
               end
-              render Components::Ui::BreadcrumbSeparator.new
-              render Components::Ui::BreadcrumbItem.new do
-                render Components::Ui::BreadcrumbPage.new { @article.title }
+              breadcrumb.separator
+              breadcrumb.item do
+                breadcrumb.page { @article.title }
               end
             end
           end

@@ -25,8 +25,24 @@ module Components
           class: merged_classes,
           **dynamic_attrs
         ) do
-          render Components::Ui::ScrollAreaViewport.new(class: viewport_classes, &block)
+          yield self if block
         end
+      end
+
+      def viewport(**attrs, &block)
+        render Viewport.new(**attrs), &block
+      end
+
+      def scrollbar(**attrs, &block)
+        render Scrollbar.new(**attrs), &block
+      end
+
+      def thumb(**attrs, &block)
+        render Thumb.new(**attrs), &block
+      end
+
+      def corner(**attrs, &block)
+        render Corner.new(**attrs), &block
       end
 
       private
@@ -50,7 +66,7 @@ module Components
     end
 
     # Scroll Area Viewport - scrollable content container
-    class ScrollAreaViewport < Components::Base
+    class ScrollArea::Viewport < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -67,7 +83,7 @@ module Components
     end
 
     # Scroll Area Scrollbar - custom scrollbar
-    class ScrollAreaScrollbar < Components::Base
+    class ScrollArea::Scrollbar < Components::Base
       def initialize(orientation: :vertical, **attrs)
         @orientation = orientation
         @attrs = attrs
@@ -104,7 +120,7 @@ module Components
     end
 
     # Scroll Area Thumb - draggable scrollbar thumb
-    class ScrollAreaThumb < Components::Base
+    class ScrollArea::Thumb < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -121,7 +137,7 @@ module Components
     end
 
     # Scroll Area Corner - corner element when both scrollbars are present
-    class ScrollAreaCorner < Components::Base
+    class ScrollArea::Corner < Components::Base
       def initialize(**attrs)
         @attrs = attrs
       end
@@ -136,5 +152,11 @@ module Components
         "bg-border"
       end
     end
+
+    ScrollAreaViewport = ScrollArea::Viewport
+    ScrollAreaScrollbar = ScrollArea::Scrollbar
+    ScrollAreaThumb = ScrollArea::Thumb
+    ScrollAreaCorner = ScrollArea::Corner
+
   end
 end
