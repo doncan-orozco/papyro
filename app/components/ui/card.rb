@@ -136,6 +136,5 @@ module Components
     CardDescription = Card::Description
     CardContent = Card::Content
     CardFooter = Card::Footer
-
   end
 end

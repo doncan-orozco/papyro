@@ -128,6 +128,5 @@ module Components
     SliderTrack = Slider::Track
     SliderRange = Slider::Range
     SliderThumb = Slider::Thumb
-
   end
 end

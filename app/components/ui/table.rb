@@ -224,6 +224,5 @@ module Components
     TableHead = Table::Head
     TableCell = Table::Cell
     TableCaption = Table::Caption
-
   end
 end

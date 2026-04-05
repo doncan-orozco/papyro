@@ -211,6 +211,5 @@ module Components
     ContextMenuLabel = ContextMenu::Label
     ContextMenuSeparator = ContextMenu::Separator
     ContextMenuShortcut = ContextMenu::Shortcut
-
   end
 end

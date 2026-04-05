@@ -118,6 +118,5 @@ module Components
 
     ResizablePanel = Resizable::Panel
     ResizableHandle = Resizable::Handle
-
   end
 end

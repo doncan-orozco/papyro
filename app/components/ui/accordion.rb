@@ -174,6 +174,5 @@ module Components
     AccordionTrigger = Accordion::Trigger
     AccordionContent = Accordion::Content
     AccordionContentInner = Accordion::ContentInner
-
   end
 end

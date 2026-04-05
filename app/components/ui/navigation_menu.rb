@@ -208,6 +208,5 @@ module Components
     NavigationMenuLink = NavigationMenu::Link
     NavigationMenuViewport = NavigationMenu::Viewport
     NavigationMenuIndicator = NavigationMenu::Indicator
-
   end
 end

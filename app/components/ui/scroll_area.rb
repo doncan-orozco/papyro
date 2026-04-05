@@ -157,6 +157,5 @@ module Components
     ScrollAreaScrollbar = ScrollArea::Scrollbar
     ScrollAreaThumb = ScrollArea::Thumb
     ScrollAreaCorner = ScrollArea::Corner
-
   end
 end

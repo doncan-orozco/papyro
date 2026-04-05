@@ -181,6 +181,5 @@ module Components
     DataTablePagination = DataTable::Pagination
     DataTableRowActions = DataTable::RowActions
     DataTableViewOptions = DataTable::ViewOptions
-
   end
 end

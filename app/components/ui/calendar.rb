@@ -369,6 +369,5 @@ module Components
     CalendarRow = Calendar::Row
     CalendarCell = Calendar::Cell
     CalendarDay = Calendar::Day
-
   end
 end

@@ -238,6 +238,5 @@ module Components
     CommandSeparator = Command::Separator
     CommandItem = Command::Item
     CommandShortcut = Command::Shortcut
-
   end
 end
