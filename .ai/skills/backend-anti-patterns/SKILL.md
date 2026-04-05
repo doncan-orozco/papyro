@@ -50,6 +50,46 @@ For detailed examples and corrections, see:
 9. **Domain-specific copy in `dry_schema.errors.rules.<field>`** → Causes cross-form collisions for shared field names (e.g. `title`)
 9. **Domain-specific copy in `dry_schema.errors.rules.<field>`** → Causes cross-form collisions for shared field names (e.g. `title`)
 10. **`Components::Ui::Button` inside a compound trigger block** → Trigger helpers (`dropdown.trigger`, `dialog.trigger`, etc.) already render `<button>`; nesting `Button` creates button-in-button invalid HTML — browsers eject the inner element, the trigger fires empty, and the Stimulus action is never reached (see design-system SKILL.md)
+11. **Feature stack inside `ApplicationController`** → Move cross-cutting feature implementations to `app/controllers/concerns/*` and keep `ApplicationController` as composition-only
+
+### ❌ DON'T: Implement Feature Stacks Directly in ApplicationController
+
+```ruby
+# WRONG
+class ApplicationController < ActionController::Base
+  before_action :set_locale
+
+  private
+
+  def set_locale
+    # locale parsing + session persistence + default_url_options helpers
+  end
+end
+```
+
+### ✅ DO: Extract to Concern and Include It
+
+```ruby
+# CORRECT
+module LocaleManagement
+  extend ActiveSupport::Concern
+
+  included do
+    prepend_before_action :set_locale
+  end
+
+  private
+
+  def set_locale
+    I18n.locale = requested_locale || I18n.default_locale
+  end
+end
+
+class ApplicationController < ActionController::Base
+  include Authentication
+  include LocaleManagement
+end
+```
 
 ### ❌ DON'T: Put Domain-Specific Messages in `dry_schema.errors.rules.<field>`
 

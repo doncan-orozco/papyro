@@ -1,5 +1,11 @@
 en:
   components:
+    shared:
+      language_toggle:
+        toggle_label: "Change language"
+        menu_label: "Language"
+        english: "English"
+        spanish: "Spanish"
     ui:
       social_link:
         aria:

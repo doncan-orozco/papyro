@@ -15,6 +15,8 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Thin controller (request → Operation/Service → response)
 - [ ] No business logic
 - [ ] Explicit data passed to view/component
+- [ ] `ApplicationController` is composition-only for cross-cutting concerns (authentication, locale, browser guards, cache invalidation hooks)
+- [ ] Feature-specific controller behavior lives in `app/controllers/concerns/*.rb` and is included in `ApplicationController` or specific controllers
 - [ ] Handle Operation results using `result.success?` / `result.failure?` (Trailblazer returns `Trailblazer::Operation::Result`, not Dry::Monads)
 - [ ] Authorization checks BEFORE calling Operation (find with scope: `Current.user.articles.find_by!`)
 - [ ] Format validation errors from Operation failures for display

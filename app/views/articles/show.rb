@@ -38,6 +38,7 @@ module Views
 
 
             div(class: "flex items-center gap-3") do
+              render Components::Shared::LanguageToggle.new
               render Components::Shared::ThemeToggle.new
               button(
                 type: "button",
