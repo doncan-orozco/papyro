@@ -397,6 +397,11 @@ es:
       warning: "Advertencia"
       info: "Información"
       show_toast: "Mostrar Notificación"
+    theme:
+      toggle_label: "Cambiar tema"
+      light: "Claro"
+      dark: "Oscuro"
+      system: "Sistema"
     catalog:
       title: "Catalogo shadcn/ui Phlex"
       subtitle: "42 componentes - Tema Zinc - Colores OKLCH"

@@ -318,6 +318,27 @@ def trigger(**attrs, &block)
   )
 end
 
+### ⚠️ Anti-Pattern: Never Nest `Components::Ui::Button` Inside a Compound Trigger
+
+`DropdownMenu::Trigger`, `Dialog::Trigger`, `Sheet::Trigger`, and similar compound trigger helpers **already render a `<button>` element**. Placing `Components::Ui::Button` (which also renders a `<button>`) inside the block creates **invalid HTML** — browsers automatically eject the inner `<button>`, leaving the trigger empty and the icon/content orphaned as a sibling with no Stimulus action binding.
+
+```ruby
+# ❌ WRONG — button inside button, trigger renders empty, dropdown never opens
+dropdown.trigger do
+  render Components::Ui::Button.new(variant: :ghost, size: :icon, class: "size-8") do
+    render Components::Ui::Icon.new(:sun)
+  end
+end
+
+# ✅ CORRECT — pass styling attrs directly to trigger, put content inline
+dropdown.trigger(class: "size-8 p-0") do
+  render Components::Ui::Icon.new(:sun, class: "size-4 dark:hidden")
+  render Components::Ui::Icon.new(:moon, class: "hidden size-4 dark:block")
+end
+```
+
+**Rule:** The block passed to any compound trigger helper is content *inside* the trigger element. Never wrap it with another interactive element (`Button`, `a`, `label`).
+
 def content(**attrs, &block)
   render Content.new(
     **with_required_data(attrs, target: "content", required_action: "keydown->ui--dropdown#navigate"),

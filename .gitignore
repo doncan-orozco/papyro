@@ -48,6 +48,7 @@ vendor/writebook
 demo/
 
 .playwright-mcp/
+.playwright-cli/
 
 # Node.js / Playwright
 node_modules/

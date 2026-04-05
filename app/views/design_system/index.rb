@@ -21,22 +21,7 @@ module Views
                     p(class: "text-muted-foreground mt-2") { t("design_system.catalog.subtitle") }
                   end
 
-                  div(class: "flex items-center gap-3") do
-                    render Components::Ui::Button.new(
-                      variant: :outline,
-                      size: :sm,
-                      type: :button,
-                      data: {
-                        controller: "ui--theme",
-                        action: "click->ui--theme#toggle",
-                        ui_theme_dark_label: t("design_system.catalog.toggle_dark"),
-                        ui_theme_light_label: t("design_system.catalog.toggle_light")
-                      }
-                    ) do
-                      span(class: "dark:hidden") { "🌙 #{t("design_system.catalog.dark")}" }
-                      span(class: "hidden dark:inline") { "☀️ #{t("design_system.catalog.light")}" }
-                    end
-                  end
+                  render Components::Shared::ThemeToggle.new
                 end
               end
             end

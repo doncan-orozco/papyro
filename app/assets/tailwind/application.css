@@ -1,7 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
-/* Enable class-based dark mode via html.dark */
+/* dark: utilities respond to the html.dark class set by the theme controller.
+   The media query block below is the zero-JS fallback; JS always mirrors
+   the OS preference in html.dark so utilities work in all three modes. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
@@ -94,8 +96,72 @@
   --color-sidebar-ring: var(--color-sidebar-ring);
 }
 
+/* System dark: no-JS fallback — fires when OS is dark and user has not
+   forced light (html.light prevents this block from applying). */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    /* Dark mode base values */
+    --background: 0.145 0 0;
+    --foreground: 0.985 0 0;
+    --card: 14.077% 0.0044 285.776;
+    --card-foreground: 0.985 0 0;
+    --popover: 0.145 0 0;
+    --popover-foreground: 0.985 0 0;
+    --primary: 0.922 0 0;
+    --primary-foreground: 0.205 0 0;
+    --secondary: 0.269 0 0;
+    --secondary-foreground: 0.985 0 0;
+    --muted: 0.269 0 0;
+    --muted-foreground: 0.708 0 0;
+    --accent: 0.269 0 0;
+    --accent-foreground: 0.985 0 0;
+    --destructive: 39.583% 0.13307 25.707;
+    --destructive-foreground: 0.985 0 0;
+    --border: 0.269 0 0;
+    --input: 0.269 0 0;
+    --ring: 0.866 0 0;
+    --sidebar: 0.145 0 0;
+    --sidebar-foreground: 0.985 0 0;
+    --sidebar-primary: 0.488 0.243 264.376;
+    --sidebar-primary-foreground: 0.985 0 0;
+    --sidebar-accent: 0.269 0 0;
+    --sidebar-accent-foreground: 0.985 0 0;
+    --sidebar-border: 0.269 0 0;
+    --sidebar-ring: 0.866 0 0;
+
+    /* Dark mode color variables */
+    --color-background: oklch(var(--background));
+    --color-foreground: oklch(var(--foreground));
+    --color-card: oklch(var(--card));
+    --color-card-foreground: oklch(var(--card-foreground));
+    --color-popover: oklch(var(--popover));
+    --color-popover-foreground: oklch(var(--popover-foreground));
+    --color-primary: oklch(var(--primary));
+    --color-primary-foreground: oklch(var(--primary-foreground));
+    --color-secondary: oklch(var(--secondary));
+    --color-secondary-foreground: oklch(var(--secondary-foreground));
+    --color-muted: oklch(var(--muted));
+    --color-muted-foreground: oklch(var(--muted-foreground));
+    --color-accent: oklch(var(--accent));
+    --color-accent-foreground: oklch(var(--accent-foreground));
+    --color-destructive: oklch(var(--destructive));
+    --color-destructive-foreground: oklch(var(--destructive-foreground));
+    --color-border: oklch(var(--border));
+    --color-input: oklch(var(--input));
+    --color-ring: oklch(var(--ring));
+    --color-sidebar: oklch(var(--sidebar));
+    --color-sidebar-foreground: oklch(var(--sidebar-foreground));
+    --color-sidebar-primary: oklch(var(--sidebar-primary));
+    --color-sidebar-primary-foreground: oklch(var(--sidebar-primary-foreground));
+    --color-sidebar-accent: oklch(var(--sidebar-accent));
+    --color-sidebar-accent-foreground: oklch(var(--sidebar-accent-foreground));
+    --color-sidebar-border: oklch(var(--sidebar-border));
+    --color-sidebar-ring: oklch(var(--sidebar-ring));
+  }
+}
+
+/* Explicit dark: user forced dark mode (overrides a light OS preference) */
 html.dark {
-  /* Dark mode base values */
   --background: 0.145 0 0;
   --foreground: 0.985 0 0;
   --card: 14.077% 0.0044 285.776;
@@ -123,10 +189,6 @@ html.dark {
   --sidebar-accent-foreground: 0.985 0 0;
   --sidebar-border: 0.269 0 0;
   --sidebar-ring: 0.866 0 0;
-}
-
-html.dark {
-  /* Dark mode color variables */
   --color-background: oklch(var(--background));
   --color-foreground: oklch(var(--foreground));
   --color-card: oklch(var(--card));
@@ -314,6 +376,15 @@ html.dark {
     --ui-enter-x: -0.5rem;
   }
 }
+
+/* Theme toggle active-state: show a checkmark next to the selected option.
+   The controller writes data-theme on <html> whenever the preference changes. */
+html[data-theme="light"]  .theme-check-light,
+html[data-theme="dark"]   .theme-check-dark,
+html[data-theme="system"] .theme-check-system {
+  opacity: 1;
+}
+
 
 @keyframes catalog-fade {
   from {

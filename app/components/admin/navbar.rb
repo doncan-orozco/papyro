@@ -15,15 +15,19 @@ module Components
               span(class: "text-lg font-semibold tracking-tight") { t("admin.navbar.title") }
             end
 
-            if Current.user
-              link_to t("admin.navbar.sign_out"),
-                admin_logout_path,
-                class: "text-sm text-muted-foreground transition-colors hover:text-foreground",
-                data: {
-                  turbo_method: :delete,
-                  turbo_confirm: t("admin.navbar.confirm_sign_out"),
-                  turbo_frame: "_top"
-                }
+            div(class: "flex items-center gap-2") do
+              render Components::Shared::ThemeToggle.new
+
+              if Current.user
+                link_to t("admin.navbar.sign_out"),
+                  admin_logout_path,
+                  class: "text-sm text-muted-foreground transition-colors hover:text-foreground",
+                  data: {
+                    turbo_method: :delete,
+                    turbo_confirm: t("admin.navbar.confirm_sign_out"),
+                    turbo_frame: "_top"
+                  }
+              end
             end
           end
         end
