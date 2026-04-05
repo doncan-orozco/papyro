@@ -1,6 +1,6 @@
 ---
 name: ux
-description: UX/UI patterns for Papyro with Phlex and Tailwind CSS. Use when generating views, designing layouts, or implementing UI/UX features. Follows editorial, calm, content-first design principles. Covers view generation, typography, layout patterns, and accessibility.
+description: UX investigation, synthesis, and review patterns for Papyro interfaces. Use when creating UX briefs, translating UX research artifacts into actionable guidance, reviewing UI/UX quality, or defining page-level experience principles before implementation. Follows editorial, calm, content-first design principles with accessibility-first heuristics.
 ---
 
 # UX/UI (Papyro)
@@ -11,28 +11,20 @@ description: UX/UI patterns for Papyro with Phlex and Tailwind CSS. Use when gen
 - tailwindcss-rails
 
 ## Source of Truth
-Use [UI_UX_BRIEF.md](../../UI_UX_BRIEF.md) as the design brief.
+- Use `docs/Papyro UX.pdf` as a primary investigation artifact for product-direction decisions.
+- Use [design-brief-template.md](references/design-brief-template.md) to define UX intent before implementation.
+- Use [ux-investigation-synthesis.md](references/ux-investigation-synthesis.md) to ground decisions in documented artifacts.
+- Use [ux-review-checklist.md](references/ux-review-checklist.md) to review UX quality before delivery.
 
-## Guidance (Examples)
-- Generate views after the brief is filled
-- Keep layouts editorial, calm, and content-first
-- Prefer whitespace and typography over decorative UI
-- Use shadcn/ui-style components via `app/components/ui/`
-- Ensure copy uses i18n keys (see checklist)
+## Workflow
+1. Fill the UX brief first using [design-brief-template.md](references/design-brief-template.md).
+2. Validate assumptions against [ux-investigation-synthesis.md](references/ux-investigation-synthesis.md).
+3. Implement with frontend/design-system skills after UX intent is explicit.
+4. Run final UX review with [ux-review-checklist.md](references/ux-review-checklist.md).
 
-## View Generation Checklist (Example)
-- Hero: clear headline + short supporting line
-- Primary CTA: single, focused action
-- Typography: consistent type scale
-- Grid: simple, readable structure
-- Components: use `Components::Ui::*`
-- Accessibility: proper headings, labels, and focus states
+## Scope Boundaries
+- This skill defines UX intent, information clarity, interaction expectations, and acceptance criteria.
+- Component-level implementation belongs to `design-system` and `frontend` skills.
+- Visual stylistic direction belongs to `frontend-design` once UX intent is fixed.
 
 See [Frontend rules](../../VERIFICATION_CHECKLIST.md#-frontend) and [I18n rules](../../VERIFICATION_CHECKLIST.md#-internationalization-i18n).
-
-## Required Inputs
-- Brand adjectives + mission
-- Type scale + colors
-- Page archetypes
-- 2–3 reference links
-- Sample copy

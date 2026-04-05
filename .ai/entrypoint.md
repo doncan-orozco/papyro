@@ -6,7 +6,7 @@ Use this as the single source of truth. Load only the skill files needed for the
 
 ## Documentation Structure
 
-See [DOCUMENTATION_STRUCTURE.md](DOCUMENTATION_STRUCTURE.md) for the complete documentation hierarchy and how to maintain DRY principles.
+Use `.ai/` as the documentation source of truth. Keep detailed guidance in skill-specific `references/` folders to preserve DRY principles.
 
 **Complete documentation map:**
 - **[VERIFICATION_CHECKLIST.md](VERIFICATION_CHECKLIST.md)** = All rules & requirements (single source of truth)
@@ -18,7 +18,7 @@ See [DOCUMENTATION_STRUCTURE.md](DOCUMENTATION_STRUCTURE.md) for the complete do
   - Each skill folder contains `SKILL.md` + `references/` (implementation examples specific to that skill)
 - Each skill folder contains `examples/` subdirectories with code examples
 
-**To add new skills/docs:** See [ADD_NEW_SKILLS.md](ADD_NEW_SKILLS.md)
+**To add new skills/docs:** Follow the existing `skills/{domain}/SKILL.md` + `skills/{domain}/references/` pattern.
 
 ## Quick rules (always)
 - Keep responses concise, actionable, and code-first.
@@ -106,6 +106,10 @@ See [skills/linting/examples/lint-and-tests.md](skills/linting/examples/lint-and
 ### Frontend
 - **[skills/frontend/SKILL.md](skills/frontend/SKILL.md)** - Hotwire, Stimulus, Phlex, Tailwind
 - **[skills/frontend-design/SKILL.md](skills/frontend-design/SKILL.md)** - Bold aesthetics, design thinking, avoiding AI slop
+- **[../docs/Papyro UX.pdf](../docs/Papyro UX.pdf)** - Primary UX investigation artifact for product-direction decisions
+- **[skills/ux/references/design-brief-template.md](skills/ux/references/design-brief-template.md)** - UX design brief template for new UI work
+- **[skills/ux/references/ux-investigation-synthesis.md](skills/ux/references/ux-investigation-synthesis.md)** - Synthesized UX findings from repository artifacts
+- **[skills/ux/references/ux-review-checklist.md](skills/ux/references/ux-review-checklist.md)** - UX quality checklist for implementation and review
 - **[skills/theme-factory/SKILL.md](skills/theme-factory/SKILL.md)** - UI theming with Tailwind CSS, pre-configured themes
 - **[skills/web-artifacts/SKILL.md](skills/web-artifacts/SKILL.md)** - Standalone HTML/CSS/JS artifacts, dashboards, embeddable components
 - **[skills/i18n/SKILL.md](skills/i18n/SKILL.md)** - ⚠️ REQUIRED for all user-facing text

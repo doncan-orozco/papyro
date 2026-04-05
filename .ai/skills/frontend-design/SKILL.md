@@ -9,6 +9,16 @@ description: Create distinctive, production-grade frontend interfaces with high 
 
 Create distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. This skill guides the development of visually striking components and pages with intentional design decisions, integrated with Papyro's tech stack.
 
+## Prerequisite UX Inputs
+
+Before applying this skill, align with the UX knowledge base:
+
+- Fill the brief in [../ux/references/design-brief-template.md](../ux/references/design-brief-template.md)
+- Validate context in [../ux/references/ux-investigation-synthesis.md](../ux/references/ux-investigation-synthesis.md)
+- Verify outcomes with [../ux/references/ux-review-checklist.md](../ux/references/ux-review-checklist.md)
+
+This skill defines visual execution quality. UX intent must be explicit first.
+
 ## Design Thinking
 
 Before coding, understand the context and commit to a **BOLD** aesthetic direction:
