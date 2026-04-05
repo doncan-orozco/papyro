@@ -4,6 +4,7 @@ es:
       title: "Doncan Orozco"
     home:
       index:
+        coming_soon: "Muy pronto"
         header:
           sign_in: "Iniciar sesion"
         hero:
@@ -15,6 +16,8 @@ es:
           highlight_badge: "Accion destacada"
           highlight_title: "Lanza tu blog"
           highlight_description: "Empieza a publicar con un editor limpio y enfocado, y comparte tu voz con lectores que valoran el contenido profundo."
+          join_community_title: "Únete a la comunidad"
+          join_community_description: "Regístrate y comienza a crear tu hermoso blog en Papyro. Estamos preparando la experiencia de incorporación perfecta para ti."
         curated:
           title: "Contenido curado para tus intereses"
           description: "Explora un feed guiado por tendencias, destacados y publicaciones recientes de la comunidad."

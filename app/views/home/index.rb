@@ -37,9 +37,15 @@ module Views
               end
 
               div(class: "mt-9 flex flex-col gap-3 sm:flex-row sm:items-center") do
-                render Components::Ui::Button.new(as: :a, href: new_session_path, size: :lg) do
-                  t("pages.home.index.hero.create_blog")
+                render Components::Ui::Tooltip.new do |tooltip|
+                  tooltip.trigger(class: "pointer-events-auto") do
+                    render Components::Ui::Button.new(as: :button, size: :lg, disabled: true, class: "pointer-events-none") do
+                      t("pages.home.index.hero.create_blog")
+                    end
+                  end
+                  tooltip.content { t("pages.home.index.coming_soon") }
                 end
+
 
                 render Components::Ui::Button.new(as: :a, href: new_session_path, variant: :ghost, size: :lg) do
                   t("pages.home.index.hero.sign_in")
@@ -47,24 +53,44 @@ module Views
               end
             end
 
+            # Original highlight card (keeping for reference)
+            # render Components::Ui::Card.new(class: "border-border/70 bg-card/95 shadow-sm") do
+            #   render Components::Ui::CardHeader.new do
+            #     render Components::Ui::Badge.new(variant: :secondary, class: "w-fit") do
+            #       t("pages.home.index.hero.highlight_badge")
+            #     end
+            #
+            #     render Components::Ui::CardTitle.new(class: "font-serif text-2xl tracking-tight") do
+            #       t("pages.home.index.hero.highlight_title")
+            #     end
+            #   end
+            #
+            #   render Components::Ui::CardContent.new(class: "space-y-4") do
+            #     p(class: "text-muted-foreground") do
+            #       t("pages.home.index.hero.highlight_description")
+            #     end
+            #
+            #     render Components::Ui::Button.new(as: :a, href: new_session_path, class: "w-full", size: :lg) do
+            #       t("pages.home.index.hero.create_blog")
+            #     end
+            #   end
+            # end
+
+            # Coming soon notice
             render Components::Ui::Card.new(class: "border-border/70 bg-card/95 shadow-sm") do
               render Components::Ui::CardHeader.new do
                 render Components::Ui::Badge.new(variant: :secondary, class: "w-fit") do
-                  t("pages.home.index.hero.highlight_badge")
+                  t("pages.home.index.coming_soon")
                 end
 
                 render Components::Ui::CardTitle.new(class: "font-serif text-2xl tracking-tight") do
-                  t("pages.home.index.hero.highlight_title")
+                  t("pages.home.index.hero.join_community_title")
                 end
               end
 
               render Components::Ui::CardContent.new(class: "space-y-4") do
                 p(class: "text-muted-foreground") do
-                  t("pages.home.index.hero.highlight_description")
-                end
-
-                render Components::Ui::Button.new(as: :a, href: new_session_path, class: "w-full", size: :lg) do
-                  t("pages.home.index.hero.create_blog")
+                  t("pages.home.index.hero.join_community_description")
                 end
               end
             end
@@ -106,8 +132,13 @@ module Views
             end
 
             div(class: "mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center") do
-              render Components::Ui::Button.new(as: :a, href: new_session_path, size: :lg) do
-                t("pages.home.index.bottom.create_blog")
+              render Components::Ui::Tooltip.new do |tooltip|
+                tooltip.trigger(class: "pointer-events-auto") do
+                  render Components::Ui::Button.new(as: :button, size: :lg, disabled: true, class: "pointer-events-none") do
+                    t("pages.home.index.bottom.create_blog")
+                  end
+                end
+                tooltip.content { t("pages.home.index.coming_soon") }
               end
 
               render Components::Ui::Button.new(as: :a, href: new_session_path, variant: :outline, size: :lg) do
