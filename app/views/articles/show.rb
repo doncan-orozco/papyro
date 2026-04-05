@@ -30,23 +30,27 @@ module Views
           div(class: "mx-auto flex w-full max-w-6xl items-center justify-between") do
             link_to back_path,
               class: "inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition",
-              data: { turbo_frame: "_top" } do
+              data: { turbo_frame: "_top", action: "click->fullscreen#exit" } do
               svg(class: "w-5 h-5", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
                 s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M15 19l-7-7 7-7")
               end
               span(class: "text-sm font-medium") { t("articles.show.back_to_list") }
             end
 
-            button(
-              type: "button",
-              data: { action: "fullscreen#toggle:prevent", fullscreen_target: "button" },
-              class: "inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground",
-              aria: { label: t("articles.show.fullscreen") }
-            ) do
-              svg(class: "h-5 w-5", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
-                s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M10 6H6v4m12-4h4v4M6 16v4h4m12-4v4h-4")
+
+            div(class: "flex items-center gap-3") do
+              render Components::Shared::ThemeToggle.new
+              button(
+                type: "button",
+                data: { action: "fullscreen#toggle:prevent", fullscreen_target: "button" },
+                class: "inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground",
+                aria: { label: t("articles.show.fullscreen") }
+              ) do
+                svg(class: "h-5 w-5", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
+                  s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M10 6H6v4m12-4h4v4M6 16v4h4m12-4v4h-4")
+                end
+                span { t("articles.show.fullscreen") }
               end
-              span { t("articles.show.fullscreen") }
             end
           end
         end

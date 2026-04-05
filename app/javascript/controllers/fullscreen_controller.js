@@ -16,6 +16,25 @@ export default class extends Controller {
     }
   }
 
+  async exit(event) {
+    if (!this.isFullscreenActive()) return
+
+    event.preventDefault()
+
+    const destination = event.currentTarget.href
+
+    if (document.fullscreenElement) {
+      try {
+        await document.exitFullscreen()
+      } catch {
+        // Fall through to navigation even if the browser rejects exit.
+      }
+    }
+
+    document.documentElement.classList.remove("fullscreen-mode")
+    window.location.assign(destination)
+  }
+
   toggleFallbackFullscreen() {
     const element = document.documentElement
     if (element.classList.contains("fullscreen-mode")) {
@@ -23,5 +42,9 @@ export default class extends Controller {
     } else {
       element.classList.add("fullscreen-mode")
     }
+  }
+
+  isFullscreenActive() {
+    return Boolean(document.fullscreenElement) || document.documentElement.classList.contains("fullscreen-mode")
   }
 }

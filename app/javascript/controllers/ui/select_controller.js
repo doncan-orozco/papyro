@@ -70,7 +70,6 @@ export default class extends BaseController {
   disconnect() {
     this.removeEventListeners()
     this.stopAutoUpdate()
-    this.restoreBodyScroll()
   }
 
   /**
@@ -128,9 +127,6 @@ export default class extends BaseController {
     
     // Add event listeners
     this.addEventListeners()
-
-    // Prevent body scroll
-    this.preventBodyScroll()
   }
 
   /**
@@ -159,9 +155,6 @@ export default class extends BaseController {
     
     // Remove event listeners
     this.removeEventListeners()
-
-    // Restore body scroll
-    this.restoreBodyScroll()
     
     this.isOpen = false
   }

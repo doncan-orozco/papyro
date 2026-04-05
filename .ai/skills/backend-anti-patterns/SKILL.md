@@ -48,6 +48,8 @@ For detailed examples and corrections, see:
 7. **Hardcoded Strings** → Use I18n for all user-facing text
 8. **Missing **attrs** → Include in all components for Stimulus support
 9. **Domain-specific copy in `dry_schema.errors.rules.<field>`** → Causes cross-form collisions for shared field names (e.g. `title`)
+9. **Domain-specific copy in `dry_schema.errors.rules.<field>`** → Causes cross-form collisions for shared field names (e.g. `title`)
+10. **`Components::Ui::Button` inside a compound trigger block** → Trigger helpers (`dropdown.trigger`, `dialog.trigger`, etc.) already render `<button>`; nesting `Button` creates button-in-button invalid HTML — browsers eject the inner element, the trigger fires empty, and the Stimulus action is never reached (see design-system SKILL.md)
 
 ### ❌ DON'T: Put Domain-Specific Messages in `dry_schema.errors.rules.<field>`
 

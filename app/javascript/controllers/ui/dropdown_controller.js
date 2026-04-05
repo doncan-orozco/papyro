@@ -70,7 +70,6 @@ export default class extends BaseController {
   disconnect() {
     this.removeEventListeners()
     this.stopAutoUpdate()
-    this.restoreBodyScroll()
   }
 
   /**
@@ -208,9 +207,6 @@ export default class extends BaseController {
     
     // Add event listeners
     this.addEventListeners()
-
-    // Prevent background page scroll while menu is open
-    this.preventBodyScroll()
     
     this.dispatchStateChange("ui:dropdown:opened")
   }
@@ -243,9 +239,6 @@ export default class extends BaseController {
     
     // Remove event listeners
     this.removeEventListeners()
-
-    // Restore background page scroll
-    this.restoreBodyScroll()
     
     this.dispatchStateChange("ui:dropdown:closed")
   }

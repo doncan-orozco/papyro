@@ -394,6 +394,11 @@ en:
       warning: "Warning"
       info: "Info"
       show_toast: "Show Toast"
+    theme:
+      toggle_label: "Toggle theme"
+      light: "Light"
+      dark: "Dark"
+      system: "System"
     catalog:
       title: "shadcn/ui Phlex Catalog"
       subtitle: "42 components - Zinc theme - OKLCH colors"

@@ -152,6 +152,8 @@ Use this checklist before committing code to ensure full compliance with Papyro 
   - `alert_dialog.cancel` and `alert_dialog.action` include `data: { action: "click->ui--dialog#close" }`
 - [ ] Legacy compatibility aliases at end of parent class: `DropdownMenuTrigger = Trigger`
 - [ ] Views use only helper methods (no child `.new` calls): `dropdown.trigger { ... }` NOT `Components::Ui::DropdownMenuTrigger.new`
+- [ ] Views use only helper methods (no child `.new` calls): `dropdown.trigger { ... }` NOT `Components::Ui::DropdownMenuTrigger.new`
+- [ ] **No `Components::Ui::Button` (or any `<button>`) nested inside a compound trigger block** — compound triggers already render `<button>`; nesting another button creates invalid HTML, browsers eject the inner element, and the Stimulus action binding on the trigger is never reached (dropdown/dialog never opens)
 
 **Design System:**
 - [ ] Design system catalog (`app/views/design_system/index.rb`) updated for new UI components
