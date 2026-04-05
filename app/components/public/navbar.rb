@@ -21,12 +21,9 @@ module Components
 
             render Components::Ui::Tooltip.new(class: "min-w-0 flex-1") do |tooltip|
               tooltip.trigger(class: "w-full") do
-                div(class: "flex min-w-0 items-center gap-3 rounded-full border border-border bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm opacity-50 cursor-not-allowed") do
+                div(class: "flex min-w-0 items-center gap-3 rounded-full border border-border bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm opacity-50") do
                   render Components::Ui::Icon.new(:search, class: "h-4 w-4 shrink-0")
                   span(class: "min-w-0 truncate") { t("articles.index.search_placeholder") }
-                  span(class: "ml-auto rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground") do
-                    t("articles.index.search_soon")
-                  end
                 end
               end
               tooltip.content { t("articles.index.search_soon") }
