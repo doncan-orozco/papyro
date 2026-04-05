@@ -30,7 +30,8 @@ es:
       
       featured_articles:
         title: "Últimos Artículos"
-        view_all: "Ver Todos los Artículos"
+        view_all: "Descubrir"
+        reading_time: "%{minutes} min de lectura"
         no_articles: "Aún no hay artículos publicados"
       
       contact:

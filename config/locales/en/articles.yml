@@ -126,6 +126,15 @@ en:
           success: "Article was successfully unpublished"
           failure: "Failed to unpublish article"
   articles:
+    index:
+      eyebrow: "Discovery"
+      title: "Find your next deep read"
+      subtitle: "A curated slice of recent writing designed for browsing, pausing, and following the threads that matter to you."
+      results: "stories selected"
+      search_placeholder: "Search across essays, notes, and topics"
+      search_soon: "Soon"
+      empty_title: "No published articles yet"
+      empty_description: "Come back soon for new content."
     show:
       by_author: "by %{author}"
       back_to_list: "Back to Articles"
@@ -134,7 +143,9 @@ en:
       author: "Author"
       status: "Status"
       content_length: "Content Length"
-      words: "words"
+      words_count: "%{count} words"
+      reading_time: "Reading time"
+      minutes_read: "%{count} min read"
       previous: "Previous Article"
       next: "Next Article"
     errors:

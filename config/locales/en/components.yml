@@ -30,7 +30,8 @@ en:
       
       featured_articles:
         title: "Latest Articles"
-        view_all: "View All Articles"
+        view_all: "Discover"
+        reading_time: "%{minutes} min read"
         no_articles: "No articles published yet"
       
       contact:

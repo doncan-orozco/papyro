@@ -17,7 +17,8 @@ module Components
                     title: article.title,
                     description: article.excerpt || article.searchable_content.truncate(150),
                     date: I18n.l(article.published_at.to_date, format: :short),
-                    reading_time: "#{(article.searchable_content.split.size / 200.0).ceil} min read",
+                    reading_time: t("components.landing.featured_articles.reading_time", minutes: reading_time_for(article)),
+                    href: article_path(article),
                     data: { turbo_frame: "_top", turbo_action: "advance" }
                   )
                 end
@@ -25,8 +26,11 @@ module Components
 
               div(class: "text-center mt-12") do
                 render Components::Ui::Button.new(
+                  as: :a,
+                  href: articles_path,
                   variant: :outline,
-                  size: :lg
+                  size: :lg,
+                  data: { turbo_frame: "_top", turbo_action: "advance" }
                 ) { t("components.landing.featured_articles.view_all") }
               end
             else
@@ -34,6 +38,13 @@ module Components
             end
           end
         end
+      end
+
+      private
+
+      def reading_time_for(article)
+        words = article.searchable_content.to_s.split.size
+        [ (words / 200.0).ceil, 1 ].max
       end
     end
   end
