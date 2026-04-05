@@ -2,3 +2,27 @@ en:
   pages:
     index:
       title: "Doncan Orozco"
+    home:
+      index:
+        header:
+          sign_in: "Sign in"
+        hero:
+          eyebrow: "Welcome to Papyro"
+          title: "A calm publishing home for ideas worth reading"
+          description: "Discover curated blogs aligned with your interests and create your own writing space in minutes."
+          create_blog: "Create blog"
+          sign_in: "Sign in"
+          highlight_badge: "Featured action"
+          highlight_title: "Launch your blog"
+          highlight_description: "Start publishing with a clean, focused editor and share your voice with readers who value depth over noise."
+        curated:
+          title: "Curated content for your interests"
+          description: "Explore a feed shaped around trends, featured stories, and recent posts from the community."
+          trending: "Trending"
+          featured: "Featured"
+          recent: "Recent"
+        bottom:
+          title: "Ready to publish your first post?"
+          description: "Create your blog and begin building your audience with clarity, consistency, and your own voice."
+          create_blog: "Create blog"
+          sign_in: "Sign in"
