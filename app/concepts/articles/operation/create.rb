@@ -13,6 +13,7 @@ module Articles
         params[:body] = params.delete(:content) if params.key?(:content)
 
         form = Articles::Form::Create.new(::Article.new)
+        form.published_at ||= Time.current if params[:status] == "published"
 
         if form.validate(params)
           form.sync
@@ -29,8 +30,8 @@ module Articles
       end
 
       def prepare_body(_ctx, model:, **)
-        # Ensure body is never nil to prevent NOT NULL constraint violations
-        model.body = model.body.presence || ""
+        # Persist the markdown text, not the ActionText::Markdown object itself.
+        model.body = model.body.content.to_s
         true
       end
 

@@ -44,6 +44,30 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
 
     assert_predicate result, :success?
     assert_includes result[:model].reload.body.to_html, "Updated content"
+    assert_equal "<p>Updated content</p>", result[:model].reload.body.content.to_s
+  end
+
+  test "keeps existing markdown content when body param is omitted" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Article With Body",
+      slug: "article-with-body",
+      status: :draft,
+      body: "# Existing Body",
+      user: user
+    )
+
+    params = {
+      title: "Renamed Article",
+      slug: "article-with-body",
+      status: "draft"
+    }
+
+    result = Articles::Operation::Update.call(model: article, params: params)
+
+    assert_predicate result, :success?
+    assert_equal "# Existing Body", result[:model].reload.body.content.to_s
+    refute_match(/#<ActionText::Markdown:/, result[:model].reload.body.content.to_s)
   end
 
   test "fails with invalid id" do

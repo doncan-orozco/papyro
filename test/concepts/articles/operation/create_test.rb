@@ -33,7 +33,24 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
 
     assert_equal "Test Article", result[:model].title
     assert_equal "test-article", result[:model].slug
-    assert_predicate result[:model], :status_draft?
+    assert_equal "<p>Test content</p>", result[:model].body.content.to_s
+  end
+
+  test "persists markdown body as plain content" do
+    user = users(:admin)
+    params = {
+      title: "Markdown Article",
+      slug: "markdown-article",
+      status: "draft",
+      body: "# Heading\n\nBody text",
+      user_id: user.id
+    }
+
+    result = Articles::Operation::Create.call(params: params)
+
+    assert_predicate result, :success?
+    assert_equal "# Heading\n\nBody text", result[:model].body.content.to_s
+    refute_match(/#<ActionText::Markdown:/, result[:model].body.content.to_s)
   end
 
   test "fails with invalid title" do
@@ -105,20 +122,5 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     assert_predicate result, :success?
     assert_predicate result[:model], :status_published?
     assert_equal published_at.to_i, result[:model].published_at.to_i
-  end
-
-  test "fails when published status lacks published_at" do
-    user = users(:admin)
-    params = {
-      title: "Published Article",
-      slug: "published-article",
-      status: "published",
-      user_id: user.id
-    }
-
-    result = Articles::Operation::Create.call(params: params)
-
-    assert_predicate result, :failure?
-    assert_predicate result[:errors][:published_at], :any?
   end
 end

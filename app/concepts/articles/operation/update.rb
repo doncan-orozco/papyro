@@ -15,7 +15,7 @@ module Articles
         # Include id in params for slug uniqueness validation
         params_with_defaults = params.merge(id: model.id)
         params_with_defaults[:published_at] ||= model.published_at
-        params_with_defaults[:body] ||= model.body.to_s
+        params_with_defaults[:body] ||= model.body.content.to_s
 
         if form.validate(params_with_defaults)
           form.sync
