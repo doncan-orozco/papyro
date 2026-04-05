@@ -3,10 +3,9 @@
 module Views
   module Articles
     class Show < Views::Base
-      def initialize(article:, prev_article: nil, next_article: nil)
+      def initialize(article:, related_articles: [])
         @article = article
-        @prev_article = prev_article
-        @next_article = next_article
+        @related_articles = related_articles
       end
 
       def view_template
@@ -115,33 +114,30 @@ module Views
       end
 
       def render_footer_navigation
+        return if @related_articles.blank?
+
         footer(class: "border-t border-border bg-card/40 px-4 py-8 sm:px-6") do
           div(class: "mx-auto w-full max-w-3xl") do
-            if @prev_article.present? || @next_article.present?
-              nav(class: "grid grid-cols-1 gap-4 md:grid-cols-2") do
-                if @prev_article.present?
-                  render_nav_card(@prev_article, t("articles.show.previous"), is_next: false)
-                else
-                  div
-                end
+            div(class: "mb-4") do
+              h2(class: "text-sm font-semibold tracking-[0.16em] text-muted-foreground uppercase") do
+                t("articles.show.related_articles")
+              end
+            end
 
-                if @next_article.present?
-                  render_nav_card(@next_article, t("articles.show.next"), is_next: true)
-                else
-                  div
-                end
+            nav(class: "grid grid-cols-1 gap-4 md:grid-cols-2") do
+              @related_articles.each do |related_article|
+                render_related_article_card(related_article)
               end
             end
           end
         end
       end
 
-      def render_nav_card(article, label, is_next: false)
+      def render_related_article_card(article)
         link_to article_path(article),
-          class: "rounded-lg border border-border bg-background p-4 transition hover:border-border/80 hover:bg-muted #{is_next ? 'text-right' : ''}",
+          class: "rounded-lg border border-border bg-background p-4 transition hover:border-border/80 hover:bg-muted",
           data: { turbo_frame: "_top" } do
-          span(class: "text-xs font-medium text-muted-foreground") { label }
-          p(class: "mt-1 line-clamp-2 font-medium text-foreground") { article.title }
+          p(class: "line-clamp-2 font-medium text-foreground") { article.title }
           if article.published_at
             time(datetime: article.published_at.iso8601,
                  class: "mt-2 block text-xs text-muted-foreground") do

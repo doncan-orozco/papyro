@@ -165,7 +165,7 @@ es:
       subtitle: "Una selección curada de textos recientes pensada para explorar, detenerse y seguir los temas que realmente importan."
       results: "historias seleccionadas"
       search_placeholder: "Buscar entre ensayos, notas y temas"
-      search_soon: "Pronto"
+      search_soon: "Muy Pronto"
       empty_title: "Aún no hay artículos publicados"
       empty_description: "Vuelve pronto para ver nuevo contenido."
     show:
@@ -179,5 +179,4 @@ es:
       words_count: "%{count} palabras"
       reading_time: "Tiempo de lectura"
       minutes_read: "%{count} min de lectura"
-      previous: "Artículo anterior"
-      next: "Siguiente artículo"
+      related_articles: "Artículos relacionados"

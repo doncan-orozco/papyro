@@ -132,7 +132,7 @@ en:
       subtitle: "A curated slice of recent writing designed for browsing, pausing, and following the threads that matter to you."
       results: "stories selected"
       search_placeholder: "Search across essays, notes, and topics"
-      search_soon: "Soon"
+      search_soon: "Coming Soon"
       empty_title: "No published articles yet"
       empty_description: "Come back soon for new content."
     show:
@@ -146,7 +146,6 @@ en:
       words_count: "%{count} words"
       reading_time: "Reading time"
       minutes_read: "%{count} min read"
-      previous: "Previous Article"
-      next: "Next Article"
+      related_articles: "Related Articles"
     errors:
       not_found: "Article not found"

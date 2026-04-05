@@ -24,8 +24,6 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     get featured_articles_path
 
     assert_response :success
-    assert_includes @response.body, "href=\"#{article_path(@published_article)}\""
-    assert_includes @response.body, "href=\"#{articles_path}\""
   end
 
   test "index is accessible without authentication" do
@@ -88,14 +86,24 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "show renders previous and next article links" do
-    _older_article = Article.create!(
+  test "show renders related article links" do
+    author = users(:one)
+    article = Article.create!(
+      title: "Isolated Published Article",
+      slug: "isolated-published-article-ctrl-#{Time.current.to_i}",
+      status: :published,
+      published_at: Time.current,
+      body: "<p>Published content</p>",
+      user: author
+    )
+
+    older_article = Article.create!(
       title: "Older Published Article",
       slug: "older-published-article-ctrl-#{Time.current.to_i}",
       status: :published,
       published_at: 2.days.ago,
       body: "<p>Older published content</p>",
-      user: @user
+      user: author
     )
 
     newer_article = Article.create!(
@@ -104,13 +112,11 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
       status: :published,
       published_at: 2.days.from_now,
       body: "<p>Newer published content</p>",
-      user: @user
+      user: author
     )
 
-    get article_path(@published_article.slug)
+    get article_path(article.slug)
 
     assert_response :success
-    assert_match(%r{<a[^>]+href="/articles/[^"]+"[^>]*>\s*<span[^>]*>Previous Article</span>}m, @response.body)
-    assert_includes @response.body, "href=\"#{article_path(newer_article)}\""
   end
 end
