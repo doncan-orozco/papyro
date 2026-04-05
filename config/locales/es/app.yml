@@ -2,6 +2,14 @@ es:
   app:
     title: "Doncan Orozco"
     description: "Desarrollador full-stack | Ruby on Rails | Entusiasta de código abierto"
+  date:
+    formats:
+      short: "%d/%m/%Y"
+      long: "%d de %B de %Y"
+  time:
+    formats:
+      short: "%d/%m/%Y"
+      long: "%d de %B de %Y %H:%M"
   admin:
     navbar:
       title: "Papyro"

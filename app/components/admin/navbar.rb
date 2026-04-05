@@ -16,6 +16,8 @@ module Components
             end
 
             div(class: "flex items-center gap-2") do
+              render Components::Shared::LanguageToggle.new
+
               render Components::Shared::ThemeToggle.new
 
               if Current.user

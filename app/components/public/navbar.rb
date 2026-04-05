@@ -29,6 +29,8 @@ module Components
               tooltip.content { t("articles.index.search_soon") }
             end
 
+            render Components::Shared::LanguageToggle.new
+
             render Components::Shared::ThemeToggle.new
 
             render Components::Ui::Button.new(

@@ -68,6 +68,40 @@ Example: custom collection actions can support Turbo Frames when they describe a
 
 See [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-architecture--organization) for complete requirements.
 
+## Controller Concerns (Cross-Cutting Features)
+
+Use concerns for cross-cutting controller features (locale, tenant selection, request context setup, audit metadata) instead of placing feature methods directly in `ApplicationController`.
+
+**Pattern:**
+
+1. Create concern in `app/controllers/concerns/{feature}.rb`
+2. Use `ActiveSupport::Concern`
+3. Register callbacks in the concern `included` block
+4. Keep `ApplicationController` as composition root (`include Authentication`, `include LocaleManagement`, framework config)
+
+```ruby
+# app/controllers/concerns/locale_management.rb
+module LocaleManagement
+  extend ActiveSupport::Concern
+
+  included do
+    prepend_before_action :set_locale
+  end
+
+  private
+
+  def set_locale
+    I18n.locale = requested_locale || I18n.default_locale
+  end
+end
+
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  include Authentication
+  include LocaleManagement
+end
+```
+
 ## Common Development Patterns
 
 ### Adding a Page
