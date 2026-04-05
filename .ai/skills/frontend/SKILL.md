@@ -294,8 +294,70 @@ div(
 end
 ```
 
+## Navigation Helpers (link_to, not anchor elements)
+
+### ✅ **Always Use `link_to` for Navigation**
+Never use raw `<a>` (anchor) elements in Phlex views. The `link_to` helper ensures proper Turbo integration, Rails routing, and CSRF protection.
+
+**Usage:**
+```ruby
+# For standard navigation
+link_to "Home", root_path, 
+  class: "text-foreground hover:text-muted-foreground",
+  data: { turbo_frame: "_top", turbo_action: "advance" }
+
+# Go back to previous page (with fallback)
+link_to request.referrer || root_path,
+  class: "inline-flex items-center gap-2",
+  data: { turbo_frame: "_top" } do
+  svg(...) # icon
+  span { "Back" }
+end
+
+# As a button-like element
+link_to "Delete", item_path(item),
+  method: :delete,
+  data: { turbo_confirm: "Are you sure?" }
+```
+
+### ✅ **Block Form for Complex Content**
+When wrapping icons, multiple elements, or custom content:
+```ruby
+link_to user_path(@user),
+  class: "flex items-center gap-2 hover:bg-muted rounded p-2" do
+  img(src: @user.avatar_url, class: "w-8 h-8 rounded-full")
+  div do
+    p(class: "font-medium") { @user.name }
+    p(class: "text-sm text-muted-foreground") { @user.email }
+  end
+end
+```
+
+### ❌ **Never Use Anchor Elements**
+```ruby
+# WRONG - Don't use this
+a(href: user_path(@user),
+  class: "flex items-center") do
+  span { "Profile" }
+end
+
+# RIGHT - Use link_to instead
+link_to user_path(@user),
+  class: "flex items-center" do
+  span { "Profile" }
+end
+```
+
+**Benefits of `link_to`:**
+- Automatic Turbo Frame handling via `data-*` attributes
+- Built-in CSRF token for unsafe methods (DELETE, PATCH)
+- Consistent Rails routing
+- Proper link helpers (current_page?, etc.)
+- Better accessibility and SEO
+
 ## Styling
 - Tailwind utility classes are the common baseline
 
 > **For verification checklists, see [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md)**
+
 

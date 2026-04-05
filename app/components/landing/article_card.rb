@@ -1,16 +1,23 @@
 module Components
   module Landing
     class ArticleCard < Components::Base
-      def initialize(title:, description:, date:, reading_time:, **attrs)
+      def initialize(title:, description:, date:, reading_time:, href: nil, **attrs)
         @title = title
         @description = description
         @date = date
         @reading_time = reading_time
+        @href = href
         @attrs = attrs
       end
 
       def view_template
-        div(class: "group bg-card p-6 rounded-lg border border-border hover:border-border/80 hover:shadow-lg transition-all cursor-pointer", **@attrs) do
+        tag_name = @href.present? ? :a : :div
+        attrs = {
+          class: "group block bg-card p-6 rounded-lg border border-border hover:border-border/80 hover:shadow-lg transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        }
+        attrs[:href] = @href if @href.present?
+
+        public_send(tag_name, **attrs, **@attrs) do
           div(class: "flex justify-between items-start mb-3") do
             span(class: "text-sm text-muted-foreground") { @date }
             span(class: "text-xs bg-muted text-muted-foreground px-2 py-1 rounded") { @reading_time }

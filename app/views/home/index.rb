@@ -3,7 +3,7 @@ module Views
     class Index < Views::Base
       def view_template
         div(class: "min-h-screen bg-background text-foreground") do
-          render_header
+          render Components::Public::Navbar.new
 
           main(class: "relative") do
             render_hero
@@ -14,20 +14,6 @@ module Views
       end
 
       private
-
-      def render_header
-        header(class: "sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70") do
-          div(class: "mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4") do
-            link_to root_path, class: "inline-flex items-center gap-3", data: { turbo_frame: "_top", turbo_action: "advance" } do
-              img(src: "/icon.svg", alt: "Papyro", class: "h-7 w-auto")
-            end
-
-            render Components::Ui::Button.new(as: :a, href: new_session_path, variant: :outline, size: :sm) do
-              t("pages.home.index.header.sign_in")
-            end
-          end
-        end
-      end
 
       def render_hero
         section(class: "relative overflow-hidden border-b border-border px-4 py-14 sm:py-16 lg:py-20") do

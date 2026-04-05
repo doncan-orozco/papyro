@@ -48,7 +48,7 @@ Rails.application.routes.draw do
   get "design-system-compare", to: "design_system#compare", as: :design_system_compare
 
   # Public articles (by slug, no auth required)
-  resources :articles, only: [ :show ], param: :slug do
+  resources :articles, only: [ :index, :show ], param: :slug do
     collection do
       get :featured
     end

@@ -1,6 +1,11 @@
 class ArticlesController < ApplicationController
   allow_unauthenticated_access
 
+  def index
+    @articles = Articles::PublishedQuery.call(limit: 6)
+    render Views::Articles::Index.new(articles: @articles)
+  end
+
   def featured
     @articles = Articles::PublishedQuery.call(limit: 4)
     render Views::Articles::Featured.new(articles: @articles)

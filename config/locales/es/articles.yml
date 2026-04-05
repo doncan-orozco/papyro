@@ -159,6 +159,15 @@ es:
           success: "El artículo fue despublicado exitosamente"
           failure: "No se pudo despublicar el artículo"
   articles:
+    index:
+      eyebrow: "Descubrimiento"
+      title: "Encuentra tu próxima lectura profunda"
+      subtitle: "Una selección curada de textos recientes pensada para explorar, detenerse y seguir los temas que realmente importan."
+      results: "historias seleccionadas"
+      search_placeholder: "Buscar entre ensayos, notas y temas"
+      search_soon: "Pronto"
+      empty_title: "Aún no hay artículos publicados"
+      empty_description: "Vuelve pronto para ver nuevo contenido."
     show:
       by_author: "por %{author}"
       back_to_list: "Volver a Artículos"
@@ -167,6 +176,8 @@ es:
       author: "Autor"
       status: "Estado"
       content_length: "Longitud del contenido"
-      words: "palabras"
+      words_count: "%{count} palabras"
+      reading_time: "Tiempo de lectura"
+      minutes_read: "%{count} min de lectura"
       previous: "Artículo anterior"
       next: "Siguiente artículo"
