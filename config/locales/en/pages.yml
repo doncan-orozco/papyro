@@ -29,3 +29,16 @@ en:
           description: "Create your blog and begin building your audience with clarity, consistency, and your own voice."
           create_blog: "Create blog"
           sign_in: "Sign in"
+        creators:
+          eyebrow: "Built by"
+          title: "Papyro is shaped by product craft and technical rigor"
+          description: "A quiet publishing experience designed with intention, engineered end to end, and refined for clarity."
+          linkedin: "LinkedIn"
+          engineer:
+            name: "Doncan Orozco"
+            role: "Founding Engineer"
+            bio: "Architected and built the full application stack, from product implementation to infrastructure and deployment workflows."
+          designer:
+            name: "Martha Olan"
+            role: "Product Designer"
+            bio: "Shapes the product experience, interface direction, and design decisions that keep Papyro calm, useful, and elegant."

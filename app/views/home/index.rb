@@ -9,6 +9,7 @@ module Views
             render_hero
             render_curated_content
             render_bottom_cta
+            render_creators_section
           end
         end
       end
@@ -146,6 +147,58 @@ module Views
               end
             end
           end
+        end
+      end
+
+      def render_creators_section
+        section(class: "border-t border-border/70 bg-background px-4 py-6 sm:py-8") do
+          div(class: "mx-auto w-full max-w-5xl") do
+            div(class: "max-w-2xl") do
+              p(class: "text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground") do
+                t("pages.home.index.creators.eyebrow")
+              end
+            end
+
+            div(class: "mt-4 grid gap-4 border-t border-border/60 pt-4 md:grid-cols-2") do
+              render_creator_card(
+                name: t("pages.home.index.creators.engineer.name"),
+                role: t("pages.home.index.creators.engineer.role"),
+                url: "https://linkedin.com/in/doncan-orozco"
+              )
+
+              render_creator_card(
+                name: t("pages.home.index.creators.designer.name"),
+                role: t("pages.home.index.creators.designer.role"),
+                url: "https://linkedin.com/in/martha-ol%C3%A1n-067879304"
+              )
+            end
+          end
+        end
+      end
+
+      def render_creator_card(name:, role:, url:)
+        article(class: "space-y-1") do
+          a(
+            href: url,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            class: "inline-flex items-center gap-2 text-sm text-foreground transition hover:text-primary"
+          ) do
+            span { name }
+            render_linkedin_icon
+          end
+          p(class: "text-[11px] uppercase tracking-[0.14em] text-muted-foreground") { role }
+        end
+      end
+
+      def render_linkedin_icon
+        svg(
+          class: "h-3.5 w-3.5 text-muted-foreground",
+          fill: "currentColor",
+          viewBox: "0 0 24 24",
+          "aria-hidden": "true"
+        ) do |s|
+          s.path(d: "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z")
         end
       end
     end
