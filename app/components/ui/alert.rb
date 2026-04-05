@@ -94,6 +94,5 @@ module Components
 
     AlertTitle = Alert::Title
     AlertDescription = Alert::Description
-
   end
 end

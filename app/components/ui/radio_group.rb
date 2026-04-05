@@ -129,6 +129,5 @@ module Components
 
     RadioGroupItem = RadioGroup::Item
     RadioGroupLabel = RadioGroup::Label
-
   end
 end

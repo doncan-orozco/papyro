@@ -137,6 +137,5 @@ module Components
     end
 
     SwitchThumb = Switch::Thumb
-
   end
 end

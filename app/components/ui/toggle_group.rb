@@ -69,6 +69,5 @@ module Components
     end
 
     ToggleGroupItem = ToggleGroup::Item
-
   end
 end

@@ -177,6 +177,5 @@ module Components
     ToastDescription = Toast::Description
     ToastAction = Toast::Action
     ToastClose = Toast::Close
-
   end
 end

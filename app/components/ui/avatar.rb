@@ -82,6 +82,5 @@ module Components
 
     AvatarImage = Avatar::Image
     AvatarFallback = Avatar::Fallback
-
   end
 end

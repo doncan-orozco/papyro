@@ -71,6 +71,5 @@ module Components
     end
 
     ProgressIndicator = Progress::Indicator
-
   end
 end

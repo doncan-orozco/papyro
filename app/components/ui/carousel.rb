@@ -155,6 +155,5 @@ module Components
     CarouselItem = Carousel::Item
     CarouselPrevious = Carousel::Previous
     CarouselNext = Carousel::Next
-
   end
 end

@@ -135,6 +135,5 @@ module Components
     FormControl = Form::Control
     FormDescription = Form::Description
     FormMessage = Form::Message
-
   end
 end

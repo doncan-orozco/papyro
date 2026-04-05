@@ -92,6 +92,5 @@ module Components
 
     CollapsibleTrigger = Collapsible::Trigger
     CollapsibleContent = Collapsible::Content
-
   end
 end

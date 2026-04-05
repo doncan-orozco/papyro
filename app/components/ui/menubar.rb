@@ -238,6 +238,5 @@ module Components
     MenubarLabel = Menubar::Label
     MenubarSeparator = Menubar::Separator
     MenubarShortcut = Menubar::Shortcut
-
   end
 end

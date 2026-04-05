@@ -3,7 +3,7 @@ source "https://rubygems.org"
 # Load environment variables from .env
 gem "dotenv", groups: [ :development, :test ], require: "dotenv/load"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.1.1"
+gem "rails", "~> 8.1.2"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use sqlite3 as the database for Active Record
@@ -37,7 +37,7 @@ gem "dry-monads"
 gem "dry-validation"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-gem "bcrypt", "~> 3.1.7"
+gem "bcrypt", "~> 3.1.22"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[windows jruby]
@@ -81,7 +81,8 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 
   # Linting
-  gem "rubocop", require: false
+  gem "mcp", ">= 0.9.2", require: false
+  gem "rubocop", ">= 1.41", require: false
   gem "rubocop-rails", require: false
   gem "rubocop-performance", require: false
   gem "rubocop-minitest", require: false
@@ -101,7 +102,7 @@ group :development do
   gem "awesome_print"
 
   # Use the Ruby Language Server Protocol for editor integration
-  gem "ruby-lsp"
+  gem "ruby-lsp", ">= 0.26.9"
 
   # Data consistency
   gem "database_consistency"

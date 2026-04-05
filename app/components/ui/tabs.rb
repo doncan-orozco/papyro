@@ -156,6 +156,5 @@ module Components
     TabsList = Tabs::List
     TabsTrigger = Tabs::Trigger
     TabsContent = Tabs::Content
-
   end
 end

@@ -257,6 +257,5 @@ module Components
     PaginationPrevious = Pagination::Previous
     PaginationNext = Pagination::Next
     PaginationEllipsis = Pagination::Ellipsis
-
   end
 end
