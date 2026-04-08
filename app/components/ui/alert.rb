@@ -45,7 +45,7 @@ module Components
           "rounded-lg border",
           "px-4 py-3",
           "text-sm",
-          "[&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px]",
+          "[&>svg~*]:pl-7",
           "[&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground"
         ].join(" ")
       end

@@ -6,6 +6,8 @@ module Views
       end
 
       def view_template
+        disable_layout_flash_messages
+
         div(class: "min-h-screen bg-background flex items-center justify-center px-4 py-12") do
           render Components::Ui::Card.new(class: "w-full max-w-md") do |card|
             card.header do
