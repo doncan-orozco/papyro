@@ -33,12 +33,7 @@
   </head>
 
   <body>
-    <% if flash[:notice].present? %>
-      <p id="notice"><%= flash[:notice] %></p>
-    <% end %>
-    <% if flash[:alert].present? %>
-      <p id="alert"><%= flash[:alert] %></p>
-    <% end %>
+    <%= content_for(:flash) || render(Components::Shared::Flash.new(flash: flash)) %>
     <main id="main-content">
       <%= yield %>
     </main>

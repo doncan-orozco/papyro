@@ -9,17 +9,18 @@ es:
           sign_in: "Iniciar sesion"
         hero:
           eyebrow: "Bienvenido a Papyro"
-          title: "Un hogar editorial sereno para ideas que vale la pena leer"
-          description: "Descubre blogs curados segun tus intereses y crea tu propio espacio de escritura en minutos."
+          title: "Un espacio editorial sereno para ideas que merecen ser leídas"
+          description: "Descubra blogs seleccionados según sus intereses y cree su propio espacio de escritura en cuestión de minutos."
           create_blog: "Crear blog"
           sign_in: "Iniciar sesion"
           highlight_badge: "Accion destacada"
           highlight_title: "Lanza tu blog"
           highlight_description: "Empieza a publicar con un editor limpio y enfocado, y comparte tu voz con lectores que valoran el contenido profundo."
-          join_community_title: "Únete a la comunidad"
-          join_community_description: "Regístrate y comienza a crear tu hermoso blog en Papyro. Estamos preparando la experiencia de incorporación perfecta para ti."
+          join_community_title: "Pide una invitacion"
+          join_community_description: "Papyro se construye con cuidado y estamos habilitando el acceso de manera gradual y planificada. Cuéntanos qué quieres escribir en info@papyro.net y te escribiremos cuando tu espacio esté listo."
+          join_community_cta: "Pedir invitacion"
         curated:
-          title: "Contenido curado para tus intereses"
+          title: "Contenido seleccionado según sus intereses"
           description: "Explora un feed guiado por tendencias, destacados y publicaciones recientes de la comunidad."
           trending: "Tendencias"
           featured: "Destacados"
@@ -28,6 +29,7 @@ es:
           title: "Listo para publicar tu primer articulo?"
           description: "Crea tu blog y empieza a construir tu audiencia con claridad, consistencia y tu propia voz."
           create_blog: "Crear blog"
+          ask_for_invite: "Pedir invitacion"
           sign_in: "Iniciar sesion"
         creators:
           eyebrow: "Creado por"
@@ -36,7 +38,7 @@ es:
           linkedin: "LinkedIn"
           engineer:
             name: "Doncan Orozco"
-            role: "Ingeniero fundador"
+            role: "Desarrollo De Software"
             bio: "Arquitectó y construyó toda la aplicación, desde la implementación del producto hasta la infraestructura y los flujos de despliegue."
           designer:
             name: "Martha Olan"

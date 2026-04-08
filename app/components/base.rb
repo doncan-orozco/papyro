@@ -9,6 +9,7 @@ class Components::Base < Phlex::HTML
   include Phlex::Rails::Helpers::TurboFrameTag
   include Phlex::Rails::Helpers::FormWith
   include Phlex::Rails::Helpers::LinkTo
+  include Phlex::Rails::Helpers::ContentFor
 
   if Rails.env.development?
     def before_template
@@ -56,6 +57,13 @@ class Components::Base < Phlex::HTML
   #   div(class: merged_classes, **attrs_without_class)
   def attrs_without_class
     @attrs&.except(:class) || {}
+  end
+
+
+  def disable_layout_flash_messages
+    content_for :flash do
+      div
+    end
   end
 
   private
