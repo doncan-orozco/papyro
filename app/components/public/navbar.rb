@@ -33,14 +33,41 @@ module Components
 
             render Components::Shared::ThemeToggle.new
 
-            render Components::Ui::Button.new(
-              as: :a,
-              href: new_session_path,
-              variant: :outline,
-              size: :sm,
-              data: { turbo_frame: "_top", turbo_action: "advance" }
-            ) do
-              t("pages.home.index.header.sign_in")
+            if Current.user
+              render Components::Ui::Button.new(
+                as: :a,
+                href: studio_articles_path,
+                variant: :outline,
+                size: :sm,
+                data: { turbo_frame: "_top", turbo_action: "advance" }
+              ) { t("pages.home.index.hero.create_blog") }
+
+              render Components::Ui::Button.new(
+                as: :a,
+                href: user_path(Current.user),
+                variant: :outline,
+                size: :sm,
+                data: { turbo_frame: "_top", turbo_action: "advance" }
+              ) { t("users.show.title") }
+
+              link_to t("studio.navbar.sign_out"),
+                session_path,
+                class: "text-sm text-muted-foreground transition-colors hover:text-foreground",
+                data: {
+                  turbo_method: :delete,
+                  turbo_confirm: t("studio.navbar.confirm_sign_out"),
+                  turbo_frame: "_top"
+                }
+            else
+              render Components::Ui::Button.new(
+                as: :a,
+                href: new_session_path,
+                variant: :outline,
+                size: :sm,
+                data: { turbo_frame: "_top", turbo_action: "advance" }
+              ) do
+                t("pages.home.index.header.sign_in")
+              end
             end
           end
         end

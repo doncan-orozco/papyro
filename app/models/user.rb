@@ -4,6 +4,8 @@ class User < ApplicationRecord
 
   has_many :articles, dependent: :destroy
 
+  enum :role, { member: 0, admin: 1 }
+
   # SQLite doesn't support case-insensitive UNIQUE indexes
   # So we normalize email before validation to ensure uniqueness
   normalizes :email_address, with: ->(e) { e.strip.downcase }
@@ -14,11 +16,5 @@ class User < ApplicationRecord
 
   generates_token_for :password_reset, expires_in: 24.hours do
     password_salt&.last(10)
-  end
-
-  # For MVP: all users are admins
-  # Later: add role enum or admin boolean column
-  def admin?
-    true
   end
 end

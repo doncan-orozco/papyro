@@ -59,7 +59,7 @@ module Views
               form.submit t("admin.articles.form.save")
 
               link_to t("admin.articles.form.cancel"),
-                admin_articles_path,
+                mine_articles_path,
                 class: "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 border border-input bg-background hover:bg-muted",
                 data: { turbo_frame: "_top" }
             end
@@ -69,7 +69,7 @@ module Views
         private
 
         def form_url
-          @article.persisted? ? [ :admin, @article ] : admin_articles_path
+          @article.persisted? ? article_path(@article) : articles_path
         end
 
         def form_method

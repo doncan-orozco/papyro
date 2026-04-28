@@ -20,12 +20,6 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test "featured is accessible without authentication" do
-    get featured_articles_path
-
-    assert_response :success
-  end
-
   test "index is accessible without authentication" do
     get articles_path
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_21_030719) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_24_000102) do
   create_table "action_text_markdowns", force: :cascade do |t|
     t.text "content", default: "", null: false
     t.datetime "created_at", null: false
@@ -90,9 +90,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_21_030719) do
     t.datetime "created_at", null: false
     t.string "email_address", null: false
     t.string "password_digest", null: false
+    t.integer "role", default: 0, null: false
     t.datetime "suspended_at"
     t.datetime "updated_at", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+    t.index ["role"], name: "index_users_on_role"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

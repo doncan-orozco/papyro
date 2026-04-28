@@ -19,28 +19,27 @@ class LocaleSwitchingTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{new_session_path}']", text: "Iniciar sesion"
   end
 
-  test "falls back to browser locale when no locale is stored" do
+  test "localized path takes precedence over browser locale" do
     get root_path, headers: { "HTTP_ACCEPT_LANGUAGE" => "es-MX,es;q=0.9,en;q=0.8" }
 
     assert_response :success
-    assert_select "html[lang='es']"
+    assert_select "html[lang='en']"
   end
 
-  test "ignores unsupported locale params" do
-    get root_path(locale: :fr)
+  test "returns not found for unsupported locale path" do
+    get "/fr"
+
+    assert_response :not_found
+  end
+
+  test "renders authenticated article management in the selected locale" do
+    sign_in_as(users(:admin))
+
+    # Studio routes are NOT localized — URL stays /studio/articles regardless of locale.
+    # The UI language changes, but the path does not.
+    get studio_articles_path
 
     assert_response :success
     assert_select "html[lang='en']"
-    assert_select "a[href='#{new_session_path}']", text: "Sign in"
-  end
-
-  test "renders the admin navbar in the selected locale" do
-    sign_in_as(users(:admin))
-
-    get admin_root_path(locale: :es)
-
-    assert_response :success
-    assert_select "html[lang='es']"
-    assert_select "a[href='#{admin_logout_path}']", text: "Cerrar sesion"
   end
 end

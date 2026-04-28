@@ -8,12 +8,12 @@ module LocaleManagement
   private
 
   def set_locale
-    I18n.locale = requested_locale || stored_locale || browser_locale || I18n.default_locale
+    locale = requested_locale || stored_locale || browser_locale || I18n.default_locale
+    I18n.locale = locale
+    Current.locale = locale
   end
 
   def default_url_options
-    return {} if I18n.locale.to_sym == I18n.default_locale.to_sym
-
     { locale: I18n.locale }
   end
 

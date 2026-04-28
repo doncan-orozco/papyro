@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
 module Articles
-  class PublishedQuery
-    def self.call(scope = Article.all, limit: nil)
-      result = scope.where(status: :published).order(published_at: :desc)
-      limit ? result.limit(limit) : result
+  class PublishedQuery < ApplicationQuery
+    base_scope { Article.where(status: :published) }
+
+    pipeline :apply_ordering
+
+    private
+
+    def apply_ordering(current_scope)
+      current_scope.order(published_at: :desc)
     end
   end
 end

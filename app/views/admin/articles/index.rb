@@ -28,7 +28,7 @@ module Views
           render Components::Ui::Breadcrumb.new(class: "mb-6") do |breadcrumb|
             breadcrumb.list do
               breadcrumb.item do
-                breadcrumb.link(href: admin_root_path) { t("admin.articles.breadcrumbs.home") }
+                breadcrumb.link(href: mine_articles_path) { t("admin.articles.breadcrumbs.home") }
               end
               breadcrumb.separator
               breadcrumb.item do
@@ -47,7 +47,7 @@ module Views
 
             render Components::Ui::Button.new(
               as: :a,
-              href: new_admin_article_path,
+              href: new_article_path,
               data: { turbo_frame: "_top" }
             ) { t("admin.articles.index.new_article") }
           end
@@ -133,7 +133,7 @@ module Views
                   render_action_menu_item(
                     dropdown: dropdown,
                     label: t("admin.articles.index.edit"),
-                    href: edit_admin_article_path(article)
+                    href: edit_article_path(article)
                   )
 
                   if article.status_published?
@@ -149,14 +149,14 @@ module Views
                     render_action_menu_item(
                       dropdown: dropdown,
                       label: t("admin.articles.index.publish"),
-                      href: publish_admin_article_path(article, publish_action: "publish"),
+                      href: publish_article_path(article, publish_action: "publish"),
                       method: :patch
                     )
                   elsif article.status_published?
                     render_action_menu_item(
                       dropdown: dropdown,
                       label: t("admin.articles.index.unpublish"),
-                      href: publish_admin_article_path(article, publish_action: "unpublish"),
+                      href: publish_article_path(article, publish_action: "unpublish"),
                       method: :patch
                     )
                   end
@@ -166,7 +166,7 @@ module Views
                   render_action_menu_item(
                     dropdown: dropdown,
                     label: t("admin.articles.index.delete"),
-                    href: admin_article_path(article),
+                    href: article_path(article),
                     method: :delete,
                     confirm: t("admin.articles.index.confirm_delete"),
                     variant: :destructive

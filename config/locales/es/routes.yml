@@ -1,0 +1,14 @@
+es:
+  routes:
+    session: sesion
+    sessions: sesiones
+    password: contrasena
+    passwords: contrasenas
+    article: articulo
+    articles: articulos
+    featured_articles: destacados
+    user: usuario
+    users: usuarios
+    featured: destacados
+    edit: editar
+    new: nuevo

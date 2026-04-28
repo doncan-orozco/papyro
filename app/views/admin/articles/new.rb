@@ -32,11 +32,11 @@ module Views
           render Components::Ui::Breadcrumb.new(class: "mb-6") do |breadcrumb|
             breadcrumb.list do
               breadcrumb.item do
-                breadcrumb.link(href: admin_root_path) { t("admin.articles.breadcrumbs.home") }
+                breadcrumb.link(href: mine_articles_path) { t("admin.articles.breadcrumbs.home") }
               end
               breadcrumb.separator
               breadcrumb.item do
-                breadcrumb.link(href: admin_articles_path) { t("admin.articles.breadcrumbs.articles") }
+                breadcrumb.link(href: mine_articles_path) { t("admin.articles.breadcrumbs.articles") }
               end
               breadcrumb.separator
               breadcrumb.item do

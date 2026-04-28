@@ -1,0 +1,21 @@
+en:
+  users:
+    show:
+      title: "Profile"
+      description: "Public profile information"
+      email_label: "Email address"
+      edit_profile: "Edit profile"
+    edit:
+      title: "Edit Profile"
+      description: "Update your account settings"
+      email_label: "Email address"
+      email_placeholder: "Enter your email address"
+      password_label: "New password"
+      password_placeholder: "Leave blank to keep current password"
+      password_confirmation_label: "Confirm new password"
+      password_confirmation_placeholder: "Confirm your new password"
+      submit: "Save changes"
+      cancel: "Cancel"
+    operations:
+      update:
+        success: "Profile updated successfully."

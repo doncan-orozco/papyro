@@ -1,0 +1,21 @@
+es:
+  users:
+    show:
+      title: "Perfil"
+      description: "Información pública del perfil"
+      email_label: "Correo electrónico"
+      edit_profile: "Editar perfil"
+    edit:
+      title: "Editar perfil"
+      description: "Actualiza la configuración de tu cuenta"
+      email_label: "Correo electrónico"
+      email_placeholder: "Ingresa tu correo electrónico"
+      password_label: "Nueva contraseña"
+      password_placeholder: "Déjalo en blanco para mantener la contraseña actual"
+      password_confirmation_label: "Confirmar nueva contraseña"
+      password_confirmation_placeholder: "Confirma tu nueva contraseña"
+      submit: "Guardar cambios"
+      cancel: "Cancelar"
+    operations:
+      update:
+        success: "Perfil actualizado correctamente."

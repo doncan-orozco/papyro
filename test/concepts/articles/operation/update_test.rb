@@ -47,6 +47,29 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     assert_equal "<p>Updated content</p>", result[:model].reload.body.content.to_s
   end
 
+  test "updates markdown body via legacy content param" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Legacy Content Article",
+      slug: "legacy-content-article",
+      status: :draft,
+      body: "Old body",
+      user: user
+    )
+
+    params = {
+      title: "Legacy Content Article",
+      slug: "legacy-content-article",
+      status: "draft",
+      content: "# New Markdown"
+    }
+
+    result = Articles::Operation::Update.call(model: article, params: params)
+
+    assert_predicate result, :success?
+    assert_equal "# New Markdown", result[:model].reload.body.content.to_s
+  end
+
   test "keeps existing markdown content when body param is omitted" do
     user = users(:admin)
     article = Article.create!(

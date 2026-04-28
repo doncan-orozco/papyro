@@ -35,6 +35,9 @@ gem "reform"
 gem "reform-rails"
 gem "dry-monads"
 gem "dry-validation"
+gem "pundit"
+gem "route_translator"
+gem "sitemap_generator"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.22"

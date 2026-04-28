@@ -10,7 +10,7 @@ en:
     formats:
       short: "%b %-d, %Y"
       long: "%B %-d, %Y %H:%M"
-  admin:
+  studio:
     navbar:
       title: "Papyro"
       logo_alt: "Papyro logo"

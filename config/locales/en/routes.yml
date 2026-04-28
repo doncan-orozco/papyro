@@ -1,0 +1,14 @@
+en:
+  routes:
+    session: session
+    sessions: sessions
+    password: password
+    passwords: passwords
+    article: article
+    articles: articles
+    featured_articles: featured
+    user: user
+    users: users
+    featured: featured
+    edit: edit
+    new: new

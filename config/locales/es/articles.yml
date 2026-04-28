@@ -19,7 +19,7 @@ es:
           draft: "Borrador"
           published: "Publicado"
           archived: "Archivado"
-  admin:
+  studio:
     articles:
       breadcrumbs:
         home: "Inicio"
@@ -66,73 +66,6 @@ es:
         slug_hint: "Usado en la URL del artículo. Solo letras minúsculas, números y guiones."
         body_label: "Contenido"
         body_hint: "Contenido del artículo en formato Markdown"
-        excerpt_label: "Extracto"
-        excerpt_placeholder: "Breve resumen del artículo"
-        excerpt_hint: "Máximo 500 caracteres"
-        status_label: "Estado"
-        status_draft: "Borrador"
-        status_published: "Publicado"
-        status_archived: "Archivado"
-        save: "Guardar Artículo"
-        cancel: "Cancelar"
-      operations:
-        create:
-          success: "El artículo fue creado exitosamente"
-          failure: "No se pudo crear el artículo"
-        update:
-          success: "El artículo fue actualizado exitosamente"
-          failure: "No se pudo actualizar el artículo"
-        destroy:
-          success: "El artículo fue eliminado exitosamente"
-          failure: "No se pudo eliminar el artículo"
-        publish:
-          success: "El artículo fue publicado exitosamente"
-          failure: "No se pudo publicar el artículo"
-        unpublish:
-          success: "El artículo fue despublicado exitosamente"
-          failure: "No se pudo despublicar el artículo"
-    forms:
-      validation:
-        slug_invalid_format: "debe contener solo letras minúsculas, números y guiones"
-        status_invalid: "debe ser 'draft', 'published' o 'archived'"
-      index:
-        title: "Artículos"
-        subtitle: "Gestiona y publica tus artículos"
-        new_article: "Nuevo Artículo"
-        no_articles: "No hay artículos aún"
-        empty_title: "No hay artículos aún"
-        empty_description: "Crea tu primer artículo para empezar a publicar contenido."
-        columns:
-          article: "Artículo"
-          status: "Estado"
-          published: "Publicado"
-          excerpt: "Extracto"
-          actions: "Acciones"
-        statuses:
-          draft: "Borrador"
-          published: "Publicado"
-          archived: "Archivado"
-        menu_trigger: "Abrir acciones"
-        not_published: "Sin publicar"
-        no_excerpt: "Sin extracto"
-        edit: "Editar"
-        show: "Ver"
-        delete: "Eliminar"
-        publish: "Publicar"
-        unpublish: "Despublicar"
-        confirm_delete: "¿Está seguro de que desea eliminar este artículo?"
-        published_date: "Publicado: %{date}"
-      new:
-        title: "Nuevo Artículo"
-      edit:
-        title: "Editar Artículo"
-      form:
-        title_label: "Título"
-        title_placeholder: "Ingrese el título del artículo"
-        slug_label: "Slug de URL"
-        slug_placeholder: "slug-del-articulo"
-        slug_hint: "Usado en la URL del artículo. Solo letras minúsculas, números y guiones."
-        body_label: "Contenido"
         excerpt_label: "Extracto"
         excerpt_placeholder: "Breve resumen del artículo"
         excerpt_hint: "Máximo 500 caracteres"
