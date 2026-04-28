@@ -51,6 +51,8 @@ For detailed examples and corrections, see:
 9. **Domain-specific copy in `dry_schema.errors.rules.<field>`** → Causes cross-form collisions for shared field names (e.g. `title`)
 10. **`Components::Ui::Button` inside a compound trigger block** → Trigger helpers (`dropdown.trigger`, `dialog.trigger`, etc.) already render `<button>`; nesting `Button` creates button-in-button invalid HTML — browsers eject the inner element, the trigger fires empty, and the Stimulus action is never reached (see design-system SKILL.md)
 11. **Feature stack inside `ApplicationController`** → Move cross-cutting feature implementations to `app/controllers/concerns/*` and keep `ApplicationController` as composition-only
+12. **Dual identifier lookups (`id || slug`) in one finder** → Choose one canonical URL identifier per bounded context. If URLs are slug-based (`to_param` returns slug), use slug-only lookup in controllers.
+13. **Route/controller param mismatch** → If routes use slug params (`param: :slug`), controller finders must read `params[:slug]` (not `params[:id]` or `params[:article_id]`). Keep route param names and finder keys aligned.
 
 ### ❌ DON'T: Implement Feature Stacks Directly in ApplicationController
 
