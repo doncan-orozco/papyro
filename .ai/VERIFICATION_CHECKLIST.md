@@ -17,20 +17,20 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - [ ] Explicit data passed to view/component
 - [ ] `ApplicationController` is composition-only for cross-cutting concerns (authentication, locale, browser guards, cache invalidation hooks)
 - [ ] Feature-specific controller behavior lives in `app/controllers/concerns/*.rb` and is included in `ApplicationController` or specific controllers
-- [ ] Handle Operation results using `result.success?` / `result.failure?` (Trailblazer returns `Trailblazer::Operation::Result`, not Dry::Monads)
+- [ ] Handle Operation results using `result.success?` / `result.failure?` and explicit payload access (`result.value!` / `result.failure`)
 - [ ] Authorization checks BEFORE calling Operation (find with scope: `Current.user.articles.find_by!`)
 - [ ] Format validation errors from Operation failures for display
-- [ ] **For Create**: Pass params with ownership: `Op::Create.call(params: params.merge(user_id: user.id))`
-- [ ] **For Update/Destroy**: Pass pre-authorized model: `Op::Update.call(model: article, params: params)`
+- [ ] **For Create**: Pass params with ownership: `Op::Create.new.call(params: params.merge(user_id: user.id))`
+- [ ] **For Update/Destroy**: Pass pre-authorized model: `Op::Update.new.call(model: article, params: params)`
 - [ ] Never pass `user_id` in update params (ownership doesn't change)
 
-### Operations (Trailblazer)
+### Operations (dry-rb)
 - [ ] Live in `app/concepts/{domain}/operation/`
-- [ ] Railway flow: Model → Contract::Build → Validate → Logic → Persist → Broadcast
-- [ ] Return Result monads (Success/Failure)
-- [ ] Always set `ctx[:errors]` on failure (as Hash with field keys)
-- [ ] Always set `ctx[:model]` on success (for main domain object)
-- [ ] For chained operations: call first Op, check result, pass ctx to next Op
+- [ ] Flow stays explicit: sanitize/normalize → contract call → domain logic → persist → side effects
+- [ ] Return `Dry::Monads::Result` payloads (`Success(payload)` / `Failure(payload)`)
+- [ ] Success payloads expose documented keys such as `:model` via `result.value!`
+- [ ] Failure payloads expose documented keys such as `:errors` via `result.failure`
+- [ ] For chained operations: call the first operation, short-circuit on failure, pass explicit data to the next step
 - [ ] No hardcoded error messages (use I18n from contracts)
 - [ ] **For Update/Destroy**: Receive pre-authorized `model:` param from controller (no find step)
 - [ ] **For Create**: Build new model from params
@@ -195,12 +195,12 @@ Use this checklist before committing code to ensure full compliance with Papyro 
 - **Errors**: `t("articles.errors.title_blank")` — domain-scoped for context-specific messages
 - **Models**: `Article.model_name.human` or `Article.human_attribute_name(:title)`
 
-### Reform + Dry-Schema Messages
-- [ ] `Dry::Schema.config.messages.backend = :i18n` configured in initializer when using Reform dry validations
+### dry-validation + Dry-Schema Messages
+- [ ] `Dry::Schema.config.messages.backend = :i18n` configured in initializer for dry-validation predicate messages
 - [ ] Keep predicate fallback messages generic in `dry_schema.errors.*` (shared across forms)
 - [ ] Avoid domain-specific copy under `dry_schema.errors.rules.<field>.*` (field name collisions across forms)
-- [ ] Use form/domain-scoped keys for business/context rules, e.g. `articles.forms.validation.*`
-- [ ] In Reform `rule(...)` blocks, use explicit `key.failure(I18n.t("...") )` for model-specific messages
+- [ ] Use contract/domain-scoped keys for business/context rules, e.g. `articles.forms.validation.*`
+- [ ] In contract `rule(...)` blocks, use explicit `key.failure(I18n.t("..."))` for model-specific messages
 - [ ] If a setter normalizes input (e.g. `title.strip`), prefer schema `filled?` for blank checks and avoid redundant whitespace-only predicates
 
 ### Date/Time Formatting

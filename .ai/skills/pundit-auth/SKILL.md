@@ -18,6 +18,13 @@ This skill defines the baseline standards for Papyro and aligns with official Pu
 4. Keep authorization in controllers and policy objects, not in Operations
 5. Use verification hooks to catch missing authorization during development
 
+## Reference Map
+
+- **[references/advanced-patterns.md](references/advanced-patterns.md)**
+  Use for namespaced policies, custom policy resolution, and more advanced authorization structures.
+- **[references/testing.md](references/testing.md)**
+  Use for policy, scope, and controller authorization test patterns.
+
 ## ApplicationController Baseline
 
 ```ruby
@@ -343,7 +350,7 @@ config.action_dispatch.rescue_responses["Pundit::NotAuthorizedError"] = :forbidd
 
 ## Papyro Integration Rules
 
-1. Authorization is done in controllers before Trailblazer Operations
+1. Authorization is done in controllers before operations
 2. For update/destroy, find and authorize the model first, then pass the authorized model to the operation
 3. For create, authorize the class and pass ownership from `Current.user`
 4. On rescue branches that intentionally bypass authorization (for example not-found redirects), call `skip_authorization`

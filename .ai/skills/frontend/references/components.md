@@ -1,6 +1,6 @@
 # Phlex Component Reference
 
-For complete rules, use [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#components).
+For complete rules, use [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#components).
 
 ## Core Conventions
 

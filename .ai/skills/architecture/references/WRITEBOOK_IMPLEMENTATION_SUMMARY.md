@@ -158,7 +158,7 @@ Markdown Text (.body.content)
 gem 'redcarpet', '~> 3.6'    # Markdown parsing
 gem 'rouge', '~> 4.3'         # Syntax highlighting
 gem 'phlex-rails'             # View components (was existing)
-gem 'trailblazer'             # Operations (was existing)
+gem 'dry-operation'           # Operations DSL
 gem 'dry-validation'          # Contracts (was existing)
 ```
 

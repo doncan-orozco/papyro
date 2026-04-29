@@ -5,9 +5,9 @@ description: Build reusable query objects for read flows across the application 
 
 # Application Query Object Pattern
 
-## When to Use
-- Any read/list/search flow across the application
-- Complex visibility predicates encapsulating specific business rules
+## Common Query Scopes
+- Read/list/search flows across the application
+- Complex visibility predicates encapsulating business rules
 - Reusable filtering logic across multiple endpoints
 
 ## Responsibilities

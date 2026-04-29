@@ -1,15 +1,14 @@
 ---
 name: testing
-description: Testing strategies with Minitest and Trailblazer Operations. Use when writing tests for operations, contracts, channels, components, views, or system tests. Covers test structure, fixture usage, operation testing patterns, Playwright for system tests, and CI verification.
+description: Testing strategies with Minitest and dry-rb operations. Use when writing tests for operations, contracts, channels, components, views, or system tests. Covers test structure, fixture usage, operation testing patterns, Playwright for system tests, and CI verification.
 ---
 
-# Testing (Minitest + Trailblazer 2.1)
+# Testing (Minitest + dry-rb)
 
 ## Dependencies
 - minitest
-- trailblazer-operation
-- trailblazer-rails
 - dry-monads
+- dry-operation
 - dry-validation
 
 ## File Structure
@@ -402,7 +401,7 @@ bin/rubocop --fix-layout
 bin/rubocop
 
 # Check for common patterns
-# → See skills/linting/examples/lint-and-tests.md
+# → See skills/linting/references/lint-and-tests.md
 ```
 
 **Test failures:**

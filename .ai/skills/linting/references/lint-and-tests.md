@@ -1,8 +1,8 @@
 # Lint and Test Examples
 
 **For complete guidelines, see:**
-- [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#-lint--code-quality-rubocop)
-- [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#-testing-requirements)
+- [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#-lint--code-quality-rubocop)
+- [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#-testing-requirements)
 
 This file provides concrete examples for common lint issues and test patterns.
 
@@ -13,7 +13,7 @@ This file provides concrete examples for common lint issues and test patterns.
 Wrong:
 ```ruby
 # app/concepts/articles/operation/create.rb
-class Articles::Operation::Create < Trailblazer::Operation
+class Articles::Operation::Create < Dry::Operation
   def self.validate_and_create_with_all_the_business_logic_for_articles_in_this_system
   end
 end
@@ -22,7 +22,7 @@ end
 Correct:
 ```ruby
 # app/concepts/articles/operation/create.rb
-class Articles::Operation::Create < Trailblazer::Operation
+class Articles::Operation::Create < Dry::Operation
   def self.validate_and_create_article
   end
 end
@@ -126,7 +126,7 @@ Fix: `bin/rubocop --fix-layout` auto-fixes these.
 
 Wrong:
 ```ruby
-class Articles::Operation::Create < Trailblazer::Operation
+class Articles::Operation::Create < Dry::Operation
     def call
         article = Article.new
             article.title = "Test"
@@ -136,7 +136,7 @@ end
 
 Correct:
 ```ruby
-class Articles::Operation::Create < Trailblazer::Operation
+class Articles::Operation::Create < Dry::Operation
   def call
     article = Article.new
     article.title = "Test"
@@ -157,14 +157,14 @@ def create_article
   # article.title = params[:title]
   # article.save
 
-  Articles::Operation::Create.call(params)
+  Articles::Operation::Create.new.call(params: params)
 end
 ```
 
 Correct:
 ```ruby
 def create_article
-  Articles::Operation::Create.call(params)
+  Articles::Operation::Create.new.call(params: params)
 end
 ```
 
@@ -232,24 +232,21 @@ require "test_helper"
 
 class Articles::ContractTest < ActiveSupport::TestCase
   def test_validates_title_presence
-    contract = Articles::Contract::Create.new(Articles.new)
-    result = contract.validate({})
+    result = Articles::Contract::Create.new.call({})
 
     assert !result.success?
-    assert_includes result.errors[:title], "can't be blank"
+    assert_includes result.errors.to_h[:title], "can't be blank"
   end
 
   def test_validates_title_minimum_length
-    contract = Articles::Contract::Create.new(Articles.new)
-    result = contract.validate({ title: "Hi" })
+    result = Articles::Contract::Create.new.call({ title: "Hi" })
 
     assert !result.success?
-    assert_includes result.errors[:title], "is too short"
+    assert_includes result.errors.to_h[:title], "is too short"
   end
 
   def test_allows_valid_article_data
-    contract = Articles::Contract::Create.new(Articles.new)
-    result = contract.validate({ title: "Great Article Title" })
+    result = Articles::Contract::Create.new.call({ title: "Great Article Title" })
 
     assert result.success?
   end
@@ -264,23 +261,23 @@ require "test_helper"
 
 class Articles::Operation::CreateTest < ActiveSupport::TestCase
   def test_creates_article_with_valid_data
-    result = Articles::Operation::Create.call(
+    result = Articles::Operation::Create.new.call(
       params: { title: "New Article", body: "Content" }
     )
 
     assert result.success?
-    assert_equal "New Article", result.model.title
-    assert_equal "Content", result.model.body
-    assert Article.exists?(result.model.id)
+    assert_equal "New Article", result.value![:model].title
+    assert_equal "Content", result.value![:model].body
+    assert Article.exists?(result.value![:model].id)
   end
 
   def test_fails_with_invalid_data
-    result = Articles::Operation::Create.call(
+    result = Articles::Operation::Create.new.call(
       params: { title: "" }
     )
 
     assert result.failure?
-    assert_match /can't be blank/, result.errors[:title].first
+    assert_match /can't be blank/, result.failure[:errors][:title].first
   end
 end
 ```

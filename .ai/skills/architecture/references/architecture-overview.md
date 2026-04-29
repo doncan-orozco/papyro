@@ -1,6 +1,6 @@
 # Architecture Overview
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md)**
+**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md)**
 
 This page provides design philosophy and practical examples. All rules and requirements are documented in the checklist.
 
@@ -17,7 +17,7 @@ This page provides design philosophy and practical examples. All rules and requi
 Each layer has specific responsibilities. See the checklists for detailed requirements:
 
 - **Controllers**: Request handling, thin logic
-- **Operations**: Business logic (Trailblazer)
+- **Operations**: Business logic (Dry::Operation + Dry::Monads)
 - **Contracts**: Validation (dry-validation)
 - **Models**: Persistence only
 - **Query Objects**: Complex reads
@@ -28,11 +28,11 @@ Each layer has specific responsibilities. See the checklists for detailed requir
 ## Implementation Clarifications
 
 Rules live in the checklist. See:
-- [Task and issue requirements](../VERIFICATION_CHECKLIST.md#taskissue-requirements)
-- [Queries](../VERIFICATION_CHECKLIST.md#queries-read-model)
-- [Views](../VERIFICATION_CHECKLIST.md#views)
-- [Components](../VERIFICATION_CHECKLIST.md#components)
-- [Turbo Frames](../VERIFICATION_CHECKLIST.md#-turbo-frames)
+- [Task and issue requirements](../../../VERIFICATION_CHECKLIST.md#taskissue-requirements)
+- [Queries](../../../VERIFICATION_CHECKLIST.md#queries-read-model)
+- [Views](../../../VERIFICATION_CHECKLIST.md#views)
+- [Components](../../../VERIFICATION_CHECKLIST.md#components)
+- [Turbo Frames](../../../VERIFICATION_CHECKLIST.md#-turbo-frames)
 
 ## Data Flow
 

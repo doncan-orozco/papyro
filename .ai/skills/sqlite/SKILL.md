@@ -16,6 +16,11 @@ description: SQLite-specific migration patterns and database maintenance for Rai
 
 For Papyro: **SQLite scales to millions of rows**. Treat migrations with Postgres/MySQL rigor to avoid downtime and data corruption.
 
+## Reference Map
+
+- **[references/database.md](references/database.md)**
+  Use for the full SQLite-safe migration playbook, backfill patterns, constraint changes, and maintenance guidance.
+
 ## ⚠️ Required: After Migrations
 
 **MANDATORY:** Run after every migration (local + CI):

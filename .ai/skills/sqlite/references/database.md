@@ -1,8 +1,8 @@
 # Database Examples (SQLite - Rails 8)
 
 **For complete guidelines, see:**
-- [Database](../VERIFICATION_CHECKLIST.md#database-sqlite)
-- [Caching](../VERIFICATION_CHECKLIST.md#caching-solid-cache)
+- [Database](../../../VERIFICATION_CHECKLIST.md#database-sqlite)
+- [Caching](../../../VERIFICATION_CHECKLIST.md#caching-solid-cache)
 
 SQLite is production-ready in Rails 8 with proper configuration.
 
@@ -84,5 +84,5 @@ end
 ## Rules
 
 Rules live in the checklist:
-- [Database](../VERIFICATION_CHECKLIST.md#database-sqlite)
-- [Caching](../VERIFICATION_CHECKLIST.md#caching-solid-cache)
+- [Database](../../../VERIFICATION_CHECKLIST.md#database-sqlite)
+- [Caching](../../../VERIFICATION_CHECKLIST.md#caching-solid-cache)

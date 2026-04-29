@@ -1,6 +1,6 @@
 # Test Examples (Minitest)
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#-testing-requirements)**
+**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#-testing-requirements)**
 
 All tests use Minitest with fixtures.
 
@@ -14,33 +14,33 @@ class Game::Operation::MovePlayerTest < ActiveSupport::TestCase
   test "should move player up when path is clear" do
     player = players(:hero)
     
-    result = Game::Operation::MovePlayer.call(
+    result = Game::Operation::MovePlayer.new.call(
       params: { direction: "move_up", game_id: player.game_id },
       current_user: player.user
     )
     
     assert result.success?
-    assert_equal player.y + 1, result[:player].reload.y
+    assert_equal player.y + 1, result.value![:player].reload.y
   end
   
   test "should fail when obstacle blocks path" do
     player = players(:hero)
     obstacles(:wall_above_hero)
     
-    result = Game::Operation::MovePlayer.call(
+    result = Game::Operation::MovePlayer.new.call(
       params: { direction: "move_up", game_id: player.game_id },
       current_user: player.user
     )
     
     assert result.failure?
-    assert_includes result[:error], "obstacle"
+    assert_includes result.failure[:error], "obstacle"
   end
   
   test "should broadcast movement on success" do
     player = players(:hero)
     
     assert_broadcasts_on(GameChannel.broadcasting_for(player.game)) do
-      Game::Operation::MovePlayer.call(
+      Game::Operation::MovePlayer.new.call(
         params: { direction: "move_up", game_id: player.game_id },
         current_user: player.user
       )
@@ -132,4 +132,4 @@ test/
 ## Rules
 
 Rules live in the checklist:
-- [Testing requirements](../VERIFICATION_CHECKLIST.md#-testing-requirements)
+- [Testing requirements](../../../VERIFICATION_CHECKLIST.md#-testing-requirements)

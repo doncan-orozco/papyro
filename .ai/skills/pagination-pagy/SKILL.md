@@ -5,10 +5,10 @@ description: Standardize collection pagination using Pagy across both HTML views
 
 # Pagination Pattern (Pagy)
 
-## When to Use
-- Any index or list endpoint that returns a collection of records (HTML or API).
-- Whenever a consumer requests `page` or `per_page` parameters.
-- When paginating an `ActiveRecord::Relation` returned by a Query Object.
+## Common Pagination Scenarios
+- Index or list endpoints that return record collections (HTML or API)
+- Consumer-controlled `page` or `per_page` parameters
+- Paginating an `ActiveRecord::Relation` returned by a query object
 
 ## Responsibilities
 - Parse and sanitize user-provided pagination parameters.

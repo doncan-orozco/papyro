@@ -1,17 +1,16 @@
 ---
 name: architecture
-description: Clean Architecture patterns with Trailblazer 2.1 for Rails applications. Use when implementing Operations, Contracts, Controllers, Queries, Services, or organizing application structure following the Papyro architecture patterns. Covers domain-driven organization, file structure, and common development workflows.
+description: Clean Architecture patterns with pure dry-rb operations for Rails applications. Use when implementing Operations, Contracts, Controllers, Queries, Services, or organizing application structure following the Papyro architecture patterns. Covers domain-driven organization, file structure, and common development workflows.
 ---
 
-# Architecture (Clean Architecture + Trailblazer 2.1)
+# Architecture (Clean Architecture + dry-rb)
 
 ## Dependencies
-- trailblazer-operation
-- trailblazer-rails
 - dry-monads
+- dry-operation
 - dry-validation
 
-## File Structure (Hybrid: Trailblazer Concepts + Rails Conventions)
+## File Structure (Concepts + Rails Conventions)
 ```
 app/
   concepts/
@@ -54,15 +53,37 @@ This file focuses on patterns and examples. For requirements, see:
 - [Services](../../VERIFICATION_CHECKLIST.md#services)
 - [Task and issue requirements](../../VERIFICATION_CHECKLIST.md#taskissue-requirements)
 
+## Reference Map
+
+- **[references/architecture-overview.md](references/architecture-overview.md)**
+  Use for layer responsibilities and high-level composition guidance.
+- **[references/operations.md](references/operations.md)**
+  Use for write-flow patterns with `Dry::Operation` and `Dry::Monads`.
+- **[references/contracts.md](references/contracts.md)**
+  Use for dry-validation contract structure and examples.
+- **[references/controllers.md](references/controllers.md)**
+  Use for thin controller patterns and operation orchestration.
+- **[references/queries.md](references/queries.md)**
+  Use for query-object structure and read-model boundaries.
+- **[references/services.md](references/services.md)**
+  Use for focused domain service patterns.
+- **[references/jobs.md](references/jobs.md)**
+  Use for background job orchestration around operations.
+- **[references/models.md](references/models.md)**
+  Use for persistence-only model guidance.
+- **[references/deployment.md](references/deployment.md)**
+  Use for deployment considerations that affect architecture decisions.
+- **[references/WRITEBOOK_IMPLEMENTATION_SUMMARY.md](references/WRITEBOOK_IMPLEMENTATION_SUMMARY.md)**
+  Use as a larger end-to-end implementation example when you need a concrete slice of the architecture in practice.
+
 Example: custom collection actions can support Turbo Frames when they describe a domain subset. See:
 - [Turbo Frames](../../VERIFICATION_CHECKLIST.md#-turbo-frames)
 ## Operations Flow (typical)
-1. `Model` step (load record from `app/models/`)
-2. `Contract::Build` (from `app/concepts/{domain}/contract/`)
-3. `Contract::Validate`
-4. Domain/service steps
-5. `Contract::Persist`
-6. Broadcast step
+1. Sanitize/normalize input
+2. Validate with dry-validation contract
+3. Build/assign model attributes
+4. Persist model
+5. Return `Success(payload)` or `Failure(payload)`
 
 ## For Verification & Requirements
 
