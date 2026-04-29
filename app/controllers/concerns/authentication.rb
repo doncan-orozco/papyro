@@ -9,6 +9,7 @@ module Authentication
   class_methods do
     def allow_unauthenticated_access(**options)
       skip_before_action :require_authentication, **options
+      before_action :resume_session, **options
     end
   end
 
@@ -41,7 +42,7 @@ module Authentication
     end
 
     def after_authentication_url
-      session.delete(:return_to_after_authenticating) || root_url
+      session.delete(:return_to_after_authenticating) || studio_articles_path
     end
 
     def start_new_session_for(user)

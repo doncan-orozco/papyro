@@ -2,13 +2,18 @@
 
 module Articles
   class RelatedQuery < ApplicationQuery
-    base_scope { Article.where(status: :published) }
+    base_scope { Article.all }
 
-    pipeline :filter_by_author,
+    pipeline :filter_by_status,
+             :filter_by_author,
              :exclude_reference_article,
              :apply_ordering
 
     private
+
+    def filter_by_status(current_scope)
+      current_scope.where(status: :published)
+    end
 
     def filter_by_author(current_scope)
       return current_scope.none if filters[:user].blank?

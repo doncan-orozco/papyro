@@ -161,6 +161,75 @@ joins("INNER JOIN taggings ON taggings.tag_id = tags.id")
 
 ---
 
+## MANDATORY RULE: Base Scope Must Be the Root of Your Domain
+
+**`base_scope` MUST ALWAYS return the full, unfiltered domain collection.**
+
+`base_scope` is NOT a place to apply filters. All filtering logic—including status, visibility, and domain boundaries—**MUST be defined in named pipeline steps**.
+
+### Why This Matters
+
+1. **Composability**: Callers may pass a custom `scope:` argument. If `base_scope` already filters, the caller's scope is completely ignored and filtering rules become hidden.
+   
+   ```ruby
+   # If PublishedQuery.base_scope = Article.where(status: :published)
+   # Then this call IGNORES the custom scope entirely:
+   relation = PublishedQuery.call(filters, scope: Article.where(category: "tech"))
+   # Result: Only published articles, category filter is lost!
+   ```
+
+2. **Transparency**: Pipeline steps are visible and explicit. A reader can instantly see what filters are applied by reading the `pipeline` declaration. Filters hidden in `base_scope` are invisible.
+
+3. **Testing**: When testing a pipeline step in isolation, you need to pass a custom scope. If `base_scope` applies unremovable filters, tests become fragile.
+
+4. **Reuse**: Query objects are meant to be composed. If you need "published only" _and_ "accessible to user", separate queries should work together via the `scope:` parameter.
+
+### Correct Pattern
+
+```ruby
+# ✅ CORRECT — unfiltered base, all filtering in pipeline
+module Articles
+  class PublishedQuery < ApplicationQuery
+    base_scope { Article.all }
+
+    pipeline :filter_by_status,
+             :filter_by_category,
+             :apply_ordering
+
+    private
+
+    def filter_by_status(current_scope)
+      current_scope.where(status: :published)
+    end
+
+    def filter_by_category(current_scope)
+      return current_scope if filters[:category_id].blank?
+      current_scope.where(category_id: filters[:category_id])
+    end
+  end
+end
+```
+
+### Incorrect Pattern
+
+```ruby
+# ❌ WRONG — base_scope applies a filter
+module Articles
+  class PublishedQuery < ApplicationQuery
+    # DO NOT DO THIS
+    base_scope { Article.where(status: :published) }
+
+    pipeline :filter_by_category,
+             :apply_ordering
+
+    # Problem: The "published" filter is invisible and unmovable.
+    # Callers cannot pass a custom scope that filters differently.
+  end
+end
+```
+
+---
+
 ## Domain-Driven Repository Conventions
 
 In this codebase, we follow a Domain-Driven Design (DDD) approach. All query objects live under `app/queries/` grouped by their specific resource or domain module, and inherit from `ApplicationQuery`.
@@ -219,14 +288,18 @@ end
 # app/queries/articles/published_query.rb
 module Articles
   class PublishedQuery < ApplicationQuery
-    # Base scope instantly enforces the strict domain boundary
-    base_scope { Article.published }
+    base_scope { Article.all }
 
-    pipeline :search_by_title,
+    pipeline :filter_by_status,
+             :search_by_title,
              :filter_by_category,
              :apply_ordering
 
     private
+
+    def filter_by_status(current_scope)
+      current_scope.where(status: :published)
+    end
 
     def search_by_title(current_scope)
       return current_scope if filters[:query].blank?
