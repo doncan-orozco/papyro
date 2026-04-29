@@ -27,7 +27,7 @@ class PasswordsController < ApplicationController
   end
 
   def update
-    result = Users::Operation::Update.call(
+    result = Users::Operation::Update.new.call(
       params: password_update_params,
       user: @user
     )
@@ -36,7 +36,7 @@ class PasswordsController < ApplicationController
       @user.sessions.destroy_all
       redirect_to new_session_path, notice: t("passwords.update.success")
     else
-      form = result[:form] || password_update_form
+      form = result.failure[:form] || password_update_form
       render Views::Passwords::Edit.new(token: params[:token], form: form), status: :unprocessable_entity
     end
   end
@@ -50,7 +50,7 @@ class PasswordsController < ApplicationController
     end
 
     def password_reset_request_form
-      Users::Form::PasswordResetRequest.new(User.new)
+      Users::Form::PasswordResetRequest.new
     end
 
     def password_update_form

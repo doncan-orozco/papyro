@@ -8,11 +8,11 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
       password_confirmation: "password123"
     }
 
-    result = Users::Operation::Create.call(params: params)
+    result = Users::Operation::Create.new.call(params: params)
 
     assert_predicate result, :success?
-    assert_instance_of User, result[:model]
-    assert_equal "test@example.com", result[:model].email_address
+    assert_instance_of User, result.value![:model]
+    assert_equal "test@example.com", result.value![:model].email_address
   end
 
   test "fails with invalid email" do
@@ -22,10 +22,10 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
       password_confirmation: "password123"
     }
 
-    result = Users::Operation::Create.call(params: params)
+    result = Users::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert_includes result[:errors][:email_address], "must be a valid email address"
+    assert_includes result.failure[:errors][:email_address], "must be a valid email address"
   end
 
   test "fails with mismatched passwords" do
@@ -35,10 +35,10 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
       password_confirmation: "different"
     }
 
-    result = Users::Operation::Create.call(params: params)
+    result = Users::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert_includes result[:errors][:password_confirmation], "must match password"
+    assert_includes result.failure[:errors][:password_confirmation], "must match password"
   end
 
   test "fails with duplicate email" do
@@ -56,10 +56,10 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
       password_confirmation: "password456"
     }
 
-    result = Users::Operation::Create.call(params: params)
+    result = Users::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert_includes result[:errors][:email_address], "is already taken"
+    assert_includes result.failure[:errors][:email_address], "is already taken"
   end
 
   test "fails with missing required fields" do
@@ -69,10 +69,10 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
       password_confirmation: ""
     }
 
-    result = Users::Operation::Create.call(params: params)
+    result = Users::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors].key?(:email_address)
-    assert result[:errors].key?(:password)
+    assert result.failure[:errors].key?(:email_address)
+    assert result.failure[:errors].key?(:password)
   end
 end

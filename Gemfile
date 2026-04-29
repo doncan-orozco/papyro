@@ -28,13 +28,10 @@ gem "tailwind_merge"
 # icons – server‑rendered SVGs via lucide-rails (used by Components::Ui::Icon)
 gem "lucide-rails"
 
-# Business logic (Trailblazer + dry-rb)
-gem "trailblazer-operation"
-gem "trailblazer-rails"
-gem "reform"
-gem "reform-rails"
+# Business logic (dry-rb)
 gem "dry-monads"
 gem "dry-validation"
+gem "dry-operation"
 gem "pundit"
 gem "route_translator"
 gem "sitemap_generator"
@@ -112,6 +109,8 @@ group :development do
 end
 
 group :test do
+  gem "simplecov", require: false
+
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"

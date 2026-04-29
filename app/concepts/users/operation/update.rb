@@ -2,52 +2,48 @@
 
 module Users
   module Operation
-    class Update < Trailblazer::Operation
-      step :validate_input
-      step :update_user
+    class Update < Dry::Operation
+      include Dry::Monads[:result]
 
-      def validate_input(ctx, params:, user:, **)
-        form = Users::Form::Update.new(user)
-        ctx[:form] = form
-        params_with_context = params.merge(id: user.id)
+      def call(params:, user:)
+        input = { params: params, user: user }
+        form_input = step prepare_form(input)
+        validated_input = step validate_input(form_input)
+        synced_input = step sync_form(validated_input)
 
-        if form.validate(params_with_context)
-          form.sync
-
-          # Apply password updates manually because password fields are virtual.
-          if form.password.present?
-            user.password = form.password
-            user.password_confirmation = form.password_confirmation
-          end
-
-          ctx[:model] = user
-          true
-        else
-          form.sync
-          apply_form_errors_to_model(user, form)
-          ctx[:model] = user
-          ctx[:errors] = user.errors.to_hash
-          false
-        end
-      end
-
-      def update_user(ctx, user:, **)
-        if user.save
-          ctx[:model] = user
-          true
-        else
-          ctx[:model] = user
-          ctx[:errors] = user.errors.to_hash
-          false
-        end
+        step persist_user(synced_input)
       end
 
       private
 
-      def apply_form_errors_to_model(model, form)
-        form.errors.messages.each do |attribute, messages|
-          Array(messages).each { |message| model.errors.add(attribute, message) }
-        end
+      def prepare_form(input)
+        user = input.fetch(:user)
+        form = Users::Form::Update.new(user)
+        sanitized_params = input.fetch(:params).compact_blank
+        params_with_context = sanitized_params.merge(id: user.id)
+        Success(input.merge(form: form, params: params_with_context))
+      end
+
+      def validate_input(input)
+        form = input.fetch(:form)
+        user = input.fetch(:user)
+        params_with_context = input.fetch(:params)
+        return Failure(errors: form.errors.to_hash, model: user, form: form) unless form.validate(params_with_context)
+
+        Success(input)
+      end
+
+      def sync_form(input)
+        input.fetch(:form).sync
+        Success(input)
+      end
+
+      def persist_user(input)
+        user = input.fetch(:user)
+        form = input.fetch(:form)
+        return Success(model: user, form: form) if user.save
+
+        Failure(errors: user.errors.to_hash, model: user, form: form)
       end
     end
   end

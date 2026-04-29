@@ -27,6 +27,15 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test "owner can edit profile" do
+    sign_in_as(@user)
+
+    get edit_user_path(@user)
+
+    assert_response :success
+    assert_includes response.body, I18n.t("users.edit.title")
+  end
+
   test "owner can update profile" do
     sign_in_as(@user)
 
@@ -40,5 +49,23 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to user_path(@user)
     assert_equal "updated@example.com", @user.reload.email_address
+  end
+
+  test "owner sees validation errors when update is invalid" do
+    sign_in_as(@user)
+
+    original_password_digest = @user.password_digest
+
+    patch user_path(@user), params: {
+      user: {
+        email_address: @user.email_address,
+        password: "new-password",
+        password_confirmation: "different-password"
+      }
+    }
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, I18n.t("users.edit.title")
+    assert_equal original_password_digest, @user.reload.password_digest
   end
 end

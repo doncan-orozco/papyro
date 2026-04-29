@@ -15,11 +15,11 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       action: "publish"
     }
 
-    result = Articles::Operation::Publish.call(model: article, params: params)
+    result = Articles::Operation::Publish.new.call(model: article, params: params)
 
     assert_predicate result, :success?
-    assert_predicate result[:model].reload, :status_published?
-    assert_not_nil result[:model].published_at
+    assert_predicate result.value![:model].reload, :status_published?
+    assert_not_nil result.value![:model].published_at
   end
 
   test "unpublishes published article" do
@@ -37,11 +37,11 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       action: "unpublish"
     }
 
-    result = Articles::Operation::Publish.call(model: article, params: params)
+    result = Articles::Operation::Publish.new.call(model: article, params: params)
 
     assert_predicate result, :success?
-    assert_predicate result[:model].reload, :status_draft?
-    assert_nil result[:model].published_at
+    assert_predicate result.value![:model].reload, :status_draft?
+    assert_nil result.value![:model].published_at
   end
 
   test "fails to publish already published article" do
@@ -59,10 +59,10 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       action: "publish"
     }
 
-    result = Articles::Operation::Publish.call(model: article, params: params)
+    result = Articles::Operation::Publish.new.call(model: article, params: params)
 
     assert_predicate result, :failure?
-    assert_predicate result[:errors][:base], :any?
+    assert_predicate result.failure[:errors][:base], :any?
   end
 
   test "fails to publish incomplete article" do
@@ -78,10 +78,10 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       action: "publish"
     }
 
-    result = Articles::Operation::Publish.call(model: article, params: params)
+    result = Articles::Operation::Publish.new.call(model: article, params: params)
 
     assert_predicate result, :failure?
-    assert_predicate result[:errors][:base], :any?
+    assert_predicate result.failure[:errors][:base], :any?
   end
 
   test "fails to unpublish draft article" do
@@ -97,10 +97,10 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       action: "unpublish"
     }
 
-    result = Articles::Operation::Publish.call(model: article, params: params)
+    result = Articles::Operation::Publish.new.call(model: article, params: params)
 
     assert_predicate result, :failure?
-    assert_predicate result[:errors][:base], :any?
+    assert_predicate result.failure[:errors][:base], :any?
   end
 
   test "fails with invalid action" do
@@ -117,10 +117,10 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       action: "invalid_action"
     }
 
-    result = Articles::Operation::Publish.call(model: article, params: params)
+    result = Articles::Operation::Publish.new.call(model: article, params: params)
 
     assert_predicate result, :failure?
-    assert_predicate result[:errors][:base], :any?
+    assert_predicate result.failure[:errors][:base], :any?
   end
 
   test "requires model parameter" do
@@ -130,7 +130,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     }
 
     assert_raises(ArgumentError) do
-      Articles::Operation::Publish.call(params: params)
+      Articles::Operation::Publish.new.call(params: params)
     end
   end
 
@@ -152,7 +152,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
 
     # Operation expects pre-authorized model from controller
     # Controller's scoped query (Current.user.articles.find_by!) prevents unauthorized access
-    result = Articles::Operation::Publish.call(model: article, params: { action: "publish" })
+    result = Articles::Operation::Publish.new.call(model: article, params: { action: "publish" })
 
     assert_predicate result, :success?
     # Security is enforced by controller's scoped find, not by operation

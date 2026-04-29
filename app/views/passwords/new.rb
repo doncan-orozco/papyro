@@ -49,7 +49,7 @@ module Views
             svg(class: "h-4 w-4", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
               s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z")
             end
-            p { alert }
+            p(id: "alert") { alert }
           end
         end
       end

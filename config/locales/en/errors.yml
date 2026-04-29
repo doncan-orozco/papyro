@@ -23,7 +23,7 @@ en:
       article_incomplete_for_publish: "Article must have title and content to be published"
       invalid_action: "Invalid action"
 
-  # dry-schema predicate messages (used by Reform forms via params do ... end)
+  # dry-schema predicate messages used by dry-validation contracts.
   # Global fallbacks apply to any field; per-field rules take precedence.
   dry_schema:
     errors:

@@ -10,7 +10,7 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
       user: user
     )
 
-    result = Articles::Operation::Destroy.call(model: article)
+    result = Articles::Operation::Destroy.new.call(model: article)
 
     assert_predicate result, :success?
     assert_nil Article.find_by(id: article.id)
@@ -26,7 +26,7 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
       user: user
     )
 
-    result = Articles::Operation::Destroy.call(model: article)
+    result = Articles::Operation::Destroy.new.call(model: article)
 
     assert_predicate result, :success?
     assert_nil Article.find_by(id: article.id)
@@ -49,7 +49,7 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
 
     # Operation expects pre-authorized model from controller
     # Controller's scoped query (Current.user.articles.find_by!) prevents unauthorized access
-    result = Articles::Operation::Destroy.call(model: article)
+    result = Articles::Operation::Destroy.new.call(model: article)
 
     assert_predicate result, :success?
     # Security is enforced by controller's scoped find, not by operation
@@ -58,7 +58,7 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
   test "requires model parameter" do
     # Operation now expects model to be passed from controller
     assert_raises(ArgumentError) do
-      Articles::Operation::Destroy.call(params: { id: 123 })
+      Articles::Operation::Destroy.new.call(params: { id: 123 })
     end
   end
 end

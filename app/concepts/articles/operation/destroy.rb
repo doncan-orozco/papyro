@@ -2,19 +2,20 @@
 
 module Articles
   module Operation
-    class Destroy < Trailblazer::Operation
-      step :destroy_article
+    class Destroy < Dry::Operation
+      include Dry::Monads[:result]
 
-      # No find_article step - model is pre-authorized by controller
+      def call(model:)
+        step destroy_model(model: model)
+      end
 
-      def destroy_article(ctx, model:, **)
-        if model.destroy
-          ctx[:model] = model
-          true
-        else
-          ctx[:errors] = model.errors.to_hash
-          false
-        end
+      private
+
+      def destroy_model(input)
+        model = input.fetch(:model)
+        return Success(model: model) if model.destroy
+
+        Failure(errors: model.errors.to_hash, model: model)
       end
     end
   end

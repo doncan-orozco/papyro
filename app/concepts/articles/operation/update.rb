@@ -2,53 +2,65 @@
 
 module Articles
   module Operation
-    class Update < Trailblazer::Operation
-      step :validate_input
-      step :update_article
+    class Update < Dry::Operation
+      include Dry::Monads[:result]
 
-      def validate_input(ctx, params:, model:, **)
-        # Support legacy `content` key on the API tests and public forms.
-        params = params.dup
-        params[:body] = params.delete(:content) if params.key?(:content)
+      def call(model:, params:)
+        input = { model: model, params: params }
+        sanitized_input = step sanitize_params(input)
+        params_with_defaults = step prepare_defaults(sanitized_input)
+        validated_input = step validate_input(params_with_defaults)
+        input_with_model = step assign_attributes(validated_input)
 
-        form = Articles::Form::Update.new(model)
-        # Include id in params for slug uniqueness validation
-        params_with_defaults = params.merge(id: model.id)
-        params_with_defaults[:published_at] ||= model.published_at
-        params_with_defaults[:body] ||= model.body.content.to_s
-
-        if form.validate(params_with_defaults)
-          form.sync
-          ctx[:model] = model
-          true
-        else
-          form.sync
-          apply_form_errors_to_model(model, form)
-          ctx[:model] = model
-          ctx[:errors] = model.errors.to_hash
-          false
-        end
-      end
-
-      def update_article(ctx, model:, **)
-        # Model already pre-authorized by controller
-        # Do NOT update user_id or other ownership fields
-        if model.save
-          ctx[:model] = model
-          true
-        else
-          ctx[:model] = model
-          ctx[:errors] = model.errors.to_hash
-          false
-        end
+        step persist_model(input_with_model)
       end
 
       private
 
-      def apply_form_errors_to_model(model, form)
-        form.errors.messages.each do |attribute, messages|
-          Array(messages).each { |message| model.errors.add(attribute, message) }
-        end
+      def sanitize_params(input)
+        sanitized = input.fetch(:params).dup
+        sanitized[:body] = sanitized.delete(:content) if sanitized.key?(:content)
+        sanitized[:title] = sanitized[:title].to_s.strip if sanitized.key?(:title)
+        sanitized[:slug] = sanitized[:slug].to_s.strip.downcase if sanitized.key?(:slug)
+        Success(input.merge(params: sanitized))
+      end
+
+      def prepare_defaults(input)
+        model = input.fetch(:model)
+        params = input.fetch(:params)
+        params_with_defaults = params.merge(
+          title: params.fetch(:title, model.title),
+          slug: params.fetch(:slug, model.slug),
+          status: params.fetch(:status, model.status),
+          body: params.key?(:body) ? params[:body] : model.body.content.to_s,
+          published_at: params.key?(:published_at) ? params[:published_at] : model.published_at,
+          excerpt: params.key?(:excerpt) ? params[:excerpt] : model.excerpt
+        )
+
+        Success(input.merge(params: params_with_defaults))
+      end
+
+      def validate_input(input)
+        model = input.fetch(:model)
+        contract_result = Articles::Contract::Update.new(article_id: model.id).call(input[:params])
+        return Failure(errors: contract_result.errors.to_h, model: model) if contract_result.failure?
+
+        Success(input.merge(attributes: contract_result.to_h))
+      end
+
+      def assign_attributes(input)
+        model = input.fetch(:model)
+        assignable_attributes = input.fetch(:attributes).except(:user_id)
+        assignable_attributes.delete(:body) if assignable_attributes[:body].nil?
+        model.assign_attributes(assignable_attributes)
+        Success(input.merge(model: model))
+      end
+
+      def persist_model(input)
+        model = input.fetch(:model)
+        return Success(model: model) if model.save
+
+        Failure(errors: model.errors.to_hash, model: model)
       end
     end
   end

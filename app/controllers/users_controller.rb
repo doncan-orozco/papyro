@@ -17,12 +17,12 @@ class UsersController < ApplicationController
     user = User.find(params[:id])
     authorize user
 
-    result = Users::Operation::Update.call(user: user, params: user_params)
+    result = Users::Operation::Update.new.call(user: user, params: user_params)
 
     if result.success?
       redirect_to user_path(user), notice: t("users.operations.update.success")
     else
-      user = result[:model] || user
+      user = result.failure[:model] || user
       render Views::Users::Edit.new(user: user), status: :unprocessable_entity
     end
   end

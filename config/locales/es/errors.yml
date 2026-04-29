@@ -23,7 +23,7 @@ es:
       article_incomplete_for_publish: "El artículo debe tener título y contenido para ser publicado"
       invalid_action: "Acción inválida"
 
-  # dry-schema predicate messages (used by Reform forms via params do ... end)
+  # Mensajes de predicados dry-schema usados por contratos dry-validation.
   dry_schema:
     errors:
       filled?: "no puede estar vacío"

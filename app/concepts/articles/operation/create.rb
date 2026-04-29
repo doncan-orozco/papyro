@@ -2,56 +2,45 @@
 
 module Articles
   module Operation
-    class Create < Trailblazer::Operation
-      step :validate_input
-      step :prepare_body
-      step :create_article
+    class Create < Dry::Operation
+      include Dry::Monads[:result]
 
-      def validate_input(ctx, params:, **)
-        # Support legacy `content` key on the API tests and public forms.
-        params = params.dup
-        params[:body] = params.delete(:content) if params.key?(:content)
+      def call(params:)
+        input = { params: params }
+        sanitized_input = step sanitize_params(input)
+        validated_input = step validate_input(sanitized_input)
 
-        form = Articles::Form::Create.new(::Article.new)
-        form.published_at ||= Time.current if params[:status] == "published"
-
-        if form.validate(params)
-          form.sync
-          ctx[:model] = form.model
-          true
-        else
-          form.sync
-          model = form.model
-          apply_form_errors_to_model(model, form)
-          ctx[:model] = model
-          ctx[:errors] = model.errors.to_hash
-          false
-        end
-      end
-
-      def prepare_body(_ctx, model:, **)
-        # Persist the markdown text, not the ActionText::Markdown object itself.
-        model.body = model.body.content.to_s
-        true
-      end
-
-      def create_article(ctx, model:, **)
-        if model.save
-          ctx[:model] = model
-          true
-        else
-          ctx[:model] = model
-          ctx[:errors] = model.errors.to_hash
-          false
-        end
+        step create_article(validated_input)
       end
 
       private
 
-      def apply_form_errors_to_model(model, form)
-        form.errors.messages.each do |attribute, messages|
-          Array(messages).each { |message| model.errors.add(attribute, message) }
-        end
+      def sanitize_params(input)
+        sanitized = input.fetch(:params).dup
+        sanitized[:body] = sanitized.delete(:content) if sanitized.key?(:content)
+        sanitized[:title] = sanitized[:title].to_s.strip if sanitized.key?(:title)
+        sanitized[:slug] = sanitized[:slug].to_s.strip.downcase if sanitized.key?(:slug)
+        Success(input.merge(params: sanitized))
+      end
+
+      def validate_input(input)
+        contract_result = Articles::Contract::Create.new.call(input[:params])
+        return Failure(errors: contract_result.errors.to_h, model: build_article(input[:params])) if contract_result.failure?
+
+        Success(input.merge(attributes: contract_result.to_h))
+      end
+
+      def create_article(input)
+        article = build_article(input[:attributes])
+        return Success(model: article) if article.save
+
+        Failure(errors: article.errors.to_hash, model: article)
+      end
+
+      def build_article(attributes)
+        normalized_attributes = attributes.dup
+        normalized_attributes[:body] = "" if normalized_attributes[:body].nil?
+        Article.new(normalized_attributes)
       end
     end
   end

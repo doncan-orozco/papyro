@@ -11,10 +11,10 @@ class Users::Operation::UpdateTest < ActiveSupport::TestCase
       password_confirmation: "newpassword"
     }
 
-    result = Users::Operation::Update.call(params: params, user: @user)
+    result = Users::Operation::Update.new.call(params: params, user: @user)
 
     assert_predicate result, :success?
-    assert_equal @user, result[:model]
+    assert_equal @user, result.value![:model]
     assert @user.authenticate("newpassword")
   end
 
@@ -24,10 +24,10 @@ class Users::Operation::UpdateTest < ActiveSupport::TestCase
       password_confirmation: "different"
     }
 
-    result = Users::Operation::Update.call(params: params, user: @user)
+    result = Users::Operation::Update.new.call(params: params, user: @user)
 
     assert_predicate result, :failure?
-    assert_includes result[:errors][:password_confirmation], "must match password"
+    assert_includes result.failure[:errors][:password_confirmation], "must match password"
   end
 
   test "updates email with valid format" do
@@ -35,7 +35,7 @@ class Users::Operation::UpdateTest < ActiveSupport::TestCase
       email_address: "newemail@example.com"
     }
 
-    result = Users::Operation::Update.call(params: params, user: @user)
+    result = Users::Operation::Update.new.call(params: params, user: @user)
 
     assert_predicate result, :success?
     assert_equal "newemail@example.com", @user.reload.email_address
@@ -46,10 +46,10 @@ class Users::Operation::UpdateTest < ActiveSupport::TestCase
       email_address: "invalid-email"
     }
 
-    result = Users::Operation::Update.call(params: params, user: @user)
+    result = Users::Operation::Update.new.call(params: params, user: @user)
 
     assert_predicate result, :failure?
-    assert_includes result[:errors][:email_address], "must be a valid email address"
+    assert_includes result.failure[:errors][:email_address], "must be a valid email address"
   end
 
   test "fails with duplicate email" do
@@ -59,10 +59,10 @@ class Users::Operation::UpdateTest < ActiveSupport::TestCase
       email_address: other_user.email_address
     }
 
-    result = Users::Operation::Update.call(params: params, user: @user)
+    result = Users::Operation::Update.new.call(params: params, user: @user)
 
     assert_predicate result, :failure?
-    assert_includes result[:errors][:email_address], "is already taken"
+    assert_includes result.failure[:errors][:email_address], "is already taken"
   end
 
   test "allows updating email to same email (case insensitive)" do
@@ -70,7 +70,7 @@ class Users::Operation::UpdateTest < ActiveSupport::TestCase
       email_address: @user.email_address.upcase
     }
 
-    result = Users::Operation::Update.call(params: params, user: @user)
+    result = Users::Operation::Update.new.call(params: params, user: @user)
 
     assert_predicate result, :success?
   end

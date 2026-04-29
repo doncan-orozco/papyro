@@ -12,10 +12,10 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       user_id: user.id
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params)
 
     assert_predicate result, :success?
-    assert_instance_of Article, result[:model]
+    assert_instance_of Article, result.value![:model]
   end
 
   test "sets article attributes correctly" do
@@ -29,11 +29,11 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       user_id: user.id
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params)
 
-    assert_equal "Test Article", result[:model].title
-    assert_equal "test-article", result[:model].slug
-    assert_equal "<p>Test content</p>", result[:model].body.content.to_s
+    assert_equal "Test Article", result.value![:model].title
+    assert_equal "test-article", result.value![:model].slug
+    assert_equal "<p>Test content</p>", result.value![:model].body.content.to_s
   end
 
   test "persists markdown body as plain content" do
@@ -46,11 +46,11 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       user_id: user.id
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params)
 
     assert_predicate result, :success?
-    assert_equal "# Heading\n\nBody text", result[:model].body.content.to_s
-    refute_match(/#<ActionText::Markdown:/, result[:model].body.content.to_s)
+    assert_equal "# Heading\n\nBody text", result.value![:model].body.content.to_s
+    refute_match(/#<ActionText::Markdown:/, result.value![:model].body.content.to_s)
   end
 
   test "fails with invalid title" do
@@ -62,10 +62,10 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       user_id: user.id
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert_predicate result[:errors][:title], :any?
+    assert_predicate result.failure[:errors][:title], :any?
   end
 
   test "fails with invalid slug format" do
@@ -77,10 +77,10 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       user_id: user.id
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert_predicate result[:errors][:slug], :any?
+    assert_predicate result.failure[:errors][:slug], :any?
   end
 
   test "fails with duplicate slug" do
@@ -99,10 +99,10 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       user_id: user.id
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors][:slug].any? { |msg| msg.include?("already exists") || msg.include?("taken") }
+    assert result.failure[:errors][:slug].any? { |msg| msg.include?("already exists") || msg.include?("taken") }
   end
 
   test "creates published article with published_at" do
@@ -117,10 +117,10 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       user_id: user.id
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params)
 
     assert_predicate result, :success?
-    assert_predicate result[:model], :status_published?
-    assert_equal published_at.to_i, result[:model].published_at.to_i
+    assert_predicate result.value![:model], :status_published?
+    assert_equal published_at.to_i, result.value![:model].published_at.to_i
   end
 end

@@ -2,56 +2,59 @@
 
 module Articles
   module Operation
-    class Publish < Trailblazer::Operation
-      step :validate_publishable
-      step :publish_article
+    class Publish < Dry::Operation
+      include Dry::Monads[:result]
 
-      # No find_article step - model is pre-authorized by controller
+      def call(model:, params:)
+        input = { model: model, params: params }
+        input_with_action = step resolve_action(input)
+        publishable_input = step validate_publishable(input_with_action)
 
-      def validate_publishable(ctx, model:, params:, **)
-        action = params[:action] || "publish"
+        step persist_publish_state(publishable_input)
+      end
 
-        # Validate action is allowed
+      private
+
+      def resolve_action(input)
+        action = input.fetch(:params, {}).fetch(:action, "publish")
+        Success(input.merge(action: action))
+      end
+
+      def validate_publishable(input)
+        model = input.fetch(:model)
+        action = input.fetch(:action)
+
         unless [ "publish", "unpublish" ].include?(action)
-          ctx[:errors] = { base: [ I18n.t("errors.messages.invalid_action") ] }
-          return false
+          return Failure(errors: { base: [ I18n.t("errors.messages.invalid_action") ] }, model: model)
         end
 
         if action == "publish"
-          # Can't publish if already published
-          if model.status_published?
-            ctx[:errors] = { base: [ I18n.t("errors.messages.article_already_published") ] }
-            return false
-          end
-          # Must have title and body content to publish
+          return Failure(errors: { base: [ I18n.t("errors.messages.article_already_published") ] }, model: model) if model.status_published?
+
           body_html = model.body&.to_html.to_s
           if model.title.blank? || body_html.strip.blank?
-            ctx[:errors] = { base: [ I18n.t("errors.messages.article_incomplete_for_publish") ] }
-            return false
+            return Failure(errors: { base: [ I18n.t("errors.messages.article_incomplete_for_publish") ] }, model: model)
           end
-        elsif action == "unpublish"
-          # Can't unpublish if not published
-          unless model.status_published?
-            ctx[:errors] = { base: [ I18n.t("errors.messages.article_not_published") ] }
-            return false
-          end
+        elsif !model.status_published?
+          return Failure(errors: { base: [ I18n.t("errors.messages.article_not_published") ] }, model: model)
         end
 
-        ctx[:action] = action
-        true
+        Success(input)
       end
 
-      def publish_article(ctx, model:, action:, **)
+      def persist_publish_state(input)
+        model = input.fetch(:model)
+        action = input.fetch(:action)
+
         success = if action == "publish"
           model.update(status: :published, published_at: Time.current)
         else
           model.update(status: :draft, published_at: nil)
         end
 
-        return true if success
+        return Success(model: model) if success
 
-        ctx[:errors] = (ctx[:errors] || {}).merge(model.errors.to_hash)
-        false
+        Failure(errors: model.errors.to_hash, model: model)
       end
     end
   end

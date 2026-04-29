@@ -65,7 +65,7 @@ module Views
               s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z")
             end
             div(class: "flex flex-col gap-2") do
-              p(class: "font-semibold") { alert }
+              p(id: "alert", class: "font-semibold") { alert }
             end
           end
         end
@@ -75,7 +75,7 @@ module Views
             svg(class: "h-4 w-4 text-green-600", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
               s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M9 12l2 2m0 0l4-4m-16 6v7a2 2 0 002 2h12a2 2 0 002-2v-7")
             end
-            p { notice }
+            p(id: "notice") { notice }
           end
         end
       end

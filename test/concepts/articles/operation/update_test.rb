@@ -16,11 +16,11 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
       status: "draft"
     }
 
-    result = Articles::Operation::Update.call(model: article, params: params)
+    result = Articles::Operation::Update.new.call(model: article, params: params)
 
     assert_predicate result, :success?
-    assert_equal "Updated Title", result[:model].reload.title
-    assert_equal "updated-slug", result[:model].slug
+    assert_equal "Updated Title", result.value![:model].reload.title
+    assert_equal "updated-slug", result.value![:model].slug
   end
 
   test "updates article content" do
@@ -40,11 +40,11 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
       body: "<p>Updated content</p>"
     }
 
-    result = Articles::Operation::Update.call(model: article, params: params)
+    result = Articles::Operation::Update.new.call(model: article, params: params)
 
     assert_predicate result, :success?
-    assert_includes result[:model].reload.body.to_html, "Updated content"
-    assert_equal "<p>Updated content</p>", result[:model].reload.body.content.to_s
+    assert_includes result.value![:model].reload.body.to_html, "Updated content"
+    assert_equal "<p>Updated content</p>", result.value![:model].reload.body.content.to_s
   end
 
   test "updates markdown body via legacy content param" do
@@ -64,10 +64,10 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
       content: "# New Markdown"
     }
 
-    result = Articles::Operation::Update.call(model: article, params: params)
+    result = Articles::Operation::Update.new.call(model: article, params: params)
 
     assert_predicate result, :success?
-    assert_equal "# New Markdown", result[:model].reload.body.content.to_s
+    assert_equal "# New Markdown", result.value![:model].reload.body.content.to_s
   end
 
   test "keeps existing markdown content when body param is omitted" do
@@ -86,11 +86,11 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
       status: "draft"
     }
 
-    result = Articles::Operation::Update.call(model: article, params: params)
+    result = Articles::Operation::Update.new.call(model: article, params: params)
 
     assert_predicate result, :success?
-    assert_equal "# Existing Body", result[:model].reload.body.content.to_s
-    refute_match(/#<ActionText::Markdown:/, result[:model].reload.body.content.to_s)
+    assert_equal "# Existing Body", result.value![:model].reload.body.content.to_s
+    refute_match(/#<ActionText::Markdown:/, result.value![:model].reload.body.content.to_s)
   end
 
   test "fails with invalid id" do
@@ -108,10 +108,10 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
       status: "draft"
     }
 
-    result = Articles::Operation::Update.call(model: article, params: params)
+    result = Articles::Operation::Update.new.call(model: article, params: params)
 
     assert_predicate result, :failure?
-    assert_predicate result[:errors], :present?
+    assert_predicate result.failure[:errors], :present?
   end
 
   test "fails with duplicate slug" do
@@ -135,10 +135,10 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
       status: "draft"
     }
 
-    result = Articles::Operation::Update.call(model: article, params: params)
+    result = Articles::Operation::Update.new.call(model: article, params: params)
 
     assert_predicate result, :failure?
-    assert_predicate result[:errors][:slug], :any?
+    assert_predicate result.failure[:errors][:slug], :any?
   end
 
   test "allows same slug for same article" do
@@ -156,7 +156,7 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
       status: "draft"
     }
 
-    result = Articles::Operation::Update.call(model: article, params: params)
+    result = Articles::Operation::Update.new.call(model: article, params: params)
 
     assert_predicate result, :success?
   end
@@ -178,7 +178,7 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
       user_id: other_user.id # Attempting to change ownership
     }
 
-    result = Articles::Operation::Update.call(model: article, params: params)
+    result = Articles::Operation::Update.new.call(model: article, params: params)
 
     assert_predicate result, :success?
     # user_id should remain unchanged (excluded by operation)

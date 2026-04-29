@@ -31,7 +31,7 @@ class SessionsController < ApplicationController
   private
 
   def login_form
-    Users::Form::Login.new(User.new)
+    Users::Form::Login.new
   end
 
   def login_params
