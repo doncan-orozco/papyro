@@ -42,4 +42,23 @@ class LocaleSwitchingTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "html[lang='en']"
   end
+
+  test "language toggle keeps same public article route when switching locale" do
+    article = articles(:published_article)
+
+    get article_path(article, locale: :es)
+
+    assert_response :success
+    assert_includes response.body, "href=\"#{article_path(article, locale: :en)}\""
+  end
+
+  test "language toggle keeps same studio route and switches locale via query param" do
+    sign_in_as(users(:admin))
+
+    get new_studio_article_path(locale: :es)
+
+    assert_response :success
+    assert_includes response.body, "href=\"#{new_studio_article_path(locale: :en)}\""
+    assert_includes response.body, "href=\"#{new_studio_article_path(locale: :es)}\""
+  end
 end

@@ -52,18 +52,56 @@ module Components
 
       def locale_href(locale)
         request = view_context.request
-        path_parameters = request.path_parameters.symbolize_keys
+        return studio_locale_href(locale) if studio_path?(request.path)
 
-        return root_path(locale: locale) if path_parameters[:controller].blank? || path_parameters[:action].blank?
+        route_name = nil
+        route_params = nil
 
-        view_context.url_for(
-          path_parameters
-            .except(:locale, :format)
-            .merge(request.query_parameters.symbolize_keys.except(:locale))
-            .merge(locale: locale, only_path: true)
-        )
+        Rails.application.routes.router.recognize(request) do |route, params|
+          next if route.name.blank?
+
+          route_name = route.name
+          route_params = params
+          break
+        end
+
+        raise ActionController::UrlGenerationError, "Unnamed route" if route_name.blank?
+
+        locale_pattern = I18n.available_locales.map(&:to_s).join("|")
+        normalized_route_name = route_name.to_s
+          .sub(/\A(?:#{locale_pattern})_/, "")
+          .sub(/_(?:#{locale_pattern})\z/, "")
+
+        localized_helper_name = "#{normalized_route_name}_#{locale}_path"
+        generic_helper_name = "#{normalized_route_name}_path"
+
+        localized_params = route_params.symbolize_keys
+          .except(:locale, :format, :controller, :action)
+          .merge(request.query_parameters.symbolize_keys.except(:locale))
+
+        if view_context.respond_to?(localized_helper_name)
+          return view_context.public_send(localized_helper_name, **localized_params)
+        end
+
+        raise ActionController::UrlGenerationError, "Missing helper: #{generic_helper_name}" unless view_context.respond_to?(generic_helper_name)
+
+        I18n.with_locale(locale) do
+          view_context.public_send(generic_helper_name, **localized_params.merge(locale: locale))
+        end
       rescue ActionController::UrlGenerationError
         root_path(locale: locale)
+      end
+
+      def studio_path?(path)
+        path.start_with?("/studio")
+      end
+
+      def studio_locale_href(locale)
+        request = view_context.request
+        query_params = request.query_parameters.symbolize_keys.except(:locale).merge(locale: locale)
+        query_string = query_params.to_query
+
+        query_string.present? ? "#{request.path}?#{query_string}" : request.path
       end
 
       def locale_key(locale)
