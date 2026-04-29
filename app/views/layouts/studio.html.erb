@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<%= I18n.locale %>">
   <head>
-    <title><%= content_for(:title) || "Papyro Admin" %></title>
+    <title><%= content_for(:title) || "Papyro Studio" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -11,8 +11,6 @@
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%# Restore the user's theme preference before first paint to avoid FOUC %>
     <script>
       (function(){
         var t=localStorage.getItem("papyro-theme"),d=document.documentElement;
@@ -26,7 +24,10 @@
   </head>
 
   <body class="min-h-dvh bg-background text-foreground antialiased">
-    <main id="main-content" class="min-h-[calc(100dvh-3.5rem)]">
+    <%= content_for(:flash) || render(Components::Shared::Flash.new(flash: flash)) %>
+    <%= render Components::Studio::Navbar.new %>
+
+    <main id="main-content">
       <%= yield %>
     </main>
   </body>

@@ -14,5 +14,9 @@ en:
     navbar:
       title: "Papyro"
       logo_alt: "Papyro logo"
+      navigation_label: "Studio navigation"
+      articles: "Articles"
+      new_article: "New Article"
+      view_site: "View site"
       sign_out: "Sign out"
       confirm_sign_out: "Are you sure you want to sign out?"

@@ -14,5 +14,9 @@ es:
     navbar:
       title: "Papyro"
       logo_alt: "Logo de Papyro"
+      navigation_label: "Navegacion de estudio"
+      articles: "Articulos"
+      new_article: "Nuevo Articulo"
+      view_site: "Ver sitio"
       sign_out: "Cerrar sesion"
       confirm_sign_out: "Estas seguro de que quieres cerrar sesion?"

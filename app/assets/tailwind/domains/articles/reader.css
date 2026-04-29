@@ -1,0 +1,54 @@
+@layer components {
+  /* Writebook-inspired reading rhythm for rendered article HTML. */
+  .article-prose {
+    font-size: 1.075rem;
+    line-height: 1.78;
+  }
+
+  .article-prose :where(p, ul, ol, dl, blockquote, pre, figure, table, hr) {
+    margin-block: 0.72lh;
+    overflow-wrap: break-word;
+    text-wrap: pretty;
+  }
+
+  .article-prose :where(p) {
+    hyphens: auto;
+    letter-spacing: -0.003ch;
+  }
+
+  .article-prose :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--color-foreground);
+    font-weight: 700;
+    letter-spacing: -0.02ch;
+    line-height: 1.15;
+    margin-block: 1.1em 0.55em;
+    text-wrap: balance;
+  }
+
+  .article-prose :where(ul, ol) {
+    padding-inline-start: 1.25rem;
+  }
+
+  .article-prose :where(ul) {
+    list-style: disc;
+  }
+
+  .article-prose :where(ol) {
+    list-style: decimal;
+  }
+
+  .article-prose :where(li + li) {
+    margin-top: 0.3em;
+  }
+
+  .article-prose :where(a) {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.15em;
+  }
+
+  .article-prose :where(a:hover) {
+    opacity: 0.82;
+  }
+}

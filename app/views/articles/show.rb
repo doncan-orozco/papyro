@@ -108,7 +108,7 @@ module Views
 
       def render_content
         article(class: "py-10 sm:py-12") do
-          div(class: "prose prose-lg max-w-none text-foreground prose-headings:text-foreground prose-a:text-primary hover:prose-a:text-primary/80") do
+          div(class: "article-prose max-w-none text-foreground") do
             raw @article.html_body
           end
         end

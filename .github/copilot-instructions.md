@@ -19,6 +19,7 @@ When reviewing pull requests or responding to development requests, you MUST ver
 2. **[.ai/skills/backend-anti-patterns/SKILL.md](.ai/skills/backend-anti-patterns/SKILL.md)** - What NOT to do
 3. **[.ai/skills/error-handling/SKILL.md](.ai/skills/error-handling/SKILL.md)** - Error & auth patterns
 4. **[.ai/skills/architecture/SKILL.md](.ai/skills/architecture/SKILL.md)** - Project overview & skill index
+5. **[.ai/skills/frontend-style-ddd/SKILL.md](.ai/skills/frontend-style-ddd/SKILL.md)** - Domain-driven stylesheet organization rules
 
 ## How to Use This
 
