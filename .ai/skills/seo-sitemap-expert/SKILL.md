@@ -13,6 +13,7 @@ This skill automates the creation of "Language Tree" sitemaps. It ensures that e
 1.  **Hreflang Reciprocity**: Every URL in the sitemap must point to all its translated versions (including itself).
 2.  **Workflow Sensitivity**: Only include URLs where the content is explicitly `approved?` for that locale.
 3.  **Route Integration**: Leverage `route_translator` helpers to automatically generate localized paths (e.g., `/es/articulos` vs `/en/articles`).
+4.  **x-default Home Policy**: The home-page hreflang cluster should use the bare root `/` as `x-default`, while localized home entries remain self-canonicalized locale URLs.
 
 ## Implementation Workflow
 
@@ -48,6 +49,16 @@ SitemapGenerator::Sitemap.create do
 end
 ```
 
+For the marketing home page, build a dedicated alternates cluster:
+
+```ruby
+home_alternates = I18n.available_locales.map do |locale|
+  { lang: locale, href: root_url(locale: locale) }
+end
+
+home_alternates << { lang: "x-default", href: root_url(locale: nil) }
+```
+
 ### 2. The Output Structure
 The skill ensures the generated XML follows the Google-mandated structure for multilingual discovery:
 
@@ -68,6 +79,8 @@ The skill ensures the generated XML follows the Google-mandated structure for mu
 * **Approval Gate**: Always use `next unless model.approved?(locale)` to prevent indexing "thin" or unfinished AI translations.
 * **Automation**: Trigger `rake sitemap:refresh` via a post-deployment hook or a daily CRON job to keep the index fresh.
 * **Search Console**: Once generated, submit the `sitemap.xml` to Google Search Console and monitor the "International Targeting" report for hreflang validation.
+* **Home Page Entries**: Include localized home URLs as normal entries, but always use bare `/` for the `x-default` home alternate.
+* **Resource Consistency**: Sitemap alternates for localized content must reference the same record across locales, never a generic listing or home fallback.
 
 ## Constraints
 - **URL Helpers**: Always use `_url` for alternates (absolute paths) and `_path` for the primary `add` call (relative).

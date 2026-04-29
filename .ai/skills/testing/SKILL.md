@@ -50,6 +50,13 @@ test/
 - Treat views as integration units: render and assert key sections.
 - Avoid snapshot noise; assert only critical content.
 
+## SEO Integration Coverage
+- For every public URL that should be indexable, add an integration test for head metadata.
+- Assert the canonical URL, locale alternates, and `x-default` hreflang tag.
+- Assert the base social tags as well: `title`, `meta[name='description']`, `og:title`, `og:description`, `og:locale`, and `og:locale:alternate`.
+- Cover at least the home page, public index pages, public show pages, and public profile pages when they exist.
+- Treat missing SEO assertions on a new public route as missing required coverage, not optional follow-up work.
+
 ## System Testing with Playwright
 
 ### Setup & Configuration

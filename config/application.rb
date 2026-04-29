@@ -25,7 +25,7 @@ module Papyro
     # config.eager_load_paths << Rails.root.join("extras")
 
     config.i18n.available_locales = %i[en es]
-    config.i18n.default_locale = :es
+    config.i18n.default_locale = :en
 
     config.mission_control.jobs.base_controller_class = "AdminController"
     config.mission_control.jobs.http_basic_auth_enabled = false

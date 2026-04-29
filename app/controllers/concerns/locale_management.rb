@@ -8,7 +8,7 @@ module LocaleManagement
   private
 
   def set_locale
-    locale = requested_locale || stored_locale || browser_locale || I18n.default_locale
+    locale = requested_locale || x_default_root_locale || stored_locale || browser_locale || I18n.default_locale
     I18n.locale = locale
     Current.locale = locale
   end
@@ -21,6 +21,15 @@ module LocaleManagement
     locale = normalized_locale(params[:locale])
     session[:locale] = locale if locale
     locale
+  end
+
+  # Keep the unlocalized homepage (/) deterministic for crawlers.
+  # We treat it as x-default and always render in default locale when
+  # no explicit locale param is provided.
+  def x_default_root_locale
+    return unless request.path == "/" && params[:locale].blank?
+
+    I18n.default_locale
   end
 
   def stored_locale

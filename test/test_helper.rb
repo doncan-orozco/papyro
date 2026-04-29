@@ -5,8 +5,6 @@ require_relative "../config/environment"
 require "rails/test_help"
 require_relative "test_helpers/session_test_helper"
 
-I18n.default_locale = :en
-
 module ActiveSupport
   class TestCase
     parallelize_setup do |_worker|

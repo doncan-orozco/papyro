@@ -2,10 +2,11 @@ SitemapGenerator::Sitemap.default_host = ENV.fetch("APP_HOST", "https://papyro.n
 
 SitemapGenerator::Sitemap.create do
   locales = I18n.available_locales
+  x_default_home_url = "#{SitemapGenerator::Sitemap.default_host}/"
 
   locales.each do |locale|
     alternates = locales.map { |alt| { lang: alt.to_s, href: root_url(locale: alt) } }
-    alternates << { lang: "x-default", href: root_url(locale: I18n.default_locale) }
+    alternates << { lang: "x-default", href: x_default_home_url }
 
     add root_path(locale: locale),
       changefreq: "daily",
