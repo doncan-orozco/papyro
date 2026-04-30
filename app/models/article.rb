@@ -1,4 +1,6 @@
 class Article < ApplicationRecord
+  WORDS_PER_MINUTE = 200
+
   belongs_to :user
   has_markdown :body
   has_one_attached :cover_image
@@ -27,6 +29,20 @@ class Article < ApplicationRecord
   def searchable_content
     html_content = body.to_html
     ActionText::Content.new(html_content).to_plain_text
+  end
+
+  def plain_text_body
+    ActionText::Content.new(html_body).to_plain_text.squish
+  end
+
+  def content_word_count
+    plain_text_body.scan(/\b[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*\b/u).size
+  end
+
+  def estimated_reading_time_minutes
+    return 0 if content_word_count.zero?
+
+    [ (content_word_count / WORDS_PER_MINUTE.to_f).ceil, 1 ].max
   end
 
   # Use slug in URLs instead of ID

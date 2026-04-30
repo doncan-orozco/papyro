@@ -72,7 +72,7 @@ module Views
               li(class: "inline-flex items-center gap-1.5") do
                 span(class: "font-medium text-foreground") { t("articles.show.published") }
                 time(datetime: @article.published_at.iso8601) do
-                  I18n.l(@article.published_at, format: :long)
+                  I18n.l(@article.published_at.to_date, format: :short)
                 end
               end
             end
@@ -80,26 +80,19 @@ module Views
             if @article.user
               li(class: "inline-flex items-center gap-1.5") do
                 span(class: "font-medium text-foreground") { t("articles.show.author") }
-                span { @article.user.email_address }
+                span { @article.user.author_display_name }
               end
             end
 
-            li(class: "inline-flex items-center gap-1.5") do
-              span(class: "font-medium text-foreground") { t("articles.show.status") }
-              render Components::Ui::Badge.new(variant: status_variant(@article)) do
-                @article.status.humanize
-              end
-            end
-
-            if @article.body.present?
+            if @article.content_word_count.positive?
               li(class: "inline-flex items-center gap-1.5") do
                 span(class: "font-medium text-foreground") { t("articles.show.content_length") }
-                span { t("articles.show.words_count", count: word_count) }
+                span { t("articles.show.words_count", count: @article.content_word_count) }
               end
 
               li(class: "inline-flex items-center gap-1.5") do
                 span(class: "font-medium text-foreground") { t("articles.show.reading_time") }
-                span { t("articles.show.minutes_read", count: reading_time_minutes) }
+                span { t("articles.show.minutes_read", count: @article.estimated_reading_time_minutes) }
               end
             end
           end
@@ -145,23 +138,6 @@ module Views
               I18n.l(article.published_at, format: :short)
             end
           end
-        end
-      end
-
-      def word_count
-        @article.body.to_s.split.size
-      end
-
-      def reading_time_minutes
-        [ (word_count / 200.0).ceil, 1 ].max
-      end
-
-      def status_variant(article)
-        case article.status
-        when "draft" then :secondary
-        when "published" then :default
-        when "archived" then :outline
-        else :default
         end
       end
 

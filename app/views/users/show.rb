@@ -17,6 +17,9 @@ module Views
               end
 
               card.content(class: "space-y-4") do
+                p(class: "text-sm text-muted-foreground") { t("users.show.display_name_label") }
+                p(class: "text-base font-medium") { @user.author_display_name }
+
                 p(class: "text-sm text-muted-foreground") { t("users.show.email_label") }
                 p(class: "text-base font-medium") { @user.email_address }
 

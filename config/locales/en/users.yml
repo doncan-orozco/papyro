@@ -3,11 +3,14 @@ en:
     show:
       title: "Profile"
       description: "Public profile information"
+      display_name_label: "Author name"
       email_label: "Email address"
       edit_profile: "Edit profile"
     edit:
       title: "Edit Profile"
       description: "Update your account settings"
+      display_name_label: "Author name"
+      display_name_placeholder: "Enter the name shown on your articles"
       email_label: "Email address"
       email_placeholder: "Enter your email address"
       password_label: "New password"
@@ -16,6 +19,9 @@ en:
       password_confirmation_placeholder: "Confirm your new password"
       submit: "Save changes"
       cancel: "Cancel"
+    forms:
+      validation:
+        display_name_too_long: "Author name must be 100 characters or fewer"
     operations:
       update:
         success: "Profile updated successfully."

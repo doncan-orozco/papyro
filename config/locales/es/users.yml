@@ -3,11 +3,14 @@ es:
     show:
       title: "Perfil"
       description: "Información pública del perfil"
+      display_name_label: "Nombre del autor"
       email_label: "Correo electrónico"
       edit_profile: "Editar perfil"
     edit:
       title: "Editar perfil"
       description: "Actualiza la configuración de tu cuenta"
+      display_name_label: "Nombre del autor"
+      display_name_placeholder: "Ingresa el nombre que se mostrará en tus artículos"
       email_label: "Correo electrónico"
       email_placeholder: "Ingresa tu correo electrónico"
       password_label: "Nueva contraseña"
@@ -16,6 +19,9 @@ es:
       password_confirmation_placeholder: "Confirma tu nueva contraseña"
       submit: "Guardar cambios"
       cancel: "Cancelar"
+    forms:
+      validation:
+        display_name_too_long: "El nombre del autor debe tener 100 caracteres o menos"
     operations:
       update:
         success: "Perfil actualizado correctamente."

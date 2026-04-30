@@ -3,6 +3,7 @@ require "test_helper"
 class Users::Contract::CreateTest < ActiveSupport::TestCase
   test "succeeds with valid attributes" do
     result = Users::Contract::Create.new.call(
+      display_name: "Test Writer",
       email_address: "new-user@example.com",
       password: "password123",
       password_confirmation: "password123"
@@ -13,6 +14,7 @@ class Users::Contract::CreateTest < ActiveSupport::TestCase
 
   test "fails for invalid email" do
     result = Users::Contract::Create.new.call(
+      display_name: "Test Writer",
       email_address: "invalid",
       password: "password123",
       password_confirmation: "password123"
@@ -26,6 +28,7 @@ class Users::Contract::CreateTest < ActiveSupport::TestCase
     users(:one)
 
     result = Users::Contract::Create.new.call(
+      display_name: "Test Writer",
       email_address: "one@example.com",
       password: "password123",
       password_confirmation: "password123"
@@ -37,6 +40,7 @@ class Users::Contract::CreateTest < ActiveSupport::TestCase
 
   test "fails for mismatched passwords" do
     result = Users::Contract::Create.new.call(
+      display_name: "Test Writer",
       email_address: "new-user@example.com",
       password: "password123",
       password_confirmation: "different"
@@ -44,5 +48,17 @@ class Users::Contract::CreateTest < ActiveSupport::TestCase
 
     assert_predicate result, :failure?
     assert result.errors.to_h.key?(:password_confirmation)
+  end
+
+  test "fails when display_name is missing" do
+    result = Users::Contract::Create.new.call(
+      display_name: "",
+      email_address: "new-user@example.com",
+      password: "password123",
+      password_confirmation: "password123"
+    )
+
+    assert_predicate result, :failure?
+    assert result.errors.to_h.key?(:display_name)
   end
 end

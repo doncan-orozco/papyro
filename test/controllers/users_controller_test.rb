@@ -10,6 +10,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     get user_path(@user)
 
     assert_response :success
+    assert_includes @response.body, @user.author_display_name
     assert_includes @response.body, @user.email_address
   end
 
@@ -41,6 +42,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
     patch user_path(@user), params: {
       user: {
+        display_name: "Updated Author",
         email_address: "updated@example.com",
         password: "",
         password_confirmation: ""
@@ -48,6 +50,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     }
 
     assert_redirected_to user_path(@user)
+    assert_equal "Updated Author", @user.reload.profile.display_name
     assert_equal "updated@example.com", @user.reload.email_address
   end
 

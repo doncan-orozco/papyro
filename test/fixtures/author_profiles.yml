@@ -1,0 +1,14 @@
+admin:
+  user: admin
+  display_name: "Admin Writer"
+  bio: "Writes about building software."
+
+one:
+  user: one
+  display_name: "Reader One"
+  bio: "Enjoys long-form essays."
+
+two:
+  user: two
+  display_name: "Reader Two"
+  bio: "Collects notes and references."

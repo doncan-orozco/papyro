@@ -20,6 +20,16 @@ module Views
 
               card.content do
                 form_with(model: @user, url: user_path(@user), method: :patch, class: "space-y-5") do |form|
+                  form.field :display_name,
+                    as: :text_field,
+                    label: t("users.edit.display_name_label"),
+                    options: {
+                      required: true,
+                      autocomplete: "name",
+                      placeholder: t("users.edit.display_name_placeholder"),
+                      value: @user.author_display_name
+                    }
+
                   form.field :email_address,
                     as: :email_field,
                     label: t("users.edit.email_label"),

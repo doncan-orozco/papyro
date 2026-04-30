@@ -4,9 +4,16 @@ module Users
   module Contract
     class Create < Dry::Validation::Contract
       params do
+        required(:display_name).filled(:string)
         required(:email_address).filled(:string)
         required(:password).filled(:string)
         required(:password_confirmation).filled(:string)
+      end
+
+      rule(:display_name) do
+        if value.length > 100
+          key.failure(I18n.t("users.forms.validation.display_name_too_long"))
+        end
       end
 
       rule(:email_address) do

@@ -105,13 +105,16 @@ en:
       by_author: "by %{author}"
       back_to_list: "Back to Articles"
       fullscreen: "Fullscreen"
-      published: "Published"
-      author: "Author"
-      status: "Status"
-      content_length: "Content Length"
-      words_count: "%{count} words"
-      reading_time: "Reading time"
-      minutes_read: "%{count} min read"
+      published: "Published on"
+      author: "Written by"
+      content_length: "Word count"
+      words_count:
+        one: "%{count} word"
+        other: "%{count} words"
+      reading_time: "Estimated reading time"
+      minutes_read:
+        one: "%{count} min read"
+        other: "%{count} min read"
       related_articles: "Related Articles"
     errors:
       not_found: "Article not found"

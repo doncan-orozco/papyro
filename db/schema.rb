@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_24_000102) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_29_153000) do
   create_table "action_text_markdowns", force: :cascade do |t|
     t.text "content", default: "", null: false
     t.datetime "created_at", null: false
@@ -77,6 +77,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_24_000102) do
     t.check_constraint "status IN (0, 1, 2)", name: "valid_status"
   end
 
+  create_table "author_profiles", force: :cascade do |t|
+    t.text "bio"
+    t.datetime "created_at", null: false
+    t.string "display_name", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_author_profiles_on_user_id", unique: true
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address"
@@ -100,5 +109,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_24_000102) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "articles", "users"
+  add_foreign_key "author_profiles", "users"
   add_foreign_key "sessions", "users"
 end

@@ -82,4 +82,30 @@ class ArticleTest < ActiveSupport::TestCase
     assert_equal "Untrimmed Title", article.title
     assert_equal "uppercase-slug", article.slug
   end
+
+  test "content metrics are calculated from plain text" do
+    article = @user.articles.create!(
+      title: "Metric Test",
+      slug: "metric-test",
+      status: :published,
+      published_at: Time.current,
+      body: "<p>Hello <strong>world</strong> from <em>Papyro</em></p>"
+    )
+
+    assert_equal "Hello world from Papyro", article.plain_text_body
+    assert_equal 4, article.content_word_count
+    assert_equal 1, article.estimated_reading_time_minutes
+  end
+
+  test "estimated reading time is zero when content is blank" do
+    article = @user.articles.create!(
+      title: "Empty Metric Test",
+      slug: "empty-metric-test",
+      status: :draft,
+      body: ""
+    )
+
+    assert_equal 0, article.content_word_count
+    assert_equal 0, article.estimated_reading_time_minutes
+  end
 end

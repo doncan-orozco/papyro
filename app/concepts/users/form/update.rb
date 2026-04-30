@@ -7,6 +7,7 @@ module Users
       include ActiveModel::Attributes
 
       attribute :id, :integer
+      attribute :display_name, :string
       attribute :email_address, :string
       attribute :password, :string
       attribute :password_confirmation, :string
@@ -16,6 +17,7 @@ module Users
       def initialize(model, attributes = {})
         @model = model
         super(attributes)
+        self.display_name ||= model.author_display_name
       end
 
       def validate(params)
@@ -27,6 +29,8 @@ module Users
       end
 
       def sync
+        profile = model.profile || model.build_profile
+        profile.display_name = display_name if display_name.present?
         model.email_address = email_address if email_address.present?
 
         if password.present?
@@ -39,6 +43,7 @@ module Users
 
       def assign_attributes(params)
         self.id = params[:id]
+        self.display_name = params[:display_name] if params.key?(:display_name)
         self.email_address = params[:email_address] if params.key?(:email_address)
         self.password = params[:password] if params.key?(:password)
         self.password_confirmation = params[:password_confirmation] if params.key?(:password_confirmation)
@@ -46,6 +51,7 @@ module Users
 
       def validation_params
         {
+          display_name: display_name,
           email_address: email_address,
           password: password,
           password_confirmation: password_confirmation

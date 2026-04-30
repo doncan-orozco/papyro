@@ -24,7 +24,10 @@ module Users
       end
 
       def create_user(input)
-        user = ::User.new(input.fetch(:attributes))
+        attributes = input.fetch(:attributes)
+        user = ::User.new(attributes.except(:display_name))
+        user.build_profile(display_name: attributes.fetch(:display_name))
+
         return Success(model: user) if user.save
 
         Failure(errors: user.errors.to_hash, model: user)

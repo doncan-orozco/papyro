@@ -6,9 +6,16 @@ module Users
       option :user_id, optional: true
 
       params do
+        optional(:display_name).filled(:string)
         optional(:email_address).filled(:string)
         optional(:password).filled(:string)
         optional(:password_confirmation).filled(:string)
+      end
+
+      rule(:display_name) do
+        if key? && value && value.length > 100
+          key.failure(I18n.t("users.forms.validation.display_name_too_long"))
+        end
       end
 
       rule(:email_address) do

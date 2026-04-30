@@ -62,6 +62,19 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "show renders refined metadata with author display name and no status" do
+    get article_path(@published_article.slug)
+
+    assert_response :success
+    assert_includes response.body, "Written by"
+    assert_includes response.body, @user.author_display_name
+    assert_includes response.body, I18n.l(@published_article.published_at.to_date, format: :short)
+    assert_includes response.body, "2 words"
+    assert_includes response.body, "1 min read"
+    assert_not_includes response.body, @user.email_address
+    assert_not_includes response.body, "Status"
+  end
+
   test "show redirects for draft article" do
     get article_path(@draft_article.slug)
 
