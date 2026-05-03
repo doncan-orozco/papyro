@@ -1,6 +1,6 @@
 # Test Examples (Minitest)
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#-testing-requirements)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#-testing-requirements)**
 
 All tests use Minitest with fixtures.
 
@@ -132,4 +132,4 @@ test/
 ## Rules
 
 Rules live in the checklist:
-- [Testing requirements](../../../VERIFICATION_CHECKLIST.md#-testing-requirements)
+- [Testing requirements](/.github/copilot-instructions.md#-testing-requirements)

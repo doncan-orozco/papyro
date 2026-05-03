@@ -1,6 +1,6 @@
 # Query Object Examples
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#queries-read-model)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#queries-read-model)**
 
 Complex queries live in isolated classes under `app/queries/`.
 
@@ -30,4 +30,4 @@ end
 ## Rules
 
 Rules live in the checklist:
-- [Queries](../../../VERIFICATION_CHECKLIST.md#queries-read-model)
+- [Queries](/.github/copilot-instructions.md#queries-read-model)

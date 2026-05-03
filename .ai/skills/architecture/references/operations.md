@@ -1,20 +1,19 @@
 # Operation Examples
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#operations)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md)**
 
-Operations encapsulate all write business logic using `Dry::Operation` and `Dry::Monads::Result`. Code examples below.
+Operations orchestrate write flows using `ApplicationOperation` and `Dry::Monads::Result`. Keep authorization in controllers, structural validation in contracts, and state validation in models.
 
 ## Complete Operation Example
 
 ```ruby
-# app/concepts/game/operation/move_player.rb
+# app/operations/game/operation/move_player.rb
 module Game
   module Operation
-    class MovePlayer < Dry::Operation
-      include Dry::Monads[:result]
+    class MovePlayer < ApplicationOperation
 
-      def call(params:, current_user:)
-        player = step find_player(current_user)
+      def call(model:, params:)
+        player = step find_player(model)
         validated_params = step validate_input(params)
         step check_collision(player:, direction: validated_params[:direction])
         moved_player = step update_position(player:, direction: validated_params[:direction])
@@ -23,16 +22,20 @@ module Game
 
       private
       
-      def find_player(current_user)
-        player = ::Player.find_by(id: current_user.player_id)
-        return Failure(errors: { base: ["player_not_found"] }) unless player
+      def find_player(model)
+        return Failure(model: model) unless model
 
-        Success(player)
+        Success(model)
       end
 
       def validate_input(params)
         result = Game::Contract::Move.new.call(params)
-        return Failure(errors: result.errors.to_h) if result.failure?
+
+        if result.failure?
+          player = Player.new
+          invalid_player = inject_errors!(player, result.errors.to_h)
+          return Failure(model: invalid_player)
+        end
 
         Success(result.to_h)
       end
@@ -43,7 +46,10 @@ module Game
           direction: direction
         )
 
-        return Failure(errors: { base: ["Cannot move there - obstacle detected"] }) if collision_detector.collides?
+        if collision_detector.collides?
+          player.errors.add(:base, "Cannot move there - obstacle detected")
+          return Failure(model: player)
+        end
 
         Success(true)
       end
@@ -73,4 +79,4 @@ module Game
 end
 ```
 
-See [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#operations) for complete operation guidelines.
+See [copilot-instructions.md](/.github/copilot-instructions.md) for complete operation guidelines.

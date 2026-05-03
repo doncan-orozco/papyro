@@ -38,6 +38,7 @@ class ArticleTest < ActiveSupport::TestCase
     assert_predicate article, :status_draft?
     assert_not article.status_published?
 
+    article.published_at = Time.current
     article.status_published!
 
     assert_predicate article, :status_published?
@@ -45,7 +46,7 @@ class ArticleTest < ActiveSupport::TestCase
 
   test "published? method requires both status and published_at" do
     draft = @user.articles.create!(title: "Draft", slug: "draft", status: :draft)
-    published_no_date = @user.articles.create!(
+    published_no_date = Article.new(
       title: "Published No Date",
       slug: "published-no-date",
       status: :published
@@ -60,6 +61,8 @@ class ArticleTest < ActiveSupport::TestCase
     assert_not draft.published?
     assert_not published_no_date.published?
     assert_predicate published, :published?
+    assert_not published_no_date.valid?
+    assert_includes published_no_date.errors[:published_at], "Published date is required when status is 'published'"
   end
 
   test "slug is used in URL" do

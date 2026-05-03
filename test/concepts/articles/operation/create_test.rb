@@ -7,12 +7,11 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       title: "Test Article",
       slug: "test-article",
       status: "draft",
-      content: "<p>Test content</p>",
-      excerpt: "Test excerpt",
-      user_id: user.id
+      body: "<p>Test content</p>",
+      excerpt: "Test excerpt"
     }
 
-    result = Articles::Operation::Create.new.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :success?
     assert_instance_of Article, result.value![:model]
@@ -25,11 +24,10 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       slug: "test-article",
       status: "draft",
       body: "<p>Test content</p>",
-      excerpt: "Test excerpt",
-      user_id: user.id
+      excerpt: "Test excerpt"
     }
 
-    result = Articles::Operation::Create.new.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_equal "Test Article", result.value![:model].title
     assert_equal "test-article", result.value![:model].slug
@@ -42,11 +40,10 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       title: "Markdown Article",
       slug: "markdown-article",
       status: "draft",
-      body: "# Heading\n\nBody text",
-      user_id: user.id
+      body: "# Heading\n\nBody text"
     }
 
-    result = Articles::Operation::Create.new.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :success?
     assert_equal "# Heading\n\nBody text", result.value![:model].body.content.to_s
@@ -58,11 +55,10 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     params = {
       title: "",
       slug: "test-article",
-      status: "draft",
-      user_id: user.id
+      status: "draft"
     }
 
-    result = Articles::Operation::Create.new.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :failure?
     assert_predicate result.failure[:errors][:title], :any?
@@ -73,14 +69,28 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     params = {
       title: "Test Article",
       slug: "Test Article!",
-      status: "draft",
-      user_id: user.id
+      status: "draft"
     }
 
-    result = Articles::Operation::Create.new.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :failure?
     assert_predicate result.failure[:errors][:slug], :any?
+  end
+
+  test "fails when published article has no published_at" do
+    user = users(:admin)
+    params = {
+      title: "Published Article",
+      slug: "published-article-no-date",
+      status: "published",
+      body: "<p>Published content</p>"
+    }
+
+    result = Articles::Operation::Create.new.call(params: params, user: user)
+
+    assert_predicate result, :failure?
+    assert_predicate result.failure[:errors][:published_at], :any?
   end
 
   test "fails with duplicate slug" do
@@ -95,11 +105,10 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     params = {
       title: "New Article",
       slug: "duplicate-slug",
-      status: "draft",
-      user_id: user.id
+      status: "draft"
     }
 
-    result = Articles::Operation::Create.new.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :failure?
     assert result.failure[:errors][:slug].any? { |msg| msg.include?("already exists") || msg.include?("taken") }
@@ -113,11 +122,10 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       slug: "published-article-unique-#{Time.current.to_i}",
       status: "published",
       body: "<p>Published content</p>",
-      published_at: published_at,
-      user_id: user.id
+      published_at: published_at
     }
 
-    result = Articles::Operation::Create.new.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :success?
     assert_predicate result.value![:model], :status_published?

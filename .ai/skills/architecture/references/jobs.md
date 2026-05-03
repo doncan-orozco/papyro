@@ -1,6 +1,6 @@
 # Background Job Examples (Solid Queue)
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#background-jobs-solid-queue)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#background-jobs-solid-queue)**
 
 Examples assume Solid Queue for background jobs.
 
@@ -71,4 +71,4 @@ end
 ## Rules
 
 Rules live in the checklist:
-- [Background jobs](../../../VERIFICATION_CHECKLIST.md#background-jobs-solid-queue)
+- [Background jobs](/.github/copilot-instructions.md#background-jobs-solid-queue)

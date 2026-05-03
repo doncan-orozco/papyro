@@ -1,6 +1,6 @@
 # Stimulus Controller Examples
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#stimulus)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#stimulus)**
 
 Stimulus controllers handle frontend behavior and WebSocket integration. Code examples and naming conventions below.
 
@@ -217,4 +217,4 @@ app/javascript/controllers/
 └── hotkeys_controller.js           # data-controller="hotkeys"
 ```
 
-See [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#stimulus) for complete Stimulus guidelines.
+See [copilot-instructions.md](/.github/copilot-instructions.md#stimulus) for complete Stimulus guidelines.

@@ -47,21 +47,21 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     assert_equal "<p>Updated content</p>", result.value![:model].reload.body.content.to_s
   end
 
-  test "updates markdown body via legacy content param" do
+  test "updates markdown body" do
     user = users(:admin)
     article = Article.create!(
-      title: "Legacy Content Article",
-      slug: "legacy-content-article",
+      title: "Body Update Article",
+      slug: "body-update-article",
       status: :draft,
       body: "Old body",
       user: user
     )
 
     params = {
-      title: "Legacy Content Article",
-      slug: "legacy-content-article",
+      title: "Body Update Article",
+      slug: "body-update-article",
       status: "draft",
-      content: "# New Markdown"
+      body: "# New Markdown"
     }
 
     result = Articles::Operation::Update.new.call(model: article, params: params)

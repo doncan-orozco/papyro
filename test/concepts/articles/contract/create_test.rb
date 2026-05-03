@@ -1,57 +1,47 @@
 require "test_helper"
 
 class Articles::Contract::CreateTest < ActiveSupport::TestCase
-  setup do
-    @user = users(:admin)
-  end
-
   test "succeeds with valid attributes" do
     result = Articles::Contract::Create.new.call(
       title: "Valid title",
       slug: "valid-title",
       status: "draft",
-      body: "body",
-      user_id: @user.id
+      body: "body"
     )
 
     assert_predicate result, :success?
   end
 
-  test "fails for invalid slug format" do
+  test "succeeds with invalid slug format at contract layer" do
     result = Articles::Contract::Create.new.call(
       title: "Valid title",
       slug: "Invalid Slug!",
-      status: "draft",
-      user_id: @user.id
+      status: "draft"
     )
 
-    assert_predicate result, :failure?
-    assert result.errors.to_h.key?(:slug)
+    assert_predicate result, :success?
   end
 
-  test "fails for duplicate slug" do
-    Article.create!(title: "Original", slug: "duplicate", status: :draft, user: @user, body: "body")
+  test "allows duplicate slug at contract layer" do
+    user = users(:admin)
+    Article.create!(title: "Original", slug: "duplicate", status: :draft, user: user, body: "body")
 
     result = Articles::Contract::Create.new.call(
       title: "Another",
       slug: "duplicate",
-      status: "draft",
-      user_id: @user.id
+      status: "draft"
     )
 
-    assert_predicate result, :failure?
-    assert result.errors.to_h.key?(:slug)
+    assert_predicate result, :success?
   end
 
-  test "fails when published article has no published_at" do
+  test "succeeds when published article has no published_at at contract layer" do
     result = Articles::Contract::Create.new.call(
       title: "Published article",
       slug: "published-article",
-      status: "published",
-      user_id: @user.id
+      status: "published"
     )
 
-    assert_predicate result, :failure?
-    assert result.errors.to_h.key?(:published_at)
+    assert_predicate result, :success?
   end
 end

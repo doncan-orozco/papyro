@@ -26,7 +26,8 @@ def create
   authorize Article, policy_class: Studio::ArticlePolicy
 
   result = Articles::Operation::Create.new.call(
-    params: article_params.to_h.merge(user_id: Current.user.id)
+    params: article_params.to_h,
+    user: Current.user
   )
 
   if result.success?
@@ -79,7 +80,6 @@ if result.success?
   updated_user = result.value![:model]
 else
   errors = result.failure[:errors]
-  form = result.failure[:form]
 end
 ```
 
@@ -94,12 +94,12 @@ Keep payload keys consistent across operations.
 
 Success payloads commonly include:
 - `:model`
-- optional `:form`
 
 Failure payloads commonly include:
 - `:errors`
-- optional `:model`
-- optional `:form`
+- `:model`
+
+For operations inheriting from `Dry::Operation`, `call` should return a plain payload hash (for example `{ model: user }`) and let `Dry::Operation` perform the outer monad wrapping.
 
 ## Channels and Jobs
 

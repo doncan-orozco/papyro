@@ -158,7 +158,6 @@ Markdown Text (.body.content)
 gem 'redcarpet', '~> 3.6'    # Markdown parsing
 gem 'rouge', '~> 4.3'         # Syntax highlighting
 gem 'phlex-rails'             # View components (was existing)
-gem 'dry-operation'           # Operations DSL
 gem 'dry-validation'          # Contracts (was existing)
 ```
 
@@ -183,9 +182,9 @@ gem 'dry-validation'          # Contracts (was existing)
 - `app/controllers/admin/articles_controller.rb` - Added slug lookup, fixed publish
 - `app/views/admin/articles/form_component.rb` - Use markdown_area helper
 - `app/views/articles/show.rb` - Render markdown to HTML
-- `app/concepts/articles/contract/create.rb` - Validate :body field
-- `app/concepts/articles/contract/update.rb` - Validate :body field
-- `app/concepts/articles/operation/publish.rb` - Check body content before publish
+- `app/contracts/articles/contract/create.rb` - Validate :body field
+- `app/contracts/articles/contract/update.rb` - Validate :body field
+- `app/operations/articles/operation/publish.rb` - Check body content before publish
 - `config/routes.rb` - Added markdown upload routes
 - `config/importmap.rb` - Added house.min.js, removed trix
 - `config/locales/en/articles.yml` - i18n keys for body field

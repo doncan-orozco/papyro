@@ -8,21 +8,22 @@ description: Testing strategies with Minitest and dry-rb operations. Use when wr
 ## Dependencies
 - minitest
 - dry-monads
-- dry-operation
 - dry-validation
 
 ## File Structure
 ```
 test/
-  concepts/
+  operations/
     game/
       operation/
-        move_player_test.rb
-      contract/
         move_player_test.rb
     player/
       operation/
         create_test.rb
+  contracts/
+    game/
+      contract/
+        move_player_test.rb
   channels/
     game_channel_test.rb
   fixtures/

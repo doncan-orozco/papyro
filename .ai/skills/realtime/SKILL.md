@@ -8,7 +8,6 @@ description: Real-time communication patterns with Action Cable and dry-rb opera
 ## Dependencies
 - actioncable
 - dry-monads
-- dry-operation
 
 ## Channels Organization (Pattern)
 - `app/channels/` hosts channel classes
@@ -30,5 +29,5 @@ description: Real-time communication patterns with Action Cable and dry-rb opera
 - **[references/channels.md](references/channels.md)**
 	Use for concrete channel structure, subscription flow, client action handling, and broadcasting examples.
 
-See [Channels](../../VERIFICATION_CHECKLIST.md#channels-action-cable) for requirements.
+See [Channels](/.github/copilot-instructions.md#channels-action-cable) for requirements.
 

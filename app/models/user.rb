@@ -14,6 +14,11 @@ class User < ApplicationRecord
 
   # Safety-net validations (paranoid mode, apply in all environments)
   validates :email_address, presence: true, uniqueness: true
+  validates :email_address,
+    format: {
+      with: URI::MailTo::EMAIL_REGEXP,
+      message: I18n.t("errors.messages.invalid_email")
+    }
   validates :password_digest, presence: true
 
   generates_token_for :password_reset, expires_in: 24.hours do

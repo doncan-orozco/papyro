@@ -107,8 +107,8 @@ Custom collection actions can work well when the action describes a domain subse
 ## Frame ID and Route Notes
 
 See requirements in:
-- [Turbo Frames](../../VERIFICATION_CHECKLIST.md#-turbo-frames)
-- [Task and issue requirements](../../VERIFICATION_CHECKLIST.md#taskissue-requirements)
+- [Turbo Frames](/.github/copilot-instructions.md#-turbo-frames)
+- [Task and issue requirements](/.github/copilot-instructions.md#taskissue-requirements)
 
 ## Component vs Frame Trade-offs
 
@@ -121,5 +121,5 @@ See requirements in:
 | **Navigation** | No link/form handling | Full link/form scope |
 | **Use Case** | Article card in a list | Entire featured articles section |
 
-> **For detailed frontend/backend checklists, see [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md)**
+> **For detailed frontend/backend checklists, see [copilot-instructions.md](/.github/copilot-instructions.md)**
 

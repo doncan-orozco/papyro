@@ -24,7 +24,7 @@ Use this skill for application-facing frontend work. Keep the SKILL body focused
 2. Load the matching reference file below.
 3. Implement with explicit data flow from controller to view/component.
 4. If the feature is interactive, wire `data-*` defaults through the component and keep behavior in Stimulus.
-5. Recheck against [../../VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md).
+5. Recheck against [../../copilot-instructions.md](/.github/copilot-instructions.md).
 
 ## Reference Map
 
@@ -51,4 +51,4 @@ Use this skill for application-facing frontend work. Keep the SKILL body focused
 - If a component owns behavior but not markup defaults, the Stimulus integration is probably leaking into the view layer.
 - If a link is written as raw `<a>`, it is probably missing Rails/Turbo behavior.
 
-For verification checklists, see [../../VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md).
+For verification checklists, see [../../copilot-instructions.md](/.github/copilot-instructions.md).

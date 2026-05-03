@@ -2,35 +2,38 @@
 
 module Users
   module Operation
-    class Create < Dry::Operation
-      include Dry::Monads[:result]
-
+    class Create < ApplicationOperation
       def call(params:)
-        input = { params: params }
-        validated_input = step validate_input(input)
+        validated_attributes = step validate_input(params)
+        user = step build_user(validated_attributes)
+        persisted_user = step persist_user(user)
 
-        step create_user(validated_input)
+        { model: persisted_user }
       end
 
       private
 
-      def validate_input(input)
+      def validate_input(params)
         contract = Users::Contract::Create.new
-        result = contract.call(input.fetch(:params))
+        result = contract.call(params)
 
-        return Failure(errors: result.errors.to_h) if result.failure?
+        return Success(result.to_h) if result.success?
 
-        Success(input.merge(attributes: result.to_h))
+        user = User.new(email_address: params[:email_address])
+        user.build_profile(display_name: params[:display_name])
+        fail_with_model!(inject_errors!(user, result.errors.to_h))
       end
 
-      def create_user(input)
-        attributes = input.fetch(:attributes)
+      def build_user(attributes)
         user = ::User.new(attributes.except(:display_name))
         user.build_profile(display_name: attributes.fetch(:display_name))
+        Success(user)
+      end
 
-        return Success(model: user) if user.save
+      def persist_user(user)
+        return Success(user) if user.save
 
-        Failure(errors: user.errors.to_hash, model: user)
+        fail_with_model!(user)
       end
     end
   end

@@ -27,7 +27,7 @@ Use this skill as the fast reject-list for backend work. Keep the SKILL body foc
 1. Identify the layer you are changing: cross-cutting foundations, domain logic, presentation/i18n, or tests.
 2. Scan the matching reference file for the anti-patterns in that layer.
 3. Load the companion implementation skill if you need the positive pattern, not just the warning.
-4. Verify the final code against [../../VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md).
+4. Verify the final code against [../../copilot-instructions.md](/.github/copilot-instructions.md).
 
 ## Reference Map
 
@@ -58,4 +58,4 @@ Load the focused skill when you need the recommended implementation pattern:
 - If a translation key is not domain-shaped and grep-able, it will age badly.
 - If a test has to know too much about the operation internals, it is probably testing the wrong thing.
 
-For verification, see [../../VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md).
+For verification, see [../../copilot-instructions.md](/.github/copilot-instructions.md).

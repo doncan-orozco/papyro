@@ -38,6 +38,10 @@ Avoid:
 - changing ownership fields in update operations
 - hardcoded error strings returned directly from operations
 - passing AR objects into background jobs
+- update flows that require `prepare_defaults` just to satisfy contract required fields
+- form-object orchestration for simple CRUD updates that can be handled by contract + model
+- wrapping the final `call` return in `Success(...)` when inheriting from `Dry::Operation`
+- database/state checks in contracts (uniqueness, ownership, cross-record constraints)
 
 Prefer:
 - controllers authorizing and passing `model:` into update/destroy operations

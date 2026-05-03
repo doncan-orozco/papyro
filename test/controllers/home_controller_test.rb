@@ -16,6 +16,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
   test "unlocalized root remains x-default even after selecting another locale" do
     get "/es"
+
     assert_response :success
     assert_includes response.body, I18n.t("pages.home.index.hero.eyebrow", locale: :es)
 

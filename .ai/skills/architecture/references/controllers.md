@@ -1,6 +1,6 @@
 # Controller Examples
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#controllers)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#controllers)**
 
 Controllers are thin - they only receive requests, call Operations, and return responses. Operations return Dry::Monads::Result objects (use result.success? / result.failure?).
 
@@ -43,7 +43,7 @@ end
 ## Task Requirements
 
 Task requirements live in the checklist:
-- [Task and issue requirements](../../../VERIFICATION_CHECKLIST.md#taskissue-requirements)
+- [Task and issue requirements](/.github/copilot-instructions.md#taskissue-requirements)
 
 ## Basic CRUD Controller
 
@@ -74,4 +74,4 @@ class Game::MovesController < ApplicationController
 end
 ```
 
-See [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#controllers) for complete controller guidelines.
+See [copilot-instructions.md](/.github/copilot-instructions.md#controllers) for complete controller guidelines.

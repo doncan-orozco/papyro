@@ -11,7 +11,7 @@ agent: agent
 
 ## 🔴 MANDATORY: Review Against Papyro Standards
 
-This file is now the primary Copilot guidance source for the Papyro workspace. It replaces the deprecated `.ai/entrypoint.md` and `.ai/VERIFICATION_CHECKLIST.md` documents.
+This file is now the primary Copilot guidance source for the Papyro workspace. It replaces the deprecated entrypoint and verification checklist documents.
 
 When reviewing pull requests or responding to development requests, you MUST verify against:
 

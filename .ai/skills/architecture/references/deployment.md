@@ -1,6 +1,6 @@
 # Deployment Examples (Kamal 2)
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#deployment-kamal)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#deployment-kamal)**
 
 Deploy with Kamal 2 using Rails 8 optimizations.
 
@@ -89,4 +89,4 @@ kamal app rollback
 ## Rules
 
 Rules live in the checklist:
-- [Deployment](../../../VERIFICATION_CHECKLIST.md#deployment-kamal)
+- [Deployment](/.github/copilot-instructions.md#deployment-kamal)

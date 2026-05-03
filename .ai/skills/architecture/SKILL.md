@@ -7,21 +7,23 @@ description: Clean Architecture patterns with pure dry-rb operations for Rails a
 
 ## Dependencies
 - dry-monads
-- dry-operation
 - dry-validation
 
-## File Structure (Concepts + Rails Conventions)
+## File Structure (Domain + Rails Conventions)
 ```
 app/
-  concepts/
+  operations/
     game/
       operation/
-        move_player.rb
-      contract/
         move_player.rb
     player/
       operation/
         create.rb
+  contracts/
+    game/
+      contract/
+        move_player.rb
+    player/
       contract/
         create.rb
   
@@ -48,17 +50,17 @@ app/
 ## Implementation Notes
 
 This file focuses on patterns and examples. For requirements, see:
-- [Architecture rules](../../VERIFICATION_CHECKLIST.md#-architecture--organization)
-- [Queries](../../VERIFICATION_CHECKLIST.md#queries-read-model)
-- [Services](../../VERIFICATION_CHECKLIST.md#services)
-- [Task and issue requirements](../../VERIFICATION_CHECKLIST.md#taskissue-requirements)
+- [Architecture rules](/.github/copilot-instructions.md#-architecture--organization)
+- [Queries](/.github/copilot-instructions.md#queries-read-model)
+- [Services](/.github/copilot-instructions.md#services)
+- [Task and issue requirements](/.github/copilot-instructions.md#taskissue-requirements)
 
 ## Reference Map
 
 - **[references/architecture-overview.md](references/architecture-overview.md)**
   Use for layer responsibilities and high-level composition guidance.
 - **[references/operations.md](references/operations.md)**
-  Use for write-flow patterns with `Dry::Operation` and `Dry::Monads`.
+  Use for write-flow patterns with `ApplicationOperation` and `Dry::Monads`.
 - **[references/contracts.md](references/contracts.md)**
   Use for dry-validation contract structure and examples.
 - **[references/controllers.md](references/controllers.md)**
@@ -75,19 +77,21 @@ This file focuses on patterns and examples. For requirements, see:
   Use for deployment considerations that affect architecture decisions.
 - **[references/WRITEBOOK_IMPLEMENTATION_SUMMARY.md](references/WRITEBOOK_IMPLEMENTATION_SUMMARY.md)**
   Use as a larger end-to-end implementation example when you need a concrete slice of the architecture in practice.
+- **[references/session-learnings-mutation-flows.md](references/session-learnings-mutation-flows.md)**
+  Use for compact, recent decisions on mutation operation shape, validation boundaries, and update-flow anti-patterns.
 
 Example: custom collection actions can support Turbo Frames when they describe a domain subset. See:
-- [Turbo Frames](../../VERIFICATION_CHECKLIST.md#-turbo-frames)
+- [Turbo Frames](/.github/copilot-instructions.md#-turbo-frames)
 ## Operations Flow (typical)
-1. Sanitize/normalize input
-2. Validate with dry-validation contract
-3. Build/assign model attributes
-4. Persist model
-5. Return `Success(payload)` or `Failure(payload)`
+1. Authorize at the controller boundary (Pundit)
+2. Validate and sanitize with dry-validation contract
+3. Build model and enforce business rules in the operation
+4. Persist model and rely on ActiveRecord state validations
+5. Return `Success(payload)` or `Failure(model: ...)` for form rerender paths
 
 ## For Verification & Requirements
 
-See [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-architecture--organization) for complete requirements.
+See [copilot-instructions.md](/.github/copilot-instructions.md#-architecture--organization) for complete requirements.
 
 ## Controller Concerns (Cross-Cutting Features)
 

@@ -1,6 +1,6 @@
 # Phlex Views Reference
 
-For complete rules, use [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#views).
+For complete rules, use [copilot-instructions.md](/.github/copilot-instructions.md#views).
 
 ## Core Conventions
 

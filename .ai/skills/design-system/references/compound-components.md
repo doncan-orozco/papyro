@@ -389,7 +389,7 @@ When building a new multi-part UI component, follow this checklist:
    - [ ] Add English and Spanish translations in `config/locales/{en,es}/design_system.yml`
 
 6. **Documentation**
-   - [ ] Update VERIFICATION_CHECKLIST.md if new component type
+   - [ ] Update copilot-instructions.md if new component type
    - [ ] Add to compound components list at top of this document
 
 ## Performance Notes

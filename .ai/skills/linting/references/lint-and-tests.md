@@ -1,8 +1,8 @@
 # Lint and Test Examples
 
 **For complete guidelines, see:**
-- [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#-lint--code-quality-rubocop)
-- [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#-testing-requirements)
+- [copilot-instructions.md](/.github/copilot-instructions.md#-lint--code-quality-rubocop)
+- [copilot-instructions.md](/.github/copilot-instructions.md#-testing-requirements)
 
 This file provides concrete examples for common lint issues and test patterns.
 
@@ -12,8 +12,8 @@ This file provides concrete examples for common lint issues and test patterns.
 
 Wrong:
 ```ruby
-# app/concepts/articles/operation/create.rb
-class Articles::Operation::Create < Dry::Operation
+# app/operations/articles/operation/create.rb
+class Articles::Operation::Create < ApplicationOperation
   def self.validate_and_create_with_all_the_business_logic_for_articles_in_this_system
   end
 end
@@ -21,8 +21,8 @@ end
 
 Correct:
 ```ruby
-# app/concepts/articles/operation/create.rb
-class Articles::Operation::Create < Dry::Operation
+# app/operations/articles/operation/create.rb
+class Articles::Operation::Create < ApplicationOperation
   def self.validate_and_create_article
   end
 end
@@ -126,7 +126,7 @@ Fix: `bin/rubocop --fix-layout` auto-fixes these.
 
 Wrong:
 ```ruby
-class Articles::Operation::Create < Dry::Operation
+class Articles::Operation::Create < ApplicationOperation
     def call
         article = Article.new
             article.title = "Test"
@@ -136,7 +136,7 @@ end
 
 Correct:
 ```ruby
-class Articles::Operation::Create < Dry::Operation
+class Articles::Operation::Create < ApplicationOperation
   def call
     article = Article.new
     article.title = "Test"

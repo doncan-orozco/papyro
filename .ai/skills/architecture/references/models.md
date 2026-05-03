@@ -1,6 +1,6 @@
 # Model Examples
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#models)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#models)**
 
 Models are for persistence only - associations only. Code examples below.
 
@@ -57,7 +57,7 @@ end
 ## Contract (Business Validation)
 
 ```ruby
-# app/concepts/article/contract/create.rb
+# app/contracts/article/contract/create.rb
 module Article
   module Contract
     class Create < Dry::Validation::Contract
@@ -79,4 +79,4 @@ module Article
 end
 ```
 
-See [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#models) for complete model guidelines.
+See [copilot-instructions.md](/.github/copilot-instructions.md#models) for complete model guidelines.

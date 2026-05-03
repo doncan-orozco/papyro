@@ -1,8 +1,8 @@
 # Architecture Overview
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md)**
 
-This page provides design philosophy and practical examples. All rules and requirements are documented in the checklist.
+This page provides design philosophy and practical examples. All rules and requirements are documented in the project instructions and skill guides.
 
 ## Design Philosophy
 
@@ -17,7 +17,7 @@ This page provides design philosophy and practical examples. All rules and requi
 Each layer has specific responsibilities. See the checklists for detailed requirements:
 
 - **Controllers**: Request handling, thin logic
-- **Operations**: Business logic (Dry::Operation + Dry::Monads)
+- **Operations**: Business orchestration (ApplicationOperation + Dry::Monads)
 - **Contracts**: Validation (dry-validation)
 - **Models**: Persistence only
 - **Query Objects**: Complex reads
@@ -28,11 +28,11 @@ Each layer has specific responsibilities. See the checklists for detailed requir
 ## Implementation Clarifications
 
 Rules live in the checklist. See:
-- [Task and issue requirements](../../../VERIFICATION_CHECKLIST.md#taskissue-requirements)
-- [Queries](../../../VERIFICATION_CHECKLIST.md#queries-read-model)
-- [Views](../../../VERIFICATION_CHECKLIST.md#views)
-- [Components](../../../VERIFICATION_CHECKLIST.md#components)
-- [Turbo Frames](../../../VERIFICATION_CHECKLIST.md#-turbo-frames)
+- [Task and issue requirements](/.github/copilot-instructions.md#taskissue-requirements)
+- [Queries](/.github/copilot-instructions.md#queries-read-model)
+- [Views](/.github/copilot-instructions.md#views)
+- [Components](/.github/copilot-instructions.md#components)
+- [Turbo Frames](/.github/copilot-instructions.md#-turbo-frames)
 
 ## Data Flow
 
@@ -66,22 +66,26 @@ Rules live in the checklist. See:
 
 ```
 app/
-  concepts/
+  operations/
     game/
       operation/
         move_player.rb
         attack_enemy.rb
-      contract/
-        move_player.rb
     player/
       operation/
         create.rb
         update.rb
-      contract/
-        create.rb
     enemy/
       operation/
         spawn.rb
+  contracts/
+    game/
+      contract/
+        move_player.rb
+    player/
+      contract/
+        create.rb
+    enemy/
       contract/
         spawn.rb
   

@@ -25,7 +25,7 @@ Use this skill whenever code introduces or changes user-facing text. Keep the ma
 2. Place the key in the appropriate domain locale file for both `en` and `es`.
 3. Use a fully-qualified key at the call site.
 4. If validation is involved, keep predicate defaults generic and use explicit contract rule keys for domain wording.
-5. Recheck the key structure against [../../VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-internationalization-i18n).
+5. Recheck the key structure against [../../copilot-instructions.md](/.github/copilot-instructions.md#-internationalization-i18n).
 
 ## Key Conventions
 
@@ -48,4 +48,4 @@ Use this skill whenever code introduces or changes user-facing text. Keep the ma
 - Flash or controller errors built from hardcoded strings instead of translated keys
 - Dates, times, or currency manually formatted in Ruby code
 
-See [references/i18n.md](references/i18n.md) for examples and [../../VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-internationalization-i18n) for enforcement rules.
+See [references/i18n.md](references/i18n.md) for examples and [../../copilot-instructions.md](/.github/copilot-instructions.md#-internationalization-i18n) for enforcement rules.

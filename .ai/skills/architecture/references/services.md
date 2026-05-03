@@ -1,6 +1,6 @@
 # Service Examples
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#services)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#services)**
 
 Services contain domain logic following Single Responsibility Principle.
 
@@ -45,4 +45,4 @@ end
 ## Rules
 
 Rules live in the checklist:
-- [Services](../../../VERIFICATION_CHECKLIST.md#services)
+- [Services](/.github/copilot-instructions.md#services)

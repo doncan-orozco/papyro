@@ -2,59 +2,62 @@
 
 module Articles
   module Operation
-    class Publish < Dry::Operation
-      include Dry::Monads[:result]
-
+    class Publish < ApplicationOperation
       def call(model:, params:)
-        input = { model: model, params: params }
-        input_with_action = step resolve_action(input)
-        publishable_input = step validate_publishable(input_with_action)
+        action = step resolve_action(params)
+        publishable_model = step validate_publishable(model: model, action: action)
+        persisted_model = step persist_publish_state(model: publishable_model, action: action)
 
-        step persist_publish_state(publishable_input)
+        { model: persisted_model }
       end
 
       private
 
-      def resolve_action(input)
-        action = input.fetch(:params, {}).fetch(:action, "publish")
-        Success(input.merge(action: action))
+      def resolve_action(params)
+        Success(params.fetch(:action, "publish"))
       end
 
-      def validate_publishable(input)
-        model = input.fetch(:model)
-        action = input.fetch(:action)
-
+      def validate_publishable(model:, action:)
         unless [ "publish", "unpublish" ].include?(action)
-          return Failure(errors: { base: [ I18n.t("errors.messages.invalid_action") ] }, model: model)
+          return fail_with_business_error!(model, I18n.t("errors.messages.invalid_action"))
         end
 
         if action == "publish"
-          return Failure(errors: { base: [ I18n.t("errors.messages.article_already_published") ] }, model: model) if model.status_published?
+          if model.status_published?
+            return fail_with_business_error!(model, I18n.t("errors.messages.article_already_published"))
+          end
 
           body_html = model.body&.to_html.to_s
           if model.title.blank? || body_html.strip.blank?
-            return Failure(errors: { base: [ I18n.t("errors.messages.article_incomplete_for_publish") ] }, model: model)
+            return fail_with_business_error!(model, I18n.t("errors.messages.article_incomplete_for_publish"))
           end
         elsif !model.status_published?
-          return Failure(errors: { base: [ I18n.t("errors.messages.article_not_published") ] }, model: model)
+          return fail_with_business_error!(model, I18n.t("errors.messages.article_not_published"))
         end
 
-        Success(input)
+        Success(model)
       end
 
-      def persist_publish_state(input)
-        model = input.fetch(:model)
-        action = input.fetch(:action)
+      def persist_publish_state(model:, action:)
+        persisted_model = nil
 
-        success = if action == "publish"
-          model.update(status: :published, published_at: Time.current)
-        else
-          model.update(status: :draft, published_at: nil)
+        Article.transaction do
+          success = if action == "publish"
+            model.update(status: :published, published_at: Time.current)
+          else
+            model.update(status: :draft, published_at: nil)
+          end
+
+          if success
+            persisted_model = model
+          else
+            raise ActiveRecord::Rollback
+          end
         end
 
-        return Success(model: model) if success
+        return Success(persisted_model) if persisted_model
 
-        Failure(errors: model.errors.to_hash, model: model)
+        fail_with_model!(model)
       end
     end
   end

@@ -26,7 +26,7 @@ Use this skill for UI work in `app/components/ui/`. Keep the main body focused o
 3. Implement the Phlex component with semantic tokens and `**attrs` support.
 4. If the component is interactive, wire the Stimulus defaults through the component helpers.
 5. Add or update the design-system catalog demo and translations.
-6. Validate behavior in the browser and against [../../VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-frontend).
+6. Validate behavior in the browser and against [../../copilot-instructions.md](/.github/copilot-instructions.md#-frontend).
 
 ## Reference Map
 
@@ -61,4 +61,4 @@ Use this skill for UI work in `app/components/ui/`. Keep the main body focused o
 - No missing `initialize(**attrs)` methods
 - No nested button-inside-trigger invalid HTML
 
-Rules live in the checklist: [../../VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-frontend)
+Rules live in the checklist: [../../copilot-instructions.md](/.github/copilot-instructions.md#-frontend)

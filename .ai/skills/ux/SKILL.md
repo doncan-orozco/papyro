@@ -41,4 +41,4 @@ This skill does not define:
 - Pair this skill with **[../frontend/SKILL.md](../frontend/SKILL.md)** and **[../design-system/SKILL.md](../design-system/SKILL.md)** once UX intent is fixed.
 - Use **[../frontend-design/SKILL.md](../frontend-design/SKILL.md)** when the work also needs strong visual direction.
 
-See [Frontend rules](../../VERIFICATION_CHECKLIST.md#-frontend) and [I18n rules](../../VERIFICATION_CHECKLIST.md#-internationalization-i18n).
+See [Frontend rules](/.github/copilot-instructions.md#-frontend) and [I18n rules](/.github/copilot-instructions.md#-internationalization-i18n).

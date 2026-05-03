@@ -28,6 +28,7 @@ class Users::Operation::UpdateTest < ActiveSupport::TestCase
 
     assert_predicate result, :failure?
     assert_includes result.failure[:errors][:password_confirmation], "must match password"
+    assert_equal @user, result.failure[:model]
   end
 
   test "updates email with valid format" do
@@ -62,7 +63,8 @@ class Users::Operation::UpdateTest < ActiveSupport::TestCase
     result = Users::Operation::Update.new.call(params: params, user: @user)
 
     assert_predicate result, :failure?
-    assert_includes result.failure[:errors][:email_address], "is already taken"
+    assert_includes result.failure[:errors][:email_address], "has already been taken"
+    assert_equal @user, result.failure[:model]
   end
 
   test "allows updating email to same email (case insensitive)" do

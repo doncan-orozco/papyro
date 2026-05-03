@@ -1,6 +1,6 @@
 # Channel Examples (Action Cable)
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../../../VERIFICATION_CHECKLIST.md#channels-action-cable)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#channels-action-cable)**
 
 Channels handle real-time WebSocket connections. Keep them minimal and delegate to Operations in `app/concepts/`.
 
@@ -96,4 +96,4 @@ end
 ## Rules
 
 Rules live in the checklist:
-- [Channels](../../../VERIFICATION_CHECKLIST.md#channels-action-cable)
+- [Channels](/.github/copilot-instructions.md#channels-action-cable)

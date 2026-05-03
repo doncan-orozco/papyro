@@ -23,7 +23,7 @@ class PasswordsController < ApplicationController
   end
 
   def edit
-    render Views::Passwords::Edit.new(token: params[:token], form: password_update_form)
+    render Views::Passwords::Edit.new(token: params[:token], user: @user)
   end
 
   def update
@@ -36,8 +36,8 @@ class PasswordsController < ApplicationController
       @user.sessions.destroy_all
       redirect_to new_session_path, notice: t("passwords.update.success")
     else
-      form = result.failure[:form] || password_update_form
-      render Views::Passwords::Edit.new(token: params[:token], form: form), status: :unprocessable_entity
+      model = result.failure[:model] || @user
+      render Views::Passwords::Edit.new(token: params[:token], user: model), status: :unprocessable_entity
     end
   end
 
@@ -53,17 +53,12 @@ class PasswordsController < ApplicationController
       Users::Form::PasswordResetRequest.new
     end
 
-    def password_update_form
-      Users::Form::Update.new(@user)
-    end
-
     def password_reset_request_params
       params_key = password_reset_request_form.model_name.param_key
       params.fetch(params_key, params).permit(:email_address).to_h
     end
 
     def password_update_params
-      params_key = password_update_form.model_name.param_key
-      params.fetch(params_key, params).permit(:password, :password_confirmation).to_h
+      params.fetch(:user, params).permit(:password, :password_confirmation).to_h
     end
 end

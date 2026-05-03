@@ -2,48 +2,43 @@
 
 module Users
   module Operation
-    class Update < Dry::Operation
-      include Dry::Monads[:result]
-
+    class Update < ApplicationOperation
       def call(params:, user:)
-        input = { params: params, user: user }
-        form_input = step prepare_form(input)
-        validated_input = step validate_input(form_input)
-        synced_input = step sync_form(validated_input)
+        validated_attributes = step validate_input(params: params, user: user)
+        updated_user = step assign_attributes(user: user, attributes: validated_attributes)
+        persisted_user = step persist_user(updated_user)
 
-        step persist_user(synced_input)
+        { model: persisted_user }
       end
 
       private
 
-      def prepare_form(input)
-        user = input.fetch(:user)
-        form = Users::Form::Update.new(user)
-        sanitized_params = input.fetch(:params).compact_blank
-        params_with_context = sanitized_params.merge(id: user.id)
-        Success(input.merge(form: form, params: params_with_context))
+      def validate_input(params:, user:)
+        contract = Users::Contract::Update.new
+        result = contract.call(params.compact_blank)
+
+        return Success(result.to_h) if result.success?
+
+        fail_with_model!(inject_errors!(user, result.errors.to_h))
       end
 
-      def validate_input(input)
-        form = input.fetch(:form)
-        user = input.fetch(:user)
-        params_with_context = input.fetch(:params)
-        return Failure(errors: form.errors.to_hash, model: user, form: form) unless form.validate(params_with_context)
+      def assign_attributes(user:, attributes:)
+        profile = user.profile || user.build_profile
+        profile.display_name = attributes[:display_name] if attributes.key?(:display_name)
+        user.email_address = attributes[:email_address] if attributes.key?(:email_address)
 
-        Success(input)
+        if attributes.key?(:password)
+          user.password = attributes[:password]
+          user.password_confirmation = attributes[:password_confirmation]
+        end
+
+        Success(user)
       end
 
-      def sync_form(input)
-        input.fetch(:form).sync
-        Success(input)
-      end
+      def persist_user(user)
+        return Success(user) if user.save
 
-      def persist_user(input)
-        user = input.fetch(:user)
-        form = input.fetch(:form)
-        return Success(model: user, form: form) if user.save
-
-        Failure(errors: user.errors.to_hash, model: user, form: form)
+        fail_with_model!(user)
       end
     end
   end
