@@ -4,6 +4,7 @@ class User < ApplicationRecord
 
   has_many :articles, dependent: :destroy
   has_one :profile, class_name: "AuthorProfile", dependent: :destroy, inverse_of: :user, autosave: true
+  accepts_nested_attributes_for :profile
   delegate :display_name, to: :profile, prefix: :author
 
   enum :role, { member: 0, admin: 1 }

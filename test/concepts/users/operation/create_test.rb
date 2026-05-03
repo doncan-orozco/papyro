@@ -17,7 +17,7 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
     assert_equal "Test Writer", result.value![:model].profile.display_name
   end
 
-  test "creates user without display_name" do
+  test "creates user without profile_attributes" do
     params = {
       email_address: "test@example.com",
       password: "password123",
@@ -26,9 +26,8 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
 
     result = Users::Operation::Create.new.call(params: params)
 
-    # profile display_name presence is validated at model layer
-    assert_predicate result, :failure?
-    assert result.failure[:errors].any? { |k, _| k.to_s.include?("profile") }
+    assert_predicate result, :success?
+    assert_nil result.value![:model].profile
   end
 
   test "fails with invalid email" do

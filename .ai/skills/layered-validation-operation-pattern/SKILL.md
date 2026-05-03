@@ -164,14 +164,11 @@ module Articles
 
       def validate_input(params)
         contract = Articles::Contract::Create.new.call(params)
-        
+
         if contract.failure?
-          # 1. Build the dummy model (does not hit the DB)
           article = Article.new(params)
-          # 2. Inject the dry-validation errors using the Base class helper
           invalid_article = inject_errors!(article, contract.errors.to_h)
-          # 3. Return the Failure with the populated model
-          return Failure(model: invalid_article) 
+          return Failure(model: invalid_article)
         end
 
         # contract.to_h contains the cleanly sanitized and coerced data
@@ -180,8 +177,7 @@ module Articles
 
       def build_and_check_business_rules(attributes)
         article = Article.new(attributes)
-        
-        # Example: Enforce a global domain rule not tied to a specific attribute
+
         if Current.user.daily_articles_count > 5
           return fail_with_business_error!(article, I18n.t("articles.errors.daily_limit_reached"))
         end
@@ -190,15 +186,11 @@ module Articles
       end
 
       def persist_article(article)
-        # ActiveRecord runs state validations (like uniqueness checks) here
+        # ActiveRecord wraps every single .save in a transaction natively.
         return Success(article) if article.save
 
-        # If DB validation fails, the model already holds the AR errors natively
         fail_with_model!(article)
       end
-    end
-  end
-end
 ```
 
 ---
@@ -242,9 +234,8 @@ module Articles
   module Operation
     class Create < ApplicationOperation
       def call(params:, user:)
-        attributes = step validate_input(params)
-        model = step build_and_enforce_domain_rules(attributes, user)
-        persisted_model = step persist_with_transaction(model)
+        attributes      = step validate_input(params)
+        persisted_model = step persist_article(attributes: attributes, user: user)
 
         # Add this step only when real async side effects exist.
         # step enqueue_background_jobs(persisted_model)
@@ -262,28 +253,14 @@ module Articles
         fail_with_model!(inject_errors!(article, contract.errors.to_h))
       end
 
-      def build_and_enforce_domain_rules(attributes, user)
+      def persist_article(attributes:, user:)
+        # Scope build to the owner — guarantees the association is set.
         article = user.articles.build(attributes)
 
-        if user.restricted_from_publishing?
-          return fail_with_business_error!(article, I18n.t("articles.errors.user_restricted"))
-        end
-
-        Success(article)
-      end
-
-      def persist_with_transaction(article)
-        persisted_article = nil
-
-        Article.transaction do
-          if article.save
-            persisted_article = article
-          else
-            raise ActiveRecord::Rollback
-          end
-        end
-
-        return Success(persisted_article) if persisted_article
+        # ActiveRecord wraps every single .save in a transaction natively.
+        # An explicit Article.transaction block is only needed when you are
+        # writing to MORE THAN ONE record in the same step.
+        return Success(article) if article.save
 
         fail_with_model!(article)
       end
@@ -302,6 +279,7 @@ end
 6. When inheriting from `Dry::Operation`, `call` must return a plain payload hash, not `Success(...)`, to avoid double-wrapped monads (`Success(Success(payload))`).
 7. Update contracts should accept partial payloads with optional keys; do not use `prepare_defaults` to backfill missing values before contract validation.
 8. Avoid form objects for simple CRUD updates that can be handled by contract validation + `assign_attributes` + model validations.
+9. Do **not** wrap a single `.save` call in `Article.transaction do`. ActiveRecord handles the transaction natively. Only write an explicit transaction block when persisting **multiple records** in one step.
 
 ---
 ## 7. Contract Validations vs. Model Validations

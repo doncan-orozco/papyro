@@ -39,6 +39,11 @@ def create
 end
 ```
 
+Create-operation guidance:
+- In operations inheriting from `Dry::Operation`, return a plain payload hash from `call` (for example `{ model: user }`).
+- For contract failures, hydrate a model for re-render with permitted typed inputs, but exclude passwords from reassignment.
+- Prefer model-driven nested assignment (`assign_attributes`) when the model is configured with nested attributes.
+
 ## Pattern 2: Update/Destroy Operations
 
 ```ruby
@@ -110,7 +115,17 @@ def publish(data)
   article = policy_scope(Article).find(data.fetch("id"))
   authorize article, policy_class: Studio::PublicationPolicy
 
-  result = Articles::Operation::Publish.new.call(model: article, params: { action: "publish" })
+  result = Articles::Operation::Publish.new.call(model: article)
+  return if result.success?
+
+  transmit(type: "error", errors: result.failure[:errors])
+end
+
+def unpublish(data)
+  article = policy_scope(Article).find(data.fetch("id"))
+  authorize article, policy_class: Studio::PublicationPolicy
+
+  result = Articles::Operation::Unpublish.new.call(model: article)
   return if result.success?
 
   transmit(type: "error", errors: result.failure[:errors])

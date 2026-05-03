@@ -11,37 +11,11 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       user: user
     )
 
-    params = {
-      action: "publish"
-    }
-
-    result = Articles::Operation::Publish.new.call(model: article, params: params)
+    result = Articles::Operation::Publish.new.call(model: article)
 
     assert_predicate result, :success?
     assert_predicate result.value![:model].reload, :status_published?
     assert_not_nil result.value![:model].published_at
-  end
-
-  test "unpublishes published article" do
-    user = users(:admin)
-    article = Article.create!(
-      title: "Test Article",
-      slug: "test-article",
-      status: :published,
-      body: "<p>Test content</p>",
-      published_at: Time.current,
-      user: user
-    )
-
-    params = {
-      action: "unpublish"
-    }
-
-    result = Articles::Operation::Publish.new.call(model: article, params: params)
-
-    assert_predicate result, :success?
-    assert_predicate result.value![:model].reload, :status_draft?
-    assert_nil result.value![:model].published_at
   end
 
   test "fails to publish already published article" do
@@ -55,11 +29,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       user: user
     )
 
-    params = {
-      action: "publish"
-    }
-
-    result = Articles::Operation::Publish.new.call(model: article, params: params)
+    result = Articles::Operation::Publish.new.call(model: article)
 
     assert_predicate result, :failure?
     assert_predicate result.failure[:errors][:base], :any?
@@ -74,63 +44,15 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       user: user
     )
 
-    params = {
-      action: "publish"
-    }
-
-    result = Articles::Operation::Publish.new.call(model: article, params: params)
-
-    assert_predicate result, :failure?
-    assert_predicate result.failure[:errors][:base], :any?
-  end
-
-  test "fails to unpublish draft article" do
-    user = users(:admin)
-    article = Article.create!(
-      title: "Test Article",
-      slug: "test-article",
-      status: :draft,
-      user: user
-    )
-
-    params = {
-      action: "unpublish"
-    }
-
-    result = Articles::Operation::Publish.new.call(model: article, params: params)
-
-    assert_predicate result, :failure?
-    assert_predicate result.failure[:errors][:base], :any?
-  end
-
-  test "fails with invalid action" do
-    user = users(:admin)
-    article = Article.create!(
-      title: "Test Article",
-      slug: "test-article-invalid",
-      status: :draft,
-      body: "<p>Test content</p>",
-      user: user
-    )
-
-    params = {
-      action: "invalid_action"
-    }
-
-    result = Articles::Operation::Publish.new.call(model: article, params: params)
+    result = Articles::Operation::Publish.new.call(model: article)
 
     assert_predicate result, :failure?
     assert_predicate result.failure[:errors][:base], :any?
   end
 
   test "requires model parameter" do
-    # Operation now expects model to be passed from controller
-    params = {
-      action: "publish"
-    }
-
     assert_raises(ArgumentError) do
-      Articles::Operation::Publish.new.call(params: params)
+      Articles::Operation::Publish.new.call
     end
   end
 
@@ -152,7 +74,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
 
     # Operation expects pre-authorized model from controller
     # Controller's scoped query (Current.user.articles.find_by!) prevents unauthorized access
-    result = Articles::Operation::Publish.new.call(model: article, params: { action: "publish" })
+    result = Articles::Operation::Publish.new.call(model: article)
 
     assert_predicate result, :success?
     # Security is enforced by controller's scoped find, not by operation

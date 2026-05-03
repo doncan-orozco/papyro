@@ -4,6 +4,77 @@
 
 Operations orchestrate write flows using `ApplicationOperation` and `Dry::Monads::Result`. Keep authorization in controllers, structural validation in contracts, and state validation in models.
 
+## Quick Refactor Pattern (Before / After)
+
+```ruby
+# BEFORE
+def call(params:)
+  validated_attributes = step validate_input(params)
+  user = step build_user(validated_attributes)
+  persisted_user = step persist_user(user)
+  { model: persisted_user }
+end
+
+def build_user(attributes)
+  user = User.new
+  user.assign_attributes(attributes)
+  Success(user)
+end
+
+def validate_input(params)
+  result = Users::Contract::Create.new.call(params)
+  return Success(result.to_h) if result.success?
+
+  user = User.new(params.slice(:email_address, :profile_attributes))
+  fail_with_model!(inject_errors!(user, result.errors.to_h))
+end
+
+# AFTER
+def call(params:)
+  validated_attributes = step validate_input(params)
+  persisted_user = step persist_user(validated_attributes)
+  { model: persisted_user }
+end
+
+def validate_input(params)
+  result = Users::Contract::Create.new.call(params)
+  return Success(result.to_h) if result.success?
+
+  # Keep typed fields for re-render, but do not repopulate passwords.
+  user = User.new(params.except(:password, :password_confirmation))
+  fail_with_model!(inject_errors!(user, result.errors.to_h))
+end
+
+def persist_user(attributes)
+  user = User.new(attributes)
+  return Success(user) if user.save
+
+  fail_with_model!(user)
+end
+```
+
+Key points:
+- In `Dry::Operation`, `call` returns a plain payload hash (`{ model: ... }`).
+- Remove pass-through steps that do not enforce domain rules.
+- Prefer model-driven nested assignment (`assign_attributes`) when nested attributes are configured.
+- Preserve non-sensitive typed input for re-render; exclude password fields.
+
+## State Command Split Pattern
+
+```ruby
+# BEFORE (single operation with action flag)
+result = Articles::Operation::Publish.new.call(model: article, params: { action: "publish" })
+
+# AFTER (one operation per domain intent)
+publish_result = Articles::Operation::Publish.new.call(model: article)
+unpublish_result = Articles::Operation::Unpublish.new.call(model: article)
+```
+
+Key points:
+- Avoid `if action == ...` branching for distinct business commands.
+- Keep controller action -> operation mapping 1-to-1 (`create` -> `Publish`, `destroy` -> `Unpublish`).
+- Keep each operation linear and intent-specific.
+
 ## Complete Operation Example
 
 ```ruby

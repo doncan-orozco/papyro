@@ -38,6 +38,14 @@ When reviewing code:
 - ✅ **Organization**: Proper file structure & namespaces
 - ✅ **Turbo Frames**: Domain concepts, matching IDs, dedicated actions
 
+### Operation Review Checks (Mutation Flows)
+
+- For operations inheriting from `Dry::Operation`, `call` returns a plain payload hash (for example `{ model: ... }`), not `Success(...)`.
+- Avoid redundant pass-through steps in operations when no business rule is enforced between validation and persistence.
+- Prefer model-driven nested assignment (`assign_attributes`) when nested attributes are configured on the model.
+- Prefer one operation per domain intent (`Publish`, `Unpublish`) over action-flag switching in a single operation.
+- On validation failure re-render models, preserve user-entered permitted fields but do not repopulate passwords.
+
 ## File Organization Policy
 
 **🔴 ROOT DIRECTORY RULES:**

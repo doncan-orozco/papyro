@@ -42,11 +42,18 @@ Avoid:
 - form-object orchestration for simple CRUD updates that can be handled by contract + model
 - wrapping the final `call` return in `Success(...)` when inheriting from `Dry::Operation`
 - database/state checks in contracts (uniqueness, ownership, cross-record constraints)
+- manually mapping nested params in operations when the model already supports `accepts_nested_attributes_for`
+- narrow `slice(...)` lists in invalid-form hydration that drop user input during re-render
+- using action-switch operations (`params[:action]`, `if action == ...`) for distinct domain commands like publish/unpublish
+- wrapping a single `.save` in an explicit `Model.transaction do` block — ActiveRecord already wraps every single `.save`, `.update`, and `.destroy` in a transaction natively; only write an explicit block when persisting **multiple records** in one step
 
 Prefer:
 - controllers authorizing and passing `model:` into update/destroy operations
 - contracts returning validation errors as structured hashes
 - jobs receiving scalar identifiers and reloading state in the job context
+- `assign_attributes(validated_attributes)` in operations when model nested assignment is configured
+- preserving non-sensitive permitted inputs on validation failure, while excluding passwords
+- separate operations per domain command (`Publish` vs `Unpublish`) with linear, intent-specific logic
 
 ```ruby
 # BAD

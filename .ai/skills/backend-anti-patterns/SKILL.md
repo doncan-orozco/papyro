@@ -21,6 +21,7 @@ Use this skill as the fast reject-list for backend work. Keep the SKILL body foc
 - Components without `**attrs` support
 - Compound trigger helpers wrapping another button component inside the trigger
 - Tests asserting private implementation details instead of public behavior
+- Wrapping a single `.save` / `.update` / `.destroy` in an explicit `Model.transaction do` block (ActiveRecord handles the transaction natively; explicit blocks are only needed when writing multiple records in one step)
 
 ## Apply This Workflow
 

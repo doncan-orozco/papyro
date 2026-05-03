@@ -5,8 +5,7 @@ module Articles
     class Create < ApplicationOperation
       def call(params:, user:)
         validated_attributes = step validate_input(params)
-        article = step build_and_enforce_domain_rules(validated_attributes, user)
-        persisted_article = step persist_with_transaction(article)
+        persisted_article    = step persist_article(attributes: validated_attributes, user: user)
 
         { model: persisted_article }
       end
@@ -24,23 +23,10 @@ module Articles
         Success(contract_result.to_h)
       end
 
-      def build_and_enforce_domain_rules(attributes, user)
+      def persist_article(attributes:, user:)
         article = user.articles.build(attributes)
-        Success(article)
-      end
 
-      def persist_with_transaction(article)
-        persisted_article = nil
-
-        Article.transaction do
-          if article.save
-            persisted_article = article
-          else
-            raise ActiveRecord::Rollback
-          end
-        end
-
-        return Success(persisted_article) if persisted_article
+        return Success(article) if article.save
 
         fail_with_model!(article)
       end
