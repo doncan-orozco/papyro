@@ -20,15 +20,16 @@ module Views
 
               card.content do
                 form_with(model: @user, url: user_path(@user), method: :patch, class: "space-y-5") do |form|
-                  form.field :display_name,
-                    as: :text_field,
-                    label: t("users.edit.display_name_label"),
-                    options: {
-                      required: true,
-                      autocomplete: "name",
-                      placeholder: t("users.edit.display_name_placeholder"),
-                      value: @user.author_display_name
-                    }
+                  form.fields_for :profile_attributes, profile_for_form do |profile_form|
+                    profile_form.field :display_name,
+                      as: :text_field,
+                      label: t("users.edit.display_name_label"),
+                      options: {
+                        required: true,
+                        autocomplete: "name",
+                        placeholder: t("users.edit.display_name_placeholder")
+                      }
+                  end
 
                   form.field :email_address,
                     as: :email_field,
@@ -66,6 +67,12 @@ module Views
             end
           end
         end
+      end
+
+      private
+
+      def profile_for_form
+        @profile_for_form ||= @user.profile || @user.build_profile
       end
     end
   end

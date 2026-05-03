@@ -20,13 +20,15 @@ module Users
         return Success(result.to_h) if result.success?
 
         user = User.new(email_address: params[:email_address])
-        user.build_profile(display_name: params[:display_name])
+        profile_attrs = params[:profile_attributes] || {}
+        user.build_profile(display_name: profile_attrs[:display_name])
         fail_with_model!(inject_errors!(user, result.errors.to_h))
       end
 
       def build_user(attributes)
-        user = ::User.new(attributes.except(:display_name))
-        user.build_profile(display_name: attributes.fetch(:display_name))
+        user = ::User.new(attributes.except(:profile_attributes))
+        profile_attrs = attributes[:profile_attributes] || {}
+        user.build_profile(display_name: profile_attrs[:display_name])
         Success(user)
       end
 

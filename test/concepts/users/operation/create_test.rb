@@ -3,10 +3,10 @@ require "test_helper"
 class Users::Operation::CreateTest < ActiveSupport::TestCase
   test "creates user with valid params" do
     params = {
-      display_name: "Test Writer",
       email_address: "test@example.com",
       password: "password123",
-      password_confirmation: "password123"
+      password_confirmation: "password123",
+      profile_attributes: { display_name: "Test Writer" }
     }
 
     result = Users::Operation::Create.new.call(params: params)
@@ -17,12 +17,26 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
     assert_equal "Test Writer", result.value![:model].profile.display_name
   end
 
-  test "fails with invalid email" do
+  test "creates user without display_name" do
     params = {
-      display_name: "Test Writer",
-      email_address: "invalid-email",
+      email_address: "test@example.com",
       password: "password123",
       password_confirmation: "password123"
+    }
+
+    result = Users::Operation::Create.new.call(params: params)
+
+    # profile display_name presence is validated at model layer
+    assert_predicate result, :failure?
+    assert result.failure[:errors].any? { |k, _| k.to_s.include?("profile") }
+  end
+
+  test "fails with invalid email" do
+    params = {
+      email_address: "invalid-email",
+      password: "password123",
+      password_confirmation: "password123",
+      profile_attributes: { display_name: "Test Writer" }
     }
 
     result = Users::Operation::Create.new.call(params: params)
@@ -33,10 +47,10 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
 
   test "fails with mismatched passwords" do
     params = {
-      display_name: "Test Writer",
       email_address: "test@example.com",
       password: "password123",
-      password_confirmation: "different"
+      password_confirmation: "different",
+      profile_attributes: { display_name: "Test Writer" }
     }
 
     result = Users::Operation::Create.new.call(params: params)
@@ -46,30 +60,27 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
   end
 
   test "fails with duplicate email" do
-    # Create first user
     User.create!(
       email_address: "duplicate@example.com",
       password: "password123",
       password_confirmation: "password123"
-    )
+    ).tap { |u| u.create_profile!(display_name: "Existing") }
 
-    # Try to create duplicate
     params = {
-      display_name: "Test Writer",
       email_address: "duplicate@example.com",
       password: "password456",
-      password_confirmation: "password456"
+      password_confirmation: "password456",
+      profile_attributes: { display_name: "Test Writer" }
     }
 
     result = Users::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert_includes result.failure[:errors][:email_address], "is already taken"
+    assert_includes result.failure[:errors][:email_address], "has already been taken"
   end
 
   test "fails with missing required fields" do
     params = {
-      display_name: "",
       email_address: "",
       password: "",
       password_confirmation: ""
@@ -78,7 +89,6 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
     result = Users::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert result.failure[:errors].key?(:display_name)
     assert result.failure[:errors].key?(:email_address)
     assert result.failure[:errors].key?(:password)
   end

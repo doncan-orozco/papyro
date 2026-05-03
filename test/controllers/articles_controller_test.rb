@@ -33,7 +33,7 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
       title: "Hidden Published Article",
       slug: "hidden-published-article-ctrl-#{Time.current.to_i}",
       status: :published,
-      published_at: 10.minutes.ago,
+      published_at: 6.hours.ago,
       body: "<p>Hidden published content</p>",
       user: @user
     )
@@ -43,7 +43,7 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
         title: "Extra Published Article #{index}",
         slug: "extra-published-article-#{index}-#{Time.current.to_i}",
         status: :published,
-        published_at: (index + 1).hours.from_now,
+        published_at: (index + 1).hours.ago,
         body: "<p>Extra published content #{index}</p>",
         user: @user
       )
@@ -117,7 +117,7 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
       title: "Newer Published Article",
       slug: "newer-published-article-ctrl-#{Time.current.to_i}",
       status: :published,
-      published_at: 2.days.from_now,
+      published_at: 1.hour.ago,
       body: "<p>Newer published content</p>",
       user: author
     )

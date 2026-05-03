@@ -24,7 +24,10 @@ module Users
 
       def assign_attributes(user:, attributes:)
         profile = user.profile || user.build_profile
-        profile.display_name = attributes[:display_name] if attributes.key?(:display_name)
+        profile_attributes = attributes[:profile_attributes]
+        if profile_attributes.is_a?(Hash) && profile_attributes.key?(:display_name)
+          profile.display_name = profile_attributes[:display_name]
+        end
         user.email_address = attributes[:email_address] if attributes.key?(:email_address)
 
         if attributes.key?(:password)

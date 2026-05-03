@@ -4,10 +4,10 @@ module Users
   module Contract
     class Update < Dry::Validation::Contract
       params do
-        optional(:display_name).filled(:string)
         optional(:email_address).filled(:string)
         optional(:password).filled(:string)
         optional(:password_confirmation).filled(:string)
+        optional(:profile_attributes).maybe(:hash)
       end
 
       rule(:password, :password_confirmation) do

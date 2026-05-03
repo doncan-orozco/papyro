@@ -76,4 +76,17 @@ class Users::Operation::UpdateTest < ActiveSupport::TestCase
 
     assert_predicate result, :success?
   end
+
+  test "updates nested profile display_name" do
+    params = {
+      profile_attributes: {
+        display_name: "Nested Updated Author"
+      }
+    }
+
+    result = Users::Operation::Update.new.call(params: params, user: @user)
+
+    assert_predicate result, :success?
+    assert_equal "Nested Updated Author", @user.reload.profile.display_name
+  end
 end

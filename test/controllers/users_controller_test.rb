@@ -42,7 +42,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
     patch user_path(@user), params: {
       user: {
-        display_name: "Updated Author",
+        profile_attributes: { display_name: "Updated Author" },
         email_address: "updated@example.com",
         password: "",
         password_confirmation: ""
