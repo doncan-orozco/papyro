@@ -184,4 +184,74 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     # user_id should remain unchanged (excluded by operation)
     assert_equal user.id, article.reload.user_id
   end
+
+  test "auto-regenerates slug for draft when title changes and slug is unchanged" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Original Draft Title",
+      slug: "original-draft-title-aaaaaa",
+      status: :draft,
+      user: user
+    )
+
+    params = {
+      title: "Updated Draft Title",
+      slug: article.slug,
+      status: "draft"
+    }
+
+    operation_class = Class.new(Articles::Operation::Update) do
+      define_method(:random_slug_suffix) { "abc123" }
+    end
+
+    result = operation_class.new.call(model: article, params: params)
+
+    assert_predicate result, :success?
+    assert_equal "updated-draft-title-abc123", result.value![:model].reload.slug
+  end
+
+  test "keeps explicit slug override for draft" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Draft Title",
+      slug: "draft-title-aaaaaa",
+      status: :draft,
+      user: user
+    )
+
+    params = {
+      title: "Updated Draft Title",
+      slug: "custom-editor-slug",
+      status: "draft"
+    }
+
+    result = Articles::Operation::Update.new.call(model: article, params: params)
+
+    assert_predicate result, :success?
+    assert_equal "custom-editor-slug", result.value![:model].reload.slug
+  end
+
+  test "blocks slug changes for published articles" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Published Title",
+      slug: "published-title-aaaaaa",
+      status: :published,
+      published_at: Time.current,
+      user: user
+    )
+
+    params = {
+      title: "Published Title Updated",
+      slug: "new-published-slug",
+      status: "published"
+    }
+
+    result = Articles::Operation::Update.new.call(model: article, params: params)
+
+    assert_predicate result, :failure?
+    assert_predicate result.failure[:errors][:slug], :any?
+    assert_includes result.failure[:errors][:slug], I18n.t("studio.articles.operations.update.slug_locked")
+    assert_equal "published-title-aaaaaa", article.reload.slug
+  end
 end

@@ -131,4 +131,39 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     assert_predicate result.value![:model], :status_published?
     assert_equal published_at.to_i, result.value![:model].published_at.to_i
   end
+
+  test "auto-generates slug when blank" do
+    user = users(:admin)
+    params = {
+      title: "How to Ship Rails Features",
+      slug: "",
+      status: "draft"
+    }
+
+    result = Articles::Operation::Create.new.call(params: params, user: user)
+
+    assert_predicate result, :success?
+    assert_match(/\Ahow-to-ship-rails-features-[a-z0-9]{6}\z/, result.value![:model].slug)
+  end
+
+  test "retries generated slug when collision happens" do
+    user = users(:admin)
+    Article.create!(title: "Existing", slug: "my-title-aaaaaa", status: :draft, user: user)
+
+    params = {
+      title: "My Title",
+      slug: "",
+      status: "draft"
+    }
+
+    suffix_values = [ "aaaaaa", "bbbbbb" ]
+    operation_class = Class.new(Articles::Operation::Create) do
+      define_method(:random_slug_suffix) { suffix_values.shift || "cccccc" }
+    end
+
+    result = operation_class.new.call(params: params, user: user)
+
+    assert_predicate result, :success?
+    assert_equal "my-title-bbbbbb", result.value![:model].slug
+  end
 end

@@ -46,6 +46,7 @@ Avoid:
 - narrow `slice(...)` lists in invalid-form hydration that drop user input during re-render
 - using action-switch operations (`params[:action]`, `if action == ...`) for distinct domain commands like publish/unpublish
 - wrapping a single `.save` in an explicit `Model.transaction do` block — ActiveRecord already wraps every single `.save`, `.update`, and `.destroy` in a transaction natively; only write an explicit block when persisting **multiple records** in one step
+- auto-generating slugs inside models (callbacks) or contracts — generate in the operation's normalize step before contract validation, so the slug is available for validation and persistence
 
 Prefer:
 - controllers authorizing and passing `model:` into update/destroy operations
@@ -54,6 +55,8 @@ Prefer:
 - `assign_attributes(validated_attributes)` in operations when model nested assignment is configured
 - preserving non-sensitive permitted inputs on validation failure, while excluding passwords
 - separate operations per domain command (`Publish` vs `Unpublish`) with linear, intent-specific logic
+- slug generation in a `normalize_params` step of the create operation (`title.parameterize + "-" + SecureRandom.alphanumeric(6).downcase`), with bounded collision retry
+- slug permalink locking: strip `:slug` from update params for published articles; return failure on explicit slug-change attempt
 
 ```ruby
 # BAD

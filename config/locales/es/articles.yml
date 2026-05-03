@@ -63,7 +63,7 @@ es:
         title_placeholder: "Ingrese el título del artículo"
         slug_label: "Slug de URL"
         slug_placeholder: "slug-del-articulo"
-        slug_hint: "Usado en la URL del artículo. Solo letras minúsculas, números y guiones."
+        slug_hint: "Se genera automáticamente desde el título cuando está vacío. En borrador puede actualizarse con el título; en publicado queda bloqueado."
         body_label: "Contenido"
         body_hint: "Contenido del artículo en formato Markdown"
         excerpt_label: "Extracto"
@@ -82,6 +82,7 @@ es:
         update:
           success: "El artículo fue actualizado exitosamente"
           failure: "No se pudo actualizar el artículo"
+          slug_locked: "No se puede cambiar el slug de un artículo publicado"
         destroy:
           success: "El artículo fue eliminado exitosamente"
           failure: "No se pudo eliminar el artículo"

@@ -44,4 +44,13 @@ class Articles::Contract::CreateTest < ActiveSupport::TestCase
 
     assert_predicate result, :success?
   end
+
+  test "succeeds without slug so operation can auto-generate it" do
+    result = Articles::Contract::Create.new.call(
+      title: "Generated slug article",
+      status: "draft"
+    )
+
+    assert_predicate result, :success?
+  end
 end

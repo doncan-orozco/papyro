@@ -5,7 +5,7 @@ module Articles
     class Create < Dry::Validation::Contract
       params do
         required(:title).filled(Types::StrippedString)
-        required(:slug).filled(Types::NormalizedSlug)
+        optional(:slug).maybe(Types::NormalizedSlug)
         required(:status).filled(Types::StrippedString)
         optional(:body).maybe(:string)
         optional(:published_at).maybe(:time)

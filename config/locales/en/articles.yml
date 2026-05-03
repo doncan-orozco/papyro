@@ -63,7 +63,7 @@ en:
         title_placeholder: "Enter article title"
         slug_label: "URL Slug"
         slug_placeholder: "article-url-slug"
-        slug_hint: "Used in the article URL. Only lowercase letters, numbers, and hyphens."
+        slug_hint: "Auto-generated from title when blank. Draft slugs can refresh from title; published slugs are locked."
         body_label: "Content"
         body_hint: "Markdown-formatted content for the article"
         excerpt_label: "Excerpt"
@@ -82,6 +82,7 @@ en:
         update:
           success: "Article was successfully updated"
           failure: "Failed to update article"
+          slug_locked: "Published article slug cannot be changed"
         destroy:
           success: "Article was successfully deleted"
           failure: "Failed to delete article"
