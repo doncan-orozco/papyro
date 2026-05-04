@@ -93,11 +93,16 @@ Avoid:
 - reading undocumented internal operation data
 - mixing response formatting with domain logic
 - mutating operation payloads in the controller
+- building Turbo Stream HTML in controllers with `view_context.tag`/`tag`/inline markup
+- placing translation and CSS decisions for fragment markup inside controller private methods
+- redirecting after operation failure when failure includes invalid `:model` errors needed by the form
 
 Prefer:
 - `result.success?` / `result.failure?`
 - `result.value![:model]` only in success branches
 - `result.failure[:errors]` only in failure branches
+- rendering dedicated Phlex views/components for Turbo Stream fragments
+- rendering the form/view with `status: :unprocessable_entity` when failure includes invalid `:model`, preserving inline errors
 
 ```ruby
 if result.success?

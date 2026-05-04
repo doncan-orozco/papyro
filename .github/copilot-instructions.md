@@ -20,6 +20,7 @@ When reviewing pull requests or responding to development requests, you MUST ver
 3. **[.ai/skills/error-handling/SKILL.md](.ai/skills/error-handling/SKILL.md)** - Error & auth patterns
 4. **[.ai/skills/architecture/SKILL.md](.ai/skills/architecture/SKILL.md)** - Project overview & skill index
 5. **[.ai/skills/frontend-style-ddd/SKILL.md](.ai/skills/frontend-style-ddd/SKILL.md)** - Domain-driven stylesheet organization rules
+ 6. **[.ai/skills/system-testing/SKILL.md](.ai/skills/system-testing/SKILL.md)** - Rails system test patterns for Hotwire flows
 
 ## How to Use This
 
@@ -29,6 +30,7 @@ When reviewing code:
 3. Verify error handling follows [error-handling.md](.ai/skills/error-handling/SKILL.md) patterns
 4. Load relevant skill files directly from `.ai/skills/{domain}/SKILL.md`
 5. Provide detailed feedback citing the checklist item number
+6. When writing or reviewing system tests, load `.ai/skills/system-testing/SKILL.md` in addition to `.ai/skills/testing/SKILL.md`
 
 ## Key Review Areas
 
@@ -45,6 +47,19 @@ When reviewing code:
 - Prefer model-driven nested assignment (`assign_attributes`) when nested attributes are configured on the model.
 - Prefer one operation per domain intent (`Publish`, `Unpublish`) over action-flag switching in a single operation.
 - On validation failure re-render models, preserve user-entered permitted fields but do not repopulate passwords.
+
+### Controller Boundary Checks
+
+- Controllers must not generate HTML markup directly (`view_context.tag`, `tag`, inline HTML strings).
+- Controllers must not own presentation CSS class decisions or translation composition for fragment markup.
+- For Turbo Stream fragment updates, render a dedicated Phlex view/component (or template), and keep the controller focused on orchestration.
+- When an operation failure returns an invalid `:model`, prefer `render ... status: :unprocessable_entity` over redirect so model errors remain available to the form.
+
+### Form Intent Checks
+
+- Do not mix distinct user intents (for example writing content vs publishing/settings metadata) in a single mode-switched form component.
+- Prefer separate Phlex form components per intent (for example `EditorFormComponent`, `SettingsFormComponent`) and compose them in the page view.
+- Reserve mode flags/branching inside a single component for minor presentation variants, not divergent interactions (autosave + Stimulus vs standard submit flow).
 
 ## File Organization Policy
 

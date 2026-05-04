@@ -32,9 +32,9 @@ module Components
 
               render Components::Ui::Button.new(
                 as: :a,
-                href: new_studio_article_path,
+                href: studio_articles_path,
                 size: :sm,
-                data: { turbo_frame: "_top", turbo_action: "advance" }
+                data: { turbo_method: :post, turbo_frame: "_top", turbo_action: "advance" }
               ) { t("studio.navbar.new_article") }
             end
 

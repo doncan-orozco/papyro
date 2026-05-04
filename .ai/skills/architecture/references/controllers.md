@@ -4,6 +4,14 @@
 
 Controllers are thin - they only receive requests, call Operations, and return responses. Operations return Dry::Monads::Result objects (use result.success? / result.failure?).
 
+## View Boundary Rule
+
+Controllers must not build HTML fragments directly (`view_context.tag`, `tag`, inline HTML strings), including Turbo Stream fragment markup.
+
+For Turbo Stream responses, controllers should render dedicated view artifacts (Phlex component/view or template) and keep presentation concerns (CSS classes, translated copy, markup structure) in the view layer.
+
+When an operation returns a failure payload with an invalid `:model`, render the corresponding form/view with `status: :unprocessable_entity` so the existing model errors are preserved for user feedback.
+
 ## ApplicationController Composition Rule
 
 `ApplicationController` should compose cross-cutting concerns, not own feature-specific implementations.

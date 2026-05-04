@@ -7,6 +7,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       title: "Test Article",
       slug: "test-article",
       status: :draft,
+      excerpt: "Short summary",
       body: "<p>Test content</p>",
       user: user
     )
@@ -50,6 +51,22 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     assert_predicate result.failure[:errors][:base], :any?
   end
 
+  test "fails to publish article without excerpt" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Test Article",
+      slug: "test-article-without-excerpt",
+      status: :draft,
+      body: "<p>Test content</p>",
+      user: user
+    )
+
+    result = Articles::Operation::Publish.new.call(model: article)
+
+    assert_predicate result, :failure?
+    assert_predicate result.failure[:errors][:base], :any?
+  end
+
   test "requires model parameter" do
     assert_raises(ArgumentError) do
       Articles::Operation::Publish.new.call
@@ -68,6 +85,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       title: "Other User Article",
       slug: "other-user-publish",
       status: :draft,
+      excerpt: "Short summary",
       body: "<p>Test content</p>",
       user: other_user
     )

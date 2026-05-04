@@ -15,6 +15,7 @@ Use this skill as the fast reject-list for backend work. Keep the SKILL body foc
 - Scopes hiding read logic that belongs in query objects
 - Authorization inside operations instead of at the controller or channel boundary
 - Controller and operation both looking up the same record
+- Controller methods generating HTML fragments (`view_context.tag`, `tag`, inline markup)
 - Update operations changing ownership fields such as `user_id`
 - Hardcoded user-facing strings in operations, controllers, mailers, or jobs
 - Relative translation keys like `t(".title")`

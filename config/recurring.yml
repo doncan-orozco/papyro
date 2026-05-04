@@ -17,3 +17,7 @@ production:
     class: Maintenance::ConsumeResourcesJob
     queue: maintenance
     schedule: every hour
+  cleanup_empty_drafts:
+    class: CleanupEmptyDraftsJob
+    queue: maintenance
+    schedule: every day at 4am

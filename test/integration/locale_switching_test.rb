@@ -55,10 +55,10 @@ class LocaleSwitchingTest < ActionDispatch::IntegrationTest
   test "language toggle keeps same studio route and switches locale via query param" do
     sign_in_as(users(:admin))
 
-    get new_studio_article_path(locale: :es)
+    get studio_articles_path(locale: :es)
 
     assert_response :success
-    assert_includes response.body, "href=\"#{new_studio_article_path(locale: :en)}\""
-    assert_includes response.body, "href=\"#{new_studio_article_path(locale: :es)}\""
+    assert_includes response.body, "href=\"#{studio_articles_path(locale: :en)}\""
+    assert_includes response.body, "href=\"#{studio_articles_path(locale: :es)}\""
   end
 end

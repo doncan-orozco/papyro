@@ -15,8 +15,10 @@ Use this skill for application-facing frontend work. Keep the SKILL body focused
 - Multi-part UI components use the compound helper pattern; views call parent helpers, not child `.new` calls.
 - Stimulus defaults for interactive compound components belong in component helper methods, not repeated across views.
 - Interactive overlays should use stable fixed positioning and avoid animating `top`/`left`.
+- Never compose Sheet/Dialog/overlay `content` inside a container that creates a stacking context (`sticky`/`relative` + `z-index`, `transform`, `filter`, `will-change`). Keep the trigger inside the stacking container and place the overlay `content` outside it under the same Sheet root block. See [references/views.md](references/views.md#modaloverlay-composition-in-views).
 - Use `link_to` for navigation instead of raw anchor tags.
 - Keep Tailwind usage semantic and aligned with the design system.
+- Separate divergent form intents into dedicated components (for example editor vs settings) instead of mode-driven branching in one large component.
 
 ## Practical Workflow
 

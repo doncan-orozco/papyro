@@ -5,15 +5,19 @@ class Article < ApplicationRecord
   has_markdown :body
   has_one_attached :cover_image
 
+  before_validation :ensure_uuid, on: :create
+
   normalizes :title, with: ->(value) { value.strip }
   normalizes :slug, with: ->(value) { value.strip.downcase }
 
   enum :status, { draft: 0, published: 1, archived: 2 }, prefix: true
 
   SLUG_FORMAT = /\A[a-z0-9-]+\z/
+  UUID_FORMAT = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/
 
   # Safety-net validations (paranoid mode, apply in all environments)
   validates :user, presence: true
+  validates :uuid, presence: true, uniqueness: true, length: { is: 36 }, format: { with: UUID_FORMAT }
   validates :title, presence: true, length: { maximum: 255 }
   validates :slug, presence: true, uniqueness: true, length: { maximum: 255 }, format: { with: SLUG_FORMAT }
   validates :status, presence: true, inclusion: { in: statuses.keys }
@@ -57,6 +61,10 @@ class Article < ApplicationRecord
   end
 
   private
+
+  def ensure_uuid
+    self.uuid ||= SecureRandom.uuid
+  end
 
   def body_length_within_limit
     return unless body.present?

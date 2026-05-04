@@ -20,7 +20,7 @@ en:
       article_not_found: "Article not found"
       article_already_published: "Article is already published"
       article_not_published: "Article is not published"
-      article_incomplete_for_publish: "Article must have title and content to be published"
+      article_incomplete_for_publish: "Article must have title, content, and excerpt to be published"
       invalid_action: "Invalid action"
 
   # dry-schema predicate messages used by dry-validation contracts.

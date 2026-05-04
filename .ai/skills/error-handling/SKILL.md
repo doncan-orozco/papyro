@@ -13,6 +13,7 @@ Controllers are responsible for:
 1. Authorization before calling operations
 2. Loading pre-authorized resources with scoped queries
 3. Passing authorized models/params to operations
+4. Delegating markup generation to views/components (including Turbo Stream fragments)
 
 Operations are responsible for:
 1. Validation and business rules
@@ -92,6 +93,8 @@ Rules:
 - Never use transition shims like `result[:model]`
 - Prefer `result.value!` only inside success branches
 - Use `result.failure` only inside failure branches
+- For Turbo Stream responses, render a dedicated view artifact (Phlex component/view or template), not inline controller-built HTML
+- If failure includes `:model` with validation/business errors, render the form/view with `status: :unprocessable_entity` instead of redirecting, so errors stay attached
 
 ## Operation Payload Contract
 

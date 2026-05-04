@@ -114,7 +114,7 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     assert_predicate result.failure[:errors], :present?
   end
 
-  test "fails with duplicate slug" do
+  test "adds suffix when duplicate slug collides" do
     user = users(:admin)
     Article.create!(
       title: "Existing Article",
@@ -137,8 +137,8 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
 
     result = Articles::Operation::Update.new.call(model: article, params: params)
 
-    assert_predicate result, :failure?
-    assert_predicate result.failure[:errors][:slug], :any?
+    assert_predicate result, :success?
+    assert_match(/\Aexisting-slug-[a-z0-9]{6}\z/, result.value![:model].reload.slug)
   end
 
   test "allows same slug for same article" do
@@ -185,7 +185,7 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     assert_equal user.id, article.reload.user_id
   end
 
-  test "auto-regenerates slug for draft when title changes and slug is unchanged" do
+  test "auto-regenerates slug for draft when title changes without explicit slug" do
     user = users(:admin)
     article = Article.create!(
       title: "Original Draft Title",
@@ -196,18 +196,13 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
 
     params = {
       title: "Updated Draft Title",
-      slug: article.slug,
       status: "draft"
     }
 
-    operation_class = Class.new(Articles::Operation::Update) do
-      define_method(:random_slug_suffix) { "abc123" }
-    end
-
-    result = operation_class.new.call(model: article, params: params)
+    result = Articles::Operation::Update.new.call(model: article, params: params)
 
     assert_predicate result, :success?
-    assert_equal "updated-draft-title-abc123", result.value![:model].reload.slug
+    assert_equal "updated-draft-title", result.value![:model].reload.slug
   end
 
   test "keeps explicit slug override for draft" do
@@ -229,6 +224,38 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
 
     assert_predicate result, :success?
     assert_equal "custom-editor-slug", result.value![:model].reload.slug
+  end
+
+  test "adds suffix when explicit draft slug collides" do
+    user = users(:admin)
+    Article.create!(
+      title: "Existing",
+      slug: "japan-travel-guide",
+      status: :draft,
+      user: user
+    )
+
+    article = Article.create!(
+      title: "Draft Title",
+      slug: "draft-title",
+      status: :draft,
+      user: user
+    )
+
+    params = {
+      title: "Updated Draft Title",
+      slug: "japan-travel-guide",
+      status: "draft"
+    }
+
+    operation_class = Class.new(Articles::Operation::Update) do
+      define_method(:random_slug_suffix) { "k9f2m1" }
+    end
+
+    result = operation_class.new.call(model: article, params: params)
+
+    assert_predicate result, :success?
+    assert_equal "japan-travel-guide-k9f2m1", result.value![:model].reload.slug
   end
 
   test "blocks slug changes for published articles" do

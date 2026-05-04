@@ -54,12 +54,12 @@ module Articles
             break unless should_retry?(model, generated_slug, attempts)
 
             attempts += 1
-            model.slug = generate_slug_from_title(model.title)
+            model.slug = regenerate_slug(model.slug)
           rescue ActiveRecord::RecordNotUnique
             break unless generated_slug && attempts < MAX_SLUG_COLLISION_RETRIES
 
             attempts += 1
-            model.slug = generate_slug_from_title(model.title)
+            model.slug = regenerate_slug(model.slug)
           end
         end
 
@@ -85,8 +85,16 @@ module Articles
         end
 
         return [ params.except(:slug), false ] if incoming_slug.blank?
+        return [ params, false ] if incoming_slug == model.slug
 
-        [ params, false ]
+        [ params, true ]
+      end
+
+      def regenerate_slug(current_slug)
+        base_slug = current_slug.to_s.sub(/-[a-z0-9]{#{HASH_LENGTH}}\z/, "")
+        base_slug = "article" if base_slug.blank?
+
+        "#{base_slug}-#{random_slug_suffix}"
       end
 
       def slug_change_requested?(model:, params:)
@@ -105,7 +113,7 @@ module Articles
         base_slug = title.to_s.parameterize
         base_slug = "article" if base_slug.blank?
 
-        "#{base_slug}-#{random_slug_suffix}"
+        base_slug
       end
 
       def random_slug_suffix

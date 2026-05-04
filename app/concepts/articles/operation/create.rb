@@ -25,7 +25,8 @@ module Articles
       def prepare_attributes(params)
         attrs = params.to_h.symbolize_keys
 
-        return [ attrs, false ] unless attrs[:slug].blank? && attrs[:title].present?
+        return [ attrs, true ] if attrs[:slug].present?
+        return [ attrs, false ] unless attrs[:title].present?
 
         attrs[:slug] = generate_slug_from_title(attrs[:title])
         [ attrs, true ]
@@ -84,7 +85,7 @@ module Articles
         base_slug = title.to_s.parameterize
         base_slug = "article" if base_slug.blank?
 
-        "#{base_slug}-#{random_slug_suffix}"
+        base_slug
       end
 
       def random_slug_suffix

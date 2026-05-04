@@ -57,13 +57,20 @@ es:
         subtitle: "Crear un nuevo artículo"
       edit:
         title: "Editar Artículo"
-        subtitle: "Editar este artículo"
+        subtitle: "Concéntrate en escribir. Publica cuando estés listo."
+        open_publish: "Publicar"
+        publish_cancel: "Cancelar"
+        settings_title: "Configuración de publicación"
+        settings_subtitle: "Revisa el slug y el extracto antes de confirmar la publicación"
+      editor:
+        untitled: "Sin título"
       form:
         title_label: "Título"
         title_placeholder: "Ingrese el título del artículo"
         slug_label: "Slug de URL"
         slug_placeholder: "slug-del-articulo"
         slug_hint: "Se genera automáticamente desde el título cuando está vacío. En borrador puede actualizarse con el título; en publicado queda bloqueado."
+        advanced_seo_settings: "Configuración SEO avanzada"
         body_label: "Contenido"
         body_hint: "Contenido del artículo en formato Markdown"
         excerpt_label: "Extracto"
@@ -73,8 +80,18 @@ es:
         status_draft: "Borrador"
         status_published: "Publicado"
         status_archived: "Archivado"
+        autosave_hidden_submit: "Autoguardado"
         save: "Guardar Artículo"
+        save_draft: "Guardar borrador"
+        save_settings: "Guardar configuración"
+        publish_now: "Confirmar y publicar"
         cancel: "Cancelar"
+      autosave:
+        unsaved: "Borrador sin guardar"
+        saved: "Borrador guardado"
+        saving: "Guardando..."
+        saved_at: "Guardado a las %{time}"
+        failed: "Error al guardar"
       operations:
         create:
           success: "El artículo fue creado exitosamente"

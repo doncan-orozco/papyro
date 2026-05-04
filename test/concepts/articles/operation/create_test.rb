@@ -93,7 +93,7 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     assert_predicate result.failure[:errors][:published_at], :any?
   end
 
-  test "fails with duplicate slug" do
+  test "adds suffix when duplicate slug collides" do
     user = users(:admin)
     Article.create!(
       title: "Original Article",
@@ -110,8 +110,8 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
 
     result = Articles::Operation::Create.new.call(params: params, user: user)
 
-    assert_predicate result, :failure?
-    assert result.failure[:errors][:slug].any? { |msg| msg.include?("already exists") || msg.include?("taken") }
+    assert_predicate result, :success?
+    assert_match(/\Aduplicate-slug-[a-z0-9]{6}\z/, result.value![:model].slug)
   end
 
   test "creates published article with published_at" do
@@ -143,12 +143,12 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :success?
-    assert_match(/\Ahow-to-ship-rails-features-[a-z0-9]{6}\z/, result.value![:model].slug)
+    assert_equal "how-to-ship-rails-features", result.value![:model].slug
   end
 
   test "retries generated slug when collision happens" do
     user = users(:admin)
-    Article.create!(title: "Existing", slug: "my-title-aaaaaa", status: :draft, user: user)
+    Article.create!(title: "Existing", slug: "my-title", status: :draft, user: user)
 
     params = {
       title: "My Title",
@@ -156,7 +156,7 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
       status: "draft"
     }
 
-    suffix_values = [ "aaaaaa", "bbbbbb" ]
+    suffix_values = [ "bbbbbb" ]
     operation_class = Class.new(Articles::Operation::Create) do
       define_method(:random_slug_suffix) { suffix_values.shift || "cccccc" }
     end
@@ -165,5 +165,25 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
 
     assert_predicate result, :success?
     assert_equal "my-title-bbbbbb", result.value![:model].slug
+  end
+
+  test "adds suffix when explicit custom slug collides" do
+    user = users(:admin)
+    Article.create!(title: "Existing", slug: "learn-ruby", status: :draft, user: user)
+
+    params = {
+      title: "Learn Ruby",
+      slug: "learn-ruby",
+      status: "draft"
+    }
+
+    operation_class = Class.new(Articles::Operation::Create) do
+      define_method(:random_slug_suffix) { "abc123" }
+    end
+
+    result = operation_class.new.call(params: params, user: user)
+
+    assert_predicate result, :success?
+    assert_equal "learn-ruby-abc123", result.value![:model].slug
   end
 end

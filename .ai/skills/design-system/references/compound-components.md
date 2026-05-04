@@ -324,6 +324,37 @@ render Components::Ui::Accordion.new(type: :single) do |accordion|
 end
 ```
 
+## Sheet / Dialog — Stacking Context Rule
+
+Sheet and Dialog both render a `position: fixed` overlay and panel. **These elements must not be composed inside a container that creates a stacking context** (any element with `position: sticky/relative/absolute/fixed` combined with a `z-index`, or a container with `transform`, `filter`, or `will-change`).
+
+If the Sheet root is nested inside such a container, its fixed children are scoped to that stacking context and can appear *behind* higher-stacked ancestors (e.g. a sticky navbar with `z-50`).
+
+**Correct pattern — split trigger and content across the block:**
+
+Because the compound block can wrap arbitrary DOM, the trigger can live inside the sticky container while `sheet.content` renders after it.
+
+```ruby
+# CORRECT
+render Components::Ui::Sheet.new do |sheet|
+  div(class: "sticky top-0 z-20 ...") do   # stacking context
+    sheet.trigger { ... }                   # trigger — safe inside
+  end
+  div(class: "page-body ...") { ... }       # regular page content
+  sheet.content(side: :right) { ... }       # panel — outside sticky
+end
+
+# WRONG — content trapped inside stacking context
+div(class: "sticky top-0 z-20 ...") do
+  render Components::Ui::Sheet.new do |sheet|
+    sheet.trigger { ... }
+    sheet.content(side: :right) { ... }    # ← covered by higher z-index layers
+  end
+end
+```
+
+The same rule applies to `Components::Ui::Dialog`, Popover, DropdownMenu, and any other component that renders `position: fixed` children.
+
 ## Migration Guide (Old → New)
 
 ### Before (Old Pattern - Avoid in New Code)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_29_153000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_04_041000) do
   create_table "action_text_markdowns", force: :cascade do |t|
     t.text "content", default: "", null: false
     t.datetime "created_at", null: false
@@ -70,10 +70,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_29_153000) do
     t.string "title", limit: 255, null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.string "uuid", limit: 36, null: false
     t.index ["published_at"], name: "index_articles_on_published_at"
     t.index ["slug"], name: "index_articles_on_slug", unique: true
     t.index ["status"], name: "index_articles_on_status"
     t.index ["user_id", "status"], name: "index_articles_on_user_id_and_status"
+    t.index ["uuid"], name: "index_articles_on_uuid", unique: true
     t.check_constraint "status IN (0, 1, 2)", name: "valid_status"
   end
 
