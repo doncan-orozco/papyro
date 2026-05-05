@@ -66,13 +66,13 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     get article_path(@published_article.slug)
 
     assert_response :success
-    assert_includes response.body, "Written by"
+    assert_includes response.body, I18n.t("articles.show.written_by")
     assert_includes response.body, @user.author_display_name
     assert_includes response.body, I18n.l(@published_article.published_at.to_date, format: :short)
-    assert_includes response.body, "2 words"
     assert_includes response.body, "1 min read"
+    assert_includes response.body, I18n.t("articles.show.view_profile")
     assert_not_includes response.body, @user.email_address
-    assert_not_includes response.body, "Status"
+    assert_not_includes response.body, I18n.t("articles.show.content_length")
   end
 
   test "show redirects for draft article" do
@@ -93,7 +93,7 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "show renders related article links" do
+  test "show renders more from author section when author has other published articles" do
     author = users(:one)
     article = Article.create!(
       title: "Isolated Published Article",
@@ -125,6 +125,37 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     get article_path(article.slug)
 
     assert_response :success
+    assert_includes response.body, I18n.t("articles.show.more_from_author", author: author.author_display_name)
+    assert_includes response.body, newer_article.title
+    assert_includes response.body, older_article.title
+    assert_not_includes response.body, I18n.t("articles.show.more_from_platform")
+  end
+
+  test "show falls back to platform articles when author has no other published articles" do
+    solo_author = users(:two)
+    solo_article = Article.create!(
+      title: "Solo Published Article",
+      slug: "solo-published-article-ctrl-#{Time.current.to_i}",
+      status: :published,
+      published_at: Time.current,
+      body: "<p>Solo published content</p>",
+      user: solo_author
+    )
+
+    platform_article = Article.create!(
+      title: "Platform Published Article",
+      slug: "platform-published-article-ctrl-#{Time.current.to_i}",
+      status: :published,
+      published_at: 1.hour.ago,
+      body: "<p>Platform published content</p>",
+      user: users(:admin)
+    )
+
+    get article_path(solo_article.slug)
+
+    assert_response :success
+    assert_includes response.body, I18n.t("articles.show.more_from_platform")
+    assert_includes response.body, platform_article.title
   end
 
   test "index renders welcome hero for unauthenticated guest" do

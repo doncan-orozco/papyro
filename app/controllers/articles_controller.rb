@@ -9,14 +9,26 @@ class ArticlesController < ApplicationController
 
   def show
     @article = Article.find_by!(slug: params[:slug], status: :published)
-    @related_articles = Articles::RelatedQuery.call(
-      {
-        user: @article.user,
-        article_id: @article.id
-      }
-    ).limit(2)
+    @more_from_author = @article.user.articles
+      .kept
+      .status_published
+      .where.not(id: @article.id)
+      .order(published_at: :desc)
+      .limit(2)
+
+    @more_from_platform = Article
+      .kept
+      .status_published
+      .where.not(id: @article.id)
+      .where.not(user_id: @article.user_id)
+      .order(published_at: :desc)
+      .limit(2)
 
     authorize @article
-    render Views::Articles::Show.new(article: @article, related_articles: @related_articles)
+    render Views::Articles::Show.new(
+      article: @article,
+      more_from_author: @more_from_author,
+      more_from_platform: @more_from_platform
+    )
   end
 end

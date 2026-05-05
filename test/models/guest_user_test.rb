@@ -14,7 +14,7 @@ class GuestUserTest < ActiveSupport::TestCase
   end
 
   test "guest? returns true" do
-    assert @guest.guest?
+    assert_predicate @guest, :guest?
   end
 
   test "registered? returns false" do

@@ -3,9 +3,10 @@
 module Views
   module Articles
     class Show < Views::Base
-      def initialize(article:, related_articles: [])
+      def initialize(article:, more_from_author: [], more_from_platform: [])
         @article = article
-        @related_articles = related_articles
+        @more_from_author = more_from_author
+        @more_from_platform = more_from_platform
       end
 
       def view_template
@@ -14,7 +15,7 @@ module Views
           main(class: "px-4 pb-14 sm:px-6 sm:pb-16") do
             div(class: "mx-auto w-full max-w-3xl") do
               render_article_intro
-              render_article_meta
+              render_editorial_byline
               render_content
             end
           end
@@ -65,36 +66,40 @@ module Views
         end
       end
 
-      def render_article_meta
-        section(class: "mt-8 rounded-xl border border-border bg-card/50 p-4 sm:p-5") do
-          ul(class: "flex flex-wrap items-center gap-3 text-sm text-muted-foreground") do
+      def render_editorial_byline
+        section(class: "mt-8 mb-12") do
+          if article_author_username.present?
+            link_to author_path(article_author_username, locale: I18n.locale),
+              class: "group inline-flex items-center gap-3",
+              data: { turbo_frame: "_top" } do
+              render_byline_identity
+            end
+          else
+            div(class: "inline-flex items-center gap-3") do
+              render_byline_identity
+            end
+          end
+        end
+      end
+
+      def render_byline_identity
+        div(
+          class: "h-10 w-10 shrink-0 rounded-full border border-border bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground transition-all group-hover:ring-2 group-hover:ring-primary/20"
+        ) { article_author_name.first.upcase }
+
+        div(class: "flex flex-col") do
+          span(class: "font-medium text-foreground group-hover:underline decoration-muted-foreground/50 underline-offset-4") do
+            article_author_name
+          end
+
+          div(class: "mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground") do
             if @article.published_at
-              li(class: "inline-flex items-center gap-1.5") do
-                span(class: "font-medium text-foreground") { t("articles.show.published") }
-                time(datetime: @article.published_at.iso8601) do
-                  I18n.l(@article.published_at.to_date, format: :short)
-                end
+              time(datetime: @article.published_at.iso8601) do
+                I18n.l(@article.published_at.to_date, format: :short)
               end
             end
-
-            if @article.user
-              li(class: "inline-flex items-center gap-1.5") do
-                span(class: "font-medium text-foreground") { t("articles.show.author") }
-                span { @article.user.author_display_name }
-              end
-            end
-
-            if @article.content_word_count.positive?
-              li(class: "inline-flex items-center gap-1.5") do
-                span(class: "font-medium text-foreground") { t("articles.show.content_length") }
-                span { t("articles.show.words_count", count: @article.content_word_count) }
-              end
-
-              li(class: "inline-flex items-center gap-1.5") do
-                span(class: "font-medium text-foreground") { t("articles.show.reading_time") }
-                span { t("articles.show.minutes_read", count: @article.estimated_reading_time_minutes) }
-              end
-            end
+            span(class: "text-muted-foreground/50") { "·" }
+            span { t("articles.show.minutes_read", count: @article.estimated_reading_time_minutes) }
           end
         end
       end
@@ -108,37 +113,82 @@ module Views
       end
 
       def render_footer_navigation
-        return if @related_articles.blank?
+        return if continuation_articles.blank?
 
-        footer(class: "border-t border-border bg-card/40 px-4 py-8 sm:px-6") do
+        footer(class: "border-t border-border/40 px-4 py-8 sm:px-6") do
           div(class: "mx-auto w-full max-w-3xl") do
-            div(class: "mb-4") do
-              h2(class: "text-sm font-semibold tracking-[0.16em] text-muted-foreground uppercase") do
-                t("articles.show.related_articles")
-              end
-            end
+            render_author_outro
 
-            nav(class: "grid grid-cols-1 gap-4 md:grid-cols-2") do
-              @related_articles.each do |related_article|
-                render_related_article_card(related_article)
+            div do
+              h2(class: "mb-8 text-sm font-bold uppercase tracking-[0.16em] text-muted-foreground") do
+                continuation_heading
+              end
+
+              nav(class: "grid grid-cols-1 gap-8 sm:grid-cols-2") do
+                continuation_articles.each do |related_article|
+                  render Components::Landing::ArticleCard.new(
+                    title: related_article.title,
+                    description: related_article.excerpt.presence || "",
+                    date: I18n.l(related_article.published_at, format: :short),
+                    reading_time: t("articles.show.minutes_read", count: related_article.estimated_reading_time_minutes),
+                    href: article_path(related_article),
+                    bordered: false,
+                    data: { turbo_frame: "_top" }
+                  )
+                end
               end
             end
           end
         end
       end
 
-      def render_related_article_card(article)
-        link_to article_path(article),
-          class: "rounded-lg border border-border bg-background p-4 transition hover:border-border/80 hover:bg-muted",
-          data: { turbo_frame: "_top" } do
-          p(class: "line-clamp-2 font-medium text-foreground") { article.title }
-          if article.published_at
-            time(datetime: article.published_at.iso8601,
-                 class: "mt-2 block text-xs text-muted-foreground") do
-              I18n.l(article.published_at, format: :short)
+      def render_author_outro
+        div(class: "mb-12 flex flex-col items-start justify-between gap-6 rounded-2xl bg-muted/30 p-6 sm:flex-row sm:items-center sm:p-8") do
+          div(class: "flex items-center gap-4") do
+            div(class: "h-16 w-16 shrink-0 rounded-full border border-border bg-background flex items-center justify-center text-xl font-bold text-muted-foreground") do
+              article_author_name.first.upcase
+            end
+
+            div do
+              span(class: "text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground") { t("articles.show.written_by") }
+              h3(class: "mt-0.5 text-xl font-bold text-foreground") { article_author_name }
+              if @article.user&.profile&.bio.present?
+                p(class: "mt-1 max-w-md line-clamp-2 text-sm text-muted-foreground") { @article.user.profile.bio }
+              end
             end
           end
+
+          if article_author_username.present?
+            render Components::Ui::Button.new(
+              as: :a,
+              href: author_path(article_author_username, locale: I18n.locale),
+              variant: :outline,
+              size: :sm,
+              class: "whitespace-nowrap",
+              data: { turbo_frame: "_top" }
+            ) { t("articles.show.view_profile") }
+          end
         end
+      end
+
+      def continuation_articles
+        @continuation_articles ||= @more_from_author.presence || @more_from_platform
+      end
+
+      def continuation_heading
+        if @more_from_author.present?
+          t("articles.show.more_from_author", author: article_author_name)
+        else
+          t("articles.show.more_from_platform")
+        end
+      end
+
+      def article_author_name
+        @article.user&.author_display_name || t("articles.show.unknown_author")
+      end
+
+      def article_author_username
+        @article.user&.profile&.username
       end
 
       def back_path

@@ -144,6 +144,9 @@ en:
       by_author: "by %{author}"
       back_to_list: "Back to Articles"
       fullscreen: "Fullscreen"
+      written_by: "Written by"
+      view_profile: "View profile"
+      unknown_author: "Unknown author"
       published: "Published on"
       author: "Written by"
       content_length: "Word count"
@@ -155,5 +158,7 @@ en:
         one: "%{count} min read"
         other: "%{count} min read"
       related_articles: "Related Articles"
+      more_from_author: "More from %{author}"
+      more_from_platform: "More from Papyro"
     errors:
       not_found: "Article not found"
