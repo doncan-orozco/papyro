@@ -30,7 +30,6 @@ module Components
             end
 
             render Components::Shared::LanguageToggle.new
-
             render Components::Shared::ThemeToggle.new
 
             if Current.user.registered?
@@ -40,24 +39,35 @@ module Components
                 variant: :outline,
                 size: :sm,
                 data: { turbo_frame: "_top", turbo_action: "advance" }
-              ) { t("pages.home.index.hero.create_blog") }
+              ) { t("components.public.navbar.write") }
 
-              render Components::Ui::Button.new(
-                as: :a,
-                href: user_path(Current.user),
-                variant: :outline,
-                size: :sm,
-                data: { turbo_frame: "_top", turbo_action: "advance" }
-              ) { t("users.show.title") }
+              render Components::Ui::DropdownMenu.new(class: "relative") do |dropdown|
+                dropdown.trigger(class: "size-8 rounded-full bg-muted text-foreground text-sm font-semibold hover:bg-muted/80") do
+                  span(aria: { hidden: "true" }) { avatar_initial }
+                end
 
-              link_to t("studio.navbar.sign_out"),
-                session_path,
-                class: "text-sm text-muted-foreground transition-colors hover:text-foreground",
-                data: {
-                  turbo_method: :delete,
-                  turbo_confirm: t("studio.navbar.confirm_sign_out"),
-                  turbo_frame: "_top"
-                }
+                dropdown.content(class: "w-48 mt-1") do
+                  dropdown.item(href: user_path(Current.user), data: { turbo_frame: "_top" }) do
+                    t("components.public.navbar.dropdown.my_profile")
+                  end
+                  dropdown.item(href: studio_articles_path, data: { turbo_frame: "_top" }) do
+                    t("components.public.navbar.dropdown.studio")
+                  end
+                  dropdown.item(href: edit_settings_profile_path, data: { turbo_frame: "_top" }) do
+                    t("components.public.navbar.dropdown.settings")
+                  end
+                  dropdown.separator
+                  dropdown.item(
+                    href: session_path,
+                    variant: :destructive,
+                    data: {
+                      turbo_method: :delete,
+                      turbo_confirm: t("components.public.navbar.dropdown.confirm_sign_out"),
+                      turbo_frame: "_top"
+                    }
+                  ) { t("components.public.navbar.dropdown.sign_out") }
+                end
+              end
             else
               render Components::Ui::Button.new(
                 as: :a,
@@ -74,6 +84,11 @@ module Components
       end
 
       private
+
+      def avatar_initial
+        name = Current.user.profile&.display_name.presence || Current.user.email_address
+        name.first.upcase
+      end
 
       def merged_classes
         base_classes = "sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70"

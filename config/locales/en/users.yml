@@ -22,6 +22,32 @@ en:
     forms:
       validation:
         display_name_too_long: "Author name must be 100 characters or fewer"
+    settings:
+      profile:
+        title: "Profile"
+        description: "Update your public profile information"
+        display_name_label: "Author name"
+        display_name_placeholder: "Enter the name shown on your articles"
+        email_label: "Email address"
+        email_placeholder: "Enter your email address"
+        submit: "Save changes"
+        cancel: "Cancel"
+      security:
+        title: "Security"
+        description: "Update your password"
+        current_password_label: "Current password"
+        current_password_placeholder: "Enter your current password"
+        password_label: "New password"
+        password_placeholder: "Enter a new password"
+        password_confirmation_label: "Confirm new password"
+        password_confirmation_placeholder: "Confirm your new password"
+        submit: "Update password"
+        cancel: "Cancel"
     operations:
       update:
         success: "Profile updated successfully."
+      update_profile:
+        success: "Profile updated successfully."
+      update_password:
+        success: "Password updated successfully."
+        current_password_invalid: "Current password is incorrect."

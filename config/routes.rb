@@ -33,6 +33,12 @@ Rails.application.routes.draw do
     get "about", to: "about#index", as: :about
   end
 
+  # Private settings routes — intentionally NOT localized.
+  namespace :settings do
+    resource :profile, only: [ :edit, :update ], controller: :profiles
+    resource :security, only: [ :edit, :update ], controller: :security
+  end
+
   # Private studio routes — intentionally NOT localized.
   # URL stays /studio/... regardless of I18n.locale; UI language is set via I18n.
   namespace :studio do

@@ -22,6 +22,33 @@ es:
     forms:
       validation:
         display_name_too_long: "El nombre del autor debe tener 100 caracteres o menos"
+    settings:
+      profile:
+        title: "Perfil"
+        description: "Actualiza la información pública de tu perfil"
+        display_name_label: "Nombre del autor"
+        display_name_placeholder: "Ingresa el nombre que se mostrará en tus artículos"
+        email_label: "Correo electrónico"
+        email_placeholder: "Ingresa tu correo electrónico"
+        submit: "Guardar cambios"
+        cancel: "Cancelar"
+      security:
+        title: "Seguridad"
+        description: "Actualiza tu contraseña"
+        current_password_label: "Contraseña actual"
+        current_password_placeholder: "Ingresa tu contraseña actual"
+        password_label: "Nueva contraseña"
+        password_placeholder: "Ingresa una nueva contraseña"
+        password_confirmation_label: "Confirmar nueva contraseña"
+        password_confirmation_placeholder: "Confirma tu nueva contraseña"
+        submit: "Actualizar contraseña"
+        cancel: "Cancelar"
     operations:
       update:
         success: "Perfil actualizado correctamente."
+      update_profile:
+        success: "Perfil actualizado correctamente."
+      update_password:
+        success: "Contraseña actualizada correctamente."
+        current_password_invalid: "La contraseña actual es incorrecta."
+

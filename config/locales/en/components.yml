@@ -45,6 +45,14 @@ en:
         description: "Open to opportunities, collaborations, and technical discussions. Let's build something great together!"
         email: "Get in Touch"
     public:
+      navbar:
+        write: "Write"
+        dropdown:
+          my_profile: "My profile"
+          studio: "Studio"
+          settings: "Settings"
+          sign_out: "Sign out"
+          confirm_sign_out: "Are you sure you want to sign out?"
       welcome_hero:
         eyebrow: "Welcome to Papyro"
         title: "A calm publishing home for ideas worth reading"

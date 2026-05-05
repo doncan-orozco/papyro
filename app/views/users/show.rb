@@ -24,7 +24,7 @@ module Views
                 p(class: "text-base font-medium") { @user.email_address }
 
                 if Current.user&.id == @user.id
-                  render Components::Ui::Button.new(as: :a, href: edit_user_path(@user)) do
+                  render Components::Ui::Button.new(as: :a, href: edit_settings_profile_path) do
                     t("users.show.edit_profile")
                   end
                 end

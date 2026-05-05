@@ -45,6 +45,14 @@ es:
         description: "Abierto a oportunidades, colaboraciones y discusiones técnicas. ¡Construyamos algo genial juntos!"
         email: "Ponte en Contacto"
     public:
+      navbar:
+        write: "Escribir"
+        dropdown:
+          my_profile: "Mi perfil"
+          studio: "Estudio"
+          settings: "Ajustes"
+          sign_out: "Cerrar sesión"
+          confirm_sign_out: "¿Estás seguro de que quieres cerrar sesión?"
       welcome_hero:
         eyebrow: "Bienvenido a Papyro"
         title: "Un hogar editorial tranquilo para ideas que vale la pena leer"
