@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
   include Authentication
   include LocaleManagement
   include Pundit::Authorization
+  include Pagy::Method
   after_action :verify_pundit_authorization
 
   rescue_from Pundit::NotAuthorizedError, with: :handle_not_authorized
@@ -35,5 +36,10 @@ class ApplicationController < ActionController::Base
     skip_authorization unless pundit_policy_authorized?
     skip_policy_scope unless pundit_policy_scoped?
     render file: Rails.root.join("public/404.html"), status: :not_found, layout: false
+  end
+
+  def parse_page(page_param = params[:page])
+    page = page_param.to_i
+    page.positive? ? page : 1
   end
 end
