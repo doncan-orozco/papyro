@@ -36,6 +36,8 @@ es:
         tabs:
           label: "Filtros de artículos"
           all: "Todos"
+          published: "Publicados"
+          drafts: "Borradores"
           trash: "Papelera"
         columns:
           article: "Artículo"

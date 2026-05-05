@@ -34,12 +34,13 @@ module Articles
 
     def active_tab
       tab = filters[:tab].to_s
-      return tab if %w[all trash draft published archived].include?(tab)
+      return tab if %w[all trash drafts draft published archived].include?(tab)
 
       "all"
     end
 
     def status_from_tab
+      return "draft" if active_tab == "drafts"
       return active_tab if %w[draft published archived].include?(active_tab)
 
       nil

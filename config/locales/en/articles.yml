@@ -36,6 +36,8 @@ en:
         tabs:
           label: "Article filters"
           all: "All"
+          published: "Published"
+          drafts: "Drafts"
           trash: "Trash"
         columns:
           article: "Article"
