@@ -2,6 +2,10 @@ en:
   app:
     title: "Doncan Orozco"
     description: "Full-stack developer | Ruby on Rails | Open source enthusiast"
+    toasts:
+      success: "Success"
+      error: "Error"
+      close: "Close"
   date:
     formats:
       short: "%b %-d, %Y"
