@@ -6,12 +6,17 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     @other_user = users(:two)
   end
 
-  test "show is accessible without authentication" do
+  test "show redirects to author profile when username is set" do
     get user_path(@user)
 
-    assert_response :success
-    assert_includes @response.body, @user.author_display_name
-    assert_includes @response.body, @user.email_address
+    assert_response :redirect
+    assert_includes response.location, "/@#{@user.profile.username}"
+  end
+
+  test "show permanently redirects to author profile" do
+    get user_path(@user)
+
+    assert_redirected_to author_path(@user.profile.username, locale: I18n.locale)
   end
 
   test "edit requires authentication" do

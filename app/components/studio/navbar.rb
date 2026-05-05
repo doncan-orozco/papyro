@@ -40,7 +40,7 @@ module Components
                   end
 
                   dropdown.content(class: "w-48 mt-1") do
-                    dropdown.item(href: user_path(Current.user), data: { turbo_frame: "_top" }) do
+                    dropdown.item(href: author_path(Current.user.profile.username), data: { turbo_frame: "_top" }) do
                       t("components.public.navbar.dropdown.my_profile")
                     end
                     dropdown.item(href: edit_settings_profile_path, data: { turbo_frame: "_top" }) do

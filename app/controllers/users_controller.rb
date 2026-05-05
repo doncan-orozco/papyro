@@ -4,7 +4,8 @@ class UsersController < ApplicationController
   def show
     user = User.find(params[:id])
     authorize user
-    render Views::Users::Show.new(user: user)
+
+    redirect_to author_path(user.profile.username), status: :moved_permanently
   end
 
   def edit

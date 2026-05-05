@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_04_070000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_05_000001) do
   create_table "action_text_markdowns", force: :cascade do |t|
     t.text "content", default: "", null: false
     t.datetime "created_at", null: false
@@ -85,9 +85,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_04_070000) do
     t.text "bio"
     t.datetime "created_at", null: false
     t.string "display_name", null: false
+    t.string "linkedin_handle"
+    t.string "location"
+    t.integer "pinned_article_id"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.string "username"
+    t.string "website_url"
+    t.string "x_handle"
     t.index ["user_id"], name: "index_author_profiles_on_user_id", unique: true
+    t.index ["username"], name: "index_author_profiles_on_username", unique: true
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -113,6 +120,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_04_070000) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "articles", "users"
+  add_foreign_key "author_profiles", "articles", column: "pinned_article_id"
   add_foreign_key "author_profiles", "users"
   add_foreign_key "sessions", "users"
 end

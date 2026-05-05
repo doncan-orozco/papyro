@@ -5,7 +5,15 @@ module Users
     class UpdateProfile < Dry::Validation::Contract
       params do
         optional(:email_address).filled(:string)
-        optional(:profile_attributes).maybe(:hash)
+        optional(:profile_attributes).maybe(:hash) do
+          optional(:display_name).maybe(:string)
+          required(:username).filled(:string)
+          optional(:bio).maybe(:string)
+          optional(:location).maybe(:string)
+          optional(:website_url).maybe(:string)
+          optional(:x_handle).maybe(:string)
+          optional(:linkedin_handle).maybe(:string)
+        end
       end
     end
   end

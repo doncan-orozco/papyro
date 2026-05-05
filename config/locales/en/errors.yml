@@ -4,6 +4,7 @@ en:
       invalid_email: "must be a valid email address"
       password_mismatch: "must match password"
       email_taken: "is already taken"
+      invalid_username: "must contain only lowercase letters, numbers, and underscores"
       # Article validations
       title_blank: "Title can't be blank"
       title_too_long: "Title is too long (maximum 255 characters)"

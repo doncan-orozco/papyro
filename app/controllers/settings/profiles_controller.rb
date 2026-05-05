@@ -23,7 +23,13 @@ module Settings
     private
 
     def profile_params
-      params.require(:user).permit(:email_address, profile_attributes: [ :display_name ]).to_h
+      params.require(:user).permit(
+        :email_address,
+        profile_attributes: [
+          :display_name, :username, :bio, :location,
+          :website_url, :x_handle, :linkedin_handle
+        ]
+      ).to_h
     end
   end
 end

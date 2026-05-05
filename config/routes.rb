@@ -33,6 +33,9 @@ Rails.application.routes.draw do
     get "about", to: "about#index", as: :about
   end
 
+  # Public author portfolio — non-localized vanity URL.
+  get "/@:username", to: "authors#show", as: :author
+
   # Private settings routes — intentionally NOT localized.
   namespace :settings do
     resource :profile, only: [ :edit, :update ], controller: :profiles

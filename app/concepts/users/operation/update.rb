@@ -14,11 +14,28 @@ module Users
 
       def validate_input(params:, user:)
         contract = Users::Contract::Update.new
-        result = contract.call(params.compact_blank)
+        result = contract.call(normalized_params(params: params, user: user).compact_blank)
 
         return Success(result.to_h) if result.success?
 
         fail_with_model!(inject_errors!(user, result.errors.to_h))
+      end
+
+      def normalized_params(params:, user:)
+        normalized = params.deep_dup
+        profile_attributes = normalized["profile_attributes"] || normalized[:profile_attributes]
+        return normalized unless profile_attributes
+
+        profile_attributes = profile_attributes.to_h
+
+        if user.profile.present?
+          # For has_one nested updates, keep updating the existing profile record.
+          profile_attributes["id"] = user.profile.id
+          profile_attributes["username"] = user.profile.username
+        end
+
+        normalized["profile_attributes"] = profile_attributes
+        normalized
       end
 
       def persist_user(user:, attributes:)

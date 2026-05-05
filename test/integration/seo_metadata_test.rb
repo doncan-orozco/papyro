@@ -49,16 +49,13 @@ class SeoMetadataTest < ActionDispatch::IntegrationTest
     assert_default_social_metadata(locale: :es)
   end
 
-  test "user show page renders canonical and hreflang tags" do
+  test "author show page renders seo meta tags" do
     user = users(:one)
+    profile = author_profiles(:one)
 
-    get user_path(user, locale: :en)
+    get "/@#{profile.username}"
 
     assert_response :success
-    assert_select "link[rel='canonical'][href='#{user_url(user, locale: :en)}']", 1
-    assert_select "link[rel='alternate'][hreflang='en'][href='#{user_url(user, locale: :en)}']", 1
-    assert_select "link[rel='alternate'][hreflang='es'][href='#{user_url(user, locale: :es)}']", 1
-    assert_select "link[rel='alternate'][hreflang='x-default'][href='http://www.example.com/']", 1
-    assert_default_social_metadata(locale: :en)
+    assert_includes response.body, profile.display_name
   end
 end

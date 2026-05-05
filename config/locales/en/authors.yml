@@ -1,0 +1,8 @@
+en:
+  authors:
+    show:
+      edit_profile: "Edit profile"
+      articles_by: "Articles by %{name}"
+      no_articles: "No published articles yet."
+      website: "Website"
+      linkedin: "LinkedIn"

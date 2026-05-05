@@ -4,6 +4,7 @@ es:
       invalid_email: "debe ser una dirección de correo electrónico válida"
       password_mismatch: "debe coincidir con la contraseña"
       email_taken: "ya está en uso"
+      invalid_username: "debe contener solo letras minúsculas, números y guiones bajos"
       # Article validations
       title_blank: "El título no puede estar vacío"
       title_too_long: "El título es demasiado largo (máximo 255 caracteres)"

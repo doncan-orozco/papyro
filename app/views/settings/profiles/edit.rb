@@ -29,6 +29,53 @@ module Views
                         autocomplete: "name",
                         placeholder: t("users.settings.profile.display_name_placeholder")
                       }
+
+                    profile_form.field :username,
+                      as: :text_field,
+                      label: t("users.settings.profile.username_label"),
+                      options: {
+                        placeholder: t("users.settings.profile.username_placeholder"),
+                        disabled: true,
+                        hint: t("users.settings.profile.username_locked_hint")
+                      }
+
+                    profile_form.field :bio,
+                      as: :text_area,
+                      label: t("users.settings.profile.bio_label"),
+                      options: {
+                        placeholder: t("users.settings.profile.bio_placeholder"),
+                        rows: 3
+                      }
+
+                    profile_form.field :location,
+                      as: :text_field,
+                      label: t("users.settings.profile.location_label"),
+                      options: {
+                        placeholder: t("users.settings.profile.location_placeholder"),
+                        autocomplete: "address-level2"
+                      }
+
+                    profile_form.field :website_url,
+                      as: :url_field,
+                      label: t("users.settings.profile.website_url_label"),
+                      options: {
+                        placeholder: t("users.settings.profile.website_url_placeholder"),
+                        autocomplete: "url"
+                      }
+
+                    profile_form.field :x_handle,
+                      as: :text_field,
+                      label: t("users.settings.profile.x_handle_label"),
+                      options: {
+                        placeholder: t("users.settings.profile.x_handle_placeholder")
+                      }
+
+                    profile_form.field :linkedin_handle,
+                      as: :text_field,
+                      label: t("users.settings.profile.linkedin_handle_label"),
+                      options: {
+                        placeholder: t("users.settings.profile.linkedin_handle_placeholder")
+                      }
                   end
 
                   form.field :email_address,
@@ -43,7 +90,7 @@ module Views
                   div(class: "flex flex-wrap gap-3") do
                     form.submit t("users.settings.profile.submit")
                     link_to t("users.settings.profile.cancel"),
-                      user_path(@user),
+                      author_path(Current.user.profile.username),
                       class: "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 border border-input bg-background hover:bg-muted"
                   end
                 end

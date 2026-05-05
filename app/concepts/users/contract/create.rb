@@ -7,8 +7,9 @@ module Users
         required(:email_address).filled(:string)
         required(:password).filled(:string)
         required(:password_confirmation).filled(:string)
-        optional(:profile_attributes).maybe(:hash) do
-          optional(:display_name).maybe(:string)
+        required(:profile_attributes).hash do
+          required(:display_name).filled(:string)
+          required(:username).filled(:string)
         end
       end
 
