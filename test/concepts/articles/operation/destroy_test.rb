@@ -1,7 +1,7 @@
 require "test_helper"
 
 class Articles::Operation::DestroyTest < ActiveSupport::TestCase
-  test "destroys article" do
+  test "soft deletes article" do
     user = users(:admin)
     article = Article.create!(
       title: "Test Article",
@@ -13,10 +13,11 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
     result = Articles::Operation::Destroy.new.call(model: article)
 
     assert_predicate result, :success?
-    assert_nil Article.find_by(id: article.id)
+    assert_not_nil Article.find_by(id: article.id)
+    assert_not_nil article.reload.deleted_at
   end
 
-  test "destroys published article" do
+  test "soft deletes published article" do
     user = users(:admin)
     article = Article.create!(
       title: "Published Article",
@@ -29,7 +30,8 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
     result = Articles::Operation::Destroy.new.call(model: article)
 
     assert_predicate result, :success?
-    assert_nil Article.find_by(id: article.id)
+    assert_not_nil Article.find_by(id: article.id)
+    assert_not_nil article.reload.deleted_at
   end
 
   test "note: authorization is enforced at controller level before passing model" do

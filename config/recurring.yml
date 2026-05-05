@@ -21,3 +21,7 @@ production:
     class: CleanupEmptyDraftsJob
     queue: maintenance
     schedule: every day at 4am
+  empty_articles_trash:
+    class: Articles::EmptyTrashJob
+    queue: maintenance
+    schedule: every day at 5am

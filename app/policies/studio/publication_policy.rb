@@ -14,12 +14,12 @@ module Studio
 
     # Maps to Studio::PublicationsController#create (publish)
     def create?
-      owner? && article_ready_to_publish?
+      owner? && !record.trashed? && article_ready_to_publish?
     end
 
     # Maps to Studio::PublicationsController#destroy (unpublish)
     def destroy?
-      owner?
+      owner? && !record.trashed?
     end
 
     private

@@ -30,8 +30,13 @@ es:
         subtitle: "Gestiona y publica tus artículos"
         new_article: "Nuevo Artículo"
         no_articles: "No hay artículos aún"
+        deleted_at: "Eliminado %{time}"
         empty_title: "No hay artículos aún"
         empty_description: "Crea tu primer artículo para empezar a publicar contenido."
+        tabs:
+          label: "Filtros de artículos"
+          all: "Todos"
+          trash: "Papelera"
         columns:
           article: "Artículo"
           status: "Estado"
@@ -42,15 +47,19 @@ es:
           draft: "Borrador"
           published: "Publicado"
           archived: "Archivado"
+          trashed: "Eliminado"
         menu_trigger: "Abrir acciones"
         not_published: "Sin publicar"
         no_excerpt: "Sin extracto"
         edit: "Editar"
         show: "Ver"
         delete: "Eliminar"
+        restore: "Restaurar"
+        purge: "Eliminar permanentemente"
         publish: "Publicar"
         unpublish: "Despublicar"
         confirm_delete: "¿Está seguro de que desea eliminar este artículo?"
+        confirm_purge: "¿Está seguro? Esta acción no se puede deshacer."
         published_date: "Publicado: %{date}"
       new:
         title: "Nuevo Artículo"
@@ -58,6 +67,8 @@ es:
       edit:
         title: "Editar Artículo"
         subtitle: "Concéntrate en escribir. Publica cuando estés listo."
+        trashed_title: "Este artículo está en la papelera"
+        trashed_description: "Restáuralo para continuar editando o publicando."
         open_publish: "Publicar"
         publish_cancel: "Cancelar"
         settings_title: "Configuración de publicación"
@@ -100,9 +111,16 @@ es:
           success: "El artículo fue actualizado exitosamente"
           failure: "No se pudo actualizar el artículo"
           slug_locked: "No se puede cambiar el slug de un artículo publicado"
+          trashed: "No se puede editar un artículo eliminado"
         destroy:
-          success: "El artículo fue eliminado exitosamente"
+          success: "El artículo se movió a la papelera"
           failure: "No se pudo eliminar el artículo"
+        restore:
+          success: "Artículo restaurado exitosamente"
+          failure: "No se pudo restaurar el artículo"
+        purge:
+          success: "Artículo eliminado permanentemente"
+          failure: "No se pudo eliminar permanentemente el artículo"
         publish:
           success: "El artículo fue publicado exitosamente"
           failure: "No se pudo publicar el artículo"

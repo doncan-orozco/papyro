@@ -30,8 +30,13 @@ en:
         subtitle: "Manage and publish your articles"
         new_article: "New Article"
         no_articles: "No articles yet"
+        deleted_at: "Deleted %{time}"
         empty_title: "No articles yet"
         empty_description: "Create your first article to start publishing content."
+        tabs:
+          label: "Article filters"
+          all: "All"
+          trash: "Trash"
         columns:
           article: "Article"
           status: "Status"
@@ -42,15 +47,19 @@ en:
           draft: "Draft"
           published: "Published"
           archived: "Archived"
+          trashed: "Trashed"
         menu_trigger: "Open actions"
         not_published: "Not published"
         no_excerpt: "No excerpt"
         edit: "Edit"
         show: "View"
         delete: "Delete"
+        restore: "Restore"
+        purge: "Delete Permanently"
         publish: "Publish"
         unpublish: "Unpublish"
         confirm_delete: "Are you sure you want to delete this article?"
+        confirm_purge: "Are you sure? This action cannot be undone."
         published_date: "Published: %{date}"
       new:
         title: "New Article"
@@ -58,6 +67,8 @@ en:
       edit:
         title: "Edit Article"
         subtitle: "Focus on writing. Publish when you are ready."
+        trashed_title: "This article is in the trash"
+        trashed_description: "Restore it to continue editing or publishing."
         open_publish: "Publish"
         publish_cancel: "Cancel"
         settings_title: "Publishing Settings"
@@ -100,9 +111,16 @@ en:
           success: "Article was successfully updated"
           failure: "Failed to update article"
           slug_locked: "Published article slug cannot be changed"
+          trashed: "Cannot edit a trashed article"
         destroy:
-          success: "Article was successfully deleted"
+          success: "Article moved to trash"
           failure: "Failed to delete article"
+        restore:
+          success: "Article restored successfully"
+          failure: "Failed to restore article"
+        purge:
+          success: "Article permanently deleted"
+          failure: "Failed to permanently delete article"
         publish:
           success: "Article was successfully published"
           failure: "Failed to publish article"

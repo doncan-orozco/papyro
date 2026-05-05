@@ -31,6 +31,14 @@ module Studio
       owner?
     end
 
+    def restore?
+      owner?
+    end
+
+    def purge?
+      owner?
+    end
+
     class Scope < Scope
       # Studio scope: always the current user's own articles regardless of status.
       def resolve

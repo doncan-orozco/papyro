@@ -1,6 +1,9 @@
 class Article < ApplicationRecord
   WORDS_PER_MINUTE = 200
 
+  scope :kept, -> { where(deleted_at: nil) }
+  scope :trashed, -> { where.not(deleted_at: nil) }
+
   belongs_to :user
   has_markdown :body
   has_one_attached :cover_image
@@ -28,6 +31,10 @@ class Article < ApplicationRecord
 
   def published?
     status_published? && published_at.present?
+  end
+
+  def trashed?
+    deleted_at.present?
   end
 
   # Render markdown to HTML
