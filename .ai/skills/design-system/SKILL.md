@@ -40,6 +40,8 @@ Use this skill for UI work in `app/components/ui/`. Keep the main body focused o
   Use for OKLCH tokens, `:root` / `html.dark` setup, shadow color behavior, and semantic color expansion.
 - **[references/design-system.md](references/design-system.md)**
   Use for concrete component translations and usage examples for common base components.
+- **[references/toast-notifications.md](references/toast-notifications.md)**
+  Use for global flash toast notifications, Stimulus auto-dismiss behavior, and component composition.
 
 ## Examples
 

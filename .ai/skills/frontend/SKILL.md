@@ -38,6 +38,8 @@ Use this skill for application-facing frontend work. Keep the SKILL body focused
   Use for Stimulus structure, registration, targets, values, and behavior patterns.
 - **[references/form-snapshot.md](references/form-snapshot.md)**
   Use when working on complex forms and preserving existing UI/form structure during refactors.
+- **[references/layout-stability-cls.md](references/layout-stability-cls.md)**
+  Use for preventing Cumulative Layout Shift in paginated tables, text truncation patterns, and fixed-height containers.
 
 ## Companion Skills
 

@@ -171,6 +171,54 @@ class Components::Card < Components::Base
 end
 ```
 
+### Polished Tables & Data Grids
+
+Data tables and lists demand special attention to detail. Key polish indicators:
+
+**1. Row Height Consistency**
+- Lock all rows to identical height with truncated text (no wrapping)
+- Use `truncate` class + `max-w-*` constraints to prevent text overflow
+- De-emphasize secondary content (untitled items, placeholders) with `text-muted-foreground italic`
+
+```ruby
+# Good: all rows identical height, text single-line with ellipsis
+table.cell(class: "max-w-[200px] lg:max-w-[300px]") do
+  span(class: "block truncate text-muted-foreground") { item.excerpt }
+end
+
+# Bad: text wraps, making row heights variable
+table.cell(class: "text-sm") do
+  span(class: "line-clamp-2") { item.excerpt }
+end
+```
+
+**2. Layout Stability (CLS Prevention)**
+- Lock table container to `min-h-[560px]` (or appropriate height) for max pagination items
+- Prevents pagination controls from jumping up/down when pages have fewer items
+- Load [../frontend/references/layout-stability-cls.md](../frontend/references/layout-stability-cls.md) for detailed guidance
+
+```ruby
+# Good: fixed min-height prevents pagination jump
+div(class: "relative w-full overflow-auto min-h-[560px]") do
+  render Components::Ui::Table.new { |table| ... }
+end
+```
+
+**3. Visual Hierarchy in Tables**
+- Primary column (title/name): `font-medium`
+- Secondary columns (status, date): `text-sm text-muted-foreground`
+- Actions column: right-aligned with `flex justify-end`
+- Responsive behavior: hide tertiary columns on mobile with `hidden md:table-cell`
+
+```ruby
+table.row do
+  table.cell(class: "font-medium") { item.title }  # Primary
+  table.cell(class: "text-sm text-muted-foreground") { item.status }  # Secondary
+  table.cell(class: "hidden md:table-cell text-muted-foreground") { item.excerpt }  # Hidden mobile
+  table.cell(class: "text-right") { render Actions.new(item: item) }  # Right-aligned
+end
+```
+
 ### Spatial Composition
 - Embrace unexpected asymmetrical layouts
 - Use negative space strategically
