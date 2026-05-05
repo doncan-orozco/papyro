@@ -67,6 +67,7 @@ es:
       edit:
         title: "Editar Artículo"
         subtitle: "Concéntrate en escribir. Publica cuando estés listo."
+        back_to_articles: "Volver a artículos"
         trashed_title: "Este artículo está en la papelera"
         trashed_description: "Restáuralo para continuar editando o publicando."
         open_publish: "Publicar"

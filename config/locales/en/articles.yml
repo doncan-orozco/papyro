@@ -67,6 +67,7 @@ en:
       edit:
         title: "Edit Article"
         subtitle: "Focus on writing. Publish when you are ready."
+        back_to_articles: "Back to articles"
         trashed_title: "This article is in the trash"
         trashed_description: "Restore it to continue editing or publishing."
         open_publish: "Publish"

@@ -19,6 +19,7 @@ Use this skill for application-facing frontend work. Keep the SKILL body focused
 - Use `link_to` for navigation instead of raw anchor tags.
 - Keep Tailwind usage semantic and aligned with the design system.
 - Separate divergent form intents into dedicated components (for example editor vs settings) instead of mode-driven branching in one large component.
+- The House markdown editor (`<house-md>`, `<house-md-toolbar>`) is a custom web component in `vendor/javascript/house.min.js`. Its toolbar buttons are styled via `app/assets/stylesheets/house.css` using CSS custom properties — **not Tailwind**. Do not attempt to style toolbar buttons with Tailwind utility classes.
 
 ## Practical Workflow
 
@@ -38,6 +39,8 @@ Use this skill for application-facing frontend work. Keep the SKILL body focused
   Use for Stimulus structure, registration, targets, values, and behavior patterns.
 - **[references/form-snapshot.md](references/form-snapshot.md)**
   Use when working on complex forms and preserving existing UI/form structure during refactors.
+- **[references/papyro-form-builder.md](references/papyro-form-builder.md)**
+  Use when working directly with `PapyroFormBuilder`. Covers the `field` wrapper helper, how base classes are injected via `merge_class`, the `unstyled: true` opt-out for canvas-style fields, and the markdown area integration with the House web component.
 - **[references/layout-stability-cls.md](references/layout-stability-cls.md)**
   Use for preventing Cumulative Layout Shift in paginated tables, text truncation patterns, and fixed-height containers.
 

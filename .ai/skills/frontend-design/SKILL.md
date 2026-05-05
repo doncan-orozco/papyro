@@ -385,7 +385,10 @@ Define accessibility requirements:
 - **Accessibility**: WCAG 2.1 AA compliance with semantic HTML
 - **Performance**: Optimize images, minimize CSS-in-JS overhead
 
-## Reference
+## References
+
+- **[references/blank-canvas-editor.md](references/blank-canvas-editor.md)**
+  Use when implementing distraction-free writing interfaces (Medium/Notion/Ghost-style). Covers: sticky borderless action bar, max-w-3xl canvas, unstyled title/body fields, House markdown editor integration, and the double-header anti-pattern.
 
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [Google Fonts](https://fonts.google.com/)
