@@ -25,4 +25,7 @@ class User < ApplicationRecord
   generates_token_for :password_reset, expires_in: 24.hours do
     password_salt&.last(10)
   end
+
+  def guest? = false
+  def registered? = true
 end

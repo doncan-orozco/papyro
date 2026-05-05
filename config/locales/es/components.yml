@@ -44,3 +44,15 @@ es:
         title: "Conectemos"
         description: "Abierto a oportunidades, colaboraciones y discusiones técnicas. ¡Construyamos algo genial juntos!"
         email: "Ponte en Contacto"
+    public:
+      welcome_hero:
+        eyebrow: "Bienvenido a Papyro"
+        title: "Un hogar editorial tranquilo para ideas que vale la pena leer"
+        description: "Descubre blogs curados alineados con tus intereses y crea tu propio espacio de escritura en minutos."
+        join_title: "Solicita una invitación"
+        join_description: "Papyro está construido con cuidado y estamos abriendo invitaciones de forma reflexiva. Escríbenos sobre lo que quieres publicar a info@papyro.net y te contactaremos cuando tu lugar esté listo."
+        join_cta: "Solicita una invitación"
+      footer:
+        copyright: "© %{year} Papyro"
+        nav_label: "Navegación del pie de página"
+        about: "Acerca de"

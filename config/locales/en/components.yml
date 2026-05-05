@@ -44,3 +44,15 @@ en:
         title: "Let's Connect"
         description: "Open to opportunities, collaborations, and technical discussions. Let's build something great together!"
         email: "Get in Touch"
+    public:
+      welcome_hero:
+        eyebrow: "Welcome to Papyro"
+        title: "A calm publishing home for ideas worth reading"
+        description: "Discover curated blogs aligned with your interests and create your own writing space in minutes."
+        join_title: "Ask for an invite"
+        join_description: "Papyro is built with care and we are opening invites thoughtfully. Tell us what you want to write at info@papyro.net, and we will reach out when your spot is ready."
+        join_cta: "Ask for an invite"
+      footer:
+        copyright: "© %{year} Papyro"
+        nav_label: "Footer navigation"
+        about: "About"

@@ -12,6 +12,8 @@ module Views
           render Components::Public::Navbar.new
 
           main(class: "relative overflow-hidden") do
+            render Components::Public::WelcomeHero.new if Current.user.guest?
+
             div(class: "pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(15,23,42,0.06),transparent_60%)]")
 
             section(class: "px-4 pb-8 pt-12 sm:pb-10 sm:pt-16") do
@@ -50,6 +52,7 @@ module Views
                         date: I18n.l(article.published_at.to_date, format: :short),
                         reading_time: t("components.landing.featured_articles.reading_time", minutes: reading_time_for(article)),
                         href: article_path(article),
+                        bordered: false,
                         data: { turbo_frame: "_top", turbo_action: "advance" }
                       )
                     end
@@ -60,6 +63,8 @@ module Views
                     p(class: "mt-2 text-sm text-muted-foreground") { t("articles.index.empty_description") }
                   end
                 end
+
+                render Components::Public::Footer.new
               end
             end
           end

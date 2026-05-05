@@ -8,7 +8,7 @@ class ArticlePolicy < ApplicationPolicy
   end
 
   def create?
-    user.present?
+    registered_user?
   end
 
   def update?
@@ -21,7 +21,7 @@ class ArticlePolicy < ApplicationPolicy
 
   class Scope < Scope
     def resolve
-      return scope.where(status: :published) unless user
+      return scope.where(status: :published) unless user&.registered?
 
       scope.where(user: user)
     end
@@ -30,6 +30,10 @@ class ArticlePolicy < ApplicationPolicy
   private
 
   def owner?
-    user.present? && record.user_id == user.id
+    registered_user? && record.user_id == user.id
+  end
+
+  def registered_user?
+    user&.registered?
   end
 end

@@ -26,3 +26,13 @@ SitemapGenerator::Sitemap.create do
     end
   end
 end
+
+  locales.each do |locale|
+    about_alternates = locales.map { |alt| { lang: alt.to_s, href: about_url(locale: alt) } }
+    about_alternates << { lang: "x-default", href: about_url(locale: I18n.default_locale) }
+
+    add about_path(locale: locale),
+      changefreq: "monthly",
+      priority: 0.6,
+      alternates: about_alternates
+  end

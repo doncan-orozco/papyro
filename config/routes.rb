@@ -18,10 +18,10 @@ Rails.application.routes.draw do
 
   # Non-localized homepage.
   # LocaleManagement will choose locale from params, session, browser, or default.
-  get "/", to: "home#index"
+  get "/", to: "articles#index"
 
   localized do
-    root "home#index"
+    root "articles#index"
 
     resource :session, only: [ :new, :create, :destroy ]
     resources :passwords, only: [ :new, :create, :edit, :update ], param: :token
@@ -29,7 +29,8 @@ Rails.application.routes.draw do
     resources :users, only: [ :show, :edit, :update ]
 
     resources :articles, only: [ :index, :show ], param: :slug
-    resource :featured_articles, only: [ :show ]
+
+    get "about", to: "about#index", as: :about
   end
 
   # Private studio routes — intentionally NOT localized.

@@ -126,4 +126,21 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  test "index renders welcome hero for unauthenticated guest" do
+    get articles_path
+
+    assert_response :success
+    assert_includes response.body, I18n.t("components.public.welcome_hero.eyebrow")
+    assert_includes response.body, I18n.t("components.public.welcome_hero.join_cta")
+  end
+
+  test "index does not render welcome hero for authenticated user" do
+    sign_in_as @user
+
+    get articles_path
+
+    assert_response :success
+    assert_not_includes response.body, I18n.t("components.public.welcome_hero.eyebrow")
+  end
 end

@@ -25,7 +25,13 @@ module Authentication
     def resume_session
       session_record = Current.session || find_session_by_cookie
       Current.session = session_record
-      Current.user = session_record&.user
+      if session_record
+        Current.user = session_record.user
+      else
+        session[:guest_id] ||= SecureRandom.uuid
+        Current.user = GuestUser.new
+      end
+      session_record
     end
 
     def find_session_by_cookie

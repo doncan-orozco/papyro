@@ -33,7 +33,7 @@ module Components
 
             render Components::Shared::ThemeToggle.new
 
-            if Current.user
+            if Current.user.registered?
               render Components::Ui::Button.new(
                 as: :a,
                 href: studio_articles_path,
