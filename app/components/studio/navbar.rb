@@ -21,23 +21,6 @@ module Components
               span(class: "hidden text-sm font-semibold tracking-[0.16em] text-foreground/70 sm:inline") { "PAPYRO" }
             end
 
-            nav(class: "hidden items-center gap-2 md:flex", aria: { label: t("studio.navbar.navigation_label") }) do
-              render Components::Ui::Button.new(
-                as: :a,
-                href: studio_articles_path,
-                variant: :ghost,
-                size: :sm,
-                data: { turbo_frame: "_top", turbo_action: "advance" }
-              ) { t("studio.navbar.articles") }
-
-              render Components::Ui::Button.new(
-                as: :a,
-                href: studio_articles_path,
-                size: :sm,
-                data: { turbo_method: :post, turbo_frame: "_top", turbo_action: "advance" }
-              ) { t("studio.navbar.new_article") }
-            end
-
             div(class: "ml-auto flex items-center gap-2") do
               render Components::Ui::Button.new(
                 as: :a,

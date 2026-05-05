@@ -7,6 +7,11 @@ module Studio
   # Using a dedicated namespaced policy keeps Studio rules isolated from Admin or
   # Moderator contexts that may have different publishing semantics.
   class PublicationPolicy < ApplicationPolicy
+    # Maps to Studio::PublicationsController#new (load publish modal)
+    def new?
+      create?
+    end
+
     # Maps to Studio::PublicationsController#create (publish)
     def create?
       owner? && article_ready_to_publish?
