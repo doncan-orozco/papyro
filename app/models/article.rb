@@ -1,10 +1,20 @@
 class Article < ApplicationRecord
   WORDS_PER_MINUTE = 200
+  COVER_IMAGE_CAPTION_MAX_LENGTH = 255
+  MAX_COVER_IMAGE_SIZE = 5.megabytes
+  MIN_COVER_IMAGE_WIDTH = 400
+  MIN_COVER_IMAGE_HEIGHT = 400
+  ALLOWED_COVER_IMAGE_CONTENT_TYPES = %w[image/png image/jpeg image/webp].freeze
 
   scope :kept, -> { where(deleted_at: nil) }
   scope :trashed, -> { where.not(deleted_at: nil) }
 
   belongs_to :user
+  has_one :pinned_author_profile,
+    class_name: "AuthorProfile",
+    foreign_key: :pinned_article_id,
+    inverse_of: :pinned_article,
+    dependent: :nullify
   has_markdown :body
   has_one_attached :cover_image
 
@@ -25,6 +35,8 @@ class Article < ApplicationRecord
   validates :slug, presence: true, uniqueness: true, length: { maximum: 255 }, format: { with: SLUG_FORMAT }
   validates :status, presence: true, inclusion: { in: statuses.keys }
   validates :excerpt, length: { maximum: 500 }, allow_nil: true
+  validates :cover_image_caption, length: { maximum: COVER_IMAGE_CAPTION_MAX_LENGTH }, allow_nil: true
+  validate :cover_image_is_valid
   validate :body_length_within_limit
   validate :published_at_required_for_published
   validate :published_at_cannot_be_in_future, if: :published_at?
@@ -91,5 +103,82 @@ class Article < ApplicationRecord
     return unless published_at > Time.current
 
     errors.add(:published_at, I18n.t("errors.messages.published_at_future"))
+  end
+
+  def cover_image_is_valid
+    return unless cover_image.attached?
+
+    unless ALLOWED_COVER_IMAGE_CONTENT_TYPES.include?(cover_image.blob.content_type)
+      errors.add(:cover_image, I18n.t("articles.errors.invalid_cover_image_content_type"))
+      return
+    end
+
+    if cover_image.blob.byte_size > MAX_COVER_IMAGE_SIZE
+      errors.add(:cover_image, I18n.t("articles.errors.invalid_cover_image_size", max_size_mb: MAX_COVER_IMAGE_SIZE / 1.megabyte))
+    end
+
+    width, height = cover_image_dimensions
+
+    if width.blank? || height.blank?
+      errors.add(:cover_image, I18n.t("articles.errors.invalid_cover_image_dimensions"))
+      return
+    end
+
+    return if width >= MIN_COVER_IMAGE_WIDTH && height >= MIN_COVER_IMAGE_HEIGHT
+
+    errors.add(
+      :cover_image,
+      I18n.t(
+        "articles.errors.cover_image_too_small",
+        min_width: MIN_COVER_IMAGE_WIDTH,
+        min_height: MIN_COVER_IMAGE_HEIGHT
+      )
+    )
+  end
+
+  def cover_image_dimensions
+    pending_change = attachment_changes["cover_image"]
+    pending_attachable = pending_change&.attachable
+
+    if pending_attachable.present?
+      dimensions = dimensions_from_attachable(pending_attachable)
+      return dimensions if dimensions.compact.size == 2
+    end
+
+    cover_image.blob.analyze unless cover_image.blob.analyzed?
+
+    width = cover_image.blob.metadata[:width] || cover_image.blob.metadata["width"]
+    height = cover_image.blob.metadata[:height] || cover_image.blob.metadata["height"]
+
+    return [ width, height ] if width.present? && height.present?
+
+    cover_image.blob.open do |file|
+      image = MiniMagick::Image.read(File.binread(file.path))
+      return image.dimensions
+    end
+  rescue MiniMagick::Error, ActiveStorage::FileNotFoundError
+    [ nil, nil ]
+  end
+
+  def dimensions_from_io(io)
+    bytes = io.read
+    io.rewind if io.respond_to?(:rewind)
+
+    MiniMagick::Image.read(bytes).dimensions
+  rescue MiniMagick::Error
+    [ nil, nil ]
+  end
+
+  def dimensions_from_attachable(attachable)
+    if attachable.is_a?(Hash)
+      return dimensions_from_io(attachable[:io]) if attachable[:io].present?
+
+      return [ nil, nil ]
+    end
+
+    return dimensions_from_io(attachable.tempfile) if attachable.respond_to?(:tempfile)
+    return dimensions_from_io(attachable) if attachable.respond_to?(:read)
+
+    [ nil, nil ]
   end
 end

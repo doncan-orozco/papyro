@@ -51,4 +51,34 @@
   .article-prose :where(a:hover) {
     opacity: 0.82;
   }
+
+  .article-prose :where(pre) {
+    background-color: var(--color-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    color: var(--color-foreground);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.875em;
+    line-height: 1.65;
+    overflow-x: auto;
+    padding: 1rem 1.25rem;
+  }
+
+  .article-prose :where(pre code) {
+    background: none;
+    border: none;
+    border-radius: 0;
+    color: inherit;
+    font-size: inherit;
+    padding: 0;
+  }
+
+  .article-prose :where(code):not(pre code) {
+    background-color: var(--color-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.875em;
+    padding: 0.15em 0.35em;
+  }
 }

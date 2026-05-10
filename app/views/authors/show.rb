@@ -118,11 +118,7 @@ module Views
             div(class: "grid grid-cols-1 gap-5 sm:grid-cols-2") do
               @articles.each do |article|
                 render Components::Landing::ArticleCard.new(
-                  title: article.title,
-                  description: article.excerpt.presence || "",
-                  date: I18n.l(article.published_at, format: :short),
-                  reading_time: t("articles.show.minutes_read", count: article.estimated_reading_time_minutes),
-                  href: article_path(article)
+                  article: article
                 )
               end
             end

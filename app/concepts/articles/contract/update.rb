@@ -10,6 +10,8 @@ module Articles
         optional(:body).maybe(:string)
         optional(:published_at).maybe(:time)
         optional(:excerpt).maybe(Types::StrippedString)
+        optional(:cover_image).maybe(Types::Any)
+        optional(:cover_image_caption).maybe(Types::StrippedString)
       end
     end
   end

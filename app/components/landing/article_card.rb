@@ -1,46 +1,84 @@
 module Components
   module Landing
     class ArticleCard < Components::Base
-      def initialize(title:, description:, date:, reading_time:, href: nil, bordered: true, **attrs)
-        @title = title
-        @description = description
-        @date = date
-        @reading_time = reading_time
-        @href = href
-        @bordered = bordered
+      include Phlex::Rails::Helpers::ImageTag
+
+      def initialize(article:, **attrs)
+        @article = article
         @attrs = attrs
       end
 
       def view_template
-        tag_name = @href.present? ? :a : :div
-        border_classes = @bordered ? "border border-border hover:border-border/80" : ""
-        attrs = {
-          class: "group block rounded-xl bg-card/95 p-6 #{border_classes} shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring".strip
-        }
-        attrs[:href] = @href if @href.present?
-
-        public_send(tag_name, **attrs, **@attrs) do
-          div(class: "mb-4 flex items-center justify-between gap-3") do
-            span(class: "text-xs uppercase tracking-[0.14em] text-muted-foreground/90") { @date }
-
-            if @reading_time.present?
-              span(class: "inline-flex items-center rounded-full border border-border bg-muted/50 px-2.5 py-1 text-[11px] font-medium text-muted-foreground") { @reading_time }
+        link_to article_path(@article), class: card_classes, **attrs_without_class do
+          if @article.cover_image.attached?
+            div(class: "w-full overflow-hidden border-b border-border/50") do
+              image_tag(
+                @article.cover_image,
+                alt: @article.title,
+                class: "aspect-[2/1] w-full transform object-cover grayscale opacity-80 transition-all duration-700 ease-in-out group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100"
+              )
             end
           end
 
-          h3(class: "text-xl font-semibold leading-tight text-card-foreground transition-colors duration-300 group-hover:text-foreground") do
-            span(class: "line-clamp-2") { @title }
-          end
+          div(class: "flex flex-1 flex-col justify-between p-6") do
+            div(class: "flex flex-col gap-4") do
+              div(class: "flex items-center gap-2") do
+                div(class: "flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted text-[10px] font-bold text-muted-foreground") do
+                  plain article_author_initial
+                end
 
-          p(class: "mt-3 text-sm leading-relaxed text-muted-foreground") do
-            span(class: "line-clamp-3") { @description }
-          end
+                span(class: "text-sm font-medium text-foreground") do
+                  article_author_name
+                end
+              end
 
-          div(class: "mt-5 inline-flex items-center gap-1 text-sm font-medium text-card-foreground transition-all duration-300 group-hover:gap-2") do
-            span { t("components.landing.article_card.read_more") }
-            span(class: "transition-transform duration-300 group-hover:translate-x-0.5") { "→" }
+              div do
+                h3(class: "mb-2 text-xl font-bold leading-tight text-card-foreground decoration-muted-foreground/50 underline-offset-4 group-hover:underline") do
+                  @article.title
+                end
+
+                p(class: "line-clamp-3 text-sm leading-relaxed text-muted-foreground") do
+                  article_description
+                end
+              end
+            end
+
+            div(class: "mt-6 flex items-center gap-1.5 text-xs text-muted-foreground") do
+              if @article.published_at.present?
+                span { I18n.l(@article.published_at.to_date, format: :short) }
+                span { "·" }
+              end
+
+              span { t("components.landing.article_card.reading_time", minutes: reading_time_for(@article)) }
+            end
           end
         end
+      end
+
+      private
+
+      def card_classes
+        cn(
+          "group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card p-0 transition-all hover:border-foreground/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          @attrs&.dig(:class)
+        )
+      end
+
+      def article_description
+        @article.excerpt.presence || @article.searchable_content.to_s.truncate(180)
+      end
+
+      def article_author_name
+        @article.user&.author_display_name || t("components.landing.article_card.unknown_author")
+      end
+
+      def article_author_initial
+        article_author_name.first.to_s.upcase.presence || "?"
+      end
+
+      def reading_time_for(article)
+        words = article.searchable_content.to_s.split.size
+        [ (words / Article::WORDS_PER_MINUTE.to_f).ceil, 1 ].max
       end
     end
   end

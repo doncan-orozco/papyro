@@ -3,6 +3,8 @@
 module Views
   module Articles
     class Show < Views::Base
+      include Phlex::Rails::Helpers::ImageTag
+
       def initialize(article:, more_from_author: [], more_from_platform: [])
         @article = article
         @more_from_author = more_from_author
@@ -16,6 +18,7 @@ module Views
             div(class: "mx-auto w-full max-w-3xl") do
               render_article_intro
               render_editorial_byline
+              render_cover_image
               render_content
             end
           end
@@ -112,6 +115,24 @@ module Views
         end
       end
 
+      def render_cover_image
+        return unless @article.cover_image.attached?
+
+        figure(class: "mt-8 mb-12 flex w-full flex-col items-center") do
+          image_tag(
+            @article.cover_image,
+            alt: @article.title,
+            class: "w-full aspect-[2/1] rounded-2xl border border-border object-cover shadow-sm md:aspect-[21/9]"
+          )
+
+          return unless @article.cover_image_caption.present?
+
+          figcaption(class: "mx-auto mt-3 max-w-2xl text-center text-sm text-muted-foreground") do
+            @article.cover_image_caption
+          end
+        end
+      end
+
       def render_footer_navigation
         return if continuation_articles.blank?
 
@@ -127,12 +148,7 @@ module Views
               nav(class: "grid grid-cols-1 gap-8 sm:grid-cols-2") do
                 continuation_articles.each do |related_article|
                   render Components::Landing::ArticleCard.new(
-                    title: related_article.title,
-                    description: related_article.excerpt.presence || "",
-                    date: I18n.l(related_article.published_at, format: :short),
-                    reading_time: t("articles.show.minutes_read", count: related_article.estimated_reading_time_minutes),
-                    href: article_path(related_article),
-                    bordered: false,
+                    article: related_article,
                     data: { turbo_frame: "_top" }
                   )
                 end

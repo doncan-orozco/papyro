@@ -32,10 +32,21 @@ class ApplicationController < ActionController::Base
     redirect_to(request.referrer || root_path, alert: t("admin.errors.unauthorized"))
   end
 
-  def handle_not_found
+  def handle_not_found(exception = nil)
     skip_authorization unless pundit_policy_authorized?
     skip_policy_scope unless pundit_policy_scoped?
-    render file: Rails.root.join("public/404.html"), status: :not_found, layout: false
+
+    # Premium 404 for missing/unpublished articles
+    if exception&.model == "Article" || (params[:controller] == "articles" && params[:action] == "show")
+      # Try to find the author for a better not-found page
+      author = nil
+      if params[:slug].present?
+        author = User.joins(:articles).find_by(articles: { slug: params[:slug] })
+      end
+      render Views::Articles::NotFound.new(author: author), status: :not_found
+    else
+      render file: Rails.root.join("public/404.html"), status: :not_found, layout: false
+    end
   end
 
   def parse_page(page_param = params[:page])

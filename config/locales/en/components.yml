@@ -32,7 +32,8 @@ en:
         expertise_4: "Cloud Infrastructure & Deployment"
       
       article_card:
-        read_more: "Read more"
+        reading_time: "%{minutes} min read"
+        unknown_author: "Unknown author"
       
       featured_articles:
         title: "Latest Articles"

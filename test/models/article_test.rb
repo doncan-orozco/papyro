@@ -1,5 +1,4 @@
 require "test_helper"
-
 class ArticleTest < ActiveSupport::TestCase
   setup do
     @user = users(:admin)  # Uses fixture from test/fixtures/users.yml
@@ -110,5 +109,88 @@ class ArticleTest < ActiveSupport::TestCase
 
     assert_equal 0, article.content_word_count
     assert_equal 0, article.estimated_reading_time_minutes
+  end
+
+  test "cover image rejects unsupported content type" do
+    article = @user.articles.build(
+      title: "Invalid Cover Type",
+      slug: "invalid-cover-type",
+      status: :draft,
+      body: "Body"
+    )
+
+    article.cover_image.attach(
+      io: StringIO.new("not an image"),
+      filename: "cover.txt",
+      content_type: "text/plain"
+    )
+
+    assert_not article.valid?
+    assert_includes article.errors[:cover_image], I18n.t("articles.errors.invalid_cover_image_content_type")
+  end
+
+  test "cover image rejects files larger than allowed size" do
+    article = @user.articles.build(
+      title: "Huge Cover",
+      slug: "huge-cover",
+      status: :draft,
+      body: "Body"
+    )
+
+    article.cover_image.attach(
+      io: StringIO.new("a" * (Article::MAX_COVER_IMAGE_SIZE + 1)),
+      filename: "cover.png",
+      content_type: "image/png"
+    )
+
+    assert_not article.valid?
+    assert_includes article.errors[:cover_image], I18n.t("articles.errors.invalid_cover_image_size", max_size_mb: Article::MAX_COVER_IMAGE_SIZE / 1.megabyte)
+  end
+
+  test "cover image rejects unanalyzable image payloads" do
+    article = @user.articles.build(
+      title: "Broken Cover",
+      slug: "broken-cover",
+      status: :draft,
+      body: "Body"
+    )
+
+    article.cover_image.attach(
+      io: StringIO.new("fake png contents"),
+      filename: "cover.png",
+      content_type: "image/png"
+    )
+
+    assert_not article.valid?
+    assert_includes article.errors[:cover_image], I18n.t("articles.errors.invalid_cover_image_dimensions")
+  end
+
+  test "cover image rejects images smaller than the minimum dimensions" do
+    article = @user.articles.build(
+      title: "Tiny Cover",
+      slug: "tiny-cover",
+      status: :draft,
+      body: "Body"
+    )
+
+    image = MiniMagick::Image.read(File.binread(Rails.root.join("public/icon.png")))
+    image.resize("200x200")
+    file = Tempfile.new([ "tiny-cover", ".png" ])
+    image.write(file.path)
+
+    article.cover_image.attach(
+      io: File.open(file.path),
+      filename: "tiny-cover.png",
+      content_type: "image/png"
+    )
+
+    assert_not article.valid?
+    assert_includes article.errors[:cover_image], I18n.t(
+      "articles.errors.cover_image_too_small",
+      min_width: Article::MIN_COVER_IMAGE_WIDTH,
+      min_height: Article::MIN_COVER_IMAGE_HEIGHT
+    )
+  ensure
+    file.close!
   end
 end

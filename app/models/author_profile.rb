@@ -6,6 +6,7 @@ class AuthorProfile < ApplicationRecord
 
   validates :display_name, presence: true, length: { maximum: 100 }
   validates :user_id, uniqueness: true
+  validates :pinned_article_id, uniqueness: true, allow_nil: true
   validates :username,
     presence: true,
     length: { in: 3..30 },

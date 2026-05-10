@@ -75,6 +75,22 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, I18n.t("articles.show.content_length")
   end
 
+  test "show renders cover image and caption below byline" do
+    @published_article.cover_image.attach(
+      io: File.open(Rails.root.join("public/icon.png")),
+      filename: "icon.png",
+      content_type: "image/png"
+    )
+    @published_article.update!(cover_image_caption: "Photo by Jane Doe on Unsplash")
+
+    get article_path(@published_article.slug)
+
+    assert_response :success
+    assert_includes response.body, "Photo by Jane Doe on Unsplash"
+    assert_includes response.body, "<figure"
+    assert_includes response.body, "alt=\"#{@published_article.title}\""
+  end
+
   test "show redirects for draft article" do
     get article_path(@draft_article.slug)
 

@@ -44,15 +44,10 @@ module Views
             section(class: "px-4 pb-14 sm:pb-16") do
               div(class: "mx-auto w-full max-w-6xl") do
                 if @articles.any?
-                  div(class: "grid gap-6 md:grid-cols-2 xl:grid-cols-3") do
+                  div(class: "grid grid-cols-1 gap-8 md:grid-cols-2") do
                     @articles.each do |article|
                       render Components::Landing::ArticleCard.new(
-                        title: article.title,
-                        description: article.excerpt || article.searchable_content.truncate(150),
-                        date: I18n.l(article.published_at.to_date, format: :short),
-                        reading_time: t("components.landing.featured_articles.reading_time", minutes: reading_time_for(article)),
-                        href: article_path(article),
-                        bordered: false,
+                        article: article,
                         data: { turbo_frame: "_top", turbo_action: "advance" }
                       )
                     end
@@ -69,13 +64,6 @@ module Views
             end
           end
         end
-      end
-
-      private
-
-      def reading_time_for(article)
-        words = article.searchable_content.to_s.split.size
-        [ (words / 200.0).ceil, 1 ].max
       end
     end
   end

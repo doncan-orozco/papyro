@@ -4,7 +4,7 @@ module Components
   module Public
     class Footer < Components::Base
       def view_template
-        footer(class: "border-t border-border bg-background px-4 py-6") do
+        footer(class: "mt-10 border-t border-border bg-background px-4 py-6 sm:mt-12") do
           div(class: "mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row") do
             p(class: "text-sm text-muted-foreground") do
               t("components.public.footer.copyright", year: Time.current.year)

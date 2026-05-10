@@ -9,6 +9,7 @@ class ArticlesController < ApplicationController
 
   def show
     @article = Article.find_by!(slug: params[:slug], status: :published)
+
     @more_from_author = @article.user.articles
       .kept
       .status_published

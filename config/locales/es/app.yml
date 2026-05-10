@@ -14,6 +14,7 @@ es:
     formats:
       short: "%d/%m/%Y"
       long: "%d de %B de %Y %H:%M"
+      autosave: "%-d %b, %H:%M"
   studio:
     navbar:
       title: "Papyro"

@@ -73,9 +73,13 @@ en:
         trashed_title: "This article is in the trash"
         trashed_description: "Restore it to continue editing or publishing."
         open_publish: "Publish"
+        open_settings: "Settings"
+        view_live: "View live"
         publish_cancel: "Cancel"
         settings_title: "Publishing Settings"
         settings_subtitle: "Review URL slug and excerpt before confirming publication"
+        story_settings_title: "Story Settings"
+        story_settings_subtitle: "Update excerpt, cover image, and story metadata without leaving the editor"
       editor:
         untitled: "Untitled"
       form:
@@ -90,6 +94,10 @@ en:
         excerpt_label: "Excerpt"
         excerpt_placeholder: "Brief summary of the article"
         excerpt_hint: "Maximum 500 characters"
+        cover_image_label: "Cover Image (Optional)"
+        cover_image_hint: "Recommended ratio: 2:1 (for example, 1200x600). Discovery cards render in grayscale and reveal color on hover to preserve the calm aesthetic."
+        cover_image_caption_label: "Image Caption and Credit"
+        cover_image_caption_placeholder: "For example, Photo by Jane Doe on Unsplash"
         status_label: "Status"
         status_draft: "Draft"
         status_published: "Published"
@@ -99,6 +107,9 @@ en:
         save_draft: "Save Draft"
         save_settings: "Save Settings"
         publish_now: "Confirm and Publish"
+        update_settings: "Update Settings"
+        revert_to_draft: "Revert to Draft"
+        revert_to_draft_confirm: "Are you sure? This will remove the article from public discovery until you publish it again."
         cancel: "Cancel"
       autosave:
         unsaved: "Unsaved draft"
@@ -162,3 +173,7 @@ en:
       more_from_platform: "More from Papyro"
     errors:
       not_found: "Article not found"
+      invalid_cover_image_content_type: "Cover image must be a PNG, JPEG, or WebP file"
+      invalid_cover_image_size: "Cover image must be %{max_size_mb} MB or smaller"
+      invalid_cover_image_dimensions: "Cover image must be a valid analyzable image"
+      cover_image_too_small: "Cover image must be at least %{min_width}x%{min_height} pixels"
