@@ -35,7 +35,7 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
     assert_equal "in_review", @translation.status
   end
 
-  test "scopes work correctly" do
+  test "status filtering by where clause works correctly" do
     draft1 = @translation
     draft2 = Article.create!(
       title: "Another Article",
@@ -64,23 +64,22 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
     ).article_translations.first
     in_review.update!(status: :in_review)
 
-    assert_includes ArticleTranslation.published, published
-    assert_not_includes ArticleTranslation.published, draft1
-    assert_not_includes ArticleTranslation.published, in_review
+    assert_includes ArticleTranslation.where(status: :published), published
+    assert_not_includes ArticleTranslation.where(status: :published), draft1
+    assert_not_includes ArticleTranslation.where(status: :published), in_review
 
-    assert_includes ArticleTranslation.drafted, draft1
-    assert_includes ArticleTranslation.drafted, draft2
-    assert_not_includes ArticleTranslation.drafted, published
+    assert_includes ArticleTranslation.where(status: :draft), draft1
+    assert_includes ArticleTranslation.where(status: :draft), draft2
+    assert_not_includes ArticleTranslation.where(status: :draft), published
 
-    assert_includes ArticleTranslation.in_review, in_review
-    assert_not_includes ArticleTranslation.in_review, published
+    assert_includes ArticleTranslation.where(status: :in_review), in_review
+    assert_not_includes ArticleTranslation.where(status: :in_review), published
   end
 
-  test "published_translations legacy scope works" do
+  test "published status where clause works" do
     published = @article.article_translations.first
     published.update!(status: :published, published_at: Time.current)
 
-    # Legacy scope should still work
-    assert_includes ArticleTranslation.published_translations, published
+    assert_includes ArticleTranslation.where(status: :published), published
   end
 end

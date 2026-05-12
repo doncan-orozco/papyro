@@ -9,6 +9,7 @@ class Article < ApplicationRecord
 
   translates :title, :slug, :excerpt, :cover_image_caption, backend: :table
   friendly_id :title, use: [ :slugged, :mobility ]
+  has_markdown :body
 
   belongs_to :user
   has_many :article_translations, inverse_of: :article, dependent: :destroy
@@ -17,7 +18,6 @@ class Article < ApplicationRecord
     foreign_key: :pinned_article_id,
     inverse_of: :pinned_article,
     dependent: :nullify
-  has_markdown :body
   has_one_attached :cover_image
 
   before_validation :ensure_uuid, on: :create

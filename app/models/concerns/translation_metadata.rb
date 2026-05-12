@@ -21,7 +21,13 @@ module TranslationMetadata
   private
 
   def translation_for(loc)
-    all_translations.find_by(locale: loc.to_s)
+    translations = all_translations
+
+    if translations.respond_to?(:loaded?) && translations.loaded?
+      translations.find { |translation| translation.locale == loc.to_s }
+    else
+      translations.find_by(locale: loc.to_s)
+    end
   end
 
   def all_translations
