@@ -27,7 +27,7 @@ class ArticleTest < ActiveSupport::TestCase
     assert_includes article.body.to_html, "Hello <strong>world</strong>"
   end
 
-  test "enum status methods" do
+  test "status predicates reflect explicit publish operation" do
     article = @user.articles.create!(
       title: "Status Test",
       slug: "status-test",
@@ -39,9 +39,10 @@ class ArticleTest < ActiveSupport::TestCase
     assert_predicate article, :status_draft?
     assert_not article.status_published?
 
-    article.status_published!
+    result = Articles::Operation::Publish.new.call(model: article)
 
-    assert_predicate article, :status_published?
+    assert_predicate result, :success?
+    assert_predicate article.reload, :status_published?
   end
 
   test "published? method requires both status and published_at" do

@@ -3,12 +3,13 @@
 module Views
   module Articles
     class NotFound < Components::Base
-      def initialize(author: nil)
+      def initialize(author: nil, **attrs)
         @author = author
+        @attrs = attrs
       end
 
       def view_template
-        div(class: "max-w-2xl mx-auto mt-32 px-4 text-center") do
+        div(class: cn("max-w-2xl mx-auto mt-32 px-4 text-center", @attrs&.dig(:class)), **attrs_without_class) do
           div(class: "h-20 w-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-8") do
             render Components::Ui::Icon.new(:alert_triangle, class: "h-8 w-8 text-muted-foreground")
           end

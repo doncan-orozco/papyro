@@ -87,16 +87,6 @@ class Article < ApplicationRecord
     return if normalized.blank?
 
     @requested_status = normalized if new_record?
-
-    case normalized
-    when "archived"
-      self.archived_at ||= Time.current
-    when "published"
-      self.archived_at = nil
-    else
-      self.archived_at = nil
-      self.published_at = nil if normalized == "draft"
-    end
   end
 
   def status_published?
@@ -109,14 +99,6 @@ class Article < ApplicationRecord
 
   def status_archived?
     archived?
-  end
-
-  def status_published!
-    transition_status_with!(Articles::Operation::Publish.new)
-  end
-
-  def status_draft!
-    transition_status_with!(Articles::Operation::Unpublish.new)
   end
 
   def trashed?
@@ -168,12 +150,5 @@ class Article < ApplicationRecord
 
   def cover_image_is_valid
     Articles::CoverImageValidation.new(self).validate
-  end
-
-  def transition_status_with!(operation)
-    result = operation.call(model: self)
-    return result.value![:model] if result.success?
-
-    raise ActiveRecord::RecordInvalid, result.failure[:model] || self
   end
 end
