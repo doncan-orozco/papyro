@@ -6,9 +6,10 @@ class CleanupEmptyDraftsJob < ApplicationJob
   STALE_AGE = 24.hours
 
   def perform
-    Article.where(status: :draft)
-      .where("created_at < ?", STALE_AGE.ago)
-      .where(title: [ nil, "", *placeholder_titles ])
+    Article.active.status_draft
+      .where("articles.created_at < ?", STALE_AGE.ago)
+      .joins(:article_translations)
+      .where(article_translations: { locale: "en", title: [ nil, "", *placeholder_titles ] })
       .find_each do |article|
         article.destroy if article.plain_text_body.blank?
       end

@@ -4,12 +4,17 @@ module Articles
   class OwnedQuery < ApplicationQuery
     base_scope { Article.all }
 
-    pipeline :filter_by_owner,
+    pipeline :preload_translations,
+             :filter_by_owner,
              :filter_by_tab,
              :filter_by_status,
              :apply_ordering
 
     private
+
+    def preload_translations(current_scope)
+      current_scope.includes(:article_translations)
+    end
 
     def filter_by_owner(current_scope)
       return current_scope.none if filters[:user].blank?
@@ -23,7 +28,16 @@ module Articles
       status_filter = filters[:status].presence || status_from_tab
       return current_scope if status_filter.blank?
 
-      current_scope.where(status: status_filter)
+      case status_filter.to_s
+      when "published"
+        current_scope.active.status_published
+      when "draft"
+        current_scope.active.status_draft
+      when "archived"
+        current_scope.archived
+      else
+        current_scope
+      end
     end
 
     def filter_by_tab(current_scope)
@@ -47,7 +61,7 @@ module Articles
     end
 
     def apply_ordering(current_scope)
-      current_scope.order(updated_at: :desc)
+      current_scope.distinct.order(updated_at: :desc)
     end
   end
 end

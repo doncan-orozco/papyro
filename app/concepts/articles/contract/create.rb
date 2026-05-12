@@ -10,6 +10,7 @@ module Articles
         optional(:body).maybe(:string)
         optional(:published_at).maybe(:time)
         optional(:excerpt).maybe(Types::StrippedString)
+        optional(:original_locale).maybe(:string)
       end
     end
   end

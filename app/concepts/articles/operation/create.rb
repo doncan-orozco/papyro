@@ -24,6 +24,7 @@ module Articles
 
       def prepare_attributes(params)
         attrs = params.to_h.symbolize_keys
+        attrs[:original_locale] ||= I18n.locale.to_s
 
         return [ attrs, true ] if attrs[:slug].present?
         return [ attrs, false ] unless attrs[:title].present?

@@ -43,6 +43,7 @@ en:
           article: "Article"
           status: "Status"
           published: "Published"
+          translations: "Translations"
           excerpt: "Excerpt"
           actions: "Actions"
         statuses:
@@ -53,6 +54,8 @@ en:
         menu_trigger: "Open actions"
         not_published: "Not published"
         no_excerpt: "No excerpt"
+        no_translations: "No translations"
+        translation_badge_title: "Edit %{locale_name} version"
         edit: "Edit"
         show: "View"
         delete: "Delete"
@@ -85,8 +88,12 @@ en:
       form:
         title_label: "Title"
         title_placeholder: "Enter article title"
+        translation_empty_state_title: "Translate to %{locale_name}"
+        translation_empty_state_description: "Start with a blank canvas, or copy the original content and translate line-by-line."
         slug_label: "URL Slug"
+        slug_locale_hint: "Editing the %{locale_name} URL slug for this version"
         slug_placeholder: "article-url-slug"
+        translate_from_original: "Translate from original"
         slug_hint: "Auto-generated from title when blank. Draft slugs can refresh from title; published slugs are locked."
         advanced_seo_settings: "Advanced SEO Settings"
         body_label: "Content"
@@ -111,6 +118,12 @@ en:
         revert_to_draft: "Revert to Draft"
         revert_to_draft_confirm: "Are you sure? This will remove the article from public discovery until you publish it again."
         cancel: "Cancel"
+        translation_published_title: "Translation is live"
+        translation_published_description: "This translation is publicly visible to readers."
+        translation_draft_title: "Translation is a draft"
+        translation_draft_description: "Readers see the English version until you publish this translation."
+        publish_translation: "Publish Translation"
+        unpublish_translation: "Unpublish Translation"
       autosave:
         unsaved: "Unsaved draft"
         saved: "Draft saved"
@@ -141,6 +154,13 @@ en:
         unpublish:
           success: "Article was successfully unpublished"
           failure: "Failed to unpublish article"
+        publish_translation:
+          success: "Translation published successfully"
+          failure: "Failed to publish translation"
+          english_not_applicable: "Translation publishing is not applicable to the primary language."
+        unpublish_translation:
+          success: "Translation unpublished successfully"
+          failure: "Failed to unpublish translation"
   articles:
     index:
       eyebrow: "Discovery"
@@ -155,6 +175,7 @@ en:
       by_author: "by %{author}"
       back_to_list: "Back to Articles"
       fullscreen: "Fullscreen"
+      translation_fallback_notice: "This article has not been translated into your current language yet. Showing the original English version."
       written_by: "Written by"
       view_profile: "View profile"
       unknown_author: "Unknown author"

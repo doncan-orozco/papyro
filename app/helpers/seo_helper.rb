@@ -13,6 +13,7 @@ module SeoHelper
   end
 
   def canonical_url
+    return article_fallback_canonical_url if article_show_request? && article_translation_fallback?
     return x_default_url if x_default_home_request?
     return localized_home_url(I18n.locale) if home_index_request?
 
@@ -88,5 +89,21 @@ module SeoHelper
 
   def og_locale_for(locale)
     LOCALE_TO_OG.fetch(locale.to_sym, "en_US")
+  end
+
+  def article_show_request?
+    controller_name == "articles" && action_name == "show"
+  end
+
+  def article_translation_fallback?
+    @translation_fallback == true
+  end
+
+  def article_fallback_canonical_url
+    return alternate_locale_url(:en) unless defined?(@article) && @article.respond_to?(:slug)
+
+    I18n.with_locale(:en) { article_url(@article) }
+  rescue ActionController::UrlGenerationError
+    alternate_locale_url(:en)
   end
 end

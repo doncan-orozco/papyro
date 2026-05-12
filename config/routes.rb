@@ -52,6 +52,7 @@ Rails.application.routes.draw do
       end
 
       resource :publication, only: [ :new, :create, :destroy ], controller: :publications
+      resource :translation_publication, only: [ :create, :destroy ], controller: :translation_publications
     end
   end
 end

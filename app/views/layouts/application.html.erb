@@ -14,6 +14,9 @@
       <meta property="og:locale:alternate" content="<%= og_locale_for(locale) %>">
     <% end %>
     <link rel="canonical" href="<%= canonical_url %>">
+    <% if article_translation_fallback? %>
+      <meta name="robots" content="noindex,follow">
+    <% end %>
     <% I18n.available_locales.each do |locale| %>
       <link rel="alternate" hreflang="<%= locale %>" href="<%= alternate_locale_url(locale) %>">
     <% end %>

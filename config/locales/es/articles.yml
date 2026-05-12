@@ -43,6 +43,7 @@ es:
           article: "Artículo"
           status: "Estado"
           published: "Publicado"
+          translations: "Traducciones"
           excerpt: "Extracto"
           actions: "Acciones"
         statuses:
@@ -53,6 +54,8 @@ es:
         menu_trigger: "Abrir acciones"
         not_published: "Sin publicar"
         no_excerpt: "Sin extracto"
+        no_translations: "Sin traducciones"
+        translation_badge_title: "Editar versión %{locale_name}"
         edit: "Editar"
         show: "Ver"
         delete: "Eliminar"
@@ -85,8 +88,12 @@ es:
       form:
         title_label: "Título"
         title_placeholder: "Ingrese el título del artículo"
+        translation_empty_state_title: "Traducir a %{locale_name}"
+        translation_empty_state_description: "Empieza con un lienzo en blanco o copia el contenido original para traducirlo línea por línea."
         slug_label: "Slug de URL"
+        slug_locale_hint: "Editando el slug de URL en %{locale_name} para esta versión"
         slug_placeholder: "slug-del-articulo"
+        translate_from_original: "Traducir desde el original"
         slug_hint: "Se genera automáticamente desde el título cuando está vacío. En borrador puede actualizarse con el título; en publicado queda bloqueado."
         advanced_seo_settings: "Configuración SEO avanzada"
         body_label: "Contenido"
@@ -111,6 +118,12 @@ es:
         revert_to_draft: "Volver a borrador"
         revert_to_draft_confirm: "¿Está seguro? Esto quitará el artículo del descubrimiento público hasta que lo publique de nuevo."
         cancel: "Cancelar"
+        translation_published_title: "Traducción publicada"
+        translation_published_description: "Esta traducción es visible públicamente para los lectores."
+        translation_draft_title: "Traducción en borrador"
+        translation_draft_description: "Los lectores ven la versión en inglés hasta que publiques esta traducción."
+        publish_translation: "Publicar traducción"
+        unpublish_translation: "Despublicar traducción"
       autosave:
         unsaved: "Borrador sin guardar"
         saved: "Borrador guardado"
@@ -141,6 +154,13 @@ es:
         unpublish:
           success: "El artículo fue despublicado exitosamente"
           failure: "No se pudo despublicar el artículo"
+        publish_translation:
+          success: "Traducción publicada exitosamente"
+          failure: "No se pudo publicar la traducción"
+          english_not_applicable: "La publicación de traducción no aplica al idioma principal."
+        unpublish_translation:
+          success: "Traducción despublicada exitosamente"
+          failure: "No se pudo despublicar la traducción"
   articles:
     index:
       eyebrow: "Descubrimiento"
@@ -155,6 +175,7 @@ es:
       by_author: "por %{author}"
       back_to_list: "Volver a Artículos"
       fullscreen: "Pantalla completa"
+      translation_fallback_notice: "Este artículo todavía no se ha traducido a tu idioma actual. Se muestra la versión original en inglés."
       written_by: "Escrito por"
       view_profile: "Ver perfil"
       unknown_author: "Autor desconocido"

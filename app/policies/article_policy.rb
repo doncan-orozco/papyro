@@ -21,7 +21,7 @@ class ArticlePolicy < ApplicationPolicy
 
   class Scope < Scope
     def resolve
-      return scope.where(status: :published) unless user&.registered?
+      return scope.kept.active.status_published unless user&.registered?
 
       scope.where(user: user)
     end

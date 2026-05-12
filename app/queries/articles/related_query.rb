@@ -12,7 +12,7 @@ module Articles
     private
 
     def filter_by_status(current_scope)
-      current_scope.where(status: :published)
+      current_scope.status_published
     end
 
     def filter_by_author(current_scope)

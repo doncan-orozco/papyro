@@ -29,7 +29,11 @@ module Studio
     end
 
     def article_ready_to_publish?
-      record.title.present?
+      locales_to_check = ([ record.original_locale ] + I18n.available_locales.map(&:to_s)).uniq
+
+      locales_to_check.any? do |locale|
+        Mobility.with_locale(locale) { record.title.to_s.strip.present? }
+      end
     end
   end
 end

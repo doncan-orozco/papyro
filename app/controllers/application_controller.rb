@@ -41,7 +41,8 @@ class ApplicationController < ActionController::Base
       # Try to find the author for a better not-found page
       author = nil
       if params[:slug].present?
-        author = User.joins(:articles).find_by(articles: { slug: params[:slug] })
+        author = User.joins(articles: :article_translations)
+                     .find_by(article_translations: { slug: params[:slug] })
       end
       render Views::Articles::NotFound.new(author: author), status: :not_found
     else

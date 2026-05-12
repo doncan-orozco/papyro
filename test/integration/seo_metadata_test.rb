@@ -42,10 +42,12 @@ class SeoMetadataTest < ActionDispatch::IntegrationTest
     get article_path(article, locale: :es)
 
     assert_response :success
-    assert_select "link[rel='canonical'][href='#{article_url(article, locale: :es)}']", 1
+    assert_select "link[rel='canonical'][href='#{article_url(article, locale: :en)}']", 1
     assert_select "link[rel='alternate'][hreflang='en'][href='#{article_url(article, locale: :en)}']", 1
     assert_select "link[rel='alternate'][hreflang='es'][href='#{article_url(article, locale: :es)}']", 1
     assert_select "link[rel='alternate'][hreflang='x-default'][href='http://www.example.com/']", 1
+    assert_select "meta[name='robots'][content='noindex,follow']", 1
+    assert_includes response.body, I18n.t("articles.show.translation_fallback_notice", locale: :es)
     assert_default_social_metadata(locale: :es)
   end
 

@@ -22,6 +22,9 @@ en:
       article_already_published: "Article is already published"
       article_not_published: "Article is not published"
       article_incomplete_for_publish: "Article must have title, content, and excerpt to be published"
+      article_must_be_published_first: "Article must be published before a translation can be published"
+      translation_incomplete_for_publish: "Translation must have a title before it can be published"
+      translation_not_found: "Translation not found"
       invalid_action: "Invalid action"
 
   # dry-schema predicate messages used by dry-validation contracts.

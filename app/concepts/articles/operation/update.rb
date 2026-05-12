@@ -8,8 +8,8 @@ module Articles
       HASH_LENGTH = 6
       MAX_SLUG_COLLISION_RETRIES = 3
 
-      def call(model:, params:)
-        normalized_params, generated_slug = step prepare_attributes(model: model, params: params)
+      def call(model:, params:, locale: I18n.locale)
+        normalized_params, generated_slug = step prepare_attributes(model: model, params: params, locale: locale)
         validated_attributes = step validate_input(model: model, params: normalized_params)
         persisted_article    = step persist_article(model: model, attributes: validated_attributes, generated_slug: generated_slug)
 
@@ -18,10 +18,10 @@ module Articles
 
       private
 
-      def prepare_attributes(model:, params:)
+      def prepare_attributes(model:, params:, locale:)
         normalized_params = params.to_h.symbolize_keys
 
-        if model.status_published?
+        if slug_locked_for_current_locale?(model, locale)
           return fail_with_locked_slug_error!(model) if slug_change_requested?(model: model, params: normalized_params)
 
           return Success([ normalized_params.except(:slug), false ])
@@ -99,6 +99,16 @@ module Articles
 
       def slug_change_requested?(model:, params:)
         params.key?(:slug) && params[:slug].present? && params[:slug] != model.slug
+      end
+
+      def slug_locked_for_current_locale?(model, locale)
+        current_locale = locale
+
+        # The original locale slug becomes immutable once the article is published.
+        return true if model.status_published? && model.original?(current_locale)
+
+        # Any locale slug is immutable after that locale translation is approved.
+        model.approved?(current_locale)
       end
 
       def fail_with_locked_slug_error!(model)

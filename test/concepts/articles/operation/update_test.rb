@@ -268,6 +268,8 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
       user: user
     )
 
+    article.update!(original_locale: "en")
+
     params = {
       title: "Published Title Updated",
       slug: "new-published-slug",
@@ -280,5 +282,106 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     assert_predicate result.failure[:errors][:slug], :any?
     assert_includes result.failure[:errors][:slug], I18n.t("studio.articles.operations.update.slug_locked")
     assert_equal "published-title-aaaaaa", article.reload.slug
+  end
+
+  test "allows slug changes for non-original locale when translation is not approved" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Published Title",
+      slug: "published-title-en",
+      status: :published,
+      published_at: Time.current,
+      user: user
+    )
+
+    I18n.with_locale(:es) do
+      article.update!(title: "Titulo en borrador", slug: "titulo-es-borrador")
+    end
+
+    article.update!(original_locale: "en")
+    article.article_translations.find_by!(locale: "en").update!(status: :published)
+    article.article_translations.find_by!(locale: "es").update!(status: :draft)
+
+    result = I18n.with_locale(:es) do
+      Articles::Operation::Update.new.call(
+        model: article,
+        params: {
+          title: "Titulo en borrador",
+          slug: "titulo-es-editable",
+          status: "published"
+        }
+      )
+    end
+
+    assert_predicate result, :success?
+    assert_equal "titulo-es-editable", I18n.with_locale(:es) { article.reload.slug }
+  end
+
+  test "blocks slug changes for published original locale even when original locale is spanish" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Published Title",
+      slug: "published-title-en",
+      status: :published,
+      published_at: Time.current,
+      user: user
+    )
+
+    I18n.with_locale(:es) do
+      article.update!(title: "Titulo original", slug: "titulo-original-es")
+    end
+
+    article.update!(original_locale: "es")
+    article.article_translations.find_by!(locale: "en").update!(status: :draft)
+    article.article_translations.find_by!(locale: "es").update!(status: :published)
+
+    result = I18n.with_locale(:es) do
+      Articles::Operation::Update.new.call(
+        model: article,
+        params: {
+          title: "Titulo original actualizado",
+          slug: "nuevo-slug-es",
+          status: "published"
+        }
+      )
+    end
+
+    assert_predicate result, :failure?
+    assert_predicate result.failure[:errors][:slug], :any?
+    assert_equal "titulo-original-es", I18n.with_locale(:es) { article.reload.slug }
+  end
+
+  test "blocks slug changes for approved locale translation" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Published Title",
+      slug: "published-title-en",
+      status: :published,
+      published_at: Time.current,
+      user: user
+    )
+
+    I18n.with_locale(:es) do
+      article.update!(title: "Titulo aprobado", slug: "titulo-aprobado-es")
+    end
+
+    article.update!(original_locale: "en")
+    article.article_translations.find_by!(locale: "en").update!(status: :published)
+    article.article_translations.find_by!(locale: "es").update!(status: :published)
+
+    result = I18n.with_locale(:es) do
+      Articles::Operation::Update.new.call(
+        model: article,
+        params: {
+          title: "Titulo aprobado",
+          slug: "nuevo-slug-aprobado-es",
+          status: "published"
+        }
+      )
+    end
+
+    assert_predicate result, :failure?
+    assert_predicate result.failure[:errors][:slug], :any?
+    assert_equal "titulo-aprobado-es", I18n.with_locale(:es) { article.reload.slug }
   end
 end

@@ -10,8 +10,8 @@ module Views
       def view_template
         div(class: "max-w-2xl mx-auto mt-32 px-4 text-center") do
           div(class: "h-20 w-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-8") do
-            svg(class: "h-8 w-8 text-muted-foreground", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
-              path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z")
+            svg(class: "h-8 w-8 text-muted-foreground", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do |s|
+              s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z")
             end
           end
 

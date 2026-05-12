@@ -1,4 +1,13 @@
 class Article < ApplicationRecord
+  self.ignored_columns += %w[status]
+
+  extend Mobility
+  include TranslationMetadata
+
+  translates :title, :slug, :excerpt, :cover_image_caption, backend: :table
+
+  extend FriendlyId
+  friendly_id :title, use: [ :slugged, :mobility ]
   WORDS_PER_MINUTE = 200
   COVER_IMAGE_CAPTION_MAX_LENGTH = 255
   MAX_COVER_IMAGE_SIZE = 5.megabytes
@@ -8,8 +17,25 @@ class Article < ApplicationRecord
 
   scope :kept, -> { where(deleted_at: nil) }
   scope :trashed, -> { where.not(deleted_at: nil) }
+  scope :active, -> { where(archived_at: nil) }
+  scope :archived, -> { where.not(archived_at: nil) }
+  scope :with_original_translation, lambda {
+    joins("LEFT JOIN article_translations AS original_translations ON original_translations.article_id = articles.id AND original_translations.locale = articles.original_locale")
+  }
+  scope :status_published, lambda {
+    with_original_translation
+      .where(original_translations: { status: ArticleTranslation.statuses[:published] })
+      .where.not(published_at: nil)
+      .distinct
+  }
+  scope :status_draft, lambda {
+    with_original_translation
+      .where("original_translations.status IS NULL OR original_translations.status != ?", ArticleTranslation.statuses[:published])
+      .distinct
+  }
 
   belongs_to :user
+  has_many :article_translations, inverse_of: :article, dependent: :destroy
   has_one :pinned_author_profile,
     class_name: "AuthorProfile",
     foreign_key: :pinned_article_id,
@@ -19,11 +45,11 @@ class Article < ApplicationRecord
   has_one_attached :cover_image
 
   before_validation :ensure_uuid, on: :create
+  before_validation :assign_original_locale, on: :create
+  before_validation :normalize_translated_attributes
+  after_save :sync_original_translation_status
 
-  normalizes :title, with: ->(value) { value.strip }
-  normalizes :slug, with: ->(value) { value.strip.downcase }
-
-  enum :status, { draft: 0, published: 1, archived: 2 }, prefix: true
+  STATUS_VALUES = { "draft" => 0, "published" => 1, "archived" => 2 }.freeze
 
   SLUG_FORMAT = /\A[a-z0-9-]+\z/
   UUID_FORMAT = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/
@@ -33,7 +59,7 @@ class Article < ApplicationRecord
   validates :uuid, presence: true, uniqueness: true, length: { is: 36 }, format: { with: UUID_FORMAT }
   validates :title, presence: true, length: { maximum: 255 }
   validates :slug, presence: true, uniqueness: true, length: { maximum: 255 }, format: { with: SLUG_FORMAT }
-  validates :status, presence: true, inclusion: { in: statuses.keys }
+  validates :original_locale, presence: true, inclusion: { in: ->(_record) { I18n.available_locales.map(&:to_s) } }
   validates :excerpt, length: { maximum: 500 }, allow_nil: true
   validates :cover_image_caption, length: { maximum: COVER_IMAGE_CAPTION_MAX_LENGTH }, allow_nil: true
   validate :cover_image_is_valid
@@ -42,11 +68,65 @@ class Article < ApplicationRecord
   validate :published_at_cannot_be_in_future, if: :published_at?
 
   def published?
-    status_published? && published_at.present?
+    return false if trashed? || archived?
+
+    original_translation_published? && published_at.present?
+  end
+
+  def self.statuses
+    STATUS_VALUES
+  end
+
+  def status
+    return "archived" if archived?
+    return "published" if status_published?
+
+    "draft"
+  end
+
+  def status=(value)
+    normalized = value.to_s
+    return if normalized.blank?
+
+    case normalized
+    when "archived"
+      self.archived_at ||= Time.current
+    when "published"
+      self.archived_at = nil
+      @pending_original_translation_status = :published
+    else
+      self.archived_at = nil
+      self.published_at = nil if normalized == "draft"
+      @pending_original_translation_status = :draft
+    end
+  end
+
+  def status_published?
+    !archived? && original_translation_published? && published_at.present?
+  end
+
+  def status_draft?
+    !archived? && !status_published?
+  end
+
+  def status_archived?
+    archived?
+  end
+
+  def status_published!
+    update!(status: "published")
+  end
+
+  def status_draft!
+    update!(status: "draft")
   end
 
   def trashed?
     deleted_at.present?
+  end
+
+  def archived?
+    archived_at.present?
   end
 
   # Render markdown to HTML
@@ -74,15 +154,20 @@ class Article < ApplicationRecord
     [ (content_word_count / WORDS_PER_MINUTE.to_f).ceil, 1 ].max
   end
 
-  # Use slug in URLs instead of ID
-  def to_param
-    slug
-  end
-
   private
 
   def ensure_uuid
     self.uuid ||= SecureRandom.uuid
+  end
+
+  def assign_original_locale
+    self.original_locale ||= I18n.locale.to_s
+  end
+
+  def normalize_translated_attributes
+    # Rails `normalizes` doesn't apply to Mobility-backed attributes; normalize explicitly.
+    self.title = title.strip if title.present?
+    self.slug  = slug.strip.downcase if slug.present?
   end
 
   def body_length_within_limit
@@ -94,7 +179,8 @@ class Article < ApplicationRecord
   end
 
   def published_at_required_for_published
-    return unless status_published? && published_at.blank?
+    intends_published = (@pending_original_translation_status == :published) || status_published?
+    return unless intends_published && published_at.blank?
 
     errors.add(:published_at, I18n.t("errors.messages.published_at_required_for_published"))
   end
@@ -103,6 +189,32 @@ class Article < ApplicationRecord
     return unless published_at > Time.current
 
     errors.add(:published_at, I18n.t("errors.messages.published_at_future"))
+  end
+
+  def original_translation_published?
+    article_translations.find_by(locale: original_locale)&.status_published? || false
+  end
+
+  def find_or_build_original_translation
+    locale = original_locale.presence || I18n.locale.to_s
+
+    article_translations.find_by(locale: locale) ||
+      article_translations.detect { |translation| translation.locale.to_s == locale } ||
+      article_translations.build(locale: locale)
+  end
+
+  def sync_original_translation_status
+    return if @pending_original_translation_status.nil?
+
+    translation = article_translations.find_by(locale: original_locale)
+    return if translation.blank?
+
+    target_status = ArticleTranslation.statuses[@pending_original_translation_status]
+    return if target_status.nil? || translation[:status] == target_status
+
+    translation.update_column(:status, target_status)
+  ensure
+    @pending_original_translation_status = nil
   end
 
   def cover_image_is_valid

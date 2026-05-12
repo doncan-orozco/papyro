@@ -12,6 +12,10 @@ end
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
 
+  setup do
+    I18n.locale = I18n.default_locale
+  end
+
   def sign_in_as(user)
     session = user.sessions.create!
     signed_session_cookie = signed_session_cookie_value(session.id)

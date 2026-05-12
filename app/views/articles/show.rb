@@ -5,10 +5,11 @@ module Views
     class Show < Views::Base
       include Phlex::Rails::Helpers::ImageTag
 
-      def initialize(article:, more_from_author: [], more_from_platform: [])
+      def initialize(article:, more_from_author: [], more_from_platform: [], translation_fallback: false)
         @article = article
         @more_from_author = more_from_author
         @more_from_platform = more_from_platform
+        @translation_fallback = translation_fallback
       end
 
       def view_template
@@ -16,6 +17,7 @@ module Views
           render_header
           main(class: "px-4 pb-14 sm:px-6 sm:pb-16") do
             div(class: "mx-auto w-full max-w-3xl") do
+              render_translation_fallback_banner if translation_fallback?
               render_article_intro
               render_editorial_byline
               render_cover_image
@@ -66,6 +68,12 @@ module Views
           return unless @article.excerpt.present?
 
           p(class: "mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg") { @article.excerpt }
+        end
+      end
+
+      def render_translation_fallback_banner
+        div(class: "mb-8 rounded-lg bg-muted/50 px-4 py-3 text-sm text-muted-foreground") do
+          t("articles.show.translation_fallback_notice")
         end
       end
 
@@ -209,6 +217,10 @@ module Views
 
       def back_path
         articles_path
+      end
+
+      def translation_fallback?
+        @translation_fallback == true
       end
     end
   end

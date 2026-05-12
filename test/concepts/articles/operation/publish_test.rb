@@ -17,6 +17,61 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     assert_predicate result, :success?
     assert_predicate result.value![:model].reload, :status_published?
     assert_not_nil result.value![:model].published_at
+
+    # Verify original locale translation is also published
+    original_translation = article.article_translations.find_by(locale: article.original_locale)
+
+    # Verify new translation status enum is set
+    assert_predicate original_translation.reload, :status_published?
+    assert_equal "published", original_translation.status
+    assert_not_nil original_translation.published_at
+  end
+
+  test "publishes draft article for non-english original locale" do
+    user = users(:admin)
+    article = nil
+
+    I18n.with_locale(:es) do
+      article = Article.create!(
+        title: "Articulo original ES",
+        slug: "articulo-original-es-#{SecureRandom.hex(4)}",
+        status: :draft,
+        excerpt: "Resumen ES",
+        body: "<p>Contenido ES</p>",
+        user: user
+      )
+    end
+    article.update_column(:original_locale, "es")
+
+    result = I18n.with_locale(:es) { Articles::Operation::Publish.new.call(model: article) }
+
+    assert_predicate result, :success?
+    assert_equal "es", article.reload.original_locale
+    assert_predicate article, :status_published?
+
+    original_translation = article.article_translations.find_by(locale: "es")
+
+    assert_predicate original_translation.reload, :status_published?
+  end
+
+  test "fails atomically when original locale translation is missing" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Test Article",
+      slug: "atomic-failure-publish-#{SecureRandom.hex(4)}",
+      status: :draft,
+      excerpt: "Short summary",
+      body: "<p>Test content</p>",
+      user: user
+    )
+
+    article.update_column(:original_locale, "es")
+
+    result = Articles::Operation::Publish.new.call(model: article)
+
+    assert_predicate result, :failure?
+    assert_predicate article.reload, :status_draft?
+    assert_nil article.published_at
   end
 
   test "fails to publish already published article" do

@@ -10,9 +10,11 @@ This skill implements a robust, relational translation strategy where every tran
 
 ## Core Principles
 
-1.  **Relational Integrity**: Use dedicated tables instead of JSON/blobs for better indexing and data safety in SQLite.
-2.  **Metadata Co-location**: Store `is_approved` and `is_original` flags directly on the translation record.
-3.  **Clean API**: Access metadata via intuitive methods (e.g., `@article.approved?`) rather than querying associations manually.
+1.  **Single Source of Truth (No Duplicate Columns)**: Never duplicate translated columns in the parent table. All localized content must live exclusively in the `_translations` table to prevent synchronization issues and `sync_legacy_` hooks.
+2.  **Relational Integrity**: Use dedicated tables instead of JSON/blobs for better indexing and data safety in SQLite. Add unique indices for `[:model_id, :locale]` and `[:locale, :slug]` to ensure data consistency.
+3.  **Ownership Metadata at Parent Level**: Store `original_locale` on the parent record (e.g., `articles.original_locale`), while translation workflow state like `is_approved` stays on translation rows.
+4.  **Clean API**: Access metadata via intuitive methods (e.g., `@article.approved?`) rather than querying associations manually. Use pure Mobility accessors (e.g., `article.title`), not `display_*` wrappers.
+5.  **Fallbacks Configuration**: Rely on I18n fallbacks configured at the application level to handle missing translations elegantly without custom model fallbacks.
 
 ## Implementation Workflow
 
@@ -30,7 +32,6 @@ create_table :article_translations do |t|
   t.text :content
   
   # Workflow Metadata
-  t.boolean :is_original, default: false, null: false
   t.boolean :is_approved, default: false, null: false
 
   t.timestamps
@@ -50,11 +51,11 @@ module TranslationMetadata
   end
 
   def original?(loc = I18n.locale)
-    translation_for(loc)&.is_original? || false
+    loc.to_s == original_locale.to_s
   end
 
   def original_locale
-    all_translations.find_by(is_original: true)&.locale
+    self[:original_locale].presence || I18n.default_locale.to_s
   end
 
   private
@@ -82,7 +83,7 @@ end
 
 ## Quality Standards
 
-* **Explicit Originality**: When creating the first version of a record, the corresponding translation row **must** have `is_original: true`.
+* **Explicit Originality**: When creating the first version of a record, set `original_locale` on the parent record.
 * **Search Engine Safety**: In your views, use the metadata to add `noindex` tags or UI warnings if a translation is not yet `approved?`.
 * **Performance**: Always ensure the `[model_id, locale]` index exists to keep SQLite lookups O(1).
 

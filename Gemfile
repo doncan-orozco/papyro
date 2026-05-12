@@ -116,3 +116,9 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "mobility", "~> 1.3"
+
+gem "friendly_id", "< 5.6"
+
+gem "friendly_id-mobility", "~> 1.0"

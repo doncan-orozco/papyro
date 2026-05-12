@@ -21,9 +21,35 @@ module Articles
       end
 
       def persist_draft_state(model)
-        return Success(model) if model.update(status: :draft, published_at: nil)
+        failed = false
 
-        fail_with_model!(model)
+        model.class.transaction do
+          unless model.update(published_at: nil)
+            failed = true
+            raise ActiveRecord::Rollback
+          end
+
+          original_translation = model.article_translations.find_by(locale: model.original_locale)
+          if original_translation.blank?
+            model.errors.add(:base, I18n.t("errors.messages.translation_not_found"))
+            failed = true
+            raise ActiveRecord::Rollback
+          end
+
+          # Update translation with status enum (draft=0) and clear published_at timestamp.
+          unless original_translation.update(status: :draft, published_at: nil)
+            model.errors.add(:base, I18n.t("studio.articles.operations.unpublish.failure"))
+            failed = true
+            raise ActiveRecord::Rollback
+          end
+        end
+
+        if failed
+          model.reload
+          return fail_with_model!(model)
+        end
+
+        Success(model)
       end
     end
   end
