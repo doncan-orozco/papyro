@@ -32,7 +32,7 @@ div(class: "bg-background pb-12") do
     # ...editor canvas below
 
   # Draft branch: sticky action bar with Sheet overlay for settings
-  elsif @article.status_draft?
+  elsif @article.draft?
     render Components::Ui::Sheet.new do |sheet|
       # ⚠️ CRITICAL: NO border-b here — the main navbar already has one
       div(class: "sticky top-0 z-20 bg-background/95 px-4 py-3 backdrop-blur") do

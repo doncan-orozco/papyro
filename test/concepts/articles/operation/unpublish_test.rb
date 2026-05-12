@@ -26,7 +26,7 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
     # Verify translation is also unpublished
     translation.reload
 
-    assert_predicate translation, :status_draft?
+    assert_predicate translation, :draft?
     assert_nil translation.published_at
   end
 

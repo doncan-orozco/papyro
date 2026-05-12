@@ -1,13 +1,15 @@
 class ArticleTranslation < ApplicationRecord
-  self.ignored_columns += %w[published is_approved]
-
   STATUS_VALUES = { draft: 0, in_review: 1, published: 2 }.freeze
 
   belongs_to :article, inverse_of: :article_translations
 
-  # Translation publication workflow: draft → in_review → published
-  enum :status, STATUS_VALUES, prefix: true, scopes: false
+  enum :status, STATUS_VALUES
 
   validates :excerpt, length: { maximum: 500 }, allow_nil: true
   validates :cover_image_caption, length: { maximum: Article::COVER_IMAGE_CAPTION_MAX_LENGTH }, allow_nil: true
+
+  # A helper to know if this translation is visible to the public
+  def is_public?
+    published? && published_at.present? && published_at <= Time.current
+  end
 end

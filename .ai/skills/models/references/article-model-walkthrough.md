@@ -193,7 +193,7 @@ def original_translation_published?
   else
     article_translations.find_by(locale: original_locale)
   end
-  translation&.status_published? || false
+  translation&.published? || false
 end
 ```
 

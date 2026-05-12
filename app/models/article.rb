@@ -77,11 +77,12 @@ class Article < ApplicationRecord
 
   def original_translation_published?
     translation = if association(:article_translations).loaded?
-      article_translations.find { |item| item.locale == original_locale }
+      article_translations.find { |t| t.locale == original_locale }
     else
       article_translations.find_by(locale: original_locale)
     end
 
-    translation&.status_published? || false
+    # Ensure we explicitly check the enum state!
+    translation&.published? || false
   end
 end

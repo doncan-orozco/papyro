@@ -28,7 +28,7 @@ class Articles::Operation::PublishTranslationTest < ActiveSupport::TestCase
 
     result_translation = result.value![:translation]
 
-    assert_predicate result_translation, :status_published?
+    assert_predicate result_translation, :published?
     assert_not_nil result_translation.published_at
   end
 

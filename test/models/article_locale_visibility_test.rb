@@ -45,7 +45,7 @@ class ArticleLocaleVisibilityTest < ActiveSupport::TestCase
 
     original_translation = article.article_translations.find_by(locale: article.original_locale)
 
-    assert_predicate original_translation, :status_published?
+    assert_predicate original_translation, :published?
     assert_predicate article, :published?
   end
 end

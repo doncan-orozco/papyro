@@ -21,7 +21,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     original_translation = article.article_translations.find_by(locale: article.original_locale)
 
     # Verify new translation status enum is set
-    assert_predicate original_translation.reload, :status_published?
+    assert_predicate original_translation.reload, :published?
     assert_equal "published", original_translation.status
     assert_not_nil original_translation.published_at
   end
@@ -49,7 +49,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
 
     original_translation = article.article_translations.find_by(locale: "es")
 
-    assert_predicate original_translation.reload, :status_published?
+    assert_predicate original_translation.reload, :published?
   end
 
   test "fails atomically when original locale translation is missing" do

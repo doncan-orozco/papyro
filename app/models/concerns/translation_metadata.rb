@@ -3,7 +3,7 @@ module TranslationMetadata
 
   def approved?(loc = I18n.locale)
     # Legacy approval maps to published translation status.
-    translation_for(loc)&.status_published? || false
+    translation_for(loc)&.published? || false
   end
 
   def original?(loc = I18n.locale)
@@ -11,7 +11,7 @@ module TranslationMetadata
   end
 
   def translation_published?(loc = I18n.locale)
-    translation_for(loc)&.status_published? || false
+    translation_for(loc)&.published? || false
   end
 
   def original_locale

@@ -135,7 +135,7 @@ class Article < ApplicationRecord
     else
       article_translations.find_by(locale: original_locale)
     end
-    translation&.status_published? || false
+    translation&.published? || false
   end
 end
 ```
@@ -247,7 +247,7 @@ Consolidate overlapping state checks into semantic predicate methods to prevent 
 
 ```ruby
 # FORBIDDEN — Bloat and inconsistency
-def status_published?; published_at.present?; end
+def published?; published_at.present?; end
 def is_published?; published_at.present?; end
 def published_status?; status == "published"; end
 def article_published?; published_at.present? && !archived?; end
@@ -310,7 +310,7 @@ When querying a `has_many` association **from within an instance method**, assum
 # FORBIDDEN — Triggers an N+1 database query for every article
 # even if article_translations were already eager-loaded
 def original_translation_published?
-  article_translations.find_by(locale: original_locale)&.status_published?
+  article_translations.find_by(locale: original_locale)&.published?
 end
 
 # Usage in controller:
@@ -328,7 +328,7 @@ def original_translation_published?
   else
     article_translations.find_by(locale: original_locale)
   end
-  translation&.status_published? || false
+  translation&.published? || false
 end
 ```
 
@@ -474,7 +474,7 @@ class Article < ApplicationRecord
     else
       article_translations.find_by(locale: original_locale)
     end
-    translation&.status_published? || false
+    translation&.published? || false
   end
 end
 ```

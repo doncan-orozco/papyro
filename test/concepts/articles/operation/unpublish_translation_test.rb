@@ -36,7 +36,7 @@ class Articles::Operation::UnpublishTranslationTest < ActiveSupport::TestCase
 
     spanish_translation.reload
 
-    assert_predicate spanish_translation, :status_draft?
+    assert_predicate spanish_translation, :draft?
     assert_nil spanish_translation.published_at
   end
 
@@ -61,10 +61,10 @@ class Articles::Operation::UnpublishTranslationTest < ActiveSupport::TestCase
 
     @original_translation.reload
 
-    assert_predicate @original_translation, :status_published?
+    assert_predicate @original_translation, :published?
 
     spanish_translation.reload
 
-    assert_predicate spanish_translation, :status_draft?
+    assert_predicate spanish_translation, :draft?
   end
 end

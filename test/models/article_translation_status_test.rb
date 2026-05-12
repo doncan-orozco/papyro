@@ -14,7 +14,7 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
   end
 
   test "translation starts in draft status" do
-    assert_predicate @translation, :status_draft?
+    assert_predicate @translation, :draft?
     assert_equal "draft", @translation.status
   end
 
@@ -22,7 +22,7 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
     @translation.update!(status: :published, published_at: Time.current)
     @translation.reload
 
-    assert_predicate @translation, :status_published?
+    assert_predicate @translation, :published?
     assert_equal "published", @translation.status
     assert_not_nil @translation.published_at
   end
@@ -31,7 +31,7 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
     @translation.update!(status: :in_review)
     @translation.reload
 
-    assert_predicate @translation, :status_in_review?
+    assert_predicate @translation, :in_review?
     assert_equal "in_review", @translation.status
   end
 
