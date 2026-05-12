@@ -263,10 +263,12 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Published Title",
       slug: "published-title-aaaaaa",
-      status: :published,
-      published_at: Time.current,
+      status: :draft,
+      excerpt: "Published excerpt",
+      body: "<p>Published body</p>",
       user: user
     )
+    publish_article!(article)
 
     article.update!(original_locale: "en")
 

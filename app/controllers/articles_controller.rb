@@ -40,26 +40,12 @@ class ArticlesController < ApplicationController
   def find_published_article_by_slug!
     locale_slug = params[:slug].to_s
 
-    # Try locale-specific translation slug first (any published state — display fallback
-    # is handled separately by translation_fallback?)
-    article = Article
-      .joins(:article_translations)
-      .where(article_translations: { slug: locale_slug, locale: I18n.locale.to_s, status: ArticleTranslation.statuses[:published] })
-      .where.not(articles: { published_at: nil })
-      .kept
-      .active
-      .first
+    # Try locale-specific slug first, then fall back to any locale slug.
+    article = Articles::PublishedBySlugQuery.call(slug: locale_slug, locale: I18n.locale.to_s).first
 
     return article if article.present?
 
-    # Last resort: match slug across any locale (supports cross-locale linking)
-    Article
-      .joins(:article_translations)
-      .where(article_translations: { slug: locale_slug, status: ArticleTranslation.statuses[:published] })
-      .where.not(articles: { published_at: nil })
-      .kept
-      .active
-      .first!
+    Articles::PublishedBySlugQuery.call(slug: locale_slug).first!
   end
 
   def translation_fallback?

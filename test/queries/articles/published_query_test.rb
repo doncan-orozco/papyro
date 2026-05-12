@@ -10,19 +10,21 @@ module Articles
       newest = Article.create!(
         title: "Newest Published",
         slug: "newest-published-#{SecureRandom.hex(4)}",
-        status: :published,
-        published_at: now,
+        status: :draft,
+        excerpt: "Newest excerpt",
         body: "Body",
         user: user
       )
+      publish_article!(newest, published_at: now)
       older = Article.create!(
         title: "Older Published",
         slug: "older-published-#{SecureRandom.hex(4)}",
-        status: :published,
-        published_at: now - 1.day,
+        status: :draft,
+        excerpt: "Older excerpt",
         body: "Body",
         user: user
       )
+      publish_article!(older, published_at: now - 1.day)
       draft = Article.create!(
         title: "Draft",
         slug: "draft-published-query-#{SecureRandom.hex(4)}",

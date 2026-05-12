@@ -1,0 +1,41 @@
+# frozen_string_literal: true
+
+module Articles
+  class PublishedBySlugQuery < ApplicationQuery
+    base_scope { Article.all }
+
+    pipeline :join_translations,
+             :filter_by_slug,
+             :filter_by_locale,
+             :filter_by_publication_status,
+             :filter_by_global_overrides
+
+    private
+
+    def join_translations(current_scope)
+      current_scope.joins(:article_translations)
+    end
+
+    def filter_by_slug(current_scope)
+      slug = filters[:slug].to_s
+      return current_scope.none if slug.blank?
+
+      current_scope.where(article_translations: { slug: slug, status: ArticleTranslation.statuses[:published] })
+    end
+
+    def filter_by_locale(current_scope)
+      locale = filters[:locale].to_s
+      return current_scope if locale.blank?
+
+      current_scope.where(article_translations: { locale: locale })
+    end
+
+    def filter_by_publication_status(current_scope)
+      current_scope.where.not(articles: { published_at: nil })
+    end
+
+    def filter_by_global_overrides(current_scope)
+      current_scope.kept.active.distinct
+    end
+  end
+end

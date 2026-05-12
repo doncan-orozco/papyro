@@ -114,22 +114,27 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     assert_match(/\Aduplicate-slug-[a-z0-9]{6}\z/, result.value![:model].slug)
   end
 
-  test "creates published article with published_at" do
+  test "creates article that can be published with published_at" do
     user = users(:admin)
     published_at = 1.day.ago
     params = {
       title: "Published Article",
       slug: "published-article-unique-#{Time.current.to_i}",
-      status: "published",
+      status: "draft",
       body: "<p>Published content</p>",
+      excerpt: "Published excerpt",
       published_at: published_at
     }
 
     result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :success?
-    assert_predicate result.value![:model], :status_published?
-    assert_equal published_at.to_i, result.value![:model].published_at.to_i
+
+    article = result.value![:model]
+    publish_article!(article, published_at: published_at)
+
+    assert_predicate article.reload, :status_published?
+    assert_equal published_at.to_i, article.published_at.to_i
   end
 
   test "auto-generates slug when blank" do

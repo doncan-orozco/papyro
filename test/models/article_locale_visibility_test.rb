@@ -9,16 +9,12 @@ class ArticleLocaleVisibilityTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-visibility-#{SecureRandom.hex(4)}",
-      status: :published,
-      published_at: Time.current,
+      status: :draft,
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user
     )
-
-    # Ensure original translation is published
-    original_translation = article.article_translations.find_by(locale: article.original_locale)
-    original_translation.update!(status: :published, published_at: Time.current)
+    publish_article!(article)
 
     assert_predicate article, :published?
     assert_includes Articles::PublishedQuery.call, article
@@ -28,41 +24,31 @@ class ArticleLocaleVisibilityTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-original-locale-#{SecureRandom.hex(4)}",
-      status: :published,
-      published_at: Time.current,
+      status: :draft,
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user
     )
+    publish_article!(article)
 
-    # Get original locale translation and verify it exists
-    original_translation = article.article_translations.find_by(locale: article.original_locale)
-
-    assert_not_nil original_translation
-
-    # Update it to published
-    original_translation.update!(status: :published, published_at: Time.current)
-
-    # Now article should be published
     assert_predicate article, :published?
   end
 
-  test "status=published marks original translation as published" do
+  test "publish operation marks original translation as published" do
     article = Article.create!(
       title: "Test Article",
       slug: "test-backward-compat-#{SecureRandom.hex(4)}",
-      status: :published,
-      published_at: Time.current,
+      status: :draft,
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user
     )
 
-    # Original translation should now be published via status sync.
+    publish_article!(article)
+
     original_translation = article.article_translations.find_by(locale: article.original_locale)
 
     assert_predicate original_translation, :status_published?
-
     assert_predicate article, :published?
   end
 end

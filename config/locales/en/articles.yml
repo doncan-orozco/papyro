@@ -162,6 +162,11 @@ en:
           success: "Translation unpublished successfully"
           failure: "Failed to unpublish translation"
   articles:
+    not_found:
+      title: "Story unavailable"
+      description: "This article may have been unpublished or deleted by the author."
+      more_from_author: "Read more from %{author_name}"
+      discover: "Discover Papyro"
     index:
       eyebrow: "Discovery"
       title: "Find your next deep read"

@@ -162,6 +162,11 @@ es:
           success: "Traducción despublicada exitosamente"
           failure: "No se pudo despublicar la traducción"
   articles:
+    not_found:
+      title: "Historia no disponible"
+      description: "Este artículo pudo haber sido despublicado o eliminado por su autor."
+      more_from_author: "Leer más de %{author_name}"
+      discover: "Descubrir Papyro"
     index:
       eyebrow: "Descubrimiento"
       title: "Encuentra tu próxima lectura profunda"

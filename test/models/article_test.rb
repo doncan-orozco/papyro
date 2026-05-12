@@ -31,13 +31,14 @@ class ArticleTest < ActiveSupport::TestCase
     article = @user.articles.create!(
       title: "Status Test",
       slug: "status-test",
-      status: :draft
+      status: :draft,
+      excerpt: "Short summary",
+      body: "<p>Body content</p>"
     )
 
     assert_predicate article, :status_draft?
     assert_not article.status_published?
 
-    article.published_at = Time.current
     article.status_published!
 
     assert_predicate article, :status_published?
@@ -53,9 +54,13 @@ class ArticleTest < ActiveSupport::TestCase
     published = @user.articles.create!(
       title: "Published",
       slug: "published",
-      status: :published,
-      published_at: Time.current
+      status: :draft,
+      excerpt: "Short summary",
+      body: "<p>Published content</p>",
+      published_at: Time.current,
+      user: @user
     )
+    Articles::Operation::Publish.new.call(model: published)
 
     assert_not draft.published?
     assert_not published_no_date.published?
@@ -94,9 +99,11 @@ class ArticleTest < ActiveSupport::TestCase
       body: "<p>Hello <strong>world</strong> from <em>Papyro</em></p>"
     )
 
-    assert_equal "Hello world from Papyro", article.plain_text_body
-    assert_equal 4, article.content_word_count
-    assert_equal 1, article.estimated_reading_time_minutes
+    content_analysis = Articles::ContentAnalysis.new(article)
+
+    assert_equal "Hello world from Papyro", content_analysis.plain_text_body
+    assert_equal 4, content_analysis.content_word_count
+    assert_equal 1, content_analysis.estimated_reading_time_minutes
   end
 
   test "estimated reading time is zero when content is blank" do
@@ -107,8 +114,10 @@ class ArticleTest < ActiveSupport::TestCase
       body: ""
     )
 
-    assert_equal 0, article.content_word_count
-    assert_equal 0, article.estimated_reading_time_minutes
+    content_analysis = Articles::ContentAnalysis.new(article)
+
+    assert_equal 0, content_analysis.content_word_count
+    assert_equal 0, content_analysis.estimated_reading_time_minutes
   end
 
   test "cover image rejects unsupported content type" do

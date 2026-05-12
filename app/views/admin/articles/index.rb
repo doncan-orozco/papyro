@@ -57,9 +57,7 @@ module Views
           card.content do
             if @articles.empty?
               div(class: "text-center py-12 px-6") do
-                svg(class: "mx-auto h-12 w-12 text-muted-foreground mb-4", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
-                  s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "1.5", d: "M19 12H5m7-7v14")
-                end
+                render Components::Ui::Icon.new(:plus, class: "mx-auto h-12 w-12 text-muted-foreground mb-4")
                 p(class: "text-base font-medium") { t("admin.articles.index.empty_title") }
                 p(class: "text-sm text-muted-foreground mt-1") { t("admin.articles.index.empty_description") }
               end

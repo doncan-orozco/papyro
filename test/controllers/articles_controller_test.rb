@@ -6,11 +6,12 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     @published_article = Article.create!(
       title: "Published Article",
       slug: "published-article-ctrl-#{Time.current.to_i}",
-      status: :published,
-      published_at: Time.current,
+      status: :draft,
+      excerpt: "Published summary",
       body: "<p>Published content</p>",
       user: @user
     )
+    publish_article!(@published_article)
     @draft_article = Article.create!(
       title: "Draft Article",
       slug: "draft-article-ctrl-#{Time.current.to_i}",
@@ -32,21 +33,23 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     hidden_article = Article.create!(
       title: "Hidden Published Article",
       slug: "hidden-published-article-ctrl-#{Time.current.to_i}",
-      status: :published,
-      published_at: 6.hours.ago,
+      status: :draft,
+      excerpt: "Hidden summary",
       body: "<p>Hidden published content</p>",
       user: @user
     )
+    publish_article!(hidden_article, published_at: 6.hours.ago)
 
-    5.times do |index|
-      Article.create!(
+    6.times do |index|
+      article = Article.create!(
         title: "Extra Published Article #{index}",
         slug: "extra-published-article-#{index}-#{Time.current.to_i}",
-        status: :published,
-        published_at: (index + 1).hours.ago,
+        status: :draft,
+        excerpt: "Extra summary #{index}",
         body: "<p>Extra published content #{index}</p>",
         user: @user
       )
+      publish_article!(article, published_at: (index + 1).hours.ago)
     end
 
     get articles_path
@@ -114,29 +117,32 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     article = Article.create!(
       title: "Isolated Published Article",
       slug: "isolated-published-article-ctrl-#{Time.current.to_i}",
-      status: :published,
-      published_at: Time.current,
+      status: :draft,
+      excerpt: "Isolated summary",
       body: "<p>Published content</p>",
       user: author
     )
+    publish_article!(article)
 
     older_article = Article.create!(
       title: "Older Published Article",
       slug: "older-published-article-ctrl-#{Time.current.to_i}",
-      status: :published,
-      published_at: 2.days.ago,
+      status: :draft,
+      excerpt: "Older summary",
       body: "<p>Older published content</p>",
       user: author
     )
+    publish_article!(older_article, published_at: 2.days.ago)
 
     newer_article = Article.create!(
       title: "Newer Published Article",
       slug: "newer-published-article-ctrl-#{Time.current.to_i}",
-      status: :published,
-      published_at: 1.hour.ago,
+      status: :draft,
+      excerpt: "Newer summary",
       body: "<p>Newer published content</p>",
       user: author
     )
+    publish_article!(newer_article, published_at: 1.hour.ago)
 
     get article_path(article.slug)
 
@@ -152,20 +158,22 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     solo_article = Article.create!(
       title: "Solo Published Article",
       slug: "solo-published-article-ctrl-#{Time.current.to_i}",
-      status: :published,
-      published_at: Time.current,
+      status: :draft,
+      excerpt: "Solo summary",
       body: "<p>Solo published content</p>",
       user: solo_author
     )
+    publish_article!(solo_article)
 
     platform_article = Article.create!(
       title: "Platform Published Article",
       slug: "platform-published-article-ctrl-#{Time.current.to_i}",
-      status: :published,
-      published_at: 1.hour.ago,
+      status: :draft,
+      excerpt: "Platform summary",
       body: "<p>Platform published content</p>",
       user: users(:admin)
     )
+    publish_article!(platform_article, published_at: 1.hour.ago)
 
     get article_path(solo_article.slug)
 

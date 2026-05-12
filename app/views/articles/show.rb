@@ -36,9 +36,7 @@ module Views
             link_to back_path,
               class: "inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition",
               data: { turbo_frame: "_top", action: "click->fullscreen#exit" } do
-              svg(class: "w-5 h-5", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
-                s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M15 19l-7-7 7-7")
-              end
+              render Components::Ui::Icon.new(:arrow_left, class: "w-5 h-5")
               span(class: "text-sm font-medium") { t("articles.show.back_to_list") }
             end
 
@@ -52,9 +50,7 @@ module Views
                 class: "inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground",
                 aria: { label: t("articles.show.fullscreen") }
               ) do
-                svg(class: "h-5 w-5", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
-                  s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M10 6H6v4m12-4h4v4M6 16v4h4m12-4v4h-4")
-                end
+                render Components::Ui::Icon.new(:maximize, class: "h-5 w-5")
                 span { t("articles.show.fullscreen") }
               end
             end
@@ -110,7 +106,7 @@ module Views
               end
             end
             span(class: "text-muted-foreground/50") { "·" }
-            span { t("articles.show.minutes_read", count: @article.estimated_reading_time_minutes) }
+            span { t("articles.show.minutes_read", count: content_analysis.estimated_reading_time_minutes) }
           end
         end
       end
@@ -118,7 +114,7 @@ module Views
       def render_content
         article(class: "py-10 sm:py-12") do
           div(class: "article-prose max-w-none text-foreground") do
-            raw @article.html_body
+            raw content_analysis.html_body
           end
         end
       end
@@ -213,6 +209,10 @@ module Views
 
       def article_author_username
         @article.user&.profile&.username
+      end
+
+      def content_analysis
+        @content_analysis ||= ::Articles::ContentAnalysis.new(@article)
       end
 
       def back_path

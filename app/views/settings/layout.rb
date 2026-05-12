@@ -32,13 +32,14 @@ module Views
 
       def sidebar_link(label, href, section)
         active = @active == section
-        a(
-          href: href,
+        link_to(
+          label,
+          href,
           class: cn(
             "block rounded-md px-3 py-2 text-sm font-medium transition-colors",
             active ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
           )
-        ) { label }
+        )
       end
     end
   end

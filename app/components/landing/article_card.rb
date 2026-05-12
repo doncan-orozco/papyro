@@ -65,7 +65,7 @@ module Components
       end
 
       def article_description
-        @article.excerpt.presence || @article.searchable_content.to_s.truncate(180)
+        @article.excerpt.presence || content_analysis.searchable_content.to_s.truncate(180)
       end
 
       def article_author_name
@@ -77,8 +77,15 @@ module Components
       end
 
       def reading_time_for(article)
-        words = article.searchable_content.to_s.split.size
-        [ (words / Article::WORDS_PER_MINUTE.to_f).ceil, 1 ].max
+        self.class.content_analysis_for(article).estimated_reading_time_minutes
+      end
+
+      def content_analysis
+        @content_analysis ||= self.class.content_analysis_for(@article)
+      end
+
+      def self.content_analysis_for(article)
+        Articles::ContentAnalysis.new(article)
       end
     end
   end

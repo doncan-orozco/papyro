@@ -56,11 +56,12 @@ module Articles
       published = Article.create!(
         title: "Owned Published",
         slug: "owned-published-#{SecureRandom.hex(4)}",
-        status: :published,
-        published_at: Time.current,
+        status: :draft,
+        excerpt: "Published excerpt",
         body: "Body",
         user: user
       )
+      publish_article!(published)
 
       result = OwnedQuery.call(user: user, status: :published)
 

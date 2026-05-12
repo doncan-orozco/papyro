@@ -10,27 +10,30 @@ module Articles
       reference = Article.create!(
         title: "Reference",
         slug: "reference-related-#{SecureRandom.hex(4)}",
-        status: :published,
-        published_at: 1.hour.ago,
+        status: :draft,
+        excerpt: "Reference excerpt",
         body: "Body",
         user: author
       )
+      publish_article!(reference, published_at: 1.hour.ago)
       related = Article.create!(
         title: "Related",
         slug: "related-query-#{SecureRandom.hex(4)}",
-        status: :published,
-        published_at: Time.current,
+        status: :draft,
+        excerpt: "Related excerpt",
         body: "Body",
         user: author
       )
+      publish_article!(related)
       other_author = Article.create!(
         title: "Other Author",
         slug: "other-author-related-#{SecureRandom.hex(4)}",
-        status: :published,
-        published_at: Time.current,
+        status: :draft,
+        excerpt: "Other author excerpt",
         body: "Body",
         user: other_user
       )
+      publish_article!(other_author)
 
       result = RelatedQuery.call(user: author, article_id: reference.id)
 
