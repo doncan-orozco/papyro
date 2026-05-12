@@ -10,7 +10,6 @@ module Articles
       older = Article.create!(
         title: "Older Owned",
         slug: "older-owned-#{SecureRandom.hex(4)}",
-        status: :draft,
         body: "Body",
         user: user,
         updated_at: 2.days.ago
@@ -18,7 +17,6 @@ module Articles
       newer = Article.create!(
         title: "Newer Owned",
         slug: "newer-owned-#{SecureRandom.hex(4)}",
-        status: :draft,
         body: "Body",
         user: user,
         updated_at: 1.day.ago
@@ -26,7 +24,6 @@ module Articles
       other = Article.create!(
         title: "Other User",
         slug: "other-owned-#{SecureRandom.hex(4)}",
-        status: :draft,
         body: "Body",
         user: other_user
       )
@@ -49,14 +46,12 @@ module Articles
       draft = Article.create!(
         title: "Owned Draft",
         slug: "owned-draft-#{SecureRandom.hex(4)}",
-        status: :draft,
         body: "Body",
         user: user
       )
       published = Article.create!(
         title: "Owned Published",
         slug: "owned-published-#{SecureRandom.hex(4)}",
-        status: :draft,
         excerpt: "Published excerpt",
         body: "Body",
         user: user

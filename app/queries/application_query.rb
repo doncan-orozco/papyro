@@ -28,7 +28,16 @@ class ApplicationQuery
   attr_reader :filters, :initial_scope
 
   def initialize(filters, scope:)
-    @filters = filters || {}
+    raw_filters = filters || {}
+    normalized_filters = if raw_filters.respond_to?(:to_unsafe_h)
+      raw_filters.to_unsafe_h
+    elsif raw_filters.respond_to?(:to_h)
+      raw_filters.to_h
+    else
+      raw_filters
+    end
+
+    @filters = normalized_filters.with_indifferent_access
     @initial_scope = scope
   end
 

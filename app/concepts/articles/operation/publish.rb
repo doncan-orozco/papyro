@@ -13,7 +13,7 @@ module Articles
       private
 
       def validate_publishable(model)
-        if model.status_published?
+        if model.published?
           return fail_with_business_error!(model, I18n.t("errors.messages.article_already_published"))
         end
 

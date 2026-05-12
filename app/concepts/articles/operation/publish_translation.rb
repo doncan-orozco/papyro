@@ -17,7 +17,7 @@ module Articles
       private
 
       def validate_parent_published(model)
-        return Success(model) if model.status_published?
+        return Success(model) if model.published?
 
         fail_with_business_error!(model, I18n.t("errors.messages.article_must_be_published_first"))
       end

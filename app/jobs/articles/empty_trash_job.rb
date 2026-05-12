@@ -5,7 +5,7 @@ module Articles
     queue_as :maintenance
 
     def perform
-      Article.trashed.where("deleted_at <= ?", 30.days.ago).find_each do |article|
+      Article.where.not(deleted_at: nil).where("deleted_at <= ?", 30.days.ago).find_each do |article|
         article.destroy
       end
     end

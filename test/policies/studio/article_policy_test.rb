@@ -9,7 +9,6 @@ module Studio
       @article = Article.create!(
         title: "Policy Article",
         slug: "policy-article-#{SecureRandom.hex(4)}",
-        status: :draft,
         body: "Body",
         user: @owner
       )
@@ -40,7 +39,6 @@ module Studio
       other_article = Article.create!(
         title: "Other Article",
         slug: "other-policy-article-#{SecureRandom.hex(4)}",
-        status: :draft,
         body: "Body",
         user: @other_user
       )

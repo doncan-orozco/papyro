@@ -11,16 +11,12 @@ class ArticlesController < ApplicationController
     @article = find_published_article_by_slug!
     @translation_fallback = translation_fallback?
 
-    @more_from_author = @article.user.articles
-      .kept
-      .status_published
+    @more_from_author = Articles::PublishedQuery.call({}, scope: @article.user.articles)
       .where.not(id: @article.id)
       .order(published_at: :desc)
       .limit(2)
 
-    @more_from_platform = Article
-      .kept
-      .status_published
+    @more_from_platform = Articles::PublishedQuery.call
       .where.not(id: @article.id)
       .where.not(user_id: @article.user_id)
       .order(published_at: :desc)

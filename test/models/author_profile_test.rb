@@ -16,7 +16,6 @@ class AuthorProfileTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Pinned Article",
       slug: "pinned-article",
-      status: :draft,
       body: "Body",
       user: users(:admin)
     )

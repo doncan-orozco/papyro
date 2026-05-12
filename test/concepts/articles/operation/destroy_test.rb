@@ -6,7 +6,6 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-article",
-      status: :draft,
       user: user
     )
 
@@ -22,7 +21,6 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Published Article",
       slug: "published-article-destroy-#{Time.current.to_i}",
-      status: :published,
       published_at: Time.current,
       user: user
     )
@@ -45,7 +43,6 @@ class Articles::Operation::DestroyTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Other User Article",
       slug: "other-user-article",
-      status: :draft,
       user: other_user
     )
 

@@ -9,7 +9,6 @@ class ArticleLocaleVisibilityTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-visibility-#{SecureRandom.hex(4)}",
-      status: :draft,
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user
@@ -24,7 +23,6 @@ class ArticleLocaleVisibilityTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-original-locale-#{SecureRandom.hex(4)}",
-      status: :draft,
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user
@@ -38,7 +36,6 @@ class ArticleLocaleVisibilityTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-backward-compat-#{SecureRandom.hex(4)}",
-      status: :draft,
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user

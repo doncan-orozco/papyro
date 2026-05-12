@@ -9,7 +9,6 @@ module Articles
       article = Article.create!(
         title: "English Title",
         slug: "english-title-#{SecureRandom.hex(3)}",
-        status: :published,
         published_at: Time.current,
         body: "Body",
         user: user

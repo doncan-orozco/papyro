@@ -35,16 +35,22 @@ module Articles
         contract_result = Articles::Contract::Update.new.call(params)
 
         if contract_result.failure?
-          model.assign_attributes(params.except(:slug))
+          model.assign_attributes(params.except(:slug, :status))
           invalid_article = inject_errors!(model, contract_result.errors.to_h)
           return fail_with_model!(invalid_article)
         end
 
-        Success(contract_result.to_h)
+        if publish_requested?(params) && params[:published_at].blank? && !model.published?
+          model.assign_attributes(params.except(:slug, :status))
+          model.errors.add(:published_at, I18n.t("errors.messages.published_at_required_for_published"))
+          return fail_with_model!(model)
+        end
+
+        Success(contract_result.to_h.symbolize_keys)
       end
 
       def persist_article(model:, attributes:, generated_slug:)
-        model.assign_attributes(attributes)
+        model.assign_attributes(attributes.except(:status))
         attempts = 0
 
         loop do
@@ -105,7 +111,7 @@ module Articles
         current_locale = locale
 
         # The original locale slug becomes immutable once the article is published.
-        return true if model.status_published? && model.original?(current_locale)
+        return true if model.published? && model.original?(current_locale)
 
         # Any locale slug is immutable after that locale translation is approved.
         model.approved?(current_locale)
@@ -128,6 +134,10 @@ module Articles
 
       def random_slug_suffix
         SecureRandom.alphanumeric(HASH_LENGTH).downcase
+      end
+
+      def publish_requested?(params)
+        params[:status].to_s == "published"
       end
     end
   end

@@ -7,7 +7,7 @@ class AuthorsController < ApplicationController
     @profile = AuthorProfile.find_by!(username: params[:username])
     @author = @profile.user
     @pagy, @articles = pagy(
-      @author.articles.kept.status_published.order(published_at: :desc),
+      Articles::PublishedQuery.call({}, scope: @author.articles),
       limit: 12
     )
     skip_authorization

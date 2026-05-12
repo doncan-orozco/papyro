@@ -6,7 +6,6 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     params = {
       title: "Test Article",
       slug: "test-article",
-      status: "draft",
       body: "<p>Test content</p>",
       excerpt: "Test excerpt"
     }
@@ -22,7 +21,6 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     params = {
       title: "Test Article",
       slug: "test-article",
-      status: "draft",
       body: "<p>Test content</p>",
       excerpt: "Test excerpt"
     }
@@ -39,7 +37,6 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     params = {
       title: "Markdown Article",
       slug: "markdown-article",
-      status: "draft",
       body: "# Heading\n\nBody text"
     }
 
@@ -54,8 +51,7 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     user = users(:admin)
     params = {
       title: "",
-      slug: "test-article",
-      status: "draft"
+      slug: "test-article"
     }
 
     result = Articles::Operation::Create.new.call(params: params, user: user)
@@ -68,8 +64,7 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     user = users(:admin)
     params = {
       title: "Test Article",
-      slug: "Test Article!",
-      status: "draft"
+      slug: "Test Article!"
     }
 
     result = Articles::Operation::Create.new.call(params: params, user: user)
@@ -98,14 +93,12 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     Article.create!(
       title: "Original Article",
       slug: "duplicate-slug",
-      status: :draft,
       user: user
     )
 
     params = {
       title: "New Article",
-      slug: "duplicate-slug",
-      status: "draft"
+      slug: "duplicate-slug"
     }
 
     result = Articles::Operation::Create.new.call(params: params, user: user)
@@ -120,7 +113,6 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     params = {
       title: "Published Article",
       slug: "published-article-unique-#{Time.current.to_i}",
-      status: "draft",
       body: "<p>Published content</p>",
       excerpt: "Published excerpt",
       published_at: published_at
@@ -133,7 +125,7 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     article = result.value![:model]
     publish_article!(article, published_at: published_at)
 
-    assert_predicate article.reload, :status_published?
+    assert_predicate article.reload, :published?
     assert_equal published_at.to_i, article.published_at.to_i
   end
 
@@ -141,8 +133,7 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     user = users(:admin)
     params = {
       title: "How to Ship Rails Features",
-      slug: "",
-      status: "draft"
+      slug: ""
     }
 
     result = Articles::Operation::Create.new.call(params: params, user: user)
@@ -153,12 +144,11 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
 
   test "retries generated slug when collision happens" do
     user = users(:admin)
-    Article.create!(title: "Existing", slug: "my-title", status: :draft, user: user)
+    Article.create!(title: "Existing", slug: "my-title", user: user)
 
     params = {
       title: "My Title",
-      slug: "",
-      status: "draft"
+      slug: ""
     }
 
     suffix_values = [ "bbbbbb" ]
@@ -174,12 +164,11 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
 
   test "adds suffix when explicit custom slug collides" do
     user = users(:admin)
-    Article.create!(title: "Existing", slug: "learn-ruby", status: :draft, user: user)
+    Article.create!(title: "Existing", slug: "learn-ruby", user: user)
 
     params = {
       title: "Learn Ruby",
-      slug: "learn-ruby",
-      status: "draft"
+      slug: "learn-ruby"
     }
 
     operation_class = Class.new(Articles::Operation::Create) do

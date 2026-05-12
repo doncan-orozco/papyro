@@ -6,11 +6,12 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-article-unpublish",
-      status: :published,
       body: "<p>Test content</p>",
       published_at: Time.current,
       user: user
     )
+
+    publish_article!(article)
 
     # Ensure translation is published
     translation = article.article_translations.find_by(locale: article.original_locale)
@@ -19,7 +20,7 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
     result = Articles::Operation::Unpublish.new.call(model: article)
 
     assert_predicate result, :success?
-    assert_predicate result.value![:model].reload, :status_draft?
+    assert_predicate result.value![:model].reload, :draft?
     assert_nil result.value![:model].published_at
 
     # Verify translation is also unpublished
@@ -34,19 +35,20 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "atomic-failure-unpublish-#{SecureRandom.hex(4)}",
-      status: :published,
       body: "<p>Test content</p>",
       excerpt: "Short summary",
       published_at: Time.current,
       user: user
     )
 
+    publish_article!(article)
+
     article.update_column(:original_locale, "es")
 
     result = Articles::Operation::Unpublish.new.call(model: article)
 
     assert_predicate result, :failure?
-    assert_not_predicate article.reload, :status_published?
+    assert_not_predicate article.reload, :published?
     assert_not_nil article.published_at
   end
 
@@ -55,7 +57,6 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-article-draft",
-      status: :draft,
       body: "<p>Test content</p>",
       user: user
     )

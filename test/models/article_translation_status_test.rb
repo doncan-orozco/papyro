@@ -6,7 +6,6 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
     @article = Article.create!(
       title: "Test Article",
       slug: "test-translation-status-#{SecureRandom.hex(4)}",
-      status: :draft,
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user
@@ -41,7 +40,6 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
     draft2 = Article.create!(
       title: "Another Article",
       slug: "another-#{SecureRandom.hex(4)}",
-      status: :draft,
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user
@@ -50,7 +48,6 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
     published = Article.create!(
       title: "Published Article",
       slug: "published-#{SecureRandom.hex(4)}",
-      status: :published,
       published_at: Time.current,
       excerpt: "Summary",
       body: "<p>Content</p>",
@@ -61,7 +58,6 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
     in_review = Article.create!(
       title: "In Review Article",
       slug: "review-#{SecureRandom.hex(4)}",
-      status: :draft,
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user

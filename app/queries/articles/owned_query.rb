@@ -30,20 +30,54 @@ module Articles
 
       case status_filter.to_s
       when "published"
-        current_scope.active.status_published
+        filter_published(current_scope)
       when "draft"
-        current_scope.active.status_draft
+        filter_draft(current_scope)
       when "archived"
-        current_scope.archived
+        current_scope.where.not(archived_at: nil)
       else
         current_scope
       end
     end
 
     def filter_by_tab(current_scope)
-      return current_scope.trashed if active_tab == "trash"
+      return current_scope.where.not(deleted_at: nil) if active_tab == "trash"
 
-      current_scope.kept
+      current_scope.where(deleted_at: nil)
+    end
+
+    def filter_published(current_scope)
+      current_scope
+        .where(archived_at: nil)
+        .joins(original_translation_join_sql)
+        .where(original_translations: { status: ArticleTranslation.statuses[:published] })
+        .where.not(published_at: nil)
+    end
+
+    def filter_draft(current_scope)
+      current_scope
+        .where(archived_at: nil)
+        .joins(original_translation_left_join_sql)
+        .where(
+          "original_translations.status IS NULL OR original_translations.status != ?",
+          ArticleTranslation.statuses[:published]
+        )
+    end
+
+    def original_translation_join_sql
+      <<~SQL.squish
+        INNER JOIN article_translations AS original_translations
+        ON original_translations.article_id = articles.id
+        AND original_translations.locale = articles.original_locale
+      SQL
+    end
+
+    def original_translation_left_join_sql
+      <<~SQL.squish
+        LEFT JOIN article_translations AS original_translations
+        ON original_translations.article_id = articles.id
+        AND original_translations.locale = articles.original_locale
+      SQL
     end
 
     def active_tab

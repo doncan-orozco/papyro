@@ -6,7 +6,6 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-article",
-      status: :draft,
       excerpt: "Short summary",
       body: "<p>Test content</p>",
       user: user
@@ -15,7 +14,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     result = Articles::Operation::Publish.new.call(model: article)
 
     assert_predicate result, :success?
-    assert_predicate result.value![:model].reload, :status_published?
+    assert_predicate result.value![:model].reload, :published?
     assert_not_nil result.value![:model].published_at
 
     # Verify original locale translation is also published
@@ -35,7 +34,6 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
       article = Article.create!(
         title: "Articulo original ES",
         slug: "articulo-original-es-#{SecureRandom.hex(4)}",
-        status: :draft,
         excerpt: "Resumen ES",
         body: "<p>Contenido ES</p>",
         user: user
@@ -47,7 +45,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
 
     assert_predicate result, :success?
     assert_equal "es", article.reload.original_locale
-    assert_predicate article, :status_published?
+    assert_predicate article, :published?
 
     original_translation = article.article_translations.find_by(locale: "es")
 
@@ -59,7 +57,6 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "atomic-failure-publish-#{SecureRandom.hex(4)}",
-      status: :draft,
       excerpt: "Short summary",
       body: "<p>Test content</p>",
       user: user
@@ -70,7 +67,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     result = Articles::Operation::Publish.new.call(model: article)
 
     assert_predicate result, :failure?
-    assert_predicate article.reload, :status_draft?
+    assert_predicate article.reload, :draft?
     assert_nil article.published_at
   end
 
@@ -79,7 +76,6 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-article",
-      status: :published,
       body: "<p>Test content</p>",
       published_at: Time.current,
       user: user
@@ -96,7 +92,6 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-article",
-      status: :draft,
       user: user
     )
 
@@ -111,7 +106,6 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-article-without-excerpt",
-      status: :draft,
       body: "<p>Test content</p>",
       user: user
     )
@@ -139,7 +133,6 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Other User Article",
       slug: "other-user-publish",
-      status: :draft,
       excerpt: "Short summary",
       body: "<p>Test content</p>",
       user: other_user

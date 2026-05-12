@@ -25,7 +25,6 @@ class ArticlePolicyTest < ActiveSupport::TestCase
     draft = Article.create!(
       title: "My Draft",
       slug: "my-draft-#{SecureRandom.hex(4)}",
-      status: :draft,
       body: "Body",
       user: @owner
     )
@@ -37,7 +36,6 @@ class ArticlePolicyTest < ActiveSupport::TestCase
     draft = Article.create!(
       title: "Other Draft",
       slug: "other-draft-#{SecureRandom.hex(4)}",
-      status: :draft,
       body: "Body",
       user: @other_user
     )
@@ -60,7 +58,6 @@ class ArticlePolicyTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Owned Article",
       slug: "owned-article-#{SecureRandom.hex(4)}",
-      status: :draft,
       body: "Body",
       user: @owner
     )
@@ -73,7 +70,6 @@ class ArticlePolicyTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Another Article",
       slug: "another-article-#{SecureRandom.hex(4)}",
-      status: :draft,
       body: "Body",
       user: @other_user
     )
@@ -93,7 +89,6 @@ class ArticlePolicyTest < ActiveSupport::TestCase
     draft = Article.create!(
       title: "Scope Draft",
       slug: "scope-draft-#{SecureRandom.hex(4)}",
-      status: :draft,
       body: "Body",
       user: @owner
     )

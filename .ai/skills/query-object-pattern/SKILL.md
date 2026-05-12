@@ -271,7 +271,9 @@ class ApplicationQuery
   attr_reader :filters, :initial_scope
 
   def initialize(filters, scope:)
-    @filters = filters || {}
+    # Protect pipeline steps from symbol/string key mismatches when callers
+    # pass ActionController::Parameters or plain hashes.
+    @filters = (filters || {}).to_h.with_indifferent_access
     @initial_scope = scope
   end
 
@@ -416,6 +418,37 @@ question_banks = Courses::QuestionBanks::AccessibleQuery.call(filters)
 - Methods must be pure: accept `(current_scope)`, apply guard clauses, and return the mutated scope. Never mutate an instance variable (e.g., `@scope`).
 - Keep method names readable and explicit.
 - Validate sorting inputs against a strict allowlist.
+- Normalize boolean-like filter values with `ActiveModel::Type::Boolean` when filters can come from HTML forms (`"0"`, `"1"`, `"true"`, `"false"`).
+- Eager loading is allowed and encouraged as a final pipeline step when the boundary guarantees association access in callers (`includes` / `eager_load` for N+1 prevention).
+
+### Mandatory Context Short-Circuits
+- If a pipeline step enforces a strict boundary (tenant/account/site/user ownership) and required context is missing, return `current_scope.none`.
+- Never return `current_scope` when required boundary context is absent; that can leak data across boundaries.
+
+```ruby
+def enforce_tenant_scope(current_scope)
+  return current_scope.none if filters[:site].blank?
+
+  current_scope.where(site: filters[:site])
+end
+```
+
+### Boolean Filter Normalization
+```ruby
+def filter_by_featured(current_scope)
+  return current_scope unless filters.key?(:featured)
+
+  is_featured = ActiveModel::Type::Boolean.new.cast(filters[:featured])
+  current_scope.where(featured: is_featured)
+end
+```
+
+### Optional Eager Loading Step
+```ruby
+def apply_includes(current_scope)
+  current_scope.includes(:author, :tags)
+end
+```
 
 ## Interface Constraints
 - Keyword-argument `.call(site:, user:, ...)` forms are not accepted.

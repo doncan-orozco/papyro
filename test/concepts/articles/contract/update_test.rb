@@ -3,8 +3,8 @@ require "test_helper"
 class Articles::Contract::UpdateTest < ActiveSupport::TestCase
   setup do
     @user = users(:admin)
-    @article = Article.create!(title: "Original", slug: "original", status: :draft, user: @user, body: "body")
-    @other_article = Article.create!(title: "Other", slug: "other", status: :draft, user: @user, body: "body")
+    @article = Article.create!(title: "Original", slug: "original", user: @user, body: "body")
+    @other_article = Article.create!(title: "Other", slug: "other", user: @user, body: "body")
   end
 
   test "succeeds with all fields provided" do

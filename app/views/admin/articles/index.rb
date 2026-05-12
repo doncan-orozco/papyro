@@ -134,7 +134,7 @@ module Views
                     href: edit_article_path(article)
                   )
 
-                  if article.status_published?
+                  if article.published?
                     render_action_menu_item(
                       dropdown: dropdown,
                       label: t("admin.articles.index.show"),
@@ -143,14 +143,14 @@ module Views
                     )
                   end
 
-                  if article.status_draft?
+                  if article.draft?
                     render_action_menu_item(
                       dropdown: dropdown,
                       label: t("admin.articles.index.publish"),
                       href: publish_article_path(article, publish_action: "publish"),
                       method: :patch
                     )
-                  elsif article.status_published?
+                  elsif article.published?
                     render_action_menu_item(
                       dropdown: dropdown,
                       label: t("admin.articles.index.unpublish"),

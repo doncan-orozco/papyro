@@ -13,7 +13,7 @@ module Articles
       private
 
       def validate_unpublishable(model)
-        unless model.status_published?
+        unless model.published?
           return fail_with_business_error!(model, I18n.t("errors.messages.article_not_published"))
         end
 

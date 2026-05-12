@@ -6,7 +6,7 @@ module Articles
       params do
         required(:title).filled(Types::StrippedString)
         optional(:slug).maybe(Types::NormalizedSlug)
-        required(:status).filled(Types::StrippedString)
+        optional(:status).maybe(Types::StrippedString)
         optional(:body).maybe(:string)
         optional(:published_at).maybe(:time)
         optional(:excerpt).maybe(Types::StrippedString)

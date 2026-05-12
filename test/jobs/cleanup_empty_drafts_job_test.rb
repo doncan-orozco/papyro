@@ -6,7 +6,6 @@ class CleanupEmptyDraftsJobTest < ActiveJob::TestCase
     stale_empty_draft = Article.create!(
       title: I18n.t("studio.articles.editor.untitled"),
       slug: "cleanup-empty-aaaaaa",
-      status: :draft,
       body: "",
       user: user,
       created_at: 2.days.ago,
@@ -25,7 +24,6 @@ class CleanupEmptyDraftsJobTest < ActiveJob::TestCase
     stale_content_draft = Article.create!(
       title: I18n.t("studio.articles.editor.untitled"),
       slug: "cleanup-keep-aaaaaa",
-      status: :draft,
       body: "<p>Has content</p>",
       user: user,
       created_at: 2.days.ago,
@@ -44,7 +42,6 @@ class CleanupEmptyDraftsJobTest < ActiveJob::TestCase
     recent_empty_draft = Article.create!(
       title: I18n.t("studio.articles.editor.untitled"),
       slug: "cleanup-recent-aaaaaa",
-      status: :draft,
       body: "",
       user: user,
       created_at: 2.hours.ago,

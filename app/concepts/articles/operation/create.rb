@@ -41,11 +41,17 @@ module Articles
           return fail_with_model!(invalid_article)
         end
 
-        Success(contract_result.to_h)
+        if publish_requested?(params) && params[:published_at].blank?
+          invalid_article = Article.new(params.except(:status))
+          invalid_article.errors.add(:published_at, I18n.t("errors.messages.published_at_required_for_published"))
+          return fail_with_model!(invalid_article)
+        end
+
+        Success(contract_result.to_h.symbolize_keys)
       end
 
       def persist_article(attributes:, user:, retry_slug_collision:)
-        article = user.articles.build(attributes)
+        article = user.articles.build(attributes.except(:status))
         attempts = 0
 
         loop do
@@ -91,6 +97,10 @@ module Articles
 
       def random_slug_suffix
         SecureRandom.alphanumeric(HASH_LENGTH).downcase
+      end
+
+      def publish_requested?(params)
+        params[:status].to_s == "published"
       end
     end
   end

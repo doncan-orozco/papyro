@@ -12,7 +12,11 @@ module Articles
     private
 
     def filter_by_status(current_scope)
-      current_scope.status_published
+      current_scope
+        .where(articles: { deleted_at: nil, archived_at: nil })
+        .joins(original_translation_join_sql)
+        .where(original_translations: { status: ArticleTranslation.statuses[:published] })
+        .where.not(articles: { published_at: nil })
     end
 
     def filter_by_author(current_scope)
@@ -29,6 +33,14 @@ module Articles
 
     def apply_ordering(current_scope)
       current_scope.order(published_at: :desc)
+    end
+
+    def original_translation_join_sql
+      <<~SQL.squish
+        INNER JOIN article_translations AS original_translations
+        ON original_translations.article_id = articles.id
+        AND original_translations.locale = articles.original_locale
+      SQL
     end
   end
 end

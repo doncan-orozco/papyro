@@ -26,8 +26,7 @@ module Articles
     end
 
     def filter_by_global_overrides(current_scope)
-      # Exclude deleted and archived articles from public visibility
-      current_scope.kept.active
+      current_scope.where(articles: { deleted_at: nil, archived_at: nil })
     end
 
     def apply_ordering(current_scope)

@@ -6,7 +6,6 @@ class ArticleArchiveVisibilityTest < ActiveSupport::TestCase
     @article = Article.create!(
       title: "Test Article",
       slug: "test-archive-#{SecureRandom.hex(4)}",
-      status: :published,
       published_at: Time.current,
       excerpt: "Summary",
       body: "<p>Content</p>",
@@ -48,19 +47,19 @@ class ArticleArchiveVisibilityTest < ActiveSupport::TestCase
     assert_not_predicate @article, :archived?
   end
 
-  test "active scope filters archived articles" do
-    assert_includes Article.active, @article
+  test "unarchived predicate relation excludes archived articles" do
+    assert_includes Article.where(archived_at: nil), @article
 
     @article.update!(archived_at: Time.current)
 
-    assert_not_includes Article.active, @article
+    assert_not_includes Article.where(archived_at: nil), @article
   end
 
-  test "archived scope filters non-archived articles" do
-    assert_not_includes Article.archived, @article
+  test "archived predicate relation includes only archived articles" do
+    assert_not_includes Article.where.not(archived_at: nil), @article
 
     @article.update!(archived_at: Time.current)
 
-    assert_includes Article.archived, @article
+    assert_includes Article.where.not(archived_at: nil), @article
   end
 end

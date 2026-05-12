@@ -6,7 +6,6 @@ class Articles::Operation::UnpublishTranslationTest < ActiveSupport::TestCase
     @article = Article.create!(
       title: "Test Article",
       slug: "test-unpub-trans-#{SecureRandom.hex(4)}",
-      status: :published,
       published_at: Time.current,
       excerpt: "Summary",
       body: "<p>Content</p>",

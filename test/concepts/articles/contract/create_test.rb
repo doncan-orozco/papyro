@@ -24,7 +24,7 @@ class Articles::Contract::CreateTest < ActiveSupport::TestCase
 
   test "allows duplicate slug at contract layer" do
     user = users(:admin)
-    Article.create!(title: "Original", slug: "duplicate", status: :draft, user: user, body: "body")
+    Article.create!(title: "Original", slug: "duplicate", user: user, body: "body")
 
     result = Articles::Contract::Create.new.call(
       title: "Another",

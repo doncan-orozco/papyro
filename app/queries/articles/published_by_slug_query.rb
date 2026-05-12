@@ -35,7 +35,7 @@ module Articles
     end
 
     def filter_by_global_overrides(current_scope)
-      current_scope.kept.active.distinct
+      current_scope.where(articles: { deleted_at: nil, archived_at: nil }).distinct
     end
   end
 end

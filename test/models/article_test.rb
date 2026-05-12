@@ -19,7 +19,6 @@ class ArticleTest < ActiveSupport::TestCase
     article = @user.articles.create!(
       title: "Rich Content",
       slug: "rich-content",
-      status: :draft
     )
 
     article.update!(body: "<p>Hello <strong>world</strong></p>")
@@ -31,31 +30,25 @@ class ArticleTest < ActiveSupport::TestCase
     article = @user.articles.create!(
       title: "Status Test",
       slug: "status-test",
-      status: :draft,
       excerpt: "Short summary",
       body: "<p>Body content</p>"
     )
 
-    assert_predicate article, :status_draft?
-    assert_not article.status_published?
+    assert_predicate article, :draft?
+    assert_not article.published?
 
     result = Articles::Operation::Publish.new.call(model: article)
 
     assert_predicate result, :success?
-    assert_predicate article.reload, :status_published?
+    assert_predicate article.reload, :published?
   end
 
-  test "published? method requires both status and published_at" do
-    draft = @user.articles.create!(title: "Draft", slug: "draft", status: :draft)
-    published_no_date = Article.new(
-      title: "Published No Date",
-      slug: "published-no-date",
-      status: :published
-    )
+  test "published? remains false until article is actually published" do
+    draft = @user.articles.create!(title: "Draft", slug: "draft")
+    published_no_date = Article.new(title: "Published No Date", slug: "published-no-date")
     published = @user.articles.create!(
       title: "Published",
       slug: "published",
-      status: :draft,
       excerpt: "Short summary",
       body: "<p>Published content</p>",
       published_at: Time.current,
@@ -66,15 +59,13 @@ class ArticleTest < ActiveSupport::TestCase
     assert_not draft.published?
     assert_not published_no_date.published?
     assert_predicate published, :published?
-    assert_not published_no_date.valid?
-    assert_includes published_no_date.errors[:published_at], "Published date is required when status is 'published'"
+    assert_predicate published_no_date, :draft?
   end
 
   test "slug is used in URL" do
     article = @user.articles.create!(
       title: "URL Test",
       slug: "my-article-slug",
-      status: :draft
     )
 
     assert_equal "my-article-slug", article.to_param
@@ -84,7 +75,6 @@ class ArticleTest < ActiveSupport::TestCase
     article = @user.articles.create!(
       title: "  Untrimmed Title  ",
       slug: "  UPPERCASE-SLUG  ",
-      status: :draft
     )
 
     assert_equal "Untrimmed Title", article.title
@@ -95,7 +85,6 @@ class ArticleTest < ActiveSupport::TestCase
     article = @user.articles.create!(
       title: "Metric Test",
       slug: "metric-test",
-      status: :published,
       published_at: Time.current,
       body: "<p>Hello <strong>world</strong> from <em>Papyro</em></p>"
     )
@@ -111,7 +100,6 @@ class ArticleTest < ActiveSupport::TestCase
     article = @user.articles.create!(
       title: "Empty Metric Test",
       slug: "empty-metric-test",
-      status: :draft,
       body: ""
     )
 
@@ -125,7 +113,6 @@ class ArticleTest < ActiveSupport::TestCase
     article = @user.articles.build(
       title: "Invalid Cover Type",
       slug: "invalid-cover-type",
-      status: :draft,
       body: "Body"
     )
 
@@ -143,25 +130,23 @@ class ArticleTest < ActiveSupport::TestCase
     article = @user.articles.build(
       title: "Huge Cover",
       slug: "huge-cover",
-      status: :draft,
       body: "Body"
     )
 
     article.cover_image.attach(
-      io: StringIO.new("a" * (Article::MAX_COVER_IMAGE_SIZE + 1)),
+      io: StringIO.new("a" * (Articles::CoverImageValidation::MAX_COVER_IMAGE_SIZE + 1)),
       filename: "cover.png",
       content_type: "image/png"
     )
 
     assert_not article.valid?
-    assert_includes article.errors[:cover_image], I18n.t("articles.errors.invalid_cover_image_size", max_size_mb: Article::MAX_COVER_IMAGE_SIZE / 1.megabyte)
+    assert_includes article.errors[:cover_image], I18n.t("articles.errors.invalid_cover_image_size", max_size_mb: Articles::CoverImageValidation::MAX_COVER_IMAGE_SIZE / 1.megabyte)
   end
 
   test "cover image rejects unanalyzable image payloads" do
     article = @user.articles.build(
       title: "Broken Cover",
       slug: "broken-cover",
-      status: :draft,
       body: "Body"
     )
 
@@ -179,7 +164,6 @@ class ArticleTest < ActiveSupport::TestCase
     article = @user.articles.build(
       title: "Tiny Cover",
       slug: "tiny-cover",
-      status: :draft,
       body: "Body"
     )
 
@@ -197,8 +181,8 @@ class ArticleTest < ActiveSupport::TestCase
     assert_not article.valid?
     assert_includes article.errors[:cover_image], I18n.t(
       "articles.errors.cover_image_too_small",
-      min_width: Article::MIN_COVER_IMAGE_WIDTH,
-      min_height: Article::MIN_COVER_IMAGE_HEIGHT
+      min_width: Articles::CoverImageValidation::MIN_COVER_IMAGE_WIDTH,
+      min_height: Articles::CoverImageValidation::MIN_COVER_IMAGE_HEIGHT
     )
   ensure
     file.close!

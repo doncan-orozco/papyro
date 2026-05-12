@@ -6,7 +6,6 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Original Title",
       slug: "original-slug",
-      status: :draft,
       user: user
     )
 
@@ -28,7 +27,6 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-article",
-      status: :draft,
       body: "<p>Original content</p>",
       user: user
     )
@@ -52,7 +50,6 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Body Update Article",
       slug: "body-update-article",
-      status: :draft,
       body: "Old body",
       user: user
     )
@@ -75,7 +72,6 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Article With Body",
       slug: "article-with-body",
-      status: :draft,
       body: "# Existing Body",
       user: user
     )
@@ -98,7 +94,6 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-article",
-      status: :draft,
       user: user
     )
 
@@ -119,13 +114,11 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     Article.create!(
       title: "Existing Article",
       slug: "existing-slug",
-      status: :draft,
       user: user
     )
     article = Article.create!(
       title: "Test Article",
       slug: "test-slug",
-      status: :draft,
       user: user
     )
 
@@ -146,7 +139,6 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-slug",
-      status: :draft,
       user: user
     )
 
@@ -167,7 +159,6 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Test Article",
       slug: "test-slug-reassign",
-      status: :draft,
       user: user
     )
 
@@ -190,7 +181,6 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Original Draft Title",
       slug: "original-draft-title-aaaaaa",
-      status: :draft,
       user: user
     )
 
@@ -210,7 +200,6 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Draft Title",
       slug: "draft-title-aaaaaa",
-      status: :draft,
       user: user
     )
 
@@ -231,14 +220,12 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     Article.create!(
       title: "Existing",
       slug: "japan-travel-guide",
-      status: :draft,
       user: user
     )
 
     article = Article.create!(
       title: "Draft Title",
       slug: "draft-title",
-      status: :draft,
       user: user
     )
 
@@ -263,7 +250,6 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Published Title",
       slug: "published-title-aaaaaa",
-      status: :draft,
       excerpt: "Published excerpt",
       body: "<p>Published body</p>",
       user: user
@@ -291,10 +277,13 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Published Title",
       slug: "published-title-en",
-      status: :published,
+      excerpt: "Published excerpt",
+      body: "<p>Published body</p>",
       published_at: Time.current,
       user: user
     )
+
+    publish_article!(article)
 
     I18n.with_locale(:es) do
       article.update!(title: "Titulo en borrador", slug: "titulo-es-borrador")
@@ -324,10 +313,13 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Published Title",
       slug: "published-title-en",
-      status: :published,
+      excerpt: "Published excerpt",
+      body: "<p>Published body</p>",
       published_at: Time.current,
       user: user
     )
+
+    publish_article!(article)
 
     I18n.with_locale(:es) do
       article.update!(title: "Titulo original", slug: "titulo-original-es")
@@ -358,10 +350,13 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     article = Article.create!(
       title: "Published Title",
       slug: "published-title-en",
-      status: :published,
+      excerpt: "Published excerpt",
+      body: "<p>Published body</p>",
       published_at: Time.current,
       user: user
     )
+
+    publish_article!(article)
 
     I18n.with_locale(:es) do
       article.update!(title: "Titulo aprobado", slug: "titulo-aprobado-es")

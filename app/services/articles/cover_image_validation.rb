@@ -2,6 +2,11 @@
 
 module Articles
   class CoverImageValidation
+    MAX_COVER_IMAGE_SIZE = 5.megabytes
+    MIN_COVER_IMAGE_WIDTH = 400
+    MIN_COVER_IMAGE_HEIGHT = 400
+    ALLOWED_COVER_IMAGE_CONTENT_TYPES = %w[image/png image/jpeg image/webp].freeze
+
     def initialize(article)
       @article = article
     end
@@ -9,15 +14,15 @@ module Articles
     def validate
       return unless @article.cover_image.attached?
 
-      unless @article.class::ALLOWED_COVER_IMAGE_CONTENT_TYPES.include?(@article.cover_image.blob.content_type)
+      unless ALLOWED_COVER_IMAGE_CONTENT_TYPES.include?(@article.cover_image.blob.content_type)
         @article.errors.add(:cover_image, I18n.t("articles.errors.invalid_cover_image_content_type"))
         return
       end
 
-      if @article.cover_image.blob.byte_size > @article.class::MAX_COVER_IMAGE_SIZE
+      if @article.cover_image.blob.byte_size > MAX_COVER_IMAGE_SIZE
         @article.errors.add(
           :cover_image,
-          I18n.t("articles.errors.invalid_cover_image_size", max_size_mb: @article.class::MAX_COVER_IMAGE_SIZE / 1.megabyte)
+          I18n.t("articles.errors.invalid_cover_image_size", max_size_mb: MAX_COVER_IMAGE_SIZE / 1.megabyte)
         )
       end
 
@@ -28,14 +33,14 @@ module Articles
         return
       end
 
-      return if width >= @article.class::MIN_COVER_IMAGE_WIDTH && height >= @article.class::MIN_COVER_IMAGE_HEIGHT
+      return if width >= MIN_COVER_IMAGE_WIDTH && height >= MIN_COVER_IMAGE_HEIGHT
 
       @article.errors.add(
         :cover_image,
         I18n.t(
           "articles.errors.cover_image_too_small",
-          min_width: @article.class::MIN_COVER_IMAGE_WIDTH,
-          min_height: @article.class::MIN_COVER_IMAGE_HEIGHT
+          min_width: MIN_COVER_IMAGE_WIDTH,
+          min_height: MIN_COVER_IMAGE_HEIGHT
         )
       )
     end

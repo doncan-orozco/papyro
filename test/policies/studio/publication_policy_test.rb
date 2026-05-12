@@ -9,7 +9,6 @@ module Studio
       @article = Article.create!(
         title: "Publishable",
         slug: "publishable-policy-#{SecureRandom.hex(4)}",
-        status: :draft,
         body: "Body",
         user: @owner
       )

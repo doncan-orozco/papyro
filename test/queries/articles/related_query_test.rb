@@ -10,7 +10,6 @@ module Articles
       reference = Article.create!(
         title: "Reference",
         slug: "reference-related-#{SecureRandom.hex(4)}",
-        status: :draft,
         excerpt: "Reference excerpt",
         body: "Body",
         user: author
@@ -19,7 +18,6 @@ module Articles
       related = Article.create!(
         title: "Related",
         slug: "related-query-#{SecureRandom.hex(4)}",
-        status: :draft,
         excerpt: "Related excerpt",
         body: "Body",
         user: author
@@ -28,7 +26,6 @@ module Articles
       other_author = Article.create!(
         title: "Other Author",
         slug: "other-author-related-#{SecureRandom.hex(4)}",
-        status: :draft,
         excerpt: "Other author excerpt",
         body: "Body",
         user: other_user

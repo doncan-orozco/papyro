@@ -6,7 +6,6 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     @published_article = Article.create!(
       title: "Published Article",
       slug: "published-article-ctrl-#{Time.current.to_i}",
-      status: :draft,
       excerpt: "Published summary",
       body: "<p>Published content</p>",
       user: @user
@@ -15,7 +14,6 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     @draft_article = Article.create!(
       title: "Draft Article",
       slug: "draft-article-ctrl-#{Time.current.to_i}",
-      status: :draft,
       body: "<p>Draft content</p>",
       user: @user
     )
@@ -33,7 +31,6 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     hidden_article = Article.create!(
       title: "Hidden Published Article",
       slug: "hidden-published-article-ctrl-#{Time.current.to_i}",
-      status: :draft,
       excerpt: "Hidden summary",
       body: "<p>Hidden published content</p>",
       user: @user
@@ -44,7 +41,6 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
       article = Article.create!(
         title: "Extra Published Article #{index}",
         slug: "extra-published-article-#{index}-#{Time.current.to_i}",
-        status: :draft,
         excerpt: "Extra summary #{index}",
         body: "<p>Extra published content #{index}</p>",
         user: @user
@@ -117,7 +113,6 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     article = Article.create!(
       title: "Isolated Published Article",
       slug: "isolated-published-article-ctrl-#{Time.current.to_i}",
-      status: :draft,
       excerpt: "Isolated summary",
       body: "<p>Published content</p>",
       user: author
@@ -127,7 +122,6 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     older_article = Article.create!(
       title: "Older Published Article",
       slug: "older-published-article-ctrl-#{Time.current.to_i}",
-      status: :draft,
       excerpt: "Older summary",
       body: "<p>Older published content</p>",
       user: author
@@ -137,7 +131,6 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     newer_article = Article.create!(
       title: "Newer Published Article",
       slug: "newer-published-article-ctrl-#{Time.current.to_i}",
-      status: :draft,
       excerpt: "Newer summary",
       body: "<p>Newer published content</p>",
       user: author
@@ -158,7 +151,6 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     solo_article = Article.create!(
       title: "Solo Published Article",
       slug: "solo-published-article-ctrl-#{Time.current.to_i}",
-      status: :draft,
       excerpt: "Solo summary",
       body: "<p>Solo published content</p>",
       user: solo_author
@@ -168,7 +160,6 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     platform_article = Article.create!(
       title: "Platform Published Article",
       slug: "platform-published-article-ctrl-#{Time.current.to_i}",
-      status: :draft,
       excerpt: "Platform summary",
       body: "<p>Platform published content</p>",
       user: users(:admin)

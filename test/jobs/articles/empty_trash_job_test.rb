@@ -8,7 +8,6 @@ module Articles
       stale_article = Article.create!(
         title: "Stale trashed article",
         slug: "stale-trashed-article",
-        status: :draft,
         body: "Body",
         user: user,
         deleted_at: 31.days.ago
@@ -17,7 +16,6 @@ module Articles
       recent_article = Article.create!(
         title: "Recent trashed article",
         slug: "recent-trashed-article",
-        status: :draft,
         body: "Body",
         user: user,
         deleted_at: 5.days.ago
@@ -26,7 +24,6 @@ module Articles
       kept_article = Article.create!(
         title: "Kept article",
         slug: "kept-article-for-trash-job",
-        status: :draft,
         body: "Body",
         user: user
       )
