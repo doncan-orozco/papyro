@@ -24,9 +24,11 @@ class Articles::Operation::PublishTranslationTest < ActiveSupport::TestCase
     )
 
     result = Articles::Operation::PublishTranslation.new.call(model: @article, locale: :es)
+
     assert_predicate result, :success?
 
     result_translation = result.value![:translation]
+
     assert_predicate result_translation, :status_published?
     assert_not_nil result_translation.published_at
   end
@@ -39,6 +41,7 @@ class Articles::Operation::PublishTranslationTest < ActiveSupport::TestCase
     )
 
     result = Articles::Operation::PublishTranslation.new.call(model: @article, locale: :es)
+
     assert_predicate result, :failure?
   end
 end

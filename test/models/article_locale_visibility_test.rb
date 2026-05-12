@@ -37,6 +37,7 @@ class ArticleLocaleVisibilityTest < ActiveSupport::TestCase
 
     # Get original locale translation and verify it exists
     original_translation = article.article_translations.find_by(locale: article.original_locale)
+
     assert_not_nil original_translation
 
     # Update it to published
@@ -59,6 +60,7 @@ class ArticleLocaleVisibilityTest < ActiveSupport::TestCase
 
     # Original translation should now be published via status sync.
     original_translation = article.article_translations.find_by(locale: article.original_locale)
+
     assert_predicate original_translation, :status_published?
 
     assert_predicate article, :published?

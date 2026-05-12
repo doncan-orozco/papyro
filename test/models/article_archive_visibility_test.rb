@@ -40,9 +40,11 @@ class ArticleArchiveVisibilityTest < ActiveSupport::TestCase
     assert_not_predicate @article, :archived?
 
     @article.update!(archived_at: Time.current)
+
     assert_predicate @article, :archived?
 
     @article.update!(archived_at: nil)
+
     assert_not_predicate @article, :archived?
   end
 
@@ -50,6 +52,7 @@ class ArticleArchiveVisibilityTest < ActiveSupport::TestCase
     assert_includes Article.active, @article
 
     @article.update!(archived_at: Time.current)
+
     assert_not_includes Article.active, @article
   end
 
@@ -57,6 +60,7 @@ class ArticleArchiveVisibilityTest < ActiveSupport::TestCase
     assert_not_includes Article.archived, @article
 
     @article.update!(archived_at: Time.current)
+
     assert_includes Article.archived, @article
   end
 end
