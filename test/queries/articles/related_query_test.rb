@@ -32,7 +32,7 @@ module Articles
       )
       publish_article!(other_author)
 
-      result = RelatedQuery.call(user: author, article_id: reference.id)
+      result = RelatedQuery.call({ user: author, article_id: reference.id })
 
       assert_includes result, related
       assert_not_includes result, reference
@@ -43,6 +43,46 @@ module Articles
       result = RelatedQuery.call({})
 
       assert_equal 0, result.count
+    end
+
+    test "returns published articles from other authors when exclude_user_id is provided" do
+      excluded_author = users(:admin)
+      included_author = users(:one)
+
+      reference = Article.create!(
+        title: "Reference",
+        slug: "reference-platform-related-#{SecureRandom.hex(4)}",
+        excerpt: "Reference excerpt",
+        body: "Body",
+        user: excluded_author
+      )
+      publish_article!(reference, published_at: 2.hours.ago)
+      excluded_article = Article.create!(
+        title: "Excluded Author Article",
+        slug: "excluded-platform-related-#{SecureRandom.hex(4)}",
+        excerpt: "Excluded excerpt",
+        body: "Body",
+        user: excluded_author
+      )
+      publish_article!(excluded_article, published_at: 1.hour.ago)
+      included_article = Article.create!(
+        title: "Included Author Article",
+        slug: "included-platform-related-#{SecureRandom.hex(4)}",
+        excerpt: "Included excerpt",
+        body: "Body",
+        user: included_author
+      )
+      publish_article!(included_article)
+
+      result = RelatedQuery.call({
+        exclude_user_id: excluded_author.id,
+        article_id: reference.id,
+        limit: 2
+      })
+
+      assert_includes result, included_article
+      assert_not_includes result, excluded_article
+      assert_not_includes result, reference
     end
   end
 end

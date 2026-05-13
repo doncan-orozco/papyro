@@ -43,4 +43,12 @@ class Articles::Operation::PublishTranslationTest < ActiveSupport::TestCase
 
     assert_predicate result, :failure?
   end
+
+  test "fails for original locale" do
+    result = Articles::Operation::PublishTranslation.new.call(model: @article, locale: @article.original_locale)
+
+    assert_predicate result, :failure?
+    assert_equal :original_locale_not_applicable, result.failure[:code]
+    assert_equal I18n.t("studio.articles.operations.publish_translation.english_not_applicable"), result.failure[:message]
+  end
 end

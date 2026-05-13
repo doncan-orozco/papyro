@@ -55,6 +55,8 @@ This file focuses on patterns and examples. For requirements, see:
 - [Services](/.github/copilot-instructions.md#services)
 - [Task and issue requirements](/.github/copilot-instructions.md#taskissue-requirements)
 
+For the canonical mutation-command shape, also load `.ai/skills/operation-pattern/SKILL.md`.
+
 ## Reference Map
 
 - **[references/architecture-overview.md](references/architecture-overview.md)**

@@ -5,21 +5,14 @@ class PasswordsController < ApplicationController
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_password_path, alert: t("passwords.create.rate_limit") }
 
   def new
-    render Views::Passwords::New.new(user: password_reset_user)
+    render Views::Passwords::New.new(user: User.new)
   end
 
   def create
-    user = password_reset_user
-    normalized_params = normalize_password_reset_request_params(password_reset_request_params)
-    contract_result = Users::Contract::PasswordResetRequest.new.call(normalized_params)
+    result = Users::Operation::PasswordResetRequest.new.call(params: password_reset_request_params)
 
-    if contract_result.failure?
-      inject_errors!(user, contract_result.errors.to_h)
-      return render Views::Passwords::New.new(user: user), status: :unprocessable_entity
-    end
-
-    if found_user = User.find_by(email_address: normalized_params[:email_address])
-      PasswordsMailer.reset(found_user).deliver_later
+    unless result.success?
+      return render Views::Passwords::New.new(user: result.failure[:model] || User.new), status: :unprocessable_entity
     end
 
     redirect_to new_session_path, notice: t("passwords.create.instructions_sent")
@@ -52,26 +45,11 @@ class PasswordsController < ApplicationController
       redirect_to new_password_path, alert: t("passwords.update.invalid_token")
     end
 
-    def password_reset_user
-      @password_reset_user ||= User.new
-    end
-
     def password_reset_request_params
       params.fetch(:user, params).permit(:email_address).to_h
     end
 
-    def normalize_password_reset_request_params(params)
-      params.merge(email_address: params[:email_address].to_s.strip.downcase)
-    end
-
     def password_update_params
       params.fetch(:user, params).permit(:password, :password_confirmation).to_h
-    end
-
-    def inject_errors!(model, errors_hash)
-      errors_hash.each do |field, messages|
-        Array(messages).each { |message| model.errors.add(field, message) }
-      end
-      model
     end
 end

@@ -25,6 +25,7 @@ es:
       article_must_be_published_first: "El artículo debe publicarse antes de publicar una traducción"
       translation_incomplete_for_publish: "La traducción debe tener un título antes de publicarse"
       translation_not_found: "Traducción no encontrada"
+      invalid_markdown_attribute: "Atributo markdown inválido"
       invalid_action: "Acción inválida"
 
   # Mensajes de predicados dry-schema usados por contratos dry-validation.

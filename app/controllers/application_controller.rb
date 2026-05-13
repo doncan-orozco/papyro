@@ -3,12 +3,9 @@ class ApplicationController < ActionController::Base
   include LocaleManagement
   include Pundit::Authorization
   include Pagy::Method
+  include ErrorHandling
   after_action :verify_pundit_authorization
 
-  rescue_from Pundit::NotAuthorizedError, with: :handle_not_authorized
-  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
-
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
   # Changes to the importmap will invalidate the etag for HTML responses
@@ -26,27 +23,6 @@ class ApplicationController < ActionController::Base
 
   def pundit_user
     Current.user
-  end
-
-  def handle_not_authorized
-    redirect_to(request.referrer || root_path, alert: t("admin.errors.unauthorized"))
-  end
-
-  def handle_not_found(exception = nil)
-    skip_authorization unless pundit_policy_authorized?
-    skip_policy_scope unless pundit_policy_scoped?
-
-    # Premium 404 for missing/unpublished articles
-    if exception&.model == "Article" || (params[:controller] == "articles" && params[:action] == "show")
-      # Try to find the author for a better not-found page
-      author = nil
-      if params[:slug].present?
-        author = Users::AuthorByArticleSlugQuery.call(slug: params[:slug]).first
-      end
-      render Views::Articles::NotFound.new(author: author), status: :not_found
-    else
-      render file: Rails.root.join("public/404.html"), status: :not_found, layout: false
-    end
   end
 
   def parse_page(page_param = params[:page])

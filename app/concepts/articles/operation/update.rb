@@ -32,6 +32,14 @@ module Articles
       end
 
       def validate_input(model:, params:)
+        if model.trashed?
+          return Failure(
+            model: model,
+            errors: model_errors(model),
+            code: :trashed
+          )
+        end
+
         contract_result = Articles::Contract::Update.new.call(params)
 
         if contract_result.failure?

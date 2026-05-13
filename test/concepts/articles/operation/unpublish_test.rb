@@ -48,6 +48,7 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
     result = Articles::Operation::Unpublish.new.call(model: article)
 
     assert_predicate result, :failure?
+    assert_not_nil result.failure[:model].published_at
     assert_not_predicate article.reload, :published?
     assert_not_nil article.published_at
   end
@@ -65,6 +66,25 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
 
     assert_predicate result, :failure?
     assert_predicate result.failure[:errors][:base], :any?
+  end
+
+  test "fails to unpublish trashed article" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Test Article",
+      slug: "trashed-article-unpublish-#{SecureRandom.hex(4)}",
+      excerpt: "Short summary",
+      body: "<p>Test content</p>",
+      published_at: Time.current,
+      user: user,
+      deleted_at: Time.current
+    )
+
+    result = Articles::Operation::Unpublish.new.call(model: article)
+
+    assert_predicate result, :failure?
+    assert_equal :trashed, result.failure[:code]
+    assert_equal I18n.t("studio.articles.operations.update.trashed"), result.failure[:message]
   end
 
   test "requires model parameter" do

@@ -46,10 +46,8 @@ Rails.application.routes.draw do
   # URL stays /studio/... regardless of I18n.locale; UI language is set via I18n.
   namespace :studio do
     resources :articles, only: [ :index, :create, :edit, :update, :destroy ], param: :uuid do
-      member do
-        patch :restore
-        delete :purge
-      end
+      resource :restoration, only: [ :create ], controller: :article_restorations
+      resource :trashed_article, only: [ :destroy ], controller: :trashed_articles
 
       resource :publication, only: [ :new, :create, :destroy ], controller: :publications
       resource :translation_publication, only: [ :create, :destroy ], controller: :translation_publications

@@ -5,11 +5,10 @@ module Views
     class Show < Views::Base
       include Phlex::Rails::Helpers::ImageTag
 
-      def initialize(article:, more_from_author: [], more_from_platform: [], translation_fallback: false)
+      def initialize(article:, more_from_author: [], more_from_platform: [])
         @article = article
         @more_from_author = more_from_author
         @more_from_platform = more_from_platform
-        @translation_fallback = translation_fallback
       end
 
       def view_template
@@ -220,7 +219,7 @@ module Views
       end
 
       def translation_fallback?
-        @translation_fallback == true
+        I18n.locale.to_s != "en" && !@article.translation_published?
       end
     end
   end

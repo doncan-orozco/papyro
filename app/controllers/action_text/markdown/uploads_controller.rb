@@ -11,13 +11,22 @@ class ActionText::Markdown::UploadsController < ApplicationController
     @record = GlobalID::Locator.locate_signed params[:record_gid]
     authorize @record, :update?
 
-    @markdown = @record.safe_markdown_attribute params[:attribute_name]
-    @markdown.uploads.attach [ params[:file] ]
-    @markdown.save!
+    result = ActionText::Markdown::Uploads::Operation::Create.new.call(
+      record: @record,
+      attribute_name: params[:attribute_name],
+      file: params[:file]
+    )
 
-    @upload = @markdown.uploads.attachments.last
-
-    render :create, status: :created, formats: :json
+    if result.success?
+      @markdown = result.value![:markdown]
+      @upload = result.value![:upload]
+      render :create, status: :created, formats: :json
+    else
+      render json: {
+        errors: result.failure[:errors],
+        message: result.failure[:message]
+      }, status: :unprocessable_entity
+    end
   end
 
   def show

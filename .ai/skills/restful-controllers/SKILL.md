@@ -5,7 +5,7 @@ description: Guidelines and patterns for creating and refactoring Ruby on Rails 
 
 # Rails RESTful Controllers
 
-This skill provides the architectural standards for maintaining strictly RESTful controllers in Ruby on Rails applications. 
+> **The canonical controller skill is [../controller/SKILL.md](../controller/SKILL.md).** Load that first for the full golden archetype. This file focuses specifically on the refactoring workflow and extraction patterns for converting non-RESTful controllers.
 
 ## Core Principles
 

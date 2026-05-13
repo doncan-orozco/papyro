@@ -96,7 +96,9 @@ module SeoHelper
   end
 
   def article_translation_fallback?
-    @translation_fallback == true
+    return false unless defined?(@article) && @article.present?
+
+    I18n.locale.to_s != "en" && !@article.translation_published?
   end
 
   def article_fallback_canonical_url

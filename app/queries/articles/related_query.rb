@@ -6,8 +6,10 @@ module Articles
 
     pipeline :filter_by_status,
              :filter_by_author,
+             :exclude_author,
              :exclude_reference_article,
-             :apply_ordering
+             :apply_ordering,
+             :apply_limit
 
     private
 
@@ -20,9 +22,17 @@ module Articles
     end
 
     def filter_by_author(current_scope)
-      return current_scope.none if filters[:user].blank?
+      return current_scope.none if filters[:user].blank? && filters[:exclude_user_id].blank?
+
+      return current_scope if filters[:user].blank?
 
       current_scope.where(user: filters[:user])
+    end
+
+    def exclude_author(current_scope)
+      return current_scope if filters[:exclude_user_id].blank?
+
+      current_scope.where.not(user_id: filters[:exclude_user_id])
     end
 
     def exclude_reference_article(current_scope)
@@ -33,6 +43,12 @@ module Articles
 
     def apply_ordering(current_scope)
       current_scope.order(published_at: :desc)
+    end
+
+    def apply_limit(current_scope)
+      return current_scope if filters[:limit].blank?
+
+      current_scope.limit(filters[:limit])
     end
 
     def original_translation_join_sql

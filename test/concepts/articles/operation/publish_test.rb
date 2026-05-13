@@ -52,6 +52,31 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     assert_predicate original_translation.reload, :published?
   end
 
+  test "publishes draft article with settings params" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Draft Article",
+      slug: "draft-article-#{SecureRandom.hex(4)}",
+      excerpt: "Original excerpt",
+      body: "<p>Draft content</p>",
+      user: user
+    )
+
+    result = Articles::Operation::Publish.new.call(
+      model: article,
+      settings_params: {
+        slug: "updated-before-publish",
+        excerpt: "Updated excerpt before publish"
+      },
+      locale: :en
+    )
+
+    assert_predicate result, :success?
+    assert_predicate article.reload, :published?
+    assert_equal "updated-before-publish", article.slug
+    assert_equal "Updated excerpt before publish", article.excerpt
+  end
+
   test "fails atomically when original locale translation is missing" do
     user = users(:admin)
     article = Article.create!(
@@ -71,20 +96,103 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     assert_nil article.published_at
   end
 
+  test "rolls back settings when publish state transition fails" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Draft Article",
+      slug: "draft-rollback-#{SecureRandom.hex(4)}",
+      excerpt: "Original excerpt",
+      body: "<p>Draft content</p>",
+      user: user
+    )
+
+    article.update_column(:original_locale, "es")
+
+    result = Articles::Operation::Publish.new.call(
+      model: article,
+      settings_params: {
+        slug: "updated-before-failed-publish",
+        excerpt: "Updated excerpt before failed publish"
+      },
+      locale: :en
+    )
+
+    assert_predicate result, :failure?
+
+    article.reload
+
+    assert_predicate article, :draft?
+    assert_nil article.published_at
+    assert_equal "draft-rollback-#{article.slug.split("draft-rollback-").last}", article.slug
+    assert_equal "Original excerpt", article.excerpt
+  end
+
   test "fails to publish already published article" do
     user = users(:admin)
     article = Article.create!(
       title: "Test Article",
-      slug: "test-article",
+      slug: "test-article-#{SecureRandom.hex(4)}",
+      excerpt: "Short summary",
       body: "<p>Test content</p>",
-      published_at: Time.current,
       user: user
+    )
+    publish_article!(article)
+
+    result = Articles::Operation::Publish.new.call(model: article)
+
+    assert_predicate result, :failure?
+    assert_equal :already_published, result.failure[:code]
+    assert_predicate result.failure[:errors][:base], :any?
+  end
+
+  test "updates settings for already published article without changing publish timestamp" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Published Article",
+      slug: "published-article-#{SecureRandom.hex(4)}",
+      excerpt: "Original excerpt",
+      body: "<p>Published content</p>",
+      user: user
+    )
+    published_at = 2.days.ago.change(usec: 0)
+    publish_article!(article, published_at: published_at)
+
+    result = Articles::Operation::Publish.new.call(
+      model: article,
+      settings_params: {
+        excerpt: "Updated published excerpt",
+        cover_image_caption: "Updated credit"
+      },
+      locale: :en
+    )
+
+    assert_predicate result, :failure?
+    assert_equal :already_published, result.failure[:code]
+
+    article.reload
+
+    assert_predicate article, :published?
+    assert_equal published_at, article.published_at.change(usec: 0)
+    assert_equal "Updated published excerpt", article.excerpt
+    assert_equal "Updated credit", article.cover_image_caption
+  end
+
+  test "fails to publish trashed article" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Test Article",
+      slug: "trashed-article-#{SecureRandom.hex(4)}",
+      excerpt: "Short summary",
+      body: "<p>Test content</p>",
+      user: user,
+      deleted_at: Time.current
     )
 
     result = Articles::Operation::Publish.new.call(model: article)
 
     assert_predicate result, :failure?
-    assert_predicate result.failure[:errors][:base], :any?
+    assert_equal :trashed, result.failure[:code]
+    assert_equal I18n.t("studio.articles.operations.update.trashed"), result.failure[:message]
   end
 
   test "fails to publish incomplete article" do
@@ -114,6 +222,33 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
 
     assert_predicate result, :failure?
     assert_predicate result.failure[:errors][:base], :any?
+  end
+
+  test "fails atomically when settings params are invalid" do
+    user = users(:admin)
+    article = Article.create!(
+      title: "Draft Article",
+      slug: "draft-atomic-#{SecureRandom.hex(4)}",
+      excerpt: "Original excerpt",
+      body: "<p>Draft content</p>",
+      user: user
+    )
+
+    result = Articles::Operation::Publish.new.call(
+      model: article,
+      settings_params: {
+        slug: "Invalid Slug"
+      },
+      locale: :en
+    )
+
+    assert_predicate result, :failure?
+
+    article.reload
+
+    assert_predicate article, :draft?
+    assert_nil article.published_at
+    assert_equal "draft-atomic-#{article.slug.split("draft-atomic-").last}", article.slug
   end
 
   test "requires model parameter" do

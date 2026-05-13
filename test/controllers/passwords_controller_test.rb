@@ -31,6 +31,13 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_notice "reset instructions sent"
   end
 
+  test "create with invalid email renders errors" do
+    post passwords_path, params: { email_address: "invalid-email" }
+
+    assert_response :unprocessable_entity
+    assert_match /must be a valid email address/, response.body
+  end
+
   test "edit" do
     get edit_password_path(@user.generate_token_for(:password_reset))
 

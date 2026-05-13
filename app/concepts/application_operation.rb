@@ -24,7 +24,17 @@ class ApplicationOperation < Dry::Operation
     fail_with_model!(model)
   end
 
+  def fail_with_code!(model, code, message: nil)
+    model.errors.add(:base, message) if message.present?
+
+    Failure(model: model, errors: model_errors(model), message: failure_message(model), code: code)
+  end
+
   def fail_with_model!(model)
-    Failure(model: model, errors: model_errors(model))
+    Failure(model: model, errors: model_errors(model), message: failure_message(model))
+  end
+
+  def failure_message(model)
+    Array(model_errors(model)[:base]).compact.first
   end
 end

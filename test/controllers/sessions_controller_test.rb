@@ -23,6 +23,14 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_nil cookies[:session_id]
   end
 
+  test "create with invalid email renders errors" do
+    post session_path, params: { email_address: "invalid-email", password: "password" }
+
+    assert_response :unprocessable_entity
+    assert_match /must be a valid email address/, response.body
+    assert_nil cookies[:session_id]
+  end
+
   test "destroy" do
     sign_in_as(User.take)
 

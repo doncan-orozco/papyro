@@ -9,31 +9,23 @@ module Studio
   class PublicationPolicy < ApplicationPolicy
     # Maps to Studio::PublicationsController#new (load publish modal)
     def new?
-      create?
+      owner?
     end
 
     # Maps to Studio::PublicationsController#create (publish)
     def create?
-      owner? && !record.trashed? && article_ready_to_publish?
+      owner?
     end
 
     # Maps to Studio::PublicationsController#destroy (unpublish)
     def destroy?
-      owner? && !record.trashed?
+      owner?
     end
 
     private
 
     def owner?
       user.present? && record.user_id == user.id
-    end
-
-    def article_ready_to_publish?
-      locales_to_check = ([ record.original_locale ] + I18n.available_locales.map(&:to_s)).uniq
-
-      locales_to_check.any? do |locale|
-        Mobility.with_locale(locale) { record.title.to_s.strip.present? }
-      end
     end
   end
 end

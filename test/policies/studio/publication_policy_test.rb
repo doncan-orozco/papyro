@@ -14,12 +14,12 @@ module Studio
       )
     end
 
-    test "create? requires owner and article title presence" do
+    test "create? is owner only and does not enforce title presence" do
       assert_predicate PublicationPolicy.new(@owner, @article), :create?
 
       @article.title = ""
 
-      refute_predicate PublicationPolicy.new(@owner, @article), :create?
+      assert_predicate PublicationPolicy.new(@owner, @article), :create?
 
       refute_predicate PublicationPolicy.new(@other_user, @article), :create?
     end

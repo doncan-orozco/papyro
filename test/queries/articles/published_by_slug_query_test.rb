@@ -23,15 +23,15 @@ module Articles
       english_slug = article.article_translations.find_by!(locale: "en").slug
       spanish_slug = article.article_translations.find_by!(locale: "es").slug
 
-      english_result = PublishedBySlugQuery.call(slug: english_slug, locale: "en")
-      spanish_result = PublishedBySlugQuery.call(slug: spanish_slug, locale: "es")
+      english_result = PublishedBySlugQuery.call({ slug: english_slug, locale: "en" })
+      spanish_result = PublishedBySlugQuery.call({ slug: spanish_slug, locale: "es" })
 
       assert_includes english_result, article
       assert_includes spanish_result, article
     end
 
     test "returns none when slug is blank" do
-      assert_empty PublishedBySlugQuery.call(slug: "")
+      assert_empty PublishedBySlugQuery.call({ slug: "" })
       assert_empty PublishedBySlugQuery.call
     end
   end

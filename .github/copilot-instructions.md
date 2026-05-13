@@ -16,22 +16,26 @@ This file is now the primary Copilot guidance source for the Papyro workspace. I
 When reviewing pull requests or responding to development requests, you MUST verify against:
 
 1. **This file** - Comprehensive code review checklist and skill guidance
-2. **[.ai/skills/backend-anti-patterns/SKILL.md](.ai/skills/backend-anti-patterns/SKILL.md)** - What NOT to do
-3. **[.ai/skills/error-handling/SKILL.md](.ai/skills/error-handling/SKILL.md)** - Error & auth patterns
-4. **[.ai/skills/architecture/SKILL.md](.ai/skills/architecture/SKILL.md)** - Project overview & skill index
-5. **[.ai/skills/models/SKILL.md](.ai/skills/models/SKILL.md)** - ActiveRecord models: strict layout, state predicates, N+1 prevention
-6. **[.ai/skills/frontend-style-ddd/SKILL.md](.ai/skills/frontend-style-ddd/SKILL.md)** - Domain-driven stylesheet organization rules
-7. **[.ai/skills/system-testing/SKILL.md](.ai/skills/system-testing/SKILL.md)** - Rails system test patterns for Hotwire flows
+2. **[.ai/skills/controller/SKILL.md](.ai/skills/controller/SKILL.md)** - Golden controller archetype: REST, locale separation, operation dispatch, Pundit, Turbo Stream
+3. **[.ai/skills/operation-pattern/SKILL.md](.ai/skills/operation-pattern/SKILL.md)** - Golden operation archetype: mutation intent, transactions, explicit dependencies, routeable failure codes
+4. **[.ai/skills/backend-anti-patterns/SKILL.md](.ai/skills/backend-anti-patterns/SKILL.md)** - What NOT to do
+5. **[.ai/skills/error-handling/SKILL.md](.ai/skills/error-handling/SKILL.md)** - Error & auth patterns
+6. **[.ai/skills/architecture/SKILL.md](.ai/skills/architecture/SKILL.md)** - Project overview & skill index
+7. **[.ai/skills/models/SKILL.md](.ai/skills/models/SKILL.md)** - ActiveRecord models: strict layout, state predicates, N+1 prevention
+8. **[.ai/skills/frontend-style-ddd/SKILL.md](.ai/skills/frontend-style-ddd/SKILL.md)** - Domain-driven stylesheet organization rules
+9. **[.ai/skills/system-testing/SKILL.md](.ai/skills/system-testing/SKILL.md)** - Rails system test patterns for Hotwire flows
 
 ## How to Use This
 
 When reviewing code:
 1. Check this file and the relevant skill files against all changes
-2. Review [anti-patterns](.ai/skills/backend-anti-patterns/SKILL.md) to catch common mistakes
-3. Verify error handling follows [error-handling.md](.ai/skills/error-handling/SKILL.md) patterns
-4. Load relevant skill files directly from `.ai/skills/{domain}/SKILL.md`
-5. Provide detailed feedback citing the checklist item number
-6. When writing or reviewing system tests, load `.ai/skills/system-testing/SKILL.md` in addition to `.ai/skills/testing/SKILL.md`
+2. For any controller work, load `.ai/skills/controller/SKILL.md` **first** — it is the single source of truth for all controller patterns
+3. For mutation flows in `app/concepts/*/operation/`, load `.ai/skills/operation-pattern/SKILL.md` with `.ai/skills/layered-validation-operation-pattern/SKILL.md` when contract boundaries matter
+4. Review [anti-patterns](.ai/skills/backend-anti-patterns/SKILL.md) to catch common mistakes
+5. Verify error handling follows [error-handling.md](.ai/skills/error-handling/SKILL.md) patterns
+6. Load relevant skill files directly from `.ai/skills/{domain}/SKILL.md`
+7. Provide detailed feedback citing the checklist item number
+8. When writing or reviewing system tests, load `.ai/skills/system-testing/SKILL.md` in addition to `.ai/skills/testing/SKILL.md`
 
 ## Key Review Areas
 
@@ -44,6 +48,8 @@ When reviewing code:
 ### Operation Review Checks (Mutation Flows)
 
 - For operations inheriting from `Dry::Operation`, `call` returns a plain payload hash (for example `{ model: ... }`), not `Success(...)`.
+- If an operation performs multiple writes or combines metadata updates with a state transition, the workflow must be transactional so partial updates cannot leak.
+- Operations must accept explicit dependencies (`user:`, `locale:`, `settings_params:`) instead of reaching into `Current` or raw HTTP state.
 - Avoid redundant pass-through steps in operations when no business rule is enforced between validation and persistence.
 - Prefer model-driven nested assignment (`assign_attributes`) when nested attributes are configured on the model.
 - Prefer one operation per domain intent (`Publish`, `Unpublish`) over action-flag switching in a single operation.

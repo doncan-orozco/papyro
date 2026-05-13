@@ -28,7 +28,7 @@ module Articles
         user: other_user
       )
 
-      result = OwnedQuery.call(user: user)
+      result = OwnedQuery.call({ user: user })
 
       assert_equal [ newer.id, older.id ], result.where(id: [ newer.id, older.id ]).pluck(:id)
       assert_not_includes result, other
@@ -58,7 +58,7 @@ module Articles
       )
       publish_article!(published)
 
-      result = OwnedQuery.call(user: user, status: :published)
+      result = OwnedQuery.call({ user: user, status: :published })
 
       assert_includes result, published
       assert_not_includes result, draft

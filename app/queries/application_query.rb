@@ -19,10 +19,9 @@ class ApplicationQuery
     @base_scope_proc.call
   end
 
-  def self.call(filters = {}, scope: nil, **kwargs)
-    combined = filters.merge(kwargs)
+  def self.call(filters = {}, scope: nil)
     initial_scope = scope || evaluated_base_scope
-    new(combined, scope: initial_scope).build_query
+    new(filters, scope: initial_scope).build_query
   end
 
   attr_reader :filters, :initial_scope
