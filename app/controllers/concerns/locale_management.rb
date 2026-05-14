@@ -8,13 +8,10 @@ module LocaleManagement
   private
 
   def set_locale
-    locale = requested_locale || x_default_root_locale || stored_locale || browser_locale || I18n.default_locale
+    locale = requested_locale || stored_locale || browser_locale || I18n.default_locale
+    cookies.permanent[:papyro_locale] = locale if cookies[:papyro_locale] != locale.to_s
     I18n.locale = locale
     Current.locale = locale
-  end
-
-  def default_url_options
-    { locale: I18n.locale }
   end
 
   def requested_locale
@@ -23,34 +20,16 @@ module LocaleManagement
     locale
   end
 
-  # Keep the unlocalized homepage (/) deterministic for crawlers.
-  # We treat it as x-default and always render in default locale when
-  # no explicit locale param is provided.
-  def x_default_root_locale
-    return unless request.path == "/" && params[:locale].blank?
-
-    I18n.default_locale
-  end
-
   def stored_locale
-    normalized_locale(session[:locale])
+    normalized_locale(cookies[:papyro_locale])
   end
 
   def browser_locale
-    request
-      .get_header("HTTP_ACCEPT_LANGUAGE")
-      .to_s
-      .split(",")
-      .filter_map do |entry|
-        normalized_locale(entry.split(";").first.to_s.strip.split("-").first)
-      end
-      .first
+    request.env['HTTP_ACCEPT_LANGUAGE']&.scan(/^[a-z]{2}/)&.first&.to_sym
   end
 
   def normalized_locale(value)
     locale = value.to_s.presence&.to_sym
-    return unless locale && I18n.available_locales.include?(locale)
-
-    locale
+    I18n.available_locales.include?(locale) ? locale : nil
   end
 end

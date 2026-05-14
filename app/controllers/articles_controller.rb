@@ -26,7 +26,7 @@ class ArticlesController < ApplicationController
       limit: 2
     })
 
-    presenter = ::Articles::Presenter::Show.new(
+    @presenter = ::Articles::Presenter::Show.new(
       @article,
       more_from_author: more_from_author,
       more_from_platform: more_from_platform,
@@ -34,7 +34,7 @@ class ArticlesController < ApplicationController
     )
 
     render Views::Articles::Show.new(
-      presenter: presenter
+      presenter: @presenter
     )
   end
 

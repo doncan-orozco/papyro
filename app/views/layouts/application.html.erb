@@ -11,16 +11,25 @@
     <meta property="og:description" content="<%= seo_description %>">
     <meta property="og:locale" content="<%= og_locale %>">
     <% I18n.available_locales.each do |locale| %>
+      <% next if locale.to_sym == I18n.locale.to_sym %>
       <meta property="og:locale:alternate" content="<%= og_locale_for(locale) %>">
     <% end %>
     <link rel="canonical" href="<%= canonical_url %>">
-    <% if article_translation_fallback? %>
-      <meta name="robots" content="noindex,follow">
-    <% end %>
     <% I18n.available_locales.each do |locale| %>
       <link rel="alternate" hreflang="<%= locale %>" href="<%= alternate_locale_url(locale) %>">
     <% end %>
     <link rel="alternate" hreflang="x-default" href="<%= x_default_url %>">
+
+    <% if controller_name == "articles" && action_name == "show" %>
+      <meta name="robots" content="noindex,follow">
+    <% end %>
+
+    <% if defined?(@presenter) && @presenter.respond_to?(:json_ld) %>
+      <script type="application/ld+json">
+        <%= @presenter.json_ld.merge({ "@context": "https://schema.org" }).to_json.html_safe %>
+      </script>
+    <% end %>
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 

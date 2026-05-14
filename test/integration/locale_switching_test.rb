@@ -61,4 +61,24 @@ class LocaleSwitchingTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "href=\"#{studio_articles_path(locale: :en)}\""
     assert_includes response.body, "href=\"#{studio_articles_path(locale: :es)}\""
   end
+
+  test "redirects root to localized path based on browser locale" do
+    get "/", headers: { "HTTP_ACCEPT_LANGUAGE" => "es-MX,es;q=0.9,en;q=0.8" }
+
+    assert_redirected_to root_path(locale: :es)
+  end
+
+  test "redirects root to localized path based on cookie" do
+    cookies[:papyro_locale] = :en
+
+    get "/"
+
+    assert_redirected_to root_path(locale: :en)
+  end
+
+  test "persists locale in cookie after switching" do
+    get root_path(locale: :es)
+
+    assert_equal "es", cookies[:papyro_locale]
+  end
 end

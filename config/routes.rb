@@ -16,14 +16,15 @@ Rails.application.routes.draw do
     post "/uploads" => "markdown/uploads#create", as: :markdown_uploads
   end
 
-  # Non-localized homepage.
-  # LocaleManagement will choose locale from params, session, browser, or default.
-  get "/", to: "articles#index"
+
+  # Smart Router for root path
+  root to: "root_router#route"
 
   localized do
     root "articles#index"
 
     resource :session, only: [ :new, :create, :destroy ]
+
     resources :passwords, only: [ :new, :create, :edit, :update ], param: :token
 
     resources :users, only: [ :show, :edit, :update ]

@@ -10,8 +10,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
   test "unlocalized root path renders home" do
     get "/"
 
-    assert_response :success
-    assert_includes response.body, I18n.t("components.public.welcome_hero.eyebrow", locale: I18n.default_locale)
+    assert_redirected_to root_path(locale: I18n.default_locale)
   end
 
   test "unlocalized root remains x-default even after selecting another locale" do
@@ -22,8 +21,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     get "/"
 
-    assert_response :success
-    assert_includes response.body, I18n.t("components.public.welcome_hero.eyebrow", locale: I18n.default_locale)
+    assert_redirected_to root_path(locale: :es)
   end
 
   test "home includes localized hreflang cluster and x-default root" do

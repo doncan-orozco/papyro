@@ -5,7 +5,7 @@ class UsersController < ApplicationController
     user = User.find(params[:id])
     authorize user
 
-    redirect_to author_path(user.profile.username), status: :moved_permanently
+    redirect_to author_path(user.profile.username, locale: I18n.locale), status: :moved_permanently
   end
 
   def edit

@@ -145,6 +145,23 @@ end
 render Views::Studio::Articles::Index.new(articles: articles, pagy: pagy, params: params)
 ```
 
+When a layout or shared helper needs access to the same presenter object as the rendered view, assign it once to an instance variable and pass that same object through.
+
+### ✅ Correct
+
+```ruby
+def show
+  article = Articles::Query::PublishedBySlug.call({ slug: params[:slug] }).first!
+  authorize article
+
+  @presenter = ::Articles::Presenter::Show.new(article, locale: I18n.locale)
+
+  render Views::Articles::Show.new(presenter: @presenter)
+end
+```
+
+Avoid constructing the same presenter twice or building it into a local variable and then mirroring it into `@presenter` later.
+
 ---
 
 ## RULE 4: Content Locale vs. Interface Locale (MANDATORY)

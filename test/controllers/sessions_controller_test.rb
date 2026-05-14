@@ -12,7 +12,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "create with valid credentials" do
     post session_path, params: { email_address: @user.email_address, password: "password" }
 
-    assert_redirected_to studio_articles_path(locale: I18n.locale)
+    assert_redirected_to studio_articles_path
     assert cookies[:session_id]
   end
 

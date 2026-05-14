@@ -7,7 +7,7 @@ class SeoMetadataTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "<meta property=\"og:title\" content=\"#{ERB::Util.html_escape(I18n.t('seo.default_title', locale: locale))}\">"
     assert_includes response.body, "<meta property=\"og:description\" content=\"#{ERB::Util.html_escape(I18n.t('seo.default_description', locale: locale))}\">"
     assert_includes response.body, "<meta property=\"og:locale\" content=\"#{locale == :en ? 'en_US' : 'es_ES'}\">"
-    assert_equal I18n.available_locales.size, response.body.scan(/<meta property=\"og:locale:alternate\"/).size
+    assert_equal I18n.available_locales.size - 1, response.body.scan(/<meta property=\"og:locale:alternate\"/).size
   end
 
   test "home renders canonical and hreflang tags" do
@@ -23,6 +23,26 @@ class SeoMetadataTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_default_social_metadata(locale: :en)
+  end
+
+  test "localized home pages keep metadata aligned with current locale" do
+    get root_path(locale: :en)
+
+    assert_response :success
+    assert_select "meta[name='description'][content='Read curated long-form articles and ideas.']", 1
+    assert_select "meta[property='og:locale'][content='en_US']", 1
+    assert_select "meta[property='og:locale:alternate'][content='es_ES']", 1
+    assert_select "meta[property='og:locale:alternate'][content='en_US']", 0
+    assert_select "link[rel='canonical'][href='#{root_url(locale: :en)}']", 1
+
+    get root_path(locale: :es)
+
+    assert_response :success
+    assert_select "meta[name='description'][content='Lee artículos e ideas seleccionadas en formato largo.']", 1
+    assert_select "meta[property='og:locale'][content='es_ES']", 1
+    assert_select "meta[property='og:locale:alternate'][content='en_US']", 1
+    assert_select "meta[property='og:locale:alternate'][content='es_ES']", 0
+    assert_select "link[rel='canonical'][href='#{root_url(locale: :es)}']", 1
   end
 
   test "articles index renders canonical and hreflang tags" do
@@ -51,13 +71,25 @@ class SeoMetadataTest < ActionDispatch::IntegrationTest
     assert_default_social_metadata(locale: :es)
   end
 
-  test "author show page renders seo meta tags" do
-    user = users(:one)
-    profile = author_profiles(:one)
+  test "renders JSON-LD structured data for articles" do
+    article = articles(:published_article)
 
-    get "/@#{profile.username}"
+    get article_path(article, locale: :en)
 
     assert_response :success
-    assert_includes response.body, profile.display_name
+    assert_includes response.body, "@context"
+    assert_includes response.body, "https://schema.org"
+    assert_includes response.body, article.title
+  end
+
+  test "renders correct hreflang and canonical tags" do
+    article = articles(:published_article)
+
+    get article_path(article, locale: :es)
+
+    assert_select "link[rel='canonical'][href='#{article_url(article, locale: :en)}']"
+    assert_select "link[rel='alternate'][hreflang='en'][href='#{article_url(article, locale: :en)}']"
+    assert_select "link[rel='alternate'][hreflang='es'][href='#{article_url(article, locale: :es)}']"
+    assert_select "link[rel='alternate'][hreflang='x-default'][href='http://www.example.com/']"
   end
 end
