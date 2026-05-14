@@ -3,7 +3,7 @@
 module Articles
   module Operation
     # Marks the current locale's translation as a draft (not publicly visible).
-    class UnpublishTranslation < ApplicationOperation
+    class UnpublishTranslation < Core::Operation
       def call(model:, locale:)
         persisted = step unpublish_translation_with_state_transition(model: model, locale: locale)
 

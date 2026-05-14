@@ -19,7 +19,7 @@ module Views
 
               render Components::Ui::Card.new do |card|
                 card.content(class: "pt-6") do
-                  render FormComponent.new(@article)
+                  render Shared::FormComponent.new(@article)
                 end
               end
             end

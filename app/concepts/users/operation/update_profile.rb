@@ -2,7 +2,7 @@
 
 module Users
   module Operation
-    class UpdateProfile < ApplicationOperation
+    class UpdateProfile < Core::Operation
       def call(params:, user:)
         validated_attributes = step validate_input(params: params, user: user)
         persisted_user = step persist_user(user: user, attributes: validated_attributes)

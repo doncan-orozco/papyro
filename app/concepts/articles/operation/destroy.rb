@@ -2,7 +2,7 @@
 
 module Articles
   module Operation
-    class Destroy < ApplicationOperation
+    class Destroy < Core::Operation
       def call(model:)
         soft_deleted_model = step soft_delete_model(model)
         { model: soft_deleted_model }

@@ -2,7 +2,7 @@
 
 module Users
   module Operation
-    class UpdatePassword < ApplicationOperation
+    class UpdatePassword < Core::Operation
       def call(params:, user:)
         validated_attributes = step validate_input(params: params, user: user)
         authenticated_user = step authenticate_user(user: user, current_password: validated_attributes[:current_password])

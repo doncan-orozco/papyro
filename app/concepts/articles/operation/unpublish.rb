@@ -2,7 +2,7 @@
 
 module Articles
   module Operation
-    class Unpublish < ApplicationOperation
+    class Unpublish < Core::Operation
       def call(model:)
         persisted_model = step unpublish_with_state_transition(model: model)
 

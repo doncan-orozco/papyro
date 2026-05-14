@@ -37,6 +37,22 @@ test/
 - Fixtures for test data
 - Small, explicit tests
 
+## Concept Coverage Policy (Required)
+
+For concept-layer coverage, enforce a mirrored test structure:
+
+1. Every file under `app/concepts/**/operation/*.rb` must have a corresponding test under `test/concepts/**/operation/*_test.rb`.
+2. Every file under `app/concepts/**/query/*.rb` must have a corresponding test under `test/concepts/**/query/*_test.rb`.
+3. Every file under `app/concepts/**/presenter/*.rb` must have a corresponding test under `test/concepts/**/presenter/*_test.rb`.
+4. Every file under `app/concepts/**/service/*.rb` must have a corresponding test under `test/concepts/**/service/*_test.rb`.
+5. Core abstractions under `app/concepts/core/` must have lightweight contract tests to lock base behavior.
+
+Minimum expectation per concept test file:
+
+1. At least one success-path assertion.
+2. At least one failure/edge-path assertion (where applicable).
+3. Result payload shape checks for operation/query contracts.
+
 ## Suggestions
 - Framework: Minitest (Rails-native, fast, minimal)
 - Test data: fixtures by default; add FactoryBot if fixtures become unmanageable

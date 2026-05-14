@@ -4,7 +4,7 @@ module ActionText
   class Markdown
     module Uploads
       module Operation
-        class Create < ApplicationOperation
+        class Create < Core::Operation
           def call(record:, attribute_name:, file:)
             markdown = step find_markdown(record: record, attribute_name: attribute_name)
             persisted_markdown = step attach_upload(markdown: markdown, file: file)

@@ -85,7 +85,7 @@ module Components
       end
 
       def self.content_analysis_for(article)
-        Articles::ContentAnalysis.new(article)
+        Articles::Service::ContentAnalysis.new(article)
       end
     end
   end

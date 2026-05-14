@@ -22,8 +22,10 @@ When reviewing pull requests or responding to development requests, you MUST ver
 5. **[.ai/skills/error-handling/SKILL.md](.ai/skills/error-handling/SKILL.md)** - Error & auth patterns
 6. **[.ai/skills/architecture/SKILL.md](.ai/skills/architecture/SKILL.md)** - Project overview & skill index
 7. **[.ai/skills/models/SKILL.md](.ai/skills/models/SKILL.md)** - ActiveRecord models: strict layout, state predicates, N+1 prevention
-8. **[.ai/skills/frontend-style-ddd/SKILL.md](.ai/skills/frontend-style-ddd/SKILL.md)** - Domain-driven stylesheet organization rules
-9. **[.ai/skills/system-testing/SKILL.md](.ai/skills/system-testing/SKILL.md)** - Rails system test patterns for Hotwire flows
+8. **[.ai/skills/presenter-pattern/SKILL.md](.ai/skills/presenter-pattern/SKILL.md)** - Golden presenter archetype: SimpleDelegator, collection wrapping, view-agnostic display logic, no CSS/HTML. Load for ALL `app/presenters/` work and display transformation logic.
+9. **[.ai/skills/frontend-style-ddd/SKILL.md](.ai/skills/frontend-style-ddd/SKILL.md)** - Domain-driven stylesheet organization rules
+10. **[.ai/skills/system-testing/SKILL.md](.ai/skills/system-testing/SKILL.md)** - Rails system test patterns for Hotwire flows
+11. **[.ai/skills/phlex-view-pattern/SKILL.md](.ai/skills/phlex-view-pattern/SKILL.md)** - Golden Phlex view archetype: dumb views, presenters, sub-component decomposition, UI vs. domain separation, safe Turbo Frame targeting. Load for ALL `app/views/` and `app/components/` work.
 
 ## How to Use This
 

@@ -2,7 +2,7 @@
 
 module Articles
   module Operation
-    class Purge < ApplicationOperation
+    class Purge < Core::Operation
       def call(model:)
         purged_model = step purge_model(model)
         { model: purged_model }

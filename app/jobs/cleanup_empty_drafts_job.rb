@@ -14,7 +14,7 @@ class CleanupEmptyDraftsJob < ApplicationJob
       .joins(:article_translations)
       .where(article_translations: { locale: "en", title: [ nil, "", *placeholder_titles ] })
       .find_each do |article|
-        article.destroy if Articles::ContentAnalysis.new(article).plain_text_body.blank?
+        article.destroy if Articles::Service::ContentAnalysis.new(article).plain_text_body.blank?
       end
   end
 

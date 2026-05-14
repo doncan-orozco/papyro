@@ -4,7 +4,7 @@ require "securerandom"
 
 module Articles
   module Operation
-    class Create < ApplicationOperation
+    class Create < Core::Operation
       HASH_LENGTH = 6
       MAX_SLUG_COLLISION_RETRIES = 3
 

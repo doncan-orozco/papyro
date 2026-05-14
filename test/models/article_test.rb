@@ -89,7 +89,7 @@ class ArticleTest < ActiveSupport::TestCase
       body: "<p>Hello <strong>world</strong> from <em>Papyro</em></p>"
     )
 
-    content_analysis = Articles::ContentAnalysis.new(article)
+    content_analysis = Articles::Service::ContentAnalysis.new(article)
 
     assert_equal "Hello world from Papyro", content_analysis.plain_text_body
     assert_equal 4, content_analysis.content_word_count
@@ -103,7 +103,7 @@ class ArticleTest < ActiveSupport::TestCase
       body: ""
     )
 
-    content_analysis = Articles::ContentAnalysis.new(article)
+    content_analysis = Articles::Service::ContentAnalysis.new(article)
 
     assert_equal 0, content_analysis.content_word_count
     assert_equal 0, content_analysis.estimated_reading_time_minutes
@@ -134,13 +134,13 @@ class ArticleTest < ActiveSupport::TestCase
     )
 
     article.cover_image.attach(
-      io: StringIO.new("a" * (Articles::CoverImageValidation::MAX_COVER_IMAGE_SIZE + 1)),
+      io: StringIO.new("a" * (Articles::Service::CoverImageValidation::MAX_COVER_IMAGE_SIZE + 1)),
       filename: "cover.png",
       content_type: "image/png"
     )
 
     assert_not article.valid?
-    assert_includes article.errors[:cover_image], I18n.t("articles.errors.invalid_cover_image_size", max_size_mb: Articles::CoverImageValidation::MAX_COVER_IMAGE_SIZE / 1.megabyte)
+    assert_includes article.errors[:cover_image], I18n.t("articles.errors.invalid_cover_image_size", max_size_mb: Articles::Service::CoverImageValidation::MAX_COVER_IMAGE_SIZE / 1.megabyte)
   end
 
   test "cover image rejects unanalyzable image payloads" do
@@ -181,8 +181,8 @@ class ArticleTest < ActiveSupport::TestCase
     assert_not article.valid?
     assert_includes article.errors[:cover_image], I18n.t(
       "articles.errors.cover_image_too_small",
-      min_width: Articles::CoverImageValidation::MIN_COVER_IMAGE_WIDTH,
-      min_height: Articles::CoverImageValidation::MIN_COVER_IMAGE_HEIGHT
+      min_width: Articles::Service::CoverImageValidation::MIN_COVER_IMAGE_WIDTH,
+      min_height: Articles::Service::CoverImageValidation::MIN_COVER_IMAGE_HEIGHT
     )
   ensure
     file.close!

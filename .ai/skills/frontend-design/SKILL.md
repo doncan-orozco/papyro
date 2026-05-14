@@ -394,3 +394,9 @@ Define accessibility requirements:
 - [Google Fonts](https://fonts.google.com/)
 - [Web Safe Colors & Palettes](https://colorhunt.co/)
 - [Phlex Components](https://www.phlex.fun/)
+
+## Companion Skills
+
+- **[../phlex-view-pattern/SKILL.md](../phlex-view-pattern/SKILL.md)** — **PRIMARY view structure source**: Golden archetype for all Phlex views and components. Load this first for any work in `app/views/` or `app/components/`. This frontend-design skill adds the visual polish layer on top of the structure governed by phlex-view-pattern.
+- **[../frontend/SKILL.md](../frontend/SKILL.md)** for Stimulus and Hotwire integration
+- **[../design-system/SKILL.md](../design-system/SKILL.md)** for shadcn/Phlex UI primitive patterns

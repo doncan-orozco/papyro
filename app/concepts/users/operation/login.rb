@@ -2,7 +2,7 @@
 
 module Users
   module Operation
-    class Login < ApplicationOperation
+    class Login < Core::Operation
       def call(params:)
         validated_attributes = step validate_input(params)
         authenticated_user = step authenticate_user(validated_attributes)

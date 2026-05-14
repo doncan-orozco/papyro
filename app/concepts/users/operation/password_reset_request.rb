@@ -2,7 +2,7 @@
 
 module Users
   module Operation
-    class PasswordResetRequest < ApplicationOperation
+    class PasswordResetRequest < Core::Operation
       def call(params:)
         validated_attributes = step validate_input(params)
         step deliver_reset_instructions(validated_attributes[:email_address])

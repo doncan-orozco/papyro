@@ -2,7 +2,7 @@
 
 module Articles
   module Operation
-    class Restore < ApplicationOperation
+    class Restore < Core::Operation
       def call(model:)
         restored_model = step restore_model(model)
         { model: restored_model }

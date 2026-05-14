@@ -1,8 +1,9 @@
 module Views
   module Users
     class Show < Views::Base
-      def initialize(user:)
+      def initialize(user:, viewer_user_id: nil)
         @user = user
+        @viewer_user_id = viewer_user_id
       end
 
       def view_template
@@ -20,7 +21,7 @@ module Views
                 p(class: "text-sm text-muted-foreground") { t("users.show.display_name_label") }
                 p(class: "text-base font-medium") { @user.author_display_name }
 
-                if Current.user&.id == @user.id
+                if @viewer_user_id == @user.id
                   render Components::Ui::Button.new(as: :a, href: edit_settings_profile_path) do
                     t("users.show.edit_profile")
                   end

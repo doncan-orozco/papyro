@@ -6,8 +6,9 @@ module Views
       class Edit < Views::Base
         include Phlex::Rails::Helpers::FormWith
 
-        def initialize(user:)
+        def initialize(user:, author_profile_path:)
           @user = user
+          @author_profile_path = author_profile_path
         end
 
         def view_template
@@ -90,7 +91,7 @@ module Views
                   div(class: "flex flex-wrap gap-3") do
                     form.submit t("users.settings.profile.submit")
                     link_to t("users.settings.profile.cancel"),
-                      author_path(Current.user.profile.username),
+                      author_profile_path,
                       class: "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 border border-input bg-background hover:bg-muted"
                   end
                 end
@@ -100,6 +101,8 @@ module Views
         end
 
         private
+
+        attr_reader :author_profile_path
 
         def profile_for_form
           @profile_for_form ||= @user.profile || @user.build_profile

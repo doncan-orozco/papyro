@@ -4,7 +4,7 @@ module Articles
   module Operation
     # Marks the current locale's translation as publicly visible.
     # Only valid when the parent article is published (English is live).
-    class PublishTranslation < ApplicationOperation
+    class PublishTranslation < Core::Operation
       def call(model:, locale:)
         persisted = step publish_translation_with_state_transition(model: model, locale: locale)
 

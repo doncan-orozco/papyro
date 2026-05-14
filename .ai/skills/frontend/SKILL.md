@@ -16,6 +16,7 @@ Use this skill for application-facing frontend work. Keep the SKILL body focused
 - Stimulus defaults for interactive compound components belong in component helper methods, not repeated across views.
 - Interactive overlays should use stable fixed positioning and avoid animating `top`/`left`.
 - Never compose Sheet/Dialog/overlay `content` inside a container that creates a stacking context (`sticky`/`relative` + `z-index`, `transform`, `filter`, `will-change`). Keep the trigger inside the stacking container and place the overlay `content` outside it under the same Sheet root block. See [references/views.md](references/views.md#modaloverlay-composition-in-views).
+- Stimulus controllers should mirror domain/view ownership in path structure (for example `app/javascript/controllers/studio/articles/autosave_controller.js`) and use the matching identifier (`studio--articles--autosave`) in `data-controller` and `data-action`.
 - Use `link_to` for navigation instead of raw anchor tags.
 - Keep Tailwind usage semantic and aligned with the design system.
 - Separate divergent form intents into dedicated components (for example editor vs settings) instead of mode-driven branching in one large component.
@@ -46,6 +47,7 @@ Use this skill for application-facing frontend work. Keep the SKILL body focused
 
 ## Companion Skills
 
+- **[../phlex-view-pattern/SKILL.md](../phlex-view-pattern/SKILL.md)** — **PRIMARY view structure source**: Golden archetype for all Phlex views and components. Load this first for any work in `app/views/` or `app/components/`. This skill defers to phlex-view-pattern for view shape, presenter extraction, sub-component decomposition, and Turbo Frame ID conventions.
 - **[../design-system/SKILL.md](../design-system/SKILL.md)** for base UI components and semantic tokens
 - **[../frontend-design/SKILL.md](../frontend-design/SKILL.md)** for visual direction and higher-polish interface work
 - **[../turbo/SKILL.md](../turbo/SKILL.md)** for frame decomposition and Turbo interaction patterns

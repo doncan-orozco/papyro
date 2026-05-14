@@ -68,3 +68,7 @@ app/assets/tailwind/
 - `Articles::Show` typography belongs in `domains/articles/reader.css`.
 - Shared custom scrollbar rules belong in `components/ui-scroll-area.css`.
 - Theme variables and dark mode belong in `foundation/theme.css`.
+
+## Companion Skills
+
+- **[../phlex-view-pattern/SKILL.md](../phlex-view-pattern/SKILL.md)** — **PRIMARY view structure source**: Golden archetype for all Phlex views and components. Load this first for any work in `app/views/` or `app/components/`. This stylesheet skill defers to the view/component shape defined by phlex-view-pattern.

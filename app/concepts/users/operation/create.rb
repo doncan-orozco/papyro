@@ -2,7 +2,7 @@
 
 module Users
   module Operation
-    class Create < ApplicationOperation
+    class Create < Core::Operation
       def call(params:)
         validated_attributes = step validate_input(params)
         persisted_user = step persist_user(validated_attributes)

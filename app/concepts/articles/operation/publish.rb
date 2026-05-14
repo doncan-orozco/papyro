@@ -2,7 +2,7 @@
 
 module Articles
   module Operation
-    class Publish < ApplicationOperation
+    class Publish < Core::Operation
       def call(model:, settings_params: {}, locale: I18n.locale)
         persisted_model = step publish_with_optional_settings(
           model: model,

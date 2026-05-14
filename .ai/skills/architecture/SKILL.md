@@ -12,20 +12,22 @@ description: Clean Architecture patterns with pure dry-rb operations for Rails a
 ## File Structure (Domain + Rails Conventions)
 ```
 app/
-  operations/
-    game/
-      operation/
-        move_player.rb
-    player/
+  concepts/
+    articles/
       operation/
         create.rb
-  contracts/
-    game/
-      contract/
-        move_player.rb
-    player/
+        update.rb
       contract/
         create.rb
+        update.rb
+      query/
+        published.rb
+      service/
+        content_analysis.rb
+      presenter/
+        default.rb
+      validator/
+        body.rb
   
   components/        ← Reusable UI components (Phlex)
     game/
@@ -43,9 +45,44 @@ app/
   controllers/       ← Thin controllers
   channels/          ← WebSocket channels
   models/            ← ActiveRecord (persistence only)
-  queries/           ← Query objects
-  services/          ← Domain services
+  javascript/
+    controllers/
+      studio/
+        articles/
+          autosave_controller.js
 ```
+
+### Vertical Slice Rule
+
+For domain-specific backend code, prefer `app/concepts/{domain}/...` over horizontal top-level folders.
+
+#### 🚫 No Namespace Stuttering
+**Do not repeat the domain or type in the class or file name.**
+For example, use `Published` (not `PublishedQuery`), `Body` (not `BodyValidator`), and `Default`/`Show` (not `ArticlePresenter`/`ShowPresenter`).
+
+**Correct:**
+- `app/concepts/articles/query/published.rb` → `Articles::Query::Published`
+- `app/concepts/articles/validator/body.rb` → `Articles::Validator::Body`
+- `app/concepts/articles/presenter/default.rb` → `Articles::Presenter::Default`
+
+**Incorrect:**
+- `published_query.rb`, `body_validator.rb`, `article_presenter.rb`
+
+1. Put read flows in `app/concepts/{domain}/query/` using `Domain::Query::*` namespaces (no stuttering).
+2. Put domain services in `app/concepts/{domain}/service/` using `Domain::Service::*` namespaces.
+3. Put domain validators in `app/concepts/{domain}/validator/` using `Domain::Validator::*` namespaces.
+4. Put domain presenters in `app/concepts/{domain}/presenter/` using `Domain::Presenter::*` namespaces.
+5. Keep controllers thin and call these namespaced objects directly.
+
+### Refactor Safety Checklist (Required)
+
+When performing structural refactors (renames/moves between `app/presenters`, `app/queries`, and `app/concepts`):
+
+1. Remove legacy duplicate files immediately after references are migrated.
+2. Verify file path, module nesting, and class name alignment for Zeitwerk.
+3. Confirm all call sites are updated (controllers, views, operations, tests).
+4. Run targeted suites for touched domains before full test runs.
+5. Finish with full regression (`bin/rails test` and `bin/rails test:system`).
 
 ## Implementation Notes
 
@@ -56,6 +93,7 @@ This file focuses on patterns and examples. For requirements, see:
 - [Task and issue requirements](/.github/copilot-instructions.md#taskissue-requirements)
 
 For the canonical mutation-command shape, also load `.ai/skills/operation-pattern/SKILL.md`.
+For all view and component work in `app/views/` or `app/components/`, load `.ai/skills/phlex-view-pattern/SKILL.md` — it is the primary source of frontend structure guidelines.
 
 ## Reference Map
 
@@ -144,7 +182,7 @@ end
 # app/controllers/articles_controller.rb
 class ArticlesController < ApplicationController
   def index
-    @articles = Articles::PublishedQuery.call
+    @articles = Articles::Query::Published.call
   end
 end
 

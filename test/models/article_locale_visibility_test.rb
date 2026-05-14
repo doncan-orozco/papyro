@@ -16,7 +16,7 @@ class ArticleLocaleVisibilityTest < ActiveSupport::TestCase
     publish_article!(article)
 
     assert_predicate article, :published?
-    assert_includes Articles::PublishedQuery.call, article
+    assert_includes Articles::Query::Published.call, article
   end
 
   test "original locale determines publication status" do

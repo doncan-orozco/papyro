@@ -3,8 +3,9 @@
 module Views
   module Articles
     class Index < Views::Base
-      def initialize(articles:)
+      def initialize(articles:, show_welcome_hero: false)
         @articles = articles
+        @show_welcome_hero = show_welcome_hero
       end
 
       def view_template
@@ -12,7 +13,7 @@ module Views
           render Components::Public::Navbar.new
 
           main(class: "relative overflow-hidden") do
-            render Components::Public::WelcomeHero.new if Current.user.guest?
+            render Components::Public::WelcomeHero.new if @show_welcome_hero
 
             div(class: "pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(15,23,42,0.06),transparent_60%)]")
 

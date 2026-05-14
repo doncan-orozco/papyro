@@ -10,8 +10,11 @@ Code should read like domain discussion. A casual observer should not be able to
 
 ## Rules
 
+
 ### Classes and Types
 - Name types after the domain concept they represent, not after their technical implementation.
+- **Never repeat the namespace or type in the class or file name (no stuttering):**
+  - Use `Published` (not `PublishedQuery`), `Body` (not `BodyValidator`), `Default`/`Show` (not `ArticlePresenter`/`ShowPresenter`).
 - Prefer `Surname`, `Money`, `Currency`, `EnrollmentPeriod` over `String`, `Float`, `Hash`.
 - Compound domain concepts get their own type: `Money` has a `Currency` and an `Amount`, not a raw float.
 - Never expose implementation-level details in a class name: `UserList` is worse than `Roster`; `QuestionHashMap` is worse than `QuestionBank`.

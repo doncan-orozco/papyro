@@ -49,6 +49,7 @@ Load the focused skill when you need the recommended implementation pattern:
 - **[../architecture/SKILL.md](../architecture/SKILL.md)** for operations, contracts, controllers, queries, and services
 - **[../error-handling/SKILL.md](../error-handling/SKILL.md)** for `Dry::Monads::Result` payload handling
 - **[../i18n/SKILL.md](../i18n/SKILL.md)** for locale structure and translation-key conventions
+- **[../phlex-view-pattern/SKILL.md](../phlex-view-pattern/SKILL.md)** for view and component structure (primary source for all `app/views/` and `app/components/` work)
 - **[../frontend/SKILL.md](../frontend/SKILL.md)** for Phlex and Stimulus composition rules
 - **[../testing/SKILL.md](../testing/SKILL.md)** for positive test patterns
 - **[../database-anti-patterns/SKILL.md](../database-anti-patterns/SKILL.md)** and **[../sqlite/SKILL.md](../sqlite/SKILL.md)** for migration safety

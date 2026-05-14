@@ -64,3 +64,8 @@ Use this skill for UI work in `app/components/ui/`. Keep the main body focused o
 - No nested button-inside-trigger invalid HTML
 
 Rules live in the checklist: [../../copilot-instructions.md](/.github/copilot-instructions.md#-frontend)
+
+## Companion Skills
+
+- **[../phlex-view-pattern/SKILL.md](../phlex-view-pattern/SKILL.md)** — **PRIMARY view structure source**: Golden archetype for all Phlex views and components. Load this first for any work in `app/views/` or `app/components/`. This design-system skill defers to phlex-view-pattern for view composition shape, sub-component extraction boundaries, and presenter extraction.
+- **[../frontend/SKILL.md](../frontend/SKILL.md)** for Stimulus integration and Hotwire patterns

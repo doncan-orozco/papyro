@@ -31,9 +31,9 @@ class Article < ApplicationRecord
   validates :original_locale, presence: true, inclusion: { in: ->(_record) { I18n.available_locales.map(&:to_s) } }
   validates :excerpt, length: { maximum: 500 }, allow_nil: true
   validates :cover_image_caption, length: { maximum: COVER_IMAGE_CAPTION_MAX_LENGTH }, allow_nil: true
-  validates_with CoverImageValidator, if: ->(record) { record.cover_image.attached? }
-  validates_with ArticleBodyValidator
-  validates_with ArticlePublishingValidator
+  validates_with Articles::Validator::CoverImage, if: ->(record) { record.cover_image.attached? }
+  validates_with Articles::Validator::Body
+  validates_with Articles::Validator::Publishing
 
   def published?
     return false if trashed? || archived?

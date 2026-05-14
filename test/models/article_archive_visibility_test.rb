@@ -18,21 +18,21 @@ class ArticleArchiveVisibilityTest < ActiveSupport::TestCase
 
   test "published article is visible" do
     assert_predicate @article, :published?
-    assert_includes Articles::PublishedQuery.call, @article
+    assert_includes Articles::Query::Published.call, @article
   end
 
   test "archived article is not visible even if published" do
     @article.update!(archived_at: Time.current)
 
     assert_not_predicate @article, :published?
-    assert_not_includes Articles::PublishedQuery.call, @article
+    assert_not_includes Articles::Query::Published.call, @article
   end
 
   test "deleted article is not visible even if published" do
     @article.update!(deleted_at: Time.current)
 
     assert_not_predicate @article, :published?
-    assert_not_includes Articles::PublishedQuery.call, @article
+    assert_not_includes Articles::Query::Published.call, @article
   end
 
   test "archived? predicate works" do

@@ -19,7 +19,7 @@ module ErrorHandling
     if exception&.model == "Article" || (params[:controller] == "articles" && params[:action] == "show")
       author = nil
       if params[:slug].present?
-        author = Users::AuthorByArticleSlugQuery.call({ slug: params[:slug] }).first
+        author = Users::Query::AuthorByArticleSlug.call({ slug: params[:slug] }).first
       end
       render Views::Articles::NotFound.new(author: author), status: :not_found
     else
