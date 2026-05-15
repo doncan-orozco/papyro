@@ -20,7 +20,7 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index is accessible without authentication" do
-    get articles_path
+    get root_path
 
     assert_response :success
     assert_includes @response.body, "Find your next deep read"
@@ -48,7 +48,7 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
       publish_article!(article, published_at: (index + 1).hours.ago)
     end
 
-    get articles_path
+    get root_path
 
     assert_includes @response.body, @published_article.title
     assert_not_includes @response.body, @draft_article.title
@@ -174,7 +174,7 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index renders welcome hero for unauthenticated guest" do
-    get articles_path
+    get root_path
 
     assert_response :success
     assert_includes response.body, I18n.t("components.public.welcome_hero.eyebrow")
@@ -184,9 +184,15 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
   test "index does not render welcome hero for authenticated user" do
     sign_in_as @user
 
-    get articles_path
+    get root_path
 
     assert_response :success
     assert_not_includes response.body, I18n.t("components.public.welcome_hero.eyebrow")
+  end
+
+  test "duplicate localized articles index path is not routed" do
+    get "/en/articles"
+
+    assert_response :not_found
   end
 end

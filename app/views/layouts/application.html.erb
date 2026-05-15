@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="<%= I18n.locale %>">
   <head>
-    <title><%= seo_title %></title>
-    <meta name="description" content="<%= seo_description %>">
+    <title><%= content_for?(:page_title) ? "#{yield(:page_title)} | Papyro" : "Papyro" %></title>
+    <meta name="description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : t("seo.site_description") %>">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Papyro">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta property="og:title" content="<%= seo_title %>">
-    <meta property="og:description" content="<%= seo_description %>">
+    <meta property="og:title" content="<%= content_for?(:page_title) ? "#{yield(:page_title)} | Papyro" : "Papyro" %>">
+    <meta property="og:description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : t("seo.site_description") %>">
+    <meta property="og:image" content="<%= content_for?(:og_image) ? yield(:og_image) : "#{request.base_url}/icon.png" %>">
+    <meta name="twitter:card" content="summary_large_image">
     <meta property="og:locale" content="<%= og_locale %>">
     <% I18n.available_locales.each do |locale| %>
       <% next if locale.to_sym == I18n.locale.to_sym %>
@@ -20,15 +22,7 @@
     <% end %>
     <link rel="alternate" hreflang="x-default" href="<%= x_default_url %>">
 
-    <% if controller_name == "articles" && action_name == "show" %>
-      <meta name="robots" content="noindex,follow">
-    <% end %>
 
-    <% if defined?(@presenter) && @presenter.respond_to?(:json_ld) %>
-      <script type="application/ld+json">
-        <%= @presenter.json_ld.merge({ "@context": "https://schema.org" }).to_json.html_safe %>
-      </script>
-    <% end %>
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>

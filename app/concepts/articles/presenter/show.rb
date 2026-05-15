@@ -49,6 +49,13 @@ module Articles
         end
       end
 
+      def localized_slug_for(target_locale)
+        localized_slug = Mobility.with_locale(target_locale) { slug }
+        return localized_slug if localized_slug.present?
+
+        Mobility.with_locale(original_locale) { slug }
+      end
+
       private
 
       def cover_image_url

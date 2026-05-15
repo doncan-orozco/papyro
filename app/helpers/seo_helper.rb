@@ -9,15 +9,17 @@ module SeoHelper
   end
 
   def seo_description
+    return @presenter.excerpt if article_show_page? && @presenter.excerpt.present?
+
     content_for(:description) || t("seo.default_description", default: t("app.description"))
   end
 
   def canonical_url
-    article_show_page? ? article_canonical_url : current_request_url
+    article_show_page? ? article_url_for_locale(I18n.locale) : current_request_url
   end
 
   def alternate_locale_url(locale)
-    return article_url(@presenter, locale: locale) if article_show_page?
+    return article_url_for_locale(locale) if article_show_page?
 
     route_name, route_params = recognized_route
     return current_request_url unless route_name.present?
@@ -62,7 +64,12 @@ module SeoHelper
   end
 
   def article_canonical_url
-    article_url(@presenter, locale: @presenter.original_locale)
+    article_url_for_locale(I18n.locale)
+  end
+
+  def article_url_for_locale(target_locale)
+    localized_slug = @presenter.localized_slug_for(target_locale)
+    article_url(localized_slug, locale: target_locale)
   end
 
   def current_request_url

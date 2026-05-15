@@ -29,7 +29,7 @@ Rails.application.routes.draw do
 
     resources :users, only: [ :show, :edit, :update ]
 
-    resources :articles, only: [ :index, :show ], param: :slug
+    resources :articles, only: [ :show ], param: :slug
 
     get "about", to: "about#index", as: :about
   end
