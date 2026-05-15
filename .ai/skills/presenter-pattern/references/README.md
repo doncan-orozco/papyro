@@ -1,3 +1,9 @@
+# Key Correction (May 2026)
+
+- All presenters must inherit from `Core::Presenter::Base` (not `ApplicationPresenter`).
+- Use the `helpers` method from the base class for Rails route helpers.
+- See `presenter-base-inheritance.md` for details and code samples.
+
 # Presenter Pattern References
 
 This folder contains concrete examples of the Golden Presenter Pattern in action across Papyro domains.

@@ -10,6 +10,11 @@ module Core
       def initialize(model)
         super(model)
       end
+
+      # Allow presenters to access Rails route helpers
+      def helpers
+        Rails.application.routes.url_helpers
+      end
     end
   end
 end

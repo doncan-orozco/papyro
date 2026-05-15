@@ -1,3 +1,9 @@
+# WARNING (May 2026)
+
+- All presenters must inherit from `Core::Presenter::Base` (not `ApplicationPresenter`).
+- Use the `helpers` method from the base class for Rails route helpers.
+- See `presenter-base-inheritance.md` for details and code samples.
+
 # Studio Article Presenter Example
 
 This example shows the `Studio::ArticlePresenter` pattern — how to present draft/published articles with translation awareness in the studio editor interface.

@@ -10,8 +10,8 @@ module Articles
 
       def call(model:, params:, locale: I18n.locale)
         normalized_params, generated_slug = step prepare_attributes(model: model, params: params, locale: locale)
-        validated_attributes = step validate_input(model: model, params: normalized_params)
-        persisted_article    = step persist_article(model: model, attributes: validated_attributes, generated_slug: generated_slug)
+        validated_attributes = step validate_input(model: model, params: normalized_params, locale: locale)
+        persisted_article    = step persist_article(model: model, attributes: validated_attributes, generated_slug: generated_slug, locale: locale)
 
         { model: persisted_article }
       end
@@ -31,7 +31,7 @@ module Articles
         Success([ attrs, generated ])
       end
 
-      def validate_input(model:, params:)
+      def validate_input(model:, params:, locale:)
         if model.trashed?
           return Failure(
             model: model,
@@ -43,13 +43,15 @@ module Articles
         contract_result = Articles::Contract::Update.new.call(params)
 
         if contract_result.failure?
-          model.assign_attributes(params.except(:slug, :status))
+          model.assign_attributes(params.except(:slug, :status, :body))
+          assign_localized_body_preview(model: model, locale: locale, params: params)
           invalid_article = inject_errors!(model, contract_result.errors.to_h)
           return fail_with_model!(invalid_article)
         end
 
         if publish_requested?(params) && params[:published_at].blank? && !model.published?
-          model.assign_attributes(params.except(:slug, :status))
+          model.assign_attributes(params.except(:slug, :status, :body))
+          assign_localized_body_preview(model: model, locale: locale, params: params)
           model.errors.add(:published_at, I18n.t("errors.messages.published_at_required_for_published"))
           return fail_with_model!(model)
         end
@@ -57,13 +59,21 @@ module Articles
         Success(contract_result.to_h.symbolize_keys)
       end
 
-      def persist_article(model:, attributes:, generated_slug:)
-        model.assign_attributes(attributes.except(:status))
+      def persist_article(model:, attributes:, generated_slug:, locale:)
+        body_provided = attributes.key?(:body)
+        body_content = attributes[:body]
+
+        model.assign_attributes(attributes.except(:status, :body))
         attempts = 0
 
         loop do
           begin
-            return Success(model) if model.save
+            return Success(model) if persist_model_and_localized_body(
+              model: model,
+              locale: locale,
+              body_provided: body_provided,
+              body_content: body_content
+            )
 
             break unless should_retry?(model, generated_slug, attempts)
 
@@ -146,6 +156,34 @@ module Articles
 
       def publish_requested?(params)
         params[:status].to_s == "published"
+      end
+
+      def assign_localized_body_preview(model:, locale:, params:)
+        return unless params.key?(:body)
+
+        if model.original?(locale)
+          model.body = params[:body]
+        else
+          translation_for_locale(model, locale).content = params[:body]
+        end
+      end
+
+      def persist_model_and_localized_body(model:, locale:, body_provided:, body_content:)
+        if body_provided && model.original?(locale)
+          model.body = body_content
+        end
+
+        return false unless model.save
+        return true unless body_provided
+        return true if model.original?(locale)
+
+        translation = translation_for_locale(model, locale)
+        translation.content = body_content
+        translation.save
+      end
+
+      def translation_for_locale(model, locale)
+        model.article_translations.find_or_initialize_by(locale: locale.to_s)
       end
     end
   end

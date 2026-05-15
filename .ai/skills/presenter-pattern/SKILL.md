@@ -1,3 +1,36 @@
+## Presenter Base Class (Critical)
+
+**All presenters MUST inherit from `Core::Presenter::Base`.**
+
+- Do NOT use `ApplicationPresenter` (does not exist in Papyro)
+- `Core::Presenter::Base` provides:
+  - `SimpleDelegator` wrapping
+  - Shared presenter logic
+  - A `helpers` method for Rails route helpers
+
+**Example:**
+
+```ruby
+class Studio::Articles::Presenter::Editor < ::Core::Presenter::Base
+  # ...
+end
+```
+
+**Accessing route helpers:**
+
+Use `helpers` (from the base class) for all path/url helpers:
+
+```ruby
+def form_url
+  helpers.studio_article_path(article.uuid, content_locale: content_locale)
+end
+```
+
+**Do NOT:**
+- Inherit from `ApplicationPresenter`
+- Use `include Rails.application.routes.url_helpers` in presenters
+- Access route helpers via global scope
+
 ---
 name: presenter-pattern
 description: Golden archetype for display-logic presenters using SimpleDelegator. Use when creating or updating presenters that wrap models to provide view-agnostic display methods, locale-aware transformations, and collection helpers. Establishes clean separation between persistence logic, view rendering, and display transformation.

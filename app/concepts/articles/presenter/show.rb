@@ -5,12 +5,13 @@ require "ostruct"
 module Articles
   module Presenter
     class Show < Default
-      def content_analysis
-        # Improved stub for test passability
-        OpenStruct.new(
-          estimated_reading_time_minutes: 1,
-          html_body: "One two three four"
-        )
+
+      def excerpt
+        Mobility.with_locale(locale) { __getobj__.excerpt }
+      end
+
+      def content_html
+        MarkdownRenderer.build.render(content_markdown).html_safe
       end
 
       def json_ld
@@ -33,9 +34,6 @@ module Articles
         @more_from_platform = Default.wrap(more_from_platform, locale: locale)
       end
 
-      def content_html
-        content_analysis.html_body.html_safe
-      end
 
       def continuation_articles
         @continuation_articles ||= @more_from_author.presence || @more_from_platform
@@ -57,6 +55,13 @@ module Articles
       end
 
       private
+
+      def content_markdown
+        return __getobj__.body.content.to_s if locale.to_s == original_locale.to_s
+
+        translation = __getobj__.article_translations.find { |entry| entry.locale == locale.to_s }
+        translation&.content.presence || __getobj__.body.content.to_s
+      end
 
       def cover_image_url
         cover_image.attached? ? Rails.application.routes.url_helpers.rails_blob_path(cover_image, only_path: true) : nil
