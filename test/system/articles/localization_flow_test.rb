@@ -44,5 +44,21 @@ module Articles
       assert_text "English excerpt"
       assert_text "English content"
     end
+
+    test "unpublished spanish translation falls back to english content" do
+      @article.article_translations.find_by!(locale: "es").update!(status: :draft, published_at: nil)
+
+      visit article_path(@article, locale: :es)
+
+      assert_text I18n.t("articles.show.translation_fallback_notice", locale: :es)
+
+      assert_text "English Title"
+      assert_text "English excerpt"
+      assert_text "English content", exact: false
+
+      assert_no_text "Título en Español"
+      assert_no_text "Extracto en español"
+      assert_no_text "Contenido en español", exact: false
+    end
   end
 end

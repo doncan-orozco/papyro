@@ -5,9 +5,16 @@ require "ostruct"
 module Articles
   module Presenter
     class Show < Default
+      def title
+        Mobility.with_locale(content_locale_for_display) { __getobj__.title }
+      end
 
       def excerpt
-        Mobility.with_locale(locale) { __getobj__.excerpt }
+        Mobility.with_locale(content_locale_for_display) { __getobj__.excerpt }
+      end
+
+      def cover_image_caption
+        Mobility.with_locale(content_locale_for_display) { __getobj__.cover_image_caption }
       end
 
       def content_html
@@ -24,7 +31,7 @@ module Articles
             "name": author_name
           },
           "datePublished": published_at&.iso8601,
-          "inLanguage": locale
+          "inLanguage": content_locale_for_display
         }
       end
 
@@ -57,10 +64,14 @@ module Articles
       private
 
       def content_markdown
-        return __getobj__.body.content.to_s if locale.to_s == original_locale.to_s
+        return __getobj__.body.content.to_s if content_locale_for_display == original_locale.to_s
 
-        translation = __getobj__.article_translations.find { |entry| entry.locale == locale.to_s }
+        translation = __getobj__.article_translations.find { |entry| entry.locale == content_locale_for_display }
         translation&.content.presence || __getobj__.body.content.to_s
+      end
+
+      def content_locale_for_display
+        translation_fallback? ? original_locale.to_s : locale.to_s
       end
 
       def cover_image_url
