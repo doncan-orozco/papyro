@@ -53,6 +53,7 @@ module Articles
 
       def persist_draft_state(model)
         previous_published_at = model.published_at
+        translations = model.article_translations.to_a
 
         model.assign_attributes(published_at: nil)
         unless model.save
@@ -60,21 +61,27 @@ module Articles
           return fail_with_model!(model)
         end
 
-        original_translation = model.article_translations.find_by(locale: model.original_locale)
-        if original_translation.blank?
+        if translations.blank?
           restore_publish_timestamp(model, previous_published_at: previous_published_at)
           model.errors.add(:base, I18n.t("errors.messages.translation_not_found"))
           return fail_with_model!(model)
         end
 
-        # Update translation with status enum (draft=0) and clear published_at timestamp.
-        unless original_translation.update(status: :draft, published_at: nil)
+        unless unpublish_all_translations(translations)
           restore_publish_timestamp(model, previous_published_at: previous_published_at)
           model.errors.add(:base, I18n.t("studio.articles.operations.unpublish.failure"))
           return fail_with_model!(model)
         end
 
         Success(model)
+      end
+
+      def unpublish_all_translations(translations)
+        translations.each do |translation|
+          return false unless translation.update(status: :draft, published_at: nil)
+        end
+
+        true
       end
 
       def restore_publish_timestamp(model, previous_published_at:)

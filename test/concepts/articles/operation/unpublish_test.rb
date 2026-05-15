@@ -1,7 +1,7 @@
 require "test_helper"
 
 class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
-  test "unpublishes published article" do
+  test "unpublishes published article and all translations" do
     user = users(:admin)
     article = Article.create!(
       title: "Test Article",
@@ -14,8 +14,15 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
     publish_article!(article)
 
     # Ensure translation is published
-    translation = article.article_translations.find_by(locale: article.original_locale)
-    translation.update!(status: :published, published_at: Time.current)
+    english_translation = article.article_translations.find_by(locale: article.original_locale)
+    english_translation.update!(status: :published, published_at: Time.current)
+
+    spanish_translation = article.article_translations.create!(
+      locale: :es,
+      title: "Articulo de prueba",
+      status: :published,
+      published_at: Time.current
+    )
 
     result = Articles::Operation::Unpublish.new.call(model: article)
 
@@ -23,14 +30,16 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
     assert_predicate result.value![:model].reload, :draft?
     assert_nil result.value![:model].published_at
 
-    # Verify translation is also unpublished
-    translation.reload
+    english_translation.reload
+    spanish_translation.reload
 
-    assert_predicate translation, :draft?
-    assert_nil translation.published_at
+    assert_predicate english_translation, :draft?
+    assert_nil english_translation.published_at
+    assert_predicate spanish_translation, :draft?
+    assert_nil spanish_translation.published_at
   end
 
-  test "fails atomically when original locale translation is missing" do
+  test "fails atomically when article has no translations" do
     user = users(:admin)
     article = Article.create!(
       title: "Test Article",
@@ -43,14 +52,13 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
 
     publish_article!(article)
 
-    article.update_column(:original_locale, "es")
+    article.article_translations.delete_all
 
     result = Articles::Operation::Unpublish.new.call(model: article)
 
     assert_predicate result, :failure?
     assert_not_nil result.failure[:model].published_at
-    assert_not_predicate article.reload, :published?
-    assert_not_nil article.published_at
+    assert_not_nil article.reload.published_at
   end
 
   test "fails to unpublish draft article" do
