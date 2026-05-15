@@ -58,6 +58,7 @@ class LocaleSwitchingTest < ActionDispatch::IntegrationTest
     get studio_articles_path(locale: :es)
 
     assert_response :success
+    assert_select "html[lang='es']"
     assert_includes response.body, "href=\"#{studio_articles_path(locale: :en)}\""
     assert_includes response.body, "href=\"#{studio_articles_path(locale: :es)}\""
   end

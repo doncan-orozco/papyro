@@ -10,7 +10,6 @@ module Studio
 
     def studio_content_locale(default: nil)
       normalized_locale(params[:content_locale]) ||
-        normalized_locale(params[:locale]) ||
         normalized_locale(default) ||
         I18n.default_locale
     end
