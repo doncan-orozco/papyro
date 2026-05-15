@@ -69,6 +69,8 @@ When reviewing code:
 - Do not mix distinct user intents (for example writing content vs publishing/settings metadata) in a single mode-switched form component.
 - Prefer separate Phlex form components per intent (for example `EditorFormComponent`, `SettingsFormComponent`) and compose them in the page view.
 - Reserve mode flags/branching inside a single component for minor presentation variants, not divergent interactions (autosave + Stimulus vs standard submit flow).
+- Forms must visibly render field-level validation errors. Prefer `form.field` (auto `field_errors`), and when using raw helpers (`file_field`, `text_field`, etc.) explicitly render errors below the control.
+- For sheet/dialog/modal forms, keep the surface open on `:unprocessable_entity` re-renders so errors are not hidden.
 
 ## File Organization Policy
 

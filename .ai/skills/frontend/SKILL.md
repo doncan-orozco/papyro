@@ -20,6 +20,7 @@ Use this skill for application-facing frontend work. Keep the SKILL body focused
 - Use `link_to` for navigation instead of raw anchor tags.
 - Keep Tailwind usage semantic and aligned with the design system.
 - Separate divergent form intents into dedicated components (for example editor vs settings) instead of mode-driven branching in one large component.
+- Forms must visibly render field-level validation errors. Prefer `form.field` (which renders `field_errors` automatically). If using raw inputs like `file_field`/`text_field`, explicitly render the related errors below the input.
 - The House markdown editor (`<house-md>`, `<house-md-toolbar>`) is a custom web component in `vendor/javascript/house.min.js`. Its toolbar buttons are styled via `app/assets/stylesheets/house.css` using CSS custom properties — **not Tailwind**. Do not attempt to style toolbar buttons with Tailwind utility classes.
 
 ## Practical Workflow

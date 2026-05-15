@@ -102,7 +102,7 @@ es:
         excerpt_placeholder: "Breve resumen del artículo"
         excerpt_hint: "Máximo 500 caracteres"
         cover_image_label: "Imagen de portada (opcional)"
-        cover_image_hint: "Proporción recomendada: 2:1 (por ejemplo, 1200x600). Las tarjetas de descubrimiento se muestran en escala de grises y recuperan color al pasar el cursor para mantener la estética calmada."
+        cover_image_hint: "Proporción recomendada: 2:1 (por ejemplo, 1200x600). Tamaño mínimo: 400x400. Las tarjetas de descubrimiento se muestran en escala de grises y recuperan color al pasar el cursor para mantener la estética calmada."
         cover_image_caption_label: "Leyenda y crédito de la imagen"
         cover_image_caption_placeholder: "Por ejemplo, Foto de Jane Doe en Unsplash"
         status_label: "Estado"

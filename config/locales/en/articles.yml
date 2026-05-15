@@ -102,7 +102,7 @@ en:
         excerpt_placeholder: "Brief summary of the article"
         excerpt_hint: "Maximum 500 characters"
         cover_image_label: "Cover Image (Optional)"
-        cover_image_hint: "Recommended ratio: 2:1 (for example, 1200x600). Discovery cards render in grayscale and reveal color on hover to preserve the calm aesthetic."
+        cover_image_hint: "Recommended ratio: 2:1 (for example, 1200x600). Minimum size: 400x400. Discovery cards render in grayscale and reveal color on hover to preserve the calm aesthetic."
         cover_image_caption_label: "Image Caption and Credit"
         cover_image_caption_placeholder: "For example, Photo by Jane Doe on Unsplash"
         status_label: "Status"

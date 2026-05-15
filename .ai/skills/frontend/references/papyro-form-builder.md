@@ -115,6 +115,21 @@ form.field_errors(:title)  # renders <p class="text-xs text-destructive">...</p>
 
 The `field` helper calls `field_errors` automatically; you only need to call it manually for custom layouts.
 
+## Enforcement Rule: Never Hide Form Errors
+
+- Every editable form control must have a visible validation error path.
+- Preferred approach: use `form.field`, which renders inline errors automatically.
+- If you must use raw helpers (for example `form.file_field`), render matching errors directly under that control.
+
+Example for raw file field:
+
+```ruby
+form.file_field :cover_image, accept: "image/png,image/jpeg,image/webp"
+form.field_errors(:cover_image)
+```
+
+If a form is rendered in a sheet/dialog/modal, keep the overlay open on validation failure so those errors remain visible.
+
 ## Markdown Area Integration
 
 For House markdown editor fields, use `as: :markdown_area`. The form builder routes this through a custom helper:
