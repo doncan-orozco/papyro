@@ -8,6 +8,7 @@ module Users
         optional(:profile_attributes).maybe(:hash) do
           optional(:display_name).maybe(:string)
           required(:username).filled(:string)
+          optional(:portrait).maybe(Types::Any)
           optional(:bio).maybe(:string)
           optional(:location).maybe(:string)
           optional(:website_url).maybe(:string)

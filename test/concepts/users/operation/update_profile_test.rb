@@ -24,4 +24,27 @@ class Users::Operation::UpdateProfileTest < ActiveSupport::TestCase
     assert_equal expected_username, @user.profile.username
     assert_equal "updated@example.com", @user.email_address
   end
+
+  test "updates portrait while preserving immutable username" do
+    expected_username = @user.profile.username
+
+    result = Users::Operation::UpdateProfile.new.call(
+      user: @user,
+      params: {
+        profile_attributes: {
+          display_name: @user.profile.display_name,
+          username: "another_name",
+          portrait: {
+            io: StringIO.new("portrait image"),
+            filename: "portrait.png",
+            content_type: "image/png"
+          }
+        }
+      }
+    )
+
+    assert_predicate result, :success?
+    assert_equal expected_username, @user.reload.profile.username
+    assert_predicate @user.profile.portrait, :attached?
+  end
 end

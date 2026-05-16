@@ -43,7 +43,7 @@ module Components
               ) { t("components.public.navbar.write") }
 
               render Components::Ui::DropdownMenu.new(class: "relative") do |dropdown|
-                dropdown.trigger(class: "size-8 rounded-full bg-muted text-foreground text-sm font-semibold hover:bg-muted/80") do
+                dropdown.trigger(class: "size-8 rounded-full border border-border bg-muted/50 text-foreground text-xs font-bold uppercase tracking-[0.14em] hover:bg-muted/80") do
                   span(aria: { hidden: "true" }) { avatar_initial }
                 end
 

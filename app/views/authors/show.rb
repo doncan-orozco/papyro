@@ -12,7 +12,7 @@ module Views
       def view_template
         div(class: "min-h-screen bg-background text-foreground") do
           render Components::Public::Navbar.new
-          main(class: "mx-auto w-full max-w-4xl px-4 py-10 space-y-10") do
+          main(class: "mx-auto w-full max-w-5xl space-y-10 px-4 py-10") do
             render Show::IdentityHeader.new(presenter: @presenter)
             render Show::ArticlesSection.new(presenter: @presenter, articles: @articles, pagy: @pagy)
           end

@@ -1,6 +1,7 @@
 class AuthorProfile < ApplicationRecord
   belongs_to :user, inverse_of: :profile
   belongs_to :pinned_article, class_name: "Article", optional: true
+  has_one_attached :portrait
 
   before_validation :downcase_username
 

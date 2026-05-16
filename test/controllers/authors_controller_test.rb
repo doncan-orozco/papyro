@@ -86,4 +86,25 @@ class AuthorsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, I18n.t("authors.show.website")
     assert_includes response.body, I18n.t("authors.show.linkedin")
   end
+
+  test "show renders editorial fallback portrait when no photo is attached" do
+    get "/@#{@profile.username}"
+
+    assert_response :success
+    assert_includes response.body, "aspect-[4/5]"
+    assert_includes response.body, @profile.display_name.first.upcase
+  end
+
+  test "show renders uploaded portrait image when attached" do
+    @profile.portrait.attach(
+      io: StringIO.new("fake image binary"),
+      filename: "portrait.png",
+      content_type: "image/png"
+    )
+
+    get "/@#{@profile.username}"
+
+    assert_response :success
+    assert_includes response.body, Rails.application.routes.url_helpers.rails_blob_path(@profile.portrait, only_path: true)
+  end
 end

@@ -24,7 +24,7 @@ module Articles
       end
 
       def filter_by_tab(current_scope)
-        return current_scope if active_tab == "trash"
+        return current_scope.where.not(deleted_at: nil) if active_tab == "trash"
 
         # Exclude trashed articles by default
         current_scope.where(deleted_at: nil)

@@ -6,3 +6,8 @@ en:
       no_articles: "No published articles yet."
       website: "Website"
       linkedin: "LinkedIn"
+      meta:
+        location: "Location"
+        website: "Website"
+        x: "X"
+        linkedin: "LinkedIn"

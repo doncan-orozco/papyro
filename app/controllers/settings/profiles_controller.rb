@@ -32,7 +32,7 @@ module Settings
       params.require(:user).permit(
         :email_address,
         profile_attributes: [
-          :display_name, :username, :bio, :location,
+          :display_name, :username, :bio, :location, :portrait,
           :website_url, :x_handle, :linkedin_handle
         ]
       ).to_h
