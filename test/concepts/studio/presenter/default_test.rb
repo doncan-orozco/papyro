@@ -96,4 +96,25 @@ class Studio::Presenter::DefaultTest < ActiveSupport::TestCase
 
     assert presenter.locale_published?(translation)
   end
+
+  test "public view path uses article original locale" do
+    article = nil
+
+    I18n.with_locale(:es) do
+      article = Article.create!(
+        title: "Articulo original",
+        slug: "articulo-original-#{SecureRandom.hex(3)}",
+        body: "<p>Contenido</p>",
+        excerpt: "Resumen",
+        original_locale: "es",
+        user: users(:admin)
+      )
+    end
+
+    presenter = Studio::Presenter::Default.new(article, ui_locale: :en)
+
+    expected_path = Rails.application.routes.url_helpers.article_path(article, locale: :es)
+
+    assert_equal expected_path, presenter.public_view_path
+  end
 end

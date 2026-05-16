@@ -8,7 +8,7 @@ module Views
       end
 
       def view_template
-        section(class: "mt-8 mb-12") do
+        section(class: "mt-8 mb-16") do
           if @presenter.author_username.present?
             link_to author_path(@presenter.author_username, locale: I18n.locale),
               class: "group inline-flex items-center gap-3",

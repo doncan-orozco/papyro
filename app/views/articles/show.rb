@@ -25,15 +25,19 @@ module Views
           view_context.content_for(:head, fallback_tag)
         end
 
-        div(class: "article-reader min-h-screen bg-background text-foreground", data: { controller: "fullscreen" }) do
-          render Show::Header.new(back_path: root_path)
-          main(class: "px-4 pb-14 sm:px-6 sm:pb-16") do
-            div(class: "mx-auto w-full max-w-3xl") do
-              render Show::TranslationFallbackBanner.new if @presenter.translation_fallback?
-              render Show::Intro.new(presenter: @presenter)
-              render Show::Byline.new(presenter: @presenter)
-              render Show::CoverImage.new(presenter: @presenter)
-              render Show::Content.new(presenter: @presenter)
+        div(class: "min-h-screen bg-background text-foreground") do
+          render Components::Public::Navbar.new
+
+          main(class: "relative overflow-hidden") do
+            div(class: "pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(15,23,42,0.06),transparent_60%)]")
+
+            div(class: "px-4 pb-14 sm:px-6 sm:pb-16") do
+              div(class: "mx-auto w-full max-w-3xl") do
+                render Show::TranslationFallbackBanner.new(original_locale: @presenter.original_locale) if @presenter.translation_fallback?
+                render Show::Intro.new(presenter: @presenter)
+                render Show::Byline.new(presenter: @presenter)
+                render Show::Content.new(presenter: @presenter)
+              end
             end
           end
           # Render JSON-LD in the body for SEO, Turbo-safe (idiomatic Phlex)

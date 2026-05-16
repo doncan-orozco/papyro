@@ -88,6 +88,12 @@ module Studio
         end
       end
 
+      def public_view_path
+        locale = original_locale.to_s.presence || I18n.default_locale.to_s
+
+        helpers.article_path(__getobj__, locale: locale)
+      end
+
       private
 
       def translation_for(locale)

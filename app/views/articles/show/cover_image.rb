@@ -13,11 +13,13 @@ module Views
         return unless @presenter.cover_image_attached?
 
         figure(class: "mt-8 mb-12 flex w-full flex-col items-center") do
-          image_tag(
-            @presenter.cover_image,
-            alt: @presenter.title,
-            class: "w-full aspect-[2/1] rounded-2xl border border-border object-cover shadow-sm md:aspect-[21/9]"
-          )
+          div(class: "group w-full overflow-hidden rounded-2xl border border-border shadow-sm") do
+            image_tag(
+              @presenter.cover_image,
+              alt: @presenter.title,
+              class: "w-full aspect-[2/1] object-cover grayscale opacity-80 transition-all duration-700 ease-in-out group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100 md:aspect-[21/9]"
+            )
+          end
 
           return unless @presenter.cover_image_caption.present?
 

@@ -8,11 +8,19 @@ module Views
       end
 
       def view_template
-        section(class: "pt-10 sm:pt-14") do
-          h1(class: "text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl") { @presenter.title }
+        section(class: "pb-8 pt-12 sm:pb-10 sm:pt-16") do
+          link_to root_path,
+            class: "mb-10 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground",
+            data: { turbo_frame: "_top" } do
+            render Components::Ui::Icon.new(:arrow_left, class: "h-3.5 w-3.5")
+            plain t("articles.show.back_to_list")
+          end
+
+          h1(class: "font-serif text-4xl font-semibold tracking-tight text-foreground sm:text-5xl") { @presenter.title }
+
           return unless @presenter.excerpt.present?
 
-          p(class: "mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg") { @presenter.excerpt }
+          p(class: "mt-6 text-lg leading-relaxed text-muted-foreground") { @presenter.excerpt }
         end
       end
     end

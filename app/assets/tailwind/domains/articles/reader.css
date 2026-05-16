@@ -1,7 +1,7 @@
 @layer components {
   /* Writebook-inspired reading rhythm for rendered article HTML. */
   .article-prose {
-    font-size: 1.075rem;
+    font-size: 1.125rem;
     line-height: 1.78;
   }
 
@@ -12,6 +12,8 @@
   }
 
   .article-prose :where(p) {
+    line-height: 1.8;
+    margin-block: 0 2rem;
     hyphens: auto;
     letter-spacing: -0.003ch;
   }

@@ -10,15 +10,7 @@ module Components
 
       def view_template
         link_to article_path(@article), class: card_classes, **attrs_without_class do
-          if @article.cover_image.attached?
-            div(class: "w-full overflow-hidden border-b border-border/50") do
-              image_tag(
-                @article.cover_image,
-                alt: @article.title,
-                class: "aspect-[2/1] w-full transform object-cover grayscale opacity-80 transition-all duration-700 ease-in-out group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100"
-              )
-            end
-          end
+          cover_image_section
 
           div(class: "flex flex-1 flex-col justify-between p-6") do
             div(class: "flex flex-col gap-4") do
@@ -56,6 +48,42 @@ module Components
       end
 
       private
+
+      def cover_image_section
+        div(class: "w-full overflow-hidden border-b border-border/50") do
+          if @article.cover_image.attached?
+            image_tag(
+              @article.cover_image,
+              alt: @article.title,
+              class: "aspect-[2/1] w-full transform object-cover grayscale opacity-80 transition-all duration-700 ease-in-out group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100"
+            )
+          else
+            div(class: "relative aspect-[2/1] w-full overflow-hidden bg-gradient-to-br from-muted/55 via-muted/35 to-muted/70 transition-colors duration-700 group-hover:from-blue-500/10 group-hover:to-blue-500/5 dark:group-hover:from-blue-400/20 dark:group-hover:to-blue-400/10") do
+              div(class: "pointer-events-none absolute inset-0 bg-blue-500/5 opacity-0 transition-opacity duration-700 group-hover:opacity-100 dark:bg-blue-400/10")
+
+              span(
+                class: "pointer-events-none absolute -inset-4 text-[4rem] font-black uppercase leading-[0.85] tracking-tighter text-foreground/10 dark:text-foreground/20 select-none break-words transition-transform duration-700 ease-in-out group-hover:scale-105 md:text-[5rem]",
+                aria_hidden: "true"
+              ) do
+                plain fallback_texture_text
+              end
+
+              div(class: "relative z-10 flex h-full w-full items-center justify-center p-6") do
+                div(class: "rounded-full border border-foreground/10 bg-background/65 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground shadow-sm backdrop-blur-md transition-colors duration-700 group-hover:border-rose-600 group-hover:bg-rose-600 group-hover:text-white") do
+                  plain "PAPYRO"
+                end
+              end
+            end
+          end
+        end
+      end
+
+      def fallback_texture_text
+        seed = @article.title.to_s.strip
+        seed = article_author_name if seed.blank?
+
+        (("#{seed} ") * 6).upcase
+      end
 
       def card_classes
         cn(

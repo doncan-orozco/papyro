@@ -11,14 +11,14 @@ module Components
         header(class: merged_classes, **attrs_without_class) do
           div(class: "mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3") do
             link_to studio_articles_path,
-              class: "inline-flex shrink-0 items-center gap-3",
+              class: "group inline-flex shrink-0 items-center gap-3",
               data: { turbo_frame: "_top", turbo_action: "advance" } do
               span(
                 role: "img",
                 aria: { label: "Papyro" },
-                class: "size-7 shrink-0 bg-current text-foreground/70 [mask-image:url('/icon.svg')] [mask-position:center] [mask-repeat:no-repeat] [mask-size:contain] [-webkit-mask-image:url('/icon.svg')] [-webkit-mask-position:center] [-webkit-mask-repeat:no-repeat] [-webkit-mask-size:contain]"
+                class: "size-7 shrink-0 bg-current text-foreground/70 transition-colors duration-500 ease-out group-hover:text-rose-600 dark:group-hover:text-rose-500 [mask-image:url('/icon.svg')] [mask-position:center] [mask-repeat:no-repeat] [mask-size:contain] [-webkit-mask-image:url('/icon.svg')] [-webkit-mask-position:center] [-webkit-mask-repeat:no-repeat] [-webkit-mask-size:contain]"
               )
-              span(class: "hidden text-sm font-semibold tracking-[0.16em] text-foreground/70 sm:inline") { "PAPYRO" }
+              span(class: "hidden text-sm font-semibold tracking-[0.16em] text-foreground/70 transition-colors duration-500 ease-out group-hover:text-rose-600 dark:group-hover:text-rose-500 sm:inline") { "PAPYRO" }
             end
 
             div(class: "ml-auto flex items-center gap-2") do

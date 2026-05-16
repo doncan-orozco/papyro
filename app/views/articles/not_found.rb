@@ -9,6 +9,12 @@ module Views
       end
 
       def view_template
+        view_context.content_for(:page_title, "404 - #{t("articles.not_found.title")}")
+
+        noindex_tag = capture { meta(name: "robots", content: "noindex") }
+        view_context.content_for(:head, noindex_tag)
+        view_context.content_for(:suppress_seo_links, true)
+
         div(class: cn("max-w-2xl mx-auto mt-32 px-4 text-center", @attrs&.dig(:class)), **attrs_without_class) do
           div(class: "h-20 w-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-8") do
             render Components::Ui::Icon.new(:alert_triangle, class: "h-8 w-8 text-muted-foreground")

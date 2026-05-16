@@ -50,7 +50,8 @@ module Articles
 
       visit article_path(@article, locale: :es)
 
-      assert_text I18n.t("articles.show.translation_fallback_notice", locale: :es)
+      assert_text I18n.t("articles.show.translation_fallback_notice", locale: :es,
+                         original_language: I18n.t("language.name", locale: :en))
 
       assert_text "English Title"
       assert_text "English excerpt"

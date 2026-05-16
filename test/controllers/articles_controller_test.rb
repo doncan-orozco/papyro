@@ -94,12 +94,22 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     get article_path(@draft_article.slug)
 
     assert_response :not_found
+    assert_select "meta[name='robots'][content='noindex']", 1
+    assert_select "link[rel='canonical']", 0
+    assert_select "link[rel='alternate'][hreflang='en']", 0
+    assert_select "link[rel='alternate'][hreflang='es']", 0
+    assert_select "link[rel='alternate'][hreflang='x-default']", 0
   end
 
   test "show redirects for non-existent article" do
     get article_path("non-existent-slug")
 
     assert_response :not_found
+    assert_select "meta[name='robots'][content='noindex']", 1
+    assert_select "link[rel='canonical']", 0
+    assert_select "link[rel='alternate'][hreflang='en']", 0
+    assert_select "link[rel='alternate'][hreflang='es']", 0
+    assert_select "link[rel='alternate'][hreflang='x-default']", 0
   end
 
   test "show does not require authentication" do

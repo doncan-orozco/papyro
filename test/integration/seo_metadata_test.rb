@@ -77,7 +77,8 @@ class SeoMetadataTest < ActionDispatch::IntegrationTest
     assert_select "link[rel='alternate'][hreflang='es'][href='#{article_url(article, locale: :es)}']", 1
     assert_select "link[rel='alternate'][hreflang='x-default'][href='http://www.example.com/']", 1
     assert_select "meta[name='robots'][content='noindex,follow']", 1
-    assert_includes response.body, I18n.t("articles.show.translation_fallback_notice", locale: :es)
+    assert_includes response.body, I18n.t("articles.show.translation_fallback_notice", locale: :es,
+                                                                                       original_language: I18n.t("language.name", locale: :en))
     assert_select "title", text: /#{Regexp.escape(article.title)} \| Papyro/
     assert_select "meta[property='og:title'][content='#{article.title} | Papyro']", 1
     assert_select "meta[property='og:locale'][content='es_ES']", 1

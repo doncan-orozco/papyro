@@ -180,7 +180,7 @@ es:
       by_author: "por %{author}"
       back_to_list: "Volver a Artículos"
       fullscreen: "Pantalla completa"
-      translation_fallback_notice: "Este artículo todavía no se ha traducido a tu idioma actual. Se muestra la versión original en inglés."
+      translation_fallback_notice: "Este artículo todavía no se ha traducido a tu idioma actual. Se muestra la versión original en %{original_language}."
       written_by: "Escrito por"
       view_profile: "Ver perfil"
       unknown_author: "Autor desconocido"

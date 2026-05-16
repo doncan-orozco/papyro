@@ -8,8 +8,8 @@ module Views
       end
 
       def view_template
-        article(class: "py-10 sm:py-12") do
-          div(class: "article-prose max-w-none text-foreground") do
+        article(class: "pb-12") do
+          div(class: "article-prose max-w-none text-foreground/90 dark:text-foreground/95") do
             raw @presenter.content_html
           end
         end
