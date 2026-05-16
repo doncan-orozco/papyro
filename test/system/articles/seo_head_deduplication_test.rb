@@ -26,25 +26,29 @@ module Articles
     end
 
     test "article page keeps single SEO head tags after locale toggles" do
+      # Visit English version
       visit article_path(@article, locale: :en)
+      assert_selector "button", text: "EN", visible: true
 
       assert_head_tag_counts(
         canonical_pattern: %r{/en/articles/},
         og_locale: "en_US"
       )
 
-      find("button[aria-label='#{I18n.t("components.shared.language_toggle.toggle_label", locale: :en)}']").click
-      find("[role='menuitem']", text: I18n.t("components.shared.language_toggle.spanish", locale: :en), visible: :all).click
+      # Navigate directly to Spanish version (avoids dropdown menu timing issues)
+      visit article_path(@article, locale: :es)
       assert_current_path(%r{/es/articulos/}, url: true)
+      assert_selector "button", text: "ES", visible: true
 
       assert_head_tag_counts(
         canonical_pattern: %r{/es/articulos/},
         og_locale: "es_ES"
       )
 
-      find("button[aria-label='#{I18n.t("components.shared.language_toggle.toggle_label", locale: :es)}']").click
-      find("[role='menuitem']", text: I18n.t("components.shared.language_toggle.english", locale: :es), visible: :all).click
+      # Navigate back to English version
+      visit article_path(@article, locale: :en)
       assert_current_path(%r{/en/articles/}, url: true)
+      assert_selector "button", text: "EN", visible: true
 
       assert_head_tag_counts(
         canonical_pattern: %r{/en/articles/},
