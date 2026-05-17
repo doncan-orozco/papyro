@@ -20,30 +20,32 @@ Rails.application.routes.draw do
     post "/uploads" => "markdown/uploads#create", as: :markdown_uploads
   end
 
+  # Public-facing routes — locked to the public subdomain so studio.lvh.me returns 404
+  constraints subdomain: [ "", "www" ] do
+    # Smart Router for root path
+    root to: "root_router#route"
 
-  # Smart Router for root path
-  root to: "root_router#route"
+    localized do
+      root "articles#index"
 
-  localized do
-    root "articles#index"
+      resource :session, only: [ :new, :create, :destroy ]
 
-    resource :session, only: [ :new, :create, :destroy ]
+      resources :passwords, only: [ :new, :create, :edit, :update ], param: :token
 
-    resources :passwords, only: [ :new, :create, :edit, :update ], param: :token
+      resources :users, only: [ :show, :edit, :update ]
 
-    resources :users, only: [ :show, :edit, :update ]
+      resources :articles, only: [ :show ], param: :slug
 
-    resources :articles, only: [ :show ], param: :slug
+      get "about", to: "about#index", as: :about
+    end
 
-    get "about", to: "about#index", as: :about
-  end
+    # Public author portfolio — non-localized vanity URL.
+    get "/@:username", to: "authors#show", as: :author
 
-  # Public author portfolio — non-localized vanity URL.
-  get "/@:username", to: "authors#show", as: :author
-
-  # Private settings routes — intentionally NOT localized.
-  namespace :settings do
-    resource :profile, only: [ :edit, :update ], controller: :profiles
-    resource :security, only: [ :edit, :update ], controller: :security
+    # Private settings routes — intentionally NOT localized.
+    namespace :settings do
+      resource :profile, only: [ :edit, :update ], controller: :profiles
+      resource :security, only: [ :edit, :update ], controller: :security
+    end
   end
 end
