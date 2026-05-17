@@ -6,8 +6,22 @@ module ActionText
 
       data = options.delete(:data) || {}
       if record.respond_to?(:persisted?) && record.persisted?
+        uploads_url = if respond_to?(:main_app)
+          main_app.action_text_markdown_uploads_url(
+            record_gid: record.to_signed_global_id.to_s,
+            attribute_name: name,
+            format: "json"
+          )
+        else
+          action_text_markdown_uploads_url(
+            record_gid: record.to_signed_global_id.to_s,
+            attribute_name: name,
+            format: "json"
+          )
+        end
+
         data.reverse_merge! \
-          uploads_url: action_text_markdown_uploads_url(record_gid: record.to_signed_global_id.to_s, attribute_name: name, format: "json")
+          uploads_url: uploads_url
       end
 
       tag.house_md value, name: field_name, data: data, **options

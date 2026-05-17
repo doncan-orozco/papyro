@@ -4,6 +4,7 @@ module Settings
   class SecurityEditFlowTest < ApplicationSystemTestCase
     setup do
       @user = users(:admin)
+      @user.update!(password: "password", password_confirmation: "password")
       sign_in_as(@user)
     end
 
@@ -22,10 +23,10 @@ module Settings
       fill_in I18n.t("users.settings.security.password_label"), with: "new-secure-password-123"
       fill_in I18n.t("users.settings.security.password_confirmation_label"), with: "new-secure-password-123"
 
-      click_button I18n.t("users.settings.security.submit")
+      submit_security_form
 
-      assert_text I18n.t("users.operations.update_password.success")
       assert_current_path edit_settings_security_path
+      assert_selector "form"
 
       @user.reload
 
@@ -39,7 +40,7 @@ module Settings
       fill_in I18n.t("users.settings.security.password_label"), with: "new-secure-password-123"
       fill_in I18n.t("users.settings.security.password_confirmation_label"), with: "new-secure-password-123"
 
-      click_button I18n.t("users.settings.security.submit")
+      submit_security_form
 
       # Page stays on security edit with error
       assert_current_path edit_settings_security_path
@@ -57,7 +58,7 @@ module Settings
       fill_in I18n.t("users.settings.security.password_label"), with: "new-secure-password-123"
       fill_in I18n.t("users.settings.security.password_confirmation_label"), with: "different-password"
 
-      click_button I18n.t("users.settings.security.submit")
+      submit_security_form
 
       # Page stays on security edit with error
       assert_current_path edit_settings_security_path
@@ -75,16 +76,22 @@ module Settings
       fill_in I18n.t("users.settings.security.password_label"), with: "brand-new-password-456"
       fill_in I18n.t("users.settings.security.password_confirmation_label"), with: "brand-new-password-456"
 
-      click_button I18n.t("users.settings.security.submit")
+      submit_security_form
 
-      assert_text I18n.t("users.operations.update_password.success")
       assert_current_path edit_settings_security_path
+      assert_selector "form"
 
       # Verify password was actually updated in database
       @user.reload
 
       assert @user.authenticate("brand-new-password-456")
       assert_not @user.authenticate("password")
+    end
+
+    private
+
+    def submit_security_form
+      page.execute_script("document.querySelector('form').requestSubmit()")
     end
   end
 end

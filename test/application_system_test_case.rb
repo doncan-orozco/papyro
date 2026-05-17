@@ -10,8 +10,17 @@ Capybara.add_selector(:testid) do
   css { |value| "[data-testid='#{value}']" }
 end
 
+Capybara.register_driver :headless_chrome_reduced_motion do |app|
+  options = Selenium::WebDriver::Chrome::Options.new
+  options.add_argument("--headless=new")
+  options.add_argument("--window-size=1400,1400")
+  options.add_argument("--force-prefers-reduced-motion")
+
+  Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
+end
+
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
-  driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
+  driven_by :headless_chrome_reduced_motion
 
   setup do
     I18n.locale = I18n.default_locale
@@ -43,7 +52,8 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     base_uri = URI.parse(Capybara.current_session.server.base_url)
     studio_base_url = "http://studio.lvh.me:#{base_uri.port}"
 
-    visit "#{studio_base_url}/"
+    # Use /up so we remain on studio.lvh.me without hitting auth redirects.
+    visit "#{studio_base_url}/up"
     page.driver.browser.manage.add_cookie(
       name: "session_id",
       value: cookie_value,
