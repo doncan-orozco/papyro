@@ -7,7 +7,6 @@ plugins:
   - rubocop-minitest
   - rubocop-rake
   - rubocop-capybara
-  - rubocop-factory_bot
 
 AllCops:
   NewCops: enable

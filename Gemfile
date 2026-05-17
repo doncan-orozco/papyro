@@ -2,33 +2,41 @@ source "https://rubygems.org"
 
 # Load environment variables from .env
 gem "dotenv", groups: [ :development, :test ], require: "dotenv/load"
-# Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
+
+# Framework & Core
 gem "rails", "~> 8.1.2"
-# The modern asset pipeline for Rails [https://github.com/rails/propshaft]
-gem "propshaft"
-# Use sqlite3 as the database for Active Record
 gem "sqlite3", ">= 2.1"
-# Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
-# Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
-gem "importmap-rails"
-# Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
-gem "turbo-rails"
-# Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
-gem "stimulus-rails"
-# Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
+
+# Rails 8 Solid Suite
+gem "solid_cache"
+gem "solid_queue"
+gem "solid_cable"
+
+# Frontend & Hotwire
+gem "propshaft"
+gem "importmap-rails"
+gem "turbo-rails"
+gem "stimulus-rails"
 
 # UI (Phlex + Tailwind)
 gem "phlex"
 gem "phlex-rails"
 gem "tailwindcss-rails"
 gem "tailwind_merge"
+gem "lucide-rails" # Server-rendered SVGs
 
-# icons – server‑rendered SVGs via lucide-rails (used by Components::Ui::Icon)
-gem "lucide-rails"
+# Papyro Core Engines
+gem "papyro_studio", git: "https://github.com/doncan-orozco/papyro_studio.git", branch: "main"
 
-# Business logic (dry-rb)
+# Models, Auth & I18n
+gem "bcrypt", "~> 3.1.22"
+gem "friendly_id", "< 5.6"
+gem "mobility", "~> 1.3"
+gem "friendly_id-mobility", "~> 1.0"
+
+# Business Logic (dry-rb & Utilities)
 gem "dry-monads"
 gem "dry-validation"
 gem "dry-operation"
@@ -37,51 +45,30 @@ gem "pundit"
 gem "route_translator"
 gem "sitemap_generator"
 
-# Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-gem "bcrypt", "~> 3.1.22"
-
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[windows jruby]
-
-# Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
-gem "solid_cache"
-gem "solid_queue"
-gem "solid_cable"
-
-# Reduces boot times through caching; required in config/boot.rb
-gem "bootsnap", require: false
-
-# Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
-gem "kamal", require: false
-
-# Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
-gem "thruster", require: false
-
-# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
+# Active Storage & Processing
 gem "image_processing", "~> 1.2"
 
 # Markdown rendering with syntax highlighting
 gem "redcarpet"
 gem "rouge"
 
-# Job monitoring UI
+# Jobs & Server
 gem "mission_control-jobs"
+gem "tzinfo-data", platforms: %i[windows jruby]
+gem "bootsnap", require: false
+gem "kamal", require: false
+gem "thruster", require: false
 
 group :development, :test do
-  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
 
-  # Audits gems for known security defects (use config/bundler-audit.yml to ignore issues)
+  # Security & Migrations
   gem "bundler-audit", require: false
-
-  # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-  # bump to latest version to satisfy CI scan
   gem "brakeman", "~> 8.0.4", require: false
-
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
-  gem "rubocop-rails-omakase", require: false
+  gem "strong_migrations"
 
   # Linting
+  gem "rubocop-rails-omakase", require: false
   gem "mcp", ">= 0.9.2", require: false
   gem "rubocop", ">= 1.41", require: false
   gem "rubocop-rails", require: false
@@ -89,38 +76,20 @@ group :development, :test do
   gem "rubocop-minitest", require: false
   gem "rubocop-rake", require: false
   gem "rubocop-capybara", require: false
-  gem "rubocop-factory_bot", require: false
 
-  # Migration safety
-  gem "strong_migrations"
+  # N+1 detection
+  gem "bullet"
 end
 
 group :development do
-  # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
-
-  # Pretty-printing in IRB/rails console
   gem "awesome_print"
-
-  # Use the Ruby Language Server Protocol for editor integration
   gem "ruby-lsp", ">= 0.26.9"
-
-  # Data consistency
   gem "database_consistency"
 end
 
 group :test do
   gem "simplecov", require: false
-
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
 end
-
-gem "mobility", "~> 1.3"
-
-gem "friendly_id", "< 5.6"
-
-gem "friendly_id-mobility", "~> 1.0"
-
-gem "papyro_studio", git: "https://github.com/doncan-orozco/papyro_studio.git", branch: "main"

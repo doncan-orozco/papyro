@@ -5,7 +5,8 @@ module Articles
     class Related < Core::Query::Application
       base_scope { Article.all }
 
-      pipeline :filter_by_status,
+      pipeline :include_translations,
+               :filter_by_status,
                :filter_by_author,
                :exclude_author,
                :exclude_reference_article,
@@ -42,6 +43,10 @@ module Articles
 
       def apply_ordering(current_scope)
         current_scope
+      end
+
+      def include_translations(current_scope)
+        current_scope.eager_load(:article_translations)
       end
 
       def apply_limit(current_scope)

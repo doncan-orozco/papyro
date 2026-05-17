@@ -24,6 +24,12 @@ module ActiveSupport
 
     setup do
       I18n.locale = I18n.default_locale
+      Bullet.start_request if Bullet.enable?
+    end
+
+    teardown do
+      Bullet.perform_out_of_channel_notifications if Bullet.enable? && Bullet.notification?
+      Bullet.end_request if Bullet.enable?
     end
 
     # Add more helper methods to be used by all tests here...

@@ -5,7 +5,8 @@ module Articles
     class Published < Core::Query::Application
       base_scope { Article.all }
 
-      pipeline :filter_by_locale,
+      pipeline :include_translations,
+               :filter_by_locale,
                :filter_by_publication_status,
                :filter_by_global_overrides,
                :apply_ordering
@@ -26,6 +27,10 @@ module Articles
 
       def filter_by_global_overrides(current_scope)
         current_scope.where(articles: { deleted_at: nil, archived_at: nil })
+      end
+
+      def include_translations(current_scope)
+        current_scope.eager_load(:article_translations)
       end
 
       def apply_ordering(current_scope)
