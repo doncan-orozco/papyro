@@ -9,6 +9,7 @@ module Authentication
   class_methods do
     def allow_unauthenticated_access(**options)
       skip_before_action :require_authentication, **options
+      before_action :resume_session, **options
     end
   end
 
@@ -22,7 +23,16 @@ module Authentication
     end
 
     def resume_session
-      Current.session ||= find_session_by_cookie
+      session_record = Current.session || find_session_by_cookie
+      Current.session = session_record
+      if session_record
+        Current.user = session_record.user
+        persist_shared_session_cookie(session_record)
+      else
+        session[:guest_id] ||= SecureRandom.uuid
+        Current.user = GuestUser.new
+      end
+      session_record
     end
 
     def find_session_by_cookie
@@ -39,23 +49,32 @@ module Authentication
     end
 
     def after_authentication_url
-      session.delete(:return_to_after_authenticating) || root_url
+      session.delete(:return_to_after_authenticating) || root_path(locale: I18n.locale)
     end
 
     def start_new_session_for(user)
       user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
         Current.session = session
-        cookies.signed.permanent[:session_id] = {
-          value: session.id,
-          httponly: true,
-          same_site: :lax,
-          secure: Rails.env.production?
-        }
+        Current.user = user
+        persist_shared_session_cookie(session)
       end
     end
 
     def terminate_session
-      Current.session.destroy
+      Current.session&.destroy
+      Current.session = nil
+      Current.user = nil
+      cookies.delete(:session_id, domain: :all)
       cookies.delete(:session_id)
+    end
+
+    def persist_shared_session_cookie(session)
+      cookies.signed.permanent[:session_id] = {
+        value: session.id,
+        domain: :all,
+        httponly: true,
+        same_site: :lax,
+        secure: Rails.env.production?
+      }
     end
 end

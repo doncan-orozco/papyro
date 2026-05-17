@@ -1,21 +1,20 @@
 ---
 name: realtime
-description: Real-time communication patterns with Action Cable and Trailblazer Operations. Use when implementing WebSocket channels, broadcasting updates, or handling real-time features. Covers channel organization, authorization, messaging patterns, and operation broadcasting.
+description: Real-time communication patterns with Action Cable and dry-rb operations. Use when implementing WebSocket channels, broadcasting updates, or handling real-time features. Covers channel organization, authorization, messaging patterns, and operation broadcasting.
 ---
 
-# Realtime (Action Cable + Trailblazer 2.1)
+# Realtime (Action Cable + dry-rb)
 
 ## Dependencies
 - actioncable
-- trailblazer-operation
-- trailblazer-rails
+- dry-monads
 
 ## Channels Organization (Pattern)
 - `app/channels/` hosts channel classes
 - One channel per domain concept (game/room)
 - Authorization happens in `subscribed`
 - Use `stream_for` with domain instances
-- Keep channels thin and delegate logic to Operations
+- Keep channels thin and delegate logic to operations
 
 ## Messages (Pattern)
 - JSON payloads with `type` and small deltas
@@ -25,5 +24,10 @@ description: Real-time communication patterns with Action Cable and Trailblazer 
 - Broadcast inside Operations after successful state changes
 - Example: `Game::BroadcastChannel.broadcast_to(game, { type: 'player_moved', ... })`
 
-See [Channels](../../VERIFICATION_CHECKLIST.md#channels-action-cable) for requirements.
+## Reference Map
+
+- **[references/channels.md](references/channels.md)**
+	Use for concrete channel structure, subscription flow, client action handling, and broadcasting examples.
+
+See [Channels](/.github/copilot-instructions.md#channels-action-cable) for requirements.
 

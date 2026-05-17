@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
 module Maintenance
-  class ConsumeResources < Trailblazer::Operation
-    step :consume_all_resources
+  class ConsumeResources < Dry::Operation
+    include Dry::Monads[:result]
+
+    def call
+      step consume_all_resources
+    end
 
     CPU_WORKER_PROCESSES = 4
     CPU_LOOP_DURATION = 57 * 60 # seconds (57 minutes)
@@ -27,7 +31,9 @@ module Maintenance
     NETWORK_OPEN_TIMEOUT = 2 # seconds
     NETWORK_READ_TIMEOUT = 2 # seconds
 
-    def consume_all_resources(ctx, **)
+    private
+
+    def consume_all_resources
       threads = []
       errors = []
       errors_lock = Mutex.new
@@ -57,22 +63,17 @@ module Maintenance
       threads.each(&:join)
 
       if errors.any?
-        ctx[:errors] = { base: errors }
-        return false
+        return Failure(errors: { base: errors })
       end
 
-      ctx[:model] = {
+      Success(model: {
         cpu_worker_processes: CPU_WORKER_PROCESSES,
         target_memory_bytes: TARGET_MEMORY_BYTES,
         network_domains: NETWORK_DOMAINS
-      }
-      true
+      })
     rescue StandardError => e
-      ctx[:errors] = { base: [ "consume_resources_failed: #{e.class}: #{e.message}" ] }
-      false
+      Failure(errors: { base: [ "consume_resources_failed: #{e.class}: #{e.message}" ] })
     end
-
-    private
 
     def run_cpu_worker_processes(deadline)
       duration = [ CPU_LOOP_DURATION, remaining_time(deadline) ].min
