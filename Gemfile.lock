@@ -1,5 +1,7 @@
-PATH
-  remote: ../papyro_studio
+GIT
+  remote: https://github.com/doncan-orozco/papyro_studio.git
+  revision: f2fc6e1bff0bc7ced974bd89ad246acb2d400578
+  branch: main
   specs:
     papyro_studio (0.1.0)
       rails (>= 8.1.3)

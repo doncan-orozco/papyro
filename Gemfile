@@ -123,4 +123,4 @@ gem "friendly_id", "< 5.6"
 
 gem "friendly_id-mobility", "~> 1.0"
 
-gem "papyro_studio", path: "../papyro_studio"
+gem "papyro_studio", git: "https://github.com/doncan-orozco/papyro_studio.git", branch: "main"
