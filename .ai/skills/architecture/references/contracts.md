@@ -1,32 +1,27 @@
 # Contract Examples
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#contracts-dry-validation)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md)**
 
 Contracts handle all validation using dry-validation. Code examples below.
 
 ## Basic Contract
 
 ```ruby
-# app/concepts/game/contract/move.rb
+# app/contracts/game/contract/move.rb
 module Game
   class Contract
-    class Move < Trailblazer::Contract::Reform
-      property :direction
-      property :game_id
-      
-      validation do
-        params do
-          required(:direction).filled(:string, included_in?: %w[move_up move_down move_left move_right])
-          required(:game_id).filled(:integer)
-        end
-        
-        rule(:direction, :game_id) do
-          key.failure("player not in game") unless ::Game.find_by(id: values[:game_id])&.active?
-        end
+    class Move < Dry::Validation::Contract
+      params do
+        required(:direction).filled(:string, included_in?: %w[move_up move_down move_left move_right])
+        required(:game_id).filled(:integer)
+      end
+
+      rule(:direction, :game_id) do
+        key.failure("player not in game") if value == "move_up" && values[:game_id].to_i <= 0
       end
     end
   end
 end
 ```
 
-See [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#contracts-dry-validation) for complete contract guidelines.
+See [copilot-instructions.md](/.github/copilot-instructions.md) for complete contract guidelines.

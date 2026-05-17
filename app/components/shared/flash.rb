@@ -12,7 +12,7 @@ module Components
         return if messages.empty?
 
         div(class: merged_classes, **attrs_without_class) do
-          div(class: "space-y-3") do
+          div(class: "w-full max-w-sm space-y-2") do
             messages.each do |type, message|
               render_flash(type, message)
             end
@@ -23,7 +23,7 @@ module Components
       private
 
       def classes
-        "fixed top-4 left-1/2 z-50 w-full max-w-2xl -translate-x-1/2 px-4"
+        "pointer-events-none fixed inset-x-0 bottom-4 z-[100] flex justify-end px-4 sm:inset-x-auto sm:right-4 sm:px-0"
       end
 
       def messages
@@ -36,24 +36,44 @@ module Components
       end
 
       def render_flash(type, message)
-        case type
-        when :notice
-          render Components::Ui::Alert.new(class: "border-green-600 bg-green-50 text-green-900") do
-            svg(class: "h-5 w-5 text-green-600", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
-              s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M9 12l2 2m0 0l4-4m-16 6v7a2 2 0 002 2h12a2 2 0 002-2v-7")
-            end
-            p { message }
+        render Components::Ui::Toast.new(
+          variant: toast_variant(type),
+          class: "pointer-events-auto",
+          data: {
+            controller: "toast",
+            toast_duration_value: 4000,
+            state: "open"
+          }
+        ) do |toast|
+          render_toast_icon(type)
+
+          div(class: "grid gap-1") do
+            toast.title { t("app.toasts.#{toast_title_key(type)}") }
+            toast.description { message }
           end
-        when :alert
-          render Components::Ui::Alert.new(variant: :destructive) do |alert|
-            svg(class: "h-5 w-5", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
-              s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z")
-            end
-            alert.description do
-              p(class: "font-semibold") { message }
-            end
+
+          toast.close(data: { action: "toast#dismiss" }, aria: { label: t("app.toasts.close") })
+        end
+      end
+
+      def render_toast_icon(type)
+        if type.to_sym == :alert
+          svg(class: "h-5 w-5 shrink-0", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
+            s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z")
+          end
+        else
+          svg(class: "h-5 w-5 shrink-0", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
+            s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
           end
         end
+      end
+
+      def toast_variant(type)
+        type.to_sym == :alert ? :destructive : :default
+      end
+
+      def toast_title_key(type)
+        type.to_sym == :alert ? "error" : "success"
       end
     end
   end

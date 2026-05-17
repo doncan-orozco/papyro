@@ -12,7 +12,7 @@ class ActionText::MarkdownTest < ActiveSupport::TestCase
     # we'll supply the minimal association required by the belongs_to
     # (polymorphic) so that record_type/record_id non‑null constraints are
     # satisfied. Article is a convenient model for this test.
-    article = Article.create!(title: "X", slug: "x", status: :draft, user: users(:admin))
+    article = Article.create!(title: "X", slug: "x", user: users(:admin))
     markdown = ActionText::Markdown.new(name: "body", record: article, content: "foo")
 
     assert_predicate markdown, :valid?

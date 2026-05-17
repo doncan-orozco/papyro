@@ -5,61 +5,78 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
     params = {
       email_address: "test@example.com",
       password: "password123",
+      password_confirmation: "password123",
+      profile_attributes: { display_name: "Test Writer", username: "test_writer" }
+    }
+
+    result = Users::Operation::Create.new.call(params: params)
+
+    assert_predicate result, :success?
+    assert_instance_of User, result.value![:model]
+    assert_equal "test@example.com", result.value![:model].email_address
+    assert_equal "Test Writer", result.value![:model].profile.display_name
+    assert_equal "test_writer", result.value![:model].profile.username
+  end
+
+  test "fails without profile_attributes" do
+    params = {
+      email_address: "test@example.com",
+      password: "password123",
       password_confirmation: "password123"
     }
 
-    result = Users::Operation::Create.call(params: params)
+    result = Users::Operation::Create.new.call(params: params)
 
-    assert_predicate result, :success?
-    assert_instance_of User, result[:model]
-    assert_equal "test@example.com", result[:model].email_address
+    assert_predicate result, :failure?
+    assert result.failure[:errors].key?(:profile_attributes)
   end
 
   test "fails with invalid email" do
     params = {
       email_address: "invalid-email",
       password: "password123",
-      password_confirmation: "password123"
+      password_confirmation: "password123",
+      profile_attributes: { display_name: "Test Writer", username: "test_writer" }
     }
 
-    result = Users::Operation::Create.call(params: params)
+    result = Users::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert_includes result[:errors][:email_address], "must be a valid email address"
+    assert_includes result.failure[:errors][:email_address], "must be a valid email address"
   end
 
   test "fails with mismatched passwords" do
     params = {
       email_address: "test@example.com",
       password: "password123",
-      password_confirmation: "different"
+      password_confirmation: "different",
+      profile_attributes: { display_name: "Test Writer", username: "test_writer" }
     }
 
-    result = Users::Operation::Create.call(params: params)
+    result = Users::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert_includes result[:errors][:password_confirmation], "must match password"
+    assert_includes result.failure[:errors][:password_confirmation], "must match password"
   end
 
   test "fails with duplicate email" do
-    # Create first user
     User.create!(
       email_address: "duplicate@example.com",
       password: "password123",
       password_confirmation: "password123"
-    )
+    ).tap { |u| u.create_profile!(display_name: "Existing", username: "existing_writer") }
 
-    # Try to create duplicate
     params = {
       email_address: "duplicate@example.com",
       password: "password456",
-      password_confirmation: "password456"
+      password_confirmation: "password456",
+      profile_attributes: { display_name: "Test Writer", username: "test_writer" }
     }
 
-    result = Users::Operation::Create.call(params: params)
+    result = Users::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert_includes result[:errors][:email_address], "is already taken"
+    assert_includes result.failure[:errors][:email_address], "has already been taken"
   end
 
   test "fails with missing required fields" do
@@ -69,10 +86,24 @@ class Users::Operation::CreateTest < ActiveSupport::TestCase
       password_confirmation: ""
     }
 
-    result = Users::Operation::Create.call(params: params)
+    result = Users::Operation::Create.new.call(params: params)
 
     assert_predicate result, :failure?
-    assert result[:errors].key?(:email_address)
-    assert result[:errors].key?(:password)
+    assert result.failure[:errors].key?(:email_address)
+    assert result.failure[:errors].key?(:password)
+  end
+
+  test "fails with missing username" do
+    params = {
+      email_address: "test@example.com",
+      password: "password123",
+      password_confirmation: "password123",
+      profile_attributes: { display_name: "Test Writer" }
+    }
+
+    result = Users::Operation::Create.new.call(params: params)
+
+    assert_predicate result, :failure?
+    assert result.failure[:errors].key?(:profile_attributes)
   end
 end

@@ -1,26 +1,53 @@
 class ArticlesController < ApplicationController
-  allow_unauthenticated_access
+  allow_unauthenticated_access only: [ :index, :show ]
 
   def index
-    @articles = Articles::PublishedQuery.call(limit: 6)
-    render Views::Articles::Index.new(articles: @articles)
-  end
-
-  def featured
-    @articles = Articles::PublishedQuery.call(limit: 4)
-    render Views::Articles::Featured.new(articles: @articles)
+    scoped_articles = policy_scope(Article)
+    articles = Articles::Query::Published.call({}, scope: scoped_articles).limit(6)
+    render Views::Articles::Index.new(
+      articles: articles,
+      show_welcome_hero: Current.user.guest?
+    )
   end
 
   def show
-    @article = Article.find_by!(slug: params[:slug], status: :published)
-    @related_articles = Article
-      .where(status: :published, user: @article.user)
-      .where.not(id: @article.id)
-      .order(published_at: :desc)
-      .limit(2)
+    @article = find_published_article_by_slug!
 
-    render Views::Articles::Show.new(article: @article, related_articles: @related_articles)
-  rescue ActiveRecord::RecordNotFound
-    render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
+    authorize @article
+
+    more_from_author = Articles::Query::Related.call({
+      user: @article.user,
+      article_id: @article.id,
+      limit: 2
+    })
+    more_from_platform = Articles::Query::Related.call({
+      exclude_user_id: @article.user_id,
+      article_id: @article.id,
+      limit: 2
+    })
+
+    @presenter = ::Articles::Presenter::Show.new(
+      @article,
+      more_from_author: more_from_author,
+      more_from_platform: more_from_platform,
+      locale: I18n.locale
+    )
+
+    render Views::Articles::Show.new(
+      presenter: @presenter
+    )
+  end
+
+  private
+
+  def find_published_article_by_slug!
+    locale_slug = params[:slug].to_s
+
+    # Try locale-specific slug first, then fall back to any locale slug.
+    article = Articles::Query::PublishedBySlug.call({ slug: locale_slug, locale: I18n.locale.to_s }).first
+
+    return article if article.present?
+
+    Articles::Query::PublishedBySlug.call({ slug: locale_slug }).first!
   end
 end

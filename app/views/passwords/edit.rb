@@ -1,9 +1,9 @@
 module Views
   module Passwords
     class Edit < Views::Base
-      def initialize(token:, form:)
+      def initialize(token:, user:)
         @token = token
-        @form = form
+        @user = user
       end
 
       def view_template
@@ -25,7 +25,7 @@ module Views
       private
 
       def render_form
-        form_with(model: @form, url: password_path(@token), method: :put, class: "contents") do |form|
+        form_with(model: @user, url: password_path(@token), method: :put, class: "contents") do |form|
           div(class: "space-y-4") do
             form.field :password,
               as: :password_field,

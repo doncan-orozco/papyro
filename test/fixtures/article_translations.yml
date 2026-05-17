@@ -1,0 +1,24 @@
+draft_article_en:
+  article: draft_article
+  locale: en
+  title: "Draft Article"
+  slug: "draft-article"
+  content: "Draft content"
+  status: 0
+
+published_article_en:
+  article: published_article
+  locale: en
+  title: "Published Article"
+  slug: "published-article"
+  content: "Published content"
+  status: 2
+  published_at: <%= 1.day.ago %>
+
+archived_article_en:
+  article: archived_article
+  locale: en
+  title: "Archived Article"
+  slug: "archived-article"
+  content: "Archived content"
+  status: 0
