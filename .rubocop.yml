@@ -12,6 +12,9 @@ plugins:
 AllCops:
   NewCops: enable
 
+Minitest/MultipleAssertions:
+  Enabled: false
+
 # Overwrite or add rules to create your own house style
 #
 # # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`

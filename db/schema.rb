@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_21_030719) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_12_120000) do
   create_table "action_text_markdowns", force: :cascade do |t|
     t.text "content", default: "", null: false
     t.datetime "created_at", null: false
@@ -61,20 +61,57 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_21_030719) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "articles", force: :cascade do |t|
+  create_table "article_translations", force: :cascade do |t|
+    t.integer "article_id", null: false
+    t.text "content"
+    t.string "cover_image_caption"
     t.datetime "created_at", null: false
-    t.text "excerpt", limit: 500
+    t.text "excerpt"
+    t.string "locale", null: false
     t.datetime "published_at"
-    t.string "slug", limit: 255, null: false
+    t.string "slug"
     t.integer "status", default: 0, null: false
-    t.string "title", limit: 255, null: false
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.index ["article_id", "locale"], name: "index_article_translations_on_article_id_and_locale", unique: true
+    t.index ["article_id"], name: "index_article_translations_on_article_id"
+    t.index ["locale", "slug"], name: "index_article_translations_on_locale_and_slug", unique: true
+    t.index ["published_at"], name: "index_article_translations_on_published_at"
+    t.index ["status"], name: "index_article_translations_on_status"
+    t.check_constraint "status IN (0, 1, 2)", name: "valid_translation_status"
+  end
+
+  create_table "articles", force: :cascade do |t|
+    t.datetime "archived_at"
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.string "original_locale", default: "en", null: false
+    t.datetime "published_at"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.string "uuid", limit: 36, null: false
+    t.index ["archived_at"], name: "index_articles_on_archived_at"
+    t.index ["deleted_at"], name: "index_articles_on_deleted_at"
     t.index ["published_at"], name: "index_articles_on_published_at"
-    t.index ["slug"], name: "index_articles_on_slug", unique: true
-    t.index ["status"], name: "index_articles_on_status"
-    t.index ["user_id", "status"], name: "index_articles_on_user_id_and_status"
-    t.check_constraint "status IN (0, 1, 2)", name: "valid_status"
+    t.index ["user_id"], name: "index_articles_on_user_id"
+    t.index ["uuid"], name: "index_articles_on_uuid", unique: true
+  end
+
+  create_table "author_profiles", force: :cascade do |t|
+    t.text "bio"
+    t.datetime "created_at", null: false
+    t.string "display_name", null: false
+    t.string "linkedin_handle"
+    t.string "location"
+    t.integer "pinned_article_id"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.string "username", null: false
+    t.string "website_url"
+    t.string "x_handle"
+    t.index "lower(username)", name: "index_author_profiles_on_lower_username", unique: true
+    t.index ["pinned_article_id"], name: "index_author_profiles_on_pinned_article_id", unique: true
+    t.index ["user_id"], name: "index_author_profiles_on_user_id", unique: true
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -90,13 +127,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_21_030719) do
     t.datetime "created_at", null: false
     t.string "email_address", null: false
     t.string "password_digest", null: false
+    t.integer "role", default: 0, null: false
     t.datetime "suspended_at"
     t.datetime "updated_at", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+    t.index ["role"], name: "index_users_on_role"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "article_translations", "articles"
   add_foreign_key "articles", "users"
+  add_foreign_key "author_profiles", "articles", column: "pinned_article_id", on_delete: :nullify
+  add_foreign_key "author_profiles", "users"
   add_foreign_key "sessions", "users"
 end

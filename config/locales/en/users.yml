@@ -1,0 +1,69 @@
+en:
+  users:
+    show:
+      title: "Profile"
+      description: "Public profile information"
+      display_name_label: "Author name"
+      email_label: "Email address"
+      edit_profile: "Edit profile"
+    edit:
+      title: "Edit Profile"
+      description: "Update your account settings"
+      display_name_label: "Author name"
+      display_name_placeholder: "Enter the name shown on your articles"
+      email_label: "Email address"
+      email_placeholder: "Enter your email address"
+      password_label: "New password"
+      password_placeholder: "Leave blank to keep current password"
+      password_confirmation_label: "Confirm new password"
+      password_confirmation_placeholder: "Confirm your new password"
+      submit: "Save changes"
+      cancel: "Cancel"
+    forms:
+      validation:
+        display_name_too_long: "Author name must be 100 characters or fewer"
+    settings:
+      profile:
+        title: "Profile"
+        description: "Update your public profile information"
+        display_name_label: "Author name"
+        display_name_placeholder: "Enter the name shown on your articles"
+        portrait_label: "Portrait photo"
+        portrait_hint: "Upload PNG, JPEG, or WEBP. Portrait orientation works best."
+        portrait_change_cta: "Change photo"
+        username_label: "Username"
+        username_placeholder: "e.g. jane_writes"
+        username_locked_hint: "Username cannot be changed once set."
+        bio_label: "Bio"
+        bio_placeholder: "A short description about yourself"
+        location_label: "Location"
+        location_placeholder: "e.g. New York, NY"
+        website_url_label: "Website"
+        website_url_placeholder: "https://yoursite.com"
+        x_handle_label: "X (Twitter)"
+        x_handle_placeholder: "@handle"
+        linkedin_handle_label: "LinkedIn"
+        linkedin_handle_placeholder: "your-linkedin-username"
+        email_label: "Email address"
+        email_placeholder: "Enter your email address"
+        submit: "Save changes"
+        cancel: "Cancel"
+      security:
+        title: "Security"
+        description: "Update your password"
+        current_password_label: "Current password"
+        current_password_placeholder: "Enter your current password"
+        password_label: "New password"
+        password_placeholder: "Enter a new password"
+        password_confirmation_label: "Confirm new password"
+        password_confirmation_placeholder: "Confirm your new password"
+        submit: "Update password"
+        cancel: "Cancel"
+    operations:
+      update:
+        success: "Profile updated successfully."
+      update_profile:
+        success: "Profile updated successfully."
+      update_password:
+        success: "Password updated successfully."
+        current_password_invalid: "Current password is incorrect."

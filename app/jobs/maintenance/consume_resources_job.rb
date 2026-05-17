@@ -1,18 +1,22 @@
 # frozen_string_literal: true
 
 class Maintenance::ConsumeResourcesJob < ApplicationJob
+  class ConsumeResourcesFailed < StandardError; end
+
   queue_as :maintenance
 
   # Limit concurrency to avoid system overload
   limits_concurrency to: 1, key: -> { "maintenance_consume_resources" }
 
-  # Do not retry on failure
-  discard_on StandardError
+  # Do not retry on operation failure
+  discard_on ConsumeResourcesFailed
 
   def perform
-    # Run the dummy operation
-    Maintenance::ConsumeResources.call
+    result = Maintenance::ConsumeResources.new.call
+    return Rails.logger.info("Maintenance::ConsumeResourcesJob completed successfully") if result.success?
 
-    Rails.logger.info "Maintenance::ConsumeResourcesJob completed successfully"
+    message = Array(result.failure.dig(:errors, :base)).compact.join(", ")
+    message = "consume resources failed" if message.blank?
+    raise ConsumeResourcesFailed, message
   end
 end

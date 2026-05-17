@@ -2,33 +2,33 @@
 
 module Users
   module Operation
-    class Create < Trailblazer::Operation
-      step :validate_input
-      step :create_user
+    class Create < Core::Operation
+      def call(params:)
+        validated_attributes = step validate_input(params)
+        persisted_user = step persist_user(validated_attributes)
 
-      def validate_input(ctx, params:, **)
+        { model: persisted_user }
+      end
+
+      private
+
+      def validate_input(params)
         contract = Users::Contract::Create.new
         result = contract.call(params)
 
-        if result.success?
-          ctx[:validated_params] = result.to_h
-          true
-        else
-          ctx[:errors] = result.errors.to_h
-          false
-        end
+        return Success(result.to_h) if result.success?
+
+        # Keep user-typed fields for re-render while avoiding password echoing.
+        user = User.new(params.except(:password, :password_confirmation))
+        fail_with_model!(inject_errors!(user, result.errors.to_h))
       end
 
-      def create_user(ctx, validated_params:, **)
-        user = ::User.new(validated_params)
+      def persist_user(attributes)
+        user = ::User.new(attributes)
 
-        if user.save
-          ctx[:model] = user
-          true
-        else
-          ctx[:errors] = user.errors.to_hash
-          false
-        end
+        return Success(user) if user.save
+
+        fail_with_model!(user)
       end
     end
   end

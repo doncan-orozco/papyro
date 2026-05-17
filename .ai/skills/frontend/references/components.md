@@ -1,6 +1,6 @@
 # Phlex Component Reference
 
-For complete rules, use [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#components).
+For complete rules, use [copilot-instructions.md](/.github/copilot-instructions.md#components).
 
 ## Core Conventions
 
@@ -9,9 +9,20 @@ For complete rules, use [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md
 - Use `initialize(..., **attrs)` and pass attrs via `attrs_without_class` + `merged_classes` helpers when rendering tags.
 - Use proper namespace casing: `Components::Ui`, not `Components::UI`.
 
+## Intent Decomposition Rule
+
+- Avoid building one component with `mode:` branches when each branch represents a different user intent and interaction model.
+- Prefer one component per intent and compose them in the parent view.
+
+Example split:
+- `Views::Studio::Articles::EditorFormComponent` for title/body/autosave behaviors.
+- `Views::Studio::Articles::SettingsFormComponent` for slug/excerpt/publish controls.
+
 ## Compound Component Convention
 
 For compound components, the parent yields itself and child helpers render directly.
+
+**Key property:** the compound block can wrap arbitrary page DOM — helper calls like `sheet.trigger` and `sheet.content` do not need to be adjacent. Use this to place `sheet.content` (fixed overlay) *outside* any stacking-context container while keeping `sheet.trigger` wherever it belongs visually. See [views.md](views.md#modaloverlay-composition-in-views) for the full stacking-context pattern.
 
 ```ruby
 render Components::Ui::Breadcrumb.new(class: "mb-6") do |breadcrumb|

@@ -1,6 +1,6 @@
 # Channel Examples (Action Cable)
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#channels-action-cable)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#channels-action-cable)**
 
 Channels handle real-time WebSocket connections. Keep them minimal and delegate to Operations in `app/concepts/`.
 
@@ -31,7 +31,7 @@ class GameChannel < ApplicationCable::Channel
   
   # Handle client-initiated actions
   def move(data)
-    result = Game::Operation::MovePlayer.call(
+    result = Game::Operation::MovePlayer.new.call(
       params: data.merge(game_id: params[:game_id]),
       current_user: current_user
     )
@@ -43,26 +43,6 @@ class GameChannel < ApplicationCable::Channel
       transmit({ type: 'error', message: 'Action failed' })
     else
       # Success - broadcast already sent by operation
-    end
-  end
-end
-```
-    
-    # Handle client-initiated actions
-    def move(data)
-      result = Game::Operation::MovePlayer.call(
-        params: data.merge(game_id: params[:game_id]),
-        current_user: current_user
-      )
-      
-      case result
-      in Failure[:invalid_move, error:]
-        transmit({ type: 'error', message: error })
-      in Failure[*, **]
-        transmit({ type: 'error', message: 'Action failed' })
-      else
-        # Success - broadcast already sent by operation
-      end
     end
   end
 end
@@ -96,8 +76,8 @@ end
 ## Broadcasting from Operations
 
 ```ruby
-# Inside an Operation step
-def broadcast_movement(ctx, model:, **)
+# Inside an Operation helper
+def broadcast_movement(model)
   Game::BroadcastChannel.broadcast_to(
     model.game,
     {
@@ -109,11 +89,11 @@ def broadcast_movement(ctx, model:, **)
       timestamp: Time.current.to_i
     }
   )
-  true
+  Success(model: model)
 end
 ```
 
 ## Rules
 
 Rules live in the checklist:
-- [Channels](../VERIFICATION_CHECKLIST.md#channels-action-cable)
+- [Channels](/.github/copilot-instructions.md#channels-action-cable)

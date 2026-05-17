@@ -28,13 +28,14 @@ gem "tailwind_merge"
 # icons – server‑rendered SVGs via lucide-rails (used by Components::Ui::Icon)
 gem "lucide-rails"
 
-# Business logic (Trailblazer + dry-rb)
-gem "trailblazer-operation"
-gem "trailblazer-rails"
-gem "reform"
-gem "reform-rails"
+# Business logic (dry-rb)
 gem "dry-monads"
 gem "dry-validation"
+gem "dry-operation"
+gem "pagy"
+gem "pundit"
+gem "route_translator"
+gem "sitemap_generator"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.22"
@@ -109,7 +110,17 @@ group :development do
 end
 
 group :test do
+  gem "simplecov", require: false
+
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "mobility", "~> 1.3"
+
+gem "friendly_id", "< 5.6"
+
+gem "friendly_id-mobility", "~> 1.0"
+
+gem "papyro_studio", git: "https://github.com/doncan-orozco/papyro_studio.git", branch: "main"

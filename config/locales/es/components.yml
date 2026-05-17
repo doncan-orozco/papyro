@@ -32,7 +32,8 @@ es:
         expertise_4: "Infraestructura en la Nube & Deployment"
       
       article_card:
-        read_more: "Leer más"
+        reading_time: "%{minutes} min de lectura"
+        unknown_author: "Autor desconocido"
       
       featured_articles:
         title: "Últimos Artículos"
@@ -44,3 +45,23 @@ es:
         title: "Conectemos"
         description: "Abierto a oportunidades, colaboraciones y discusiones técnicas. ¡Construyamos algo genial juntos!"
         email: "Ponte en Contacto"
+    public:
+      navbar:
+        write: "Escribir"
+        dropdown:
+          my_profile: "Mi perfil"
+          studio: "Estudio"
+          settings: "Ajustes"
+          sign_out: "Cerrar sesión"
+          confirm_sign_out: "¿Estás seguro de que quieres cerrar sesión?"
+      welcome_hero:
+        eyebrow: "Bienvenido a Papyro"
+        title: "Un hogar editorial tranquilo para ideas que vale la pena leer"
+        description: "Descubre blogs curados alineados con tus intereses y crea tu propio espacio de escritura en minutos."
+        join_title: "Solicita una invitación"
+        join_description: "Papyro está construido con cuidado y estamos abriendo invitaciones de forma reflexiva. Escríbenos sobre lo que quieres publicar a info@papyro.net y te contactaremos cuando tu lugar esté listo."
+        join_cta: "Solicita una invitación"
+      footer:
+        copyright: "© %{year} Papyro"
+        nav_label: "Navegación del pie de página"
+        about: "Acerca de"

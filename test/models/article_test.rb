@@ -1,5 +1,4 @@
 require "test_helper"
-
 class ArticleTest < ActiveSupport::TestCase
   setup do
     @user = users(:admin)  # Uses fixture from test/fixtures/users.yml
@@ -20,7 +19,6 @@ class ArticleTest < ActiveSupport::TestCase
     article = @user.articles.create!(
       title: "Rich Content",
       slug: "rich-content",
-      status: :draft
     )
 
     article.update!(body: "<p>Hello <strong>world</strong></p>")
@@ -28,45 +26,46 @@ class ArticleTest < ActiveSupport::TestCase
     assert_includes article.body.to_html, "Hello <strong>world</strong>"
   end
 
-  test "enum status methods" do
+  test "status predicates reflect explicit publish operation" do
     article = @user.articles.create!(
       title: "Status Test",
       slug: "status-test",
-      status: :draft
+      excerpt: "Short summary",
+      body: "<p>Body content</p>"
     )
 
-    assert_predicate article, :status_draft?
-    assert_not article.status_published?
+    assert_predicate article, :draft?
+    assert_not article.published?
 
-    article.status_published!
+    result = Articles::Operation::Publish.new.call(model: article)
 
-    assert_predicate article, :status_published?
+    assert_predicate result, :success?
+    assert_predicate article.reload, :published?
   end
 
-  test "published? method requires both status and published_at" do
-    draft = @user.articles.create!(title: "Draft", slug: "draft", status: :draft)
-    published_no_date = @user.articles.create!(
-      title: "Published No Date",
-      slug: "published-no-date",
-      status: :published
-    )
+  test "published? remains false until article is actually published" do
+    draft = @user.articles.create!(title: "Draft", slug: "draft")
+    published_no_date = Article.new(title: "Published No Date", slug: "published-no-date")
     published = @user.articles.create!(
       title: "Published",
       slug: "published",
-      status: :published,
-      published_at: Time.current
+      excerpt: "Short summary",
+      body: "<p>Published content</p>",
+      published_at: Time.current,
+      user: @user
     )
+    Articles::Operation::Publish.new.call(model: published)
 
     assert_not draft.published?
     assert_not published_no_date.published?
     assert_predicate published, :published?
+    assert_predicate published_no_date, :draft?
   end
 
   test "slug is used in URL" do
     article = @user.articles.create!(
       title: "URL Test",
       slug: "my-article-slug",
-      status: :draft
     )
 
     assert_equal "my-article-slug", article.to_param
@@ -76,10 +75,116 @@ class ArticleTest < ActiveSupport::TestCase
     article = @user.articles.create!(
       title: "  Untrimmed Title  ",
       slug: "  UPPERCASE-SLUG  ",
-      status: :draft
     )
 
     assert_equal "Untrimmed Title", article.title
     assert_equal "uppercase-slug", article.slug
+  end
+
+  test "content metrics are calculated from plain text" do
+    article = @user.articles.create!(
+      title: "Metric Test",
+      slug: "metric-test",
+      published_at: Time.current,
+      body: "<p>Hello <strong>world</strong> from <em>Papyro</em></p>"
+    )
+
+    content_analysis = Articles::Service::ContentAnalysis.new(article)
+
+    assert_equal "Hello world from Papyro", content_analysis.plain_text_body
+    assert_equal 4, content_analysis.content_word_count
+    assert_equal 1, content_analysis.estimated_reading_time_minutes
+  end
+
+  test "estimated reading time is zero when content is blank" do
+    article = @user.articles.create!(
+      title: "Empty Metric Test",
+      slug: "empty-metric-test",
+      body: ""
+    )
+
+    content_analysis = Articles::Service::ContentAnalysis.new(article)
+
+    assert_equal 0, content_analysis.content_word_count
+    assert_equal 0, content_analysis.estimated_reading_time_minutes
+  end
+
+  test "cover image rejects unsupported content type" do
+    article = @user.articles.build(
+      title: "Invalid Cover Type",
+      slug: "invalid-cover-type",
+      body: "Body"
+    )
+
+    article.cover_image.attach(
+      io: StringIO.new("not an image"),
+      filename: "cover.txt",
+      content_type: "text/plain"
+    )
+
+    assert_not article.valid?
+    assert_includes article.errors[:cover_image], I18n.t("articles.errors.invalid_cover_image_content_type")
+  end
+
+  test "cover image rejects files larger than allowed size" do
+    article = @user.articles.build(
+      title: "Huge Cover",
+      slug: "huge-cover",
+      body: "Body"
+    )
+
+    article.cover_image.attach(
+      io: StringIO.new("a" * (Articles::Service::CoverImageValidation::MAX_COVER_IMAGE_SIZE + 1)),
+      filename: "cover.png",
+      content_type: "image/png"
+    )
+
+    assert_not article.valid?
+    assert_includes article.errors[:cover_image], I18n.t("articles.errors.invalid_cover_image_size", max_size_mb: Articles::Service::CoverImageValidation::MAX_COVER_IMAGE_SIZE / 1.megabyte)
+  end
+
+  test "cover image rejects unanalyzable image payloads" do
+    article = @user.articles.build(
+      title: "Broken Cover",
+      slug: "broken-cover",
+      body: "Body"
+    )
+
+    article.cover_image.attach(
+      io: StringIO.new("fake png contents"),
+      filename: "cover.png",
+      content_type: "image/png"
+    )
+
+    assert_not article.valid?
+    assert_includes article.errors[:cover_image], I18n.t("articles.errors.invalid_cover_image_dimensions")
+  end
+
+  test "cover image rejects images smaller than the minimum dimensions" do
+    article = @user.articles.build(
+      title: "Tiny Cover",
+      slug: "tiny-cover",
+      body: "Body"
+    )
+
+    image = MiniMagick::Image.read(File.binread(Rails.root.join("public/icon.png")))
+    image.resize("200x200")
+    file = Tempfile.new([ "tiny-cover", ".png" ])
+    image.write(file.path)
+
+    article.cover_image.attach(
+      io: File.open(file.path),
+      filename: "tiny-cover.png",
+      content_type: "image/png"
+    )
+
+    assert_not article.valid?
+    assert_includes article.errors[:cover_image], I18n.t(
+      "articles.errors.cover_image_too_small",
+      min_width: Articles::Service::CoverImageValidation::MIN_COVER_IMAGE_WIDTH,
+      min_height: Articles::Service::CoverImageValidation::MIN_COVER_IMAGE_HEIGHT
+    )
+  ensure
+    file.close!
   end
 end

@@ -6,16 +6,14 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     params = {
       title: "Test Article",
       slug: "test-article",
-      status: "draft",
-      content: "<p>Test content</p>",
-      excerpt: "Test excerpt",
-      user_id: user.id
+      body: "<p>Test content</p>",
+      excerpt: "Test excerpt"
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :success?
-    assert_instance_of Article, result[:model]
+    assert_instance_of Article, result.value![:model]
   end
 
   test "sets article attributes correctly" do
@@ -23,17 +21,15 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     params = {
       title: "Test Article",
       slug: "test-article",
-      status: "draft",
       body: "<p>Test content</p>",
-      excerpt: "Test excerpt",
-      user_id: user.id
+      excerpt: "Test excerpt"
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
-    assert_equal "Test Article", result[:model].title
-    assert_equal "test-article", result[:model].slug
-    assert_equal "<p>Test content</p>", result[:model].body.content.to_s
+    assert_equal "Test Article", result.value![:model].title
+    assert_equal "test-article", result.value![:model].slug
+    assert_equal "<p>Test content</p>", result.value![:model].body.content.to_s
   end
 
   test "persists markdown body as plain content" do
@@ -41,86 +37,147 @@ class Articles::Operation::CreateTest < ActiveSupport::TestCase
     params = {
       title: "Markdown Article",
       slug: "markdown-article",
-      status: "draft",
-      body: "# Heading\n\nBody text",
-      user_id: user.id
+      body: "# Heading\n\nBody text"
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :success?
-    assert_equal "# Heading\n\nBody text", result[:model].body.content.to_s
-    refute_match(/#<ActionText::Markdown:/, result[:model].body.content.to_s)
+    assert_equal "# Heading\n\nBody text", result.value![:model].body.content.to_s
+    refute_match(/#<ActionText::Markdown:/, result.value![:model].body.content.to_s)
   end
 
   test "fails with invalid title" do
     user = users(:admin)
     params = {
       title: "",
-      slug: "test-article",
-      status: "draft",
-      user_id: user.id
+      slug: "test-article"
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :failure?
-    assert_predicate result[:errors][:title], :any?
+    assert_predicate result.failure[:errors][:title], :any?
   end
 
   test "fails with invalid slug format" do
     user = users(:admin)
     params = {
       title: "Test Article",
-      slug: "Test Article!",
-      status: "draft",
-      user_id: user.id
+      slug: "Test Article!"
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :failure?
-    assert_predicate result[:errors][:slug], :any?
+    assert_predicate result.failure[:errors][:slug], :any?
   end
 
-  test "fails with duplicate slug" do
+  test "fails when published article has no published_at" do
+    user = users(:admin)
+    params = {
+      title: "Published Article",
+      slug: "published-article-no-date",
+      status: "published",
+      body: "<p>Published content</p>"
+    }
+
+    result = Articles::Operation::Create.new.call(params: params, user: user)
+
+    assert_predicate result, :failure?
+    assert_predicate result.failure[:errors][:published_at], :any?
+  end
+
+  test "adds suffix when duplicate slug collides" do
     user = users(:admin)
     Article.create!(
       title: "Original Article",
       slug: "duplicate-slug",
-      status: :draft,
       user: user
     )
 
     params = {
       title: "New Article",
-      slug: "duplicate-slug",
-      status: "draft",
-      user_id: user.id
+      slug: "duplicate-slug"
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
-    assert_predicate result, :failure?
-    assert result[:errors][:slug].any? { |msg| msg.include?("already exists") || msg.include?("taken") }
+    assert_predicate result, :success?
+    assert_match(/\Aduplicate-slug-[a-z0-9]{6}\z/, result.value![:model].slug)
   end
 
-  test "creates published article with published_at" do
+  test "creates article that can be published with published_at" do
     user = users(:admin)
     published_at = 1.day.ago
     params = {
       title: "Published Article",
       slug: "published-article-unique-#{Time.current.to_i}",
-      status: "published",
       body: "<p>Published content</p>",
-      published_at: published_at,
-      user_id: user.id
+      excerpt: "Published excerpt",
+      published_at: published_at
     }
 
-    result = Articles::Operation::Create.call(params: params)
+    result = Articles::Operation::Create.new.call(params: params, user: user)
 
     assert_predicate result, :success?
-    assert_predicate result[:model], :status_published?
-    assert_equal published_at.to_i, result[:model].published_at.to_i
+
+    article = result.value![:model]
+    publish_article!(article, published_at: published_at)
+
+    assert_predicate article.reload, :published?
+    assert_equal published_at.to_i, article.published_at.to_i
+  end
+
+  test "auto-generates slug when blank" do
+    user = users(:admin)
+    params = {
+      title: "How to Ship Rails Features",
+      slug: ""
+    }
+
+    result = Articles::Operation::Create.new.call(params: params, user: user)
+
+    assert_predicate result, :success?
+    assert_equal "how-to-ship-rails-features", result.value![:model].slug
+  end
+
+  test "retries generated slug when collision happens" do
+    user = users(:admin)
+    Article.create!(title: "Existing", slug: "my-title", user: user)
+
+    params = {
+      title: "My Title",
+      slug: ""
+    }
+
+    suffix_values = [ "bbbbbb" ]
+    operation_class = Class.new(Articles::Operation::Create) do
+      define_method(:random_slug_suffix) { suffix_values.shift || "cccccc" }
+    end
+
+    result = operation_class.new.call(params: params, user: user)
+
+    assert_predicate result, :success?
+    assert_equal "my-title-bbbbbb", result.value![:model].slug
+  end
+
+  test "adds suffix when explicit custom slug collides" do
+    user = users(:admin)
+    Article.create!(title: "Existing", slug: "learn-ruby", user: user)
+
+    params = {
+      title: "Learn Ruby",
+      slug: "learn-ruby"
+    }
+
+    operation_class = Class.new(Articles::Operation::Create) do
+      define_method(:random_slug_suffix) { "abc123" }
+    end
+
+    result = operation_class.new.call(params: params, user: user)
+
+    assert_predicate result, :success?
+    assert_equal "learn-ruby-abc123", result.value![:model].slug
   end
 end

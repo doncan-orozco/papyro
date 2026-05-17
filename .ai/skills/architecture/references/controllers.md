@@ -1,8 +1,16 @@
 # Controller Examples
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#controllers)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#controllers)**
 
-Controllers are thin - they only receive requests, call Operations, and return responses. Trailblazer Operations return `Trailblazer::Operation::Result` objects (use `result.success?` / `result.failure?`).
+Controllers are thin - they only receive requests, call Operations, and return responses. Operations return Dry::Monads::Result objects (use result.success? / result.failure?).
+
+## View Boundary Rule
+
+Controllers must not build HTML fragments directly (`view_context.tag`, `tag`, inline HTML strings), including Turbo Stream fragment markup.
+
+For Turbo Stream responses, controllers should render dedicated view artifacts (Phlex component/view or template) and keep presentation concerns (CSS classes, translated copy, markup structure) in the view layer.
+
+When an operation returns a failure payload with an invalid `:model`, render the corresponding form/view with `status: :unprocessable_entity` so the existing model errors are preserved for user feedback.
 
 ## ApplicationController Composition Rule
 
@@ -43,7 +51,7 @@ end
 ## Task Requirements
 
 Task requirements live in the checklist:
-- [Task and issue requirements](../VERIFICATION_CHECKLIST.md#taskissue-requirements)
+- [Task and issue requirements](/.github/copilot-instructions.md#taskissue-requirements)
 
 ## Basic CRUD Controller
 
@@ -51,7 +59,7 @@ Task requirements live in the checklist:
 # app/controllers/game/moves_controller.rb
 class Game::MovesController < ApplicationController
   def create
-    result = Game::Operation::MovePlayer.call(
+    result = Game::Operation::MovePlayer.new.call(
       params: params.to_unsafe_h,
       current_user: current_user
     )
@@ -60,10 +68,10 @@ class Game::MovesController < ApplicationController
       # Broadcast happens inside the Operation
       head :ok
     else
-      error_key = result[:error_key]
+      error_key = result.failure[:error_key]
       case error_key
       when :invalid_move
-        render json: { error: result[:error] }, status: :unprocessable_entity
+        render json: { error: result.failure[:error] }, status: :unprocessable_entity
       when :unauthorized
         head :forbidden
       else
@@ -74,4 +82,4 @@ class Game::MovesController < ApplicationController
 end
 ```
 
-See [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#controllers) for complete controller guidelines.
+See [copilot-instructions.md](/.github/copilot-instructions.md#controllers) for complete controller guidelines.

@@ -16,45 +16,48 @@
 :where(house-md-toolbar) {
   --hover-size: 0;
 
-  border-radius: var(--house-border-radius);
+  color: var(--color-muted-foreground);
   display: inline-flex;
-  gap: 0.1em;
+  gap: 0.25rem;
 
   :is(button, label) {
-    aspect-ratio: 6/5;
     align-items: center;
     appearance: none;
     background-color: transparent;
     border: none;
-    border-radius: var(--house-border-radius);
+    border-radius: calc(var(--house-border-radius) * 0.8);
+    color: inherit;
     cursor: pointer;
     display: inline-flex;
     flex-shrink: 0;
-    inline-size: auto;
+    inline-size: 2rem;
     justify-content: center;
-    min-block-size: 2em;
-    transition: background-color 300ms ease;
+    min-block-size: 2rem;
+    transition: background-color 180ms ease, color 180ms ease;
 
     :is(img, svg) {
       -webkit-touch-callout: none;
-      block-size: 1em;
+      block-size: 1rem;
       fill: currentColor;
       inline-size: auto;
       user-select: none;
     }
 
     &:where(:focus-visible) {
-      background-color: var(--color-bg);
+      background-color: var(--color-muted);
+      color: var(--color-foreground);
+      outline: none;
     }
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--color-bg);
+        background-color: var(--color-muted);
+        color: var(--color-foreground);
       }
     }
 
     &:where(:active) {
-      background-color: var(--color-selected-dark);
+      background-color: var(--color-muted);
     }
   }
 }
