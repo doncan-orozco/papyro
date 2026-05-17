@@ -27,6 +27,7 @@ module Authentication
       Current.session = session_record
       if session_record
         Current.user = session_record.user
+        persist_shared_session_cookie(session_record)
       else
         session[:guest_id] ||= SecureRandom.uuid
         Current.user = GuestUser.new
@@ -48,19 +49,14 @@ module Authentication
     end
 
     def after_authentication_url
-      session.delete(:return_to_after_authenticating) || studio_articles_path
+      session.delete(:return_to_after_authenticating) || root_path(locale: I18n.locale)
     end
 
     def start_new_session_for(user)
       user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
         Current.session = session
         Current.user = user
-        cookies.signed.permanent[:session_id] = {
-          value: session.id,
-          httponly: true,
-          same_site: :lax,
-          secure: Rails.env.production?
-        }
+        persist_shared_session_cookie(session)
       end
     end
 
@@ -68,6 +64,17 @@ module Authentication
       Current.session&.destroy
       Current.session = nil
       Current.user = nil
+      cookies.delete(:session_id, domain: :all)
       cookies.delete(:session_id)
+    end
+
+    def persist_shared_session_cookie(session)
+      cookies.signed.permanent[:session_id] = {
+        value: session.id,
+        domain: :all,
+        httponly: true,
+        same_site: :lax,
+        secure: Rails.env.production?
+      }
     end
 end

@@ -122,3 +122,5 @@ gem "mobility", "~> 1.3"
 gem "friendly_id", "< 5.6"
 
 gem "friendly_id-mobility", "~> 1.0"
+
+gem "papyro_studio", path: "../papyro_studio"

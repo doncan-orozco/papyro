@@ -133,3 +133,26 @@ test/
 
 Rules live in the checklist:
 - [Testing requirements](/.github/copilot-instructions.md#-testing-requirements)
+
+## Host + Engine Test Workflow (PapyroStudio)
+
+Use this when validating both host and mounted engine behavior.
+
+### Commands (run from host root)
+
+```bash
+# Host suite only
+bin/rails test
+
+# Engine suite (booted through host environment)
+bin/rails test ../papyro_studio/test
+
+# Combined command (custom task)
+bin/rails test:with_studio
+```
+
+### Harness Notes
+
+- Engine `test/test_helper.rb` should require the host app environment and host fixture paths.
+- Keep studio request/policy/presenter depth tests in engine.
+- Keep minimal host smoke tests for mount/subdomain/session integration only.

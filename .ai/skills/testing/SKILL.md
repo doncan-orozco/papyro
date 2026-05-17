@@ -58,6 +58,30 @@ Minimum expectation per concept test file:
 - Test data: fixtures by default; add FactoryBot if fixtures become unmanageable
 - System tests: Playwright (more reliable than Selenium) with Capybara driver
 
+## Host-Coupled Engine Harness (PapyroStudio)
+
+Use this pattern when engine code depends on host models, DB schema, and authentication:
+
+1. Engine test helper boots the host environment (for this workspace, via sibling host app path).
+2. Engine tests run from host app root (not inside engine directory) to ensure one source of truth for boot/runtime.
+3. Keep fixtures sourced from host app fixture paths in the engine test helper.
+
+### Coverage Ownership Split
+
+1. Engine test suite should own studio request/policy/presenter depth tests.
+2. Host test suite should keep a small smoke boundary for mount/subdomain/session integration.
+3. Avoid duplicate suite ownership across host and engine; remove migrated host duplicates after parity is confirmed.
+
+### Commands
+
+From host app root:
+
+1. `bin/rails test`
+2. `bin/rails test ../papyro_studio/test`
+3. `bin/rails test:with_studio`
+
+See [references/tests.md](references/tests.md) for concrete examples.
+
 ## UI Components (Phlex)
 - Render components and assert HTML output.
 - Verify variant/size classes and data attributes.

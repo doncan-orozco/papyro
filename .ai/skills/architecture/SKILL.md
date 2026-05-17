@@ -84,6 +84,18 @@ When performing structural refactors (renames/moves between `app/presenters`, `a
 4. Run targeted suites for touched domains before full test runs.
 5. Finish with full regression (`bin/rails test` and `bin/rails test:system`).
 
+## Host-Coupled Engine Pattern (Papyro Studio)
+
+When working on the private `PapyroStudio` engine in this workspace:
+
+1. Treat the host app as the owner of database schema, core models (`User`, `Article`), and authentication/session lifecycle.
+2. Treat the engine as an orchestration and UI boundary mounted under the `studio` subdomain.
+3. Keep mutations and policies aligned with host-domain behavior so the engine does not fork domain logic accidentally.
+4. Run engine tests from the host app root so the engine reuses the host environment and fixtures.
+
+For the ownership matrix, mount boundary, test helper wiring, and run commands, load:
+- [references/host-coupled-engine-pattern.md](references/host-coupled-engine-pattern.md)
+
 ## Implementation Notes
 
 This file focuses on patterns and examples. For requirements, see:
@@ -119,6 +131,8 @@ For all view and component work in `app/views/` or `app/components/`, load `.ai/
   Use as a larger end-to-end implementation example when you need a concrete slice of the architecture in practice.
 - **[references/session-learnings-mutation-flows.md](references/session-learnings-mutation-flows.md)**
   Use for compact, recent decisions on mutation operation shape, validation boundaries, and update-flow anti-patterns.
+- **[references/host-coupled-engine-pattern.md](references/host-coupled-engine-pattern.md)**
+  Use for host-app/engine ownership boundaries, mounted subdomain routing, shared-session expectations, and host-driven engine test execution.
 
 Example: custom collection actions can support Turbo Frames when they describe a domain subset. See:
 - [Turbo Frames](/.github/copilot-instructions.md#-turbo-frames)

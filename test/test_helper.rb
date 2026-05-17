@@ -4,6 +4,7 @@ require_relative "supports/simplecov"
 require_relative "../config/environment"
 require "rails/test_help"
 require_relative "test_helpers/article_publication_test_helper"
+require_relative "test_helpers/papyro_studio_route_test_helper"
 require_relative "test_helpers/presenter_test_helper"
 require_relative "test_helpers/session_test_helper"
 

@@ -35,7 +35,7 @@ module Components
             if Current.user.registered?
               render Components::Ui::Button.new(
                 as: :a,
-                href: studio_articles_path,
+                href: studio_articles_href,
                 variant: :outline,
                 size: :sm,
                 class: "transition-colors duration-500 hover:border-rose-600 hover:text-rose-600 dark:hover:border-rose-500 dark:hover:text-rose-500",
@@ -51,7 +51,7 @@ module Components
                   dropdown.item(href: author_path(Current.user.profile.username), data: { turbo_frame: "_top" }) do
                     t("components.public.navbar.dropdown.my_profile")
                   end
-                  dropdown.item(href: studio_articles_path, data: { turbo_frame: "_top" }) do
+                  dropdown.item(href: studio_articles_href, data: { turbo_frame: "_top" }) do
                     t("components.public.navbar.dropdown.studio")
                   end
                   dropdown.item(href: edit_settings_profile_path, data: { turbo_frame: "_top" }) do
@@ -89,6 +89,13 @@ module Components
       def avatar_initial
         name = Current.user.profile&.display_name.presence || Current.user.email_address
         name.first.upcase
+      end
+
+      def studio_articles_href
+        view_context.papyro_studio.articles_url(
+          subdomain: "studio",
+          locale: I18n.locale
+        )
       end
 
       def merged_classes

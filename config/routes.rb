@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  constraints subdomain: "studio" do
+    mount PapyroStudio::Engine => "/", as: :papyro_studio
+  end
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions.
   get "up" => "rails/health#show", as: :rails_health_check
 
@@ -43,15 +47,4 @@ Rails.application.routes.draw do
     resource :security, only: [ :edit, :update ], controller: :security
   end
 
-  # Private studio routes — intentionally NOT localized.
-  # URL stays /studio/... regardless of I18n.locale; UI language is set via I18n.
-  namespace :studio do
-    resources :articles, only: [ :index, :create, :edit, :update, :destroy ], param: :uuid do
-      resource :restoration, only: [ :create ], controller: :article_restorations
-      resource :trashed_article, only: [ :destroy ], controller: :trashed_articles
-
-      resource :publication, only: [ :new, :create, :destroy ], controller: :publications
-      resource :translation_publication, only: [ :create, :destroy ], controller: :translation_publications
-    end
-  end
 end

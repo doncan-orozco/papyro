@@ -1,4 +1,5 @@
 require "test_helper"
+require "uri"
 
 # data-testid is the standard test attribute in this app.
 # Capybara.test_id makes standard finders also match by data-testid.
@@ -22,6 +23,8 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
 
     visit root_path
     page.driver.browser.manage.add_cookie(name: "session_id", value: signed_session_cookie, path: "/")
+
+    set_studio_session_cookie(signed_session_cookie)
   end
 
   def sign_out
@@ -34,5 +37,18 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     ActionDispatch::TestRequest.create.cookie_jar.tap do |cookie_jar|
       cookie_jar.signed[:session_id] = session_id
     end[:session_id]
+  end
+
+  def set_studio_session_cookie(cookie_value)
+    base_uri = URI.parse(Capybara.current_session.server.base_url)
+    studio_base_url = "http://studio.lvh.me:#{base_uri.port}"
+
+    visit "#{studio_base_url}/"
+    page.driver.browser.manage.add_cookie(
+      name: "session_id",
+      value: cookie_value,
+      domain: "studio.lvh.me",
+      path: "/"
+    )
   end
 end

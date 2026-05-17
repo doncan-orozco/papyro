@@ -15,6 +15,7 @@ Use this skill for browser-level tests that exercise critical user flows end to 
 - Prefer backend state setup over driving long prerequisite flows through the browser.
 - Use `data-testid` hooks for critical or asynchronous UI elements whose structure or text may drift. Do NOT attach `data-testid` to every element — only containers, dynamic state, and unlabeled async surfaces.
 - Do not test validation matrices in system tests; cover one visible UI error path and keep detailed validation coverage in contract/operation tests.
+- For cross-subdomain auth/session behavior, prefer at least one real browser navigation flow across host and studio domains; host-switch integration tricks alone are not sufficient to prove cookie-scope behavior.
 
 ## Capybara `test_id` Configuration
 
