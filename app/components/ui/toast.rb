@@ -135,6 +135,10 @@ module Components
 
     # Toast Close - close button
     class Toast::Close < Components::Base
+      def initialize(**attrs)
+        @attrs = attrs
+      end
+
       def view_template
         button(
           type: :button,

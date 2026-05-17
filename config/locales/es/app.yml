@@ -2,7 +2,25 @@ es:
   app:
     title: "Doncan Orozco"
     description: "Desarrollador full-stack | Ruby on Rails | Entusiasta de código abierto"
+    toasts:
+      success: "Exito"
+      error: "Error"
+      close: "Cerrar"
   date:
+    abbr_month_names:
+      -
+      - ene
+      - feb
+      - mar
+      - abr
+      - may
+      - jun
+      - jul
+      - ago
+      - sep
+      - oct
+      - nov
+      - dic
     formats:
       short: "%d/%m/%Y"
       long: "%d de %B de %Y"
@@ -10,9 +28,11 @@ es:
     formats:
       short: "%d/%m/%Y"
       long: "%d de %B de %Y %H:%M"
-  admin:
+      autosave: "%-d %b, %H:%M"
+  studio:
     navbar:
       title: "Papyro"
       logo_alt: "Logo de Papyro"
+      view_site: "Ver sitio"
       sign_out: "Cerrar sesion"
       confirm_sign_out: "Estas seguro de que quieres cerrar sesion?"

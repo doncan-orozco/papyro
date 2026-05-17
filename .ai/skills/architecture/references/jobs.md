@@ -1,6 +1,6 @@
 # Background Job Examples (Solid Queue)
 
-**For complete guidelines, see: [VERIFICATION_CHECKLIST.md](../VERIFICATION_CHECKLIST.md#background-jobs-solid-queue)**
+**For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md#background-jobs-solid-queue)**
 
 Examples assume Solid Queue for background jobs.
 
@@ -21,10 +21,10 @@ class Game::RegenerateHealthJob < ApplicationJob
   retry_on StandardError, wait: :exponentially_longer, attempts: 5
   
   def perform(player_id)
-    result = Game::Operation::RegenerateHealth.call(player_id: player_id)
+    result = Game::Operation::RegenerateHealth.new.call(player_id: player_id)
     
     case result
-    in Success(player:)
+    in Dry::Monads::Success(player:)
       logger.info "Regenerated health for player #{player_id}"
       
       # Broadcast health update via WebSocket
@@ -37,9 +37,9 @@ class Game::RegenerateHealthJob < ApplicationJob
           max_health: player.max_health
         }
       )
-    in Failure[:player_not_found]
+    in Dry::Monads::Failure[:player_not_found]
       logger.warn "Player #{player_id} not found, skipping regeneration"
-    in Failure[:player_dead]
+    in Dry::Monads::Failure[:player_dead]
       # Don't retry for dead players
       return
     end
@@ -71,4 +71,4 @@ end
 ## Rules
 
 Rules live in the checklist:
-- [Background jobs](../VERIFICATION_CHECKLIST.md#background-jobs-solid-queue)
+- [Background jobs](/.github/copilot-instructions.md#background-jobs-solid-queue)

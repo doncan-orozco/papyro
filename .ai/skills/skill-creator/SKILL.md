@@ -50,12 +50,12 @@ skill-name/
 ├── SKILL.md (required)
 │   ├── YAML frontmatter metadata (required)
 │   │   ├── name: (required)
-│   │   ├── description: (required)
-│   │   └── compatibility: (optional, rarely needed)
+│   │   └── description: (required)
 │   └── Markdown instructions (required)
 └── Bundled Resources (optional)
     ├── scripts/          - Executable code (Python/Bash/etc.)
     ├── references/       - Documentation intended to be loaded into context as needed
+    ├── examples/         - Small copy-paste-ready example packs when references would be too narrative
     └── assets/           - Files used in output (templates, icons, fonts, etc.)
 ```
 
@@ -63,7 +63,7 @@ skill-name/
 
 Every SKILL.md consists of:
 
-- **Frontmatter** (YAML): Contains `name` and `description` fields (required), plus optional fields like `license`, `metadata`, and `compatibility`. Only `name` and `description` are read by Claude to determine when the skill triggers, so be clear and comprehensive about what the skill is and when it should be used. The `compatibility` field is for noting environment requirements (target product, system packages, etc.) but most skills don't need it.
+- **Frontmatter** (YAML): Contains `name` and `description` fields. These are the only fields Claude relies on for triggering, so be clear and comprehensive about what the skill is and when it should be used. Avoid extra frontmatter by default; only add another field when repository tooling explicitly requires it.
 - **Body** (Markdown): Instructions and guidance for using the skill. Only loaded AFTER the skill triggers (if at all).
 
 #### Bundled Resources (optional)
@@ -87,6 +87,15 @@ Documentation and reference material intended to be loaded as needed into contex
 - **Benefits**: Keeps SKILL.md lean, loaded only when Claude determines it's needed
 - **Best practice**: If files are large (>10k words), include grep search patterns in SKILL.md
 - **Avoid duplication**: Information should live in either SKILL.md or references files, not both. Prefer references files for detailed information unless it's truly core to the skill—this keeps SKILL.md lean while making information discoverable without hogging the context window. Keep only essential procedural instructions and workflow guidance in SKILL.md; move detailed reference material, schemas, and examples to references files.
+
+##### Examples (`examples/`)
+
+Small, focused example files are acceptable when the skill benefits from copy-paste-ready snippets that are lighter than narrative references.
+
+- **When to include**: When concrete examples are useful on their own and should be discoverable separately from longer reference docs
+- **Examples**: `examples/interactive-components.md`, `examples/request-mocking.md`
+- **Best practice**: Link every example directly from SKILL.md and keep it narrowly scoped
+- **Avoid duplication**: Do not store the same example in both `references/` and `examples/`
 
 ##### Assets (`assets/`)
 
@@ -289,7 +298,7 @@ These files contain established best practices for effective skill design.
 
 #### Start with Reusable Skill Contents
 
-To begin implementation, start with the reusable resources identified above: `scripts/`, `references/`, and `assets/` files. Note that this step may require user input. For example, when implementing a `brand-guidelines` skill, the user may need to provide brand assets or templates to store in `assets/`, or documentation to store in `references/`.
+To begin implementation, start with the reusable resources identified above: `scripts/`, `references/`, `examples/`, and `assets/` files. Note that this step may require user input. For example, when implementing a `brand-guidelines` skill, the user may need to provide brand assets or templates to store in `assets/`, or documentation to store in `references/`.
 
 Added scripts must be tested by actually running them to ensure there are no bugs and that the output matches what is expected. If there are many similar scripts, only a representative sample needs to be tested to ensure confidence that they all work while balancing time to completion.
 
@@ -309,7 +318,7 @@ Write the YAML frontmatter with `name` and `description`:
   - Include all "when to use" information here - Not in the body. The body is only loaded after triggering, so "When to Use This Skill" sections in the body are not helpful to Claude.
   - Example description for a `docx` skill: "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. Use when Claude needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks"
 
-Do not include any other fields in YAML frontmatter.
+Default to only `name` and `description` in YAML frontmatter. Add another field only when repository tooling explicitly requires it.
 
 ##### Body
 

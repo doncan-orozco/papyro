@@ -22,7 +22,7 @@
 - [ ] Stimulus: controller naming and `**attrs` support
 
 ## References
-- [.ai/VERIFICATION_CHECKLIST.md](../.ai/VERIFICATION_CHECKLIST.md) - Complete checklist
+- [.github/copilot-instructions.md](../.github/copilot-instructions.md) - Complete checklist and guidance
 - [.ai/skills/backend-anti-patterns/SKILL.md](../.ai/skills/backend-anti-patterns/SKILL.md) - What NOT to do
 - [.ai/skills/error-handling/SKILL.md](../.ai/skills/error-handling/SKILL.md) - Error patterns
 - [.ai/skills/sqlite/SKILL.md](../.ai/skills/sqlite/SKILL.md) - Safe migration patterns

@@ -12,14 +12,36 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "create with valid credentials" do
     post session_path, params: { email_address: @user.email_address, password: "password" }
 
-    assert_redirected_to root_path
+    assert_redirected_to root_path(locale: I18n.default_locale)
     assert cookies[:session_id]
+  end
+
+  test "create sets session cookie domain for subdomain sharing" do
+    host! "lvh.me"
+    post session_path, params: { email_address: @user.email_address, password: "password" }
+
+    assert_redirected_to root_path(locale: I18n.default_locale)
+    assert cookies[:session_id]
+
+    set_cookie_headers = Array(response.headers["Set-Cookie"])
+    assert(
+      set_cookie_headers.any? { |header| header.downcase.include?("domain=lvh.me") },
+      "Expected Set-Cookie to include domain=lvh.me, got: #{set_cookie_headers.inspect}"
+    )
   end
 
   test "create with invalid credentials" do
     post session_path, params: { email_address: @user.email_address, password: "wrong" }
 
     assert_redirected_to new_session_path
+    assert_nil cookies[:session_id]
+  end
+
+  test "create with invalid email renders errors" do
+    post session_path, params: { email_address: "invalid-email", password: "password" }
+
+    assert_response :unprocessable_entity
+    assert_match /must be a valid email address/, response.body
     assert_nil cookies[:session_id]
   end
 

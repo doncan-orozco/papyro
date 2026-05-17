@@ -2,52 +2,48 @@
 
 module Users
   module Operation
-    class Update < Trailblazer::Operation
-      step :validate_input
-      step :update_user
+    class Update < Core::Operation
+      def call(params:, user:)
+        validated_attributes = step validate_input(params: params, user: user)
+        persisted_user = step persist_user(user: user, attributes: validated_attributes)
 
-      def validate_input(ctx, params:, user:, **)
-        form = Users::Form::Update.new(user)
-        ctx[:form] = form
-        params_with_context = params.merge(id: user.id)
-
-        if form.validate(params_with_context)
-          form.sync
-
-          # Apply password updates manually because password fields are virtual.
-          if form.password.present?
-            user.password = form.password
-            user.password_confirmation = form.password_confirmation
-          end
-
-          ctx[:model] = user
-          true
-        else
-          form.sync
-          apply_form_errors_to_model(user, form)
-          ctx[:model] = user
-          ctx[:errors] = user.errors.to_hash
-          false
-        end
-      end
-
-      def update_user(ctx, user:, **)
-        if user.save
-          ctx[:model] = user
-          true
-        else
-          ctx[:model] = user
-          ctx[:errors] = user.errors.to_hash
-          false
-        end
+        { model: persisted_user }
       end
 
       private
 
-      def apply_form_errors_to_model(model, form)
-        form.errors.messages.each do |attribute, messages|
-          Array(messages).each { |message| model.errors.add(attribute, message) }
+      def validate_input(params:, user:)
+        contract = Users::Contract::Update.new
+        result = contract.call(normalized_params(params: params, user: user).compact_blank)
+
+        return Success(result.to_h) if result.success?
+
+        fail_with_model!(inject_errors!(user, result.errors.to_h))
+      end
+
+      def normalized_params(params:, user:)
+        normalized = params.deep_dup
+        profile_attributes = normalized["profile_attributes"] || normalized[:profile_attributes]
+        return normalized unless profile_attributes
+
+        profile_attributes = profile_attributes.to_h
+
+        if user.profile.present?
+          # For has_one nested updates, keep updating the existing profile record.
+          profile_attributes["id"] = user.profile.id
+          profile_attributes["username"] = user.profile.username
         end
+
+        normalized["profile_attributes"] = profile_attributes
+        normalized
+      end
+
+      def persist_user(user:, attributes:)
+        user.assign_attributes(attributes)
+
+        return Success(user) if user.save
+
+        fail_with_model!(user)
       end
     end
   end
