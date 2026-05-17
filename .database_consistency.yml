@@ -10,12 +10,13 @@ DatabaseConsistencyDatabases:
   primary:
     enabled: true
 
-DatabaseConsistencyModels:
-  SchemaMigration:
-    enabled: false
-  ActiveRecord::InternalMetadata:
-    enabled: false
-  Article:
+SchemaMigration:
+  enabled: false
+
+ActiveRecord::InternalMetadata:
+  enabled: false
+
+Article:
+  slug:
     MissingUniqueIndexChecker:
-      slug:
-        enabled: false  # slug uniqueness enforced in article_translations (locale, slug) index via Mobility
+      enabled: false  # slug uniqueness enforced in article_translations (locale, slug) index via Mobility

@@ -5,6 +5,9 @@ class ArticleTranslation < ApplicationRecord
 
   enum :status, STATUS_VALUES
 
+  validates :locale, presence: true
+  validates :locale, uniqueness: { scope: :article_id }
+  validates :slug, uniqueness: { scope: :locale }, allow_nil: true
   validates :excerpt, length: { maximum: 500 }, allow_nil: true
   validates :cover_image_caption, length: { maximum: Article::COVER_IMAGE_CAPTION_MAX_LENGTH }, allow_nil: true
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_12_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_16_120000) do
   create_table "action_text_markdowns", force: :cascade do |t|
     t.text "content", default: "", null: false
     t.datetime "created_at", null: false
@@ -74,7 +74,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_120000) do
     t.string "title"
     t.datetime "updated_at", null: false
     t.index ["article_id", "locale"], name: "index_article_translations_on_article_id_and_locale", unique: true
-    t.index ["article_id"], name: "index_article_translations_on_article_id"
     t.index ["locale", "slug"], name: "index_article_translations_on_locale_and_slug", unique: true
     t.index ["published_at"], name: "index_article_translations_on_published_at"
     t.index ["status"], name: "index_article_translations_on_status"
