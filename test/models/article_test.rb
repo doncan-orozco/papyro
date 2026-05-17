@@ -185,6 +185,6 @@ class ArticleTest < ActiveSupport::TestCase
       min_height: Articles::Service::CoverImageValidation::MIN_COVER_IMAGE_HEIGHT
     )
   ensure
-    file.close!
+    file&.close!
   end
 end

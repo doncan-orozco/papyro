@@ -84,7 +84,7 @@ class Articles::Service::CoverImageValidationTest < ActiveSupport::TestCase
       min_height: Articles::Service::CoverImageValidation::MIN_COVER_IMAGE_HEIGHT
     )
   ensure
-    file.close!
+    file&.close!
   end
 
   test "keeps errors empty for valid cover image" do
