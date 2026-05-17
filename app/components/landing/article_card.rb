@@ -1,36 +1,119 @@
 module Components
   module Landing
     class ArticleCard < Components::Base
-      def initialize(title:, description:, date:, reading_time:, href: nil, **attrs)
-        @title = title
-        @description = description
-        @date = date
-        @reading_time = reading_time
-        @href = href
+      include Phlex::Rails::Helpers::ImageTag
+
+      def initialize(article:, **attrs)
+        @article = article
         @attrs = attrs
       end
 
       def view_template
-        tag_name = @href.present? ? :a : :div
-        attrs = {
-          class: "group block bg-card p-6 rounded-lg border border-border hover:border-border/80 hover:shadow-lg transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        }
-        attrs[:href] = @href if @href.present?
+        link_to article_path(@article), class: card_classes, **attrs_without_class do
+          cover_image_section
 
-        public_send(tag_name, **attrs, **@attrs) do
-          div(class: "flex justify-between items-start mb-3") do
-            span(class: "text-sm text-muted-foreground") { @date }
-            span(class: "text-xs bg-muted text-muted-foreground px-2 py-1 rounded") { @reading_time }
-          end
+          div(class: "flex flex-1 flex-col justify-between p-6") do
+            div(class: "flex flex-col gap-4") do
+              div(class: "flex items-center gap-2") do
+                div(class: "flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted text-[10px] font-bold text-muted-foreground") do
+                  plain article_author_initial
+                end
 
-          h3(class: "text-xl font-semibold text-card-foreground mb-2 group-hover:text-foreground") { @title }
-          p(class: "text-muted-foreground text-sm leading-relaxed") { @description }
+                span(class: "text-sm font-medium text-foreground") do
+                  article_author_name
+                end
+              end
 
-          div(class: "mt-4 flex items-center text-card-foreground text-sm font-medium group-hover:gap-2 gap-0 transition-all") do
-            span { t("components.landing.article_card.read_more") }
-            span { "→" }
+              div do
+                h3(class: "mb-2 text-xl font-bold leading-tight text-card-foreground decoration-muted-foreground/50 underline-offset-4 group-hover:underline") do
+                  @article.title
+                end
+
+                p(class: "line-clamp-3 text-sm leading-relaxed text-muted-foreground") do
+                  article_description
+                end
+              end
+            end
+
+            div(class: "mt-6 flex items-center gap-1.5 text-xs text-muted-foreground") do
+              if @article.published_at.present?
+                span { I18n.l(@article.published_at.to_date, format: :short) }
+                span { "·" }
+              end
+
+              span { t("components.landing.article_card.reading_time", minutes: reading_time_for(@article)) }
+            end
           end
         end
+      end
+
+      private
+
+      def cover_image_section
+        div(class: "w-full overflow-hidden border-b border-border/50") do
+          if @article.cover_image.attached?
+            image_tag(
+              @article.cover_image,
+              alt: @article.title,
+              class: "aspect-[2/1] w-full transform object-cover grayscale opacity-80 transition-all duration-700 ease-in-out group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100"
+            )
+          else
+            div(class: "relative aspect-[2/1] w-full overflow-hidden bg-gradient-to-br from-muted/55 via-muted/35 to-muted/70 transition-colors duration-700 group-hover:from-blue-500/10 group-hover:to-blue-500/5 dark:group-hover:from-blue-400/20 dark:group-hover:to-blue-400/10") do
+              div(class: "pointer-events-none absolute inset-0 bg-blue-500/5 opacity-0 transition-opacity duration-700 group-hover:opacity-100 dark:bg-blue-400/10")
+
+              span(
+                class: "pointer-events-none absolute -inset-4 text-[4rem] font-black uppercase leading-[0.85] tracking-tighter text-foreground/10 dark:text-foreground/20 select-none break-words transition-transform duration-700 ease-in-out group-hover:scale-105 md:text-[5rem]",
+                aria_hidden: "true"
+              ) do
+                plain fallback_texture_text
+              end
+
+              div(class: "relative z-10 flex h-full w-full items-center justify-center p-6") do
+                div(class: "rounded-full border border-foreground/10 bg-background/65 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground shadow-sm backdrop-blur-md transition-colors duration-700 group-hover:border-rose-600 group-hover:bg-rose-600 group-hover:text-white") do
+                  plain "PAPYRO"
+                end
+              end
+            end
+          end
+        end
+      end
+
+      def fallback_texture_text
+        seed = @article.title.to_s.strip
+        seed = article_author_name if seed.blank?
+
+        (("#{seed} ") * 6).upcase
+      end
+
+      def card_classes
+        cn(
+          "group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card p-0 transition-all hover:border-foreground/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          @attrs&.dig(:class)
+        )
+      end
+
+      def article_description
+        @article.excerpt.presence || content_analysis.searchable_content.to_s.truncate(180)
+      end
+
+      def article_author_name
+        @article.user&.author_display_name || t("components.landing.article_card.unknown_author")
+      end
+
+      def article_author_initial
+        article_author_name.first.to_s.upcase.presence || "?"
+      end
+
+      def reading_time_for(article)
+        self.class.content_analysis_for(article).estimated_reading_time_minutes
+      end
+
+      def content_analysis
+        @content_analysis ||= self.class.content_analysis_for(@article)
+      end
+
+      def self.content_analysis_for(article)
+        Articles::Service::ContentAnalysis.new(article)
       end
     end
   end

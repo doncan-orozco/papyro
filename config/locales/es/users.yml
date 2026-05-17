@@ -1,0 +1,70 @@
+es:
+  users:
+    show:
+      title: "Perfil"
+      description: "Información pública del perfil"
+      display_name_label: "Nombre del autor"
+      email_label: "Correo electrónico"
+      edit_profile: "Editar perfil"
+    edit:
+      title: "Editar perfil"
+      description: "Actualiza la configuración de tu cuenta"
+      display_name_label: "Nombre del autor"
+      display_name_placeholder: "Ingresa el nombre que se mostrará en tus artículos"
+      email_label: "Correo electrónico"
+      email_placeholder: "Ingresa tu correo electrónico"
+      password_label: "Nueva contraseña"
+      password_placeholder: "Déjalo en blanco para mantener la contraseña actual"
+      password_confirmation_label: "Confirmar nueva contraseña"
+      password_confirmation_placeholder: "Confirma tu nueva contraseña"
+      submit: "Guardar cambios"
+      cancel: "Cancelar"
+    forms:
+      validation:
+        display_name_too_long: "El nombre del autor debe tener 100 caracteres o menos"
+    settings:
+      profile:
+        title: "Perfil"
+        description: "Actualiza la información pública de tu perfil"
+        display_name_label: "Nombre del autor"
+        display_name_placeholder: "Ingresa el nombre que se mostrará en tus artículos"
+        portrait_label: "Foto de retrato"
+        portrait_hint: "Sube PNG, JPEG o WEBP. La orientación vertical funciona mejor."
+        portrait_change_cta: "Cambiar foto"
+        username_label: "Nombre de usuario"
+        username_placeholder: "ej. jane_writes"
+        username_locked_hint: "El nombre de usuario no puede cambiarse una vez definido."
+        bio_label: "Bio"
+        bio_placeholder: "Una breve descripción sobre ti"
+        location_label: "Ubicación"
+        location_placeholder: "ej. Ciudad de México"
+        website_url_label: "Sitio web"
+        website_url_placeholder: "https://tusitio.com"
+        x_handle_label: "X (Twitter)"
+        x_handle_placeholder: "@usuario"
+        linkedin_handle_label: "LinkedIn"
+        linkedin_handle_placeholder: "tu-usuario-linkedin"
+        email_label: "Correo electrónico"
+        email_placeholder: "Ingresa tu correo electrónico"
+        submit: "Guardar cambios"
+        cancel: "Cancelar"
+      security:
+        title: "Seguridad"
+        description: "Actualiza tu contraseña"
+        current_password_label: "Contraseña actual"
+        current_password_placeholder: "Ingresa tu contraseña actual"
+        password_label: "Nueva contraseña"
+        password_placeholder: "Ingresa una nueva contraseña"
+        password_confirmation_label: "Confirmar nueva contraseña"
+        password_confirmation_placeholder: "Confirma tu nueva contraseña"
+        submit: "Actualizar contraseña"
+        cancel: "Cancelar"
+    operations:
+      update:
+        success: "Perfil actualizado correctamente."
+      update_profile:
+        success: "Perfil actualizado correctamente."
+      update_password:
+        success: "Contraseña actualizada correctamente."
+        current_password_invalid: "La contraseña actual es incorrecta."
+

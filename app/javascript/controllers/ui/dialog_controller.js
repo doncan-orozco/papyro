@@ -56,6 +56,13 @@ export default class extends BaseController {
     if (this.hasContentTarget) {
       this.contentTarget.dataset.state = 'closed'
     }
+
+    // Keep the rendered state aligned with the current value on first connect.
+    if (this.openValue) {
+      this.openDialog()
+    }
+
+    this.hasInitialized = true
   }
 
   disconnect() {
@@ -94,10 +101,7 @@ export default class extends BaseController {
    * Update when open value changes
    */
   openValueChanged() {
-    if (!this.hasInitialized) {
-      this.hasInitialized = true
-      if (!this.openValue) return
-    }
+    if (!this.hasInitialized) return
 
     if (this.openValue) {
       this.openDialog()

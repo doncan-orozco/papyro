@@ -86,7 +86,9 @@ class PapyroFormBuilder < ActionView::Helpers::FormBuilder
   end
 
   def merge_field_options(method, options, base_class)
-    merged = merge_class(options, base_class)
+    options = options.dup
+    unstyled = options.delete(:unstyled)
+    merged = unstyled ? options : merge_class(options, base_class)
     return merged unless has_errors?(method)
 
     merged[:aria] = (merged[:aria] || {}).merge(invalid: true)

@@ -1,57 +1,107 @@
 # frozen_string_literal: true
 
+require "securerandom"
+
 module Articles
   module Operation
-    class Create < Trailblazer::Operation
-      step :validate_input
-      step :prepare_body
-      step :create_article
+    class Create < Core::Operation
+      HASH_LENGTH = 6
+      MAX_SLUG_COLLISION_RETRIES = 3
 
-      def validate_input(ctx, params:, **)
-        # Support legacy `content` key on the API tests and public forms.
-        params = params.dup
-        params[:body] = params.delete(:content) if params.key?(:content)
+      def call(params:, user:)
+        normalized_params, generated_slug = prepare_attributes(params)
+        validated_attributes = step validate_input(normalized_params)
+        persisted_article = step persist_article(
+          attributes: validated_attributes,
+          user: user,
+          retry_slug_collision: generated_slug
+        )
 
-        form = Articles::Form::Create.new(::Article.new)
-        form.published_at ||= Time.current if params[:status] == "published"
-
-        if form.validate(params)
-          form.sync
-          ctx[:model] = form.model
-          true
-        else
-          form.sync
-          model = form.model
-          apply_form_errors_to_model(model, form)
-          ctx[:model] = model
-          ctx[:errors] = model.errors.to_hash
-          false
-        end
-      end
-
-      def prepare_body(_ctx, model:, **)
-        # Persist the markdown text, not the ActionText::Markdown object itself.
-        model.body = model.body.content.to_s
-        true
-      end
-
-      def create_article(ctx, model:, **)
-        if model.save
-          ctx[:model] = model
-          true
-        else
-          ctx[:model] = model
-          ctx[:errors] = model.errors.to_hash
-          false
-        end
+        { model: persisted_article }
       end
 
       private
 
-      def apply_form_errors_to_model(model, form)
-        form.errors.messages.each do |attribute, messages|
-          Array(messages).each { |message| model.errors.add(attribute, message) }
+      def prepare_attributes(params)
+        attrs = params.to_h.symbolize_keys
+        attrs[:title] ||= I18n.t("studio.articles.editor.untitled")
+        attrs[:original_locale] ||= I18n.locale.to_s
+
+        return [ attrs, true ] if attrs[:slug].present?
+        return [ attrs, false ] unless attrs[:title].present?
+
+        attrs[:slug] = generate_slug_from_title(attrs[:title])
+        [ attrs, true ]
+      end
+
+      def validate_input(params)
+        contract_result = Articles::Contract::Create.new.call(params)
+
+        if contract_result.failure?
+          invalid_article = inject_errors!(Article.new(params), contract_result.errors.to_h)
+          return fail_with_model!(invalid_article)
         end
+
+        if publish_requested?(params) && params[:published_at].blank?
+          invalid_article = Article.new(params.except(:status))
+          invalid_article.errors.add(:published_at, I18n.t("errors.messages.published_at_required_for_published"))
+          return fail_with_model!(invalid_article)
+        end
+
+        Success(contract_result.to_h.symbolize_keys)
+      end
+
+      def persist_article(attributes:, user:, retry_slug_collision:)
+        article = user.articles.build(attributes.except(:status))
+        attempts = 0
+
+        loop do
+          begin
+            return Success(article) if article.save
+
+            break unless should_retry?(article, retry_slug_collision, attempts)
+
+            attempts += 1
+            article.slug = regenerate_slug(article.slug)
+          rescue ActiveRecord::RecordNotUnique
+            break unless retry_slug_collision && attempts < MAX_SLUG_COLLISION_RETRIES
+
+            attempts += 1
+            article.slug = regenerate_slug(article.slug)
+          end
+        end
+
+        article.errors.add(:slug, :taken) if article.errors.empty?
+        fail_with_model!(article)
+      end
+
+      def should_retry?(article, retry_slug_collision, attempts)
+        retry_slug_collision && slug_taken_collision?(article) && attempts < MAX_SLUG_COLLISION_RETRIES
+      end
+
+      def slug_taken_collision?(article)
+        article.errors.details.fetch(:slug, []).any? { |error| error[:error] == :taken }
+      end
+
+      def regenerate_slug(current_slug)
+        base_slug = current_slug.to_s.sub(/-[a-z0-9]{#{HASH_LENGTH}}\z/, "")
+
+        "#{base_slug}-#{random_slug_suffix}"
+      end
+
+      def generate_slug_from_title(title)
+        base_slug = title.to_s.parameterize
+        base_slug = "article" if base_slug.blank?
+
+        base_slug
+      end
+
+      def random_slug_suffix
+        SecureRandom.alphanumeric(HASH_LENGTH).downcase
+      end
+
+      def publish_requested?(params)
+        params[:status].to_s == "published"
       end
     end
   end

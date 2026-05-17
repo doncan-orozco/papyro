@@ -6,6 +6,7 @@
 unless User.exists?(email_address: "admin@papyro.local")
   result = Users::Operation::Create.call(
     params: {
+      display_name: "Admin",
       email_address: "admin@papyro.local",
       password: "password123",
       password_confirmation: "password123"

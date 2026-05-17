@@ -2,19 +2,18 @@
 
 module Articles
   module Operation
-    class Destroy < Trailblazer::Operation
-      step :destroy_article
+    class Destroy < Core::Operation
+      def call(model:)
+        soft_deleted_model = step soft_delete_model(model)
+        { model: soft_deleted_model }
+      end
 
-      # No find_article step - model is pre-authorized by controller
+      private
 
-      def destroy_article(ctx, model:, **)
-        if model.destroy
-          ctx[:model] = model
-          true
-        else
-          ctx[:errors] = model.errors.to_hash
-          false
-        end
+      def soft_delete_model(model)
+        return Success(model) if model.update(deleted_at: Time.current)
+
+        fail_with_model!(model)
       end
     end
   end

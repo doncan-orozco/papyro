@@ -2,6 +2,10 @@ en:
   app:
     title: "Doncan Orozco"
     description: "Full-stack developer | Ruby on Rails | Open source enthusiast"
+    toasts:
+      success: "Success"
+      error: "Error"
+      close: "Close"
   date:
     formats:
       short: "%b %-d, %Y"
@@ -10,9 +14,11 @@ en:
     formats:
       short: "%b %-d, %Y"
       long: "%B %-d, %Y %H:%M"
-  admin:
+      autosave: "%b %-d, %-l:%M %p"
+  studio:
     navbar:
       title: "Papyro"
       logo_alt: "Papyro logo"
+      view_site: "View site"
       sign_out: "Sign out"
       confirm_sign_out: "Are you sure you want to sign out?"

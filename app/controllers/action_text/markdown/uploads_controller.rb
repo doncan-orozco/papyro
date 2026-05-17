@@ -9,17 +9,28 @@ class ActionText::Markdown::UploadsController < ApplicationController
 
   def create
     @record = GlobalID::Locator.locate_signed params[:record_gid]
+    authorize @record, :update?
 
-    @markdown = @record.safe_markdown_attribute params[:attribute_name]
-    @markdown.uploads.attach [ params[:file] ]
-    @markdown.save!
+    result = ActionText::Markdown::Uploads::Operation::Create.new.call(
+      record: @record,
+      attribute_name: params[:attribute_name],
+      file: params[:file]
+    )
 
-    @upload = @markdown.uploads.attachments.last
-
-    render :create, status: :created, formats: :json
+    if result.success?
+      @markdown = result.value![:markdown]
+      @upload = result.value![:upload]
+      render :create, status: :created, formats: :json
+    else
+      render json: {
+        errors: result.failure[:errors],
+        message: result.failure[:message]
+      }, status: :unprocessable_entity
+    end
   end
 
   def show
+    skip_authorization
     @attachment = ActiveStorage::Attachment.find_by! slug: "#{params[:slug]}.#{params[:format]}"
     expires_in 1.year, public: true
     redirect_to @attachment.url, allow_other_host: true
