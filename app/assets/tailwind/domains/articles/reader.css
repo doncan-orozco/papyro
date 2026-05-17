@@ -1,0 +1,86 @@
+@layer components {
+  /* Writebook-inspired reading rhythm for rendered article HTML. */
+  .article-prose {
+    font-size: 1.125rem;
+    line-height: 1.78;
+  }
+
+  .article-prose :where(p, ul, ol, dl, blockquote, pre, figure, table, hr) {
+    margin-block: 0.72lh;
+    overflow-wrap: break-word;
+    text-wrap: pretty;
+  }
+
+  .article-prose :where(p) {
+    line-height: 1.8;
+    margin-block: 0 2rem;
+    hyphens: auto;
+    letter-spacing: -0.003ch;
+  }
+
+  .article-prose :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--color-foreground);
+    font-weight: 700;
+    letter-spacing: -0.02ch;
+    line-height: 1.15;
+    margin-block: 1.1em 0.55em;
+    text-wrap: balance;
+  }
+
+  .article-prose :where(ul, ol) {
+    padding-inline-start: 1.25rem;
+  }
+
+  .article-prose :where(ul) {
+    list-style: disc;
+  }
+
+  .article-prose :where(ol) {
+    list-style: decimal;
+  }
+
+  .article-prose :where(li + li) {
+    margin-top: 0.3em;
+  }
+
+  .article-prose :where(a) {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.15em;
+  }
+
+  .article-prose :where(a:hover) {
+    opacity: 0.82;
+  }
+
+  .article-prose :where(pre) {
+    background-color: var(--color-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    color: var(--color-foreground);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.875em;
+    line-height: 1.65;
+    overflow-x: auto;
+    padding: 1rem 1.25rem;
+  }
+
+  .article-prose :where(pre code) {
+    background: none;
+    border: none;
+    border-radius: 0;
+    color: inherit;
+    font-size: inherit;
+    padding: 0;
+  }
+
+  .article-prose :where(code):not(pre code) {
+    background-color: var(--color-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.875em;
+    padding: 0.15em 0.35em;
+  }
+}

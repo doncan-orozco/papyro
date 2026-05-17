@@ -4,6 +4,7 @@ es:
       invalid_email: "debe ser una dirección de correo electrónico válida"
       password_mismatch: "debe coincidir con la contraseña"
       email_taken: "ya está en uso"
+      invalid_username: "debe contener solo letras minúsculas, números y guiones bajos"
       # Article validations
       title_blank: "El título no puede estar vacío"
       title_too_long: "El título es demasiado largo (máximo 255 caracteres)"
@@ -20,10 +21,14 @@ es:
       article_not_found: "Artículo no encontrado"
       article_already_published: "El artículo ya está publicado"
       article_not_published: "El artículo no está publicado"
-      article_incomplete_for_publish: "El artículo debe tener título y contenido para ser publicado"
+      article_incomplete_for_publish: "El artículo debe tener título, contenido y extracto para ser publicado"
+      article_must_be_published_first: "El artículo debe publicarse antes de publicar una traducción"
+      translation_incomplete_for_publish: "La traducción debe tener un título antes de publicarse"
+      translation_not_found: "Traducción no encontrada"
+      invalid_markdown_attribute: "Atributo markdown inválido"
       invalid_action: "Acción inválida"
 
-  # dry-schema predicate messages (used by Reform forms via params do ... end)
+  # Mensajes de predicados dry-schema usados por contratos dry-validation.
   dry_schema:
     errors:
       filled?: "no puede estar vacío"

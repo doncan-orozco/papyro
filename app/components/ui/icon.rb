@@ -48,7 +48,9 @@ module Components
         size = opts.delete(:size)
         opts.merge!(width: size, height: size) if size
 
-        inner = LucideRails::IconProvider.icon(@name)
+        sanitized_name = @name.to_s.downcase.tr("_", "-")
+
+        inner = LucideRails::IconProvider.icon(sanitized_name)
 
         svg(**LucideRails.default_options.merge(**opts)) do
           raw safe(inner)

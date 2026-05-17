@@ -15,3 +15,7 @@ DatabaseConsistencyModels:
     enabled: false
   ActiveRecord::InternalMetadata:
     enabled: false
+  Article:
+    MissingUniqueIndexChecker:
+      slug:
+        enabled: false  # slug uniqueness enforced in article_translations (locale, slug) index via Mobility

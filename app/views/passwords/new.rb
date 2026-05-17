@@ -1,8 +1,8 @@
 module Views
   module Passwords
     class New < Views::Base
-      def initialize(form:)
-        @form = form
+      def initialize(user:)
+        @user = user
       end
 
       def view_template
@@ -24,7 +24,7 @@ module Views
       private
 
       def render_password_reset_form
-        form_with(model: @form, url: passwords_path, class: "space-y-5", local: true) do |form|
+        form_with(model: @user, url: passwords_path, class: "space-y-5", local: true) do |form|
           form.field :email_address,
             as: :email_field,
             label: t("views.passwords.new.email_label", default: "Email Address"),
@@ -46,10 +46,8 @@ module Views
       def render_flash_messages
         if alert = view_context.flash[:alert]
           render Components::Ui::Alert.new(variant: :destructive, class: "mb-4") do
-            svg(class: "h-4 w-4", fill: "none", stroke: "currentColor", viewbox: "0 0 24 24") do |s|
-              s.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z")
-            end
-            p { alert }
+            render Components::Ui::Icon.new(:alert_circle, class: "h-4 w-4")
+            p(id: "alert") { alert }
           end
         end
       end

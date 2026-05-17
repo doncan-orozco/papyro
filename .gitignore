@@ -63,4 +63,7 @@ react-shadcn-catalog/tsconfig.tsbuildinfo
 # Test result artifacts
 test-results/
 
+# Coverage artifacts
+coverage/
+
 docs/Papyro UX.pdf

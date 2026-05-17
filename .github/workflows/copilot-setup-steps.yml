@@ -23,6 +23,8 @@ jobs:
         with:
           ruby-version: '4.0.0'
           bundler-cache: true
+        env:
+          BUNDLE_GITHUB__COM: x-access-token:${{ secrets.STUDIO_READ_TOKEN }}
 
       - name: Install Rails MCP Server
         run: gem install rails-mcp-server

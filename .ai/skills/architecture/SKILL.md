@@ -1,30 +1,33 @@
 ---
 name: architecture
-description: Clean Architecture patterns with Trailblazer 2.1 for Rails applications. Use when implementing Operations, Contracts, Controllers, Queries, Services, or organizing application structure following the Papyro architecture patterns. Covers domain-driven organization, file structure, and common development workflows.
+description: Clean Architecture patterns with pure dry-rb operations for Rails applications. Use when implementing Operations, Contracts, Controllers, Queries, Services, or organizing application structure following the Papyro architecture patterns. Covers domain-driven organization, file structure, and common development workflows.
 ---
 
-# Architecture (Clean Architecture + Trailblazer 2.1)
+# Architecture (Clean Architecture + dry-rb)
 
 ## Dependencies
-- trailblazer-operation
-- trailblazer-rails
 - dry-monads
 - dry-validation
 
-## File Structure (Hybrid: Trailblazer Concepts + Rails Conventions)
+## File Structure (Domain + Rails Conventions)
 ```
 app/
   concepts/
-    game/
-      operation/
-        move_player.rb
-      contract/
-        move_player.rb
-    player/
+    articles/
       operation/
         create.rb
+        update.rb
       contract/
         create.rb
+        update.rb
+      query/
+        published.rb
+      service/
+        content_analysis.rb
+      presenter/
+        default.rb
+      validator/
+        body.rb
   
   components/        ← Reusable UI components (Phlex)
     game/
@@ -42,31 +45,107 @@ app/
   controllers/       ← Thin controllers
   channels/          ← WebSocket channels
   models/            ← ActiveRecord (persistence only)
-  queries/           ← Query objects
-  services/          ← Domain services
+  javascript/
+    controllers/
+      studio/
+        articles/
+          autosave_controller.js
 ```
+
+### Vertical Slice Rule
+
+For domain-specific backend code, prefer `app/concepts/{domain}/...` over horizontal top-level folders.
+
+#### 🚫 No Namespace Stuttering
+**Do not repeat the domain or type in the class or file name.**
+For example, use `Published` (not `PublishedQuery`), `Body` (not `BodyValidator`), and `Default`/`Show` (not `ArticlePresenter`/`ShowPresenter`).
+
+**Correct:**
+- `app/concepts/articles/query/published.rb` → `Articles::Query::Published`
+- `app/concepts/articles/validator/body.rb` → `Articles::Validator::Body`
+- `app/concepts/articles/presenter/default.rb` → `Articles::Presenter::Default`
+
+**Incorrect:**
+- `published_query.rb`, `body_validator.rb`, `article_presenter.rb`
+
+1. Put read flows in `app/concepts/{domain}/query/` using `Domain::Query::*` namespaces (no stuttering).
+2. Put domain services in `app/concepts/{domain}/service/` using `Domain::Service::*` namespaces.
+3. Put domain validators in `app/concepts/{domain}/validator/` using `Domain::Validator::*` namespaces.
+4. Put domain presenters in `app/concepts/{domain}/presenter/` using `Domain::Presenter::*` namespaces.
+5. Keep controllers thin and call these namespaced objects directly.
+
+### Refactor Safety Checklist (Required)
+
+When performing structural refactors (renames/moves between `app/presenters`, `app/queries`, and `app/concepts`):
+
+1. Remove legacy duplicate files immediately after references are migrated.
+2. Verify file path, module nesting, and class name alignment for Zeitwerk.
+3. Confirm all call sites are updated (controllers, views, operations, tests).
+4. Run targeted suites for touched domains before full test runs.
+5. Finish with full regression (`bin/rails test` and `bin/rails test:system`).
+
+## Host-Coupled Engine Pattern (Papyro Studio)
+
+When working on the private `PapyroStudio` engine in this workspace:
+
+1. Treat the host app as the owner of database schema, core models (`User`, `Article`), and authentication/session lifecycle.
+2. Treat the engine as an orchestration and UI boundary mounted under the `studio` subdomain.
+3. Keep mutations and policies aligned with host-domain behavior so the engine does not fork domain logic accidentally.
+4. Run engine tests from the host app root so the engine reuses the host environment and fixtures.
+
+For the ownership matrix, mount boundary, test helper wiring, and run commands, load:
+- [references/host-coupled-engine-pattern.md](references/host-coupled-engine-pattern.md)
 
 ## Implementation Notes
 
 This file focuses on patterns and examples. For requirements, see:
-- [Architecture rules](../../VERIFICATION_CHECKLIST.md#-architecture--organization)
-- [Queries](../../VERIFICATION_CHECKLIST.md#queries-read-model)
-- [Services](../../VERIFICATION_CHECKLIST.md#services)
-- [Task and issue requirements](../../VERIFICATION_CHECKLIST.md#taskissue-requirements)
+- [Architecture rules](/.github/copilot-instructions.md#-architecture--organization)
+- [Queries](/.github/copilot-instructions.md#queries-read-model)
+- [Services](/.github/copilot-instructions.md#services)
+- [Task and issue requirements](/.github/copilot-instructions.md#taskissue-requirements)
+
+For the canonical mutation-command shape, also load `.ai/skills/operation-pattern/SKILL.md`.
+For all view and component work in `app/views/` or `app/components/`, load `.ai/skills/phlex-view-pattern/SKILL.md` — it is the primary source of frontend structure guidelines.
+
+## Reference Map
+
+- **[references/architecture-overview.md](references/architecture-overview.md)**
+  Use for layer responsibilities and high-level composition guidance.
+- **[references/operations.md](references/operations.md)**
+  Use for write-flow patterns with `ApplicationOperation` and `Dry::Monads`.
+- **[references/contracts.md](references/contracts.md)**
+  Use for dry-validation contract structure and examples.
+- **[references/controllers.md](references/controllers.md)**
+  Use for thin controller patterns and operation orchestration.
+- **[references/queries.md](references/queries.md)**
+  Use for query-object structure and read-model boundaries.
+- **[references/services.md](references/services.md)**
+  Use for focused domain service patterns.
+- **[references/jobs.md](references/jobs.md)**
+  Use for background job orchestration around operations.
+- **[references/models.md](references/models.md)**
+  Use for persistence-only model guidance.
+- **[references/deployment.md](references/deployment.md)**
+  Use for deployment considerations that affect architecture decisions.
+- **[references/WRITEBOOK_IMPLEMENTATION_SUMMARY.md](references/WRITEBOOK_IMPLEMENTATION_SUMMARY.md)**
+  Use as a larger end-to-end implementation example when you need a concrete slice of the architecture in practice.
+- **[references/session-learnings-mutation-flows.md](references/session-learnings-mutation-flows.md)**
+  Use for compact, recent decisions on mutation operation shape, validation boundaries, and update-flow anti-patterns.
+- **[references/host-coupled-engine-pattern.md](references/host-coupled-engine-pattern.md)**
+  Use for host-app/engine ownership boundaries, mounted subdomain routing, shared-session expectations, and host-driven engine test execution.
 
 Example: custom collection actions can support Turbo Frames when they describe a domain subset. See:
-- [Turbo Frames](../../VERIFICATION_CHECKLIST.md#-turbo-frames)
+- [Turbo Frames](/.github/copilot-instructions.md#-turbo-frames)
 ## Operations Flow (typical)
-1. `Model` step (load record from `app/models/`)
-2. `Contract::Build` (from `app/concepts/{domain}/contract/`)
-3. `Contract::Validate`
-4. Domain/service steps
-5. `Contract::Persist`
-6. Broadcast step
+1. Authorize at the controller boundary (Pundit)
+2. Validate and sanitize with dry-validation contract
+3. Build model and enforce business rules in the operation
+4. Persist model and rely on ActiveRecord state validations
+5. Return `Success(payload)` or `Failure(model: ...)` for form rerender paths
 
 ## For Verification & Requirements
 
-See [VERIFICATION_CHECKLIST.md](../../VERIFICATION_CHECKLIST.md#-architecture--organization) for complete requirements.
+See [copilot-instructions.md](/.github/copilot-instructions.md#-architecture--organization) for complete requirements.
 
 ## Controller Concerns (Cross-Cutting Features)
 
@@ -117,7 +196,7 @@ end
 # app/controllers/articles_controller.rb
 class ArticlesController < ApplicationController
   def index
-    @articles = Articles::PublishedQuery.call
+    @articles = Articles::Query::Published.call
   end
 end
 

@@ -1,0 +1,22 @@
+@layer components {
+  .ui-scroll-area-viewport {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  .ui-scroll-area-viewport::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .ui-scroll-area-viewport::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .ui-scroll-area-viewport::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+}
