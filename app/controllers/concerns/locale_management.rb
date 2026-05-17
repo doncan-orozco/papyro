@@ -25,7 +25,7 @@ module LocaleManagement
   end
 
   def browser_locale
-    request.env['HTTP_ACCEPT_LANGUAGE']&.scan(/^[a-z]{2}/)&.first&.to_sym
+    request.env["HTTP_ACCEPT_LANGUAGE"]&.scan(/^[a-z]{2}/)&.first&.to_sym
   end
 
   def normalized_locale(value)

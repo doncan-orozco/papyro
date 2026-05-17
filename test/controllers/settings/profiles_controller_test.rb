@@ -54,7 +54,7 @@ class Settings::ProfilesControllerTest < ActionDispatch::IntegrationTest
   test "authenticated user can upload portrait photo" do
     sign_in_as(@user)
 
-    tempfile = Tempfile.new(["portrait", ".png"])
+    tempfile = Tempfile.new([ "portrait", ".png" ])
     tempfile.binmode
     tempfile.write(Base64.decode64("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9sX6ixkAAAAASUVORK5CYII="))
     tempfile.rewind
@@ -80,7 +80,7 @@ class Settings::ProfilesControllerTest < ActionDispatch::IntegrationTest
   test "saving profile without new portrait keeps existing portrait" do
     sign_in_as(@user)
 
-    tempfile = Tempfile.new(["portrait-existing", ".png"])
+    tempfile = Tempfile.new([ "portrait-existing", ".png" ])
     tempfile.binmode
     tempfile.write(Base64.decode64("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9sX6ixkAAAAASUVORK5CYII="))
     tempfile.rewind

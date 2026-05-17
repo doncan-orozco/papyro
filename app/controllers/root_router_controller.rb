@@ -14,6 +14,6 @@ class RootRouterController < ApplicationController
   end
 
   def extract_locale_from_accept_language_header
-    request.env['HTTP_ACCEPT_LANGUAGE']&.scan(/[a-z]{2}/)&.find { |lang| I18n.available_locales.map(&:to_s).include?(lang) }
+    request.env["HTTP_ACCEPT_LANGUAGE"]&.scan(/[a-z]{2}/)&.find { |lang| I18n.available_locales.map(&:to_s).include?(lang) }
   end
 end

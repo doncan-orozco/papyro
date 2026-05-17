@@ -26,12 +26,14 @@ module Articles
 
     test "user can read article in English and Spanish with correct localization" do
       visit article_path(@article, locale: :en)
+
       assert_text "English Title"
       assert_text "English excerpt"
       assert_text "English content", exact: false
 
       find("button[aria-label='#{I18n.t("components.shared.language_toggle.toggle_label", locale: :en)}']").click
       find("[role='menuitem']", text: I18n.t("components.shared.language_toggle.spanish", locale: :en), visible: :all).click
+
       assert_current_path(%r{/es/articulos/}, url: true)
       assert_text "Título en Español"
       assert_text "Extracto en español"
@@ -39,6 +41,7 @@ module Articles
 
       find("button[aria-label='#{I18n.t("components.shared.language_toggle.toggle_label", locale: :es)}']").click
       find("[role='menuitem']", text: I18n.t("components.shared.language_toggle.english", locale: :es), visible: :all).click
+
       assert_current_path(%r{/en/articles/}, url: true)
       assert_text "English Title"
       assert_text "English excerpt"

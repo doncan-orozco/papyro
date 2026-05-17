@@ -27,6 +27,7 @@ module Settings
       assert_current_path edit_settings_profile_path
 
       @user.reload
+
       assert_equal new_display_name, @user.profile.display_name
     end
 
@@ -41,6 +42,7 @@ module Settings
       assert_text I18n.t("users.operations.update_profile.success")
 
       @user.reload
+
       assert_equal new_email, @user.email_address
     end
 
@@ -59,6 +61,7 @@ module Settings
       assert_text I18n.t("users.operations.update_profile.success")
 
       @user.reload
+
       assert_equal "New Name", @user.profile.display_name
       assert_equal "Software developer and writer", @user.profile.bio
       assert_equal "San Francisco, CA", @user.profile.location
@@ -80,6 +83,7 @@ module Settings
       assert_text I18n.t("users.operations.update_profile.success")
 
       @user.reload
+
       assert_predicate @user.profile.portrait, :attached?
     end
 
@@ -95,6 +99,7 @@ module Settings
       assert_text I18n.t("users.operations.update_profile.success")
 
       @user.reload
+
       assert_predicate @user.profile.portrait, :attached?
       assert_equal "Updated Name", @user.profile.display_name
     end

@@ -114,6 +114,7 @@ class SeoMetadataTest < ActionDispatch::IntegrationTest
     assert_select "meta[property='og:image']", 1
     assert_select "meta[name='twitter:card'][content='summary_large_image']", 1
     og_image = css_select("meta[property='og:image']").first["content"]
+
     assert_includes og_image, "/rails/active_storage/"
   end
 

@@ -28,6 +28,7 @@ module Settings
       assert_current_path edit_settings_security_path
 
       @user.reload
+
       assert @user.authenticate("new-secure-password-123")
     end
 
@@ -45,6 +46,7 @@ module Settings
       assert_text "Current password is incorrect"
 
       @user.reload
+
       assert @user.authenticate("password")
     end
 
@@ -62,6 +64,7 @@ module Settings
       assert_text "Password confirmation must match password"
 
       @user.reload
+
       assert @user.authenticate("password")
     end
 
@@ -79,6 +82,7 @@ module Settings
 
       # Verify password was actually updated in database
       @user.reload
+
       assert @user.authenticate("brand-new-password-456")
       assert_not @user.authenticate("password")
     end

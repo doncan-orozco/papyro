@@ -24,7 +24,7 @@ class RawFormInputErrorVisibilityTest < ActiveSupport::TestCase
       end
     end
 
-    assert offenses.empty?, <<~MESSAGE
+    assert_empty offenses, <<~MESSAGE
       Raw form input helpers must render inline errors for the same field.
 
       Fix options:

@@ -46,5 +46,4 @@ Rails.application.routes.draw do
     resource :profile, only: [ :edit, :update ], controller: :profiles
     resource :security, only: [ :edit, :update ], controller: :security
   end
-
 end

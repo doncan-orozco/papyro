@@ -28,6 +28,7 @@ module Articles
     test "article page keeps single SEO head tags after locale toggles" do
       # Visit English version
       visit article_path(@article, locale: :en)
+
       assert_selector "button", text: "EN", visible: true
 
       assert_head_tag_counts(
@@ -37,6 +38,7 @@ module Articles
 
       # Navigate directly to Spanish version (avoids dropdown menu timing issues)
       visit article_path(@article, locale: :es)
+
       assert_current_path(%r{/es/articulos/}, url: true)
       assert_selector "button", text: "ES", visible: true
 
@@ -47,6 +49,7 @@ module Articles
 
       # Navigate back to English version
       visit article_path(@article, locale: :en)
+
       assert_current_path(%r{/en/articles/}, url: true)
       assert_selector "button", text: "EN", visible: true
 
@@ -68,6 +71,7 @@ module Articles
       assert_equal 0, page.evaluate_script("document.head.querySelectorAll('script#article-json-ld[type=\"application/ld+json\"]').length"), "JSON-LD should not be in <head>"
       assert_equal 1, page.evaluate_script("document.body.querySelectorAll('script#article-json-ld[type=\"application/ld+json\"]').length"), "JSON-LD should be in <body>"
       canonical_href = page.evaluate_script("document.head.querySelector('link[rel=\"canonical\"]').href")
+
       assert_match canonical_pattern, canonical_href
       assert_equal og_locale, page.evaluate_script("document.head.querySelector('meta[property=\"og:locale\"]').content")
     end

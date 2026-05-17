@@ -24,6 +24,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert cookies[:session_id]
 
     set_cookie_headers = Array(response.headers["Set-Cookie"])
+
     assert(
       set_cookie_headers.any? { |header| header.downcase.include?("domain=lvh.me") },
       "Expected Set-Cookie to include domain=lvh.me, got: #{set_cookie_headers.inspect}"
