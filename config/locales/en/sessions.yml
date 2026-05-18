@@ -3,6 +3,7 @@ en:
   views:
     sessions:
       new:
+        back_to_home: "Back to Papyro"
         heading: "Sign in"
         description: "Sign in to your account"
         email_label: "Email Address"
