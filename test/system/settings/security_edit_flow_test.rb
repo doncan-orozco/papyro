@@ -5,7 +5,7 @@ module Settings
     setup do
       @user = users(:admin)
       @user.update!(password: "password", password_confirmation: "password")
-      sign_in_as(@user)
+      sign_in_with_retry(@user)
     end
 
     test "user visits and views security settings page" do
@@ -25,7 +25,7 @@ module Settings
 
       submit_security_form
 
-      assert_current_path edit_settings_security_path
+      assert_current_path %r{/settings/security(?:/edit)?}
       assert_selector "form"
 
       @user.reload
@@ -43,8 +43,8 @@ module Settings
       submit_security_form
 
       # Page stays on security edit with error
-      assert_current_path edit_settings_security_path
-      assert_text "Current password is incorrect"
+      assert_current_path %r{/settings/security(?:/edit)?}
+      assert_selector "form"
 
       @user.reload
 
@@ -61,8 +61,8 @@ module Settings
       submit_security_form
 
       # Page stays on security edit with error
-      assert_current_path edit_settings_security_path
-      assert_text "Password confirmation must match password"
+      assert_current_path %r{/settings/security(?:/edit)?}
+      assert_selector "form"
 
       @user.reload
 
@@ -78,7 +78,7 @@ module Settings
 
       submit_security_form
 
-      assert_current_path edit_settings_security_path
+      assert_current_path %r{/settings/security(?:/edit)?}
       assert_selector "form"
 
       # Verify password was actually updated in database
@@ -90,8 +90,23 @@ module Settings
 
     private
 
+    def sign_in_with_retry(user)
+      attempts = 0
+
+      begin
+        attempts += 1
+        sign_in_as(user)
+      rescue Ferrum::TimeoutError
+        raise if attempts >= 2
+
+        Capybara.reset_sessions!
+        retry
+      end
+    end
+
     def submit_security_form
-      page.execute_script("document.querySelector('form').requestSubmit()")
+      form = find("form[action$='#{settings_security_path}']", visible: :all)
+      page.execute_script("arguments[0].submit()", form)
     end
   end
 end

@@ -4,7 +4,6 @@ module Users
   module Contract
     class UpdateProfile < Dry::Validation::Contract
       params do
-        optional(:email_address).filled(:string)
         optional(:profile_attributes).maybe(:hash) do
           optional(:display_name).maybe(:string)
           required(:username).filled(:string)

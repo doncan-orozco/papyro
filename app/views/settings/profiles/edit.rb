@@ -134,7 +134,8 @@ module Views
                           options: {
                             required: true,
                             autocomplete: "email",
-                            placeholder: t("users.settings.profile.email_placeholder")
+                            placeholder: t("users.settings.profile.email_placeholder"),
+                            disabled: true
                           }
 
                         div(class: "flex flex-wrap items-center justify-end gap-3 pt-1") do

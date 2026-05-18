@@ -7,6 +7,7 @@ class Users::Operation::UpdateProfileTest < ActiveSupport::TestCase
 
   test "preserves existing username when params try to overwrite it" do
     expected_username = @user.profile.username
+    expected_email_address = @user.email_address
 
     result = Users::Operation::UpdateProfile.new.call(
       user: @user,
@@ -22,7 +23,7 @@ class Users::Operation::UpdateProfileTest < ActiveSupport::TestCase
     assert_predicate result, :success?
     assert_equal "Updated Name", @user.reload.profile.display_name
     assert_equal expected_username, @user.profile.username
-    assert_equal "updated@example.com", @user.email_address
+    assert_equal expected_email_address, @user.email_address
   end
 
   test "updates portrait while preserving immutable username" do

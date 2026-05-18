@@ -35,20 +35,22 @@ class Settings::ProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to edit_settings_profile_path
     assert_equal "Updated Name", @user.reload.profile.display_name
-    assert_equal "updated@example.com", @user.reload.email_address
+    assert_equal "one@example.com", @user.reload.email_address
   end
 
-  test "shows validation errors on invalid update" do
+  test "ignores email address changes on update" do
     sign_in_as(@user)
 
     patch settings_profile_path, params: {
       user: {
-        email_address: @other_user.email_address
+        email_address: @other_user.email_address,
+        profile_attributes: { display_name: "Ignored Email Update" }
       }
     }
 
-    assert_response :unprocessable_entity
-    assert_includes response.body, I18n.t("users.settings.profile.title")
+    assert_redirected_to edit_settings_profile_path
+    assert_equal "Ignored Email Update", @user.reload.profile.display_name
+    assert_equal "one@example.com", @user.reload.email_address
   end
 
   test "authenticated user can upload portrait photo" do

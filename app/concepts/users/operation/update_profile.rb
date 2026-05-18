@@ -34,7 +34,10 @@ module Users
       end
 
       def persist_user(user:, attributes:)
-        user.assign_attributes(attributes)
+        # Assign profile_attributes if present
+        if attributes.key?("profile_attributes") || attributes.key?(:profile_attributes)
+          user.assign_attributes(profile_attributes: attributes["profile_attributes"] || attributes[:profile_attributes])
+        end
 
         return Success(user) if user.save
 

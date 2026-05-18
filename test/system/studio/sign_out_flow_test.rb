@@ -4,14 +4,13 @@ module Studio
   class SignOutFlowTest < ApplicationSystemTestCase
     setup do
       @user = users(:admin)
-      sign_in_as(@user)
+      sign_in_as(@user, with_studio_cookie: true)
     end
 
     test "sign out from studio dropdown clears session and redirects to public login" do
       visit studio_articles_url
 
-      assert_selector :testid, "studio-user-menu-trigger"
-      page.execute_script("document.querySelector(\"form[action='/sign_out']\")?.requestSubmit()")
+      sign_out
 
       visit studio_articles_url
 

@@ -67,3 +67,5 @@ test-results/
 coverage/
 
 docs/Papyro UX.pdf
+
+papyro.code-workspace

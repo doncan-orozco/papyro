@@ -48,6 +48,16 @@
         else if(t==="light"){d.classList.add("light");}
       })();
     </script>
+    <% if Rails.env.test? %>
+      <style>
+        *, *::before, *::after {
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+        }
+      </style>
+    <% end %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>

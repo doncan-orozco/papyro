@@ -30,7 +30,6 @@ module Settings
 
     def profile_params
       params.require(:user).permit(
-        :email_address,
         profile_attributes: [
           :display_name, :username, :bio, :location, :portrait,
           :website_url, :x_handle, :linkedin_handle
