@@ -72,4 +72,23 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_match(/has already been taken/, response.body)
   end
+
+  test "newly registered user stays authenticated on studio subdomain" do
+    host! "lvh.me"
+
+    post sign_up_path, params: {
+      user: {
+        email_address: "cross_subdomain_signup@example.com",
+        password: "password123"
+      }
+    }
+
+    assert_redirected_to root_path(locale: I18n.default_locale)
+    assert cookies[:session_id]
+
+    host! "studio.lvh.me"
+    get "/articles"
+
+    assert_response :success
+  end
 end

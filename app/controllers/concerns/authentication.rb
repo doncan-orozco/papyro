@@ -65,7 +65,6 @@ module Authentication
       Current.session = nil
       Current.user = nil
       cookies.delete(:session_id, domain: :all)
-      cookies.delete(:session_id)
     end
 
     def persist_shared_session_cookie(session)
