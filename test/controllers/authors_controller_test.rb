@@ -107,4 +107,16 @@ class AuthorsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, Rails.application.routes.url_helpers.rails_blob_path(@profile.portrait, only_path: true)
   end
+
+  test "show redirects permanently to canonical username path" do
+    user = User.create!(email_address: "canonical-author@example.com", password: "password123")
+    profile = user.create_profile!(display_name: "Canonical Author", username: "canonicalauthor")
+
+    profile.update!(username: "canonicalauthornew")
+
+    get "/@canonicalauthor"
+
+    assert_redirected_to author_path("canonicalauthornew")
+    assert_response :moved_permanently
+  end
 end

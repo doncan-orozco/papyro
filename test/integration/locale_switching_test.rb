@@ -6,7 +6,7 @@ class LocaleSwitchingTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "html[lang='es']"
-    assert_select "a[href='#{new_session_path}']", text: "Iniciar sesion"
+    assert_select "a[href='#{new_session_path}']", text: I18n.t("components.public.navbar.sign_in", locale: :es)
   end
 
   test "persists selected locale in session across requests" do
@@ -16,7 +16,7 @@ class LocaleSwitchingTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "html[lang='es']"
-    assert_select "a[href='#{new_session_path}']", text: "Iniciar sesion"
+    assert_select "a[href='#{new_session_path}']", text: I18n.t("components.public.navbar.sign_in", locale: :es)
   end
 
   test "authenticated public navbar routes write and studio links to the studio subdomain" do

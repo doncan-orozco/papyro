@@ -209,6 +209,30 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     assert_predicate result.failure[:errors][:base], :any?
   end
 
+  test "fails to publish when user email is not verified" do
+    user = User.create!(
+      email_address: "unverified-publisher@example.com",
+      password: "password123",
+      password_confirmation: "password123"
+    )
+    user.create_profile!(display_name: "Unverified Publisher", username: "unverifiedpublisher")
+
+    article = Article.create!(
+      title: "Unverified Draft",
+      slug: "unverified-draft-#{SecureRandom.hex(4)}",
+      excerpt: "Short summary",
+      body: "<p>Ready to publish</p>",
+      user: user
+    )
+
+    result = Articles::Operation::Publish.new.call(model: article)
+
+    assert_predicate result, :failure?
+    assert_equal :email_unverified, result.failure[:code]
+    assert_equal I18n.t("studio.articles.operations.publish.email_verification_required"), result.failure[:message]
+    assert_predicate article.reload, :draft?
+  end
+
   test "fails to publish article without excerpt" do
     user = users(:admin)
     article = Article.create!(

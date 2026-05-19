@@ -80,6 +80,14 @@ module Articles
       end
 
       def validate_publishable(model)
+        unless model.user.verified?
+          return fail_with_code!(
+            model,
+            :email_unverified,
+            message: I18n.t("studio.articles.operations.publish.email_verification_required")
+          )
+        end
+
         if model.trashed?
           return fail_with_code!(
             model,

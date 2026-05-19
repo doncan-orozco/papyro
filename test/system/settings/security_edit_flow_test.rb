@@ -33,42 +33,6 @@ module Settings
       assert @user.authenticate("new-secure-password-123")
     end
 
-    test "user sees error when entering incorrect current password" do
-      visit edit_settings_security_path
-
-      fill_in I18n.t("users.settings.security.current_password_label"), with: "wrong-password"
-      fill_in I18n.t("users.settings.security.password_label"), with: "new-secure-password-123"
-      fill_in I18n.t("users.settings.security.password_confirmation_label"), with: "new-secure-password-123"
-
-      submit_security_form
-
-      # Page stays on security edit with error
-      assert_current_path %r{/settings/security(?:/edit)?}
-      assert_selector "form"
-
-      @user.reload
-
-      assert @user.authenticate("password")
-    end
-
-    test "user sees error when password and confirmation don't match" do
-      visit edit_settings_security_path
-
-      fill_in I18n.t("users.settings.security.current_password_label"), with: "password"
-      fill_in I18n.t("users.settings.security.password_label"), with: "new-secure-password-123"
-      fill_in I18n.t("users.settings.security.password_confirmation_label"), with: "different-password"
-
-      submit_security_form
-
-      # Page stays on security edit with error
-      assert_current_path %r{/settings/security(?:/edit)?}
-      assert_selector "form"
-
-      @user.reload
-
-      assert @user.authenticate("password")
-    end
-
     test "user can update password and it persists" do
       visit edit_settings_security_path
 

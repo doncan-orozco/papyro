@@ -16,7 +16,7 @@ Capybara.register_driver :cuprite do |app|
     app,
     browser_options: {},
     headless: %w[0 false].exclude?(ENV["HEADLESS"]),
-    window_size: [1400, 1400],
+    window_size: [ 1400, 1400 ],
     js_errors: true,
     timeout: 60,
     process_timeout: 60

@@ -1,0 +1,11 @@
+<p><%= t("email_verifications_mailer.verify.greeting", email: @user.email_address) %></p>
+
+<p><%= t("email_verifications_mailer.verify.instructions") %></p>
+
+<p>
+  <%= link_to t("email_verifications_mailer.verify.link_text"), email_verification_url(@token, locale: I18n.locale) %>
+</p>
+
+<p><%= t("email_verifications_mailer.verify.expiry_notice") %></p>
+
+<p><%= t("email_verifications_mailer.verify.ignore_notice") %></p>

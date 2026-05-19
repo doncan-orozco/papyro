@@ -10,9 +10,26 @@ es:
         email_placeholder: "Ingresa tu correo electrónico"
         password_label: "Contraseña"
         password_placeholder: "Ingresa tu contraseña"
+        sign_in_with_google: "Iniciar sesión con Google"
         submit: "Iniciar sesión"
         forgot_password_prompt: "¿Olvidaste tu contraseña?"
         forgot_password: "Restablécela aquí"
+        sign_up_prompt: "¿No tienes una cuenta?"
+        sign_up: "Regístrate"
+    registrations:
+      new:
+        back_to_home: "Volver a Papyro"
+        heading: "Crea tu cuenta"
+        description: "Únete a Papyro y comienza a publicar"
+        continue_with_email_divider: "O continúa con correo"
+        email_label: "Correo electrónico"
+        email_placeholder: "Ingresa tu correo electrónico"
+        password_label: "Contraseña"
+        password_placeholder: "Crea una contraseña"
+        sign_up_with_google: "Regístrate con Google"
+        submit: "Crear cuenta"
+        sign_in_prompt: "¿Ya tienes una cuenta?"
+        sign_in: "Iniciar sesión"
     passwords:
       new:
         heading: "¿Olvidaste tu contraseña?"
@@ -41,6 +58,10 @@ es:
     create:
       rate_limit: "Demasiados intentos. Inténtalo de nuevo más tarde."
       invalid_credentials: "Prueba con otro correo electrónico o contraseña."
+  registrations:
+    create:
+      success: "Bienvenido a Papyro. Tu cuenta está lista."
+      rate_limit: "Demasiados intentos. Inténtalo de nuevo más tarde."
   passwords:
     new:
       heading: "¿Olvidaste tu contraseña?"

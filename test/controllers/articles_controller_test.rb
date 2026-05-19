@@ -172,7 +172,7 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, I18n.t("components.public.welcome_hero.eyebrow")
-    assert_includes response.body, I18n.t("components.public.welcome_hero.join_cta")
+    assert_includes response.body, I18n.t("components.public.welcome_hero.primary_cta")
   end
 
   test "index does not render welcome hero for authenticated user" do

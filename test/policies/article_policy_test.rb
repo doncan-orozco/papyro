@@ -85,7 +85,7 @@ class ArticlePolicyTest < ActiveSupport::TestCase
     scope.each { |a| assert_predicate a, :published? }
   end
 
-  test "scope returns the user's own articles regardless of status" do
+  test "scope returns only published articles for authenticated users" do
     draft = Article.create!(
       title: "Scope Draft",
       slug: "scope-draft-#{SecureRandom.hex(4)}",
@@ -95,6 +95,7 @@ class ArticlePolicyTest < ActiveSupport::TestCase
 
     scope = ArticlePolicy::Scope.new(@owner, Article.all).resolve
 
-    assert_includes scope, draft
+    refute_includes scope, draft
+    scope.each { |a| assert_predicate a, :published? }
   end
 end

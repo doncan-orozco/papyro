@@ -48,6 +48,8 @@ es:
     public:
       navbar:
         write: "Escribir"
+        sign_in: "Iniciar sesión"
+        get_started: "Comenzar"
         dropdown:
           my_profile: "Mi perfil"
           studio: "Estudio"
@@ -57,10 +59,15 @@ es:
       welcome_hero:
         eyebrow: "Bienvenido a Papyro"
         title: "Un hogar editorial tranquilo para ideas que vale la pena leer"
-        description: "Descubre blogs curados alineados con tus intereses y crea tu propio espacio de escritura en minutos."
-        join_title: "Solicita una invitación"
-        join_description: "Papyro está construido con cuidado y estamos abriendo invitaciones de forma reflexiva. Escríbenos sobre lo que quieres publicar a info@papyro.net y te contactaremos cuando tu lugar esté listo."
-        join_cta: "Solicita una invitación"
+        description: "Únete a una comunidad creciente de escritores y lectores con criterio. Sin algoritmos, sin ruido: solo tus ideas, bellamente presentadas."
+        primary_cta: "Empieza a escribir gratis"
+        secondary_cta: "Iniciar sesión"
+        preview_badge: "Vista previa del editor"
+        preview_title: "Un espacio limpio para pensar y publicar"
+        preview_description: "Escribe en un editor enfocado, publica con confianza y deja que tu voz destaque por sí sola."
+        preview_mock_title: "Borrador: Notas sobre escritura serena"
+        preview_mock_meta: "Guardado automático hace un momento"
+        preview_mock_state: "Listo para publicar"
       footer:
         copyright: "© %{year} Papyro"
         nav_label: "Navegación del pie de página"

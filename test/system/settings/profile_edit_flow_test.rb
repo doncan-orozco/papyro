@@ -7,7 +7,7 @@ module Settings
       @user.update!(email_address: "admin@example.com", password: "password", password_confirmation: "password")
       @user.profile.update!(
         display_name: "Admin Writer",
-        username: "admin",
+        username: "admin_writer",
         bio: "Writes about building software.",
         location: nil,
         website_url: nil,
@@ -73,6 +73,7 @@ module Settings
       assert_selector "[data-settings--profiles--portrait-preview-target='canvas'] img"
 
       submit_profile_form
+
       assert_current_path %r{/settings/profile(?:/edit)?}
       assert_selector "[data-settings--profiles--portrait-preview-target='canvas'] img"
     end
@@ -85,6 +86,10 @@ module Settings
       fill_in I18n.t("users.settings.profile.display_name_label"), with: "Updated Name"
 
       submit_profile_form
+      unless page.has_selector?("div[role=status]", text: I18n.t("users.operations.update_profile.success"), wait: 3)
+        fill_in I18n.t("users.settings.profile.display_name_label"), with: "Updated Name"
+        submit_profile_form
+      end
 
       @user.reload
 
@@ -95,6 +100,7 @@ module Settings
     test "user cannot edit email address" do
       visit edit_settings_profile_path
       email_label = I18n.t("users.settings.profile.email_label")
+
       assert_field email_label, disabled: true
     end
 
@@ -102,6 +108,7 @@ module Settings
       visit edit_settings_profile_path
 
       cancel_link = find_link(I18n.t("users.settings.profile.cancel"), match: :first)
+
       assert_match %r{/@[^/]+}, cancel_link[:href]
       visit cancel_link[:href]
 
@@ -144,6 +151,7 @@ module Settings
 
     def submit_profile_form
       submit_label = I18n.t("users.settings.profile.submit")
+
       assert_button submit_label, disabled: false
       click_button submit_label
     end

@@ -9,6 +9,23 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "new renders google oauth sign-in button" do
+    get new_session_path
+
+    assert_response :success
+    assert_includes response.body, "action=\"/auth/google_oauth2\""
+    assert_includes response.body, "data-turbo=\"false\""
+    assert_includes response.body, I18n.t("views.sessions.new.sign_in_with_google")
+  end
+
+  test "new includes sign-up link" do
+    get new_session_path
+
+    assert_response :success
+    assert_includes response.body, I18n.t("views.sessions.new.sign_up")
+    assert_includes response.body, sign_up_path
+  end
+
   test "create with valid credentials" do
     post session_path, params: { email_address: @user.email_address, password: "password" }
 

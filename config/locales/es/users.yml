@@ -1,5 +1,13 @@
 es:
   users:
+    email_verification:
+      banner: "Verifica tu correo electrónico antes de publicar."
+      resend_cta: "Reenviar correo"
+      resent: "Correo de verificación enviado. Revisa tu bandeja de entrada."
+      verified: "Tu correo electrónico ha sido verificado."
+      invalid_or_expired: "Ese enlace de verificación no es válido o ha expirado."
+      already_verified: "Tu correo electrónico ya está verificado."
+      rate_limited: "Demasiados reenvíos. Inténtalo de nuevo en unos minutos."
     show:
       title: "Perfil"
       description: "Información pública del perfil"

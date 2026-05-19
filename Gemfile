@@ -32,6 +32,9 @@ gem "papyro_studio", git: "https://github.com/doncan-orozco/papyro_studio.git", 
 
 # Models, Auth & I18n
 gem "bcrypt", "~> 3.1.22"
+gem "omniauth"
+gem "omniauth-google-oauth2"
+gem "omniauth-rails_csrf_protection"
 gem "friendly_id", "< 5.6"
 gem "mobility", "~> 1.3"
 gem "friendly_id-mobility", "~> 1.0"

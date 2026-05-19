@@ -1,5 +1,13 @@
 ---
 es:
+  email_verifications_mailer:
+    verify:
+      subject: "Verifica tu correo electrónico"
+      greeting: "Hola %{email},"
+      instructions: "Confirma tu correo electrónico para habilitar la publicación en Papyro."
+      link_text: "Verificar correo"
+      expiry_notice: "Este enlace expira en 48 horas."
+      ignore_notice: "Si no creaste esta cuenta, puedes ignorar este correo."
   passwords_mailer:
     reset:
       subject: "Restablece tu contraseña"

@@ -99,25 +99,6 @@ module Views
                     end
                   end
                 end
-
-                div(class: "rounded-xl border border-border bg-card/80 p-8") do
-                  h2(class: "font-serif text-2xl font-semibold tracking-tight text-foreground") do
-                    t("pages.about.index.join_title")
-                  end
-                  p(class: "mt-4 text-base leading-relaxed text-muted-foreground") do
-                    t("pages.about.index.join_body")
-                  end
-                  div(class: "mt-6") do
-                    render Components::Ui::Button.new(
-                      as: :a,
-                      href: "mailto:info@papyro.net?subject=Join%20Papyro%20Community&body=I%20would%20like%20to%20join%20the%20Papyro%20community.",
-                      variant: :outline,
-                      size: :lg
-                    ) do
-                      t("pages.about.index.join_cta")
-                    end
-                  end
-                end
               end
             end
           end

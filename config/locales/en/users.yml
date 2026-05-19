@@ -1,5 +1,13 @@
 en:
   users:
+    email_verification:
+      banner: "Please verify your email before publishing."
+      resend_cta: "Resend email"
+      resent: "Verification email sent. Please check your inbox."
+      verified: "Your email has been verified."
+      invalid_or_expired: "That verification link is invalid or has expired."
+      already_verified: "Your email is already verified."
+      rate_limited: "Too many resend requests. Try again in a few minutes."
     show:
       title: "Profile"
       description: "Public profile information"

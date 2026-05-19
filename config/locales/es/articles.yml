@@ -151,6 +151,7 @@ es:
         publish:
           success: "El artículo fue publicado exitosamente"
           failure: "No se pudo publicar el artículo"
+          email_verification_required: "Verifica tu correo electrónico antes de publicar."
         unpublish:
           success: "El artículo fue despublicado exitosamente"
           failure: "No se pudo despublicar el artículo"

@@ -21,9 +21,7 @@ class ArticlePolicy < ApplicationPolicy
 
   class Scope < Scope
     def resolve
-      return Articles::Query::Published.call({}, scope: scope) unless user&.registered?
-
-      scope.where(user: user)
+      Articles::Query::Published.call({}, scope: scope)
     end
   end
 

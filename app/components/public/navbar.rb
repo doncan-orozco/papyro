@@ -70,14 +70,23 @@ module Components
                 end
               end
             else
-              render Components::Ui::Button.new(
-                as: :a,
-                href: new_session_path,
-                variant: :outline,
-                size: :sm,
-                data: { turbo_frame: "_top", turbo_action: "advance" }
-              ) do
-                t("pages.home.index.header.sign_in")
+              div(class: "flex items-center gap-2") do
+                link_to(
+                  t("components.public.navbar.sign_in"),
+                  new_session_path,
+                  class: "px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+                  data: { turbo_frame: "_top", turbo_action: "advance" }
+                )
+
+                render Components::Ui::Button.new(
+                  as: :a,
+                  href: sign_up_path,
+                  variant: :default,
+                  size: :sm,
+                  data: { turbo_frame: "_top", turbo_action: "advance" }
+                ) do
+                  t("components.public.navbar.get_started")
+                end
               end
             end
           end

@@ -151,6 +151,7 @@ en:
         publish:
           success: "Article was successfully published"
           failure: "Failed to publish article"
+          email_verification_required: "Please verify your email before publishing."
         unpublish:
           success: "Article was successfully unpublished"
           failure: "Failed to unpublish article"

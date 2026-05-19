@@ -1,5 +1,13 @@
 ---
 en:
+  email_verifications_mailer:
+    verify:
+      subject: "Verify your email"
+      greeting: "Hi %{email},"
+      instructions: "Please confirm your email address to unlock publishing on Papyro."
+      link_text: "Verify email"
+      expiry_notice: "This link expires in 48 hours."
+      ignore_notice: "If you did not create this account, you can ignore this email."
   passwords_mailer:
     reset:
       subject: "Reset your password"

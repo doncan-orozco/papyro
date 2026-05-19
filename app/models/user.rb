@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  include Users::OauthAuthenticatable
+
   has_secure_password
   has_many :sessions, dependent: :destroy
 
@@ -24,6 +26,14 @@ class User < ApplicationRecord
 
   generates_token_for :password_reset, expires_in: 24.hours do
     password_salt&.last(10)
+  end
+
+  generates_token_for :email_verification, expires_in: 2.days do
+    email_address
+  end
+
+  def verified?
+    verified_at.present?
   end
 
   def guest? = false

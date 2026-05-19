@@ -1,5 +1,5 @@
 module Views
-  module Sessions
+  module Registrations
     class New < Views::Base
       include Phlex::Rails::Helpers::ButtonTo
 
@@ -12,7 +12,7 @@ module Views
           link_to root_path(locale: I18n.locale),
             class: "absolute left-4 top-6 inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground",
             data: { turbo_frame: "_top", turbo_action: "advance" } do
-            plain "← #{t("views.sessions.new.back_to_home")}"
+            plain "← #{t("views.registrations.new.back_to_home")}"
           end
 
           div(class: "w-full max-w-md space-y-6") do
@@ -29,26 +29,19 @@ module Views
 
             render Components::Ui::Card.new(class: "w-full max-w-md") do |card|
               card.header do
-                card.title { t("views.sessions.new.heading") }
-                card.description { t("views.sessions.new.description") }
+                card.title { t("views.registrations.new.heading") }
+                card.description { t("views.registrations.new.description") }
               end
 
               card.content do
-                render_google_sign_in_button
-                render_login_form
+                render_google_sign_up_button
+                render_registration_form
               end
 
               card.footer do
-                div(class: "space-y-2 text-center") do
-                  p(class: "text-xs text-muted-foreground") do
-                    plain "#{t("views.sessions.new.forgot_password_prompt")} "
-                    link_to t("views.sessions.new.forgot_password"), new_password_path, class: "text-primary hover:underline font-medium"
-                  end
-
-                  p(class: "text-xs text-muted-foreground") do
-                    plain "#{t("views.sessions.new.sign_up_prompt")} "
-                    link_to t("views.sessions.new.sign_up"), sign_up_path, class: "text-primary hover:underline font-medium"
-                  end
+                p(class: "text-xs text-muted-foreground text-center") do
+                  plain "#{t("views.registrations.new.sign_in_prompt")} "
+                  link_to t("views.registrations.new.sign_in"), new_session_path, class: "text-primary hover:underline font-medium"
                 end
               end
             end
@@ -58,7 +51,7 @@ module Views
 
       private
 
-      def render_google_sign_in_button
+      def render_google_sign_up_button
         div(class: "space-y-4") do
           button_to "/auth/google_oauth2",
             method: :post,
@@ -71,7 +64,7 @@ module Views
                 s.path(fill: "#FBBC05", d: "M10.54 28.64A14.5 14.5 0 0 1 9.76 24c0-1.61.28-3.18.78-4.64l-7.98-6.19A24.02 24.02 0 0 0 0 24c0 3.87.92 7.53 2.56 10.83l7.98-6.19z")
                 s.path(fill: "#34A853", d: "M24 48c6.37 0 11.72-2.09 15.63-5.68l-7.73-6c-2.15 1.45-4.9 2.31-7.9 2.31-6.31 0-11.67-4.21-13.46-9.96l-7.98 6.19C6.51 42.6 14.62 48 24 48z")
               end
-              span { t("views.sessions.new.sign_in_with_google") }
+              span { t("views.registrations.new.sign_up_with_google") }
             end
           end
 
@@ -89,29 +82,29 @@ module Views
         end
       end
 
-      def render_login_form
-        form_with(model: @user, url: session_path, class: "space-y-5", local: true) do |form|
+      def render_registration_form
+        form_with(model: @user, url: sign_up_path, class: "space-y-5", local: true) do |form|
           form.field :email_address,
             as: :email_field,
-            label: t("views.sessions.new.email_label"),
+            label: t("views.registrations.new.email_label"),
             options: {
               required: true,
               autofocus: true,
               autocomplete: "username",
-              placeholder: t("views.sessions.new.email_placeholder")
+              placeholder: t("views.registrations.new.email_placeholder")
             }
 
           form.field :password,
             as: :password_field,
-            label: t("views.sessions.new.password_label"),
+            label: t("views.registrations.new.password_label"),
             options: {
               required: true,
-              autocomplete: "current-password",
-              placeholder: t("views.sessions.new.password_placeholder"),
+              autocomplete: "new-password",
+              placeholder: t("views.registrations.new.password_placeholder"),
               maxlength: 72
             }
 
-          form.submit t("views.sessions.new.submit"), class: "w-full"
+          form.submit t("views.registrations.new.submit"), class: "w-full"
         end
       end
     end

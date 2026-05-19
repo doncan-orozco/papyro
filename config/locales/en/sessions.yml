@@ -10,9 +10,26 @@ en:
         email_placeholder: "Enter your email address"
         password_label: "Password"
         password_placeholder: "Enter your password"
+        sign_in_with_google: "Sign in with Google"
         submit: "Sign in"
         forgot_password_prompt: "Forgot your password?"
         forgot_password: "Reset it here"
+        sign_up_prompt: "Don't have an account?"
+        sign_up: "Sign up"
+    registrations:
+      new:
+        back_to_home: "Back to Papyro"
+        heading: "Create your account"
+        description: "Join Papyro and start publishing"
+        continue_with_email_divider: "Or continue with email"
+        email_label: "Email Address"
+        email_placeholder: "Enter your email address"
+        password_label: "Password"
+        password_placeholder: "Create a password"
+        sign_up_with_google: "Sign up with Google"
+        submit: "Create account"
+        sign_in_prompt: "Already have an account?"
+        sign_in: "Sign in"
     passwords:
       new:
         heading: "Forgot your password?"
@@ -41,6 +58,10 @@ en:
     create:
       rate_limit: "Too many attempts. Try again later."
       invalid_credentials: "Try another email address or password."
+  registrations:
+    create:
+      success: "Welcome to Papyro. Your account is ready."
+      rate_limit: "Too many attempts. Try again later."
   passwords:
     new:
       heading: "Forgot your password?"
