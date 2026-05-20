@@ -22,7 +22,9 @@ Rails.application.routes.draw do
 
   # Public-facing routes — locked to the public subdomain so studio.lvh.me returns 404
   constraints subdomain: [ "", "www" ] do
+    get "/auth/:provider/callback", to: "oauth_sessions#create"
     post "/auth/:provider/callback", to: "oauth_sessions#create"
+    get "/auth/failure", to: "oauth_sessions#failure"
 
     # Smart Router for root path
     root to: "root_router#route"

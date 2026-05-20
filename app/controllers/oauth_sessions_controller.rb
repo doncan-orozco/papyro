@@ -1,5 +1,5 @@
 class OauthSessionsController < ApplicationController
-  allow_unauthenticated_access only: :create
+  allow_unauthenticated_access only: [ :create, :failure ]
   before_action :skip_authorization
 
   def create
@@ -10,6 +10,10 @@ class OauthSessionsController < ApplicationController
     start_new_session_for(user)
     redirect_to after_authentication_url
   rescue ActiveRecord::RecordInvalid, ArgumentError
+    redirect_to new_session_path, alert: t("sessions.create.invalid_credentials"), status: :see_other
+  end
+
+  def failure
     redirect_to new_session_path, alert: t("sessions.create.invalid_credentials"), status: :see_other
   end
 end
