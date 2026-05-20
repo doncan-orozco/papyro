@@ -28,13 +28,14 @@ class Settings::ProfilesControllerTest < ActionDispatch::IntegrationTest
 
     patch settings_profile_path, params: {
       user: {
-        profile_attributes: { display_name: "Updated Name" },
+        profile_attributes: { display_name: "Updated Name", username: "updated_name" },
         email_address: "updated@example.com"
       }
     }
 
     assert_redirected_to edit_settings_profile_path
     assert_equal "Updated Name", @user.reload.profile.display_name
+    assert_equal "updated_name", @user.reload.profile.username
     assert_equal "one@example.com", @user.reload.email_address
   end
 
@@ -44,7 +45,10 @@ class Settings::ProfilesControllerTest < ActionDispatch::IntegrationTest
     patch settings_profile_path, params: {
       user: {
         email_address: @other_user.email_address,
-        profile_attributes: { display_name: "Ignored Email Update" }
+        profile_attributes: {
+          display_name: "Ignored Email Update",
+          username: @user.profile.username
+        }
       }
     }
 
@@ -67,6 +71,7 @@ class Settings::ProfilesControllerTest < ActionDispatch::IntegrationTest
       user: {
         profile_attributes: {
           display_name: @user.profile.display_name,
+          username: @user.profile.username,
           portrait: uploaded_file
         }
       }
@@ -93,6 +98,7 @@ class Settings::ProfilesControllerTest < ActionDispatch::IntegrationTest
       user: {
         profile_attributes: {
           display_name: @user.profile.display_name,
+          username: @user.profile.username,
           portrait: uploaded_file
         }
       }
@@ -104,7 +110,8 @@ class Settings::ProfilesControllerTest < ActionDispatch::IntegrationTest
     patch settings_profile_path, params: {
       user: {
         profile_attributes: {
-          display_name: "Kept Portrait Name"
+          display_name: "Kept Portrait Name",
+          username: @user.profile.username
         }
       }
     }
@@ -115,5 +122,21 @@ class Settings::ProfilesControllerTest < ActionDispatch::IntegrationTest
   ensure
     tempfile&.close
     tempfile&.unlink
+  end
+
+  test "authenticated user can update username" do
+    sign_in_as(@user)
+
+    patch settings_profile_path, params: {
+      user: {
+        profile_attributes: {
+          display_name: @user.profile.display_name,
+          username: "new_username"
+        }
+      }
+    }
+
+    assert_redirected_to edit_settings_profile_path
+    assert_equal "new_username", @user.reload.profile.username
   end
 end

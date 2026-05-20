@@ -124,6 +124,11 @@ es:
         translation_draft_description: "Los lectores ven la versión en inglés hasta que publiques esta traducción."
         publish_translation: "Publicar traducción"
         unpublish_translation: "Despublicar traducción"
+        write_tab: "Escribir"
+        preview_tab: "Vista previa"
+        preview_empty: "Abre Vista previa para renderizar el contenido Markdown actual."
+        preview_loading: "Renderizando vista previa..."
+        preview_error: "No se pudo renderizar la vista previa en este momento."
       autosave:
         unsaved: "Borrador sin guardar"
         saved: "Borrador guardado"

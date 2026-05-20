@@ -124,6 +124,11 @@ en:
         translation_draft_description: "Readers see the English version until you publish this translation."
         publish_translation: "Publish Translation"
         unpublish_translation: "Unpublish Translation"
+        write_tab: "Write"
+        preview_tab: "Preview"
+        preview_empty: "Open Preview to render the current markdown content."
+        preview_loading: "Rendering preview..."
+        preview_error: "Preview could not be rendered right now."
       autosave:
         unsaved: "Unsaved draft"
         saved: "Draft saved"

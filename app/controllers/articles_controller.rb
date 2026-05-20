@@ -43,11 +43,23 @@ class ArticlesController < ApplicationController
   def find_published_article_by_slug!
     locale_slug = params[:slug].to_s
 
+    owner_article = find_owned_article_by_slug(locale_slug)
+    return owner_article if owner_article.present?
+
     # Try locale-specific slug first, then fall back to any locale slug.
     article = Articles::Query::PublishedBySlug.call({ slug: locale_slug, locale: I18n.locale.to_s }).first
 
     return article if article.present?
 
     Articles::Query::PublishedBySlug.call({ slug: locale_slug }).first!
+  end
+
+  def find_owned_article_by_slug(locale_slug)
+    return nil unless Current.user&.registered?
+
+    article = Articles::Query::OwnedBySlug.call({ slug: locale_slug, locale: I18n.locale.to_s, user: Current.user }).first
+    return article if article.present?
+
+    Articles::Query::OwnedBySlug.call({ slug: locale_slug, user: Current.user }).first
   end
 end

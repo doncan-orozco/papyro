@@ -85,6 +85,23 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select "link[rel='alternate'][hreflang='x-default']", 0
   end
 
+  test "owner can view own draft article" do
+    sign_in_as @user
+
+    get article_path(@draft_article.slug)
+
+    assert_response :success
+    assert_includes response.body, @draft_article.title
+  end
+
+  test "non-owner cannot view another user's draft article" do
+    sign_in_as users(:two)
+
+    get article_path(@draft_article.slug)
+
+    assert_response :not_found
+  end
+
   test "show redirects for non-existent article" do
     get article_path("non-existent-slug")
 
