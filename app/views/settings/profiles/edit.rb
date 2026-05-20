@@ -85,10 +85,12 @@ module Views
                           as: :text_field,
                           label: t("users.settings.profile.username_label"),
                           options: {
-                            placeholder: t("users.settings.profile.username_placeholder"),
-                            disabled: true,
-                            hint: t("users.settings.profile.username_locked_hint")
+                            placeholder: t("users.settings.profile.username_placeholder")
                           }
+
+                        p(class: "mt-2 text-sm text-gray-500") do
+                          t("users.settings.profile.username_change_hint")
+                        end
 
                         profile_form.field :bio,
                           as: :text_area,
@@ -128,15 +130,23 @@ module Views
                             placeholder: t("users.settings.profile.linkedin_handle_placeholder")
                           }
 
-                        form.field :email_address,
-                          as: :email_field,
-                          label: t("users.settings.profile.email_label"),
-                          options: {
-                            required: true,
-                            autocomplete: "email",
-                            placeholder: t("users.settings.profile.email_placeholder"),
-                            disabled: true
-                          }
+                        div(class: "opacity-75") do
+                          form.field :email_address,
+                            as: :email_field,
+                            label: t("users.settings.profile.email_label"),
+                            options: {
+                              required: true,
+                              autocomplete: "email",
+                              placeholder: t("users.settings.profile.email_placeholder"),
+                              disabled: true,
+                              readonly: true,
+                              class: "bg-[#1a1a1a] text-gray-500 cursor-not-allowed"
+                            }
+
+                          p(class: "mt-2 text-sm text-gray-500") do
+                            t("users.settings.profile.email_locked_hint")
+                          end
+                        end
 
                         div(class: "flex flex-wrap items-center justify-end gap-3 pt-1") do
                           link_to t("users.settings.profile.cancel"),

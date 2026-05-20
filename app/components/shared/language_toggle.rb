@@ -52,7 +52,7 @@ module Components
 
       def locale_href(locale)
         request = view_context.request
-        return studio_locale_href(locale) if studio_path?(request.path)
+        return studio_locale_href(locale) if studio_request?(request)
 
         route_name = nil
         route_params = nil
@@ -92,8 +92,8 @@ module Components
         root_path(locale: locale)
       end
 
-      def studio_path?(path)
-        path.start_with?("/studio")
+      def studio_request?(request)
+        request.path.start_with?("/studio") || request.host.start_with?("studio.")
       end
 
       def studio_locale_href(locale)
@@ -101,7 +101,7 @@ module Components
         query_params = request.query_parameters.symbolize_keys.except(:locale).merge(locale: locale)
         query_string = query_params.to_query
 
-        query_string.present? ? "#{request.path}?#{query_string}" : request.path
+        query_string.present? ? "#{request.path}?#{query_string}" : "#{request.path}?locale=#{locale}"
       end
 
       def locale_key(locale)

@@ -14,22 +14,15 @@ module Users
 
       def validate_input(params:, user:)
         contract = Users::Contract::UpdateProfile.new
-        result = contract.call(normalized_params(params: params, user: user).compact_blank)
+        result = contract.call(normalized_params(params: params).compact_blank)
 
         return Success(result.to_h) if result.success?
 
         fail_with_model!(inject_errors!(user, result.errors.to_h))
       end
 
-      def normalized_params(params:, user:)
+      def normalized_params(params:)
         normalized = params.deep_dup
-        profile_attributes = normalized["profile_attributes"] || normalized[:profile_attributes] || {}
-        profile_attributes = profile_attributes.to_h
-
-        # Username is immutable once set, so the operation owns preserving it.
-        profile_attributes["username"] = user.profile.username
-        normalized["profile_attributes"] = profile_attributes
-
         normalized
       end
 

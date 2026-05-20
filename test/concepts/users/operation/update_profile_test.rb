@@ -5,8 +5,7 @@ class Users::Operation::UpdateProfileTest < ActiveSupport::TestCase
     @user = users(:one)
   end
 
-  test "preserves existing username when params try to overwrite it" do
-    expected_username = @user.profile.username
+  test "updates username when params include a new value" do
     expected_email_address = @user.email_address
 
     result = Users::Operation::UpdateProfile.new.call(
@@ -22,12 +21,11 @@ class Users::Operation::UpdateProfileTest < ActiveSupport::TestCase
 
     assert_predicate result, :success?
     assert_equal "Updated Name", @user.reload.profile.display_name
-    assert_equal expected_username, @user.profile.username
+    assert_equal "different_username", @user.profile.username
     assert_equal expected_email_address, @user.email_address
   end
 
-  test "updates portrait while preserving immutable username" do
-    expected_username = @user.profile.username
+  test "updates portrait and username" do
 
     result = Users::Operation::UpdateProfile.new.call(
       user: @user,
@@ -45,7 +43,7 @@ class Users::Operation::UpdateProfileTest < ActiveSupport::TestCase
     )
 
     assert_predicate result, :success?
-    assert_equal expected_username, @user.reload.profile.username
+    assert_equal "another_name", @user.reload.profile.username
     assert_predicate @user.profile.portrait, :attached?
   end
 end

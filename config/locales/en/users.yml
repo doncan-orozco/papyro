@@ -41,7 +41,7 @@ en:
         portrait_change_cta: "Change photo"
         username_label: "Username"
         username_placeholder: "e.g. jane_writes"
-        username_locked_hint: "Username cannot be changed once set."
+        username_change_hint: "Changing your username will update your public profile URL. Old links will automatically redirect."
         bio_label: "Bio"
         bio_placeholder: "A short description about yourself"
         location_label: "Location"
@@ -54,6 +54,7 @@ en:
         linkedin_handle_placeholder: "your-linkedin-username"
         email_label: "Email address"
         email_placeholder: "Enter your email address"
+        email_locked_hint: "For security reasons, your email address cannot be changed."
         submit: "Save changes"
         cancel: "Cancel"
       security:

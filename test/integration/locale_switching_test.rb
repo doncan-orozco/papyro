@@ -79,8 +79,8 @@ class LocaleSwitchingTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "html[lang='es']"
-    assert_includes response.body, "href=\"/en\""
-    assert_includes response.body, "href=\"/es\""
+    assert_includes response.body, "href=\"/articles?locale=en\""
+    assert_includes response.body, "href=\"/articles?locale=es\""
 
     host! "www.example.com"
   end
