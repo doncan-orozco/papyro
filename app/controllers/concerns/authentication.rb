@@ -14,6 +14,7 @@ module Authentication
   end
 
   private
+
     def authenticated?
       resume_session
     end
@@ -64,16 +65,17 @@ module Authentication
       Current.session&.destroy
       Current.session = nil
       Current.user = nil
-      cookies.delete(:session_id, domain: :all)
+
+      cookies.delete(:session_id, domain: Rails.configuration.x.cookie_domain)
     end
 
     def persist_shared_session_cookie(session)
       cookies.signed.permanent[:session_id] = {
         value: session.id,
-        domain: :all,
+        domain: Rails.configuration.x.cookie_domain,
         httponly: true,
         same_site: :lax,
-        secure: Rails.env.production?
+        secure: Rails.env.production? # This one is actually fine to keep!
       }
     end
 end
