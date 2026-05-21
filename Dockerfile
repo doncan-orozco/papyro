@@ -38,7 +38,9 @@ RUN apt-get update -qq && \
 # Install application gems
 COPY Gemfile Gemfile.lock vendor ./
 
-RUN bundle install && \
+RUN --mount=type=secret,id=GITHUB_TOKEN \
+    bundle config set --global github.com "x-access-token:$(cat /run/secrets/GITHUB_TOKEN)" && \
+    bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
     bundle exec bootsnap precompile -j 1 --gemfile
