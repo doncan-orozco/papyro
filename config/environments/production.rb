@@ -85,6 +85,11 @@ Rails.application.configure do
   config.x.cookie_domain = ENV.fetch("COOKIE_DOMAIN", ".papyro.net")
   config.x.public_host = ENV.fetch("APP_HOST", "https://papyro.net")
 
+  # Tell Rails to treat `.papyro.net` as the base TLD when in QA
+  if ENV["APP_ENV"] == "qa"
+    config.action_dispatch.tld_length = 2
+  end
+
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [
   #   "example.com",     # Allow requests from example.com
