@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   include Pagy::Method
   include ErrorHandling
   after_action :verify_pundit_authorization
+  before_action :require_qa_auth, if: -> { Rails.env.production? && ENV["QA_PASSWORD"].present? }
 
   allow_browser versions: :modern
 
@@ -28,5 +29,11 @@ class ApplicationController < ActionController::Base
   def parse_page(page_param = params[:page])
     page = page_param.to_i
     page.positive? ? page : 1
+  end
+
+  def require_qa_auth
+    authenticate_or_request_with_http_basic("QA Environment") do |username, password|
+      username == "admin" && password == ENV["QA_PASSWORD"]
+    end
   end
 end

@@ -1,0 +1,18 @@
+# Override the proxy to use your new QA subdomains
+proxy:
+  ssl: true
+  hosts:
+    - qa.papyro.net
+    - studio.qa.papyro.net
+
+# Override the ENV variables so cookies and image uploads use the QA URLs
+env:
+  secret:
+    - QA_PASSWORD
+  clear:
+    APP_HOST: "https://qa.papyro.net"
+    COOKIE_DOMAIN: ".qa.papyro.net"
+
+# Create a separate Docker volume so your QA database doesn't overwrite your production database!
+volumes:
+  - "papyro_qa_storage:/rails/storage"
