@@ -83,6 +83,7 @@ Rails.application.configure do
 
   # Set cookie domain
   config.x.cookie_domain = ENV.fetch("COOKIE_DOMAIN", ".papyro.net")
+  config.x.public_host = ENV.fetch("APP_HOST", "https://papyro.net")
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [

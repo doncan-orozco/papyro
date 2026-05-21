@@ -26,7 +26,6 @@ class Users::Operation::UpdateProfileTest < ActiveSupport::TestCase
   end
 
   test "updates portrait and username" do
-
     result = Users::Operation::UpdateProfile.new.call(
       user: @user,
       params: {

@@ -1,6 +1,15 @@
 require "test_helper"
 
 class Articles::ShowPresenterTest < ActiveSupport::TestCase
+  setup do
+    @previous_public_host = Rails.configuration.x.public_host
+    Rails.configuration.x.public_host = "http://lvh.me:3030"
+  end
+
+  teardown do
+    Rails.configuration.x.public_host = @previous_public_host
+  end
+
   test "wraps continuation articles with base presenter" do
     primary = build_article(title: "Primary", slug: "primary", excerpt: "Excerpt", body: "Body")
     related = build_article(title: "Sibling", slug: "sibling", excerpt: "Excerpt", body: "Body")
@@ -19,6 +28,18 @@ class Articles::ShowPresenterTest < ActiveSupport::TestCase
 
     assert_equal 1, presenter.reading_time_minutes
     assert_includes presenter.content_html, "One two three four"
+  end
+
+  test "normalizes legacy upload urls in content html" do
+    article = build_article(
+      title: "Image Article",
+      slug: "image-article",
+      excerpt: "Excerpt",
+      body: "![sample](http://lvh.me/u/token123)"
+    )
+    presenter = Articles::Presenter::Show.new(article)
+
+    assert_includes presenter.content_html, "http://lvh.me:3030/u/token123"
   end
 
   private

@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require "uri"
+
 class ActionText::Markdown::UploadsController < ApplicationController
   allow_unauthenticated_access only: :show
 
   before_action do
-    ActiveStorage::Current.url_options = { protocol: request.protocol, host: request.host, port: request.port }
+    ActiveStorage::Current.url_options = public_upload_host_options
   end
 
   def create
@@ -31,8 +33,31 @@ class ActionText::Markdown::UploadsController < ApplicationController
 
   def show
     skip_authorization
-    @attachment = ActiveStorage::Attachment.find_by! slug: "#{params[:slug]}.#{params[:format]}"
+    @attachment = ActiveStorage::Attachment.find_by!(slug: attachment_slug_candidates)
     expires_in 1.year, public: true
     redirect_to @attachment.url, allow_other_host: true
+  end
+
+  private
+
+  def attachment_slug_candidates
+    candidates = [ params[:slug].to_s ]
+
+    if params[:format].present?
+      candidates << "#{params[:slug]}.#{params[:format]}"
+    end
+
+    candidates.uniq
+  end
+
+  def public_upload_host_options
+    uri = URI.parse(Rails.configuration.x.public_host.to_s)
+
+    {
+      host: uri.host,
+      port: uri.port,
+      protocol: uri.scheme,
+      subdomain: ""
+    }
   end
 end

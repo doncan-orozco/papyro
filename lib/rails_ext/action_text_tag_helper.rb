@@ -1,3 +1,5 @@
+require "uri"
+
 module ActionText
   module TagHelper
     def markdown_area(record, name, value: nil, **options)
@@ -6,17 +8,21 @@ module ActionText
 
       data = options.delete(:data) || {}
       if record.respond_to?(:persisted?) && record.persisted?
+        uploads_host_options = public_upload_host_options
+
         uploads_url = if respond_to?(:main_app)
           main_app.action_text_markdown_uploads_url(
             record_gid: record.to_signed_global_id.to_s,
             attribute_name: name,
-            format: "json"
+            format: "json",
+            **uploads_host_options
           )
         else
           action_text_markdown_uploads_url(
             record_gid: record.to_signed_global_id.to_s,
             attribute_name: name,
-            format: "json"
+            format: "json",
+            **uploads_host_options
           )
         end
 
@@ -42,6 +48,19 @@ module ActionText
           capture(&block)
         ]
       end
+    end
+
+    private
+
+    def public_upload_host_options
+      uri = URI.parse(Rails.configuration.x.public_host.to_s)
+
+      {
+        host: uri.host,
+        port: uri.port,
+        protocol: uri.scheme,
+        subdomain: ""
+      }
     end
   end
 end

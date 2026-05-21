@@ -89,6 +89,7 @@ Rails.application.configure do
 
   # Set cookie domain
   config.x.cookie_domain = ".lvh.me"
+  config.x.public_host = "http://lvh.me:3030"
 
   # Bullet — N+1 query detection
   config.after_initialize do

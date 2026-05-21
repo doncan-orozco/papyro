@@ -1,4 +1,5 @@
 require "rouge/plugins/redcarpet"
+require "uri"
 
 class MarkdownRenderer < Redcarpet::Render::HTML
   include Rouge::Plugins::Redcarpet
@@ -20,10 +21,28 @@ class MarkdownRenderer < Redcarpet::Render::HTML
   end
 
   def image(url, title, alt_text)
-    %(<a title="#{title}" data-action="lightbox#open:prevent" data-lightbox-target="image" data-lightbox-url-value="#{url}?disposition=attachment" href="#{url}"><img src="#{url}" alt="#{alt_text}"></a>)
+    normalized_url = normalize_upload_url(url)
+    %(<a title="#{title}" data-action="lightbox#open:prevent" data-lightbox-target="image" data-lightbox-url-value="#{normalized_url}?disposition=attachment" href="#{normalized_url}"><img src="#{normalized_url}" alt="#{alt_text}"></a>)
   end
 
   private
+    def normalize_upload_url(url)
+      return url if url.blank?
+
+      uri = URI.parse(url)
+      return url unless uri.path.start_with?("/u/")
+
+      public_host = Rails.configuration.x.public_host.to_s.sub(%r{/+\z}, "")
+      return url if public_host.blank?
+
+      request_path = uri.path.to_s
+      request_path += "?#{uri.query}" if uri.query.present?
+
+      "#{public_host}#{request_path}"
+    rescue URI::InvalidURIError
+      url
+    end
+
     def unique_id(text)
       text.parameterize.then do |base_id|
         @id_counts[base_id] += 1
