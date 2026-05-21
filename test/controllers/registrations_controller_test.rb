@@ -1,6 +1,18 @@
 require "test_helper"
 
 class RegistrationsControllerTest < ActionDispatch::IntegrationTest
+  private
+
+    def with_cookie_domain(domain)
+      previous_cookie_domain = Rails.configuration.x.cookie_domain
+      Rails.configuration.x.cookie_domain = domain
+      yield
+    ensure
+      Rails.configuration.x.cookie_domain = previous_cookie_domain
+    end
+
+  public
+
   test "new" do
     get sign_up_path
 
@@ -74,21 +86,23 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "newly registered user stays authenticated on studio subdomain" do
-    host! "lvh.me"
+    with_cookie_domain(".lvh.me") do
+      host! "lvh.me"
 
-    post sign_up_path, params: {
-      user: {
-        email_address: "cross_subdomain_signup@example.com",
-        password: "password123"
+      post sign_up_path, params: {
+        user: {
+          email_address: "cross_subdomain_signup@example.com",
+          password: "password123"
+        }
       }
-    }
 
-    assert_redirected_to root_path(locale: I18n.default_locale)
-    assert cookies[:session_id]
+      assert_redirected_to root_path(locale: I18n.default_locale)
+      assert cookies[:session_id]
 
-    host! "studio.lvh.me"
-    get "/articles"
+      host! "studio.lvh.me"
+      get "/articles"
 
-    assert_response :success
+      assert_response :success
+    end
   end
 end

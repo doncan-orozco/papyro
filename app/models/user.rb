@@ -22,6 +22,7 @@ class User < ApplicationRecord
       with: URI::MailTo::EMAIL_REGEXP,
       message: I18n.t("errors.messages.invalid_email")
     }
+  validates :uid, uniqueness: { scope: :provider }, allow_nil: true
   validates :password_digest, presence: true
 
   generates_token_for :password_reset, expires_in: 24.hours do

@@ -3,6 +3,18 @@ require "test_helper"
 class SessionsControllerTest < ActionDispatch::IntegrationTest
   setup { @user = User.take }
 
+  private
+
+    def with_cookie_domain(domain)
+      previous_cookie_domain = Rails.configuration.x.cookie_domain
+      Rails.configuration.x.cookie_domain = domain
+      yield
+    ensure
+      Rails.configuration.x.cookie_domain = previous_cookie_domain
+    end
+
+  public
+
   test "new" do
     get new_session_path
 
@@ -34,18 +46,20 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create sets session cookie domain for subdomain sharing" do
-    host! "lvh.me"
-    post session_path, params: { email_address: @user.email_address, password: "password" }
+    with_cookie_domain(".lvh.me") do
+      host! "lvh.me"
+      post session_path, params: { email_address: @user.email_address, password: "password" }
 
-    assert_redirected_to root_path(locale: I18n.default_locale)
-    assert cookies[:session_id]
+      assert_redirected_to root_path(locale: I18n.default_locale)
+      assert cookies[:session_id]
 
-    set_cookie_headers = Array(response.headers["Set-Cookie"])
+      set_cookie_headers = Array(response.headers["Set-Cookie"])
 
-    assert(
-      set_cookie_headers.any? { |header| header.downcase.include?("domain=lvh.me") },
-      "Expected Set-Cookie to include domain=lvh.me, got: #{set_cookie_headers.inspect}"
-    )
+      assert(
+        set_cookie_headers.any? { |header| header.downcase.match?(/domain=\.?lvh\.me/) },
+        "Expected Set-Cookie to include domain=.lvh.me (or domain=lvh.me), got: #{set_cookie_headers.inspect}"
+      )
+    end
   end
 
   test "create with invalid credentials" do
