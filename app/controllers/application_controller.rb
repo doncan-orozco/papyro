@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
   end
 
   def parse_page(page_param = params[:page])
-    [page_param.to_i, 1].max
+    [ page_param.to_i, 1 ].max
   end
 
   def require_qa_auth
