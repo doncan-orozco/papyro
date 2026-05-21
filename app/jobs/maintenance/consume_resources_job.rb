@@ -11,6 +11,14 @@ class Maintenance::ConsumeResourcesJob < ApplicationJob
   # Do not retry on operation failure
   discard_on ConsumeResourcesFailed
 
+
+  before_perform do
+    if ENV["APP_ENV"] == "qa"
+      Rails.logger.info("Skipped Maintenance::ConsumeResourcesJob because we are in the QA environment.")
+      throw(:abort)
+    end
+  end
+
   def perform
     result = Maintenance::ConsumeResources.new.call
     return Rails.logger.info("Maintenance::ConsumeResourcesJob completed successfully") if result.success?

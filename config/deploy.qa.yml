@@ -8,10 +8,13 @@ proxy:
 # Override the ENV variables so cookies and image uploads use the QA URLs
 env:
   secret:
+    - RAILS_MASTER_KEY
     - QA_PASSWORD
   clear:
+    SOLID_QUEUE_IN_PUMA: true
     APP_HOST: "https://qa.papyro.net"
     COOKIE_DOMAIN: ".qa.papyro.net"
+    APP_ENV: "qa"
 
 # Create a separate Docker volume so your QA database doesn't overwrite your production database!
 volumes:

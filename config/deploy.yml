@@ -50,6 +50,7 @@ env:
     # Custom Papyro Configurations
     APP_HOST: "https://papyro.net"
     COOKIE_DOMAIN: ".papyro.net"
+    APP_ENV: "production"
     # Set number of processes dedicated to Solid Queue (default: 1)
     # JOB_CONCURRENCY: 3
 

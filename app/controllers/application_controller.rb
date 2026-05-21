@@ -4,22 +4,18 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include Pagy::Method
   include ErrorHandling
-  after_action :verify_pundit_authorization
-  before_action :require_qa_auth, if: -> { Rails.env.production? && ENV["QA_PASSWORD"].present? }
 
   allow_browser versions: :modern
-
-  # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
+
+  before_action :require_qa_auth, if: -> { ENV["APP_ENV"] == "qa" }
+
+  after_action :verify_pundit_authorization
 
   private
 
   def verify_pundit_authorization
-    if action_name == "index"
-      verify_policy_scoped
-    else
-      verify_authorized
-    end
+    action_name == "index" ? verify_policy_scoped : verify_authorized
   end
 
   def pundit_user
@@ -27,8 +23,7 @@ class ApplicationController < ActionController::Base
   end
 
   def parse_page(page_param = params[:page])
-    page = page_param.to_i
-    page.positive? ? page : 1
+    [page_param.to_i, 1].max
   end
 
   def require_qa_auth
