@@ -1,8 +1,7 @@
 namespace :test do
-  # Helper to grab all test subdirectories except 'system' (and 'dummy' for engines)
-  def non_system_test_dirs(base_path)
+  non_system_test_dirs = lambda do |base_path|
     Dir.glob("#{base_path}/*").select do |dir|
-      File.directory?(dir) && !["system", "dummy"].include?(File.basename(dir))
+      File.directory?(dir) && ![ "system", "dummy" ].include?(File.basename(dir))
     end.join(" ")
   end
 
@@ -10,8 +9,8 @@ namespace :test do
   task :with_studio do
     puts "Booting Rails and running core + studio tests (excluding system tests)..."
 
-    core_tests = non_system_test_dirs("test")
-    studio_tests = non_system_test_dirs("../papyro_studio/test")
+    core_tests = non_system_test_dirs.call("test")
+    studio_tests = non_system_test_dirs.call("../papyro_studio/test")
 
     success = system("bin/rails test #{core_tests} #{studio_tests}")
 
