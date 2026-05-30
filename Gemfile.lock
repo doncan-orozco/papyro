@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/doncan-orozco/papyro_studio.git
-  revision: 573c397a5515500a96aecd8633d4c29a9032a61b
+  revision: 790b7c76c60c2f384df525daeb0b6edaa46c5857
   branch: main
   specs:
     papyro_studio (0.1.0)

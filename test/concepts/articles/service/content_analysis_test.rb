@@ -42,4 +42,21 @@ class Articles::Service::ContentAnalysisTest < ActiveSupport::TestCase
     assert_equal 0, service.content_word_count
     assert_equal 0, service.estimated_reading_time_minutes
   end
+
+  test "uses locale-specific translated content when locale is provided" do
+    article = Article.create!(
+      title: "Localized",
+      slug: "localized-#{SecureRandom.hex(4)}",
+      body: "Contenido global",
+      user: users(:admin)
+    )
+
+    article.article_translations.find_by!(locale: "en").update!(content: "English **summary** for readers")
+
+    service = Articles::Service::ContentAnalysis.new(article, locale: :en)
+
+    assert_includes service.searchable_content, "English"
+    assert_includes service.plain_text_body, "English summary for readers"
+    assert_not_includes service.searchable_content, "Contenido global"
+  end
 end

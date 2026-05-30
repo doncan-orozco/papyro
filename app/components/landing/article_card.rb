@@ -105,15 +105,17 @@ module Components
       end
 
       def reading_time_for(article)
-        self.class.content_analysis_for(article).estimated_reading_time_minutes
+        return content_analysis.estimated_reading_time_minutes if article == @article
+
+        self.class.content_analysis_for(article, locale: I18n.locale).estimated_reading_time_minutes
       end
 
       def content_analysis
-        @content_analysis ||= self.class.content_analysis_for(@article)
+        @content_analysis ||= self.class.content_analysis_for(@article, locale: I18n.locale)
       end
 
-      def self.content_analysis_for(article)
-        Articles::Service::ContentAnalysis.new(article)
+      def self.content_analysis_for(article, locale: nil)
+        Articles::Service::ContentAnalysis.new(article, locale: locale)
       end
     end
   end
