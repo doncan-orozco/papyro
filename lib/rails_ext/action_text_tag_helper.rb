@@ -44,7 +44,7 @@ module ActionText
     def house_toolbar_file_upload_button(name: "upload", title: "Upload File", **options, &block)
       tag.label title: title, **options do
         safe_join [
-          file_field_tag(name, data: { "house-md-toolbar-file-picker": true }, style: "display: none;"),
+          file_field_tag(name, data: { "house-md-toolbar-file-picker": true }, hidden: true),
           capture(&block)
         ]
       end

@@ -43,7 +43,6 @@ export default class extends BaseController {
   static targets = ["trigger", "content"]
 
   connect() {
-    console.log('💬 Tooltip controller connected', this.element)
     this.showTimeout = null
     this.cleanupAutoUpdate = null
     

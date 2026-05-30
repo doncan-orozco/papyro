@@ -42,7 +42,6 @@ export default class extends BaseController {
   static targets = ["toggle"]
 
   connect() {
-    console.log('🔘 Toggle Group controller connected', this.element)
     
     // Setup ARIA attributes
     this.element.setAttribute('role', 'group')
@@ -71,7 +70,6 @@ export default class extends BaseController {
     const toggleValue = toggle.getAttribute('data-value')
     if (!toggleValue) return
 
-    console.log('🔘 Toggle Group selected:', toggleValue)
 
     if (this.typeValue === 'single') {
       // Single select - replace value

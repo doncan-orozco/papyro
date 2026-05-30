@@ -42,7 +42,6 @@ export default class extends BaseController {
   static targets = ["trigger", "content", "item"]
 
   connect() {
-    console.log('📋 Context Menu controller connected', this.element)
     this.focusedItemIndex = -1
     this.contextMenuX = 0
     this.contextMenuY = 0
@@ -68,7 +67,6 @@ export default class extends BaseController {
    * @param {MouseEvent} event - Right-click event
    */
   open(event) {
-    console.log('📋 Context Menu open')
     event.preventDefault()
     
     this.contextMenuX = event.clientX

@@ -38,7 +38,6 @@ export default class extends BaseController {
   static targets = ["input"]
 
   connect() {
-    console.log('⚪ Radio Group controller connected', this.element)
     
     // Setup ARIA attributes
     this.element.setAttribute('role', 'radiogroup')
@@ -66,7 +65,6 @@ export default class extends BaseController {
     const input = event.target
     if (!this.inputTargets.includes(input)) return
 
-    console.log('⚪ Radio Group selected:', input.value)
     this.valueValue = input.value
     this.updateChecked()
     

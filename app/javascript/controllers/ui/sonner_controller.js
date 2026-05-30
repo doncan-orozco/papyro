@@ -34,7 +34,6 @@ export default class extends BaseController {
   static targets = ["viewport"]
 
   connect() {
-    console.log('🔔 Sonner Toast controller connected', this.element)
     
     this.toasts = new Map()
     this.queue = []
@@ -97,7 +96,6 @@ export default class extends BaseController {
     
     if (!id || !message) return
 
-    console.log('🔔 Sonner show:', id, type)
 
     // Create toast element
     const toast = this.createToastElement(id, message, type, action)
@@ -146,7 +144,6 @@ export default class extends BaseController {
     const id = event.detail?.id
     if (!id || !this.toasts.has(id)) return
 
-    console.log('🔔 Sonner dismiss:', id)
 
     const data = this.toasts.get(id)
     const toast = data.element

@@ -52,7 +52,6 @@ export default class extends BaseController {
   static targets = ["sortable", "body", "row"]
 
   connect() {
-    console.log('📊 Data Table controller connected', this.element)
     this.allRows = Array.from(this.rowTargets)
   }
 
@@ -66,7 +65,6 @@ export default class extends BaseController {
     const column = event.currentTarget.getAttribute('data-column')
     if (!column) return
 
-    console.log('📊 Data Table sort by', column)
 
     // Toggle sort order if same column
     if (this.sortByValue === column) {

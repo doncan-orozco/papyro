@@ -47,7 +47,6 @@ export default class extends BaseController {
   static targets = ["input", "list", "item"]
 
   connect() {
-    console.log('⌘ Command controller connected', this.element)
     this.focusedItemIndex = -1
     this.escapeHandler = this.handleEscape.bind(this)
   }
@@ -85,7 +84,6 @@ export default class extends BaseController {
     
     if (!this.hasListTarget || !this.hasItemTargets) return
 
-    console.log('⌘ Command filter:', query)
 
     const lowerQuery = query.toLowerCase()
     let visibleCount = 0

@@ -48,7 +48,6 @@ export default class extends BaseController {
   static targets = ["trigger", "content", "item", "valueDisplay"]
 
   connect() {
-    console.log('🎯  Select controller connected', this.element)
     this.isOpen = false
     this.focusedItemIndex = -1
     this.clickOutsideHandler = this.handleClickOutside.bind(this)

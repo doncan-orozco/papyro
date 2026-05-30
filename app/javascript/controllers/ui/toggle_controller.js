@@ -32,7 +32,6 @@ export default class extends BaseController {
   }
 
   connect() {
-    console.log('🔘 Toggle controller connected', this.element)
     
     // Ensure element is a button or has button role
     if (this.element.tagName !== 'BUTTON' && !this.element.hasAttribute('role')) {
@@ -58,7 +57,6 @@ export default class extends BaseController {
       return
     }
 
-    console.log('🔘 Toggle clicked')
     event?.preventDefault()
     this.pressedValue = !this.pressedValue
   }

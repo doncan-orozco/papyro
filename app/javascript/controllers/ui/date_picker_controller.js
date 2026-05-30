@@ -46,7 +46,6 @@ export default class extends BaseController {
   static targets = ["input", "calendar", "days"]
 
   connect() {
-    console.log('📅 Date Picker controller connected', this.element)
     this.clickOutsideHandler = this.handleClickOutside.bind(this)
     this.cleanupAutoUpdate = null
     
@@ -76,7 +75,6 @@ export default class extends BaseController {
    * @param {Event} event - Focus event
    */
   open(event) {
-    console.log('📅 Date Picker open')
     event?.preventDefault()
     this.openValue = true
   }

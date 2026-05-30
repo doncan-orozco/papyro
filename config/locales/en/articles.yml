@@ -97,6 +97,7 @@ en:
         slug_hint: "Auto-generated from title when blank. Draft slugs can refresh from title; published slugs are locked."
         advanced_seo_settings: "Advanced SEO Settings"
         body_label: "Content"
+        body_placeholder: "Start writing your story..."
         body_hint: "Markdown-formatted content for the article"
         excerpt_label: "Excerpt"
         excerpt_placeholder: "Brief summary of the article"

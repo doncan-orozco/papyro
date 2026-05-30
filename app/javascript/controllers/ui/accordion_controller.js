@@ -40,7 +40,6 @@ export default class extends BaseController {
   static targets = ["item", "trigger", "content"]
 
   connect() {
-    console.log('📂 Accordion controller connected', this.element)
     // Initialize default open items
     if (this.hasDefaultOpenValue) {
       const indices = this.defaultOpenValue.split(',').map(i => parseInt(i.trim(), 10))
@@ -62,7 +61,6 @@ export default class extends BaseController {
    * @param {Event} event - Click event
    */
   toggle(event) {
-    console.log('📂 Accordion toggle clicked', event.currentTarget)
     const trigger = event.currentTarget
     const index = this.triggerTargets.indexOf(trigger)
     

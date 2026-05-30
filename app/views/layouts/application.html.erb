@@ -40,14 +40,14 @@
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%# Restore the user's theme preference before first paint to avoid FOUC %>
-    <script>
+    <%= javascript_tag nonce: true do %>
       (function(){
         var t=localStorage.getItem("papyro-theme"),d=document.documentElement;
         d.dataset.theme=t||"system";
         if(t==="dark"||(t==null&&window.matchMedia("(prefers-color-scheme: dark)").matches)){d.classList.add("dark");}
         else if(t==="light"){d.classList.add("light");}
       })();
-    </script>
+    <% end %>
     <% if Rails.env.test? %>
       <style>
         *, *::before, *::after {

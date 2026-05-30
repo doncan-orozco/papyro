@@ -41,7 +41,6 @@ export default class extends BaseController {
   static targets = ["panel", "handle"]
 
   connect() {
-    console.log('↔️ Resizable controller connected', this.element)
     this.isResizing = false
     this.resizeStartX = 0
     this.resizeStartY = 0
@@ -62,7 +61,6 @@ export default class extends BaseController {
    * @param {PointerEvent} event - Pointer event
    */
   startResize(event) {
-    console.log('↔️ Resizable start')
     event.preventDefault()
 
     const handle = event.currentTarget

@@ -39,7 +39,6 @@ export default class extends BaseController {
   static targets = ["trigger", "submenu"]
 
   connect() {
-    console.log('🧭 Navigation Menu controller connected', this.element)
     this.element.setAttribute('role', 'navigation')
     this.hoverTimeout = null
     this.cleanupAutoUpdate = null

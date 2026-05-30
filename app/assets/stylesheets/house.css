@@ -62,6 +62,10 @@
   }
 }
 
+:where(house-md-toolbar [data-house-md-toolbar-file-picker]) {
+  display: none;
+}
+
 /* Markdown Content */
 :where(.house-md-content) {
   caret-color: var(--color-link);
@@ -75,6 +79,20 @@
     border: none;
     outline: none;
   }
+}
+
+:where(house-md[placeholder]) {
+  position: relative;
+}
+
+:where(house-md[placeholder][data-empty="true"]):not(:focus-within)::before {
+  color: var(--color-muted-foreground);
+  content: attr(placeholder);
+  font-style: italic;
+  inset-block-start: 0.25rem;
+  inset-inline-start: 0;
+  pointer-events: none;
+  position: absolute;
 }
 
 /* Uploads */

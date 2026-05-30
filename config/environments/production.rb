@@ -90,12 +90,22 @@ Rails.application.configure do
     config.action_dispatch.tld_length = 2
   end
 
-  # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
-  # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  configured_hosts = ENV.fetch("ALLOWED_HOSTS", "")
+    .split(",")
+    .map(&:strip)
+    .reject(&:empty?)
+
+  default_hosts = [
+    "papyro.net",
+    "www.papyro.net",
+    "studio.papyro.net",
+    "qa.papyro.net",
+    "studio.qa.papyro.net"
+  ]
+
+  # Protect against Host header attacks while allowing configured deployment domains.
+  config.hosts = configured_hosts.presence || default_hosts
+
+  # Skip host authorization check for the default health check endpoint.
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end

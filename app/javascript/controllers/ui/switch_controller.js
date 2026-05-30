@@ -35,7 +35,6 @@ export default class extends BaseController {
   static targets = ["thumb", "input"]
 
   connect() {
-    console.log('🔘 Switch controller connected', this.element)
     // Set initial state
     this.updateState()
     
@@ -50,7 +49,6 @@ export default class extends BaseController {
    * @param {Event} event - Click or keyboard event
    */
   toggle(event) {
-    console.log('🔘 Switch toggle clicked', { checked: this.checkedValue })
     if (this.disabledValue) {
       event?.preventDefault()
       return

@@ -39,7 +39,6 @@ export default class extends BaseController {
   static targets = ["track", "thumb", "input"]
 
   connect() {
-    console.log('🎚️ Slider controller connected', this.element)
     this.isDragging = false
     this.dragStartX = 0
     this.dragStartValue = 0
@@ -60,7 +59,6 @@ export default class extends BaseController {
    * @param {PointerEvent} event - Pointer event
    */
   startDrag(event) {
-    console.log('🎚️ Slider drag started')
     event.preventDefault()
     
     this.isDragging = true

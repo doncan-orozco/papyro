@@ -8,6 +8,7 @@ gem "rails", "~> 8.1.2"
 gem "sqlite3", ">= 2.1"
 gem "puma", ">= 5.0"
 gem "jbuilder"
+gem "rack-cors"
 
 # Rails 8 Solid Suite
 gem "solid_cache"

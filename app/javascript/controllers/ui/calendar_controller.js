@@ -55,7 +55,6 @@ export default class extends BaseController {
   static targets = ["header", "monthYear", "weekdays", "days", "dayButton"]
 
   connect() {
-    console.log('📅 Calendar controller connected', this.element)
     this.element.setAttribute('role', 'application')
     this.element.setAttribute('aria-label', 'Calendar')
     
@@ -69,7 +68,6 @@ export default class extends BaseController {
    */
   previousMonth(event) {
     event.preventDefault()
-    console.log('📅 Calendar previous month')
     
     if (this.monthValue === 0) {
       this.monthValue = 11
@@ -85,7 +83,6 @@ export default class extends BaseController {
    */
   nextMonth(event) {
     event.preventDefault()
-    console.log('📅 Calendar next month')
     
     if (this.monthValue === 11) {
       this.monthValue = 0

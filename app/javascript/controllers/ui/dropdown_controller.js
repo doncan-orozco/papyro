@@ -46,7 +46,6 @@ export default class extends BaseController {
   static targets = ["trigger", "content", "item"]
 
   connect() {
-    console.log('📋 Dropdown controller connected', this.element)
     this.focusedItemIndex = -1
     this.clickOutsideHandler = this.handleClickOutside.bind(this)
     this.escapeHandler = this.handleEscape.bind(this)
@@ -77,7 +76,6 @@ export default class extends BaseController {
    * @param {Event} event - Click event
    */
   toggle(event) {
-    console.log('📋 Dropdown toggle clicked', { open: this.openValue })
     event?.preventDefault()
     this.openValue = !this.openValue
   }

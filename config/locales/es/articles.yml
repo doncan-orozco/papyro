@@ -97,6 +97,7 @@ es:
         slug_hint: "Se genera automáticamente desde el título cuando está vacío. En borrador puede actualizarse con el título; en publicado queda bloqueado."
         advanced_seo_settings: "Configuración SEO avanzada"
         body_label: "Contenido"
+        body_placeholder: "Empieza a escribir tu historia..."
         body_hint: "Contenido del artículo en formato Markdown"
         excerpt_label: "Extracto"
         excerpt_placeholder: "Breve resumen del artículo"

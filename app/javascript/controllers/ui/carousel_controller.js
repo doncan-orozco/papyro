@@ -46,7 +46,6 @@ export default class extends BaseController {
   static targets = ["viewport", "item", "controls"]
 
   connect() {
-    console.log('🎠 Carousel controller connected', this.element)
     this.autoPlayTimeout = null
     
     // Setup ARIA attributes
@@ -73,7 +72,6 @@ export default class extends BaseController {
    */
   next(event) {
     event?.preventDefault()
-    console.log('🎠 Carousel next clicked')
     
     const nextIndex = this.currentIndexValue + 1
     
@@ -96,7 +94,6 @@ export default class extends BaseController {
    */
   previous(event) {
     event?.preventDefault()
-    console.log('🎠 Carousel previous clicked')
     
     const prevIndex = this.currentIndexValue - 1
     

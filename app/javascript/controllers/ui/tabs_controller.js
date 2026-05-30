@@ -37,7 +37,6 @@ export default class extends BaseController {
   static targets = ["trigger", "content"]
 
   connect() {
-    console.log('📑 Tabs controller connected', this.element, { triggers: this.triggerTargets.length, contents: this.contentTargets.length })
     // Ensure active index is valid
     if (this.activeIndexValue < 0 || this.activeIndexValue >= this.triggerTargets.length) {
       this.activeIndexValue = 0
@@ -52,7 +51,6 @@ export default class extends BaseController {
    * @param {Event} event - Click event
    */
   select(event) {
-    console.log('📑 Tabs select clicked', event.currentTarget)
     const trigger = event.currentTarget
     const index = this.triggerTargets.indexOf(trigger)
     

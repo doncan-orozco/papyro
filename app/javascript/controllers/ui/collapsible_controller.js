@@ -37,7 +37,6 @@ export default class extends BaseController {
   static targets = ["trigger", "content"]
 
   connect() {
-    console.log('↔️ Collapsible controller connected', this.element)
     
     // Setup trigger ARIA
     if (this.hasTriggerTarget) {
@@ -54,7 +53,6 @@ export default class extends BaseController {
    * @param {Event} event - Click event
    */
   toggle(event) {
-    console.log('↔️ Collapsible toggle clicked')
     event?.preventDefault()
     this.openValue = !this.openValue
   }

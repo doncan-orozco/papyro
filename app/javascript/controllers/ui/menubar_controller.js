@@ -38,7 +38,6 @@ export default class extends BaseController {
   static targets = ["trigger", "menu", "item"]
 
   connect() {
-    console.log('🍔 Menubar controller connected', this.element)
     this.element.setAttribute('role', 'menubar')
     this.focusedTriggerIndex = -1
     this.focusedItemIndex = -1
@@ -54,7 +53,6 @@ export default class extends BaseController {
    * @param {Event} event - Click event
    */
   toggleMenu(event) {
-    console.log('🍔 Menubar toggle')
     event?.preventDefault()
     this.openValue = !this.openValue
   }
