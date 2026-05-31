@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_19_001000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_31_100500) do
   create_table "action_text_markdowns", force: :cascade do |t|
     t.text "content", default: "", null: false
     t.datetime "created_at", null: false
@@ -96,6 +96,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_001000) do
     t.index ["uuid"], name: "index_articles_on_uuid", unique: true
   end
 
+  create_table "author_profile_translations", force: :cascade do |t|
+    t.integer "author_profile_id", null: false
+    t.text "bio"
+    t.datetime "created_at", null: false
+    t.string "locale", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_profile_id", "locale"], name: "index_author_profile_translations_on_profile_and_locale", unique: true
+  end
+
   create_table "author_profiles", force: :cascade do |t|
     t.text "bio"
     t.datetime "created_at", null: false
@@ -152,6 +161,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_001000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "article_translations", "articles"
   add_foreign_key "articles", "users"
+  add_foreign_key "author_profile_translations", "author_profiles"
   add_foreign_key "author_profiles", "articles", column: "pinned_article_id", on_delete: :nullify
   add_foreign_key "author_profiles", "users"
   add_foreign_key "sessions", "users"

@@ -50,18 +50,44 @@ module Settings
       visit edit_settings_profile_path
 
       fill_in I18n.t("users.settings.profile.display_name_label"), with: "New Name"
-      fill_in I18n.t("users.settings.profile.bio_label"), with: "Software developer and writer"
+      fill_in "user_profile_attributes_bio", with: "Software developer and writer"
       fill_in I18n.t("users.settings.profile.location_label"), with: "San Francisco, CA"
       fill_in I18n.t("users.settings.profile.website_url_label"), with: "https://example.com"
       fill_in I18n.t("users.settings.profile.x_handle_label"), with: "janedeveloper"
       fill_in I18n.t("users.settings.profile.linkedin_handle_label"), with: "jane-developer"
 
       assert_field I18n.t("users.settings.profile.display_name_label"), with: "New Name"
-      assert_field I18n.t("users.settings.profile.bio_label"), with: "Software developer and writer"
+      assert_field "user_profile_attributes_bio", with: "Software developer and writer"
       assert_field I18n.t("users.settings.profile.location_label"), with: "San Francisco, CA"
       assert_field I18n.t("users.settings.profile.website_url_label"), with: "https://example.com"
       assert_field I18n.t("users.settings.profile.x_handle_label"), with: "janedeveloper"
       assert_field I18n.t("users.settings.profile.linkedin_handle_label"), with: "jane-developer"
+    end
+
+    test "user can edit localized bio for english and spanish" do
+      visit edit_settings_profile_path(content_locale: :en)
+
+      fill_in "user_profile_attributes_bio", with: "English profile bio"
+      submit_profile_form
+
+      visit edit_settings_profile_path(content_locale: :es)
+
+      fill_in "user_profile_attributes_bio", with: "Bio de perfil en espanol"
+      submit_profile_form
+
+      @user.reload
+
+      assert_equal "English profile bio", Mobility.with_locale(:en) { @user.profile.bio }
+      assert_equal "Bio de perfil en espanol", Mobility.with_locale(:es) { @user.profile.bio }
+    end
+
+    test "bio locale switcher updates page locale context" do
+      visit edit_settings_profile_path(content_locale: :en)
+
+      click_button I18n.t("language.name", locale: :es)
+
+      assert_current_path %r{/settings/profile/edit\?content_locale=es}
+      assert_selector "input[name='user[profile_attributes][bio_locale]'][value='es']", visible: false
     end
 
     test "user uploads portrait photo" do
@@ -134,7 +160,7 @@ module Settings
         })()
       JS
 
-      assert_includes classes["usernameHintClass"], "text-foreground/70"
+      assert_includes classes["usernameHintClass"], "text-foreground/80"
       assert_includes classes["emailInputClass"], "bg-muted"
       assert classes["emailDisabled"]
     end
@@ -178,5 +204,6 @@ module Settings
       assert_button submit_label, disabled: false
       click_button submit_label
     end
+
   end
 end

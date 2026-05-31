@@ -9,6 +9,7 @@ module Users
           required(:username).filled(:string)
           optional(:portrait).maybe(Types::Any)
           optional(:bio).maybe(:string)
+          optional(:bio_locale).maybe(:string)
           optional(:location).maybe(:string)
           optional(:website_url).maybe(:string)
           optional(:x_handle).maybe(:string)

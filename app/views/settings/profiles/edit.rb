@@ -7,9 +7,10 @@ module Views
         include Phlex::Rails::Helpers::FormWith
         include Phlex::Rails::Helpers::ImageTag
 
-        def initialize(user:, author_profile_path:)
+        def initialize(user:, author_profile_path:, selected_bio_locale:)
           @user = user
           @author_profile_path = author_profile_path
+          @selected_bio_locale = selected_bio_locale
         end
 
         def view_template
@@ -92,13 +93,10 @@ module Views
                           t("users.settings.profile.username_change_hint")
                         end
 
-                        profile_form.field :bio,
-                          as: :text_area,
-                          label: t("users.settings.profile.bio_label"),
-                          options: {
-                            placeholder: t("users.settings.profile.bio_placeholder"),
-                            rows: 3
-                          }
+                        render Edit::BioLocaleField.new(
+                          profile_form: profile_form,
+                          selected_locale: @selected_bio_locale
+                        )
 
                         profile_form.field :location,
                           as: :text_field,

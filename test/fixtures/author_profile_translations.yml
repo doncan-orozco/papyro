@@ -1,0 +1,14 @@
+admin_en:
+  author_profile: admin
+  locale: en
+  bio: "Writes about building software."
+
+one_en:
+  author_profile: one
+  locale: en
+  bio: "Enjoys long-form essays."
+
+two_en:
+  author_profile: two
+  locale: en
+  bio: "Collects notes and references."

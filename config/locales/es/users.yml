@@ -43,6 +43,8 @@ es:
         username_placeholder: "ej. jane_writes"
         username_change_hint: "Cambiar tu nombre de usuario actualizará la URL pública de tu perfil. Los enlaces antiguos se redirigirán automáticamente."
         bio_label: "Bio"
+        bio_locale_label: "Idioma de la bio"
+        bio_locale_hint: "La bio se traduce por idioma. El nombre, usuario y enlaces se mantienen compartidos en todos los idiomas."
         bio_placeholder: "Una breve descripción sobre ti"
         location_label: "Ubicación"
         location_placeholder: "ej. Ciudad de México"

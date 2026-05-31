@@ -43,6 +43,8 @@ en:
         username_placeholder: "e.g. jane_writes"
         username_change_hint: "Changing your username will update your public profile URL. Old links will automatically redirect."
         bio_label: "Bio"
+        bio_locale_label: "Bio language"
+        bio_locale_hint: "Bio is translated per language. Name, username, and links stay shared across all languages."
         bio_placeholder: "A short description about yourself"
         location_label: "Location"
         location_placeholder: "e.g. New York, NY"

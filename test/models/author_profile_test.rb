@@ -66,4 +66,15 @@ class AuthorProfileTest < ActiveSupport::TestCase
     # There should be no slug for 'alpha' pointing to profile_a
     refute_predicate FriendlyId::Slug.where(slug: "alpha", sluggable_id: profile_a.id, sluggable_type: "AuthorProfile"), :exists?, "Old historical slug for User A should be gone"
   end
+
+  test "bio is stored per locale" do
+    profile = author_profiles(:one)
+
+    Mobility.with_locale(:en) { profile.update!(bio: "Reader biography in English") }
+    Mobility.with_locale(:es) { profile.update!(bio: "Biografia del lector en espanol") }
+
+    assert_equal "Reader biography in English", Mobility.with_locale(:en) { profile.reload.bio }
+    assert_equal "Biografia del lector en espanol", Mobility.with_locale(:es) { profile.reload.bio }
+  end
+
 end
