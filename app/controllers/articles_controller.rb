@@ -18,11 +18,13 @@ class ArticlesController < ApplicationController
     more_from_author = Articles::Query::Related.call({
       user: @article.user,
       article_id: @article.id,
+      locale: I18n.locale.to_s,
       limit: 2
     })
     more_from_platform = Articles::Query::Related.call({
       exclude_user_id: @article.user_id,
       article_id: @article.id,
+      locale: I18n.locale.to_s,
       limit: 2
     })
 

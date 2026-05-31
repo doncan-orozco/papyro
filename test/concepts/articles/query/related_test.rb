@@ -84,5 +84,81 @@ module Articles
       assert_not_includes result, excluded_article
       assert_not_includes result, reference
     end
+
+    test "excludes articles unpublished in current locale" do
+      author = users(:admin)
+
+      reference = Article.create!(
+        title: "Reference Localized",
+        slug: "reference-localized-#{SecureRandom.hex(4)}",
+        excerpt: "Reference excerpt",
+        body: "Body",
+        user: author
+      )
+      publish_article!(reference)
+      set_translation_status!(reference, locale: "es", status: :published)
+
+      published_in_es = Article.create!(
+        title: "Published in ES",
+        slug: "published-es-#{SecureRandom.hex(4)}",
+        excerpt: "Published in ES excerpt",
+        body: "Body",
+        user: author
+      )
+      publish_article!(published_in_es)
+      set_translation_status!(published_in_es, locale: "es", status: :published)
+
+      unpublished_in_es = Article.create!(
+        title: "Unpublished in ES",
+        slug: "unpublished-es-#{SecureRandom.hex(4)}",
+        excerpt: "Unpublished in ES excerpt",
+        body: "Body",
+        user: author
+      )
+      publish_article!(unpublished_in_es)
+      set_translation_status!(unpublished_in_es, locale: "es", status: :draft)
+
+      result = Query::Related.call({ user: author, article_id: reference.id, locale: "es" })
+
+      assert_includes result, published_in_es
+      assert_not_includes result, unpublished_in_es
+      assert_not_includes result, reference
+    end
+
+    test "includes articles published in requested locale" do
+      author = users(:admin)
+
+      reference = Article.create!(
+        title: "Reference Locale EN",
+        slug: "reference-locale-en-#{SecureRandom.hex(4)}",
+        excerpt: "Reference excerpt",
+        body: "Body",
+        user: author
+      )
+      publish_article!(reference)
+
+      published_in_en = Article.create!(
+        title: "Published in EN",
+        slug: "published-en-#{SecureRandom.hex(4)}",
+        excerpt: "Published in EN excerpt",
+        body: "Body",
+        user: author
+      )
+      publish_article!(published_in_en)
+
+      result = Query::Related.call({ user: author, article_id: reference.id, locale: "en" })
+
+      assert_includes result, published_in_en
+      assert_not_includes result, reference
+    end
+
+    private
+
+    def set_translation_status!(article, locale:, status:)
+      translation = article.article_translations.find_or_initialize_by(locale: locale)
+      translation.status = status
+      translation.published_at = status.to_s == "published" ? (article.published_at || Time.current) : nil
+      translation.save!
+    end
   end
 end

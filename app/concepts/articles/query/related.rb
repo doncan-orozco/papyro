@@ -6,7 +6,9 @@ module Articles
       base_scope { Article.all }
 
       pipeline :include_translations,
-               :filter_by_status,
+               :filter_by_locale,
+               :filter_by_publication_status,
+               :filter_by_global_overrides,
                :filter_by_author,
                :exclude_author,
                :exclude_reference_article,
@@ -15,13 +17,20 @@ module Articles
 
       private
 
-      def filter_by_status(current_scope)
-        scope = current_scope
-          .where(articles: { deleted_at: nil, archived_at: nil })
-          .joins(original_translation_join_sql)
-          .where(original_translations: { status: ArticleTranslation.statuses[:published] })
-          .where.not(articles: { published_at: nil })
-        scope || current_scope
+      def filter_by_locale(current_scope)
+        locale = filters[:locale].presence || I18n.locale.to_s
+
+        current_scope.joins(:article_translations)
+                     .where(article_translations: { locale: locale })
+      end
+
+      def filter_by_publication_status(current_scope)
+        current_scope.where(article_translations: { status: ArticleTranslation.statuses[:published] })
+                     .where.not(articles: { published_at: nil })
+      end
+
+      def filter_by_global_overrides(current_scope)
+        current_scope.where(articles: { deleted_at: nil, archived_at: nil })
       end
 
       def filter_by_author(current_scope)
@@ -42,7 +51,7 @@ module Articles
       end
 
       def apply_ordering(current_scope)
-        current_scope
+        current_scope.distinct
       end
 
       def include_translations(current_scope)
@@ -51,10 +60,6 @@ module Articles
 
       def apply_limit(current_scope)
         current_scope
-      end
-
-      def original_translation_join_sql
-        "LEFT JOIN article_translations original_translations ON original_translations.article_id = articles.id AND original_translations.locale = articles.original_locale"
       end
     end
   end
