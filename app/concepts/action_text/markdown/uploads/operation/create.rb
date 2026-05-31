@@ -26,27 +26,12 @@ module ActionText
           end
 
           def attach_upload(markdown:, file:)
-            markdown.uploads.attach([ normalize_attachable(file) ])
+            markdown.uploads.attach(file)
 
-            return Success(markdown) if markdown.save
-
+            Success(markdown.reload)
+          rescue ActiveRecord::RecordInvalid, ArgumentError => error
+            markdown.errors.add(:base, error.message)
             fail_with_model!(markdown)
-          end
-
-          def normalize_attachable(file)
-            return file unless file.respond_to?(:to_h)
-
-            file_hash = if file.respond_to?(:to_unsafe_h)
-              file.to_unsafe_h
-            else
-              file.to_h
-            end
-
-            {
-              io: file_hash.fetch("tempfile"),
-              filename: file_hash.fetch("original_filename"),
-              content_type: file_hash.fetch("content_type")
-            }
           end
         end
       end

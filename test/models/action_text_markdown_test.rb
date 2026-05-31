@@ -17,4 +17,18 @@ class ActionText::MarkdownTest < ActiveSupport::TestCase
 
     assert_predicate markdown, :valid?
   end
+
+  test "to_html sanitizes unsafe tags" do
+    article = Article.create!(title: "Safe", slug: "safe", user: users(:admin))
+    markdown = ActionText::Markdown.new(
+      name: "body",
+      record: article,
+      content: "<script>alert('xss')</script><strong>safe</strong>"
+    )
+
+    html = markdown.to_html
+
+    refute_includes html, "<script>"
+    assert_includes html, "<strong>safe</strong>"
+  end
 end

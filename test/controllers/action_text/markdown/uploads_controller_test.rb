@@ -48,6 +48,34 @@ class ActionText::Markdown::UploadsControllerTest < ActionDispatch::IntegrationT
     assert_predicate article.reload.body.uploads, :attached?
   end
 
+  test "create supports repeated uploads for same markdown attribute" do
+    user = users(:admin)
+    sign_in_as(user)
+    article = Article.create!(
+      title: "Upload Article",
+      slug: "repeat-upload-article-#{SecureRandom.hex(4)}",
+      body: "Body",
+      user: user
+    )
+
+    post action_text_markdown_uploads_path, params: {
+      record_gid: article.to_sgid.to_s,
+      attribute_name: "body",
+      file: Rack::Test::UploadedFile.new(Rails.root.join("public/icon.png"), "image/png")
+    }
+
+    assert_response :created
+
+    post action_text_markdown_uploads_path, params: {
+      record_gid: article.to_sgid.to_s,
+      attribute_name: "body",
+      file: Rack::Test::UploadedFile.new(Rails.root.join("public/icon.png"), "image/png")
+    }
+
+    assert_response :created
+    assert_operator article.reload.body.uploads.attachments.count, :>=, 2
+  end
+
   test "create returns unprocessable entity for invalid markdown attribute" do
     user = users(:admin)
     sign_in_as(user)

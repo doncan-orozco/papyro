@@ -22,7 +22,10 @@ module ActionText
     validates :name, presence: true
 
     def to_html
-      (renderer.try(:call) || renderer).render(content).html_safe
+      raw_html = (renderer.try(:call) || renderer).render(content)
+      sanitized_html = Rails::HTML5::SafeListSanitizer.new.sanitize(raw_html)
+
+      sanitized_html.html_safe
     end
   end
 end

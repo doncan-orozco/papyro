@@ -4,6 +4,7 @@ require "uri"
 
 class ActionText::Markdown::UploadsController < ApplicationController
   allow_unauthenticated_access only: :show
+  helper_method :public_upload_host_options
 
   before_action do
     ActiveStorage::Current.url_options = public_upload_host_options

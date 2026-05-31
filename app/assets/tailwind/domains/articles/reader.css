@@ -18,6 +18,23 @@
     letter-spacing: -0.003ch;
   }
 
+  .article-prose :where(blockquote) {
+    background-color: color-mix(in oklab, var(--color-muted) 72%, transparent);
+    border-inline-start: 0.25rem solid var(--color-primary);
+    border-radius: 0.5rem;
+    color: color-mix(in oklab, var(--color-foreground) 92%, transparent);
+    font-style: italic;
+    padding: 1rem 1.25rem;
+  }
+
+  .article-prose :where(blockquote p) {
+    margin-block: 0;
+  }
+
+  .article-prose :where(blockquote p + p) {
+    margin-top: 0.9rem;
+  }
+
   .article-prose :where(h1, h2, h3, h4, h5, h6) {
     color: var(--color-foreground);
     font-weight: 700;
