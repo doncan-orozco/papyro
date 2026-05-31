@@ -17,11 +17,11 @@ module Views
 
         div(class: cn("max-w-2xl mx-auto mt-32 px-4 text-center", @attrs&.dig(:class)), **attrs_without_class) do
           div(class: "h-20 w-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-8") do
-            render Components::Ui::Icon.new(:alert_triangle, class: "h-8 w-8 text-muted-foreground")
+            render Components::Ui::Icon.new(:alert_triangle, class: "h-8 w-8 text-foreground/80")
           end
 
           h1(class: "text-3xl font-bold tracking-tight mb-4") { t("articles.not_found.title") }
-          p(class: "text-muted-foreground text-lg mb-12") do
+          p(class: "text-foreground/75 text-lg mb-12") do
             t("articles.not_found.description")
           end
 
@@ -31,7 +31,7 @@ module Views
                 t("articles.not_found.more_from_author", author_name: author_name)
               end
             end
-            render Components::Ui::Button.new(as: :a, href: root_path, variant: :outline, size: :lg, class: "w-full sm:w-auto") do
+            render Components::Ui::Button.new(as: :a, href: root_path, variant: :outline, size: :lg, class: "w-full sm:w-auto hover:underline focus-visible:underline") do
               t("articles.not_found.discover")
             end
           end

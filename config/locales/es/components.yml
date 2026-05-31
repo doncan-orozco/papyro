@@ -33,6 +33,7 @@ es:
       
       article_card:
         reading_time: "%{minutes} min de lectura"
+        link_label: "%{title} por %{author}, %{minutes} min de lectura"
         unknown_author: "Autor desconocido"
       
       featured_articles:

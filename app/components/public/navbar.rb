@@ -14,14 +14,14 @@ module Components
               span(
                 role: "img",
                 aria: { label: "Papyro" },
-                class: "size-7 shrink-0 bg-current text-foreground/70 transition-colors duration-500 ease-out group-hover:text-rose-600 dark:group-hover:text-rose-500 [mask-image:url('/icon.svg')] [mask-position:center] [mask-repeat:no-repeat] [mask-size:contain] [-webkit-mask-image:url('/icon.svg')] [-webkit-mask-position:center] [-webkit-mask-repeat:no-repeat] [-webkit-mask-size:contain]"
+                class: "size-7 shrink-0 bg-current text-foreground/80 transition-colors duration-500 ease-out group-hover:text-rose-600 group-focus-visible:text-rose-600 dark:group-hover:text-rose-500 dark:group-focus-visible:text-rose-500 [mask-image:url('/icon.svg')] [mask-position:center] [mask-repeat:no-repeat] [mask-size:contain] [-webkit-mask-image:url('/icon.svg')] [-webkit-mask-position:center] [-webkit-mask-repeat:no-repeat] [-webkit-mask-size:contain]"
               )
-              span(class: "hidden text-sm font-semibold tracking-[0.16em] text-foreground/70 transition-colors duration-500 ease-out group-hover:text-rose-600 dark:group-hover:text-rose-500 sm:inline") { "PAPYRO" }
+              span(class: "hidden text-sm font-semibold tracking-[0.16em] text-foreground/80 transition-colors duration-500 ease-out group-hover:text-rose-600 group-focus-visible:text-rose-600 dark:group-hover:text-rose-500 dark:group-focus-visible:text-rose-500 sm:inline") { "PAPYRO" }
             end
 
             render Components::Ui::Tooltip.new(class: "min-w-0 flex-1") do |tooltip|
               tooltip.trigger(class: "w-full") do
-                div(class: "flex min-w-0 items-center gap-3 rounded-full border border-border bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm opacity-50") do
+                div(class: "flex h-10 min-w-0 items-center gap-3 rounded-full border border-border bg-card/80 px-4 text-sm text-foreground/80 shadow-sm", aria: { disabled: "true" }) do
                   render Components::Ui::Icon.new(:search, class: "h-4 w-4 shrink-0")
                   span(class: "min-w-0 truncate") { t("articles.index.search_placeholder") }
                 end
@@ -38,12 +38,15 @@ module Components
                 href: studio_articles_href,
                 variant: :outline,
                 size: :sm,
-                class: "transition-colors duration-500 hover:border-rose-600 hover:text-rose-600 dark:hover:border-rose-500 dark:hover:text-rose-500",
+                class: "h-10 rounded-full px-4 transition-colors duration-500 hover:border-rose-600 hover:text-rose-600 dark:hover:border-rose-500 dark:hover:text-rose-500",
                 data: { turbo_frame: "_top", turbo_action: "advance" }
               ) { t("components.public.navbar.write") }
 
               render Components::Ui::DropdownMenu.new(class: "relative") do |dropdown|
-                dropdown.trigger(class: "size-8 rounded-full border border-border bg-muted/50 text-foreground text-xs font-bold uppercase tracking-[0.14em] hover:bg-muted/80") do
+                dropdown.trigger(
+                  class: "size-10 rounded-full border border-border bg-muted/70 text-foreground text-xs font-bold uppercase tracking-[0.14em] hover:bg-muted/90 focus-visible:ring-2 focus-visible:ring-ring",
+                  aria: { label: t("components.public.navbar.dropdown.settings") }
+                ) do
                   span(aria: { hidden: "true" }) { avatar_initial }
                 end
 
@@ -74,7 +77,7 @@ module Components
                 link_to(
                   t("components.public.navbar.sign_in"),
                   new_session_path,
-                  class: "px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+                  class: "px-2 py-1.5 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground hover:underline focus-visible:underline focus-visible:ring-2 focus-visible:ring-ring",
                   data: { turbo_frame: "_top", turbo_action: "advance" }
                 )
 

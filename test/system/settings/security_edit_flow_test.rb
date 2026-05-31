@@ -52,6 +52,25 @@ module Settings
       assert_not @user.authenticate("password")
     end
 
+    test "security settings sidebar uses non-color active state cues" do
+      visit edit_settings_security_path
+
+      classes = page.evaluate_script(<<~JS)
+        (() => {
+          const securityLink = Array.from(document.querySelectorAll("a")).find((node) =>
+            node.textContent.trim() === #{I18n.t("users.settings.security.title").to_json}
+          );
+
+          return {
+            securityClass: securityLink ? securityLink.className : ""
+          };
+        })()
+      JS
+
+      assert_includes classes["securityClass"], "ring-1"
+      assert_includes classes["securityClass"], "font-semibold"
+    end
+
     private
 
     def sign_in_with_retry(user)

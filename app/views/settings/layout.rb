@@ -37,7 +37,7 @@ module Views
           href,
           class: cn(
             "block rounded-md px-3 py-2 text-sm font-medium transition-colors",
-            active ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            active ? "bg-muted text-foreground ring-1 ring-border font-semibold" : "text-foreground/80 hover:bg-muted hover:text-foreground hover:underline focus-visible:underline"
           )
         )
       end

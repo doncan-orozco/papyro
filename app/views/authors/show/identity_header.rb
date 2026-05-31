@@ -31,7 +31,7 @@ module Views
             div(class: "flex flex-col gap-5") do
               div(class: "flex flex-col gap-5 md:flex-row md:items-start md:justify-between") do
                 div(class: "space-y-2") do
-                  p(class: "text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground") { "@#{@presenter.username}" }
+                  p(class: "text-xs font-semibold uppercase tracking-[0.2em] text-foreground/80") { "@#{@presenter.username}" }
                   h1(class: "font-serif text-5xl font-semibold tracking-tight text-foreground sm:text-6xl lg:text-7xl") { @presenter.display_name }
                 end
 
@@ -48,7 +48,7 @@ module Views
               end
 
               if @presenter.bio.present?
-                p(class: "max-w-2xl text-lg leading-relaxed text-muted-foreground line-clamp-4") { @presenter.bio }
+                p(class: "max-w-2xl text-lg leading-relaxed text-foreground/75 line-clamp-4") { @presenter.bio }
               end
             end
 

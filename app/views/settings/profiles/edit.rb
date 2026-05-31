@@ -88,7 +88,7 @@ module Views
                             placeholder: t("users.settings.profile.username_placeholder")
                           }
 
-                        p(class: "mt-2 text-sm text-gray-500") do
+                        p(class: "mt-2 text-sm text-foreground/80") do
                           t("users.settings.profile.username_change_hint")
                         end
 
@@ -140,10 +140,10 @@ module Views
                               placeholder: t("users.settings.profile.email_placeholder"),
                               disabled: true,
                               readonly: true,
-                              class: "bg-[#1a1a1a] text-gray-500 cursor-not-allowed"
+                              class: "bg-muted text-foreground/60 cursor-not-allowed"
                             }
 
-                          p(class: "mt-2 text-sm text-gray-500") do
+                          p(class: "mt-2 text-sm text-foreground/80") do
                             t("users.settings.profile.email_locked_hint")
                           end
                         end

@@ -12,7 +12,7 @@ module Views
 
             section(class: "px-4 pb-8 pt-12 sm:pb-10 sm:pt-16") do
               div(class: "mx-auto w-full max-w-3xl") do
-                p(class: "text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground") do
+                p(class: "text-xs font-semibold uppercase tracking-[0.2em] text-foreground/80") do
                   t("pages.about.index.eyebrow")
                 end
 
@@ -20,7 +20,7 @@ module Views
                   t("pages.about.index.title")
                 end
 
-                p(class: "mt-6 text-lg leading-relaxed text-muted-foreground") do
+                p(class: "mt-6 text-lg leading-relaxed text-foreground/75") do
                   t("pages.about.index.intro")
                 end
               end
@@ -32,7 +32,7 @@ module Views
                   h2(class: "font-serif text-2xl font-semibold tracking-tight text-foreground") do
                     t("pages.about.index.philosophy_title")
                   end
-                  p(class: "mt-4 text-base leading-relaxed text-muted-foreground") do
+                  p(class: "mt-4 text-base leading-relaxed text-foreground/75") do
                     t("pages.about.index.philosophy_body")
                   end
                 end
@@ -41,13 +41,13 @@ module Views
                   h2(class: "font-serif text-2xl font-semibold tracking-tight text-foreground") do
                     t("pages.about.index.built_for_title")
                   end
-                  p(class: "mt-4 text-base leading-relaxed text-muted-foreground") do
+                  p(class: "mt-4 text-base leading-relaxed text-foreground/75") do
                     t("pages.about.index.built_for_body")
                   end
                 end
 
                 div(class: "border-t border-border/40 pt-8") do
-                  p(class: "text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground") do
+                  p(class: "text-xs font-semibold uppercase tracking-[0.2em] text-foreground/80") do
                     t("pages.about.index.team_eyebrow")
                   end
 
@@ -61,16 +61,16 @@ module Views
                           "https://www.linkedin.com/in/doncan-orozco",
                           target: "_blank",
                           rel: "noopener noreferrer",
-                          class: "text-muted-foreground hover:text-foreground transition-colors",
-                          aria_label: "LinkedIn"
+                          class: "text-foreground/80 transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:underline",
+                          aria: { label: t("pages.about.index.engineer_linkedin_label") }
                         ) do
                           render Components::Ui::Icon.new(:linkedin, class: "h-4 w-4")
                         end
                       end
-                      p(class: "mt-1 text-sm text-muted-foreground") do
+                      p(class: "mt-1 text-sm text-foreground/80") do
                         t("pages.about.index.engineer_role")
                       end
-                      p(class: "mt-2 text-sm leading-relaxed text-muted-foreground") do
+                      p(class: "mt-2 text-sm leading-relaxed text-foreground/75") do
                         t("pages.about.index.engineer_bio")
                       end
                     end
@@ -84,16 +84,16 @@ module Views
                           "https://www.linkedin.com/in/martha-ol%C3%A1n-067879304",
                           target: "_blank",
                           rel: "noopener noreferrer",
-                          class: "text-muted-foreground hover:text-foreground transition-colors",
-                          aria_label: "LinkedIn"
+                          class: "text-foreground/80 transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:underline",
+                          aria: { label: t("pages.about.index.designer_linkedin_label") }
                         ) do
                           render Components::Ui::Icon.new(:linkedin, class: "h-4 w-4")
                         end
                       end
-                      p(class: "mt-1 text-sm text-muted-foreground") do
+                      p(class: "mt-1 text-sm text-foreground/80") do
                         t("pages.about.index.designer_role")
                       end
-                      p(class: "mt-2 text-sm leading-relaxed text-muted-foreground") do
+                      p(class: "mt-2 text-sm leading-relaxed text-foreground/75") do
                         t("pages.about.index.designer_bio")
                       end
                     end

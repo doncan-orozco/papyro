@@ -73,6 +73,7 @@ es:
         title: "Editar Artículo"
         subtitle: "Concéntrate en escribir. Publica cuando estés listo."
         back_to_articles: "Volver a artículos"
+        locale_selector_label: "Seleccionar idioma del editor"
         trashed_title: "Este artículo está en la papelera"
         trashed_description: "Restáuralo para continuar editando o publicando."
         open_publish: "Publicar"

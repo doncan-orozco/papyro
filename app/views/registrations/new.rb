@@ -10,7 +10,7 @@ module Views
       def view_template
         div(class: "relative min-h-screen bg-background flex items-center justify-center px-4 py-12") do
           link_to root_path(locale: I18n.locale),
-            class: "absolute left-4 top-6 inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground",
+            class: "absolute left-4 top-6 inline-flex items-center text-sm text-foreground/80 transition-colors hover:text-foreground hover:underline focus-visible:underline",
             data: { turbo_frame: "_top", turbo_action: "advance" } do
             plain "← #{t("views.registrations.new.back_to_home")}"
           end
@@ -21,9 +21,9 @@ module Views
                 span(
                   role: "img",
                   aria: { label: "Papyro" },
-                  class: "size-7 shrink-0 bg-current text-foreground/70 transition-colors duration-500 ease-out group-hover:text-rose-600 dark:group-hover:text-rose-500 [mask-image:url('/icon.svg')] [mask-position:center] [mask-repeat:no-repeat] [mask-size:contain] [-webkit-mask-image:url('/icon.svg')] [-webkit-mask-position:center] [-webkit-mask-repeat:no-repeat] [-webkit-mask-size:contain]"
+                  class: "size-7 shrink-0 bg-current text-foreground/80 transition-colors duration-500 ease-out group-hover:text-rose-600 dark:group-hover:text-rose-500 [mask-image:url('/icon.svg')] [mask-position:center] [mask-repeat:no-repeat] [mask-size:contain] [-webkit-mask-image:url('/icon.svg')] [-webkit-mask-position:center] [-webkit-mask-repeat:no-repeat] [-webkit-mask-size:contain]"
                 )
-                span(class: "text-sm font-semibold tracking-[0.16em] text-foreground/70 transition-colors duration-500 ease-out group-hover:text-rose-600 dark:group-hover:text-rose-500") { "PAPYRO" }
+                span(class: "text-sm font-semibold tracking-[0.16em] text-foreground/80 transition-colors duration-500 ease-out group-hover:text-rose-600 dark:group-hover:text-rose-500") { "PAPYRO" }
               end
             end
 
@@ -39,7 +39,7 @@ module Views
               end
 
               card.footer do
-                p(class: "text-xs text-muted-foreground text-center") do
+                p(class: "text-xs text-foreground/80 text-center") do
                   plain "#{t("views.registrations.new.sign_in_prompt")} "
                   link_to t("views.registrations.new.sign_in"), new_session_path, class: "text-primary hover:underline font-medium"
                 end
@@ -74,7 +74,7 @@ module Views
             end
 
             div(class: "relative flex justify-center") do
-              span(class: "bg-card px-3 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground") do
+              span(class: "bg-card px-3 text-xs font-medium uppercase tracking-[0.12em] text-foreground/80") do
                 plain t("views.registrations.new.continue_with_email_divider")
               end
             end

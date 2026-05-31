@@ -116,6 +116,29 @@ module Settings
       assert_current_path %r{/@[^/]+}
     end
 
+    test "profile settings uses contrast-safe helper copy and disabled email semantics" do
+      visit edit_settings_profile_path
+
+      classes = page.evaluate_script(<<~JS)
+        (() => {
+          const usernameHint = Array.from(document.querySelectorAll("p")).find((node) =>
+            node.textContent.trim() === #{I18n.t("users.settings.profile.username_change_hint").to_json}
+          );
+          const emailInput = document.querySelector("input[name='user[email_address]']");
+
+          return {
+            usernameHintClass: usernameHint ? usernameHint.className : "",
+            emailInputClass: emailInput ? emailInput.className : "",
+            emailDisabled: !!(emailInput && emailInput.disabled)
+          };
+        })()
+      JS
+
+      assert_includes classes["usernameHintClass"], "text-foreground/70"
+      assert_includes classes["emailInputClass"], "bg-muted"
+      assert classes["emailDisabled"]
+    end
+
     private
 
     def sign_in_with_retry(user)

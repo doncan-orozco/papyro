@@ -35,7 +35,7 @@ module Views
               placeholder: t("views.passwords.new.email_placeholder")
             }
 
-          p(class: "text-xs text-muted-foreground") do
+          p(class: "text-xs text-foreground/80") do
             t("views.passwords.new.instruction", default: "We will send you an email with instructions to reset your password.")
           end
 

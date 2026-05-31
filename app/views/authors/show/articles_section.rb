@@ -15,7 +15,7 @@ module Views
 
           if @articles.empty?
             div(class: "rounded-lg border border-dashed border-border py-16 text-center") do
-              p(class: "text-muted-foreground text-sm") { t("authors.show.no_articles") }
+              p(class: "text-foreground/80 text-sm") { t("authors.show.no_articles") }
             end
           else
             div(class: "grid grid-cols-1 gap-5 sm:grid-cols-2") do

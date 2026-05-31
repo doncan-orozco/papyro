@@ -11,7 +11,7 @@ module Components
         div(**attrs_without_class) do
           render Components::Ui::DropdownMenu.new do |menu|
             menu.trigger(
-              class: "inline-flex h-8 items-center gap-2 rounded-full border border-border bg-background px-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-foreground/80",
+              class: "inline-flex h-10 items-center gap-2 rounded-full border border-border bg-background px-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-foreground/80",
               aria: { label: t("components.shared.language_toggle.toggle_label") }
             ) do
               render Components::Ui::Icon.new(:globe, class: "size-3.5")

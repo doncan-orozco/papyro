@@ -18,7 +18,7 @@ module Views
               end
 
               card.content(class: "space-y-4") do
-                p(class: "text-sm text-muted-foreground") { t("users.show.display_name_label") }
+                p(class: "text-sm text-foreground/80") { t("users.show.display_name_label") }
                 p(class: "text-base font-medium") { @user.author_display_name }
 
                 if @viewer_user_id == @user.id

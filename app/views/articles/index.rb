@@ -19,7 +19,7 @@ module Views
 
             section(class: "px-4 pb-8 pt-12 sm:pb-10 sm:pt-16") do
               div(class: "mx-auto w-full max-w-6xl") do
-                p(class: "text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground") do
+                p(class: "text-xs font-semibold uppercase tracking-[0.2em] text-foreground/80") do
                   t("articles.index.eyebrow")
                 end
 
@@ -28,12 +28,12 @@ module Views
                     h1(class: "font-serif text-4xl font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl") do
                       t("articles.index.title")
                     end
-                    p(class: "mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg") do
+                    p(class: "mt-4 max-w-2xl text-base leading-relaxed text-foreground/75 sm:text-lg") do
                       t("articles.index.subtitle")
                     end
                   end
 
-                  div(class: "rounded-full border border-border bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm") do
+                  div(class: "rounded-full border border-border bg-card/80 px-4 py-2 text-sm text-foreground/80 shadow-sm") do
                     span(class: "font-medium text-foreground") { @articles.size }
                     plain " "
                     plain t("articles.index.results")

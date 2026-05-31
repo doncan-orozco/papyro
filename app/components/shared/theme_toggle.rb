@@ -22,7 +22,7 @@ module Components
         div(data: { controller: "ui--theme" }, **attrs_without_class) do
           render Components::Ui::DropdownMenu.new do |menu|
             menu.trigger(
-              class: "size-8 p-0",
+              class: "size-10 p-0",
               aria: { label: t("design_system.theme.toggle_label") }
             ) do
               render Components::Ui::Icon.new(:sun, class: "size-4 dark:hidden")

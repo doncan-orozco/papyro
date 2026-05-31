@@ -93,7 +93,7 @@ module Components
       private
 
       def classes
-        "text-sm text-muted-foreground"
+        "text-sm text-foreground/80"
       end
     end
 
