@@ -15,7 +15,7 @@ class MarkdownRendererTest < ActiveSupport::TestCase
 
     html = renderer.image("http://studio.lvh.me:3030/u/token123", nil, "example")
 
-    assert_includes html, "http://lvh.me:3030/u/token123"
+    assert_includes html, "\"/u/token123\""
     refute_includes html, "http://studio.lvh.me:3030/u/token123"
   end
 
@@ -32,7 +32,7 @@ class MarkdownRendererTest < ActiveSupport::TestCase
 
     html = renderer.image("http://studio.lvh.me/u/token123", nil, "example")
 
-    assert_includes html, "http://lvh.me:3030/u/token123"
+    assert_includes html, "\"/u/token123\""
   end
 
   test "image rewrites public lvh upload URL without port" do
@@ -40,7 +40,7 @@ class MarkdownRendererTest < ActiveSupport::TestCase
 
     html = renderer.image("http://lvh.me/u/token123", nil, "example")
 
-    assert_includes html, "http://lvh.me:3030/u/token123"
+    assert_includes html, "\"/u/token123\""
     refute_includes html, "http://lvh.me/u/token123\" alt"
   end
 
@@ -49,6 +49,6 @@ class MarkdownRendererTest < ActiveSupport::TestCase
 
     html = renderer.image("/u/token123?variant=thumb", nil, "example")
 
-    assert_includes html, "http://lvh.me:3030/u/token123?variant=thumb"
+    assert_includes html, "\"/u/token123?variant=thumb\""
   end
 end

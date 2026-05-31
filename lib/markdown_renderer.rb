@@ -32,13 +32,10 @@ class MarkdownRenderer < Redcarpet::Render::HTML
       uri = URI.parse(url)
       return url unless uri.path.start_with?("/u/")
 
-      public_host = Rails.configuration.x.public_host.to_s.sub(%r{/+\z}, "")
-      return url if public_host.blank?
-
       request_path = uri.path.to_s
       request_path += "?#{uri.query}" if uri.query.present?
 
-      "#{public_host}#{request_path}"
+      request_path
     rescue URI::InvalidURIError
       url
     end

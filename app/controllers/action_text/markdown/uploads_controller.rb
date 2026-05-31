@@ -6,11 +6,9 @@ class ActionText::Markdown::UploadsController < ApplicationController
   allow_unauthenticated_access only: :show
   helper_method :public_upload_host_options
 
-  before_action do
-    ActiveStorage::Current.url_options = public_upload_host_options
-  end
-
   def create
+    ActiveStorage::Current.url_options = public_upload_host_options
+
     @record = GlobalID::Locator.locate_signed params[:record_gid]
     authorize @record, :update?
 
@@ -36,7 +34,10 @@ class ActionText::Markdown::UploadsController < ApplicationController
     skip_authorization
     @attachment = ActiveStorage::Attachment.find_by!(slug: attachment_slug_candidates)
     expires_in 1.year, public: true
-    redirect_to @attachment.url, allow_other_host: true
+
+    signed_id = @attachment.blob.signed_id
+    filename = ERB::Util.url_encode(@attachment.blob.filename.to_s)
+    redirect_to "/rails/active_storage/blobs/redirect/#{signed_id}/#{filename}?disposition=inline", allow_other_host: false
   end
 
   private
@@ -61,4 +62,5 @@ class ActionText::Markdown::UploadsController < ApplicationController
       subdomain: ""
     }
   end
+
 end
