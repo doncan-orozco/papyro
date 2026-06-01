@@ -46,42 +46,29 @@ class Users::Operation::UpdateProfileTest < ActiveSupport::TestCase
     assert_predicate @user.profile.portrait, :attached?
   end
 
-  test "persists bio per locale while keeping global fields shared" do
-    english_result = Users::Operation::UpdateProfile.new.call(
+  test "persists bio for all locales in a single call" do
+    en_id = @user.profile.author_profile_translations.find_by(locale: "en")&.id
+
+    result = Users::Operation::UpdateProfile.new.call(
       user: @user,
-      locale: :en,
       params: {
         profile_attributes: {
           display_name: "Shared Name",
           username: "reader_one",
-          bio: "English bio text"
+          author_profile_translations_attributes: {
+            "0" => { id: en_id, locale: "en", bio: "English bio text" },
+            "1" => { locale: "es", bio: "Texto de bio en espanol" }
+          }
         }
       }
     )
 
-    assert_predicate english_result, :success?
-
-    spanish_result = Users::Operation::UpdateProfile.new.call(
-      user: @user,
-      locale: :es,
-      params: {
-        profile_attributes: {
-          display_name: "Shared Name",
-          username: "reader_one",
-          bio: "Texto de bio en espanol"
-        }
-      }
-    )
-
-    assert_predicate spanish_result, :success?
+    assert_predicate result, :success?
 
     @user.reload
 
-    english_bio = Mobility.with_locale(:en) { @user.profile.bio }
-    spanish_bio = Mobility.with_locale(:es) { @user.profile.bio }
-
-    assert_equal "English bio text", english_bio
-    assert_equal "Texto de bio en espanol", spanish_bio
+    assert_equal "English bio text", Mobility.with_locale(:en) { @user.profile.bio }
+    assert_equal "Texto de bio en espanol", Mobility.with_locale(:es) { @user.profile.bio }
     assert_equal "Shared Name", @user.profile.display_name
     assert_equal "reader_one", @user.profile.username
   end

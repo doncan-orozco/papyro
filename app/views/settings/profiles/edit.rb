@@ -7,10 +7,9 @@ module Views
         include Phlex::Rails::Helpers::FormWith
         include Phlex::Rails::Helpers::ImageTag
 
-        def initialize(user:, author_profile_path:, selected_bio_locale:)
+        def initialize(user:, author_profile_path:)
           @user = user
           @author_profile_path = author_profile_path
-          @selected_bio_locale = selected_bio_locale
         end
 
         def view_template
@@ -94,8 +93,7 @@ module Views
                         end
 
                         render Edit::BioLocaleField.new(
-                          profile_form: profile_form,
-                          selected_locale: @selected_bio_locale
+                          profile_form: profile_form
                         )
 
                         profile_form.field :location,

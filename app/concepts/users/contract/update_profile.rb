@@ -8,12 +8,11 @@ module Users
           optional(:display_name).maybe(:string)
           required(:username).filled(:string)
           optional(:portrait).maybe(Types::Any)
-          optional(:bio).maybe(:string)
-          optional(:bio_locale).maybe(:string)
           optional(:location).maybe(:string)
           optional(:website_url).maybe(:string)
           optional(:x_handle).maybe(:string)
           optional(:linkedin_handle).maybe(:string)
+          optional(:author_profile_translations_attributes).maybe(:hash)
         end
       end
     end
