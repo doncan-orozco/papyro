@@ -51,4 +51,17 @@ class MarkdownRendererTest < ActiveSupport::TestCase
 
     assert_includes html, "\"/u/token123?variant=thumb\""
   end
+
+  test "image wraps img with lightbox link attributes" do
+    renderer = MarkdownRenderer.new(ActionText::Markdown::DEFAULT_RENDERER_OPTIONS)
+
+    html = renderer.image("/u/token123", "preview", "example")
+
+    assert_includes html, "<a"
+    assert_includes html, "href=\"/u/token123\""
+    assert_includes html, "data-action=\"lightbox#open:prevent\""
+    assert_includes html, "data-lightbox-url-value=\"/u/token123?disposition=attachment\""
+    assert_includes html, "<img"
+    assert_includes html, "title=\"preview\""
+  end
 end

@@ -22,7 +22,7 @@ class MarkdownRenderer < Redcarpet::Render::HTML
 
   def image(url, title, alt_text)
     normalized_url = normalize_upload_url(url)
-    %(<a title="#{title}" data-action="lightbox#open:prevent" data-lightbox-target="image" data-lightbox-url-value="#{normalized_url}?disposition=attachment" href="#{normalized_url}"><img src="#{normalized_url}" alt="#{alt_text}"></a>)
+    %(<a href="#{normalized_url}" data-action="lightbox#open:prevent" data-lightbox-url-value="#{normalized_url}?disposition=attachment"><img src="#{normalized_url}" alt="#{alt_text}" title="#{title}"></a>)
   end
 
   private

@@ -62,7 +62,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body data-controller="lightbox">
     <%= content_for(:flash) || render(Components::Shared::Flash.new(flash: flash)) %>
     <main id="main-content">
       <%= yield %>
