@@ -9,7 +9,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta property="og:title" content="<%= content_for?(:page_title) ? "#{yield(:page_title)} | Papyro" : "Papyro" %>">
     <meta property="og:description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : t("seo.site_description") %>">
-    <meta property="og:image" content="<%= content_for?(:og_image) ? yield(:og_image) : "#{request.base_url}/icon.png" %>">
+    
+    <meta property="og:image" content="<%= content_for?(:og_image) ? yield(:og_image) : "#{request.base_url}/icon-512.png" %>">
+    
     <meta name="twitter:card" content="summary_large_image">
     <meta property="og:locale" content="<%= og_locale %>">
     <% I18n.available_locales.each do |locale| %>
@@ -24,8 +26,6 @@
       <link rel="alternate" hreflang="x-default" href="<%= x_default_url %>">
     <% end %>
 
-
-
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -34,9 +34,9 @@
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="icon" href="/icon-512.svg" type="image/svg+xml">
+    <link rel="icon" href="/icon-512.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icon-512.png">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%# Restore the user's theme preference before first paint to avoid FOUC %>
