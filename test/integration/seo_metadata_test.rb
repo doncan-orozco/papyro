@@ -8,7 +8,7 @@ class SeoMetadataTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "<meta name=\"description\" content=\"#{ERB::Util.html_escape(I18n.t('seo.default_description', locale: locale))}\">"
     assert_includes response.body, "<meta property=\"og:title\" content=\"#{ERB::Util.html_escape(I18n.t('seo.default_title', locale: locale))}\">"
     assert_includes response.body, "<meta property=\"og:description\" content=\"#{ERB::Util.html_escape(I18n.t('seo.default_description', locale: locale))}\">"
-    assert_select "meta[property='og:image'][content='http://www.example.com/icon.png']", 1
+    assert_select "meta[property='og:image'][content='http://www.example.com/icon-512.png']", 1
     assert_select "meta[name='twitter:card'][content='summary_large_image']", 1
     assert_includes response.body, "<meta property=\"og:locale\" content=\"#{locale == :en ? 'en_US' : 'es_ES'}\">"
     assert_equal I18n.available_locales.size - 1, response.body.scan(/<meta property=\"og:locale:alternate\"/).size

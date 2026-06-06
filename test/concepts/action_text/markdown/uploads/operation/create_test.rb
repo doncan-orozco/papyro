@@ -4,12 +4,24 @@ class ActionText::Markdown::Uploads::Operation::CreateTest < ActiveSupport::Test
   class FakeUploads
     attr_reader :attachments
 
-    def initialize
+    def initialize(markdown)
       @attachments = []
+      @markdown = markdown
     end
 
-    def attach(files)
-      @attachments.concat(files)
+    def attach(file)
+      upload = {
+        io: file["tempfile"],
+        filename: file["original_filename"],
+        content_type: file["content_type"]
+      }
+      @attachments << upload
+
+      unless @markdown.save
+        raise ActiveRecord::RecordInvalid.new(@markdown)
+      end
+
+      upload
     end
   end
 
@@ -21,7 +33,7 @@ class ActionText::Markdown::Uploads::Operation::CreateTest < ActiveSupport::Test
     def initialize(save_result: true)
       super()
       @save_result = save_result
-      @uploads = FakeUploads.new
+      @uploads = FakeUploads.new(self)
     end
 
     def save
@@ -30,7 +42,12 @@ class ActionText::Markdown::Uploads::Operation::CreateTest < ActiveSupport::Test
       errors.add(:base, "upload invalid")
       false
     end
+
+    def reload
+      self
+    end
   end
+
 
   test "attaches upload and returns markdown and upload payload" do
     markdown = FakeMarkdown.new(save_result: true)

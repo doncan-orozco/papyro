@@ -11,6 +11,7 @@ module Studio
       visit studio_articles_url
 
       user_menu_trigger = find(:testid, "studio-user-menu-trigger")
+
       assert_equal I18n.t("components.public.navbar.dropdown.settings"), user_menu_trigger["aria-label"]
 
       within("nav[aria-label]") do
@@ -21,6 +22,7 @@ module Studio
 
       assert_selector "tbody tr td a", minimum: 1
       title_link = first("tbody tr td a")
+
       assert_includes title_link[:class].to_s, "focus-visible:underline"
 
       assert_selector "button[aria-label='#{I18n.t("studio.articles.index.menu_trigger") }']", minimum: 1
@@ -36,9 +38,11 @@ module Studio
 
       menu_trigger = first("button[aria-label='#{I18n.t("studio.articles.index.menu_trigger") }']")
       menu_trigger.click
+
       assert_selector "div[role='menu'][aria-label='#{I18n.t("studio.articles.index.columns.actions") }']", visible: :all
 
       publish_action = find("a", text: I18n.t("studio.articles.index.publish"), exact_text: true, visible: :all)
+
       assert_equal "dialog", publish_action["aria-haspopup"]
       assert_equal "article-publish-sheet", publish_action["aria-controls"]
     end

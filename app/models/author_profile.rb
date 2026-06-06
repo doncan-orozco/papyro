@@ -41,5 +41,4 @@ class AuthorProfile < ApplicationRecord
       slug.destroy if owner && owner.username != username
     end
   end
-
 end

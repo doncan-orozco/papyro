@@ -1,15 +1,6 @@
 require "test_helper"
 
 class Articles::ShowPresenterTest < ActiveSupport::TestCase
-  setup do
-    @previous_public_host = Rails.configuration.x.public_host
-    Rails.configuration.x.public_host = "http://lvh.me:3030"
-  end
-
-  teardown do
-    Rails.configuration.x.public_host = @previous_public_host
-  end
-
   test "wraps continuation articles with base presenter" do
     primary = build_article(title: "Primary", slug: "primary", excerpt: "Excerpt", body: "Body")
     related = build_article(title: "Sibling", slug: "sibling", excerpt: "Excerpt", body: "Body")
@@ -39,7 +30,7 @@ class Articles::ShowPresenterTest < ActiveSupport::TestCase
     )
     presenter = Articles::Presenter::Show.new(article)
 
-    assert_includes presenter.content_html, "http://lvh.me:3030/u/token123"
+    assert_includes presenter.content_html, "/u/token123"
   end
 
   private

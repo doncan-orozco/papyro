@@ -62,5 +62,4 @@ class ActionText::Markdown::UploadsController < ApplicationController
       subdomain: ""
     }
   end
-
 end

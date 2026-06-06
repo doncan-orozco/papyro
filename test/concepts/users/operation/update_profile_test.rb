@@ -72,5 +72,4 @@ class Users::Operation::UpdateProfileTest < ActiveSupport::TestCase
     assert_equal "Shared Name", @user.profile.display_name
     assert_equal "reader_one", @user.profile.username
   end
-
 end

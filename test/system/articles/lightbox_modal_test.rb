@@ -16,10 +16,11 @@ module Articles
 
     test "clicking article image opens lightbox without navigation" do
       visit article_path(@article, locale: :en)
+
       assert_selector "body[data-lightbox-ready='true']"
       starting_url = page.current_url
 
-      find("a[data-action='lightbox#open:prevent']", match: :first).click
+      first("a[data-action='lightbox#open:prevent']").click
 
       assert_selector "dialog.lightbox[open]"
       assert_selector "dialog.lightbox .lightbox__image[src*='/u/token123']"
@@ -31,9 +32,11 @@ module Articles
 
     test "close button closes lightbox" do
       visit article_path(@article, locale: :en)
+
       assert_selector "body[data-lightbox-ready='true']"
 
-      find("a[data-action='lightbox#open:prevent']", match: :first).click
+      first("a[data-action='lightbox#open:prevent']").click
+
       assert_selector "dialog.lightbox[open]"
 
       find("dialog.lightbox .lightbox__btn[aria-label='Close image']").click
@@ -45,9 +48,11 @@ module Articles
 
     test "escape closes lightbox" do
       visit article_path(@article, locale: :en)
+
       assert_selector "body[data-lightbox-ready='true']"
 
-      find("a[data-action='lightbox#open:prevent']", match: :first).click
+      first("a[data-action='lightbox#open:prevent']").click
+
       assert_selector "dialog.lightbox[open]"
 
       find("body").send_keys(:escape)

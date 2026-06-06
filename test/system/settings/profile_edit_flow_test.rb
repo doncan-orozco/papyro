@@ -71,6 +71,7 @@ module Settings
       fill_in "user_profile_attributes_author_profile_translations_attributes_0_bio", with: "English profile bio"
 
       click_button I18n.t("language.name", locale: :es)
+
       assert_selector "#profile-bio-panel-es:not([hidden])"
       fill_in "user_profile_attributes_author_profile_translations_attributes_1_bio", with: "Bio de perfil en espanol"
 
@@ -196,6 +197,5 @@ module Settings
       assert_button submit_label, disabled: false
       click_button submit_label
     end
-
   end
 end

@@ -76,5 +76,4 @@ class AuthorProfileTest < ActiveSupport::TestCase
     assert_equal "Reader biography in English", Mobility.with_locale(:en) { profile.reload.bio }
     assert_equal "Biografia del lector en espanol", Mobility.with_locale(:es) { profile.reload.bio }
   end
-
 end
