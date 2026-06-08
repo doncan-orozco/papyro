@@ -13,7 +13,7 @@
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%# Restore the user's theme preference before first paint to avoid FOUC %>
-    <%= javascript_tag nonce: true do %>
+    <%= javascript_tag nonce: true, data: { turbo_eval: "false" } do %>
       (function(){
         var t=localStorage.getItem("papyro-theme"),d=document.documentElement;
         d.dataset.theme=t||"system";
