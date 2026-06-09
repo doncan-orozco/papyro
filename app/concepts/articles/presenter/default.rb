@@ -45,6 +45,12 @@ module Articles
       def cover_image_attached?
         __getobj__.cover_image.attached?
       end
+
+      def og_image_for_current_locale
+        __getobj__.generated_og_images.find { |img|
+          img.filename.to_s == "og-#{locale}.png"
+        }
+      end
       # Add missing ends for class and modules
     end
   end

@@ -187,4 +187,15 @@ class ArticleTest < ActiveSupport::TestCase
   ensure
     file&.close!
   end
+
+  test "has generated_og_images attachment" do
+    article = @user.articles.create!(
+      title: "Generated OG",
+      slug: "generated-og-#{SecureRandom.hex(4)}",
+      body: "<p>OG attachment test</p>"
+    )
+
+    assert_respond_to article, :generated_og_images
+    assert_not article.generated_og_images.attached?
+  end
 end

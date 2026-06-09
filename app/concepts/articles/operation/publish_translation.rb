@@ -8,6 +8,8 @@ module Articles
       def call(model:, locale:)
         persisted = step publish_translation_with_state_transition(model: model, locale: locale)
 
+        enqueue_og_image_generation(model)
+
         { model: model, translation: persisted }
       end
 
@@ -91,6 +93,12 @@ module Articles
         return Success(translation) if translation.update(status: :published, published_at: Time.current)
 
         fail_with_model!(translation)
+      end
+
+      def enqueue_og_image_generation(article)
+        return if article.cover_image.attached?
+
+        Articles::GenerateOgImageJob.perform_later(article.id)
       end
     end
   end

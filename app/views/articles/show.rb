@@ -11,12 +11,19 @@ module Views
         # Use view_context.content_for to properly bridge with Rails ERB layout
         view_context.content_for(:page_title, @presenter.title)
 
+        view_context.content_for(:og_type, "article")
+
         if @presenter.excerpt.present?
           view_context.content_for(:meta_description, @presenter.excerpt)
         end
 
         if @presenter.cover_image_attached?
-          view_context.content_for(:og_image, view_context.url_for(@presenter.cover_image))
+          view_context.content_for(:og_image, view_context.rails_blob_url(@presenter.cover_image))
+        else
+          localized_image = @presenter.og_image_for_current_locale
+          if localized_image
+            view_context.content_for(:og_image, view_context.rails_blob_url(localized_image))
+          end
         end
 
         if @presenter.translation_fallback?

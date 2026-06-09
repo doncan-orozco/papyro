@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="topGlow" cx="50%" cy="0%" r="70%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.07" />
+      <stop offset="35%" stop-color="#3b82f6" stop-opacity="0.03" />
+      <stop offset="100%" stop-color="#09090b" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="bottomGlow" cx="50%" cy="100%" r="60%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.06" />
+      <stop offset="100%" stop-color="#09090b" stop-opacity="0" />
+    </radialGradient>
+    <style>
+      .pill-bg { fill: rgba(255,255,255,0.04); stroke: rgba(255,255,255,0.15); stroke-width: 1; }
+      .pill-text { font-family: system-ui, -apple-system, 'Inter', sans-serif; font-weight: 700; font-size: 17px; fill: #ffffff; letter-spacing: 0.22em; text-anchor: middle; }
+      .title { font-family: Georgia, 'Times New Roman', serif; font-weight: bold; font-size: 62px; fill: #ffffff; text-anchor: middle; }
+      .author { font-family: system-ui, -apple-system, 'Inter', sans-serif; font-size: 26px; fill: #a1a1aa; text-anchor: middle; }
+      .date { font-family: system-ui, -apple-system, 'Inter', sans-serif; font-size: 26px; fill: #71717a; text-anchor: middle; }
+      .dot { fill: #52525b; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#09090b" />
+
+  <!-- Top radial glow -->
+  <rect width="1200" height="630" fill="url(#topGlow)" />
+
+  <!-- Bottom subtle glow -->
+  <rect width="1200" height="630" fill="url(#bottomGlow)" />
+
+  <!-- Subtle grain/noise overlay (tiny dots for texture) -->
+  <g opacity="0.015">
+    <% (0..50).each do |i| %>
+      <circle cx="<%= rand(1200) %>" cy="<%= rand(630) %>" r="<%= rand(1..2) %>" fill="#ffffff" />
+    <% end %>
+  </g>
+
+  <!-- Papyro pill badge (top center) -->
+  <rect x="532" y="88" width="136" height="36" rx="18" class="pill-bg" />
+  <text x="600" y="112" class="pill-text">PAPYRO</text>
+
+  <!-- Title (centered, Serif, word-wrapped) -->
+  <%
+    title = article.title.to_s.strip
+    max_chars = 34
+    max_lines = 3
+    lines = []
+
+    if title.length <= max_chars
+      lines = [title]
+    else
+      words = title.split(/\s+/)
+      current_line = ""
+      words.each do |word|
+        test_line = current_line.empty? ? word : "#{current_line} #{word}"
+        if test_line.length > max_chars && !current_line.empty?
+          lines << current_line
+          break if lines.length >= max_lines
+          current_line = word
+        else
+          current_line = test_line
+        end
+      end
+      lines << current_line unless current_line.strip.empty? || lines.length >= max_lines
+    end
+
+    # Truncate last line if over max_lines
+    if lines.length > 0 && (title.length > max_chars * max_lines || lines.length > max_lines)
+      lines = lines.first(max_lines)
+      last = lines.last
+      if last.length > max_chars - 3
+        lines[lines.length - 1] = last[0...(max_chars - 3)].strip + "..."
+      else
+        lines[lines.length - 1] = last + "..."
+      end
+    end
+
+    # Dynamic Y positioning
+    line_count = lines.length
+    line_height = 78
+    title_start_y = case line_count
+      when 1 then 340
+      when 2 then 300
+      else 255
+    end
+
+    author_y = title_start_y + (line_count * line_height) + 52
+  %>
+
+  <% lines.each_with_index do |line, idx| %>
+    <text x="600" y="<%= title_start_y + (idx * line_height) %>" class="title"><%= line %></text>
+  <% end %>
+
+  <!-- Author name -->
+  <text x="600" y="<%= author_y %>" class="author">By <%= author_name %></text>
+
+  <!-- Publish date -->
+  <% if publish_date.present? %>
+    <text x="600" y="<%= author_y + 34 %>" class="date"><%= publish_date %></text>
+  <% end %>
+
+  <!-- Subtle bottom divider dots -->
+  <circle cx="580" cy="596" r="1.5" class="dot" />
+  <circle cx="600" cy="596" r="1.5" class="dot" />
+  <circle cx="620" cy="596" r="1.5" class="dot" />
+</svg>

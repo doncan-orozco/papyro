@@ -10,6 +10,8 @@ module Articles
           locale: locale
         )
 
+        enqueue_og_image_generation(persisted_model)
+
         { model: persisted_model }
       end
 
@@ -155,6 +157,12 @@ module Articles
       def restore_publish_attributes(model, previous_published_at:, previous_archived_at:)
         model.published_at = previous_published_at
         model.archived_at = previous_archived_at
+      end
+
+      def enqueue_og_image_generation(article)
+        return if article.cover_image.attached?
+
+        Articles::GenerateOgImageJob.perform_later(article.id)
       end
     end
   end

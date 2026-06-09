@@ -7,5 +7,6 @@ Mobility.configure do
     fallbacks
     locale_accessors
     query
+    dirty
   end
 end

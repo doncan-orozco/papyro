@@ -13,6 +13,8 @@ module Articles
         validated_attributes = step validate_input(model: model, params: normalized_params, locale: locale)
         persisted_article    = step persist_article(model: model, attributes: validated_attributes, generated_slug: generated_slug, locale: locale)
 
+        enqueue_og_image_if_title_changed(persisted_article, normalized_params)
+
         { model: persisted_article }
       end
 
@@ -184,6 +186,14 @@ module Articles
 
       def translation_for_locale(model, locale)
         model.article_translations.find_or_initialize_by(locale: locale.to_s)
+      end
+
+      def enqueue_og_image_if_title_changed(article, params)
+        return unless article.published?
+        return if article.cover_image.attached?
+        return unless params[:title].present? && params[:title].to_s.strip != article.title.to_s.strip
+
+        Articles::GenerateOgImageJob.perform_later(article.id)
       end
     end
   end

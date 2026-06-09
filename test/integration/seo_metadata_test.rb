@@ -173,4 +173,47 @@ class SeoMetadataTest < ActionDispatch::IntegrationTest
     assert_equal 1, response.body.scan(/<script[^>]*type="application\/ld\+json"/).size
     assert_select "meta[name='robots'][content='noindex,follow']", 0
   end
+
+  test "article page uses locale-specific generated og image when no cover image" do
+    article = articles(:published_article)
+
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: StringIO.new(Base64.decode64("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=")),
+      filename: "og-en.png",
+      content_type: "image/png"
+    )
+    ActiveStorage::Attachment.create!(
+      name: "generated_og_images",
+      record: article,
+      blob: blob
+    )
+
+    get article_path(article, locale: :en)
+
+    assert_response :success
+    assert_select "meta[property='og:image']", 1
+    og_image = css_select("meta[property='og:image']").first["content"]
+
+    assert_includes og_image, "/rails/active_storage/"
+    assert_includes og_image, "og-en.png"
+  end
+
+  test "article page uses default og:image when no cover or locale-specific og image exists" do
+    article = Article.create!(
+      title: "No Image Article",
+      slug: "no-image-#{SecureRandom.hex(4)}",
+      excerpt: "No images here",
+      body: "<p>Just text</p>",
+      user: users(:admin)
+    )
+    publish_article!(article)
+
+    get article_path(article, locale: :en)
+
+    assert_response :success
+    assert_select "meta[property='og:image']", 1
+    og_image = css_select("meta[property='og:image']").first["content"]
+
+    assert_equal "http://www.example.com/icon-512.png", og_image
+  end
 end

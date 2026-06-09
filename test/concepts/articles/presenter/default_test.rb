@@ -30,6 +30,20 @@ class Articles::DefaultPresenterTest < ActiveSupport::TestCase
     assert presenters.all?(&:translation_fallback?)
   end
 
+
+  test "og_image_for_current_locale returns nil when no images attached" do
+    article = build_article(
+      title: "OG Locale Check",
+      slug: "og-locale-check",
+      excerpt: "Checking OG locale",
+      body: "Body"
+    )
+    presenter = Articles::Presenter::Default.new(article)
+
+    assert_nil presenter.og_image_for_current_locale,
+      "Should be nil when no generated images are attached"
+  end
+
   private
 
   def build_article(title:, slug:, excerpt:, body:, locale: :en)

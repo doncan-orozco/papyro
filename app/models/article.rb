@@ -19,6 +19,7 @@ class Article < ApplicationRecord
     inverse_of: :pinned_article,
     dependent: :nullify
   has_one_attached :cover_image
+  has_many_attached :generated_og_images
 
   before_validation :ensure_uuid, on: :create
   before_validation :assign_original_locale, on: :create
