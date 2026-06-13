@@ -19,12 +19,26 @@ module Views
                 @presenter.continuation_heading
               end
 
-              nav(class: "grid grid-cols-1 gap-8 sm:grid-cols-2") do
+              nav(class: "grid grid-cols-1 gap-12 sm:grid-cols-2") do
                 @presenter.continuation_articles.each do |related_article|
                   render Components::Landing::ArticleCard.new(
                     article: related_article,
                     data: { turbo_frame: "_top" }
                   )
+                end
+              end
+
+              if @presenter.show_view_all_button?
+                div(class: "mt-12 flex justify-center") do
+                  a(
+                    href: author_path(@presenter.author_username, locale: I18n.locale),
+                    class: "inline-flex items-center justify-center rounded-full border border-border bg-background px-6 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    data: { turbo_frame: "_top" }
+                  ) do
+                    plain t("articles.show.view_all_articles",
+                      count: @presenter.author_total_count,
+                      author: @presenter.author_name)
+                  end
                 end
               end
             end

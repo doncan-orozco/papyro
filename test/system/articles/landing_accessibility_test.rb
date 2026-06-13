@@ -36,7 +36,7 @@ module Articles
 
           if (!card) return null;
 
-          const title = card.querySelector("h3");
+          const title = card.querySelector("h2");
           const media = card.querySelector("[class*='group-focus-visible:scale-105']");
 
           return {

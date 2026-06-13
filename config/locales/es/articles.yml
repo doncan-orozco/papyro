@@ -184,6 +184,7 @@ es:
       search_soon: "Muy Pronto"
       empty_title: "Aún no hay artículos publicados"
       empty_description: "Vuelve pronto para ver nuevo contenido."
+      load_more: "Cargar más historias"
     show:
       by_author: "por %{author}"
       back_to_list: "Volver a Artículos"
@@ -205,6 +206,7 @@ es:
       related_articles: "Artículos relacionados"
       more_from_author: "Más de %{author}"
       more_from_platform: "Más de Papyro"
+      view_all_articles: "Ver todos los %{count} artículos de %{author}"
     errors:
       not_found: "Artículo no encontrado"
       invalid_cover_image_content_type: "La imagen de portada debe ser un archivo PNG, JPEG o WebP"

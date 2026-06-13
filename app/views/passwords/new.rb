@@ -24,7 +24,7 @@ module Views
       private
 
       def render_password_reset_form
-        form_with(model: @user, url: passwords_path, class: "space-y-5", local: true) do |form|
+        form_with(model: @user, url: passwords_path, class: "space-y-5", data: { turbo: false }) do |form|
           form.field :email_address,
             as: :email_field,
             label: t("views.passwords.new.email_label", default: "Email Address"),

@@ -90,7 +90,7 @@ module Views
       end
 
       def render_login_form
-        form_with(model: @user, url: session_path, class: "space-y-5", local: true) do |form|
+        form_with(model: @user, url: session_path, class: "space-y-5", data: { turbo: false }) do |form|
           form.field :email_address,
             as: :email_field,
             label: t("views.sessions.new.email_label"),

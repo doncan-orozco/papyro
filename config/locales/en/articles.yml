@@ -184,6 +184,7 @@ en:
       search_soon: "Coming Soon"
       empty_title: "No published articles yet"
       empty_description: "Come back soon for new content."
+      load_more: "Load more stories"
     show:
       by_author: "by %{author}"
       back_to_list: "Back to Articles"
@@ -205,6 +206,7 @@ en:
       related_articles: "Related Articles"
       more_from_author: "More from %{author}"
       more_from_platform: "More from Papyro"
+      view_all_articles: "See all %{count} articles by %{author}"
     errors:
       not_found: "Article not found"
       invalid_cover_image_content_type: "Cover image must be a PNG, JPEG, or WebP file"

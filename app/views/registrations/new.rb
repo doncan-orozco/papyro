@@ -83,7 +83,7 @@ module Views
       end
 
       def render_registration_form
-        form_with(model: @user, url: sign_up_path, class: "space-y-5", local: true) do |form|
+        form_with(model: @user, url: sign_up_path, class: "space-y-5", data: { turbo: false }) do |form|
           form.field :email_address,
             as: :email_field,
             label: t("views.registrations.new.email_label"),

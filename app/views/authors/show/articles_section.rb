@@ -18,7 +18,7 @@ module Views
               p(class: "text-foreground/80 text-sm") { t("authors.show.no_articles") }
             end
           else
-            div(class: "grid grid-cols-1 gap-5 sm:grid-cols-2") do
+            div(class: "grid grid-cols-1 gap-8 sm:grid-cols-2") do
               @articles.each do |article|
                 render Components::Landing::ArticleCard.new(article: article)
               end

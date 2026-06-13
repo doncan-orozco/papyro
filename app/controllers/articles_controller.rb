@@ -3,11 +3,26 @@ class ArticlesController < ApplicationController
 
   def index
     scoped_articles = policy_scope(Article)
-    articles = Articles::Query::Published.call({}, scope: scoped_articles).limit(6)
-    render Views::Articles::Index.new(
-      articles: articles,
-      show_welcome_hero: Current.user.guest?
+    @pagy, @articles = pagy(
+      Articles::Query::Published.call({}, scope: scoped_articles),
+      limit: 10
     )
+
+    respond_to do |format|
+      format.html do
+        render Views::Articles::Index.new(
+          articles: @articles,
+          show_welcome_hero: Current.user.guest?,
+          pagy: @pagy
+        )
+      end
+      format.turbo_stream do
+        render Views::Articles::LoadMore.new(
+          articles: @articles,
+          pagy: @pagy
+        )
+      end
+    end
   end
 
   def show
@@ -18,20 +33,24 @@ class ArticlesController < ApplicationController
     more_from_author = Articles::Query::Related.call({
       user: @article.user,
       article_id: @article.id,
-      locale: I18n.locale.to_s,
-      limit: 2
-    })
+      locale: I18n.locale.to_s
+    }).limit(4)
     more_from_platform = Articles::Query::Related.call({
       exclude_user_id: @article.user_id,
       article_id: @article.id,
-      locale: I18n.locale.to_s,
-      limit: 2
-    })
+      locale: I18n.locale.to_s
+    }).limit(4)
+
+    @total_author_articles_count = Articles::Query::Related.call({
+      user: @article.user,
+      locale: I18n.locale.to_s
+    }).count
 
     @presenter = ::Articles::Presenter::Show.new(
       @article,
       more_from_author: more_from_author,
       more_from_platform: more_from_platform,
+      author_total_count: @total_author_articles_count,
       locale: I18n.locale
     )
 

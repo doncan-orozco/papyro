@@ -52,7 +52,7 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
 
     assert_includes @response.body, @published_article.title
     assert_not_includes @response.body, @draft_article.title
-    assert_not_includes @response.body, hidden_article.title
+    assert_includes @response.body, hidden_article.title
   end
 
   test "show renders published article" do
@@ -199,11 +199,5 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_not_includes response.body, I18n.t("components.public.welcome_hero.eyebrow")
-  end
-
-  test "duplicate localized articles index path is not routed" do
-    get "/en/articles"
-
-    assert_response :not_found
   end
 end

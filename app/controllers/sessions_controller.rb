@@ -12,7 +12,7 @@ class SessionsController < ApplicationController
 
     if result.success?
       start_new_session_for result.value![:model]
-      redirect_to after_authentication_url, allow_other_host: true
+      redirect_to after_authentication_url, allow_other_host: true, status: :see_other
     else
       return redirect_to new_session_path, alert: result.failure[:message], status: :see_other if result.failure[:code] == :invalid_credentials
 

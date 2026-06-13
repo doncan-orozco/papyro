@@ -35,10 +35,11 @@ module Articles
         }
       end
 
-      def initialize(article, more_from_author: [], more_from_platform: [], locale: I18n.locale)
+      def initialize(article, more_from_author: [], more_from_platform: [], author_total_count: 0, locale: I18n.locale)
         super(article, locale: locale)
         @more_from_author = Default.wrap(more_from_author, locale: locale)
         @more_from_platform = Default.wrap(more_from_platform, locale: locale)
+        @author_total_count = author_total_count
       end
 
 
@@ -52,6 +53,14 @@ module Articles
         else
           I18n.t("articles.show.more_from_platform")
         end
+      end
+
+      def author_total_count
+        @author_total_count || 0
+      end
+
+      def show_view_all_button?
+        @more_from_author.present? && author_total_count > 4
       end
 
       def localized_slug_for(target_locale)

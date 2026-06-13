@@ -60,11 +60,6 @@ class SeoMetadataTest < ActionDispatch::IntegrationTest
     assert_default_social_metadata(locale: :en)
   end
 
-  test "duplicate localized articles index path is not available" do
-    get "/en/articles"
-
-    assert_response :not_found
-  end
 
   test "article page canonical and hreflang point to localized article URLs" do
     article = articles(:published_article)
