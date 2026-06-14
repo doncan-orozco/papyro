@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/doncan-orozco/papyro_studio.git
-  revision: 1cf1fc1a164780282184dd80e4c46cab417b7aed
+  revision: b83d160aa6c05abe5d0e09339958c5682a11bbda
   branch: main
   specs:
     papyro_studio (0.1.0)
@@ -225,7 +225,7 @@ GEM
     jbuilder (2.15.0)
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
-    json (2.19.8)
+    json (2.19.9)
     json-schema (6.2.0)
       addressable (~> 2.8)
       bigdecimal (>= 3.1, < 5)
@@ -284,7 +284,7 @@ GEM
       bigdecimal (>= 3.1, < 5)
     net-http (0.9.1)
       uri (>= 0.11.1)
-    net-imap (0.6.4)
+    net-imap (0.6.4.1)
       date
       net-protocol
     net-pop (0.1.2)
@@ -725,7 +725,7 @@ CHECKSUMS
   io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
   irb (1.18.0) sha256=de9454a0703a54704b9811a5ef31a60c86949fbf4013fcf244fabc7c775248e3
   jbuilder (2.15.0) sha256=fe36cd45b47dd88cb2cbebc3adc4348f041825f580d503578594e8255817f889
-  json (2.19.8) sha256=6354310fd76ef69b87d5bd1f38b40d730613baf90b6803d2d0a48f618d32dfaa
+  json (2.19.9) sha256=9b9025b7cdddafa38d316eca0b2358488e42d417045c1b90d216a9fefe46b79a
   json-schema (6.2.0) sha256=e8bff46ed845a22c1ab2bd0d7eccf831c01fe23bb3920caa4c74db4306813666
   jwt (3.2.0) sha256=5419b1fe37b1da0982bd07051f573a8b8789ab724c2aa7e785e4784a3ed217d7
   kamal (2.11.0) sha256=1408864425e0dec7e0a14d712a3b13f614e9f3a425b7661d3f9d287a51d7dd75
@@ -746,7 +746,7 @@ CHECKSUMS
   msgpack (1.8.0) sha256=e64ce0212000d016809f5048b48eb3a65ffb169db22238fb4b72472fecb2d732
   multi_xml (0.9.1) sha256=7ce766b59c17241ed62976caeae1fae9b2431b263398c35396239a68c4a64e57
   net-http (0.9.1) sha256=25ba0b67c63e89df626ed8fac771d0ad24ad151a858af2cc8e6a716ca4336996
-  net-imap (0.6.4) sha256=9a5598c67a3022c284d98430ef1d4948e7dbdb62596f61081ea8ca933270a02b
+  net-imap (0.6.4.1) sha256=29f0360d75a7efd3539f16ac1957dea5c0a51ddeceb348db4553c3120914ea0d
   net-pop (0.1.2) sha256=848b4e982013c15b2f0382792268763b748cce91c9e91e36b0f27ed26420dff3
   net-protocol (0.2.2) sha256=aa73e0cba6a125369de9837b8d8ef82a61849360eba0521900e2c3713aa162a8
   net-scp (4.1.0) sha256=a99b0b92a1e5d360b0de4ffbf2dc0c91531502d3d4f56c28b0139a7c093d1a5d
