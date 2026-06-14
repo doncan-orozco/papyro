@@ -89,12 +89,15 @@ en:
       form:
         title_label: "Title"
         title_placeholder: "Enter article title"
-        translation_empty_state_title: "Translate to %{locale_name}"
-        translation_empty_state_description: "Start with a blank canvas, or copy the original content and translate line-by-line."
+        translation_empty_state_title: "Auto-Translate to %{locale_name}"
+        translation_empty_state_description: "Generate a complete draft from your original content in seconds. Markdown formatting, links, and images will be perfectly preserved."
         slug_label: "URL Slug"
         slug_locale_hint: "Editing the %{locale_name} URL slug for this version"
         slug_placeholder: "article-url-slug"
         translate_from_original: "Translate from original"
+        translate_with_ai: "Auto-Translate Draft"
+        translating: "Translating..."
+        translation_empty_state_fallback: "Or just start typing below to write from scratch."
         slug_hint: "Auto-generated from title when blank. Draft slugs can refresh from title; published slugs are locked."
         advanced_seo_settings: "Advanced SEO Settings"
         body_label: "Content"
@@ -169,6 +172,11 @@ en:
         unpublish_translation:
           success: "Translation unpublished successfully"
           failure: "Failed to unpublish translation"
+      translations:
+        create:
+          same_locale_error: "Cannot translate an article to its original language."
+          no_content_error: "No content to translate. Write something in the original language first."
+          success: "Translation to %{locale_name} applied. Review and edit as needed."
   articles:
     not_found:
       title: "Story unavailable"

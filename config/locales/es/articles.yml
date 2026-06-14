@@ -89,12 +89,15 @@ es:
       form:
         title_label: "Título"
         title_placeholder: "Ingrese el título del artículo"
-        translation_empty_state_title: "Traducir a %{locale_name}"
-        translation_empty_state_description: "Empieza con un lienzo en blanco o copia el contenido original para traducirlo línea por línea."
+        translation_empty_state_title: "Traducción automática al %{locale_name}"
+        translation_empty_state_description: "Genera un borrador completo a partir de tu contenido original en segundos. El formato Markdown, enlaces e imágenes se conservarán perfectamente."
         slug_label: "Slug de URL"
         slug_locale_hint: "Editando el slug de URL en %{locale_name} para esta versión"
         slug_placeholder: "slug-del-articulo"
         translate_from_original: "Traducir desde el original"
+        translate_with_ai: "Traducir automáticamente"
+        translating: "Traduciendo..."
+        translation_empty_state_fallback: "O simplemente empieza a escribir abajo desde cero."
         slug_hint: "Se genera automáticamente desde el título cuando está vacío. En borrador puede actualizarse con el título; en publicado queda bloqueado."
         advanced_seo_settings: "Configuración SEO avanzada"
         body_label: "Contenido"
@@ -169,6 +172,11 @@ es:
         unpublish_translation:
           success: "Traducción despublicada exitosamente"
           failure: "No se pudo despublicar la traducción"
+      translations:
+        create:
+          same_locale_error: "No se puede traducir un artículo a su idioma original."
+          no_content_error: "No hay contenido para traducir. Escribe algo en el idioma original primero."
+          success: "Traducción al %{locale_name} aplicada. Revisa y edita según necesites."
   articles:
     not_found:
       title: "Historia no disponible"

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "uri"
 
 module PapyroStudioRouteTestHelper
@@ -23,6 +25,10 @@ module PapyroStudioRouteTestHelper
 
   def studio_article_translation_publication_path(*args, **options)
     wrap_studio_route_path(PapyroStudio::Engine.routes.url_helpers.article_translation_publication_path(*args, **options))
+  end
+
+  def studio_article_translation_path(*args, **options)
+    wrap_studio_route_path(PapyroStudio::Engine.routes.url_helpers.article_translation_path(*args, **options))
   end
 
   def studio_article_restoration_path(*args, **options)
