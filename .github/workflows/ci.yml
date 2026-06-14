@@ -84,8 +84,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Install imagemagick
-        run: sudo apt-get update && sudo apt-get install -y imagemagick
+      - name: Install image processing libraries
+        run: sudo apt-get update && sudo apt-get install -y imagemagick libvips
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -114,8 +114,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Install imagemagick
-        run: sudo apt-get update && sudo apt-get install -y imagemagick
+      - name: Install image processing libraries
+        run: sudo apt-get update && sudo apt-get install -y imagemagick libvips
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1

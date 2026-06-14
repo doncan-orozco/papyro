@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "vips"
+
 module Articles
   module Service
     # Generates a PNG Open Graph image for an article by rendering an SVG
