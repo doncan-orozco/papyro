@@ -19,15 +19,7 @@ module Components
               span(class: "hidden text-sm font-semibold tracking-[0.16em] text-foreground/80 transition-colors duration-500 ease-out group-hover:text-rose-600 group-focus-visible:text-rose-600 dark:group-hover:text-rose-500 dark:group-focus-visible:text-rose-500 sm:inline") { "PAPYRO" }
             end
 
-            render Components::Ui::Tooltip.new(class: "min-w-0 flex-1") do |tooltip|
-              tooltip.trigger(class: "w-full") do
-                div(class: "flex h-10 min-w-0 items-center gap-3 rounded-full border border-border bg-card/80 px-4 text-sm text-foreground/80 shadow-sm", aria: { disabled: "true" }) do
-                  render Components::Ui::Icon.new(:search, class: "h-4 w-4 shrink-0")
-                  span(class: "min-w-0 truncate") { t("articles.index.search_placeholder") }
-                end
-              end
-              tooltip.content { t("articles.index.search_soon") }
-            end
+            render Components::Public::SearchForm.new(class: "min-w-0 flex-1")
 
             render Components::Shared::LanguageToggle.new
             render Components::Shared::ThemeToggle.new

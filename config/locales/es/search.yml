@@ -1,0 +1,8 @@
+es:
+  search:
+    results:
+      authors: "Autores"
+      articles: "Artículos"
+      empty_title: "No se encontraron resultados para '%{query}'"
+      empty_description: "Prueba con otro término de búsqueda o explora los últimos artículos."
+      browse_latest: "Explorar últimos artículos"

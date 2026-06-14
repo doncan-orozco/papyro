@@ -44,6 +44,7 @@ Rails.application.routes.draw do
       resources :articles, only: [ :index, :show ], param: :slug
 
       get "about", to: "about#index", as: :about
+      get "search" => "search#show", as: :search
     end
 
     # Public author portfolio — non-localized vanity URL.

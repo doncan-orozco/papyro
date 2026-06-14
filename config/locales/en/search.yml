@@ -1,0 +1,8 @@
+en:
+  search:
+    results:
+      authors: "Authors"
+      articles: "Articles"
+      empty_title: "No results found for '%{query}'"
+      empty_description: "Try a different search term or browse latest articles."
+      browse_latest: "Browse latest articles"
