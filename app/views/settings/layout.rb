@@ -12,10 +12,15 @@ module Views
           render Components::Public::Navbar.new
 
           div(class: "mx-auto w-full max-w-4xl px-4 py-10") do
+            h1(class: "text-2xl font-bold tracking-tight mb-6") { t("users.settings.title") }
+
             div(class: "flex flex-col gap-8 md:flex-row md:gap-12") do
               aside(class: "w-full shrink-0 md:w-48") do
                 nav(class: "flex flex-row gap-1 md:flex-col") do
+                  sidebar_section_header(t("users.settings.sidebar.public"))
                   sidebar_link(t("users.settings.profile.title"), edit_settings_profile_path, :profile)
+
+                  sidebar_section_header(t("users.settings.sidebar.account"))
                   sidebar_link(t("users.settings.security.title"), edit_settings_security_path, :security)
                 end
               end
@@ -40,6 +45,10 @@ module Views
             active ? "bg-muted text-foreground ring-1 ring-border font-semibold" : "text-foreground/80 hover:bg-muted hover:text-foreground hover:underline focus-visible:underline"
           )
         )
+      end
+
+      def sidebar_section_header(label)
+        span(class: "hidden md:block px-3 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70") { label }
       end
     end
   end

@@ -59,6 +59,12 @@ en:
         email_locked_hint: "For security reasons, your email address cannot be changed."
         submit: "Save changes"
         cancel: "Cancel"
+
+      title: "Settings"
+      sidebar:
+        public: "Public"
+        account: "Account"
+
       security:
         title: "Security"
         description: "Update your password"

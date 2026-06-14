@@ -59,6 +59,12 @@ es:
         email_locked_hint: "Por motivos de seguridad, tu correo electrónico no se puede cambiar."
         submit: "Guardar cambios"
         cancel: "Cancelar"
+
+      title: "Configuración"
+      sidebar:
+        public: "Público"
+        account: "Cuenta"
+
       security:
         title: "Seguridad"
         description: "Actualiza tu contraseña"
