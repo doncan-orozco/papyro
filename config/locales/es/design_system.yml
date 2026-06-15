@@ -96,7 +96,7 @@ es:
         info_title: "Atención"
         info_body: "Una nueva versión está programada para el viernes."
         destructive_title: "Acción requerida"
-        destructive_body: "Tu sesión expiró. Inicia sesión de nuevo."
+        destructive_body: "Tu sesión ha expirado. Por favor, inicia sesión de nuevo."
     data_display:
       table:
         title: "Tabla"
@@ -118,7 +118,7 @@ es:
         step_three: "Lanzamiento"
       skeleton:
         title: "Skeletons"
-        description: "Placeholders de carga para mantener el ritmo."
+        description: "Indicadores de carga para mantener la estructura visual."
       icon:
         title: "Icono"
         description: "Icono SVG independiente renderizado por Components::Ui::Icon"

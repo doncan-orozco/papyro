@@ -3,16 +3,16 @@ es:
   email_verifications_mailer:
     verify:
       subject: "Verifica tu correo electrónico"
-      greeting: "Hola %{email},"
-      instructions: "Confirma tu correo electrónico para habilitar la publicación en Papyro."
+      greeting: "Hola %{email}:"
+      instructions: "Por favor, confirma tu correo electrónico para empezar a publicar en Papyro."
       link_text: "Verificar correo"
       expiry_notice: "Este enlace expira en 48 horas."
-      ignore_notice: "Si no creaste esta cuenta, puedes ignorar este correo."
+      ignore_notice: "Si no creaste esta cuenta, simplemente ignora este correo."
   passwords_mailer:
     reset:
       subject: "Restablece tu contraseña"
-      greeting: "Hola %{email},"
-      instructions: "Alguien solicitó un restablecimiento de contraseña para tu cuenta. Si fuiste tú, haz clic en el enlace a continuación para restablecer tu contraseña:"
+      greeting: "Hola %{email}:"
+      instructions: "Alguien solicitó restablecer tu contraseña. Si fuiste tú, haz clic en el siguiente enlace:"
       link_text: "Restablecer contraseña"
-      expiry_notice: "Este enlace expirará en 24 horas."
-      ignore_notice: "Si no solicitaste un restablecimiento de contraseña, puedes ignorar este correo de forma segura."
+      expiry_notice: "Este enlace expira en 24 horas."
+      ignore_notice: "Si no solicitaste este cambio, simplemente ignora este correo."

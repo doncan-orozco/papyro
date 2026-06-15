@@ -16,7 +16,7 @@ es:
     landing:
       hero:
         title: "Doncan Orozco"
-        subtitle: "Desarrollador Full-Stack & Arquitecto de Soluciones"
+        subtitle: "Desarrollador Full-Stack y Arquitecto de Soluciones"
         description: "¡Hola! Me apasiona construir soluciones elegantes con Ruby on Rails y contribuir a la comunidad de código abierto. Me especializo en crear aplicaciones escalables y compartir conocimiento a través de artículos y proyectos."
         cta: "Leer Mis Artículos"
       
@@ -59,8 +59,8 @@ es:
           confirm_sign_out: "¿Estás seguro de que quieres cerrar sesión?"
       welcome_hero:
         eyebrow: "Bienvenido a Papyro"
-        title: "Un hogar editorial tranquilo para ideas que vale la pena leer"
-        description: "Únete a una comunidad creciente de escritores y lectores con criterio. Sin algoritmos, sin ruido: solo tus ideas, bellamente presentadas."
+        title: "Un refugio editorial para las ideas que valen la pena."
+        description: "Únete a una comunidad creciente de escritores y lectores con criterio. Sin algoritmos, sin ruido: solo tus ideas, con un diseño impecable."
         primary_cta: "Empieza a escribir gratis"
         secondary_cta: "Iniciar sesión"
         preview_badge: "Vista previa del editor"

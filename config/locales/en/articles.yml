@@ -188,7 +188,7 @@ en:
       title: "Find your next deep read"
       subtitle: "A curated slice of recent writing designed for browsing, pausing, and following the threads that matter to you."
       results: "stories selected"
-      search_placeholder: "Search across essays, notes, and topics"
+      search_placeholder: "What would you like to read about today?"
       search_soon: "Coming Soon"
       empty_title: "No published articles yet"
       empty_description: "Come back soon for new content."
