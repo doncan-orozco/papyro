@@ -23,8 +23,8 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_includes @response.body, "Find your next deep read"
-    assert_includes @response.body, "Search across essays, notes, and topics"
+    assert_includes @response.body, I18n.t("articles.index.title")
+    assert_includes @response.body, I18n.t("articles.index.search_placeholder")
   end
 
   test "index lists only published articles" do
