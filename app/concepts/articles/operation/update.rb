@@ -63,7 +63,7 @@ module Articles
 
       def persist_article(model:, attributes:, generated_slug:, locale:)
         body_provided = attributes.key?(:body)
-        body_content = attributes[:body]
+        body_content = attributes[:body].presence || ""
 
         model.assign_attributes(attributes.except(:status, :body))
         attempts = 0

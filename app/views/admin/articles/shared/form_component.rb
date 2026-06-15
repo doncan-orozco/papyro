@@ -19,7 +19,7 @@ module Views
               hint: t("admin.articles.form.title_hint", default: nil),
               options: {
                 required: true,
-                autofocus: true,
+                autofocus: false,
                 placeholder: t("admin.articles.form.title_placeholder")
               }
 

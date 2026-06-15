@@ -14,7 +14,7 @@ module ActionText
         end
 
         define_method("#{name}=") do |content|
-          public_send(name).content = content
+          public_send(name).content = content.presence || ""
         end
 
         has_one :"markdown_#{name}", -> { where(name: name) },
