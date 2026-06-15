@@ -51,7 +51,33 @@ module Articles
           img.filename.to_s == "og-#{locale}.png"
         }
       end
-      # Add missing ends for class and modules
+
+      def title
+        translation = loaded_translation
+        return translation.title if translation&.title.present?
+        super()
+      end
+
+      def excerpt
+        translation = loaded_translation
+        return translation.excerpt if translation
+        super()
+      end
+
+      def cover_image_caption
+        translation = loaded_translation
+        return translation.cover_image_caption if translation
+        super()
+      end
+
+      private
+
+      def loaded_translation
+        translations = __getobj__.translations
+        return nil unless translations.respond_to?(:loaded?) && translations.loaded?
+
+        translations.find { |t| t.locale.to_s == @locale.to_s }
+      end
     end
   end
 end

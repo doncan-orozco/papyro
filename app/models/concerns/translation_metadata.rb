@@ -31,6 +31,10 @@ module TranslationMetadata
   end
 
   def all_translations
-    send("#{self.class.name.underscore}_translations")
+    if respond_to?(:translations) && association(:translations).loaded?
+      translations
+    else
+      send("#{self.class.name.underscore}_translations")
+    end
   end
 end

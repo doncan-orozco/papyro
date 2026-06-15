@@ -3,10 +3,11 @@ class ArticlesController < ApplicationController
 
   def index
     scoped_articles = policy_scope(Article)
-    @pagy, @articles = pagy(
+    @pagy, raw_articles = pagy(
       Articles::Query::Published.call({}, scope: scoped_articles),
       limit: 10
     )
+    @articles = Articles::Presenter::Default.wrap(raw_articles, locale: I18n.locale)
 
     respond_to do |format|
       format.html do

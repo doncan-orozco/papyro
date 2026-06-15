@@ -30,7 +30,7 @@ module Articles
       end
 
       def include_translations(current_scope)
-        current_scope.eager_load(:article_translations)
+        current_scope.preload(:translations).includes({user: :profile}, :markdown_body, cover_image_attachment: :blob)
       end
 
       def apply_ordering(current_scope)

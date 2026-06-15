@@ -55,6 +55,13 @@ Rails.application.configure do
   # Bullet — detect N+1 queries but don't raise (tests should focus on correctness)
   config.after_initialize do
     Bullet.enable = true
+    Bullet.bullet_logger = true
     Bullet.rails_logger = true
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "ActiveStorage::Attachment", association: :record
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "Article", association: :translations
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "Article", association: :user
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "Article", association: :markdown_body
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "Article", association: :cover_image_attachment
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "User", association: :profile
   end
 end
