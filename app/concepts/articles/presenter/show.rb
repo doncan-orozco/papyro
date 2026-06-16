@@ -75,7 +75,7 @@ module Articles
       def content_markdown
         return __getobj__.body.content.to_s if content_locale_for_display == original_locale.to_s
 
-        translation = __getobj__.article_translations.find { |entry| entry.locale == content_locale_for_display }
+        translation = __getobj__.translations.find { |entry| entry.locale == content_locale_for_display }
         translation&.content.presence || __getobj__.body.content.to_s
       end
 

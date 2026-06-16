@@ -4,12 +4,12 @@ class AuthorProfile < ApplicationRecord
 
   translates :bio, backend: :table
 
+  accepts_nested_attributes_for :translations, allow_destroy: true
+
   friendly_id :username, use: %i[slugged history finders], slug_column: :username
 
   belongs_to :user, inverse_of: :profile
   belongs_to :pinned_article, class_name: "Article", optional: true
-  has_many :author_profile_translations, inverse_of: :author_profile, dependent: :destroy
-  accepts_nested_attributes_for :author_profile_translations
   has_one_attached :portrait
 
   before_validation :prepare_and_free_username, prepend: true, if: :will_save_change_to_username?

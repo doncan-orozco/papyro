@@ -10,7 +10,7 @@ module Articles
         excerpt: "Lightbox behavior coverage",
         body: "![Cloud image](/u/token123)"
       )
-      @article.article_translations.find_by!(locale: "en").update!(status: :published, published_at: Time.current)
+      @article.translations.find_by!(locale: "en").update!(status: :published, published_at: Time.current)
       @article.update!(published_at: Time.current)
     end
 

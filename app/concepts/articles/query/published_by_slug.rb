@@ -14,21 +14,21 @@ module Articles
       private
 
       def join_translations(current_scope)
-        current_scope.joins(:article_translations).includes(user: :profile)
+        current_scope.joins(:translations).includes(user: :profile)
       end
 
       def filter_by_slug(current_scope)
         slug = filters[:slug].to_s
         return current_scope.none if slug.blank?
 
-        current_scope.where(article_translations: { slug: slug, status: ArticleTranslation.statuses[:published] })
+        current_scope.where(translations: { slug: slug, status: Article::Translation.statuses[:published] })
       end
 
       def filter_by_locale(current_scope)
         locale = filters[:locale].to_s
         return current_scope if locale.blank?
 
-        current_scope.where(article_translations: { locale: locale })
+        current_scope.where(translations: { locale: locale })
       end
 
       def filter_by_publication_status(current_scope)

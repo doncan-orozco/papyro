@@ -16,12 +16,12 @@ module Articles
       def filter_by_locale(current_scope)
         locale = filters[:locale] || I18n.locale.to_s
 
-        current_scope.joins(:article_translations)
-                     .where(article_translations: { locale: locale })
+        current_scope.joins(:translations)
+                     .where(translations: { locale: locale })
       end
 
       def filter_by_publication_status(current_scope)
-        current_scope.where(article_translations: { status: ArticleTranslation.statuses[:published] })
+        current_scope.where(translations: { status: Article::Translation.statuses[:published] })
                      .where.not(articles: { published_at: nil })
       end
 

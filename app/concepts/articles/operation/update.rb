@@ -185,7 +185,7 @@ module Articles
       end
 
       def translation_for_locale(model, locale)
-        model.article_translations.find_or_initialize_by(locale: locale.to_s)
+        model.translations.find_or_initialize_by(locale: locale.to_s)
       end
 
       def enqueue_og_image_if_title_changed(article, params)

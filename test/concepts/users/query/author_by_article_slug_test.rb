@@ -4,7 +4,7 @@ module Users
   class AuthorByArticleSlugTest < ActiveSupport::TestCase
     test "returns the article author for a translation slug" do
       article = articles(:published_article)
-      slug = article.article_translations.find_by(locale: article.original_locale)&.slug
+      slug = article.translations.find_by(locale: article.original_locale)&.slug
 
       result = Query::AuthorByArticleSlug.call({ slug: slug })
 

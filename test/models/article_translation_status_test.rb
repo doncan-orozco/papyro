@@ -10,7 +10,7 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
       body: "<p>Content</p>",
       user: @user
     )
-    @translation = @article.article_translations.find_by(locale: @article.original_locale)
+    @translation = @article.translations.find_by(locale: @article.original_locale)
   end
 
   test "translation starts in draft status" do
@@ -43,7 +43,7 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user
-    ).article_translations.first
+    ).translations.first
 
     published = Article.create!(
       title: "Published Article",
@@ -52,7 +52,7 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user
-    ).article_translations.first
+    ).translations.first
     published.update!(status: :published, published_at: Time.current)
 
     in_review = Article.create!(
@@ -61,25 +61,25 @@ class ArticleTranslationStatusTest < ActiveSupport::TestCase
       excerpt: "Summary",
       body: "<p>Content</p>",
       user: @user
-    ).article_translations.first
+    ).translations.first
     in_review.update!(status: :in_review)
 
-    assert_includes ArticleTranslation.where(status: :published), published
-    assert_not_includes ArticleTranslation.where(status: :published), draft1
-    assert_not_includes ArticleTranslation.where(status: :published), in_review
+    assert_includes Article::Translation.where(status: :published), published
+    assert_not_includes Article::Translation.where(status: :published), draft1
+    assert_not_includes Article::Translation.where(status: :published), in_review
 
-    assert_includes ArticleTranslation.where(status: :draft), draft1
-    assert_includes ArticleTranslation.where(status: :draft), draft2
-    assert_not_includes ArticleTranslation.where(status: :draft), published
+    assert_includes Article::Translation.where(status: :draft), draft1
+    assert_includes Article::Translation.where(status: :draft), draft2
+    assert_not_includes Article::Translation.where(status: :draft), published
 
-    assert_includes ArticleTranslation.where(status: :in_review), in_review
-    assert_not_includes ArticleTranslation.where(status: :in_review), published
+    assert_includes Article::Translation.where(status: :in_review), in_review
+    assert_not_includes Article::Translation.where(status: :in_review), published
   end
 
   test "published status where clause works" do
-    published = @article.article_translations.first
+    published = @article.translations.first
     published.update!(status: :published, published_at: Time.current)
 
-    assert_includes ArticleTranslation.where(status: :published), published
+    assert_includes Article::Translation.where(status: :published), published
   end
 end

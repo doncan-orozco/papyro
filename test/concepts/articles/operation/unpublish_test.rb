@@ -14,10 +14,10 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
     publish_article!(article)
 
     # Ensure translation is published
-    english_translation = article.article_translations.find_by(locale: article.original_locale)
+    english_translation = article.translations.find_by(locale: article.original_locale)
     english_translation.update!(status: :published, published_at: Time.current)
 
-    spanish_translation = article.article_translations.create!(
+    spanish_translation = article.translations.create!(
       locale: :es,
       title: "Articulo de prueba",
       status: :published,
@@ -52,7 +52,7 @@ class Articles::Operation::UnpublishTest < ActiveSupport::TestCase
 
     publish_article!(article)
 
-    article.article_translations.delete_all
+    article.translations.delete_all
 
     result = Articles::Operation::Unpublish.new.call(model: article)
 

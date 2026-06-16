@@ -18,7 +18,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     assert_not_nil result.value![:model].published_at
 
     # Verify original locale translation is also published
-    original_translation = article.article_translations.find_by(locale: article.original_locale)
+    original_translation = article.translations.find_by(locale: article.original_locale)
 
     # Verify new translation status enum is set
     assert_predicate original_translation.reload, :published?
@@ -47,7 +47,7 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     assert_equal "es", article.reload.original_locale
     assert_predicate article, :published?
 
-    original_translation = article.article_translations.find_by(locale: "es")
+    original_translation = article.translations.find_by(locale: "es")
 
     assert_predicate original_translation.reload, :published?
   end

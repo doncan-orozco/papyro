@@ -290,8 +290,8 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     end
 
     article.update!(original_locale: "en")
-    article.article_translations.find_by!(locale: "en").update!(status: :published)
-    article.article_translations.find_by!(locale: "es").update!(status: :draft)
+    article.translations.find_by!(locale: "en").update!(status: :published)
+    article.translations.find_by!(locale: "es").update!(status: :draft)
 
     result = I18n.with_locale(:es) do
       Articles::Operation::Update.new.call(
@@ -326,8 +326,8 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     end
 
     article.update!(original_locale: "es")
-    article.article_translations.find_by!(locale: "en").update!(status: :draft)
-    article.article_translations.find_by!(locale: "es").update!(status: :published)
+    article.translations.find_by!(locale: "en").update!(status: :draft)
+    article.translations.find_by!(locale: "es").update!(status: :published)
 
     result = I18n.with_locale(:es) do
       Articles::Operation::Update.new.call(
@@ -363,8 +363,8 @@ class Articles::Operation::UpdateTest < ActiveSupport::TestCase
     end
 
     article.update!(original_locale: "en")
-    article.article_translations.find_by!(locale: "en").update!(status: :published)
-    article.article_translations.find_by!(locale: "es").update!(status: :published)
+    article.translations.find_by!(locale: "en").update!(status: :published)
+    article.translations.find_by!(locale: "es").update!(status: :published)
 
     result = I18n.with_locale(:es) do
       Articles::Operation::Update.new.call(

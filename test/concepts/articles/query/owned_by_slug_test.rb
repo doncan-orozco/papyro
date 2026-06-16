@@ -16,7 +16,7 @@ module Articles
         article.update!(title: "Owner ES", slug: "owner-es-#{SecureRandom.hex(3)}")
       end
 
-      spanish_slug = article.article_translations.find_by!(locale: "es").slug
+      spanish_slug = article.translations.find_by!(locale: "es").slug
 
       result = Query::OwnedBySlug.call({ slug: spanish_slug, locale: "es", user: owner })
 

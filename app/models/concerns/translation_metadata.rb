@@ -21,20 +21,6 @@ module TranslationMetadata
   private
 
   def translation_for(loc)
-    translations = all_translations
-
-    if translations.respond_to?(:loaded?) && translations.loaded?
-      translations.find { |translation| translation.locale == loc.to_s }
-    else
-      translations.find_by(locale: loc.to_s)
-    end
-  end
-
-  def all_translations
-    if respond_to?(:translations) && association(:translations).loaded?
-      translations
-    else
-      send("#{self.class.name.underscore}_translations")
-    end
+    translations.find_by(locale: loc.to_s)
   end
 end

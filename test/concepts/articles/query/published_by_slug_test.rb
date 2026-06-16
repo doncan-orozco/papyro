@@ -17,11 +17,11 @@ module Articles
       I18n.with_locale(:es) do
         article.update!(title: "Titulo ES", slug: "titulo-es-#{SecureRandom.hex(3)}")
       end
-      article.article_translations.find_by!(locale: "en").update!(status: :published, published_at: article.published_at)
-      article.article_translations.find_by!(locale: "es").update!(status: :published, published_at: article.published_at)
+      article.translations.find_by!(locale: "en").update!(status: :published, published_at: article.published_at)
+      article.translations.find_by!(locale: "es").update!(status: :published, published_at: article.published_at)
 
-      english_slug = article.article_translations.find_by!(locale: "en").slug
-      spanish_slug = article.article_translations.find_by!(locale: "es").slug
+      english_slug = article.translations.find_by!(locale: "en").slug
+      spanish_slug = article.translations.find_by!(locale: "es").slug
 
       english_result = Query::PublishedBySlug.call({ slug: english_slug, locale: "en" })
       spanish_result = Query::PublishedBySlug.call({ slug: spanish_slug, locale: "es" })

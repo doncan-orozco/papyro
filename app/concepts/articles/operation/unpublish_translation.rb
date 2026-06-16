@@ -53,7 +53,7 @@ module Articles
       end
 
       def find_translation(model:, locale:)
-        translation = model.article_translations.find_by(locale: locale.to_s)
+        translation = model.translations.find_by(locale: locale.to_s)
         return Success(translation) if translation.present?
 
         fail_with_business_error!(model, I18n.t("errors.messages.translation_not_found"))

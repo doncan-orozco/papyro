@@ -155,7 +155,7 @@ module Articles
     private
 
     def set_translation_status!(article, locale:, status:)
-      translation = article.article_translations.find_or_initialize_by(locale: locale)
+      translation = article.translations.find_or_initialize_by(locale: locale)
       translation.status = status
       translation.published_at = status.to_s == "published" ? (article.published_at || Time.current) : nil
       translation.save!

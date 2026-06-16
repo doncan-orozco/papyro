@@ -12,7 +12,7 @@ class ArticleArchiveVisibilityTest < ActiveSupport::TestCase
       user: @user
     )
     # Ensure translation is published
-    @translation = @article.article_translations.find_by(locale: @article.original_locale)
+    @translation = @article.translations.find_by(locale: @article.original_locale)
     @translation.update!(status: :published, published_at: Time.current)
   end
 

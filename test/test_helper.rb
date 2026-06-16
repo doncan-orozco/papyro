@@ -19,6 +19,8 @@ module ActiveSupport
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
+    set_fixture_class article_translations: Article::Translation
+    set_fixture_class author_profile_translations: AuthorProfile::Translation
     include ArticlePublicationTestHelper
     include PresenterTestHelper
 

@@ -18,7 +18,7 @@ module ArticlePublicationTestHelper
 
       if result_article.published_at != published_at
         result_article.update_column(:published_at, published_at)
-        result_article.article_translations.find_by!(locale: result_article.original_locale)
+        result_article.translations.find_by!(locale: result_article.original_locale)
           .update_column(:published_at, published_at)
       end
 

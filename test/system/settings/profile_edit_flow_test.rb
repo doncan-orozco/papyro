@@ -50,14 +50,14 @@ module Settings
       visit edit_settings_profile_path
 
       fill_in I18n.t("users.settings.profile.display_name_label"), with: "New Name"
-      fill_in "user_profile_attributes_author_profile_translations_attributes_0_bio", with: "Software developer and writer"
+      fill_in "user_profile_attributes_translations_attributes_0_bio", with: "Software developer and writer"
       fill_in I18n.t("users.settings.profile.location_label"), with: "San Francisco, CA"
       fill_in I18n.t("users.settings.profile.website_url_label"), with: "https://example.com"
       fill_in I18n.t("users.settings.profile.x_handle_label"), with: "janedeveloper"
       fill_in I18n.t("users.settings.profile.linkedin_handle_label"), with: "jane-developer"
 
       assert_field I18n.t("users.settings.profile.display_name_label"), with: "New Name"
-      assert_field "user_profile_attributes_author_profile_translations_attributes_0_bio", with: "Software developer and writer"
+      assert_field "user_profile_attributes_translations_attributes_0_bio", with: "Software developer and writer"
       assert_field I18n.t("users.settings.profile.location_label"), with: "San Francisco, CA"
       assert_field I18n.t("users.settings.profile.website_url_label"), with: "https://example.com"
       assert_field I18n.t("users.settings.profile.x_handle_label"), with: "janedeveloper"
@@ -68,12 +68,12 @@ module Settings
       visit edit_settings_profile_path
 
       assert_selector "#profile-bio-panel-en:not([hidden])"
-      fill_in "user_profile_attributes_author_profile_translations_attributes_0_bio", with: "English profile bio"
+      fill_in "user_profile_attributes_translations_attributes_0_bio", with: "English profile bio"
 
       click_button I18n.t("language.name", locale: :es)
 
       assert_selector "#profile-bio-panel-es:not([hidden])"
-      fill_in "user_profile_attributes_author_profile_translations_attributes_1_bio", with: "Bio de perfil en espanol"
+      fill_in "user_profile_attributes_translations_attributes_1_bio", with: "Bio de perfil en espanol"
 
       submit_profile_form
 

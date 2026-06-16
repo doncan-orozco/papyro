@@ -69,7 +69,7 @@ module PapyroStudio
       post studio_article_translation_publication_path(article.uuid), params: { content_locale: "es" }
 
       assert_redirected_to edit_studio_article_path(article.uuid, content_locale: "es")
-      assert_predicate article.article_translations.find_by!(locale: "es").reload, :published?
+      assert_predicate article.translations.find_by!(locale: "es").reload, :published?
     end
 
     test "translation unpublish flow unpublishes requested locale" do
@@ -80,7 +80,7 @@ module PapyroStudio
       delete studio_article_translation_publication_path(article.uuid), params: { content_locale: "es" }
 
       assert_redirected_to edit_studio_article_path(article.uuid, content_locale: "es")
-      assert_predicate article.article_translations.find_by!(locale: "es").reload, :draft?
+      assert_predicate article.translations.find_by!(locale: "es").reload, :draft?
     end
 
     private
@@ -104,7 +104,7 @@ module PapyroStudio
           excerpt: "Resumen #{article.slug}"
         )
       end
-      article.article_translations.find_by!(locale: "es").update!(status: status, published_at: published_at)
+      article.translations.find_by!(locale: "es").update!(status: status, published_at: published_at)
     end
   end
 end

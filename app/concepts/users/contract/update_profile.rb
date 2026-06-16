@@ -12,7 +12,7 @@ module Users
           optional(:website_url).maybe(:string)
           optional(:x_handle).maybe(:string)
           optional(:linkedin_handle).maybe(:string)
-          optional(:author_profile_translations_attributes).maybe(:hash)
+          optional(:translations_attributes).maybe(:hash)
         end
       end
     end

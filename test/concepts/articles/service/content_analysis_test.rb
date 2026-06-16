@@ -51,7 +51,7 @@ class Articles::Service::ContentAnalysisTest < ActiveSupport::TestCase
       user: users(:admin)
     )
 
-    article.article_translations.find_by!(locale: "en").update!(content: "English **summary** for readers")
+    article.translations.find_by!(locale: "en").update!(content: "English **summary** for readers")
 
     service = Articles::Service::ContentAnalysis.new(article, locale: :en)
 

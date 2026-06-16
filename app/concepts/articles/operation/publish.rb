@@ -129,7 +129,7 @@ module Articles
           return fail_with_model!(model)
         end
 
-        original_translation = model.article_translations.find_by(locale: model.original_locale)
+        original_translation = model.translations.find_by(locale: model.original_locale)
         if original_translation.blank?
           restore_publish_attributes(
             model,

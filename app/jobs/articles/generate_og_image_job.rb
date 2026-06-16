@@ -32,8 +32,8 @@ module Articles
     private
 
     def published_translation_locales(article)
-      article.article_translations
-        .where(status: ArticleTranslation.statuses[:published])
+      article.translations
+        .where(status: Article::Translation.statuses[:published])
         .pluck(:locale)
         .map(&:to_sym)
     end

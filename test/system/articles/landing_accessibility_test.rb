@@ -11,7 +11,7 @@ module Articles
         body: "Landing story body content"
       )
 
-      @article.article_translations.find_by!(locale: "en").update!(status: :published, published_at: Time.current)
+      @article.translations.find_by!(locale: "en").update!(status: :published, published_at: Time.current)
       @article.update!(published_at: Time.current)
     end
 

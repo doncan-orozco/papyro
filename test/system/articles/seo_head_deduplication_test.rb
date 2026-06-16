@@ -11,7 +11,7 @@ module Articles
         body: "English SEO body"
       )
 
-      @article.article_translations.find_by!(locale: "en").update!(status: :published, published_at: Time.current)
+      @article.translations.find_by!(locale: "en").update!(status: :published, published_at: Time.current)
       @article.update!(published_at: Time.current)
 
       I18n.with_locale(:es) do
@@ -22,7 +22,7 @@ module Articles
           body: "Contenido SEO en espanol"
         )
       end
-      @article.article_translations.find_by!(locale: "es").update!(status: :published, published_at: Time.current)
+      @article.translations.find_by!(locale: "es").update!(status: :published, published_at: Time.current)
     end
 
     test "article page keeps single SEO head tags after locale toggles" do

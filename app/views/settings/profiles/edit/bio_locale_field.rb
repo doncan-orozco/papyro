@@ -53,7 +53,7 @@ module Views
 
             available_locales.each_with_index do |locale, index|
               translation = find_or_build_translation(locale)
-              base_name = "user[profile_attributes][author_profile_translations_attributes][#{index}]"
+              base_name = "user[profile_attributes][translations_attributes][#{index}]"
 
               div(
                 class: "space-y-1",
@@ -98,8 +98,8 @@ module Views
 
         def find_or_build_translation(locale)
           profile = profile_form.object
-          profile.author_profile_translations.find { |t| t.locale == locale } ||
-            profile.author_profile_translations.build(locale: locale)
+          profile.translations.find { |t| t.locale == locale } ||
+            profile.translations.build(locale: locale)
         end
 
         def tab_button_class(locale)
@@ -116,7 +116,7 @@ module Views
         end
 
         def bio_input_id(index)
-          "user_profile_attributes_author_profile_translations_attributes_#{index}_bio"
+          "user_profile_attributes_translations_attributes_#{index}_bio"
         end
       end
     end

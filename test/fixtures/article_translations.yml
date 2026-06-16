@@ -1,5 +1,5 @@
 draft_article_en:
-  article: draft_article
+  translated_model: draft_article
   locale: en
   title: "Draft Article"
   slug: "draft-article"
@@ -7,7 +7,7 @@ draft_article_en:
   status: 0
 
 published_article_en:
-  article: published_article
+  translated_model: published_article
   locale: en
   title: "Published Article"
   slug: "published-article"
@@ -16,7 +16,7 @@ published_article_en:
   published_at: <%= 1.day.ago %>
 
 archived_article_en:
-  article: archived_article
+  translated_model: archived_article
   locale: en
   title: "Archived Article"
   slug: "archived-article"

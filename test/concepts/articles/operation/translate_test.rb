@@ -26,7 +26,7 @@ class Articles::Operation::TranslateTest < ActiveSupport::TestCase
       assert_equal translated_title, @article.title
     end
 
-    translation = @article.article_translations.find_by(locale: target_locale.to_s)
+    translation = @article.translations.find_by(locale: target_locale.to_s)
 
     assert_equal translated_body, translation.content
   ensure
@@ -35,7 +35,7 @@ class Articles::Operation::TranslateTest < ActiveSupport::TestCase
 
   test "returns failure when original content is blank" do
     # Bypass validations to blank out title and body
-    en_translation = @article.article_translations.find_by!(locale: @article.original_locale)
+    en_translation = @article.translations.find_by!(locale: @article.original_locale)
     en_translation.update_columns(title: "", content: "")
 
     result = Articles::Operation::Translate.new.call(
@@ -122,7 +122,7 @@ class Articles::Operation::TranslateTest < ActiveSupport::TestCase
 
     assert_predicate result, :success?
 
-    translation = @article.article_translations.find_by(locale: target_locale.to_s)
+    translation = @article.translations.find_by(locale: target_locale.to_s)
 
     assert_equal translated_body, translation.content
   ensure
@@ -135,7 +135,7 @@ class Articles::Operation::TranslateTest < ActiveSupport::TestCase
     translated_body = "Cuerpo actualizado"
 
     # Create an existing translation first
-    @article.article_translations.create!(locale: target_locale.to_s, content: "Viejo cuerpo")
+    @article.translations.create!(locale: target_locale.to_s, content: "Viejo cuerpo")
 
     mock_gemini(delimited_response(translated_title, translated_body))
 
@@ -150,10 +150,10 @@ class Articles::Operation::TranslateTest < ActiveSupport::TestCase
       assert_equal translated_title, @article.title
     end
 
-    translation = @article.article_translations.find_by(locale: target_locale.to_s)
+    translation = @article.translations.find_by(locale: target_locale.to_s)
 
     assert_equal translated_body, translation.content
-    assert_equal 1, @article.article_translations.where(locale: target_locale.to_s).count
+    assert_equal 1, @article.translations.where(locale: target_locale.to_s).count
   ensure
     cleanup_mock_gemini
   end

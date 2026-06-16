@@ -17,12 +17,12 @@ module Articles
       def filter_by_locale(current_scope)
         locale = filters[:locale] || I18n.locale.to_s
 
-        current_scope.joins(:article_translations)
-                     .where(article_translations: { locale: locale })
+        current_scope.joins(:translations)
+                     .where(translations: { locale: locale })
       end
 
       def filter_by_publication_status(current_scope)
-        current_scope.where(article_translations: { status: ArticleTranslation.statuses[:published] })
+        current_scope.where(translations: { status: Article::Translation.statuses[:published] })
                      .where.not(articles: { published_at: nil })
       end
 
@@ -31,7 +31,7 @@ module Articles
       end
 
       def include_translations(current_scope)
-        current_scope.eager_load(:article_translations)
+        current_scope.eager_load(:translations)
       end
 
       def filter_by_title(current_scope)
@@ -42,7 +42,7 @@ module Articles
         words.each do |word|
           safe_word = ActiveRecord::Base.sanitize_sql_like(word)
           current_scope = current_scope.where(
-            "article_translations.title LIKE ?", "%#{safe_word}%"
+            "translations.title LIKE ?", "%#{safe_word}%"
           )
         end
         current_scope

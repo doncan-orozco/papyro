@@ -26,7 +26,7 @@ module Articles
       end
 
       def content_word_count
-        plain_text_body.scan(/\b[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*\b/u).size
+        plain_text_body.scan(/\b[\p{L}\p{N}]+(?:[''\-][\p{L}\p{N}]+)*\b/u).size
       end
 
       def estimated_reading_time_minutes
@@ -40,12 +40,7 @@ module Articles
       def localized_translation_content
         return if @locale.blank?
 
-        translation = if @article.association(:article_translations).loaded?
-          @article.article_translations.find { |candidate| candidate.locale == @locale }
-        else
-          @article.article_translations.find_by(locale: @locale)
-        end
-
+        translation = @article.translations.find_by(locale: @locale)
         translation&.content.to_s.presence
       end
 

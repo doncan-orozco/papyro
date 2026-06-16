@@ -53,7 +53,7 @@ module Articles
 
       def persist_draft_state(model)
         previous_published_at = model.published_at
-        translations = model.article_translations.to_a
+        translations = model.translations.reload.to_a
 
         model.assign_attributes(published_at: nil)
         unless model.save

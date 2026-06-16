@@ -11,12 +11,12 @@ class Articles::Operation::PublishTranslationTest < ActiveSupport::TestCase
       body: "<p>Content</p>",
       user: @user
     )
-    @original_translation = @article.article_translations.find_by(locale: @article.original_locale)
+    @original_translation = @article.translations.find_by(locale: @article.original_locale)
     @original_translation.update!(status: :published, published_at: Time.current)
   end
 
   test "publishes translation in specified locale" do
-    spanish_translation = @article.article_translations.create!(
+    spanish_translation = @article.translations.create!(
       locale: :es,
       title: "Artículo en Español",
       status: :draft
@@ -33,7 +33,7 @@ class Articles::Operation::PublishTranslationTest < ActiveSupport::TestCase
   end
 
   test "fails if translation missing title" do
-    spanish_translation = @article.article_translations.create!(
+    spanish_translation = @article.translations.create!(
       locale: :es,
       title: "",
       status: :draft

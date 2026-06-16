@@ -10,7 +10,7 @@ module Articles
         excerpt: "English excerpt",
         body: "**English content**"
       )
-      @article.article_translations.find_by!(locale: "en").update!(status: :published, published_at: Time.current)
+      @article.translations.find_by!(locale: "en").update!(status: :published, published_at: Time.current)
       @article.update!(published_at: Time.current)
 
       I18n.with_locale(:es) do
@@ -20,8 +20,8 @@ module Articles
           excerpt: "Extracto en español"
         )
       end
-      @article.article_translations.find_by!(locale: "es").update!(content: "**Contenido en español**")
-      @article.article_translations.find_by!(locale: "es").update!(status: :published, published_at: Time.current)
+      @article.translations.find_by!(locale: "es").update!(content: "**Contenido en español**")
+      @article.translations.find_by!(locale: "es").update!(status: :published, published_at: Time.current)
     end
 
     test "user can read article in English and Spanish with correct localization" do
@@ -47,7 +47,7 @@ module Articles
     end
 
     test "unpublished spanish translation falls back to english content" do
-      @article.article_translations.find_by!(locale: "es").update!(status: :draft, published_at: nil)
+      @article.translations.find_by!(locale: "es").update!(status: :draft, published_at: nil)
 
       visit article_path(@article, locale: :es)
 

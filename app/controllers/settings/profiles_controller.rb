@@ -27,7 +27,7 @@ module Settings
         profile_attributes: [
           :display_name, :username, :location, :portrait,
           :website_url, :x_handle, :linkedin_handle,
-          author_profile_translations_attributes: [ :id, :locale, :bio, :_destroy ]
+          translations_attributes: [ :id, :locale, :bio, :_destroy ]
         ]
       ).to_h
     end

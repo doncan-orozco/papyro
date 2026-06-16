@@ -9,10 +9,10 @@ class CleanupEmptyDraftsJob < ApplicationJob
     Article
       .where(deleted_at: nil, archived_at: nil)
       .joins(original_translation_left_join_sql)
-      .where("original_translations.status IS NULL OR original_translations.status != ?", ArticleTranslation.statuses[:published])
+      .where("original_translations.status IS NULL OR original_translations.status != ?", Article::Translation.statuses[:published])
       .where("articles.created_at < ?", STALE_AGE.ago)
-      .joins(:article_translations)
-      .where(article_translations: { locale: "en", title: [ nil, "", *placeholder_titles ] })
+      .joins(:translations)
+      .where(translations: { locale: "en", title: [ nil, "", *placeholder_titles ] })
       .find_each do |article|
         article.destroy if Articles::Service::ContentAnalysis.new(article).plain_text_body.blank?
       end

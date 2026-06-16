@@ -38,7 +38,7 @@ module Articles
           end
 
           if new_body.present?
-            translation = article.article_translations.find_or_initialize_by(locale: target_locale.to_s)
+            translation = article.translations.find_or_initialize_by(locale: target_locale.to_s)
             translation.update!(content: new_body)
           end
         end

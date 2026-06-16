@@ -14,7 +14,7 @@ module Articles
       private
 
       def preload_translations(current_scope)
-        current_scope.includes(:translations, :article_translations, :user)
+        current_scope.includes(:translations, :user)
       end
 
       def filter_by_owner(current_scope)

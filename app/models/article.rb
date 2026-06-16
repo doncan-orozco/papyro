@@ -12,7 +12,6 @@ class Article < ApplicationRecord
   has_markdown :body
 
   belongs_to :user
-  has_many :article_translations, inverse_of: :article, dependent: :destroy
   has_one :pinned_author_profile,
     class_name: "AuthorProfile",
     foreign_key: :pinned_article_id,
@@ -77,13 +76,7 @@ class Article < ApplicationRecord
   end
 
   def original_translation_published?
-    translation = if association(:article_translations).loaded?
-      article_translations.find { |t| t.locale == original_locale }
-    else
-      article_translations.find_by(locale: original_locale)
-    end
-
-    # Ensure we explicitly check the enum state!
+    translation = translations.find_by(locale: original_locale)
     translation&.published? || false
   end
 end

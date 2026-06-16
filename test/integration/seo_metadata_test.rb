@@ -143,7 +143,7 @@ class SeoMetadataTest < ActionDispatch::IntegrationTest
         body: "<p>Contenido en espanol</p>"
       )
     end
-    article.article_translations.find_by!(locale: "es").update!(status: :published, published_at: Time.current)
+    article.translations.find_by!(locale: "es").update!(status: :published, published_at: Time.current)
 
     en_slug = Mobility.with_locale(:en) { article.slug }
     es_slug = Mobility.with_locale(:es) { article.slug }

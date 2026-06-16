@@ -47,7 +47,7 @@ class Users::Operation::UpdateProfileTest < ActiveSupport::TestCase
   end
 
   test "persists bio for all locales in a single call" do
-    en_id = @user.profile.author_profile_translations.find_by(locale: "en")&.id
+    en_id = @user.profile.translations.find_by(locale: "en")&.id
 
     result = Users::Operation::UpdateProfile.new.call(
       user: @user,
@@ -55,7 +55,7 @@ class Users::Operation::UpdateProfileTest < ActiveSupport::TestCase
         profile_attributes: {
           display_name: "Shared Name",
           username: "reader_one",
-          author_profile_translations_attributes: {
+          translations_attributes: {
             "0" => { id: en_id, locale: "en", bio: "English bio text" },
             "1" => { locale: "es", bio: "Texto de bio en espanol" }
           }

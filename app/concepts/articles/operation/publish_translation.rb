@@ -74,7 +74,7 @@ module Articles
       end
 
       def find_or_build_translation(model:, locale:)
-        translation = model.article_translations.find_or_initialize_by(locale: locale.to_s)
+        translation = model.translations.find_or_initialize_by(locale: locale.to_s)
         Success(translation)
       end
 
