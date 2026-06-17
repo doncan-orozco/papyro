@@ -107,8 +107,11 @@ module Articles
         end
 
         body_html = model.body&.to_html.to_s
-        if model.title.blank? || body_html.strip.blank? || model.excerpt.to_s.strip.blank?
-          return fail_with_business_error!(model, I18n.t("errors.messages.article_incomplete_for_publish"))
+        if model.title.blank? || body_html.strip.blank? 
+          model.errors.add(:title, :blank) if model.title.blank?
+          model.errors.add(:body, :blank) if body_html.strip.blank?
+          model.errors.add(:base, I18n.t("errors.messages.article_incomplete_for_publish"))
+          return fail_with_model!(model)
         end
 
         Success(model)

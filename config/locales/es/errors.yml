@@ -21,7 +21,7 @@ es:
       article_not_found: "Artículo no encontrado"
       article_already_published: "El artículo ya está publicado"
       article_not_published: "El artículo aún no está publicado"
-      article_incomplete_for_publish: "El artículo necesita un título, contenido y un extracto para poder publicarse"
+      article_incomplete_for_publish: "El artículo necesita un título y contenido para poder publicarse"
       article_must_be_published_first: "Debes publicar el artículo original antes de publicar su traducción"
       translation_incomplete_for_publish: "La traducción necesita un título para poder publicarse"
       translation_not_found: "Traducción no encontrada"

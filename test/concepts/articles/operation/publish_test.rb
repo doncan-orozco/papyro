@@ -233,19 +233,19 @@ class Articles::Operation::PublishTest < ActiveSupport::TestCase
     assert_predicate article.reload, :draft?
   end
 
-  test "fails to publish article without excerpt" do
+  test "publishes article without excerpt" do
     user = users(:admin)
     article = Article.create!(
       title: "Test Article",
-      slug: "test-article-without-excerpt",
+      slug: "test-article-without-excerpt-#{SecureRandom.hex(4)}",
       body: "<p>Test content</p>",
       user: user
     )
 
     result = Articles::Operation::Publish.new.call(model: article)
 
-    assert_predicate result, :failure?
-    assert_predicate result.failure[:errors][:base], :any?
+    assert_predicate result, :success?
+    assert_predicate article.reload, :published?
   end
 
   test "fails atomically when settings params are invalid" do
