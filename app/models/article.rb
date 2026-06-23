@@ -27,13 +27,13 @@ class Article < ApplicationRecord
   validates :user, presence: true
   validates :uuid, presence: true, uniqueness: true, length: { is: 36 }, format: { with: UUID_FORMAT }
   validates :title, presence: true, length: { maximum: 255 }
-  validates :slug, presence: true, uniqueness: true, length: { maximum: 255 }, format: { with: SLUG_FORMAT }
+  validates :slug, presence: true, uniqueness: { conditions: -> { where(deleted_at: nil) } }, length: { maximum: 255 }, format: { with: SLUG_FORMAT }
   validates :original_locale, presence: true, inclusion: { in: ->(_record) { I18n.available_locales.map(&:to_s) } }
   validates :excerpt, length: { maximum: 500 }, allow_nil: true
   validates :cover_image_caption, length: { maximum: COVER_IMAGE_CAPTION_MAX_LENGTH }, allow_nil: true
-  validates_with Articles::Validator::CoverImage, if: ->(record) { record.cover_image.attached? }
-  validates_with Articles::Validator::Body
-  validates_with Articles::Validator::Publishing
+  validates_with Articles::Validator::CoverImage, if: ->(record) { record.cover_image.attached? }, unless: :trashed?
+  validates_with Articles::Validator::Body, unless: :trashed?
+  validates_with Articles::Validator::Publishing, unless: :trashed?
 
   def published?
     return false if trashed? || archived?
