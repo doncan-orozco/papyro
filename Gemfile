@@ -63,13 +63,15 @@ gem "bootsnap", require: false
 gem "kamal", require: false
 gem "thruster", require: false
 
+# Ensure safe migrations and proper statement timeouts in all environments
+gem "strong_migrations"
+
 group :development, :test do
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
 
   # Security & Migrations
   gem "bundler-audit", require: false
   gem "brakeman", "~> 8.0.4", require: false
-  gem "strong_migrations"
 
   # Linting
   gem "rubocop-rails-omakase", require: false
