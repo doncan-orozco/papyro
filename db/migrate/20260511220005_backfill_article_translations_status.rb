@@ -1,4 +1,15 @@
 class BackfillArticleTranslationsStatus < ActiveRecord::Migration[8.1]
+  # Use local model classes to avoid dependency on application code that may
+  # change over time (Rails migration best practice).
+  class ArticleTranslation < ActiveRecord::Base
+    self.table_name = "article_translations"
+    belongs_to :article
+  end
+
+  class Article < ActiveRecord::Base
+    self.table_name = "articles"
+  end
+
   disable_ddl_transaction!
 
   def up
