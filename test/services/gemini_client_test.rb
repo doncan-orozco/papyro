@@ -3,13 +3,7 @@
 require "test_helper"
 
 class GeminiClientTest < ActiveSupport::TestCase
-  setup do
-    @original_api_key = ENV["GEMINI_API_KEY"]
-    ENV["GEMINI_API_KEY"] = "test_gemini_api_key"
-  end
-
   teardown do
-    ENV["GEMINI_API_KEY"] = @original_api_key
     if defined?(@original_net_http_new)
       Net::HTTP.define_singleton_method(:new, @original_net_http_new)
     end
@@ -36,7 +30,7 @@ class GeminiClientTest < ActiveSupport::TestCase
     @original_net_http_new = Net::HTTP.method(:new)
     Net::HTTP.define_singleton_method(:new) { |*| mock_http }
 
-    result = GeminiClient.new.prompt("Hello world")
+    result = GeminiClient.new(api_key: "test_key").prompt("Hello world")
 
     assert_equal "Hola mundo", result
   end
@@ -48,7 +42,7 @@ class GeminiClientTest < ActiveSupport::TestCase
     @original_net_http_new = Net::HTTP.method(:new)
     Net::HTTP.define_singleton_method(:new) { |*| mock_http }
 
-    result = GeminiClient.new.prompt("Hello world")
+    result = GeminiClient.new(api_key: "test_key").prompt("Hello world")
 
     assert_nil result
   end
@@ -59,7 +53,7 @@ class GeminiClientTest < ActiveSupport::TestCase
     @original_net_http_new = Net::HTTP.method(:new)
     Net::HTTP.define_singleton_method(:new) { |*| mock_http }
 
-    result = GeminiClient.new.prompt("Hello world")
+    result = GeminiClient.new(api_key: "test_key").prompt("Hello world")
 
     assert_nil result
   end
@@ -74,7 +68,7 @@ class GeminiClientTest < ActiveSupport::TestCase
     @original_net_http_new = Net::HTTP.method(:new)
     Net::HTTP.define_singleton_method(:new) { |*| mock_http }
 
-    result = GeminiClient.new.prompt("Hello world")
+    result = GeminiClient.new(api_key: "test_key").prompt("Hello world")
 
     assert_nil result
   end

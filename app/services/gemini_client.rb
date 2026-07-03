@@ -7,8 +7,8 @@ require "json"
 class GeminiClient
   ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent"
 
-  def initialize
-    @api_key = ENV.fetch("GEMINI_API_KEY")
+  def initialize(api_key: nil)
+    @api_key = api_key || Rails.application.credentials.gemini_api_key
   end
 
   def prompt(text)
