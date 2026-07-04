@@ -89,6 +89,40 @@ export default class extends BaseController {
   }
 
   /**
+   * Close the dialog immediately without animation (for Turbo cache snapshots)
+   * @param {Event} event - Event
+   */
+  closeImmediately(event) {
+    event?.preventDefault()
+    this.openValue = false
+
+    // Immediately hide overlay and content without waiting for animations
+    if (this.hasOverlayTarget) {
+      this.overlayTarget.hidden = true
+      this.overlayTarget.dataset.state = 'closed'
+    }
+
+    if (this.hasContentTarget) {
+      this.contentTarget.hidden = true
+      this.contentTarget.dataset.state = 'closed'
+    }
+
+    // Restore body scroll
+    this.restoreBodyScroll()
+
+    // Restore focus
+    if (this.previouslyFocusedElement && this.hasOpened) {
+      this.previouslyFocusedElement.focus()
+      this.previouslyFocusedElement = null
+    }
+
+    // Remove event listeners
+    this.removeEventListeners()
+
+    this.dispatchStateChange("ui:dialog:closed")
+  }
+
+  /**
    * Toggle dialog open/closed
    * @param {Event} event - Event
    */

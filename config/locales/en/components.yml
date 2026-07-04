@@ -57,6 +57,10 @@ en:
           settings: "Settings"
           sign_out: "Sign out"
           confirm_sign_out: "Are you sure you want to sign out?"
+        mobile:
+          menu_label: "Menu"
+          search_label: "Search"
+          write_label: "Write"
       welcome_hero:
         eyebrow: "Welcome to Papyro"
         title: "A calm publishing home for ideas worth reading"

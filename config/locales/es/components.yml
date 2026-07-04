@@ -57,6 +57,10 @@ es:
           settings: "Ajustes"
           sign_out: "Cerrar sesión"
           confirm_sign_out: "¿Estás seguro de que quieres cerrar sesión?"
+        mobile:
+          menu_label: "Menú"
+          search_label: "Buscar"
+          write_label: "Escribir"
       welcome_hero:
         eyebrow: "Bienvenido a Papyro"
         title: "Un refugio editorial para las ideas que valen la pena."

@@ -107,7 +107,7 @@ module Articles
         end
 
         body_html = model.body&.to_html.to_s
-        if model.title.blank? || body_html.strip.blank? 
+        if model.title.blank? || body_html.strip.blank?
           model.errors.add(:title, :blank) if model.title.blank?
           model.errors.add(:body, :blank) if body_html.strip.blank?
           model.errors.add(:base, I18n.t("errors.messages.article_incomplete_for_publish"))

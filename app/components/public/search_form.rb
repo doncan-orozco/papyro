@@ -3,7 +3,8 @@
 module Components
   module Public
     class SearchForm < Components::Base
-      def initialize(**attrs)
+      def initialize(frame_id: "search_results", **attrs)
+        @frame_id = frame_id
         @attrs = attrs
       end
 
@@ -14,7 +15,7 @@ module Components
           **attrs_without_class
         ) do
           form(
-            data: { search_target: "form", turbo_frame: "search_results" },
+            data: { search_target: "form", turbo_frame: @frame_id },
             action: search_path,
             method: "get",
             class: "w-full"
@@ -40,7 +41,7 @@ module Components
             data: { search_target: "panel" },
             class: "hidden absolute left-0 right-0 top-full mt-2 z-50 rounded-lg border border-border bg-card shadow-lg overflow-hidden"
           ) do
-            turbo_frame_tag :search_results, data: { search_target: "results" }
+            turbo_frame_tag @frame_id.to_sym, data: { search_target: "results" }, class: "block"
           end
         end
       end

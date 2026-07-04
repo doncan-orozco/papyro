@@ -3,14 +3,15 @@
 module Components
   module Public
     class SearchResults < Components::Base
-      def initialize(query:, articles:, authors:)
+      def initialize(query:, articles:, authors:, frame_id: "search_results")
         @query = query
         @articles = articles
         @authors = authors
+        @frame_id = frame_id
       end
 
       def view_template
-        turbo_frame_tag :search_results do
+        turbo_frame_tag @frame_id.to_sym do
           if @query.blank?
             # State A: No query — render nothing inside the frame
           elsif @articles.empty? && @authors.empty?

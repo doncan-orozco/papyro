@@ -15,10 +15,13 @@ class SearchController < ApplicationController
       @authors = User.none
     end
 
+    frame_id = request.headers["Turbo-Frame"] || "search_results"
+
     render Components::Public::SearchResults.new(
       query: query,
       articles: @articles,
-      authors: @authors
+      authors: @authors,
+      frame_id: frame_id
     ), layout: false
   end
 

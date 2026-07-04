@@ -33,7 +33,7 @@ module Components
         render Trigger.new(**with_required_data(attrs, data: { action: "click->ui--dialog#open" })), &block
       end
 
-      def content(hidden: true, overlay_hidden: true, labelledby_id: nil, describedby_id: nil, **attrs, &block)
+      def content(hidden: true, overlay_hidden: true, labelledby_id: nil, describedby_id: nil, close_button: true, **attrs, &block)
         render Overlay.new(
           hidden: overlay_hidden,
           **with_required_data({}, data: { ui__dialog_target: "overlay" })
@@ -43,6 +43,7 @@ module Components
           hidden: hidden,
           labelledby_id: labelledby_id,
           describedby_id: describedby_id,
+          close_button: close_button,
           **with_required_data(attrs, data: { ui__dialog_target: "content" }),
           &block
         )
@@ -130,9 +131,10 @@ module Components
       end
 
       class Content < Components::Base
-        def initialize(labelledby_id: nil, describedby_id: nil, **attrs)
+        def initialize(labelledby_id: nil, describedby_id: nil, close_button: true, **attrs)
           @labelledby_id = labelledby_id
           @describedby_id = describedby_id
+          @close_button = close_button
           @attrs = attrs
         end
 
@@ -155,17 +157,19 @@ module Components
           div(role: :dialog, class: merged_classes, **dynamic_attrs) do
             yield if block
 
-            render Close.new(data: { action: "click->ui--dialog#close" }) do
-              svg(
-                xmlns: "http://www.w3.org/2000/svg",
-                viewBox: "0 0 24 24",
-                fill: "none",
-                stroke: "currentColor",
-                class: "h-4 w-4"
-              ) do |s|
-                s.path(d: "M6 18L18 6M6 6l12 12", stroke_width: 2, stroke_linecap: "round", stroke_linejoin: "round")
+            if @close_button
+              render Close.new(data: { action: "click->ui--dialog#close" }) do
+                svg(
+                  xmlns: "http://www.w3.org/2000/svg",
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  class: "h-4 w-4"
+                ) do |s|
+                  s.path(d: "M6 18L18 6M6 6l12 12", stroke_width: 2, stroke_linecap: "round", stroke_linejoin: "round")
+                end
+                span(class: "sr-only") { I18n.t("design_system.overlays.dialog.close") }
               end
-              span(class: "sr-only") { I18n.t("design_system.overlays.dialog.close") }
             end
           end
         end
