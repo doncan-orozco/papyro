@@ -72,10 +72,10 @@
   }
 
   .article-prose :where(pre) {
-    background-color: var(--color-muted);
-    border: 1px solid var(--color-border);
+    background-color: oklch(0.21 0 0);
+    border: 1px solid oklch(0.269 0 0);
     border-radius: 0.5rem;
-    color: var(--color-foreground);
+    color: oklch(0.985 0 0);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     font-size: 0.875em;
     line-height: 1.65;
