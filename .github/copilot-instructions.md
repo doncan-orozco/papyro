@@ -18,26 +18,28 @@ When reviewing pull requests or responding to development requests, you MUST ver
 1. **This file** - Comprehensive code review checklist and skill guidance
 2. **[.ai/skills/controller/SKILL.md](.ai/skills/controller/SKILL.md)** - Golden controller archetype: REST, locale separation, operation dispatch, Pundit, Turbo Stream
 3. **[.ai/skills/operation-pattern/SKILL.md](.ai/skills/operation-pattern/SKILL.md)** - Golden operation archetype: mutation intent, transactions, explicit dependencies, routeable failure codes
-4. **[.ai/skills/backend-anti-patterns/SKILL.md](.ai/skills/backend-anti-patterns/SKILL.md)** - What NOT to do
-5. **[.ai/skills/error-handling/SKILL.md](.ai/skills/error-handling/SKILL.md)** - Error & auth patterns
-6. **[.ai/skills/architecture/SKILL.md](.ai/skills/architecture/SKILL.md)** - Project overview & skill index
-7. **[.ai/skills/models/SKILL.md](.ai/skills/models/SKILL.md)** - ActiveRecord models: strict layout, state predicates, N+1 prevention
-8. **[.ai/skills/presenter-pattern/SKILL.md](.ai/skills/presenter-pattern/SKILL.md)** - Golden presenter archetype: SimpleDelegator, collection wrapping, view-agnostic display logic, no CSS/HTML. Load for ALL `app/presenters/` work and display transformation logic.
-9. **[.ai/skills/frontend-style-ddd/SKILL.md](.ai/skills/frontend-style-ddd/SKILL.md)** - Domain-driven stylesheet organization rules
-10. **[.ai/skills/system-testing/SKILL.md](.ai/skills/system-testing/SKILL.md)** - Rails system test patterns for Hotwire flows
-11. **[.ai/skills/phlex-view-pattern/SKILL.md](.ai/skills/phlex-view-pattern/SKILL.md)** - Golden Phlex view archetype: dumb views, presenters, sub-component decomposition, UI vs. domain separation, safe Turbo Frame targeting. Load for ALL `app/views/` and `app/components/` work.
+4. **[.ai/skills/controller/references/error-handling.md](.ai/skills/controller/references/error-handling.md)** - Error & auth patterns (part of the controller skill)
+5. **[.ai/skills/architecture/SKILL.md](.ai/skills/architecture/SKILL.md)** - Project overview & skill index
+6. **[.ai/skills/models/SKILL.md](.ai/skills/models/SKILL.md)** - ActiveRecord models: strict layout, state predicates, N+1 prevention
+7. **[.ai/skills/presenter-pattern/SKILL.md](.ai/skills/presenter-pattern/SKILL.md)** - Golden presenter archetype: SimpleDelegator, collection wrapping, view-agnostic display logic, no CSS/HTML. Load for ALL `app/presenters/` work and display transformation logic.
+8. **[.ai/skills/phlex-view-pattern/references/stylesheet-organization.md](.ai/skills/phlex-view-pattern/references/stylesheet-organization.md)** - Domain-driven stylesheet organization rules
+9. **[.ai/skills/testing/references/hotwire-system-testing.md](.ai/skills/testing/references/hotwire-system-testing.md)** - Rails system test patterns for Hotwire flows
+10. **[.ai/skills/phlex-view-pattern/SKILL.md](.ai/skills/phlex-view-pattern/SKILL.md)** - Golden Phlex view archetype: dumb views, presenters, sub-component decomposition, UI vs. domain separation, safe Turbo Frame targeting. Load for ALL `app/views/` and `app/components/` work.
 
 ## How to Use This
 
 When reviewing code:
 1. Check this file and the relevant skill files against all changes
 2. For any controller work, load `.ai/skills/controller/SKILL.md` **first** — it is the single source of truth for all controller patterns
-3. For mutation flows in `app/concepts/*/operation/`, load `.ai/skills/operation-pattern/SKILL.md` with `.ai/skills/layered-validation-operation-pattern/SKILL.md` when contract boundaries matter
-4. Review [anti-patterns](.ai/skills/backend-anti-patterns/SKILL.md) to catch common mistakes
-5. Verify error handling follows [error-handling.md](.ai/skills/error-handling/SKILL.md) patterns
+3. For mutation flows in `app/concepts/*/operation/`, load `.ai/skills/operation-pattern/SKILL.md` with `.ai/skills/operation-pattern/references/layered-validation.md` when contract boundaries matter
+5. Verify error handling follows [error-handling.md](.ai/skills/controller/references/error-handling.md) patterns
 6. Load relevant skill files directly from `.ai/skills/{domain}/SKILL.md`
 7. Provide detailed feedback citing the checklist item number
-8. When writing or reviewing system tests, load `.ai/skills/system-testing/SKILL.md` in addition to `.ai/skills/testing/SKILL.md`
+8. When writing or reviewing system tests, load `.ai/skills/testing/references/hotwire-system-testing.md` in addition to `.ai/skills/testing/SKILL.md`
+
+## Workspace
+
+Papyro is two repos: the host (`papyro`) and the first-party Studio engine (`../papyro_studio`). Review and change both when a feature spans them; the host owns schema, models, auth and all locales, the engine owns Studio UI. See `.ai/skills/architecture/references/host-coupled-engine-pattern.md`.
 
 ## Key Review Areas
 
@@ -82,7 +84,7 @@ When reviewing code:
 **Where documentation belongs:**
 - **Skill References** → `.ai/skills/{domain}/references/` (e.g., architecture, frontend, etc.)
   - Implementation summaries → `.ai/skills/architecture/references/`
-  - Form/Component snapshots → `.ai/skills/frontend/references/`
+  - Form/Component snapshots → `.ai/skills/phlex-view-pattern/references/frontend/`
   - Domain-specific examples → appropriate skill folder
 - **Skills & Patterns** → `.ai/skills/{domain}/` (SKILL.md file + references/)
 - **Verification & Checklists** → This file serves as the primary checklist and guidance document

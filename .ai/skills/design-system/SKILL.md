@@ -1,9 +1,25 @@
 ---
 name: design-system
-description: shadcn/ui design patterns translated to Phlex components for consistent UI development. Use when creating or modifying UI components in app/components/ui/. Covers button, card, badge, input, label, and other base component patterns with variants and composition. Includes guidance for pixel-perfect shadcn Radix UI conversion with semantic tokens, class-based dark mode via ui--theme Stimulus controller, and SHADCN_VERSION tracking.
+description: "shadcn/ui-to-Phlex primitives with variants and composition. Use when creating or editing `app/components/ui/*` (button, card, badge, input, label, dialog…), converting Radix/shadcn components, or touching semantic tokens and the `ui--theme` dark-mode controller."
 ---
 
 # Design System (shadcn/ui + Phlex)
+
+## Quick Rules
+
+Cite as `design-system R<n>`. Detail and examples follow below / in references/.
+
+R1. **Semantic tokens only.** Use `bg-primary`, `text-destructive`, `bg-card` etc.; hardcoded palette classes are forbidden. → detail: Non-Negotiable Rules
+R2. **Catalog updated.** Every new component or variant is added to `app/views/design_system/index.rb`. → detail: Non-Negotiable Rules
+R3. **Catalog strings localized.** Catalog example strings exist in both `config/locales/{en,es}/design_system.yml`. → detail: Non-Negotiable Rules
+R4. **`initialize(**attrs)`.** Every component accepting keyword attributes implements `initialize(**attrs)` and preserves caller attributes. → detail: Non-Negotiable Rules
+R5. **Compound helpers.** Multi-part components use parent-yields-self helpers (`card.header`, `dropdown.trigger`); views never call child `.new`. → detail: references/compound-components.md
+R6. **Merge Stimulus data.** Interactive components merge required Stimulus `data-*` defaults with caller data, never overwrite it. → detail: references/stimulus-interactive-components.md
+R7. **No button inside trigger.** Trigger helpers already render the interactive element; never nest `Components::Ui::Button` in a compound trigger block. → detail: Non-Negotiable Rules
+R8. **Class-based dark mode.** Dark mode goes through the `ui--theme` controller and semantic CSS tokens. → detail: references/css-variables-guide.md
+R9. **Verify against Radix.** Check shadcn behavior against the real Radix UI source before translating it. → detail: references/shadcn-conversion-guide.md
+R10. **Generic UI only.** Structural decisions (view composition, sub-components, presenters) follow phlex-view-pattern; `ui/` stays domain-free. → detail: Companion Skills
+
 
 Use this skill for UI work in `app/components/ui/`. Keep the main body focused on non-negotiable rules and load the reference files for detailed examples.
 
@@ -68,4 +84,4 @@ Rules live in the checklist: [../../copilot-instructions.md](/.github/copilot-in
 ## Companion Skills
 
 - **[../phlex-view-pattern/SKILL.md](../phlex-view-pattern/SKILL.md)** — **PRIMARY view structure source**: Golden archetype for all Phlex views and components. Load this first for any work in `app/views/` or `app/components/`. This design-system skill defers to phlex-view-pattern for view composition shape, sub-component extraction boundaries, and presenter extraction.
-- **[../frontend/SKILL.md](../frontend/SKILL.md)** for Stimulus integration and Hotwire patterns
+- **[../phlex-view-pattern/references/frontend-overview.md](../phlex-view-pattern/references/frontend-overview.md)** for Stimulus integration and Hotwire patterns

@@ -1,9 +1,21 @@
 ---
 name: realtime
-description: Real-time communication patterns with Action Cable and dry-rb operations. Use when implementing WebSocket channels, broadcasting updates, or handling real-time features. Covers channel organization, authorization, messaging patterns, and operation broadcasting.
+description: "Action Cable channels and broadcasting with dry-rb operations. Use when creating or editing files in `app/channels/`, broadcasting from operations, or authorizing WebSocket subscriptions."
 ---
 
 # Realtime (Action Cable + dry-rb)
+
+## Quick Rules
+
+Cite as `realtime R<n>`. Detail and examples follow below / in references/.
+
+R1. **Authorize in subscribed.** Channel authorization happens in `subscribed`, and unauthorized subscriptions are rejected. → detail: Channels Organization (Pattern)
+R2. **One channel per concept.** One channel class per domain concept, living in `app/channels/`. → detail: Channels Organization (Pattern)
+R3. **stream_for domain instances.** Channels stream with `stream_for` on domain instances, not raw string stream names. → detail: Channels Organization (Pattern)
+R4. **Thin channels.** Client actions delegate to Operations; channels contain no business logic. → detail: references/channels.md
+R5. **Broadcast from operations.** Broadcasts happen inside Operations after a successful state change. → detail: Operations Broadcasting (Pattern)
+R6. **Typed JSON payloads.** Messages are JSON with a `type` and small deltas, and broadcasts include a timestamp. → detail: Messages (Pattern)
+R7. **Verified connection.** `ApplicationCable::Connection` identifies `current_user` and calls `reject_unauthorized_connection` when unverified. → detail: references/channels.md
 
 ## Dependencies
 - actioncable

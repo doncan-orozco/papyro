@@ -1,9 +1,24 @@
 ---
 name: accessibility
-description: Accessibility implementation and review guidance for Papyro (host and Studio) aligned with WCAG 2.2 AA. Use when creating or modifying Phlex views/components, tuning contrast and focus states, improving keyboard navigation, adding ARIA labels for icon-only controls, validating modal/menu triggers, or writing accessibility-focused system tests.
+description: "WCAG 2.2 AA accessibility for Papyro Phlex views and components. Use when editing files in `app/views/` or `app/components/` for focus states, contrast, keyboard navigation, ARIA labels on icon-only controls, modal/menu triggers, or writing accessibility system tests."
 ---
 
 # Accessibility (WCAG 2.2 AA)
+
+## Quick Rules
+
+Cite as `accessibility R<n>`. Detail and examples follow below / in references/.
+
+R1. **Keyboard reachable.** All interactive controls are keyboard reachable and visibly focusable. → detail: Non-Negotiable Rules
+R2. **Focus parity.** Every hover affordance on links/buttons has a matching `focus-visible` one (e.g. `hover:underline` + `focus-visible:underline`). → detail: Common Fix Patterns
+R3. **Not color alone.** State is never communicated by color alone. → detail: Non-Negotiable Rules
+R4. **Icon-only names.** Icon-only controls expose an accessible name via `aria-label` or adjacent sr-only text. → detail: Common Fix Patterns
+R5. **Semantic first.** Use `button`, `a`, `nav`, `time[datetime]`, lists and headings before adding ARIA. → detail: Non-Negotiable Rules
+R6. **Readable secondary text.** Body/help/metadata text is not excessively muted (prefer `text-foreground/70` over faint variants). → detail: Common Fix Patterns
+R7. **Overlay triggers explicit.** Modal/sheet/dialog/menu triggers carry `aria-haspopup="dialog"` and `aria-controls` when practical. → detail: Common Fix Patterns
+R8. **Bilingual labels.** New accessible labels exist in both English and Spanish. → detail: Non-Negotiable Rules
+R9. **System test coverage.** Changed surfaces get a system test under `test/system/...` asserting `aria-label`/`aria-haspopup`/`aria-controls` and focus parity classes. → detail: Testing Guidance
+
 
 Use this skill to enforce accessible UI behavior while implementing or reviewing frontend work.
 
@@ -51,6 +66,6 @@ Use this skill to enforce accessible UI behavior while implementing or reviewing
 - **[references/wcag-pass-checklist.md](references/wcag-pass-checklist.md)**
   Use for implementation-time and review-time acceptance checks.
 - Pair with **[../phlex-view-pattern/SKILL.md](../phlex-view-pattern/SKILL.md)** for view/component structure.
-- Pair with **[../frontend/SKILL.md](../frontend/SKILL.md)** for Hotwire/Phlex implementation conventions.
+- Pair with **[../phlex-view-pattern/references/frontend-overview.md](../phlex-view-pattern/references/frontend-overview.md)** for Hotwire/Phlex implementation conventions.
 - Pair with **[../i18n/SKILL.md](../i18n/SKILL.md)** when adding or changing accessible labels.
-- Pair with **[../system-testing/SKILL.md](../system-testing/SKILL.md)** when adding accessibility system tests.
+- Pair with **[../testing/references/hotwire-system-testing.md](../testing/references/hotwire-system-testing.md)** when adding accessibility system tests.

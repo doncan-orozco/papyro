@@ -10,7 +10,6 @@ This synthesis consolidates UX-relevant findings from existing repository artifa
 - `react-shadcn-catalog/THEME_EXTRACTION.md`
 - `docs/RADIX_COMPONENTS_IMPLEMENTATION.md`
 - `.ai/skills/ux/SKILL.md`
-- `.ai/skills/frontend-design/SKILL.md`
 
 ## PDF Investigation Highlights (`docs/Papyro UX.pdf`)
 
@@ -121,7 +120,6 @@ If any answer is "no", refine UX intent before implementation.
 
 - This document defines UX findings and decision heuristics.
 - Component implementation details belong to design-system references.
-- Advanced visual language exploration belongs to frontend-design guidance.
 
 ## Next Update Trigger
 

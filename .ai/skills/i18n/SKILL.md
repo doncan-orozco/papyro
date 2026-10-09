@@ -1,11 +1,30 @@
 ---
 name: i18n
-description: Internationalization patterns for English and Spanish translations. Use when adding new views, components, operations, or any user-facing text. Covers fully-qualified translation keys, file structure, view keys, component keys, operation/contract keys, model keys, and mailer translations.
+description: "English/Spanish translations and Mobility content translations. Use when adding user-facing text anywhere (views, components, operations, mailers), editing `config/locales/**`, or working with translatable models (Mobility table backend, original locale, approval status). Requires fully-qualified keys."
 ---
 
 # I18n (English + Spanish)
 
 Use this skill whenever code introduces or changes user-facing text. Keep the main body focused on mandatory rules and load the reference file for concrete examples.
+
+## Quick Rules
+
+Cite as `i18n R<n>`. Detail and examples follow below / in references/.
+
+R1. **English and Spanish both.** Every new user-facing string is added to both `config/locales/en/` and `config/locales/es/`. → detail: Required Rules
+R2. **Fully-qualified keys.** Call sites use full keys (`t("articles.index.title")`); no relative keys like `t(".title")`. → detail: references/i18n.md
+R3. **Domain-based locale files.** Locale files are organized by domain under `config/locales/{en,es}/` (e.g. `articles.yml`, `components.yml`, `models.yml`). → detail: references/i18n.md
+R4. **Key namespaces.** Components use `components.*`, operation messages `domain.operations.*`, domain errors `domain.errors.*`, contract wording `domain.forms.validation.*`. → detail: Key Conventions
+R5. **No hardcoded text.** Flash, controller, operation and view messages come from translated keys, not string literals. → detail: Common Failure Modes
+R6. **dry-schema via i18n backend.** `Dry::Schema.config.messages.backend = :i18n` is set, and shared predicate messages stay generic under `dry_schema.errors.*`. → detail: references/i18n.md
+R7. **Contextual contract wording in rules.** Domain-specific validation copy uses explicit `rule(...)` failures with domain keys, not field-scoped `dry_schema.errors.rules.<field>`. → detail: references/i18n.md
+R8. **I18n.l for dates.** Dates and times use `I18n.l`; no `strftime`. → detail: references/i18n.md
+R9. **Number helpers.** Numbers and currency use `number_to_currency`, `number_with_delimiter`, etc.; no manual formatting. → detail: references/i18n.md
+R10. **Model names via activerecord keys.** Model, attribute and enum labels live under `activerecord.models.*`, `activerecord.attributes.*`, `activerecord.enum.*`. → detail: Key Conventions
+R11. **Mobility table backend.** Translatable models use `translates` with the `:table` backend and a `[model]_translations` table; no duplicated translated columns on the parent. → detail: references/mobility.md
+R12. **Unique translation indexes.** Translation tables have a unique index on `[:model_id, :locale]`. → detail: references/mobility.md
+R13. **Original locale on parent.** `original_locale` is stored on the parent record; `is_approved` lives on translation rows. → detail: references/mobility.md
+R14. **Pure Mobility accessors.** Use `article.title` and metadata methods like `approved?`; no `display_*` wrappers or custom model fallbacks (use app-level I18n fallbacks). → detail: references/mobility.md
 
 ## Required Rules
 

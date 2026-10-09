@@ -1,9 +1,26 @@
 ---
 name: query-object-pattern
-description: Build reusable query objects for read flows across the application using a Domain-Driven Design (DDD) approach, strict functional interfaces, declarative pipelines, and filtering rules.
+description: "Golden archetype for read Query Objects. Use when creating or editing files in `app/concepts/*/query/`: plain ActiveRecord results, hash conditions over raw SQL, unfiltered base scope with a filter pipeline, no pagination in queries."
 ---
 
 # Application Query Object Pattern
+
+## Quick Rules
+
+Cite as `query-object-pattern R<n>`. Detail and examples follow below / in references/.
+
+R1. **Plain AR records only.** Never use `select` aliases or computed columns (`AS`, `COUNT(...)`) that add virtual attributes; select only schema columns. → detail: MANDATORY RULE: Records Must Be Plain ActiveRecord Models
+R2. **Unfiltered base scope.** `base_scope` returns the full domain collection (`Model.all`); no `where` filters in it. → detail: MANDATORY RULE: Base Scope Must Be the Root of Your Domain
+R3. **Filters live in pipeline steps.** Every filter is a named step declared with the `pipeline` macro. → detail: Style Rules
+R4. **Pure private step methods.** One filter per private method taking `(current_scope)`, guard clauses, returning the scope; never mutate `@scope`/instance state. → detail: Style Rules
+R5. **Single entry point.** Public interface is only `.call(filters, scope: nil)`; no keyword-argument call forms; honor a passed `scope:`. → detail: Interface Constraints
+R6. **Never paginate.** Return a plain unpaginated `ActiveRecord::Relation`; pagination is the caller's job. → detail: Responsibilities
+R7. **ORM over raw SQL.** Use hash/array conditions; no string conditions or interpolated SQL with user input; sanitize LIKE input. → detail: references/orm-conditions.md
+R8. **Sort allowlist.** Validate sort field and direction against a strict allowlist before ordering. → detail: Style Rules
+R9. **Boundary short-circuit.** A strict-boundary step (tenant/site/user) returns `current_scope.none` when context is missing, never `current_scope`. → detail: Mandatory Context Short-Circuits
+R10. **Normalize boolean filters.** Cast form-sourced boolean filters with `ActiveModel::Type::Boolean`. → detail: Boolean Filter Normalization
+R11. **Domain naming, no God Queries.** Inherit `ApplicationQuery`, name `Resource::BusinessBoundaryQuery`, one boundary per class. → detail: Domain-Driven Repository Conventions
+R12. **Aggregates stay out of records.** Computed counts/derived data go in a separate hash/struct or presenter, not the query's select. → detail: MANDATORY RULE: Records Must Be Plain ActiveRecord Models
 
 ## Common Query Scopes
 - Read/list/search flows across the application
@@ -60,106 +77,7 @@ If you need to expose computed data (counts, aggregates, derived labels) alongsi
 
 ---
 
-## MANDATORY RULE: ORM Methods Over Raw SQL Strings
-
-Active Record's ORM query methods are safe, readable, and database-agnostic. Use them first. Drop to raw SQL only when there is no ORM equivalent, and document why.
-
-### Conditions: Do's and Don'ts
-
-#### Hash Conditions (preferred)
-
-Use a hash whenever the condition is equality, range, subset, or a joined-table attribute.
-
-```ruby
-# equality
-where(status: :active)
-where(out_of_print: false)
-
-# range
-where(created_at: 1.week.ago..)
-where(year_published: ...50.years.ago.year)
-
-# IN / subset
-where(orders_count: [1, 3, 5])
-
-# joined table hash — clean and injection-safe
-where(taggings: {context: "tags", taggable_type: "Event"})
-where(orders: {created_at: time_range})
-
-# NOT
-where.not(status: :cancelled)
-where.not(orders_count: [1, 3, 5])
-
-# OR / AND (preferred over raw string ORs)
-local_banks.or(global_banks).or(private_banks)
-where(id: [1, 2]).and(where(id: [2, 3]))
-```
-
-#### Array Conditions (when hash is not enough)
-
-Use `?` positional placeholders or named `:key` placeholders. Never interpolate variables directly.
-
-```ruby
-# positional placeholders — safe
-where("price > ?", 100)
-where("title = ? AND out_of_print = ?", params[:title], false)
-where("created_at >= :start AND created_at <= :end", start: 1.week.ago, end: Time.current)
-```
-
-For `LIKE` searches, use `sanitize_sql_like` to prevent wildcard injection:
-
-```ruby
-# safe LIKE — sanitize user input before wrapping with %
-where("LOWER(tags.name) LIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(query.downcase)}%")
-```
-
-#### Pure String Conditions (FORBIDDEN with user input)
-
-```ruby
-# FORBIDDEN — SQL injection risk; user controls the WHERE clause
-where("title = '#{params[:title]}'")
-where("title LIKE '%#{params[:title]}%'")
-
-# FORBIDDEN — even with trusted data, prefer array or hash form
-where("status = 'active'")        # use: where(status: :active)
-where("taggings_count >= 100")    # use: where("taggings_count >= ?", 100)
-```
-
-Pure string conditions are **never acceptable** when the string contains any user-supplied value. They are acceptable only for rare structural SQL fragments with no user input (e.g., raw `CASE` expressions as grouping keys), and must be accompanied by a comment explaining why no ORM alternative exists.
-
-#### Ordering
-
-```ruby
-# preferred — symbol/hash form
-order(name: :asc)
-order(created_at: :desc)
-order(:name, created_at: :desc)
-
-# acceptable — string only when multi-column or table-qualified
-order("tags.name ASC, tags.created_at DESC")
-
-# FORBIDDEN — user-controlled direction must be validated before use
-order("#{params[:field]} #{params[:dir]}")   # inject risk — sanitize first
-```
-
-Always normalize sort direction to a safelist and explicitly validate sort fields against an allowlist in the query object.
-
-#### Joins
-
-Prefer named association joins over raw SQL strings:
-
-```ruby
-# preferred
-joins(:taggings)
-left_joins(:taggings)
-joins(:author, :reviews)
-joins(reviews: :customer)
-
-# only if no association exists
-joins("INNER JOIN taggings ON taggings.tag_id = tags.id")
-```
-
----
+> **ORM Conditions over Raw SQL:** hash/array conditions, ordering, joins → [references/orm-conditions.md](references/orm-conditions.md)
 
 ## MANDATORY RULE: Base Scope Must Be the Root of Your Domain
 
@@ -242,172 +160,7 @@ Instead, build small, composable query objects named after their **business logi
 - `Users::ActiveQuery`
 - `Courses::QuestionBanks::AccessibleQuery`
 
-### The ApplicationQuery Base Class
-*(This exists in `app/queries/application_query.rb`)*
-```ruby
-class ApplicationQuery
-  def self.pipeline(*steps)
-    @pipeline_steps = steps.flatten
-  end
-
-  def self.pipeline_steps
-    @pipeline_steps ||= []
-  end
-
-  def self.base_scope(&block)
-    @base_scope_proc = block
-  end
-
-  def self.evaluated_base_scope
-    raise NotImplementedError, "Define a `base_scope` block in #{name}" unless @base_scope_proc
-    @base_scope_proc.call
-  end
-
-  def self.call(filters = {}, scope: nil)
-    initial_scope = scope || evaluated_base_scope
-    new(filters, scope: initial_scope).build_query
-  end
-
-  attr_reader :filters, :initial_scope
-
-  def initialize(filters, scope:)
-    # Protect pipeline steps from symbol/string key mismatches when callers
-    # pass ActionController::Parameters or plain hashes.
-    @filters = (filters || {}).to_h.with_indifferent_access
-    @initial_scope = scope
-  end
-
-  def build_query
-    self.class.pipeline_steps.reduce(initial_scope) do |current_scope, step|
-      send(step, current_scope)
-    end
-  end
-end
-```
-
-### Primary House Style Example
-```ruby
-# app/queries/articles/published_query.rb
-module Articles
-  class PublishedQuery < ApplicationQuery
-    base_scope { Article.all }
-
-    pipeline :filter_by_status,
-             :search_by_title,
-             :filter_by_category,
-             :apply_ordering
-
-    private
-
-    def filter_by_status(current_scope)
-      current_scope.where(status: :published)
-    end
-
-    def search_by_title(current_scope)
-      return current_scope if filters[:query].blank?
-      
-      safe_query = ActiveRecord::Base.sanitize_sql_like(filters[:query].to_s.downcase)
-      current_scope.where("LOWER(articles.title) LIKE ?", "%#{safe_query}%")
-    end
-
-    def filter_by_category(current_scope)
-      return current_scope if filters[:category_id].blank?
-      current_scope.where(category_id: filters[:category_id])
-    end
-
-    def apply_ordering(current_scope)
-      field = filters.dig(:order, :field)&.to_s
-      return current_scope if field.blank? || %w[created_at title].exclude?(field)
-      
-      dir = (filters.dig(:order, :dir)&.to_s&.downcase == "asc") ? "asc" : "desc"
-      current_scope.order(field => dir)
-    end
-  end
-end
-```
-
-## Caller Contract
-Callers (usually controllers) must define and pass a `filters` hash method. The controller is responsible for choosing the correct Domain Query based on the current context.
-
-```ruby
-# In a public controller protecting drafts
-def index
-  relation = Articles::PublishedQuery.call(filters)
-  # ... pagination and rendering
-end
-
-# In a private studio controller showing a writer's drafts
-def index
-  relation = Articles::OwnedQuery.call(filters.merge(owner: current_user))
-  # ... pagination and rendering
-end
-```
-
-## Recommended Shape (Complex Example)
-```ruby
-# app/queries/courses/question_banks/accessible_query.rb
-module Courses::QuestionBanks
-  class AccessibleQuery < ApplicationQuery
-    SORTABLE_FIELDS = %w[title created_at updated_at].freeze
-
-    base_scope { Courses::QuestionBank.all }
-
-    pipeline :enforce_account_isolation,
-             :filter_by_visibility,
-             :search_by_title,
-             :apply_ordering
-
-    private
-
-    def enforce_account_isolation(current_scope)
-      return current_scope.none if filters[:site].blank?
-      
-      current_scope.joins(:site).where(sites: { account_id: filters[:site].account_id })
-    end
-
-    def filter_by_visibility(current_scope)
-      return current_scope.none if filters[:site].blank? || filters[:user].blank?
-
-      local_banks = current_scope.where(
-        shared_type: Courses::QuestionBank::SHARED_TYPES[:LOCAL],
-        site_id: filters[:site].id
-      )
-
-      global_banks = current_scope.where(
-        shared_type: Courses::QuestionBank::SHARED_TYPES[:GLOBAL]
-      )
-
-      private_banks = current_scope.where(
-        shared_type: Courses::QuestionBank::SHARED_TYPES[:PRIVATE],
-        author_id: filters[:user].id
-      )
-
-      local_banks.or(global_banks).or(private_banks)
-    end
-
-    def search_by_title(current_scope)
-      return current_scope if filters[:query].blank?
-
-      safe_query = ActiveRecord::Base.sanitize_sql_like(filters[:query].to_s.downcase)
-      current_scope.where("LOWER(courses_question_banks.title) LIKE ?", "%#{safe_query}%")
-    end
-
-    def apply_ordering(current_scope)
-      field = filters.dig(:order, :field)&.to_s
-      return current_scope if field.blank? || SORTABLE_FIELDS.exclude?(field)
-
-      dir = (filters.dig(:order, :dir)&.to_s&.downcase == "asc") ? "asc" : "desc"
-      current_scope.order(field => dir)
-    end
-  end
-end
-```
-
-### Controller Pagination (caller responsibility)
-```ruby
-question_banks = Courses::QuestionBanks::AccessibleQuery.call(filters)
-  .paginate(page: parse_page(params[:page]), per_page: parse_per_page(params[:per_page]))
-```
+> **ApplicationQuery Base Class and Examples:** base class, house-style and complex examples → [references/base-class-and-examples.md](references/base-class-and-examples.md)
 
 ## Style Rules
 - Always inherit from `ApplicationQuery`.
@@ -454,29 +207,7 @@ end
 - Keyword-argument `.call(site:, user:, ...)` forms are not accepted.
 - The accepted signature is strictly `.call(filters, scope: nil)` (inherited from base class).
 
-## Suggested Filters For Question Banks
-```ruby
-{
-  site: site,
-  user: sessioned_user,
-  query: params[:query],
-  order: {field: "updated_at", dir: "desc"}
-}
-```
-
-## Empty Filters Invariant
-When `filters` is an empty hash, the query object must return the base scope. This is automatically handled by `ApplicationQuery` gracefully bypassing all pure methods via their guard clauses.
-
-```ruby
-query_result = QueryObject.call({})
-base_scope_result == query_result
-```
-
-## Search Guidance
-- If the model/query mixin already provides `search_by`, prefer that repository abstraction.
-- Otherwise, use explicit SQL predicates scoped to the resource table.
-- Always use `ActiveRecord::Base.sanitize_sql_like` on user input for `LIKE` clauses.
-- Keep case-insensitive matching inside the query object, not the controller.
+> **Filters and Search Guidance:** domain filter and search guidance → [references/filters-and-search.md](references/filters-and-search.md)
 
 ## Spec Checklist
 - `.call` delegates to `build_query` and returns a plain `ActiveRecord::Relation` (not paginated)

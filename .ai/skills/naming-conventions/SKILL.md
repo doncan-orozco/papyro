@@ -1,9 +1,26 @@
 ---
 name: naming-conventions
-description: Every class, method, and variable must have a readable, meaningful, explicit name rooted in the domain language. Avoid computer-science jargon when a domain term exists.
+description: "Domain-language naming rules for classes, methods and variables. Use when naming or renaming any new class, method, variable, operation, route or translation key in the Papyro codebase."
 ---
 
 # Naming Conventions
+
+## Quick Rules
+
+Cite as `naming-conventions R<n>`. Detail and examples follow below / in references/.
+
+R1. **Domain vocabulary.** Class, method and variable names use domain terms, not technical implementation terms (`Roster`, not `UserList`). → detail: Core Principle / Classes and Types
+R2. **No stuttering.** Class and file names never repeat the namespace or type (`Published`, not `PublishedQuery`). → detail: Classes and Types
+R3. **Domain types over primitives.** Compound domain concepts get their own type (`Money` with currency and amount) instead of raw String/Float/Hash. → detail: Classes and Types
+R4. **Methods name the outcome.** Methods are named for what they accomplish (`within_enrollment_period?`), not how (`check_date_range`). → detail: Methods
+R5. **Domain verbs for commands.** Command methods use domain verbs (`enroll`, `publish`, `archive`), not persistence verbs (`save`, `insert`, `update`). → detail: Methods
+R6. **Predicates end in `?`.** Boolean methods end in `?` and read as domain assertions; avoid negated names (`active?`, not `not_expired?`). → detail: Methods / Avoid / Ruby-Specific Guidance
+R7. **Bang only with counterpart.** `!` methods exist only when a safe non-bang counterpart exists (`publish` vs `publish!`). → detail: Ruby-Specific Guidance
+R8. **Domain variable names.** Variables and iterators carry the domain term (`recipient`, `enrollment_fee`, `questions.each do |question|`), not `item`, `data`, `result`, `obj` or `date2`. → detail: Variables and Parameters / Avoid
+R9. **Booleans read as assertions.** Boolean variables and parameters are named like `allow_retakes` or `requires_approval`, not `flag` or `bool_val`. → detail: Variables and Parameters
+R10. **No cryptic abbreviations or suffixes.** No `usr`, `cfg`, `mgr`, `tmp`, and no `_hash`/`_array`/`_list` suffixes unless the structure is the domain concept. → detail: Avoid
+R11. **Keyword args when ambiguous.** Use keyword arguments when two or more arguments share a type and order is not self-evident (`enroll(user: user, course: course)`). → detail: Method Arguments and Keyword Parameters
+R12. **Constants and casing.** Constants are `SCREAMING_SNAKE_CASE` domain values; classes and modules are `PascalCase`; everything else is `snake_case`. → detail: Ruby-Specific Guidance
 
 ## Core Principle
 Code should read like domain discussion. A casual observer should not be able to tell whether people are talking about the code or the business domain. If a financial analyst can point at a screen and walk programmers through pricing logic line-by-line without switching vocabulary, the naming is right.

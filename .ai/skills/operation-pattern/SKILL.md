@@ -1,6 +1,6 @@
 ---
 name: operation-pattern
-description: Golden archetype for write Operations in Papyro. Use when implementing, refactoring, or reviewing files in `app/concepts/*/operation/`. Covers single-intent mutation commands, explicit dependencies, multi-write transactions, `ApplicationOperation` result payloads, failure-code routing, and locale-aware persistence.
+description: "Golden archetype for write Operations and Contracts. Use when creating, editing or reviewing files in `app/concepts/*/operation/` or `app/concepts/*/contract/`: single-intent commands, explicit dependencies, transactions, `Core::Operation` result payloads, failure codes, and layered validation (dry-validation + ActiveModel errors)."
 ---
 
 # Golden Operation Skill (Papyro)
@@ -9,11 +9,26 @@ Use this skill whenever you create, edit, or review a mutation flow in `app/conc
 
 This skill complements:
 - `.ai/skills/controller/SKILL.md` for the HTTP boundary
-- `.ai/skills/layered-validation-operation-pattern/SKILL.md` for contract layering
-- `.ai/skills/error-handling/SKILL.md` for controller/result integration
+- `references/layered-validation.md` for contract layering
+- `.ai/skills/controller/references/error-handling.md` for controller/result integration
 
 Reference examples:
 - `references/canonical-examples.md` for compact create, update, article state-command, and translation state-command shapes
+
+## Quick Rules
+
+Cite as `operation-pattern R<n>`. Detail and examples follow below / in references/.
+
+R1. **One intent per Operation.** One class per domain intent; no `action:`/`mode:` switching; a controller action never calls two sibling operations for one user action. → detail: RULE 1
+R2. **Repository result contract.** `call` returns a plain payload hash on success; failures use `Failure(...)` via `inject_errors!`/`fail_with_model!`/`fail_with_code!`. → detail: RULE 2
+R3. **Failure payload shape.** Failure includes `:code` when callers route outcomes and `:model` when a form may re-render. → detail: RULE 2
+R4. **No hidden dependencies.** Pass `user:`, `locale:`, `settings_params:` etc. explicitly; never read `params`, `session` or `Current` inside an Operation. → detail: RULE 3
+R5. **Layered responsibility.** Contracts validate shape/coercion/format; Operations own workflow and business rules; Models enforce persistence constraints. → detail: RULE 4
+R6. **Transactions for multi-write only.** Wrap multiple writes (or metadata + state transition) in one transaction; never wrap a single save/update/destroy. → detail: references/transactions.md
+R7. **Explicit locale.** Operations mutating translated attributes accept `locale:` in the `call` signature. → detail: RULE 6
+R8. **Stable failure codes.** Controllers branch on `failure[:code]` (e.g. `:already_published`, `:trashed`, `:invalid`), not model internals. → detail: RULE 7
+R9. **No boundary concerns.** No authorization/policy checks, rendering, redirects, flash or Turbo markup inside Operations. → detail: What Operations Are For
+R10. **No query-only composition.** Operations do not compose read-only queries; reads belong in Query Objects. → detail: What Operations Are For
 
 ## What Operations Are For
 
@@ -42,7 +57,7 @@ If one controller action represents one user intent but needs multiple mutation 
 
 ## RULE 2: Use the Repository Result Contract
 
-Papyro uses `ApplicationOperation < Dry::Operation` with `Dry::Monads[:result]`.
+Papyro uses `Core::Operation < Dry::Operation` with `Dry::Monads[:result]`.
 
 Success shape:
 
@@ -66,7 +81,7 @@ Rules:
 - Use `Success(...)` and `Failure(...)` in internal step methods and helper methods.
 - Include `:code` whenever the caller must route different failure outcomes.
 - Include `:model` whenever the caller may need to re-render a form.
-- Reuse `inject_errors!`, `fail_with_model!`, and `fail_with_code!` from `ApplicationOperation`.
+- Reuse `inject_errors!`, `fail_with_model!`, and `fail_with_code!` from `Core::Operation`.
 
 ## RULE 3: No Hidden Dependencies
 
@@ -99,74 +114,7 @@ Keep the mutation boundary layered:
 
 ## RULE 5: Use Transactions for Multi-Write Workflows
 
-If an operation performs more than one write, or if a partial write would leave the domain in an invalid split state, wrap the workflow in a transaction.
-
-Typical triggers:
-- update settings + publish state in one command
-- save a model + save a related translation
-- persist a record + enqueue durable side effects that depend on that write
-
-Canonical pattern:
-
-```ruby
-def call(model:, settings_params: {}, locale: I18n.locale)
-  persisted_model = step publish_with_optional_settings(
-    model: model,
-    settings_params: settings_params,
-    locale: locale
-  )
-
-  { model: persisted_model }
-end
-
-def publish_with_optional_settings(model:, settings_params:, locale:)
-  transaction_failure = nil
-  preserved_failure = nil
-
-  persisted_model = Mobility.with_locale(locale) do
-    ActiveRecord::Base.transaction do
-      prepared_model = if settings_params.present?
-        result = apply_settings(model: model, settings_params: settings_params, locale: locale)
-        unless result.success?
-          transaction_failure = result
-          raise ActiveRecord::Rollback
-        end
-
-        result.value!
-      else
-        model
-      end
-
-      publishable_model = validate_publishable(prepared_model)
-      unless publishable_model.success?
-        if publishable_model.failure[:code] == :already_published
-          preserved_failure = publishable_model
-          prepared_model
-        else
-          transaction_failure = publishable_model
-          raise ActiveRecord::Rollback
-        end
-      else
-        persisted_model = persist_publish_state(publishable_model.value!)
-        unless persisted_model.success?
-          transaction_failure = persisted_model
-          raise ActiveRecord::Rollback
-        end
-
-        persisted_model.value!
-      end
-    end
-  end
-
-  return transaction_failure if transaction_failure
-  return preserved_failure if preserved_failure
-
-  Success(persisted_model)
-end
-```
-
-If there is only one `save`, rely on the transaction Active Record already wraps around that single persistence call.
-Use the `preserved_failure` branch only when the business rule explicitly allows metadata changes to persist while rejecting the state transition. All other failures should roll back.
+Wrap multiple writes (or metadata update + state transition) in one transaction so partial updates cannot leak; never wrap a single `save`/`update`/`destroy`. Patterns and examples: [references/transactions.md](references/transactions.md).
 
 ## RULE 6: Locale Must Be Explicit
 
@@ -196,98 +144,7 @@ If a command intentionally persists metadata while refusing a state transition, 
 
 ## Gold Standard Mutation Shape
 
-```ruby
-module Articles
-  module Operation
-    class Publish < ApplicationOperation
-      def call(model:, settings_params: {}, locale: I18n.locale)
-        persisted_model = step publish_with_optional_settings(
-          model: model,
-          settings_params: settings_params,
-          locale: locale
-        )
-
-        { model: persisted_model }
-      end
-
-      private
-
-      def publish_with_optional_settings(model:, settings_params:, locale:)
-        transaction_failure = nil
-        preserved_failure = nil
-
-        persisted_model = Mobility.with_locale(locale) do
-          ActiveRecord::Base.transaction do
-            prepared_model = if settings_params.present?
-              result = apply_settings(model: model, settings_params: settings_params, locale: locale)
-              unless result.success?
-                transaction_failure = result
-                raise ActiveRecord::Rollback
-              end
-
-              result.value!
-            else
-              model
-            end
-
-            publishable_model = validate_publishable(prepared_model)
-            unless publishable_model.success?
-              if publishable_model.failure[:code] == :already_published
-                preserved_failure = publishable_model
-                prepared_model
-              else
-                transaction_failure = publishable_model
-                raise ActiveRecord::Rollback
-              end
-            else
-              persisted_model = persist_publish_state(publishable_model.value!)
-              unless persisted_model.success?
-                transaction_failure = persisted_model
-                raise ActiveRecord::Rollback
-              end
-
-              persisted_model.value!
-            end
-          end
-        end
-
-        return transaction_failure if transaction_failure
-        return preserved_failure if preserved_failure
-
-        Success(persisted_model)
-      end
-
-      def apply_settings(model:, settings_params:, locale:)
-        return Success(model) if settings_params.blank?
-
-        result = Articles::Operation::Update.new.call(
-          model: model,
-          params: settings_params,
-          locale: locale
-        )
-
-        return Success(result.value![:model]) if result.success?
-
-        result
-      end
-
-      def validate_publishable(model)
-        return fail_with_code!(model, :trashed, message: I18n.t("studio.articles.operations.update.trashed")) if model.trashed?
-        return fail_with_code!(model, :already_published, message: I18n.t("errors.messages.article_already_published")) if model.published?
-
-        Success(model)
-      end
-
-      def persist_publish_state(model)
-        model.published_at ||= Time.current
-        return Success(model) if model.save
-
-        fail_with_model!(model)
-      end
-    end
-  end
-end
-```
+Full annotated operation: [references/gold-standard-shape.md](references/gold-standard-shape.md). Contract/validation layering: [references/layered-validation.md](references/layered-validation.md). More examples: [references/canonical-examples.md](references/canonical-examples.md).
 
 ## Review Checklist
 

@@ -13,7 +13,7 @@ This file provides concrete examples for common lint issues and test patterns.
 Wrong:
 ```ruby
 # app/operations/articles/operation/create.rb
-class Articles::Operation::Create < ApplicationOperation
+class Articles::Operation::Create < Core::Operation
   def self.validate_and_create_with_all_the_business_logic_for_articles_in_this_system
   end
 end
@@ -22,7 +22,7 @@ end
 Correct:
 ```ruby
 # app/operations/articles/operation/create.rb
-class Articles::Operation::Create < ApplicationOperation
+class Articles::Operation::Create < Core::Operation
   def self.validate_and_create_article
   end
 end
@@ -126,7 +126,7 @@ Fix: `bin/rubocop --fix-layout` auto-fixes these.
 
 Wrong:
 ```ruby
-class Articles::Operation::Create < ApplicationOperation
+class Articles::Operation::Create < Core::Operation
     def call
         article = Article.new
             article.title = "Test"
@@ -136,7 +136,7 @@ end
 
 Correct:
 ```ruby
-class Articles::Operation::Create < ApplicationOperation
+class Articles::Operation::Create < Core::Operation
   def call
     article = Article.new
     article.title = "Test"

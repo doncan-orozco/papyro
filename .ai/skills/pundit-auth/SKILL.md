@@ -1,12 +1,32 @@
 ---
 name: pundit-auth
-description: Professional authorization guidance using the Pundit gem. Use when defining access control logic in Rails, creating policies, managing unauthorized access redirects, or scoping database queries based on user roles.
+description: "Pundit authorization and role management. Use when creating or editing files in `app/policies/`, calling `authorize`/`policy_scope` in controllers, adding policies for sub-resources or namespaces (Studio), handling `NotAuthorizedError`, or adding integer-enum roles to users."
 license: MIT
 ---
 
 # Rails Authorization (Pundit)
 
 Pundit provides minimal, explicit authorization through plain Ruby policy classes.
+
+## Quick Rules
+
+Cite as `pundit-auth R<n>`. Detail and examples follow below / in references/.
+
+R1. **Authorize every action.** Every controller member/collection action calls `authorize` (or `policy_scope` for collections); no action ships without one. → detail: Anti-Patterns to Avoid
+R2. **Authorize in controllers only.** No `authorize`/Pundit calls inside Operations; the controller authorizes before invoking the operation. → detail: Papyro Integration Rules
+R3. **Authorize model before operation.** update/destroy find and authorize the model first, then pass it to the operation; create authorizes the class and takes ownership from `Current.user`. → detail: Papyro Integration Rules
+R4. **Policy naming and base.** Policies live in `app/policies/`, are named `[Model]Policy`, and inherit `ApplicationPolicy`. → detail: Policy Standards
+R5. **Predicate methods.** Policy query methods end in `?`, return booleans, and stay small and predicate-focused (no branch-heavy bodies). → detail: Policy Standards
+R6. **Scopes for collections.** Visibility filtering lives in `Scope#resolve` (returning a Relation) with the same rules as member permissions, never ad-hoc in controllers. → detail: Scope Standards
+R7. **Role-based params via policy.** Role-sensitive mass assignment uses `expected_attributes_for_action` in the policy, not controller conditionals. → detail: Strong Parameters with Policies
+R8. **No god-object policies.** Domain verbs (`publish?`, `feature?`, `approve?`) get a namespaced policy (e.g. `Studio::PublicationPolicy`), not the root model policy. → detail: references/namespaced-policies.md
+R9. **No action-name overrides.** `authorize record, :other?` inside a differently named action signals a missing bounded-context policy; create one so `create?` maps to `create?`. → detail: Anti-Patterns to Avoid
+R10. **Call skip helpers directly.** Use `skip_authorization`/`skip_policy_scope` directly (e.g. `before_action :skip_authorization`), never wrapped in private methods or applied globally. → detail: Anti-Patterns to Avoid
+R11. **Not-found via rescue_from.** Use `rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found` in `ApplicationController`; no inline `rescue RecordNotFound` in actions. → detail: Anti-Patterns to Avoid
+R12. **Guard Pundit verification in handlers.** Rescue branches that bypass authorization/scoping call `skip_authorization`/`skip_policy_scope` (guarded by `pundit_policy_authorized?`/`pundit_policy_scoped?`). → detail: Anti-Patterns to Avoid
+R13. **Translated NotAuthorizedError.** `Pundit::NotAuthorizedError` is rescued in `ApplicationController` with translated messages. → detail: Error Handling
+R14. **Headless policies take two args.** Symbol-backed policies (`authorize :admin_area, :access?`) define `initialize(user, _record)`. → detail: Headless Policies
+R15. **Integer enum roles.** Roles are `enum :role, { member: 0, ... }` with explicit hash mapping, an integer column `default: 0, null: false`, and 0 as the least-privileged role. → detail: references/role-management.md
 
 This skill defines the baseline standards for Papyro and aligns with official Pundit guidance from https://github.com/varvet/pundit.
 
@@ -25,163 +45,9 @@ This skill defines the baseline standards for Papyro and aligns with official Pu
 - **[references/testing.md](references/testing.md)**
   Use for policy, scope, and controller authorization test patterns.
 
-## ApplicationController Baseline
+> **ApplicationController Baseline:** baseline and per-namespace not-found overrides → [references/controller-baseline.md](references/controller-baseline.md)
 
-```ruby
-class ApplicationController < ActionController::Base
-  include Pundit::Authorization
-  after_action :verify_pundit_authorization
-
-  rescue_from Pundit::NotAuthorizedError, with: :handle_not_authorized
-  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
-
-  private
-
-  def verify_pundit_authorization
-    if action_name == "index"
-      verify_policy_scoped
-    else
-      verify_authorized
-    end
-  end
-
-  def pundit_user
-    Current.user
-  end
-
-  def handle_not_authorized(exception)
-    policy_name = exception.policy.class.to_s.underscore
-    message = I18n.t("#{policy_name}.#{exception.query}", scope: "pundit", default: I18n.t("admin.errors.unauthorized"))
-
-    redirect_to(request.referrer || root_path, alert: message)
-  end
-
-  def handle_not_found
-    skip_authorization unless pundit_policy_authorized?
-    skip_policy_scope unless pundit_policy_scoped?
-    render file: Rails.root.join("public/404.html"), status: :not_found, layout: false
-  end
-end
-```
-
-Notes:
-- Use `pundit_user` when your app does not expose `current_user` (Rails 8 generator uses `Current.user`).
-- If your app switches users in-session, call `pundit_reset!` after switching.
-- `handle_not_found` guards Pundit verification with `pundit_policy_authorized?` / `pundit_policy_scoped?` so the `after_action` hook does not raise a second error.
-
-## Overriding Not-Found Behaviour per Namespace
-
-When a bounded-context namespace needs different not-found behaviour (e.g., Studio redirects to the creator's list instead of rendering 404.html), override `handle_not_found` in the namespace base controller:
-
-```ruby
-# app/controllers/studio/base_controller.rb
-module Studio
-  class BaseController < ApplicationController
-    private
-
-    def handle_not_found
-      skip_authorization unless pundit_policy_authorized?
-      skip_policy_scope unless pundit_policy_scoped?
-      redirect_to studio_articles_path, alert: t("articles.errors.not_found")
-    end
-  end
-end
-```
-
-All Studio controllers inherit this redirect automatically. No inline rescue blocks needed in any child controller.
-
-## Controller Patterns
-
-### Collections
-
-Use `policy_scope` for collection actions.
-
-```ruby
-def index
-  articles = policy_scope(Article)
-  render Views::Articles::Index.new(articles: articles)
-end
-```
-
-If you intentionally do not scope in an index action, call `skip_policy_scope`.
-
-### Member Actions
-
-Use `authorize(record)` for member actions. When the action name corresponds to the policy query name, let Pundit infer it instead of passing the query symbol explicitly.
-
-```ruby
-def show
-  article = Article.find(params[:id])
-  authorize article
-  render Views::Articles::Show.new(article: article)
-end
-```
-
-### Non-standard Query Names
-
-Use explicit queries only when the controller action name does not match the policy query name, or when authorizing a headless policy.
-
-```ruby
-authorize article, :publish?
-authorize :admin_area, :access?
-```
-
-**Prefer creating a namespaced policy over using `:action_name?` overrides.** See _Namespaced Policies_ below.
-
-### Authorizing with a Specific Policy Class
-
-When a controller lives in a bounded-context namespace (`Studio::`, `Admin::`, etc.), tell Pundit which policy to use via `policy_class:` instead of relying on automatic inference from the model name.
-
-Works for both class-level (new/create) and instance-level (edit/update/destroy) authorization:
-
-```ruby
-# Class-level: authorizing "can this user create any article in Studio?"
-def new
-  authorize Article, policy_class: Studio::ArticlePolicy
-  # ...
-end
-
-def create
-  authorize Article, policy_class: Studio::ArticlePolicy
-  # ...
-end
-
-# Instance-level: authorizing a specific record
-def update
-  authorize article, policy_class: Studio::ArticlePolicy
-  # ...
-end
-```
-
-This keeps every authorize call in a Studio controller pointing at `Studio::ArticlePolicy`, so Studio-specific rules never leak into the root `ArticlePolicy`.
-
-When a bounded context uses slug URLs (`to_param` returns slug), use a single memoized reader with slug-only lookup instead of mixed `id || slug` queries:
-
-```ruby
-private
-
-def article
-  @article ||= Current.user.articles.find_by!(slug: params[:slug])
-end
-```
-
-If the controller is namespaced under Studio and works with article member routes, ensure routes declare `param: :slug` so controller lookups consistently use `params[:slug]`.
-
-### Conditional Authorization
-
-If an action conditionally authorizes, call `skip_authorization` in the non-authorized branch.
-
-```ruby
-def show
-  record = Record.find_by(id: params[:id])
-  if record
-    authorize record
-  else
-    skip_authorization
-    head :not_found
-  end
-end
-```
+> **Controller Patterns:** collections, members, policy_class, conditional authorization → [references/controller-patterns.md](references/controller-patterns.md)
 
 ## Policy Standards
 
@@ -249,84 +115,7 @@ end
 
 Prefer this pattern for role-sensitive mass assignment.
 
-## Namespaced Policies (Bounded Contexts)
-
-Use namespaced policies to reflect domain boundaries. Policies are not global objects — publishing an article in a `Studio` context may carry different rules than publishing as an `Admin` or `Moderator`.
-
-### When to Create a Namespaced Policy
-
-Create a namespaced policy whenever a controller sub-namespace represents a **distinct domain context** with its own rules, or when you find yourself overriding the action name in `authorize` (e.g., `authorize article, :publish?` inside a `create` action). That override is a signal that your policy does not align with the controller's domain boundary.
-
-### Pattern: `policy_class` for Discrete Sub-Resources
-
-When a controller treats a concept as a sub-resource (e.g., `Studio::PublicationsController`), create a matching namespaced policy and reference it explicitly with `policy_class`:
-
-```ruby
-# app/policies/studio/publication_policy.rb
-module Studio
-  # Authorizes publish/unpublish within the Studio bounded context only.
-  # create? = publish,  destroy? = unpublish — mirrors the controller exactly.
-  class PublicationPolicy < ApplicationPolicy
-    def create?
-      owner? && article_ready_to_publish?
-    end
-
-    def destroy?
-      owner?
-    end
-
-    private
-
-    def owner?
-      user.present? && record.user_id == user.id
-    end
-
-    def article_ready_to_publish?
-      record.title.present?
-    end
-  end
-end
-```
-
-```ruby
-# app/controllers/studio/publications_controller.rb
-def create
-  article = find_user_article!
-  authorize article, policy_class: Studio::PublicationPolicy
-  # ...
-end
-
-def destroy
-  article = find_user_article!
-  authorize article, policy_class: Studio::PublicationPolicy
-  # ...
-end
-```
-
-### Why This Matters
-
-1. **REST alignment** — controller actions (`create`, `destroy`) map directly to policy methods (`create?`, `destroy?`). No action-name overrides needed.
-2. **Bounded contexts** — `Studio::PublicationPolicy` governs creator workflows only. An `Admin::PublicationPolicy` could allow force-unpublishing with completely isolated rules.
-3. **Skinny god objects** — `ArticlePolicy` covers only universal CRUD (`show?`, `create?`, `update?`, `destroy?`). Domain-specific verbs live in dedicated policies.
-
-### When NOT to Use a Namespaced Policy
-
-If the rule is truly universal (e.g., "only the owner can destroy"), keep it in the root policy. Only extract when the bounded context adds distinct semantics or branching.
-
-### Defense in Depth
-
-Even when `find_user_article!` already scopes to `Current.user` (making unauthorized access return a 404), always keep the `authorize` call. If a future developer changes the finder, the policy is the last safety net.
-
-### Traditional Namespace Syntax (Admin Contexts)
-
-For admin namespaces that rely on Pundit's automatic namespace resolution:
-
-```ruby
-authorize([:admin, post])
-policy_scope([:admin, Post])
-```
-
-For large apps, centralize namespacing via `pundit_namespace` in a base admin controller.
+> **Namespaced Policies:** bounded-context and sub-resource policies → [references/namespaced-policies.md](references/namespaced-policies.md)
 
 ## Headless Policies
 
