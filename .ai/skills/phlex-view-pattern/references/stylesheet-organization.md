@@ -22,7 +22,11 @@ Use this skill when creating or editing styles in Papyro.
 app/assets/tailwind/
   application.css                   # manifest only
   foundation/
-    theme.css                       # :root, @theme, dark mode, @layer base
+    base.css                        # non-theme global rules (smooth scroll, scroll margins)
+  theme/
+    theme.css                       # shadcn theme: the ONLY file edited to restyle (bin/rails theme:use|import|check)
+    tokens.css                      # @theme inline + base layer; generated mapping, do not edit
+    legacy-compat.css               # shims for frozen legacy components
   components/
     ui-scroll-area.css              # cross-domain component styles
   domains/
@@ -66,7 +70,7 @@ app/assets/tailwind/
 
 - `Articles::Show` typography belongs in `domains/articles/reader.css`.
 - Shared custom scrollbar rules belong in `components/ui-scroll-area.css`.
-- Theme variables and dark mode belong in `foundation/theme.css`.
+- Theme variables and dark mode belong in `theme/theme.css` (shadcn format; see `shadcn-port` theme-contract). `foundation/` keeps only non-theme globals.
 
 ## Companion Skills
 
