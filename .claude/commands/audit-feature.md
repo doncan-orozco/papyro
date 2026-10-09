@@ -58,9 +58,9 @@ Matrix (`Read` only on match):
 - `query-object-pattern`: `app/concepts/*/query/**`; or controllers/presenters whose body matches `/Query|\.call\(.*filters/`.
 - `presenter-pattern`: `app/concepts/*/presenter/**`; and for any view/component whose body references a `Presenter`.
 - `models`: `app/models/**`, `app/validators/**`, `app/concepts/*/validator/**`; add `i18n` when the model has `translates`/Mobility.
-- `phlex-view-pattern`: `app/views/**`, `app/components/**` (except `components/ui/**`), `app/assets/stylesheets/**` in either repo. Add `accessibility` for views/components.
+- `phlex-view-pattern`: `app/views/**`, `app/components/**` (except `components/ui/**` and `components/v2/**`), `app/assets/stylesheets/**` in either repo. Add `accessibility` for views/components.
 - `stimulus`: `app/javascript/**` in either repo (+ `accessibility`).
-- `design-system`: `app/components/ui/**`.
+- `design-system`: `app/components/ui/**` (legacy) and `app/components/v2/**` (with `shadcn-port` + `radix-stimulus`; for V2 prefer `/shadcn-audit`, which is gate-based).
 - `i18n`: any Ruby file matching `/\bt\(|I18n|Mobility|translates/`, all views/components, `config/locales/**`.
 - `seo`: `app/helpers/seo_helper.rb`, `config/sitemap.rb`, or content `/hreflang|canonical|og:|sitemap|friendly_id/`.
 - `sqlite`: `db/migrate/**`, `db/*schema*` (House-only; never Bricks).

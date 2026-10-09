@@ -1,87 +1,65 @@
 ---
 name: design-system
-description: "shadcn/ui-to-Phlex primitives with variants and composition. Use when creating or editing `app/components/ui/*` (button, card, badge, input, label, dialog…), converting Radix/shadcn components, or touching semantic tokens and the `ui--theme` dark-mode controller."
+description: "Papyro design system built on the shadcn/ui port: `Components::V2` in `app/components/v2/*` with 1:1 React API (`Dialog`, `Dialog::Trigger`, `Dialog::Content`), semantic tokens, shadcn-format theme variables and the `v2--` Stimulus controllers. Use when creating or editing `app/components/v2/*`, composing V2 components in views, or touching theme tokens. Legacy `app/components/ui/*` is frozen."
 ---
 
-# Design System (shadcn/ui + Phlex)
+# Design System (shadcn/ui port: `Components::V2`)
+
+The design system is a **1:1 Phlex port of shadcn/ui (new-york-v4, Radix)**. How a component is ported, verified and kept faithful is owned by `shadcn-port` (API, classes, themes, gates) and `radix-stimulus` (behavior). This skill is the day-to-day contract for **writing and using** V2 components.
 
 ## Quick Rules
 
-Cite as `design-system R<n>`. Detail and examples follow below / in references/.
+Cite as `design-system R<n>`.
 
-R1. **Semantic tokens only.** Use `bg-primary`, `text-destructive`, `bg-card` etc.; hardcoded palette classes are forbidden. → detail: Non-Negotiable Rules
-R2. **Catalog updated.** Every new component or variant is added to `app/views/design_system/index.rb`. → detail: Non-Negotiable Rules
-R3. **Catalog strings localized.** Catalog example strings exist in both `config/locales/{en,es}/design_system.yml`. → detail: Non-Negotiable Rules
-R4. **`initialize(**attrs)`.** Every component accepting keyword attributes implements `initialize(**attrs)` and preserves caller attributes. → detail: Non-Negotiable Rules
-R5. **Compound helpers.** Multi-part components use parent-yields-self helpers (`card.header`, `dropdown.trigger`); views never call child `.new`. → detail: references/compound-components.md
-R6. **Merge Stimulus data.** Interactive components merge required Stimulus `data-*` defaults with caller data, never overwrite it. → detail: references/stimulus-interactive-components.md
-R7. **No button inside trigger.** Trigger helpers already render the interactive element; never nest `Components::Ui::Button` in a compound trigger block. → detail: Non-Negotiable Rules
-R8. **Class-based dark mode.** Dark mode goes through the `ui--theme` controller and semantic CSS tokens. → detail: references/css-variables-guide.md
-R9. **Verify against Radix.** Check shadcn behavior against the real Radix UI source before translating it. → detail: references/shadcn-conversion-guide.md
-R10. **Generic UI only.** Structural decisions (view composition, sub-components, presenters) follow phlex-view-pattern; `ui/` stays domain-free. → detail: Companion Skills
+R1. **Semantic tokens only.** `bg-primary`, `text-muted-foreground`, `border-input`...; no palette classes, hex or rgb. The only color classes allowed are the ones the shadcn source itself uses (`text-white`, `bg-black/50`). → `shadcn-port` R9
+R2. **Namespace and location.** V2 lives in `app/components/v2/` as `Components::V2::<Name>`, every part inherits `Components::V2::Base` (cn, attribute merging, `render_as_child`); Stimulus identifiers are `v2--<name>`, controllers in `app/javascript/controllers/v2/`. Never import from legacy `app/components/ui/`. → `shadcn-port` R15
+R3. **Same API as React.** One Ruby class per React export: `Dialog` -> `Components::V2::Dialog`, `DialogContent` -> `Components::V2::Dialog::Content`, `DropdownMenuCheckboxItem` -> `DropdownMenu::CheckboxItem`. Props are snake_case kwargs; `className` -> `class:`; children -> block. → `shadcn-port` references/api-mapping.md
+R4. **Views never build compound parts with helpers.** No `dialog.content`, `card.header`, `dropdown.trigger` yielded helpers. Compose with `render Components::V2::Dialog::Content.new { ... }` exactly like the JSX tree. → references/compound-components.md
+R5. **`**attrs` everywhere.** Every class (root and each part) takes `**attrs`, passes them through, merges `class` via `cn` (caller wins) and deep-merges `data:`/`aria:` with the component's required attributes.
+R6. **Strings and symbols.** Variant-like options accept both (`variant: "outline"`, `variant: :outline`, `size: "icon-sm"`, `size: :icon_sm`); defaults equal the React `defaultVariants`.
+R7. **`data-slot` on every part,** exactly the shadcn value, plus `data-variant`/`data-size` where the React source emits them.
+R8. **No button inside a trigger part.** `Dialog::Trigger` renders its own `<button>`; never nest `Components::V2::Button` as its content. To render the trigger as a Button use React's own mechanism: `Dialog::Trigger.new(as_child: Components::V2::Button.new(variant: "outline"))`.
+R9. **Behavior through Stimulus + shared primitives only.** No inline JS, no per-component copies of focus/dismiss/positioning logic. → `radix-stimulus`
+R10. **Theme in shadcn format, one file.** Colors live only in `app/assets/tailwind/theme/theme.css` as `--primary: oklch(...)` in `:root`/`.dark`; `tokens.css` maps them to utilities and is never edited. Change the look with `bin/rails theme:use[preset]`, `theme:import[...]`, `theme:check`; a theme pasted from ui.shadcn.com works unchanged. Never put colors in components or other stylesheets. → `shadcn-port` references/theme-contract.md
+R11. **Catalog.** Every V2 component appears in the design-system catalog (`/design-system`), generated from the scenario files (no hand-written demos that can drift). Catalog copy is localized in `config/locales/{en,es}/design_system.yml`.
+R12. **Generic UI only.** `v2/` has no domain knowledge. Domain composition belongs in `app/components/{public,shared,...}` following `phlex-view-pattern`.
+R13. **Localized defaults.** Default strings shipped by shadcn (e.g. the sr-only "Close") are kwargs whose default equals the React string; app code passes `t(...)` through the kwarg. Components never call `t` themselves.
+R14. **Verified, not eyeballed.** A V2 component is correct only if `/shadcn-audit <name>` passes (G1-G4). Do not edit a V2 file to "look right" without running it.
 
+## Using V2 components (what a view looks like)
 
-Use this skill for UI work in `app/components/ui/`. Keep the main body focused on non-negotiable rules and load the reference files for detailed examples.
+```ruby
+render Components::V2::Dialog.new do
+  render Components::V2::Dialog::Trigger.new(as_child: Components::V2::Button.new(variant: "outline")) { "Edit profile" }
+  render Components::V2::Dialog::Content.new(class: "sm:max-w-[425px]") do
+    render Components::V2::Dialog::Header.new do
+      render Components::V2::Dialog::Title.new { "Edit profile" }
+      render Components::V2::Dialog::Description.new { "Make changes to your profile here." }
+    end
+    render Components::V2::Dialog::Footer.new do
+      render Components::V2::Button.new(type: "submit") { "Save changes" }
+    end
+  end
+end
+```
+This mirrors the JSX tree one to one. Inside a view class, `include Phlex::Kit`-style shorthands are NOT used: explicit `render` keeps the mapping greppable and identical to the scenario renderer.
 
-## Non-Negotiable Rules
+## Legacy
 
-- Use semantic tokens such as `bg-primary`, `text-destructive`, and `bg-card`; do not hardcode palette classes.
-- Keep the design system catalog updated in `app/views/design_system/index.rb` whenever a new component or variant is added.
-- Add English and Spanish strings in `config/locales/{en,es}/design_system.yml` for catalog examples.
-- Every component class that accepts keyword attributes must implement `initialize(**attrs)` and preserve caller attributes.
-- Multi-part UI components must use the compound-component helper pattern; views should call helper methods like `card.header` or `dropdown.trigger`, not child `.new` calls.
-- Interactive components must merge required Stimulus `data-*` defaults with caller data instead of overwriting it.
-- Trigger helpers already render interactive elements; never nest `Components::Ui::Button` inside a compound trigger block.
-- Use class-based dark mode through the `ui--theme` controller and semantic CSS tokens.
-- Verify shadcn behavior against the real Radix UI source before translating it.
+`app/components/ui/*`, `controllers/ui/*` and the references below describe the **frozen first attempt**. They stay for existing pages until each caller is migrated to V2 (`docs/shadcn-port/CALLERS.md`). Do not extend them, do not copy from them.
 
-## Practical Workflow
+Legacy references (read only when touching a legacy file): `references/compound-components.md` (current: nested parts), `references/design-system.md`, `references/stimulus-interactive-components.md`, `references/shadcn-conversion-guide.md`, `references/css-variables-guide.md`, `references/toast-notifications.md`, `examples/interactive-components-examples.md`.
 
-1. Start with the target shadcn component and confirm the rendered structure.
-2. Choose the right reference file below based on the component type.
-3. Implement the Phlex component with semantic tokens and `**attrs` support.
-4. If the component is interactive, wire the Stimulus defaults through the component helpers.
-5. Add or update the design-system catalog demo and translations.
-6. Validate behavior in the browser and against [../../copilot-instructions.md](/.github/copilot-instructions.md#-frontend).
+## Companion skills
 
-## Reference Map
+- `shadcn-port`: the port contract, gates, scenarios, theme.
+- `radix-stimulus`: behavior spec and shared primitives.
+- `stimulus`: controller lifecycle, targets/values, Turbo.
+- `phlex-view-pattern`: dumb views, presenters, domain components.
+- `accessibility`: WCAG checks beyond Radix parity.
 
-- **[references/shadcn-conversion-guide.md](references/shadcn-conversion-guide.md)**
-  Use for the full conversion workflow, Radix verification, and common shadcn parity issues.
-- **[references/compound-components.md](references/compound-components.md)**
-  Use for the parent-yields-self helper pattern, nested child classes, migration examples, and the full compound-component checklist.
-- **[references/stimulus-interactive-components.md](references/stimulus-interactive-components.md)**
-  Use for Switch, Tabs, Accordion, Dropdown, Select, Tooltip, Dialog, and the Stimulus controller integration pattern.
-- **[references/css-variables-guide.md](references/css-variables-guide.md)**
-  Use for OKLCH tokens, `:root` / `html.dark` setup, shadow color behavior, and semantic color expansion.
-- **[references/design-system.md](references/design-system.md)**
-  Use for concrete component translations and usage examples for common base components.
-- **[references/toast-notifications.md](references/toast-notifications.md)**
-  Use for global flash toast notifications, Stimulus auto-dismiss behavior, and component composition.
+## Quick commit check
 
-## Examples
-
-- **[examples/interactive-components-examples.md](examples/interactive-components-examples.md)**
-  Copy-paste-ready examples for the currently implemented interactive component set.
-
-## Component Selection Hints
-
-- Load `compound-components.md` before building any component with child parts.
-- Load `stimulus-interactive-components.md` before adding targets, actions, values, or keyboard behavior.
-- Load `css-variables-guide.md` before introducing or changing color tokens.
-- Load `shadcn-conversion-guide.md` when pixel parity with the source library matters.
-
-## Quick Commit Check
-
-- Catalog updated
-- Locale files updated in both languages
-- No hardcoded palette classes
-- No missing `initialize(**attrs)` methods
-- No nested button-inside-trigger invalid HTML
-
-Rules live in the checklist: [../../copilot-instructions.md](/.github/copilot-instructions.md#-frontend)
-
-## Companion Skills
-
-- **[../phlex-view-pattern/SKILL.md](../phlex-view-pattern/SKILL.md)** — **PRIMARY view structure source**: Golden archetype for all Phlex views and components. Load this first for any work in `app/views/` or `app/components/`. This design-system skill defers to phlex-view-pattern for view composition shape, sub-component extraction boundaries, and presenter extraction.
-- **[../phlex-view-pattern/references/frontend-overview.md](../phlex-view-pattern/references/frontend-overview.md)** for Stimulus integration and Hotwire patterns
+- `/shadcn-audit changed` is green
+- No `Components::Ui` reference in new code
+- Catalog regenerated, locale keys present in both languages
