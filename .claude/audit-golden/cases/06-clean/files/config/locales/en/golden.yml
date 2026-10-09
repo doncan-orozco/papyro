@@ -1,0 +1,5 @@
+en:
+  golden:
+    publications:
+      create:
+        success: "Article published."

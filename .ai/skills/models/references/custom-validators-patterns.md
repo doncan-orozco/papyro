@@ -210,7 +210,7 @@ end
 # app/concepts/articles/operation/create.rb
 module Articles
   module Operation
-    class Create < ApplicationOperation
+    class Create < Core::Operation
       def call(params:, user:)
         # Contract validates input structure
         contract_result = Articles::Contract::Create.new.call(params)
@@ -291,5 +291,5 @@ end
 ## See Also
 
 - **[SKILL.md](../SKILL.md)** — Extract Heavy Validations rule
-- **[../layered-validation-operation-pattern/SKILL.md](../../layered-validation-operation-pattern/SKILL.md)** — How validation layers work
+- **[../operation-pattern/references/layered-validation.md](../../operation-pattern/references/layered-validation.md)** — How validation layers work
 - **Article Model Example** — `app/models/article.rb` uses `ArticleBodyValidator`, `ArticlePublishingValidator`, `CoverImageValidator`

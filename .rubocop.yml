@@ -10,6 +10,11 @@ plugins:
 
 AllCops:
   NewCops: enable
+  Exclude:
+    - ".claude/audit-golden/**/*"
+    - "tmp/**/*"
+    - "vendor/**/*"
+    - "node_modules/**/*"
 
 Minitest/MultipleAssertions:
   Enabled: false

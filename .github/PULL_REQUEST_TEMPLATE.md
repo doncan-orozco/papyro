@@ -23,6 +23,5 @@
 
 ## References
 - [.github/copilot-instructions.md](../.github/copilot-instructions.md) - Complete checklist and guidance
-- [.ai/skills/backend-anti-patterns/SKILL.md](../.ai/skills/backend-anti-patterns/SKILL.md) - What NOT to do
-- [.ai/skills/error-handling/SKILL.md](../.ai/skills/error-handling/SKILL.md) - Error patterns
+- [.ai/skills/controller/references/error-handling.md](../.ai/skills/controller/references/error-handling.md) - Error patterns
 - [.ai/skills/sqlite/SKILL.md](../.ai/skills/sqlite/SKILL.md) - Safe migration patterns

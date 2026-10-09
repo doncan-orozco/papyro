@@ -1,9 +1,26 @@
 ---
 name: models
-description: Golden archetype for ActiveRecord models. Enforces the "Skinny Model" pattern with strict file layout, delegates complex logic to Query Objects and Custom Validators. Apply to all files in `app/models/`.
+description: "Golden archetype for ActiveRecord models. Use when creating or editing any file in `app/models/` or `app/validators/`: strict file layout, no named scopes (use query objects), extracted validators, state predicates, N+1 prevention, no setter shims, Mobility conventions."
 ---
 
 # Application Active Record Model Pattern
+
+## Quick Rules
+
+Cite as `models R<n>`. Detail and examples follow below / in references/.
+
+R1. **Strict file layout.** Order: ignored_columns, constants, mixins, third-party macros, associations, callbacks, validations, attributes, public methods, private methods. → detail: MANDATORY RULE: Strict File Layout
+R2. **No named scopes.** Never declare `scope :x, -> {}`; query logic goes to Query Objects. → detail: MANDATORY RULE: No Named Scopes
+R3. **Simple validations only.** Models hold only declarative Rails validations; no inline if/else `validates` blocks. → detail: MANDATORY RULE: Extract Heavy Validations
+R4. **Extract heavy validations.** Multi-association, file size/dimension or branching validations go to a Custom Validator in `app/validators/`. → detail: references/custom-validators-patterns.md
+R5. **State via predicates.** Expose state as consolidated boolean predicates (`published?`, `draft?`); callers never compare raw status or timestamp columns. → detail: MANDATORY RULE: State and Booleans Over Raw Status
+R6. **Derived status is read-only.** Never define a `status=` (or any setter shim) for derived attributes; state changes go through Operations. → detail: references/orm-performance-and-setters.md
+R7. **N+1-safe instance methods.** Search loaded associations in memory (`.find`/`detect`) first, falling back to `.find_by`. → detail: references/orm-performance-and-setters.md
+R8. **No translation columns on parent.** Translated attributes live only in the `_translations` table; never as parent columns. → detail: references/mobility-conventions.md
+R9. **Store original locale.** Keep `original_locale` as a string on the parent table. → detail: references/mobility-conventions.md
+R10. **No display helpers for translations.** Do not add redundant wrappers around Mobility accessors. → detail: references/mobility-conventions.md
+R11. **No orchestration in models.** No complex business logic, heavy querying, or callbacks that orchestrate write flows; Operations own that. → detail: What Models Are For
+R12. **Domain-language names.** Attributes, methods and classes use domain language, not technical jargon. → detail: Verification Checklist
 
 ## What Models Are For
 
@@ -39,108 +56,7 @@ Models easily become "Big Balls of Mud" if not structured. **Every model MUST fo
 9. **Public Instance Methods** — State checks (`published?`, `draft?`), simple formatting
 10. **Private Methods** — Callback logic, internal helpers, default computations
 
-### Example: Article Model Layout
-
-```ruby
-class Article < ApplicationRecord
-  # 1. ignored_columns (if needed)
-  # (only during active migration safety window)
-
-  # 2. Constants
-  COVER_IMAGE_CAPTION_MAX_LENGTH = 255
-  SLUG_FORMAT = /\A[a-z0-9-]+\z/
-  UUID_FORMAT = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/
-
-  # 3. Mixins
-  extend Mobility
-  extend FriendlyId
-  include TranslationMetadata
-
-  # 4. Third-Party Macros
-  translates :title, :slug, :excerpt, :cover_image_caption, backend: :table
-  friendly_id :title, use: [ :slugged, :mobility ]
-  has_markdown :body
-  has_one_attached :cover_image
-
-  # 5. Associations
-  belongs_to :user
-  has_many :article_translations, inverse_of: :article, dependent: :destroy
-  has_one :pinned_author_profile,
-    class_name: "AuthorProfile",
-    foreign_key: :pinned_article_id,
-    inverse_of: :pinned_article,
-    dependent: :nullify
-
-  # 6. Callbacks
-  before_validation :ensure_uuid, on: :create
-  before_validation :assign_original_locale, on: :create
-  before_validation :normalize_translated_attributes
-
-  # 7. Validations
-  validates :user, presence: true
-  validates :uuid, presence: true, uniqueness: true, length: { is: 36 }, format: { with: UUID_FORMAT }
-  validates :title, presence: true, length: { maximum: 255 }
-  validates :slug, presence: true, uniqueness: true, length: { maximum: 255 }, format: { with: SLUG_FORMAT }
-  validates :excerpt, length: { maximum: 500 }, allow_nil: true
-  validates_with CoverImageValidator, if: ->(record) { record.cover_image.attached? }
-  validates_with ArticleBodyValidator
-  validates_with ArticlePublishingValidator
-
-  # 8. Attributes (rare - only for truly derived state)
-  # (none in this example)
-
-  # 9. Public Instance Methods
-  def published?
-    return false if trashed? || archived?
-    original_translation_published? && published_at.present?
-  end
-
-  def status
-    return "archived" if archived?
-    return "published" if published?
-    "draft"
-  end
-
-  def draft?
-    !trashed? && !archived? && !published?
-  end
-
-  def trashed?
-    deleted_at.present?
-  end
-
-  def archived?
-    archived_at.present?
-  end
-
-  # 10. Private Methods
-  private
-
-  def ensure_uuid
-    self.uuid ||= SecureRandom.uuid
-  end
-
-  def assign_original_locale
-    self.original_locale ||= I18n.locale.to_s
-  end
-
-  def normalize_translated_attributes
-    self.title = title.strip if title.present?
-    self.slug = slug.strip.downcase if slug.present?
-  end
-
-  def original_translation_published?
-    translation = if association(:article_translations).loaded?
-      article_translations.find { |item| item.locale == original_locale }
-    else
-      article_translations.find_by(locale: original_locale)
-    end
-    translation&.published? || false
-  end
-end
-```
-
----
+> **Model Layout Example:** full annotated Article model → [references/layout-example.md](references/layout-example.md)
 
 ## MANDATORY RULE: No Named Scopes
 
@@ -294,205 +210,9 @@ article.draft?      # reads as: "Is the article a draft?"
 
 ---
 
-## MANDATORY RULE: ORM Performance & Memory (N+1 Prevention)
+> **ORM Performance and Setter Shims:** in-memory finding vs N+1, never create setter shims → [references/orm-performance-and-setters.md](references/orm-performance-and-setters.md)
 
-### In-Memory Finding Pattern
-
-When querying a `has_many` association **from within an instance method**, assume the association might already be eager-loaded in memory (via `.includes` in a Query Object or controller).
-
-**Do NOT use `.find_by` or `.where` inside instance methods if evaluating a loaded association. It will trigger an N+1 database query directly to the database even if the association was already eager-loaded.**
-
-**Use the Ruby enumerable `.find` to search the loaded array in memory. Only fall back to `.find_by` if you know the association was not pre-loaded.**
-
-### Forbidden — Hidden N+1 Query
-
-```ruby
-# FORBIDDEN — Triggers an N+1 database query for every article
-# even if article_translations were already eager-loaded
-def original_translation_published?
-  article_translations.find_by(locale: original_locale)&.published?
-end
-
-# Usage in controller:
-# articles = Articles::PublishedQuery.call.includes(:article_translations)
-# articles.each { |a| a.original_translation_published? }  # N+1 queries!
-```
-
-### Correct — Searches Memory First, Falls Back
-
-```ruby
-# CORRECT — Searches the loaded memory array; zero N+1s
-def original_translation_published?
-  translation = if association(:article_translations).loaded?
-    article_translations.find { |item| item.locale == original_locale }
-  else
-    article_translations.find_by(locale: original_locale)
-  end
-  translation&.published? || false
-end
-```
-
-The pattern:
-1. Check if the association is already loaded: `association(:article_translations).loaded?`
-2. If loaded, search the in-memory array with `.find { ... }`
-3. If not loaded, fall back to `.find_by` for a single query
-
-This pattern is safe and performant whether or not the association was pre-loaded.
-
----
-
-## MANDATORY RULE: Never Create Setter Shims
-
-**Do not create `attr_writer` or setter methods for attributes that are not stored in the model.**
-
-If an attribute is not a real database column or derived state that you own, do not create a setter. The model will naturally reject unknown attributes, which is the correct behavior.
-
-### Forbidden — The Setter Shim Anti-Pattern
-
-```ruby
-# FORBIDDEN — This looks like the model owns "status", but it doesn't
-def status=(value)
-  # Absorbs the assignment silently; caller has no idea it's ignored
-  @status = value
-end
-
-# Later, when callers try to mass-assign:
-article.assign_attributes(status: "draft")  # Silently ignored; no error
-```
-
-This creates a **leaky abstraction**:
-- The model claims to accept `status:`, but doesn't persist it
-- Callers have no feedback that their input was discarded
-- Tests pass because the assignment doesn't raise an error
-- Later refactors break silently
-
-### Correct — Let the Model Reject Unknown Attributes
-
-```ruby
-# CORRECT — No setter
-class Article < ApplicationRecord
-  def status
-    return "archived" if archived?
-    return "published" if published?
-    "draft"
-  end
-
-  # No status= method
-end
-
-# If code tries to mass-assign status, it fails loudly:
-article.assign_attributes(status: "draft")
-# => ActiveModel::UnknownAttributeError: unknown attribute 'status' for Article.
-
-# This error is the correct signal: handle intent in the Operation layer
-```
-
-**The right place to handle `status:` input:** In the operation, extract it **before** mass-assigning to the model.
-
-```ruby
-# app/concepts/articles/operation/create.rb
-module Articles
-  module Operation
-    class Create < ApplicationOperation
-      def call(params:, user:)
-        # Extract intent BEFORE model mass-assignment
-        publish_requested = params[:status].to_s == "published"
-        
-        # Validate that if publishing, published_at is present
-        if publish_requested && params[:published_at].blank?
-          model = Article.new(params.except(:status))
-          model.errors.add(:published_at, I18n.t("errors.messages.published_at_required_for_published"))
-          return fail_with_model!(model)
-        end
-
-        # Strip status before persistence
-        article = user.articles.build(params.except(:status))
-        
-        return Success(article) if article.save
-        fail_with_model!(article)
-      end
-    end
-  end
-end
-```
-
----
-
-## Multi-Language / Mobility Conventions
-
-If the model is translated using the `Mobility` gem, follow these rules:
-
-### 1. No Translation Columns on Parent
-**Do not store translated fields (title, excerpt) on the parent table.** They belong exclusively in the `_translations` table.
-
-```ruby
-# FORBIDDEN — Never do this
-create_table :articles do |t|
-  t.string :title          # ← NO! Title should be in article_translations
-  t.string :slug           # ← NO! Slug should be in article_translations
-  t.references :user
-  t.timestamps
-end
-
-# CORRECT — Only locale-agnostic fields on parent
-create_table :articles do |t|
-  t.string :uuid, null: false
-  t.references :user, null: false
-  t.datetime :published_at
-  t.datetime :archived_at
-  t.datetime :deleted_at
-  t.string :original_locale, null: false
-  t.timestamps
-end
-
-create_table :article_translations do |t|
-  t.references :article, null: false
-  t.string :locale, null: false
-  t.string :title, null: false
-  t.string :slug, null: false
-  t.string :excerpt
-  t.string :cover_image_caption
-  t.text :body_content
-  t.string :status, null: false
-  t.datetime :published_at
-  t.timestamps
-end
-```
-
-### 2. Store Original Locale
-**Always store `original_locale` as a string on the parent table.** This allows for SEO fallbacks without querying the translation table on every request.
-
-```ruby
-class Article < ApplicationRecord
-  validates :original_locale, presence: true, inclusion: { 
-    in: ->(_record) { I18n.available_locales.map(&:to_s) } 
-  }
-  
-  def original_translation_published?
-    translation = if association(:article_translations).loaded?
-      article_translations.find { |t| t.locale == original_locale }
-    else
-      article_translations.find_by(locale: original_locale)
-    end
-    translation&.published? || false
-  end
-end
-```
-
-### 3. No Display Helpers
-**Do not write wrapper methods like `display_title`.** Use Mobility's native overriding: calling `model.title` automatically handles locale routing and fallbacks.
-
-```ruby
-# FORBIDDEN — Redundant and confusing
-def display_title
-  I18n.with_locale(current_locale) { title }
-end
-
-# CORRECT — Mobility handles it
-article.title  # Automatically uses current I18n.locale and falls back per Mobility config
-```
-
----
+> **Mobility Conventions on Models:** no translation columns on parent, store original locale, no display helpers → [references/mobility-conventions.md](references/mobility-conventions.md)
 
 ## Related Skills & Boundaries
 
@@ -500,15 +220,14 @@ article.title  # Automatically uses current I18n.locale and falls back per Mobil
 
 1. **[`query-object-pattern` Skill](../query-object-pattern/SKILL.md)** — When you need to find or filter collections. Models have NO scopes; all queries go here.
 
-2. **[`layered-validation-operation-pattern` Skill](../layered-validation-operation-pattern/SKILL.md)** — When you need to create/update/delete. Models are simple; Complex validation logic and state mutation go into Contracts and Operations.
+2. **[`operation-pattern` Skill](../operation-pattern/SKILL.md) (see [layered validation](../operation-pattern/references/layered-validation.md))** — When you need to create/update/delete. Models are simple; Complex validation logic and state mutation go into Contracts and Operations.
 
 3. **[`naming-conventions` Skill](../naming-conventions/SKILL.md)** — When naming model attributes, methods, and classes. Use domain language.
 
 4. **[`i18n` Skill](../i18n/SKILL.md)** — When using `Mobility` for translations. Translation keys, locale switching, and fallback handling.
 
-5. **[`backend-anti-patterns` Skill](../backend-anti-patterns/SKILL.md)** — When reviewing model code. Fast rejection list for common mistakes.
 
-6. **[`error-handling` Skill](../error-handling/SKILL.md)** — When models interact with operations and controllers. Understand failure payloads and error injection.
+6. **[`controller` error handling](../controller/references/error-handling.md)** — When models interact with operations and controllers. Understand failure payloads and error injection.
 
 ---
 

@@ -1,3 +1,31 @@
+---
+name: presenter-pattern
+description: "Golden archetype for presenters (SimpleDelegator, `Core::Presenter::Base`). Use when creating or editing files in `app/concepts/*/presenter/`, wrapping models or collections for display, or moving display logic out of views and controllers."
+---
+
+# Golden Presenter Pattern (Papyro)
+
+## Quick Rules
+
+Cite as `presenter-pattern R<n>`. Detail and examples follow below / in references/.
+
+R1. **Inherit the base.** Every presenter inherits `Core::Presenter::Base`; `ApplicationPresenter` does not exist and must not be referenced. → detail: Presenter Base Class (Critical)
+R2. **Route helpers via `helpers`.** Use `helpers.<path>`; never `include Rails.application.routes.url_helpers` or global route helpers in a presenter. → detail: Presenter Base Class (Critical)
+R3. **No stuttering names.** Name classes `Default`/`Show`/`Index` inside `Domain::Presenter`; `ArticlePresenter`, `ShowPresenter`, `*_presenter.rb` are forbidden. → detail: Naming Contract (No Stuttering)
+R4. **Files mirror names.** Path mirrors the class (`app/concepts/articles/presenter/show.rb` -> `Articles::Presenter::Show`), Zeitwerk-aligned, no legacy duplicates left. → detail: Presenter Migration Safety Checklist
+R5. **Delegate, don't duplicate.** Use SimpleDelegator delegation; do not hand-write pass-through methods for the wrapped model. → detail: The SimpleDelegator Pattern
+R6. **Return data, not markup.** No CSS classes or conditional HTML strings in presenters; return booleans, strings, counts and let the view style. → detail: Key Rules / DO NOT
+R7. **Read-only.** Presenters never mutate the wrapped model or hold business logic (validation, transitions, permissions); that belongs in models/operations. → detail: Key Rules / DO NOT
+R8. **No nesting, no per-view presenters.** Wrap related models with their own presenter; reuse one presenter across views instead of one per view. → detail: Key Rules / DO NOT
+R9. **Context is injected.** Pass `ui_locale`, `viewer_id` etc. via the initializer; never read `Current.user` inside a presenter. → detail: Key Rules / DO NOT
+R10. **Expose `.wrap` for collections.** Collection presenters provide `.wrap` so controllers wrap lists trivially. → detail: references/collection-wrapping.md
+R11. **Split base vs page presenters.** Generic display in `Default`, page-only composition in `Show`; avoid a god presenter (200+ lines). → detail: Session-Proven Pattern (May 2026)
+R12. **No hardcoded language.** Never compare locale to a literal like `"en"`; compare against `original_locale`. → detail: Key Rules / DO NOT
+R13. **Keep public API on rename.** Preserve public methods used by views/components, or update views and tests in the same patch. → detail: Presenter Migration Safety Checklist
+R14. **Preload what you read.** If a presenter reads associations, the feeding query must preload them (no N+1). → detail: Query Guardrail
+R15. **No pointless presenters.** Do not add a presenter that merely renames one method or serves a one-off transformation. → detail: When to Use Presenters
+
+
 ## Presenter Base Class (Critical)
 
 **All presenters MUST inherit from `Core::Presenter::Base`.**
@@ -30,13 +58,6 @@ end
 - Inherit from `ApplicationPresenter`
 - Use `include Rails.application.routes.url_helpers` in presenters
 - Access route helpers via global scope
-
----
-name: presenter-pattern
-description: Golden archetype for display-logic presenters using SimpleDelegator. Use when creating or updating presenters that wrap models to provide view-agnostic display methods, locale-aware transformations, and collection helpers. Establishes clean separation between persistence logic, view rendering, and display transformation.
----
-
-# Golden Presenter Pattern (Papyro)
 
 ## Purpose
 
@@ -134,201 +155,9 @@ end
 
 ---
 
-## Golden Presenter Archetype
+> **Presenter Archetype Example:** file naming and complete presenter → [references/archetype-example.md](references/archetype-example.md)
 
-### File Naming & Location
-
-```
-app/concepts/
-  articles/
-    presenter/
-      default.rb                   # ← Reusable article display behavior
-      show.rb                      # ← Show-page composition only
-  studio/
-    presenter/
-      default.rb                   # ← Studio article display logic
-  admin/
-    presenter/
-      default.rb                   # ← Admin article display logic
-```
-
-**Naming convention:** short intent names in `Domain::Presenter::*` (not presenter-suffixed class names).
-
-Why? Because the same logic is useful anywhere that domain is displayed. Tie the presenter to the **domain**, not the **view** or **controller**.
-
-### Presenter Structure (Complete Example)
-
-```ruby
-# app/concepts/articles/presenter/default.rb
-# frozen_string_literal: true
-
-module Articles
-  module Presenter
-    class Default < SimpleDelegator
-    # 1. The Collection Wrapper Helper (optional, but recommended)
-    def self.wrap(collection, locale: I18n.locale)
-      collection.map { |item| new(item, locale: locale) }
-    end
-
-    # 2. Initialization with context
-    attr_reader :locale
-
-    def initialize(article, locale: I18n.locale)
-      super(article)                    # Delegate to article via SimpleDelegator
-      @locale = locale.to_s
-    end
-
-    # 3. Display methods (view-agnostic logic)
-    
-    # Example: Locale-aware title selection
-    # Locale fallback must compare against original_locale, not hardcoded "en"
-    def translation_fallback?
-      locale.to_s != original_locale.to_s && !translation_published?(locale)
-    end
-
-    # Example: Status badge variant logic (NO CSS, just logic)
-    def status_variant
-      return :destructive if trashed?
-      case status
-      when "draft" then :secondary
-      when "published" then :default
-      when "archived" then :outline
-      else :secondary
-      end
-    end
-
-    def status_label
-      trashed? ? I18n.t("statuses.trashed") : I18n.t("statuses.#{status}")
-    end
-
-    # Example: Formatted timestamp
-    def published_at_label
-      if trashed?
-        I18n.t("articles.deleted_at", time: I18n.l(deleted_at, format: :short))
-      elsif published_at
-        I18n.l(published_at, format: :short)
-      else
-        I18n.t("articles.not_published")
-      end
-    end
-
-    # Example: Sorted collection for views
-    def sorted_translations
-      baseline = original_locale.to_s
-      article_translations.sort_by do |translation|
-        [ translation.locale.to_s == baseline ? 0 : 1, translation.locale.to_s ]
-      end
-    end
-
-    # Example: Logic check (view receives the result, not the logic)
-    def locale_published?(translation)
-      if translation.locale.to_s == original_locale.to_s
-        published?
-      else
-        translation.published?
-      end
-    end
-
-    # 4. Private helpers (delegate to internal state)
-    private
-
-    def content_analysis
-      @content_analysis ||= ::Articles::Service::ContentAnalysis.new(__getobj__)
-    end
-  end
-  end
-end
-```
-
----
-
-## Controller Integration
-
-Controllers build and pass presenters to views. They do NOT use presenters internally for business logic.
-
-```ruby
-# app/controllers/articles_controller.rb
-class ArticlesController < ApplicationController
-  allow_unauthenticated_access only: [:index, :show]
-
-  def index
-    scoped_articles = policy_scope(Article)
-    articles = Articles::Query::Published.call({}, scope: scoped_articles).limit(6)
-
-    # Use base presenter for collections
-    presented_articles = Articles::Presenter::Default.wrap(articles, locale: I18n.locale)
-
-    render Views::Articles::Index.new(
-      articles: presented_articles,
-      show_welcome_hero: Current.user.guest?
-    )
-  end
-
-  def show
-    article = find_published_article_by_slug!
-    authorize article
-
-    more_from_author = Articles::Query::Related.call(user: article.user, article_id: article.id, limit: 2)
-    more_from_platform = Articles::Query::Related.call(exclude_user_id: article.user_id, article_id: article.id, limit: 2)
-
-    # Single presenter
-    render Views::Articles::Show.new(
-      article: Articles::Presenter::Show.new(
-        article,
-        more_from_author: more_from_author,
-        more_from_platform: more_from_platform,
-        locale: I18n.locale
-      )
-    )
-  end
-end
-```
-
----
-
-## View Integration (Phlex)
-
-In your Phlex view, the presenter appears as a regular model object with super-powers.
-
-```ruby
-# app/views/articles/show.rb
-module Views
-  module Articles
-    class Show < Views::Base
-      def initialize(article:, more_from_author: [], more_from_platform: [])
-        @article = article  # This is actually a presenter
-        @more_from_author = more_from_author
-        @more_from_platform = more_from_platform
-      end
-
-      def view_template
-        div(class: "space-y-4") do
-          # Presenter methods are indistinguishable from model methods
-          h1(class: "text-3xl font-bold") { @article.display_title }
-          p(class: "text-muted-foreground") { @article.published_at_label }
-
-          # Presenter can provide view-ready data
-          if @article.continuation_articles.any?
-            h2 { @article.continuation_heading }
-            div(class: "grid grid-cols-2") do
-              @article.continuation_articles.each do |related|
-                render Articles::ArticleCard.new(article: related)
-              end
-            end
-          end
-
-          # Presenter logic is used to make decisions
-          if @article.locale_published?(translation)
-            render Components::Ui::Badge.new { "Published" }
-          end
-        end
-      end
-    end
-  end
-end
-```
-
----
+> **Controller and View Integration:** how controllers build and views consume presenters → [references/integration.md](references/integration.md)
 
 ## Key Rules
 
@@ -369,96 +198,7 @@ When renaming or moving presenters:
 
 ---
 
-## Common Presenter Types
-
-### 1. Domain Presenters (Single Model)
-
-Wraps a single model with display methods shared across many views.
-
-```ruby
-module Articles
-  module Presenter
-    class Default < SimpleDelegator
-  def initialize(article, locale: I18n.locale)
-    super(article)
-    @locale = locale
-  end
-  
-  def display_title
-    # Locale-aware title selection
-  end
-    end
-  end
-end
-```
-
-### 2. Aggregate Presenters (Related Models)
-
-Wraps a primary model plus related data (but NOT nested presenters).
-
-```ruby
-module Authors
-  module Presenter
-    class Default < SimpleDelegator
-  def initialize(profile, author:, current_user: nil)
-    super(profile)
-    @author = author
-    @current_user = current_user
-  end
-  
-  def bio
-    super
-  end
-  
-  def can_edit?
-    @current_user&.id == @author.id
-  end
-    end
-  end
-end
-```
-
-### 3. Collection Presenters (Many Models)
-
-Use `.wrap()` helper to present each model in a collection uniformly.
-
-```ruby
-# Controller
-articles = Article.published.limit(10)
-presented = Articles::Presenter::Default.wrap(articles, locale: I18n.locale)
-
-# View iterates over presented articles
-@articles.each do |article|
-  render ArticleCard.new(article: article)  # article is a presenter
-end
-```
-
----
-
-## Testing Presenters
-
-Presenters are tested like any other Ruby object:
-
-```ruby
-class Articles::Presenter::ShowTest < ActiveSupport::TestCase
-  test "display title falls back to original locale" do
-    article = Article.create!(title: "Test", slug: "test-#{SecureRandom.hex(4)}", body: "Body", user: users(:admin))
-    presenter = Articles::Presenter::Default.new(article, locale: :fr)
-
-    assert_equal "Test", presenter.display_title
-  end
-
-  test ".wrap builds presenter collection" do
-    articles = [ articles(:draft_article), articles(:published_article) ]
-    presenters = Articles::Presenter::Default.wrap(articles, locale: :es)
-
-    assert_equal 2, presenters.length
-    assert presenters.all? { |presenter| presenter.is_a?(Articles::Presenter::Default) }
-  end
-end
-```
-
----
+> **Presenter Types and Testing:** domain, aggregate, collection presenters; tests → [references/types-and-testing.md](references/types-and-testing.md)
 
 ## Troubleshooting
 

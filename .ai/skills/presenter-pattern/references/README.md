@@ -11,7 +11,6 @@ This folder contains concrete examples of the Golden Presenter Pattern in action
 ## Files
 
 - **[studio-article-presenter.md](studio-article-presenter.md)** — Studio-specific article presenter with draft, published, and translation logic.
-- **[author-profile-presenter.md](author-profile-presenter.md)** — Multi-context author profile presenter (public profile, admin view, author dashboard).
 - **[collection-wrapping.md](collection-wrapping.md)** — Using `.wrap()` to present collections in controllers and views.
 
 ## Quick Pattern Review
@@ -250,15 +249,23 @@ end
 class ArticlePresenter < SimpleDelegator
   def save_draft
     # NO! This is write logic; use an Operation
-    update!(status: :draft)
+    update!(published_at: nil)
   end
 end
 
 # ✅ Good (in operation)
-class Articles::Operation::SaveDraft < ApplicationOperation
+class Articles::Operation::SaveDraft < Core::Operation
   def call(article:)
-    article.update!(status: :draft)
-    { model: article }
+    saved = step save_draft(article)
+    { model: saved }
+  end
+
+  private
+
+  def save_draft(article)
+    return Success(article) if article.update(published_at: nil)
+
+    fail_with_model!(article)
   end
 end
 ```

@@ -4,7 +4,7 @@ Compact decisions captured from the latest operation/contract refactor.
 
 ## Operation Shape
 
-- `ApplicationOperation` inherits from `Dry::Operation`.
+- `Core::Operation` inherits from `Dry::Operation`.
 - In `call`, return a plain payload hash (for example `{ model: article }`), not `Success(...)`.
 - Reason: `Dry::Operation` wraps `call` return values; explicit `Success(...)` in `call` causes double wrapping.
 - If an intermediate step only instantiates a model and passes it forward with no business rule checks, collapse it into the persistence step to keep the operation concise.

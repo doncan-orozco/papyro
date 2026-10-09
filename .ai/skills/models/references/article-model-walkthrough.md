@@ -249,7 +249,7 @@ articles.each { |a| a.published? }  # No N+1 because translations are pre-loaded
 # app/concepts/articles/operation/create.rb
 module Articles
   module Operation
-    class Create < ApplicationOperation
+    class Create < Core::Operation
       def call(params:, user:)
         # Extract intent before model mass-assignment
         publish_requested = params[:status].to_s == "published"

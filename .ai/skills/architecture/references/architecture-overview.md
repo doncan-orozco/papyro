@@ -17,7 +17,7 @@ This page provides design philosophy and practical examples. All rules and requi
 Each layer has specific responsibilities. See the checklists for detailed requirements:
 
 - **Controllers**: Request handling, thin logic
-- **Operations**: Business orchestration (ApplicationOperation + Dry::Monads)
+- **Operations**: Business orchestration (Core::Operation + Dry::Monads)
 - **Contracts**: Validation (dry-validation)
 - **Models**: Persistence only
 - **Query Objects**: Complex reads

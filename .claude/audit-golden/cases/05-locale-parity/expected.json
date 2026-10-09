@@ -1,0 +1,7 @@
+{
+  "case": "05-locale-parity",
+  "description": "The Spanish locale file lacks golden.pages.about.body.",
+  "must_cite": ["i18n R1"],
+  "nice_to_cite": [],
+  "must_not_have_mandatory": []
+}

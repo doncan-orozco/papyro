@@ -9,7 +9,7 @@ Use this shape when one intent needs contract validation plus one persistence st
 ```ruby
 module Articles
   module Operation
-    class Create < ApplicationOperation
+    class Create < Core::Operation
       def call(params:, user:)
         validated_attributes = step validate_input(params)
         persisted_article = step persist_article(attributes: validated_attributes, user: user)
@@ -50,7 +50,7 @@ Use this shape when mutating translated content or locale-sensitive fields.
 ```ruby
 module Articles
   module Operation
-    class Update < ApplicationOperation
+    class Update < Core::Operation
       def call(model:, params:, locale: I18n.locale)
         normalized_params, generated_slug = step prepare_attributes(model: model, params: params, locale: locale)
         validated_attributes = step validate_input(model: model, params: normalized_params)
@@ -75,7 +75,7 @@ Use this shape when one user action combines settings updates with a state trans
 ```ruby
 module Articles
   module Operation
-    class Publish < ApplicationOperation
+    class Publish < Core::Operation
       def call(model:, settings_params: {}, locale: I18n.locale)
         persisted_model = step publish_with_optional_settings(
           model: model,
@@ -150,7 +150,7 @@ Use this shape when publishing or unpublishing one locale-specific translation w
 ```ruby
 module Articles
   module Operation
-    class PublishTranslation < ApplicationOperation
+    class PublishTranslation < Core::Operation
       def call(model:, locale:)
         persisted_translation = step publish_translation_with_state_transition(model: model, locale: locale)
 

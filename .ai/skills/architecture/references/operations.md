@@ -2,7 +2,7 @@
 
 **For complete guidelines, see: [copilot-instructions.md](/.github/copilot-instructions.md)**
 
-Operations orchestrate write flows using `ApplicationOperation` and `Dry::Monads::Result`. Keep authorization in controllers, structural validation in contracts, and state validation in models.
+Operations orchestrate write flows using `Core::Operation` and `Dry::Monads::Result`. Keep authorization in controllers, structural validation in contracts, and state validation in models.
 
 ## Quick Refactor Pattern (Before / After)
 
@@ -81,7 +81,7 @@ Key points:
 # app/operations/game/operation/move_player.rb
 module Game
   module Operation
-    class MovePlayer < ApplicationOperation
+    class MovePlayer < Core::Operation
 
       def call(model:, params:)
         player = step find_player(model)
