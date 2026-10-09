@@ -1,0 +1,7 @@
+{
+  "case": "01-controller",
+  "description": "Custom verb action, state guard clause, no authorization, hardcoded flash, HTML built in controller.",
+  "must_cite": ["controller R1", "controller R2", "controller R6", "controller R10", "controller R11"],
+  "nice_to_cite": ["controller R7", "controller R8"],
+  "must_not_have_mandatory": []
+}

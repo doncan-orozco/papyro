@@ -1,0 +1,7 @@
+{
+  "case": "02-operation",
+  "description": "Authorization inside an operation, hidden Current dependency, transaction around a single write, Success(record) instead of a payload hash.",
+  "must_cite": ["operation-pattern R2", "operation-pattern R4", "operation-pattern R6", "operation-pattern R9", "pundit-auth R2"],
+  "nice_to_cite": [],
+  "must_not_have_mandatory": []
+}

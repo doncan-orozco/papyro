@@ -1,0 +1,7 @@
+{
+  "case": "03-phlex-view",
+  "description": "Query and state branching in a view, Current in a view, hardcoded palette, raw anchor, hardcoded and relative i18n.",
+  "must_cite": ["phlex-view-pattern R1", "phlex-view-pattern R6", "phlex-view-pattern R9", "phlex-view-pattern R13", "i18n R2", "i18n R5"],
+  "nice_to_cite": [],
+  "must_not_have_mandatory": []
+}

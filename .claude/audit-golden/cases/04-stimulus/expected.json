@@ -1,0 +1,7 @@
+{
+  "case": "04-stimulus",
+  "description": "Listener and timer never released, fetch-for-HTML into innerHTML, undeclared target, global querySelector, hardcoded copy.",
+  "must_cite": ["stimulus R1", "stimulus R2", "stimulus R4", "stimulus R7"],
+  "nice_to_cite": ["stimulus R5", "stimulus R6", "stimulus R9"],
+  "must_not_have_mandatory": []
+}

@@ -69,3 +69,5 @@ coverage/
 docs/Papyro UX.pdf
 
 papyro.code-workspace
+# Claude Code machine-specific settings (absolute workspace paths)
+/.claude/settings.local.json

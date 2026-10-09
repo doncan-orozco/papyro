@@ -1,0 +1,13 @@
+{
+  "case": "06-clean",
+  "description": "False-positive control: conforms to the controller and operation skills (verified against Core::Operation's real fail_with_code!/fail_with_model! signatures). ADVISORY findings are acceptable; no MANDATORY finding is expected on these skills.",
+  "must_cite": [],
+  "nice_to_cite": [],
+  "must_not_have_mandatory": [
+    "controller",
+    "operation-pattern",
+    "pundit-auth",
+    "naming-conventions"
+  ],
+  "notes": "Fixture corrected after the first golden run, where House proved the original fail_with_code! call had the wrong arity."
+}
