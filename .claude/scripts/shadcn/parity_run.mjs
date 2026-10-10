@@ -14,6 +14,7 @@
 //   React  : {REACT}/#/parity/<component>/<scenarioId>
 //   Phlex  : {PHLEX}/design-system/parity/<component>/<scenarioId>
 //   Scenarios: docs/shadcn-port/scenarios/<component>.json  (single source of truth for both sides)
+// Failed renders never match: HTTP >= 400, [data-parity-error] and zero [data-slot] nodes are reported (PARITY_ERROR / HTTP_STATUS / EMPTY_RENDER).
 // Output: JSON on stdout { component, pass, scenarios, diffs[] }; exit 1 when diffs exist.
 
 import fs from "node:fs";
@@ -55,7 +56,10 @@ async function snapshot(page) {
     const ignored = new RegExp(IGNORED_ATTR);
     const ids = new Map();
     const norm = (v) => (v == null ? v : v.split(/\s+/).map((t) => (ids.has(t) ? ids.get(t) : t)).join(" "));
-    document.querySelectorAll("[id]").forEach((el) => { if (!ids.has(el.id)) ids.set(el.id, `#${ids.size + 1}`); });
+    // Ids only matter through the relations that reference them, so number REFERENCED ids by first reference (DOM order).
+    // An unreferenced id (or a different id string) must not register as a difference.
+    const REF_ATTRS = ["aria-labelledby", "aria-controls", "aria-describedby", "aria-owns", "aria-activedescendant", "for"];
+    document.querySelectorAll("*").forEach((el) => REF_ATTRS.forEach((a) => (el.getAttribute(a) ?? "").split(/\s+/).filter(Boolean).forEach((t) => { if (!ids.has(t)) ids.set(t, `#${ids.size + 1}`); })));
     const active = document.activeElement;
     const slotPath = (el) => (el && el !== document.body ? (el.closest("[data-slot]")?.getAttribute("data-slot") ?? el.tagName.toLowerCase()) : "body");
     const rel = (el, name) => { const v = el.getAttribute(name); return v ? norm(v) : null; };
@@ -72,7 +76,7 @@ async function snapshot(page) {
           tag: el.tagName.toLowerCase(),
           classes: [...new Set(el.className?.baseVal === undefined ? el.className.split(/\s+/) : el.className.baseVal.split(/\s+/))].filter(Boolean).sort(),
           attrs,
-          rel: { labelledby: rel(el, "aria-labelledby"), controls: rel(el, "aria-controls"), describedby: rel(el, "aria-describedby"), id: el.id ? ids.get(el.id) : null },
+          rel: { labelledby: rel(el, "aria-labelledby"), controls: rel(el, "aria-controls"), describedby: rel(el, "aria-describedby"), owns: rel(el, "aria-owns"), activedescendant: rel(el, "aria-activedescendant"), for: rel(el, "for"), id: el.id ? (ids.get(el.id) ?? null) : null },
           text: [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.trim()).filter(Boolean).join(" "),
           visible: el.checkVisibility?.({ checkOpacity: false, checkVisibilityCSS: true }) ?? true,
           focused: el === active,
@@ -109,12 +113,14 @@ async function capture(browser, base, urlPath, sc, side) {
   const page = await ctx.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
-  await page.goto(`${base}${urlPath}`, { waitUntil: "networkidle" });
+  const response = await page.goto(`${base}${urlPath}`, { waitUntil: "networkidle" });
+  const httpStatus = response ? response.status() : 0;
   await page.addStyleTag({ content: sc.animations ? "" : NO_MOTION });
   if (themeCss) await page.addStyleTag({ content: themeCss });
   if (args.dark || sc.dark) await page.evaluate(() => document.documentElement.classList.add("dark"));
   await page.evaluate(() => document.fonts?.ready);
   await frames(page);
+  const parityError = await page.evaluate(() => document.querySelector("[data-parity-error]")?.textContent?.trim() ?? null);
   const snaps = [{ step: "initial", ...(await snapshot(page)) }];
   for (const [i, step] of (sc.steps ?? []).entries()) {
     await runStep(page, step);
@@ -125,7 +131,7 @@ async function capture(browser, base, urlPath, sc, side) {
     await page.screenshot({ path: path.join(args.shots, `${component}__${sc.id}__${side}.png`), fullPage: true });
   }
   await ctx.close();
-  return { snaps, errors };
+  return { snaps, errors, httpStatus, parityError };
 }
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -157,7 +163,7 @@ function diffSnapshots(id, reactSnap, phlexSnap) {
   return out;
 }
 
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.PARITY_CHROMIUM ? { executablePath: process.env.PARITY_CHROMIUM } : {});
 const diffs = [];
 const ran = [];
 for (const sc of spec.scenarios.filter((s) => !only || only.includes(s.id))) {
@@ -167,6 +173,12 @@ for (const sc of spec.scenarios.filter((s) => !only || only.includes(s.id))) {
       capture(browser, REACT, `/#/parity/${component}/${sc.id}`, sc, "react"),
       capture(browser, PHLEX, `/design-system/parity/${component}/${sc.id}`, sc, "phlex"),
     ]);
+    // A page that failed to render must never "match": both sides empty/erroring would otherwise compare equal.
+    for (const [side, cap] of [["react", r], ["phlex", p]]) {
+      if (cap.httpStatus >= 400) diffs.push({ scenario: sc.id, kind: "HTTP_STATUS", side, detail: String(cap.httpStatus) });
+      if (cap.parityError) diffs.push({ scenario: sc.id, kind: "PARITY_ERROR", side, detail: cap.parityError.slice(0, 200) });
+      if (!sc.allowEmpty && cap.snaps[0].nodes.length === 0) diffs.push({ scenario: sc.id, kind: "EMPTY_RENDER", side, detail: "no [data-slot] elements rendered" });
+    }
     r.errors.forEach((e) => diffs.push({ scenario: sc.id, kind: "REACT_PAGE_ERROR", detail: e }));
     p.errors.forEach((e) => diffs.push({ scenario: sc.id, kind: "PHLEX_JS_ERROR", detail: e }));
     r.snaps.forEach((rs, i) => diffs.push(...diffSnapshots(sc.id, rs, p.snaps[i])));

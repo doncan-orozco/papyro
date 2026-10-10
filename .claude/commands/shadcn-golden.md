@@ -34,6 +34,7 @@ Cases live in `.claude/shadcn-golden/cases/<id>/` as `files/<repo-relative path>
 | 22-run-contract | contract | `shadcn-run.md` text | still invokes `port_state.rb next/checkpoint/bump/set/retry-blocked`, `static_gate`, `parity_run`, `house_check`, `planner_check`, `command_lint`, and writes `run.log`, `REPORT.md`, `PILOT_FAILURE.md` |
 | 23-oracle-audit-clean | oracle_audit | `oracle_audit.rb` on the extracted fixtures (incl. arrow-function `sonner`) | nothing (control) |
 | 24-oracle-audit-detects | oracle_audit | Seeded extractor misses (lost parts/tokens, slot, cva table) | `AUDIT_PART_COUNT AUDIT_NO_TOKENS AUDIT_SLOT_MISMATCH AUDIT_CVA_COUNT` |
+| 25-browser-selftest | browser | `parity_run.mjs` against two fixture servers, 22 scenarios of known outcome (identical passes; CLASS/ATTR/TEXT/STYLE/BOX/VISIBLE/FOCUS/A11Y_REL/NODE_COUNT/SLOT_ORDER/JS error each reported; empty render, HTTP 500 and `data-parity-error` never pass) | all 22 behave as expected; `SKIPPED` when playwright is unavailable (`PARITY_PLAYWRIGHT_DIR`, `PARITY_CHROMIUM`) |
 | 12-planner-badge | planner | Real planner run (offline) on a static cva component | `planner_check` passes: >= 12 scenarios, dark twins, all variants |
 | 13-planner-switch | planner | Real planner run (offline) on an interactive Radix component | `planner_check` passes: Behavior section, `press`/`click`/`tab` steps, dark twins |
 
@@ -63,4 +64,4 @@ After changing: any script in `.claude/scripts/shadcn/`, the three `shadcn-*` ag
 ## Not covered here (and why)
 The LLM-driven parts of `/shadcn-run` (how well a builder ports a component, how the orchestrator phrases agent prompts) are only exercised by a real run. What IS tested is every decision the orchestrator makes: the protocol simulation (cases 14-21) drives `port_state.rb`, which now owns wave order, dependency waiting, pilot/ratio/cap stops and resume.
 
-The browser tier (`parity_run.mjs`) needs both live catalogs, so it is proven by the `_harness` self-test (`infra-tasks.md`: identical probe must pass, mutated probe must fail), not by golden fixtures.
+The runner's own logic is covered by case 25. The REAL React and Phlex pages need both live catalogs, so they are proven by the `_harness` self-test (`infra-tasks.md`: identical probe must pass, mutated probe must fail).

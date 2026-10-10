@@ -7,7 +7,7 @@
 #   status PASS | FAIL | AGENT_PENDING (kind "agent": G1 part done, auditor still to run)
 #          | PLANNER_PENDING (kind "planner": workspace prepared, planner agent still to run)
 #   ruby .claude/scripts/shadcn/golden_run.rb planner-check <case-id>   # after the planner ran: validate its output
-# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, run (orchestrator protocol simulation), contract (required invocations in a command doc).
+# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
 # Exit 0 when no script-tier case FAILs.
 
 require "json"
@@ -261,6 +261,19 @@ results = cases.map do |dir|
                       "--scenarios", File.join(dir, "files/docs/shadcn-port/scenarios"))
     codes = report["gaps"].map { |g| g["code"] }.uniq
     r[:detected] = codes
+  when "browser"
+    pw_dir = ENV["PARITY_PLAYWRIGHT_DIR"] || (File.directory?("react-shadcn-catalog/node_modules/playwright") ? "react-shadcn-catalog" : nil)
+    if pw_dir.nil?
+      r[:status] = "SKIPPED"
+      r[:notes] << "set PARITY_PLAYWRIGHT_DIR to a directory containing node_modules/playwright"
+      next r
+    end
+    out, err, st = Open3.capture3("node", File.expand_path(File.join(SCRIPTS, "parity_selftest.mjs")), chdir: pw_dir)
+    report = begin JSON.parse(out) rescue { "status" => "fail", "failed" => [{ "id" => "unparseable", "why" => err.lines.first.to_s.strip }] } end
+    r[:status] = report["status"] == "pass" ? "PASS" : report["status"] == "skipped" ? "SKIPPED" : "FAIL"
+    r[:missed] = Array(report["failed"]).map { |f| "#{f['id']}: #{f['why']}" }
+    r[:notes] << "scenarios=#{report['scenarios']}"
+    next r
   when "oracle_audit"
     audit_dir = File.join(WORK, "audit-work", exp["case"])
     FileUtils.rm_rf(audit_dir)
