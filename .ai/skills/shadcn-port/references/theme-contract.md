@@ -45,6 +45,16 @@ The first `theme.css` is **shadcn zinc** (clean baseline, same as the React cata
 3. `bin/rails tailwindcss:build`, then `bin/rails test:system`, and before/after screenshots of home, an article, studio login in light and dark under `tmp/shadcn-port/_theme/`. Report differences; the palette shift to zinc is expected, broken layout or unreadable text is not.
 4. Dark mode: the legacy `ui--theme` controller toggles `html.dark` / `html.light`; shadcn needs only `.dark`. The old no-JS `prefers-color-scheme` fallback is dropped from the theme (JS mirrors the OS preference into `.dark`); if a no-JS fallback is still wanted it goes in `foundation/base.css` as a media block that sets `color-scheme` only, never re-declaring variables.
 
+## What the cutover changes on the live site (measured by `cutover_rehearsal.sh`)
+
+Rehearsed on the real app, 7 pages x light/dark: no element moves or resizes (0 geometry differences), 0.00-0.28% of pixels change, no new page errors. The intended differences:
+- **Palette**: the old neutral becomes shadcn zinc (e.g. `oklch(0.145 0 0)` -> `oklch(0.141 0.005 285.8)`); visually close.
+- **Radius**: the old theme had no `--radius`, so Tailwind's defaults applied (`rounded-md` 6px, `lg` 8px, `xl` 12px). Every `rounded-*` now derives from `--radius`; zinc ships `0.625rem`, which makes them 8, 10 and 14px. To keep the legacy radii exactly, set `--radius: 0.5rem` (sm/md/lg/xl = 4/6/8/12px).
+- **`dark:` variant** is `&:is(.dark *)`: it matches descendants of `.dark`, no longer the `<html class="dark">` element itself.
+- **`html.light` rule is gone**: light is the absence of `.dark`. The old no-JS `prefers-color-scheme` fallback is not reproduced.
+- **Outline color** is set globally by the shadcn base layer (`outline-ring/50`), harmless without an outline width.
+- `var(--color-primary)` etc. used directly by `reader.css` and `ui-scroll-area.css` keep resolving (`@theme inline` still emits them).
+
 ## Rules
 
 - No component may reference a color, radius or shadow that is not a token (`design-system` R1). `text-white`, `bg-black/50` are allowed only because the oracle uses them.
