@@ -7,10 +7,16 @@
 #   ruby .claude/scripts/shadcn/port_state.rb init [--only a,b] [--pilot a,b,c]
 #   ruby .claude/scripts/shadcn/port_state.rb next [--concurrency 4]     # JSON batch for the lowest unfinished wave
 #   ruby .claude/scripts/shadcn/port_state.rb set NAME STATUS [--note TXT] [--iteration N] [--sha SHA]
+#   ruby .claude/scripts/shadcn/port_state.rb bump N                      # count N builder/planner dispatches (global cap)
+#   ruby .claude/scripts/shadcn/port_state.rb checkpoint                  # JSON { stop, reason, details }: infra_blocked | dispatch_cap | pilot_blocked | wave_blocked_ratio
+#   ruby .claude/scripts/shadcn/port_state.rb retry-blocked [NAME...]     # acknowledge a stop: blocked -> pending, dispatch counter -> 0
 #   ruby .claude/scripts/shadcn/port_state.rb summary [--json]
 #   ruby .claude/scripts/shadcn/port_state.rb reset NAME|all
 #
-# Statuses: pending -> planned -> built -> done | blocked   (fixing is a transient label of built)
+# Statuses: pending -> planned -> done | blocked.  `built` = built but not browser-verified (--no-browser): never returned by `next`
+# again, and it satisfies dependents.
+# `next` only returns components whose dependencies are done/built; dependents of a blocked component never run and are
+# reported under `waiting` with the root blocker. Stop rules live in `checkpoint`, not in the command prose.
 # Waves: 0 infra (theme, harness, primitives), 1 pilot (one per behavior family), 2.. fan-out by oracle dependency layers.
 
 require "json"
@@ -29,6 +35,12 @@ INFRA = [
   { "name" => "_base", "owns" => ["app/components/v2/base.rb", "test/components/v2/base_test.rb"] },
   { "name" => "_icons", "owns" => ["app/components/v2/icon.rb", "app/components/v2/icons/**"] },
 ].freeze
+
+INFRA_DEPS = { "_harness" => %w[_theme _base _icons], "_primitives" => %w[_harness] }.freeze
+RUNNABLE = %w[pending planned].freeze
+SATISFIED = %w[done built].freeze
+DISPATCH_CAP_FACTOR = 3
+RATIO_MIN_WAVE = 4 # waves smaller than this are too small for a percentage to mean anything
 
 def load_state = JSON.parse(File.read(STATE))
 def save_state(s) = File.write(STATE, JSON.pretty_generate(s))
@@ -54,6 +66,8 @@ def init(opts)
   end
   fix_dependency_waves!(components, graph["nodes"]) # dependencies always win
 
+  components.each { |n, c| c["deps"] = c["kind"] == "infra" ? INFRA_DEPS.fetch(n, []) : ((graph["nodes"][n] || []) & components.keys) }
+
   # Idempotent: keep progress for components whose oracle source did not change; reset the ones that did.
   attach_source_shas!(components)
   reset = []
@@ -74,7 +88,8 @@ def init(opts)
   end
 
   FileUtils.mkdir_p(File.dirname(STATE))
-  save_state("created_at" => Time.now.utc.iso8601, "oracle" => JSON.parse(File.read(File.join(File.dirname(GRAPH), "VERSION.json"))), "components" => components)
+  dispatches = File.exist?(STATE) ? load_state.fetch("dispatches", 0) : 0
+  save_state("created_at" => Time.now.utc.iso8601, "oracle" => JSON.parse(File.read(File.join(File.dirname(GRAPH), "VERSION.json"))), "dispatches" => dispatches, "components" => components)
   warn "state: #{components.size} items, #{components.values.map { |c| c['wave'] }.max + 1} waves, #{kept} preserved"
   warn "reset to pending (oracle source changed): #{reset.join(', ')}" if reset.any?
 end
@@ -105,26 +120,73 @@ def fix_dependency_waves!(components, nodes)
   end
 end
 
-def current_wave(state)
-  open = state["components"].select { |_, c| %w[pending planned built].include?(c["status"]) }
-  open.values.map { |c| c["wave"] }.min
+# Root blocker of a component: a dependency that is blocked, or (transitively) waits on a blocked one. nil if none.
+def root_blocker(components, name, seen = [])
+  return nil if seen.include?(name)
+
+  (components[name]["deps"] || []).each do |dep|
+    next unless components[dep]
+    return dep if components[dep]["status"] == "blocked"
+
+    found = root_blocker(components, dep, seen + [name])
+    return found if found
+  end
+  nil
+end
+
+def deps_satisfied?(components, name)
+  (components[name]["deps"] || []).all? { |d| components[d].nil? || SATISFIED.include?(components[d]["status"]) }
 end
 
 def next_batch(state, concurrency)
-  wave = current_wave(state)
-  return { "wave" => nil, "batch" => [], "done" => true } if wave.nil?
+  comps = state["components"]
+  waiting = {}
+  comps.each do |name, c|
+    next unless RUNNABLE.include?(c["status"])
 
-  open = state["components"].select { |_, c| c["wave"] == wave && %w[pending planned built].include?(c["status"]) }
-  blocked_dep = state["components"].select { |_, c| c["wave"] < wave && c["status"] == "blocked" }.keys
-  batch = open.keys.first(concurrency)
-  {
-    "wave" => wave,
-    "kind" => open.values.first["kind"],
-    "batch" => batch.map { |n| { "name" => n, "status" => open[n]["status"], "iteration" => open[n]["iteration"], "owns" => open[n]["owns"] }.compact },
-    "remaining_in_wave" => open.size - batch.size,
-    "blocked_earlier" => blocked_dep,
-    "done" => false,
-  }
+    blocker = root_blocker(comps, name)
+    waiting[name] = "dep blocked: #{blocker}" if blocker
+  end
+
+  comps.values.map { |c| c["wave"] }.uniq.sort.each do |wave|
+    runnable = comps.select { |n, c| c["wave"] == wave && RUNNABLE.include?(c["status"]) && !waiting.key?(n) && deps_satisfied?(comps, n) }
+    next if runnable.empty?
+
+    batch = runnable.keys.first(concurrency)
+    return {
+      "wave" => wave,
+      "kind" => runnable.values.first["kind"],
+      "batch" => batch.map { |n| { "name" => n, "status" => comps[n]["status"], "iteration" => comps[n]["iteration"], "owns" => comps[n]["owns"] }.compact },
+      "remaining_runnable" => runnable.size - batch.size,
+      "waiting" => waiting,
+      "done" => false,
+    }
+  end
+  { "wave" => nil, "batch" => [], "waiting" => waiting, "done" => true }
+end
+
+# Deterministic stop rules for the orchestrator. Call after every batch.
+def checkpoint(state)
+  comps = state["components"]
+  blocked = ->(sel) { comps.select { |_, c| sel.call(c) && c["status"] == "blocked" }.keys }
+
+  infra = blocked.call(->(c) { c["kind"] == "infra" })
+  return { "stop" => true, "reason" => "infra_blocked", "details" => infra } if infra.any?
+
+  cap = DISPATCH_CAP_FACTOR * comps.size
+  dispatches = state.fetch("dispatches", 0)
+  return { "stop" => true, "reason" => "dispatch_cap", "details" => ["#{dispatches} dispatches > cap #{cap}"] } if dispatches > cap
+
+  pilots = blocked.call(->(c) { c["kind"] == "pilot" })
+  return { "stop" => true, "reason" => "pilot_blocked", "details" => pilots } if pilots.any?
+
+  comps.select { |_, c| c["kind"] == "fanout" }.group_by { |_, c| c["wave"] }.each do |wave, list|
+    next if list.size < RATIO_MIN_WAVE
+
+    bad = list.select { |_, c| c["status"] == "blocked" }.map(&:first)
+    return { "stop" => true, "reason" => "wave_blocked_ratio", "details" => ["wave #{wave}: #{bad.size}/#{list.size} blocked: #{bad.join(', ')}"] } if bad.size * 4 > list.size
+  end
+  { "stop" => false, "reason" => nil, "details" => [] }
 end
 
 def summary(state, json)
@@ -153,6 +215,18 @@ parser.parse!
 case cmd
 when "init" then init(opts)
 when "next" then puts JSON.pretty_generate(next_batch(load_state, opts[:concurrency] || 4))
+when "checkpoint" then puts JSON.pretty_generate(checkpoint(load_state))
+when "bump"
+  state = load_state
+  state["dispatches"] = state.fetch("dispatches", 0) + Integer(ARGV.first || 1)
+  save_state(state)
+when "retry-blocked"
+  state = load_state
+  targets = ARGV.empty? ? state["components"].select { |_, c| c["status"] == "blocked" }.keys : ARGV
+  targets.each { |n| state["components"][n]&.merge!("status" => "pending", "iteration" => 0, "note" => nil) }
+  state["dispatches"] = 0
+  save_state(state)
+  warn "retrying: #{targets.join(', ')}"
 when "set"
   name, status = ARGV
   abort("status must be one of #{STATUSES.join(', ')}") unless STATUSES.include?(status)
@@ -172,5 +246,5 @@ when "reset"
   targets.each { |n| state["components"][n]&.merge!("status" => "pending", "iteration" => 0, "note" => nil) }
   save_state(state)
 else
-  abort("usage: init | next | set NAME STATUS | summary | reset NAME|all")
+  abort("usage: init | next | checkpoint | bump N | retry-blocked [NAME...] | set NAME STATUS | summary | reset NAME|all")
 end

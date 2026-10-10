@@ -57,11 +57,12 @@ docs.each do |doc|
         add.call("LINT_SCRIPT_MISSING", doc, n, file)
         next
       end
-      src = script_sources[file]
+      # A flag is fine if ANY script named on the same line defines it (lines often chain two scripts).
+      line_sources = text.scan(/\b([\w-]+\.(?:rb|mjs))\b/).flatten.uniq.filter_map { |f| script_sources[f] }
       flags = text.scan(/\s(--[a-zA-Z][\w-]*)/).flatten.uniq - FOREIGN_FLAGS
       flags.each do |flag|
         checked += 1
-        add.call("LINT_FLAG_UNKNOWN", doc, n, "#{file} #{flag}") unless src.include?(flag)
+        add.call("LINT_FLAG_UNKNOWN", doc, n, "#{file} #{flag}") unless line_sources.any? { |src| src.include?(flag) }
       end
       if file == "port_state.rb"
         sub = text[/port_state\.rb\s+(\w+)/, 1]

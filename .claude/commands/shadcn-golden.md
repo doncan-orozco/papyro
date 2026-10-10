@@ -23,6 +23,15 @@ Cases live in `.claude/shadcn-golden/cases/<id>/` as `files/<repo-relative path>
 | 09-state-waves | state | `port_state.rb` on the fixture graph: infra wave 0, pilot mini-waves (dialog after button), fan-out after pilots, resumable flow, re-init keeps progress and resets only components whose oracle source changed | all assertions and flow steps hold |
 | 10-command-lint | lint | Seeded bad command doc (missing script, flag, subcommand, rake task, reference, agent, slash command) | all 7 `LINT_*` codes |
 | 11-command-lint-real | lint | The REAL shadcn commands/agents/skills must reference only things that exist | nothing (control) |
+| 14-run-happy | run | Orchestrator protocol simulated against `port_state.rb` with scripted builders that all succeed | infra-internal order, pilot before fan-out, dependencies before dependents, no duplicate dispatch, run completes |
+| 15-run-pilot-failure | run | A pilot component is blocked | `checkpoint` stops with `pilot_blocked` before dialog and all fan-out |
+| 16-run-dependency-wait | run | A fan-out component is blocked | its dependents are never dispatched and are reported as waiting on it; independents finish; run ends |
+| 17-run-ratio-stop | run | 3 of 8 in one fan-out wave blocked (> 25%) | `wave_blocked_ratio` stop; rest of the wave never dispatched |
+| 18-run-ratio-tolerated | run | 2 of 8 blocked (exactly 25%) | run continues and completes |
+| 19-run-resume | run | Run interrupted after 2 batches, restarted with `init` | nothing dispatched twice, run finishes |
+| 20-run-dispatch-cap | run | One task consumes 500 dispatches | `dispatch_cap` stop at the next checkpoint |
+| 21-run-no-browser | run | Every builder ends `built` (`--no-browser`) | `built` satisfies dependents and is never returned again (no infinite loop) |
+| 22-run-contract | contract | `shadcn-run.md` text | still invokes `port_state.rb next/checkpoint/bump/set/retry-blocked`, `static_gate`, `parity_run`, `house_check`, `planner_check`, `command_lint`, and writes `run.log`, `REPORT.md`, `PILOT_FAILURE.md` |
 | 12-planner-badge | planner | Real planner run (offline) on a static cva component | `planner_check` passes: >= 12 scenarios, dark twins, all variants |
 | 13-planner-switch | planner | Real planner run (offline) on an interactive Radix component | `planner_check` passes: Behavior section, `press`/`click`/`tab` steps, dark twins |
 
@@ -50,4 +59,6 @@ Cases live in `.claude/shadcn-golden/cases/<id>/` as `files/<repo-relative path>
 After changing: any script in `.claude/scripts/shadcn/`, the three `shadcn-*` agents, `shadcn-port` / `radix-stimulus` Quick Rules, or the gate vocabulary. Not on every component run.
 
 ## Not covered here (and why)
+The LLM-driven parts of `/shadcn-run` (how well a builder ports a component, how the orchestrator phrases agent prompts) are only exercised by a real run. What IS tested is every decision the orchestrator makes: the protocol simulation (cases 14-21) drives `port_state.rb`, which now owns wave order, dependency waiting, pilot/ratio/cap stops and resume.
+
 The browser tier (`parity_run.mjs`) needs both live catalogs, so it is proven by the `_harness` self-test (`infra-tasks.md`: identical probe must pass, mutated probe must fail), not by golden fixtures.

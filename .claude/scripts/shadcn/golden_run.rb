@@ -7,7 +7,7 @@
 #   status PASS | FAIL | AGENT_PENDING (kind "agent": G1 part done, auditor still to run)
 #          | PLANNER_PENDING (kind "planner": workspace prepared, planner agent still to run)
 #   ruby .claude/scripts/shadcn/golden_run.rb planner-check <case-id>   # after the planner ran: validate its output
-# Kinds: static, agent, scenario, extract, lint, state, planner.
+# Kinds: static, agent, scenario, extract, lint, state, planner, run (orchestrator protocol simulation), contract (required invocations in a command doc).
 # Exit 0 when no script-tier case FAILs.
 
 require "json"
@@ -131,6 +131,106 @@ def check_state(exp)
   problems
 end
 
+# ---- orchestrator protocol simulation (kind "run") ---------------------------------------------
+# Plays /shadcn-run's protocol against port_state.rb with scripted builder outcomes:
+#   loop { next -> dispatch batch (set done|blocked, bump) -> checkpoint -> stop? }
+# so the rules that used to live only in the command prose (wave order, dependency waiting, pilot stop,
+# blocked-ratio stop, dispatch cap, resume) are tested for real.
+class SimError < StandardError; end
+
+def run_sim(exp, case_dir)
+  work = File.join(WORK, "run-work", exp["case"])
+  FileUtils.rm_rf(work)
+  FileUtils.mkdir_p(File.join(work, "docs/shadcn-port"))
+  oracle_src = exp["oracle"] == "case" ? File.join(case_dir, "files/oracle") : ORACLE
+  FileUtils.cp_r(oracle_src, File.join(work, "docs/shadcn-port/oracle"))
+  ps = ->(*args) { port_state(work, *args) }
+  json = lambda do |*args|
+    out, err, = ps.call(*args)
+    JSON.parse(out)
+  rescue JSON::ParserError
+    raise SimError, "port_state.rb #{args.first} produced no JSON (#{err.lines.first.to_s.strip})"
+  end
+  _, err, st = ps.call("init", *Array(exp["init_args"]))
+  return { problems: ["init failed: #{err.lines.first}"] } unless st.success?
+
+  outcomes = exp.fetch("outcomes", {})
+  trace = []
+  stop = nil
+  batches = 0
+  halted = false
+  completed = false
+  waiting = {}
+  step = lambda do
+    300.times do
+      nxt = json.call("next", "--concurrency", (exp["concurrency"] || 4).to_s)
+      waiting = nxt["waiting"] || {}
+      if nxt["done"]
+        completed = true
+        return
+      end
+      nxt["batch"].each do |b|
+        out = outcomes[b["name"]] || exp["default_outcome"] || "done"
+        status = out.is_a?(Hash) ? out.fetch("status", "done") : out
+        bumps = out.is_a?(Hash) ? out.fetch("dispatches", 1) : 1
+        trace << b["name"]
+        ps.call("bump", bumps.to_s)
+        ps.call("set", b["name"], %w[blocked built].include?(status) ? status : "done", "--note", "sim")
+      end
+      batches += 1
+      cp = json.call("checkpoint")
+      if cp["stop"]
+        stop = cp["reason"]
+        return
+      end
+      if exp["halt_after_batches"] && batches == exp["halt_after_batches"] && !halted
+        halted = true
+        return
+      end
+    end
+    stop = "no_progress_guard"
+  end
+  step.call
+  if halted && exp["resume"]
+    ps.call("init", *Array(exp["init_args"])) # a restart re-initialises; progress must survive
+    step.call
+  end
+  status = JSON.parse(File.read(File.join(work, "docs/shadcn-port/state.json")))["components"].transform_values { |c| c["status"] }
+  { trace: trace, stop: stop, completed: completed, status: status, waiting: waiting, halted: halted }
+end
+
+def check_run(exp, case_dir)
+  r = begin
+    run_sim(exp, case_dir)
+  rescue SimError => e
+    return [e.message]
+  end
+  return r[:problems] if r[:problems]
+
+  e = exp.fetch("expect", {})
+  problems = []
+  problems << "stop_reason #{r[:stop].inspect} != #{e['stop_reason'].inspect}" if e.key?("stop_reason") && r[:stop] != e["stop_reason"]
+  problems << "run did not complete (stop=#{r[:stop].inspect})" if e["completed"] && !r[:completed]
+  Array(e["dispatched_before"]).each do |a, b|
+    ia = r[:trace].index(a)
+    ib = r[:trace].index(b)
+    problems << "#{a} must be dispatched before #{b} (trace: #{r[:trace].join(',')})" unless ia && ib && ia < ib
+  end
+  Array(e["never_dispatched"]).each { |n| problems << "#{n} must never be dispatched" if r[:trace].include?(n) }
+  problems << "duplicate dispatches: #{r[:trace].tally.select { |_, n| n > 1 }.keys}" if e["dispatched_once"] && r[:trace].uniq.size != r[:trace].size
+  (e["final_status"] || {}).each { |n, st| problems << "#{n} final status #{r[:status][n].inspect} != #{st}" unless r[:status][n] == st }
+  (e["waiting"] || {}).each { |n, blocker| problems << "#{n} should be waiting on #{blocker}, got #{r[:waiting][n].inspect}" unless r[:waiting][n].to_s.include?(blocker) }
+  problems
+end
+
+# ---- command contract (kind "contract") --------------------------------------------------------
+# The orchestrator doc must keep invoking the scripts that judge. Deleting a step from the prose fails here.
+def check_contract(exp)
+  text = File.read(exp["file"])
+  Array(exp["must_reference"]).reject { |needle| text.include?(needle) }.map { |n| "#{exp['file']} no longer references: #{n}" } +
+    Array(exp["must_not_reference"]).select { |needle| text.include?(needle) }.map { |n| "#{exp['file']} still references: #{n}" }
+end
+
 def check_lint(exp, files)
   cmd = ["ruby", File.join(SCRIPTS, "command_lint.rb")]
   cmd += ["--docs", *files.select { |f| f.end_with?(".md") }] if exp["target"] == "docs"
@@ -166,6 +266,16 @@ results = cases.map do |dir|
     codes = report["findings"].map { |f| f["code"] }.uniq
     r[:detected] = codes
     r[:notes] << "checked=#{report['checked']}"
+  when "run"
+    problems = check_run(exp, dir)
+    r[:missed] = problems
+    r[:status] = problems.empty? ? "PASS" : "FAIL"
+    next r
+  when "contract"
+    problems = check_contract(exp)
+    r[:missed] = problems
+    r[:status] = problems.empty? ? "PASS" : "FAIL"
+    next r
   when "state"
     problems = check_state(exp)
     r[:missed] = problems
