@@ -8,23 +8,25 @@
 #   ruby .claude/scripts/shadcn/theme_sync.rb --emit-preset zinc-radius0 # zinc with --radius: 0
 #   ruby .claude/scripts/shadcn/theme_sync.rb --emit-presets             # zinc slate stone neutral gray zinc-radius0
 #   ruby .claude/scripts/shadcn/theme_sync.rb --vendor                   # tw-animate-css + shadcn/tailwind.css -> app/assets/tailwind/vendor
-#   ruby .claude/scripts/shadcn/theme_sync.rb --check-tokens             # tokens.css must cover everything `shadcn init` put in the catalog's @theme inline
+#   ruby .claude/scripts/shadcn/theme_sync.rb --check-tokens [--oracle DIR] [--tokens FILE]
+#        compiles every semantic Tailwind class the oracle uses (bg-primary/90, dark:ring-ring/50, rounded-md,
+#        text-sidebar-foreground...) against tokens.css with the real Tailwind binary and fails when a class
+#        produces no CSS. This is the actual contract of tokens.css, independent of any CLI-generated file.
 #
 # Source of truth for COLORS is the host file app/assets/tailwind/theme/theme.css (the React catalog
-# imports it through a Vite alias, so there is nothing to sync). Source of truth for the token MAPPING
-# (@theme inline + base layer) is shadcn itself: tokens.css is verified against the catalog's
-# `shadcn init` output.
+# imports it through a Vite alias, so there is nothing to sync).
 
 require "json"
 require "net/http"
 require "optparse"
 require "fileutils"
+require "open3"
+require "tmpdir"
 require_relative "../../../lib/shadcn/theme"
 
 THEME_DIR = "app/assets/tailwind/theme"
 PRESETS_DIR = File.join(THEME_DIR, "presets")
 TOKENS_CSS = File.join(THEME_DIR, "tokens.css")
-CATALOG_CSS = "react-shadcn-catalog/src/index.css.init" # the file `shadcn init` generated, kept only for token verification
 VENDOR_DIR = "app/assets/tailwind/vendor"
 BASE_COLORS = %w[zinc slate stone neutral gray].freeze
 
@@ -45,19 +47,59 @@ def emit_preset(name)
   warn "wrote #{PRESETS_DIR}/#{name}.css"
 end
 
-def theme_inline_keys(css)
-  Shadcn::Theme.block(css, "@theme inline").scan(/--([\w-]+)\s*:/).flatten.sort
+def tailwind_bin
+  return ENV["TAILWINDCSS"] if ENV["TAILWINDCSS"] && File.executable?(ENV["TAILWINDCSS"])
+
+  spec = Gem::Specification.find_by_name("tailwindcss-ruby")
+  Dir[File.join(spec.gem_dir, "exe/**/tailwindcss")].find { |f| File.file?(f) && File.executable?(f) }
+rescue Gem::MissingSpecError
+  nil
 end
 
-def check_tokens
-  abort("missing #{TOKENS_CSS}") unless File.exist?(TOKENS_CSS)
-  abort("missing #{CATALOG_CSS}: run `npx shadcn@latest init` in react-shadcn-catalog first") unless File.exist?(CATALOG_CSS)
+# Splits a Tailwind token into [variants, utility] at the last top-level ":" (colons inside [...] are ignored).
+def split_token(token)
+  depth = 0
+  cut = nil
+  token.each_char.with_index do |ch, i|
+    depth += 1 if ch == "["
+    depth -= 1 if ch == "]"
+    cut = i if ch == ":" && depth.zero?
+  end
+  cut ? [token[0...cut], token[(cut + 1)..]] : ["", token]
+end
 
-  ours = theme_inline_keys(File.read(TOKENS_CSS))
-  theirs = theme_inline_keys(File.read(CATALOG_CSS))
-  missing = theirs - ours
-  puts JSON.generate(pass: missing.empty?, missing_in_tokens_css: missing, extra_in_tokens_css: ours - theirs)
-  exit(missing.empty? ? 0 : 1)
+SEMANTIC = /\A(?:bg|text|border(?:-[trblxyse])?|ring|ring-offset|outline|fill|stroke|from|to|via|divide|decoration|caret|accent|placeholder|shadow)-(?<name>#{Shadcn::Theme::REQUIRED.map { |n| Regexp.escape(n) }.join('|')})(?:\/[\w.\[\]%]+)?\z|\Arounded(?:-[trblse]{1,2})?-(?:sm|md|lg|xl)\z/
+
+def escape_class(token) = token.gsub(/[^a-zA-Z0-9_-]/) { |c| "\\#{c}" }
+
+def check_tokens(oracle_dir, tokens_file)
+  tailwind = tailwind_bin
+  abort("tailwindcss binary not found (tailwindcss-ruby gem or TAILWINDCSS=/path)") unless tailwind
+  abort("missing #{tokens_file}") unless File.exist?(tokens_file)
+
+  tokens = Dir[File.join(oracle_dir, "manifest/*.json")].flat_map { |f| JSON.parse(File.read(f))["class_tokens"] }.uniq
+  used = tokens.select do |t|
+    _variants, utility = split_token(t)
+    SEMANTIC.match?(utility.delete_prefix("!"))
+  end
+
+  Dir.mktmpdir("tokens-check") do |dir|
+    File.write(File.join(dir, "sample.html"), used.map { |t| %(<i class="#{t}"></i>) }.join("\n"))
+    File.write(File.join(dir, "in.css"), %(@import "tailwindcss";\n@import "#{File.expand_path(tokens_file)}";\n@source "./sample.html";\n))
+    out, err, status = Open3.capture3(tailwind, "-i", File.join(dir, "in.css"), "-o", File.join(dir, "out.css"))
+    abort("tailwind failed: #{err.lines.last(3).join}") unless status.success?
+
+    css = File.read(File.join(dir, "out.css"))
+    missing = used.reject { |t| css.include?(".#{escape_class(t)}") }
+    # Tailwind ships its own rounded-sm..xl, so a missing radius alias does not drop the class: it silently yields the
+    # default radius. For plain radius utilities the rule must therefore actually derive from the theme's --radius.
+    used.grep(/\Arounded(?:-[trblse]{1,2})?-(?:sm|md|lg|xl)\z/).each do |t|
+      body = css[/\.#{Regexp.escape(escape_class(t))}\s*\{([^}]*)\}/m, 1].to_s
+      missing << t unless body.include?("var(--radius)") || missing.include?(t) || body.empty? && css.include?("--radius")
+    end
+    puts JSON.pretty_generate(pass: missing.empty?, checked: used.size, oracle_tokens: tokens.size, missing_utilities: missing)
+    exit(missing.empty? ? 0 : 1)
+  end
 end
 
 def vendor
@@ -72,17 +114,21 @@ end
 
 mode = nil
 arg = nil
+oracle_dir = "docs/shadcn-port/oracle"
+tokens_file = TOKENS_CSS
 OptionParser.new do |o|
   o.on("--emit-preset NAME") { |v| mode = :emit; arg = v }
   o.on("--emit-presets") { mode = :emit_all }
   o.on("--vendor") { mode = :vendor }
   o.on("--check-tokens") { mode = :check_tokens }
+  o.on("--oracle DIR") { |v| oracle_dir = v }
+  o.on("--tokens FILE") { |v| tokens_file = v }
 end.parse!
 
 case mode
 when :emit then emit_preset(arg)
 when :emit_all then (BASE_COLORS + ["zinc-radius0"]).each { |n| emit_preset(n) }
 when :vendor then vendor
-when :check_tokens then check_tokens
+when :check_tokens then check_tokens(oracle_dir, tokens_file)
 else abort("usage: --emit-preset NAME | --emit-presets | --vendor | --check-tokens")
 end

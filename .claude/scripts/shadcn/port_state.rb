@@ -29,7 +29,7 @@ GRAPH = "docs/shadcn-port/oracle/graph.json"
 STATUSES = %w[pending planned built done blocked].freeze
 DEFAULT_PILOT = %w[button switch dialog tooltip dropdown-menu select].freeze
 INFRA = [
-  { "name" => "_theme", "owns" => ["app/assets/tailwind/application.css", "app/assets/tailwind/foundation/**", "app/assets/tailwind/theme/** (bug fixes only)", "app/assets/tailwind/vendor/**", "app/javascript/controllers/v2/theme_controller.js", "react-shadcn-catalog/src/index.css", "react-shadcn-catalog/src/index.css.init", "lib/shadcn/**", "lib/tasks/theme.rake", "test/lib/shadcn/**"] },
+  { "name" => "_theme", "owns" => ["app/assets/tailwind/application.css", "app/assets/tailwind/foundation/**", "app/assets/tailwind/theme/** (bug fixes only)", "app/assets/tailwind/vendor/**", "app/javascript/controllers/v2/theme_controller.js", "react-shadcn-catalog/src/index.css", "lib/shadcn/**", "lib/tasks/theme.rake", "test/lib/shadcn/**"] },
   { "name" => "_harness", "owns" => ["app/components/parity/**", "app/views/design_system/parity/**", "config/routes.rb (parity route only)", "react-shadcn-catalog/src/parity/**", "react-shadcn-catalog/vite.config.ts", "react-shadcn-catalog/package.json"] },
   { "name" => "_primitives", "owns" => ["app/javascript/v2/primitives/**", "config/importmap.rb (pin_all_from v2)", "react-shadcn-catalog/src/parity/primitives/**", "docs/shadcn-port/scenarios/_primitives-*.json"] },
   { "name" => "_base", "owns" => ["app/components/v2/base.rb", "test/components/v2/base_test.rb"] },

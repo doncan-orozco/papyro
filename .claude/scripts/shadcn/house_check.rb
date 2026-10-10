@@ -49,6 +49,11 @@ Dir["docs/shadcn-port/deviations/*.json"].each do |f|
   add.call("G5_DEVIATION_UNREGISTERED", name) unless register.include?("`#{name}`")
 end
 
+catalog_css = "react-shadcn-catalog/src/index.css"
+if File.exist?(catalog_css) && File.read(catalog_css).match?(/^\s*(:root|\.dark)\b|@theme/)
+  add.call("G5_CATALOG_CSS", "#{catalog_css} must only import tailwindcss, tw-animate-css and the host theme (the shadcn CLI appends HSL variables)")
+end
+
 importmap = File.exist?("config/importmap.rb") ? File.read("config/importmap.rb") : ""
 add.call("G5_IMPORTMAP", "config/importmap.rb lacks pin_all_from \"app/javascript/v2\"") if Dir.exist?("app/javascript/v2") && !importmap.include?("app/javascript/v2")
 
@@ -56,9 +61,9 @@ require_relative "../../../lib/shadcn/theme"
 if File.exist?("app/assets/tailwind/theme/theme.css")
   theme = Shadcn::Theme.check
   theme[:errors].each { |e| add.call("G5_THEME_INVALID", e) }
-  if File.exist?("react-shadcn-catalog/src/index.css.init")
+  if File.exist?("app/assets/tailwind/theme/tokens.css") && Dir.exist?("docs/shadcn-port/oracle/manifest")
     out, status = Open3.capture2("ruby", ".claude/scripts/shadcn/theme_sync.rb", "--check-tokens")
-    add.call("G5_TOKENS_DRIFT", out.strip) unless status.success?
+    add.call("G5_TOKENS_DRIFT", out.strip[0, 400]) unless status.success?
   end
 else
   add.call("G5_THEME_MISSING", "app/assets/tailwind/theme/theme.css")

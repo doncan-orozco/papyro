@@ -7,7 +7,7 @@
 #   status PASS | FAIL | AGENT_PENDING (kind "agent": G1 part done, auditor still to run)
 #          | PLANNER_PENDING (kind "planner": workspace prepared, planner agent still to run)
 #   ruby .claude/scripts/shadcn/golden_run.rb planner-check <case-id>   # after the planner ran: validate its output
-# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
+# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, tokens, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
 # Exit 0 when no script-tier case FAILs.
 
 require "json"
@@ -261,6 +261,21 @@ results = cases.map do |dir|
                       "--scenarios", File.join(dir, "files/docs/shadcn-port/scenarios"))
     codes = report["gaps"].map { |g| g["code"] }.uniq
     r[:detected] = codes
+  when "tokens"
+    tokens = File.read("app/assets/tailwind/theme/tokens.css")
+    Array(exp["remove_lines_matching"]).each { |needle| tokens = tokens.lines.reject { |l| l.include?(needle) }.join }
+    tf = File.join(WORK, "tokens-work", "#{exp['case']}.css")
+    FileUtils.mkdir_p(File.dirname(tf))
+    File.write(tf, tokens)
+    out, = Open3.capture2("ruby", File.join(SCRIPTS, "theme_sync.rb"), "--check-tokens", "--oracle", ORACLE, "--tokens", tf)
+    report = begin JSON.parse(out) rescue { "pass" => nil, "missing_utilities" => [] } end
+    problems = []
+    problems << "expected pass=#{exp['expect_pass']}, got #{report['pass'].inspect}" unless report["pass"] == exp["expect_pass"]
+    problems += (Array(exp["must_miss"]) - report["missing_utilities"]).map { |m| "should have reported #{m} as missing" }
+    r[:missed] = problems
+    r[:status] = problems.empty? ? "PASS" : "FAIL"
+    r[:notes] << "missing=#{report['missing_utilities'].size}"
+    next r
   when "browser"
     pw_dir = ENV["PARITY_PLAYWRIGHT_DIR"] || (File.directory?("react-shadcn-catalog/node_modules/playwright") ? "react-shadcn-catalog" : nil)
     if pw_dir.nil?

@@ -1,7 +1,7 @@
 /*
  * TOKENS. Maps the theme variables to Tailwind utilities (bg-primary, text-muted-foreground, rounded-md...).
- * Mirrors what `shadcn init` generates for Tailwind v4; DO NOT EDIT. `ruby .claude/scripts/shadcn/theme_sync.rb
- * --check-tokens` fails when it falls behind the React catalog's @theme inline.
+ * Mirrors the shadcn Tailwind v4 mapping; DO NOT EDIT. `ruby .claude/scripts/shadcn/theme_sync.rb --check-tokens`
+ * compiles every semantic class the shadcn components use against this file and fails when one generates no CSS.
  */
 @custom-variant dark (&:is(.dark *));
 
