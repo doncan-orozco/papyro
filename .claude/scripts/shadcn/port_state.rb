@@ -4,7 +4,7 @@
 # Resumable run state for /shadcn-run. The orchestrator asks this script what to do next
 # instead of reasoning about waves itself.
 #
-#   ruby .claude/scripts/shadcn/port_state.rb init [--only a,b] [--pilot a,b,c]
+#   ruby .claude/scripts/shadcn/port_state.rb init [--only a,b] [--pilot a,b,c] [--skip-tier third_party[,client]|none]
 #   ruby .claude/scripts/shadcn/port_state.rb next [--concurrency 4]     # JSON batch for the lowest unfinished wave
 #   ruby .claude/scripts/shadcn/port_state.rb set NAME STATUS [--note TXT] [--iteration N] [--sha SHA]
 #   ruby .claude/scripts/shadcn/port_state.rb bump N                      # count N builder/planner dispatches (global cap)
@@ -53,6 +53,17 @@ def init(opts)
   graph = JSON.parse(File.read(GRAPH))
   names = graph["waves"].flat_map { |w| w["components"] }
   names &= opts[:only] if opts[:only]
+
+  # --skip-tier removes whole tiers from the plan (e.g. the 11 components that wrap React-only libraries). The choice is
+  # stored in state.json, so a later `init` (and /shadcn-run) reuses it; `--skip-tier none` clears it.
+  skip_tiers = opts.key?(:skip_tiers) ? opts[:skip_tiers] : (File.exist?(STATE) ? load_state.fetch("skip_tiers", []) : [])
+  skip_tiers = [] if skip_tiers == ["none"]
+  unknown = skip_tiers - graph["tiers"].values.uniq
+  abort("unknown tier #{unknown.join(', ')} (known: #{graph['tiers'].values.uniq.sort.join(', ')})") if unknown.any?
+  skipped = names.select { |n| skip_tiers.include?(graph["tiers"][n].to_s) }
+  broken = (names - skipped).filter_map { |n| (needs = (graph["nodes"][n] || []) & skipped).any? ? "#{n} needs #{needs.join(', ')}" : nil }
+  abort("--skip-tier #{skip_tiers.join(',')} would leave components that depend on skipped ones: #{broken.join('; ')}") if broken.any?
+  names -= skipped
   pilot = (opts[:pilot] || DEFAULT_PILOT) & names
   layers = graph["waves"].to_h { |w| [w["wave"], w["components"] & names] }
 
@@ -89,7 +100,8 @@ def init(opts)
 
   FileUtils.mkdir_p(File.dirname(STATE))
   dispatches = File.exist?(STATE) ? load_state.fetch("dispatches", 0) : 0
-  save_state("created_at" => Time.now.utc.iso8601, "oracle" => JSON.parse(File.read(File.join(File.dirname(GRAPH), "VERSION.json"))), "dispatches" => dispatches, "components" => components)
+  save_state("created_at" => Time.now.utc.iso8601, "skip_tiers" => skip_tiers, "skipped" => skipped.sort, "oracle" => JSON.parse(File.read(File.join(File.dirname(GRAPH), "VERSION.json"))), "dispatches" => dispatches, "components" => components)
+  warn "skipped (tier #{skip_tiers.join(',')}): #{skipped.size} components, kept out of the plan" if skipped.any?
   warn "state: #{components.size} items, #{components.values.map { |c| c['wave'] }.max + 1} waves, #{kept} preserved"
   warn "reset to pending (oracle source changed): #{reset.join(', ')}" if reset.any?
 end
@@ -197,6 +209,7 @@ def summary(state, json)
   puts "wave  component             status    iter  note"
   rows.each { |w, n, s, i, note| puts format("%-5s %-21s %-9s %-5s %s", w, n, s, i, note.to_s[0, 70]) }
   puts "\n#{tally.map { |k, v| "#{k}=#{v}" }.join('  ')}"
+  puts "skipped by --skip-tier #{state['skip_tiers'].join(',')}: #{state['skipped'].join(', ')}" if state["skipped"].to_a.any?
 end
 
 cmd = ARGV.shift
@@ -204,6 +217,7 @@ opts = {}
 parser = OptionParser.new do |o|
   o.on("--only LIST") { |v| opts[:only] = v.split(",") }
   o.on("--pilot LIST") { |v| opts[:pilot] = v.split(",") }
+  o.on("--skip-tier LIST") { |v| opts[:skip_tiers] = v.split(",") }
   o.on("--concurrency N", Integer) { |v| opts[:concurrency] = v }
   o.on("--note TXT") { |v| opts[:note] = v }
   o.on("--iteration N", Integer) { |v| opts[:iteration] = v }

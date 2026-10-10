@@ -1,13 +1,13 @@
 ---
 description: Prepare the whole shadcn -> Phlex port: upgrade the React catalog to latest shadcn, extract the oracle, generate themes, build the wave plan and run the per-component planners (spec + scenarios). Idempotent.
-argument-hint: "[--only a,b] [--refresh] [--no-bootstrap] [--lazy] [--dry-run]"
+argument-hint: "[--only a,b] [--skip-tier third_party[,client]|none] [--refresh] [--no-bootstrap] [--lazy] [--dry-run]"
 allowed-tools: Agent, Read, Write, Edit, Grep, Glob, TodoWrite, Bash(ruby:*), Bash(node:*), Bash(npm:*), Bash(npx:*), Bash(curl:*), Bash(cd:*), Bash(mkdir:*), Bash(git status:*), Bash(git diff:*), Bash(grep:*), Bash(ls:*)
 ---
 
 # /shadcn-plan: oracle + plan for the full port
 
 Arguments: $ARGUMENTS
-Parse: `--only a,b` (subset), `--refresh` (re-fetch the registry), `--no-bootstrap` (skip catalog upgrade), `--lazy` (skip Phase 5, planners run just-in-time from `/shadcn-run`), `--dry-run` (stop after Phase 3 and print the plan).
+Parse: `--only a,b` (subset), `--skip-tier t1,t2` (leave whole tiers out of the plan, e.g. `third_party`; the oracle and its audit still cover every component; the choice is stored in `state.json` and reused by `/shadcn-run` and by later runs of this command; `--skip-tier none` clears it), `--refresh` (re-fetch the registry), `--no-bootstrap` (skip catalog upgrade), `--lazy` (skip Phase 5, planners run just-in-time from `/shadcn-run`), `--dry-run` (stop after Phase 3 and print the plan).
 
 Read `.ai/skills/shadcn-port/SKILL.md`, `references/parity-gates.md` and `references/infra-tasks.md` before starting. You are the orchestrator: you run scripts and dispatch `shadcn-port-planner`; you do not write component code.
 
@@ -38,9 +38,9 @@ If it passes, skip to Phase 3. Otherwise (first run, or the old Tailwind 3 / Rea
 
 ## Phase 3: Theme + plan state (scripts)
 1. Presets exist already; regenerate only with `--refresh`: `ruby .claude/scripts/shadcn/theme_sync.rb --emit-presets`. Run `bin/rails theme:check`-equivalent `ruby -Ilib -rshadcn/theme -e 'p Shadcn::Theme.check'` and report warnings (the host `theme.css` must be zinc at this point unless the user changed it).
-2. `ruby .claude/scripts/shadcn/port_state.rb init [--only ...]` (keeps existing statuses when re-run with the same oracle digest; if the digest changed, mark every component whose `source_sha` changed as `pending`, and say which).
+2. `ruby .claude/scripts/shadcn/port_state.rb init [--only ...] [--skip-tier ...]` (it refuses a skip that would leave an included component depending on a skipped one) (keeps existing statuses when re-run with the same oracle digest; if the digest changed, mark every component whose `source_sha` changed as `pending`, and say which).
 3. `ruby .claude/scripts/shadcn/port_state.rb summary` and show the wave table. Wave 0 infra, then pilot (button, switch, tooltip, dropdown-menu, select; then dialog), then fan-out waves in dependency order.
-`--dry-run`: stop here and print: waves, tier tally, third-party libraries needed (union of manifests' `third_party`) and which are already pinned in `config/importmap.rb` (flag the missing ones as pin tasks for the matching components).
+`--dry-run`: stop here and print (including which components `--skip-tier` left out): waves, tier tally, third-party libraries needed (union of manifests' `third_party`) and which are already pinned in `config/importmap.rb` (flag the missing ones as pin tasks for the matching components).
 
 ## Phase 4: Migration map of the legacy components (no agents, informational)
 The port is from scratch in `app/components/v2/`; legacy `app/components/ui/*` stays untouched. For every legacy `app/components/ui/*.rb` that has a manifest, count callers (`grep -rln "Components::Ui::<Class>" app test ../papyro_studio/app ../papyro_studio/test`) and write `docs/shadcn-port/CALLERS.md` (component, legacy file, caller count, top 5 callers). It is only for the later Ui -> V2 migration and is NOT given to planners or builders.

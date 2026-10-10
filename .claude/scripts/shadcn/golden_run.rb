@@ -109,6 +109,16 @@ def check_state(exp)
       problems << "#{label}: kind #{got['kind'].inspect} != #{want['kind']}" if want["kind"] && got["kind"] != want["kind"]
       problems << "#{label}: batch #{names} lacks #{Array(want['includes']) - names}" if (Array(want["includes"]) - names).any?
       problems << "#{label}: expected done" if want["done"] && !got["done"]
+    when "init" then port_state(work, "init", *op["init"])
+    when "present", "absent"
+      names = state.call.keys
+      op.values.first.each do |n|
+        problems << "#{label}: #{n} #{op.keys.first == 'present' ? 'missing from' : 'still in'} the plan" if names.include?(n) != (op.keys.first == "present")
+      end
+    when "init_fails"
+      _, err, st = port_state(work, "init", *op["init_fails"])
+      problems << "#{label}: init #{op['init_fails'].join(' ')} should have failed" if st.success?
+      problems << "#{label}: message lacks '#{op['message_includes']}' (got: #{err.lines.last.to_s.strip[0, 120]})" unless err.include?(op["message_includes"].to_s)
     when "set" then port_state(work, "set", *op["set"].map(&:to_s))
     when "set_wave"
       wave, status = op["set_wave"]
