@@ -54,9 +54,36 @@ def init(opts)
   end
   fix_dependency_waves!(components, graph["nodes"]) # dependencies always win
 
+  # Idempotent: keep progress for components whose oracle source did not change; reset the ones that did.
+  attach_source_shas!(components)
+  reset = []
+  kept = 0
+  if File.exist?(STATE)
+    old = load_state["components"]
+    components.each do |name, c|
+      prev = old[name]
+      next unless prev
+
+      if prev["source_sha"] == c["source_sha"]
+        c.merge!(prev.slice("status", "iteration", "note", "last_green_sha", "updated_at"))
+        kept += 1
+      elsif prev["status"] != "pending"
+        reset << name
+      end
+    end
+  end
+
   FileUtils.mkdir_p(File.dirname(STATE))
   save_state("created_at" => Time.now.utc.iso8601, "oracle" => JSON.parse(File.read(File.join(File.dirname(GRAPH), "VERSION.json"))), "components" => components)
-  warn "state: #{components.size} items, #{components.values.map { |c| c['wave'] }.max + 1} waves"
+  warn "state: #{components.size} items, #{components.values.map { |c| c['wave'] }.max + 1} waves, #{kept} preserved"
+  warn "reset to pending (oracle source changed): #{reset.join(', ')}" if reset.any?
+end
+
+def attach_source_shas!(components)
+  components.each do |name, c|
+    manifest = File.join(File.dirname(GRAPH), "manifest", "#{name}.json")
+    c["source_sha"] = File.exist?(manifest) ? JSON.parse(File.read(manifest))["source_sha"] : "infra"
+  end
 end
 
 # Guarantee wave(component) > wave(each dependency present in the run).

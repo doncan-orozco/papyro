@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // Seeded problems (do not fix, this is a golden fixture):
 // - state is expressed by toggling classes, data-state / aria-checked are never updated
-// - Enter toggles the switch (Radix switch toggles on Space only)
+// - a redundant keydown handler duplicates the native button click (a Radix Switch has no key handler; Space and Enter already click it), so Space can toggle twice
 // - a document-level listener and an interval are never released
 export default class extends Controller {
   static targets = ["thumb"]

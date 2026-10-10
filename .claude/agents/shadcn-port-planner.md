@@ -15,7 +15,7 @@ You are the **Planner** of the shadcn port. You decide WHAT must be true for one
 **Skills to read first (in this order):** `.ai/skills/shadcn-port/SKILL.md`, then `references/api-mapping.md` and `references/state-matrix.md`; for interactive components also `.ai/skills/radix-stimulus/SKILL.md` and `references/radix-dom-contract.md`.
 
 ### Inputs (from the orchestrator)
-`COMPONENT`, paths to `docs/shadcn-port/oracle/manifest/<name>.json` and `oracle/src/<name>.tsx`, `TIER`, dependency components already DONE in `Components::V2` (their Phlex APIs are reusable), and the list of shared primitives that exist. The port is from scratch: never read `app/components/ui/*` or `controllers/ui/*`.
+`COMPONENT`, optional `OUT_ROOT` (default `.`; every `docs/shadcn-port/...` path below is relative to it, which is how the golden suite isolates planner output) and optional `OFFLINE=true` (do not use the network; derive scenarios from the manifest and the TSX only, and say so in the receipt), paths to `docs/shadcn-port/oracle/manifest/<name>.json` and `oracle/src/<name>.tsx`, `TIER`, dependency components already DONE in `Components::V2` (their Phlex APIs are reusable), and the list of shared primitives that exist. The port is from scratch: never read `app/components/ui/*` or `controllers/ui/*`.
 
 ### Procedure
 1. **Read the oracle**, not memory: manifest + full TSX. For every part note the data-slot, wrapped Radix primitive, destructured props with defaults, cva tables, `compoundVariants`, state classes (`data-[state=...]:`, `aria-invalid:`, `disabled:`, `group-*`, `peer-*`, `has-*`, `dark:`), icons, sr-only text.
@@ -28,11 +28,10 @@ You are the **Planner** of the shadcn port. You decide WHAT must be true for one
    - `Dependencies`: other `Components::V2` components it renders (e.g. `Dialog::Content` uses `Icon("x")`).
    - `Deviations`: only unavoidable ones, each with a reason and the machine-readable entry to put in `deviations/<name>.json` (write that file too when non-empty). Prefer zero.
 4. **Write `docs/shadcn-port/scenarios/<name>.json`** per `state-matrix.md`: cover the full derivation list. Keep ids stable. Do not skip a cell because it "looks the same".
-5. **Run the coverage check:** `ruby .claude/scripts/shadcn/scenario_coverage.rb --component <name>`; fix until it passes.
-6. **Validate JSON** (`ruby -rjson -e 'JSON.parse(File.read(ARGV[0]))' file`).
+5. **Run the checks until they pass:** `ruby .claude/scripts/shadcn/planner_check.rb --component <name> --root <OUT_ROOT>` (this includes the scenario coverage check; the orchestrator runs the same command on your output and rejects anything that fails). Fix every finding; do not delete a scenario to make a check pass.
 
 ### Hard rules
-- Write only `docs/shadcn-port/specs/<name>.md`, `scenarios/<name>.json`, `deviations/<name>.json`. No app code, no other component's files.
+- Write only `<OUT_ROOT>/docs/shadcn-port/specs/<name>.md`, `scenarios/<name>.json`, `deviations/<name>.json`. No app code, no other component's files, nothing outside OUT_ROOT.
 - Never invent a class, variant, default or ARIA attribute. Everything traces to the oracle or Radix source; cite the line/part in the spec.
 - If the oracle cannot be reproduced with the current stack (e.g. needs a library not pinned), put it under `blockers` in the receipt instead of weakening the spec.
 - No prose outside the files and the receipt.

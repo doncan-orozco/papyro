@@ -16,13 +16,14 @@ The goal of this command is that `/shadcn-run` can run end-to-end with no human 
 ## Phase 0: Preflight (no agents)
 1. `git status --short | head`; note the branch. Never commit. If on `main`, warn once in the final report (suggest a feature branch); continue.
 2. Check `node -v` (>= 20), `ruby -v`, network (`curl -sI https://ui.shadcn.com/r/index.json`). No network and no `docs/shadcn-port/oracle/registry`: stop with a clear message.
-3. `mkdir -p docs/shadcn-port/{oracle,specs,scenarios,deviations,themes} tmp/shadcn-port`.
+3. `mkdir -p docs/shadcn-port/{oracle,specs,scenarios,deviations} tmp/shadcn-port`.
 4. Create `docs/shadcn-port/DEVIATIONS.md` if missing (header + empty table: component, deviation, reason, approved-by).
+5. **Self-check of the tooling:** `ruby .claude/scripts/shadcn/command_lint.rb` must pass (every script, flag, subcommand, rake task, agent, slash command and reference named in the commands, agents and skills must exist). On findings STOP and report them: the docs are telling you to run something that does not exist.
 
 ## Phase 1: Oracle (script)
 `ruby .claude/scripts/shadcn/oracle_extract.rb [--only ...] [--refresh]`. Expect ~60 manifests, `graph.json`, `VERSION.json`. Print the tier tally and any "skipped" lines (components absent from the style are reported, not failed). Record `docs/shadcn-port/oracle/VERSION.json` digest in the final report.
 
-## Phase 2: React catalog = the oracle (skip with `--no-bootstrap` when already verified)
+## Phase 2: React catalog = the oracle (skip with `--no-bootstrap` when already verified) **Skipped entirely with `--dry-run`** (a dry run changes nothing outside `docs/shadcn-port/` and `tmp/`).
 The catalog is only a valid oracle if it runs exactly the registry source. Verify first:
 `ruby .claude/scripts/shadcn/oracle_extract.rb --verify-catalog react-shadcn-catalog/src/components/ui`.
 If it passes, skip to Phase 3. Otherwise (first run, or the old Tailwind 3 / React 18 catalog):
@@ -46,7 +47,7 @@ The port is from scratch in `app/components/v2/`; legacy `app/components/ui/*` s
 ## Phase 5: Per-component planning (agents, skipped with `--lazy`)
 Dispatch `shadcn-port-planner` for every component in state `pending`, in parallel blocks of at most 6, ordered by wave (pilot first so problems surface early). Prompt per component (self-contained, include):
 - `COMPONENT`, manifest path, src path, `TIER`, `registry_dependencies` already planned/DONE (names only), existing primitives list, and the instruction that `app/components/ui/*` must not be read.
-Collect each JSON receipt. On `coverage: pass` -> `port_state.rb set <name> planned`. On `blockers` -> keep `pending` with `--note`. Re-dispatch a planner once if its receipt is malformed. Never re-plan `planned/built/done` unless `--refresh` changed its `source_sha`.
+Collect each JSON receipt, then **validate the output yourself, never trust the receipt**: `ruby .claude/scripts/shadcn/planner_check.rb --component <name>` (spec sections, every part and data-slot named, scenario JSON shape, React-named props, valid steps, enough scenarios, full variant/state coverage, deviations with a reason). On findings, send them back verbatim (max 30) to the planner ONCE; if still failing keep the component `pending` with `--note "planner_check: <codes>"`. Only a passing check -> `port_state.rb set <name> planned`. On `blockers` -> keep `pending` with `--note`. Re-dispatch a planner once if its receipt is malformed. Never re-plan `planned/built/done` unless `--refresh` changed its `source_sha`.
 
 ## Phase 6: Plan report
 Write `docs/shadcn-port/PORT_PLAN.md`: oracle version/digest; wave table (from `port_state.rb summary`); per component: tier, #scenarios, planned deviations, third-party libs; the blockers list; estimated run size (components x average scenarios). End with the exact next command: `/shadcn-run all`.

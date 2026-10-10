@@ -20,7 +20,7 @@
 }
 ```
 
-- `tree.c`: the React export name (`Dialog`, `DialogTrigger`...). `props`: React prop names (camelCase, `className`, `asChild`), JSON-safe values only. `children`: strings or nested nodes. A string child starting with `<icon:x>` renders the lucide icon `x`.
+- `tree.c`: the React export name (`Dialog`, `DialogTrigger`...). A name starting with `_` is a raw HTML element (`_a`, `_div`, `_span`, `_p`): `props` become its attributes. Use it only for `asChild` children (`<a href>`), layout wrappers and neutral siblings; never to stand in for a shadcn part. `props`: React prop names (camelCase, `className`, `asChild`), JSON-safe values only. `children`: strings or nested nodes. A string child starting with `<icon:x>` renders the lucide icon `x`.
 - `steps.do`: `click | dblclick | hover | focus | fill | press | type | tab | viewport | snapshot`. `target` is any Playwright selector (prefer `[data-slot=...]` or `role=button[name="Open"]`). The runner snapshots **after every step** and diffs both sides.
 - `animations: true` only for scenarios whose purpose is enter/exit animation; all others run with motion disabled.
 - Ids are `kebab__kebab`, stable, unique per file.
