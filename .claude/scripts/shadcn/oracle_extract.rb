@@ -256,14 +256,15 @@ module ShadcnOracle
     end
 
     def parse_parts
-      starts = source.to_enum(:scan, /^function\s+(\w+)\s*(?:<[^>]*>)?\(/).map { Regexp.last_match }
+      # Components are `function Name(` (almost all) or `const Name = (` arrow functions (sonner, chart).
+      starts = source.to_enum(:scan, /^(?:function\s+(\w+)\s*(?:<[^>]*>)?\(|const\s+([A-Z]\w*)\s*=\s*(?:async\s*)?\()/).map { Regexp.last_match }
       starts.each_with_index.map do |m, idx|
         stop = idx + 1 < starts.size ? starts[idx + 1].begin(0) : source.size
         body = source[m.begin(0)...stop]
         sig_end = Scan.balanced(body, body.index("("))
         signature = body[0..sig_end]
         {
-          name: m[1],
+          name: m[1] || m[2],
           data_attrs: body.scan(/\b(data-(?!slot\b)[\w-]+)=(?:"([^"]*)"|\{([^}]*)\})/).map { |n, lit, expr| { name: n, value: lit || "{#{expr}}" } }.uniq,
           data_slots: body.scan(/data-slot=(?:"([^"]+)"|\{"([^"]+)"\})/).flatten.compact.uniq,
           data_slot: body[/data-slot=(?:"([^"]+)"|\{"([^"]+)"\})/, 1] || body[/data-slot=\{"([^"]+)"\}/, 1],

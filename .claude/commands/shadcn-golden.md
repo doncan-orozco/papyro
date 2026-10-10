@@ -32,6 +32,8 @@ Cases live in `.claude/shadcn-golden/cases/<id>/` as `files/<repo-relative path>
 | 20-run-dispatch-cap | run | One task consumes 500 dispatches | `dispatch_cap` stop at the next checkpoint |
 | 21-run-no-browser | run | Every builder ends `built` (`--no-browser`) | `built` satisfies dependents and is never returned again (no infinite loop) |
 | 22-run-contract | contract | `shadcn-run.md` text | still invokes `port_state.rb next/checkpoint/bump/set/retry-blocked`, `static_gate`, `parity_run`, `house_check`, `planner_check`, `command_lint`, and writes `run.log`, `REPORT.md`, `PILOT_FAILURE.md` |
+| 23-oracle-audit-clean | oracle_audit | `oracle_audit.rb` on the extracted fixtures (incl. arrow-function `sonner`) | nothing (control) |
+| 24-oracle-audit-detects | oracle_audit | Seeded extractor misses (lost parts/tokens, slot, cva table) | `AUDIT_PART_COUNT AUDIT_NO_TOKENS AUDIT_SLOT_MISMATCH AUDIT_CVA_COUNT` |
 | 12-planner-badge | planner | Real planner run (offline) on a static cva component | `planner_check` passes: >= 12 scenarios, dark twins, all variants |
 | 13-planner-switch | planner | Real planner run (offline) on an interactive Radix component | `planner_check` passes: Behavior section, `press`/`click`/`tab` steps, dark twins |
 

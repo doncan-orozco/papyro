@@ -21,7 +21,7 @@ The goal of this command is that `/shadcn-run` can run end-to-end with no human 
 5. **Self-check of the tooling:** `ruby .claude/scripts/shadcn/command_lint.rb` must pass (every script, flag, subcommand, rake task, agent, slash command and reference named in the commands, agents and skills must exist). On findings STOP and report them: the docs are telling you to run something that does not exist.
 
 ## Phase 1: Oracle (script)
-`ruby .claude/scripts/shadcn/oracle_extract.rb [--only ...] [--refresh]`. Expect ~60 manifests, `graph.json`, `VERSION.json`. Print the tier tally and any "skipped" lines (components absent from the style are reported, not failed). Record `docs/shadcn-port/oracle/VERSION.json` digest in the final report.
+`ruby .claude/scripts/shadcn/oracle_extract.rb [--only ...] [--refresh]`. Expect ~60 manifests, `graph.json`, `VERSION.json`. Print the tier tally and any "skipped" lines (components absent from the style are reported, not failed). Then **audit the extraction**: `ruby .claude/scripts/shadcn/oracle_audit.rb` compares every manifest with an independent count from the TSX (cva tables, data-slots, components, class tokens, tiers). On findings STOP and report them: an extractor blind spot would silently weaken every gate. Record `docs/shadcn-port/oracle/VERSION.json` digest in the final report.
 
 ## Phase 2: React catalog = the oracle (skip with `--no-bootstrap` when already verified) **Skipped entirely with `--dry-run`** (a dry run changes nothing outside `docs/shadcn-port/` and `tmp/`).
 The catalog is only a valid oracle if it runs exactly the registry source. Verify first:

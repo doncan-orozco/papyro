@@ -7,7 +7,7 @@
 #   status PASS | FAIL | AGENT_PENDING (kind "agent": G1 part done, auditor still to run)
 #          | PLANNER_PENDING (kind "planner": workspace prepared, planner agent still to run)
 #   ruby .claude/scripts/shadcn/golden_run.rb planner-check <case-id>   # after the planner ran: validate its output
-# Kinds: static, agent, scenario, extract, lint, state, planner, run (orchestrator protocol simulation), contract (required invocations in a command doc).
+# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, run (orchestrator protocol simulation), contract (required invocations in a command doc).
 # Exit 0 when no script-tier case FAILs.
 
 require "json"
@@ -260,6 +260,19 @@ results = cases.map do |dir|
     report = run_json("ruby", File.join(SCRIPTS, "scenario_coverage.rb"), "--component", exp["component"], "--oracle", ORACLE,
                       "--scenarios", File.join(dir, "files/docs/shadcn-port/scenarios"))
     codes = report["gaps"].map { |g| g["code"] }.uniq
+    r[:detected] = codes
+  when "oracle_audit"
+    audit_dir = File.join(WORK, "audit-work", exp["case"])
+    FileUtils.rm_rf(audit_dir)
+    FileUtils.mkdir_p(File.dirname(audit_dir))
+    FileUtils.cp_r(ORACLE, audit_dir)
+    Array(exp["mutate"]).each do |mut|
+      f = File.join(audit_dir, "manifest", "#{mut['manifest']}.json")
+      m = JSON.parse(File.read(f)).merge(mut["set"])
+      File.write(f, JSON.generate(m))
+    end
+    out, = Open3.capture2("ruby", File.join(SCRIPTS, "oracle_audit.rb"), "--oracle", audit_dir)
+    codes = JSON.parse(out)["findings"].map { |x| x["code"] }.uniq
     r[:detected] = codes
   when "lint"
     report = check_lint(exp, files)
