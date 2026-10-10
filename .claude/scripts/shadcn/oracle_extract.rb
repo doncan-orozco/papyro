@@ -35,7 +35,8 @@ module ShadcnOracle
   THIRD_PARTY = {
     "cmdk" => "cmdk", "sonner" => "sonner", "embla-carousel-react" => "embla", "react-day-picker" => "react-day-picker",
     "recharts" => "recharts", "input-otp" => "input-otp", "react-resizable-panels" => "resizable-panels",
-    "vaul" => "vaul", "react-hook-form" => "react-hook-form", "next-themes" => "next-themes"
+    "vaul" => "vaul", "react-hook-form" => "react-hook-form", "next-themes" => "next-themes",
+    "@base-ui/react" => "base-ui", "@shadcn/react" => "@shadcn/react"
   }.freeze
 
   # Parses the subset of JS object literals that appear inside `cva(...)`.
@@ -190,7 +191,7 @@ module ShadcnOracle
         data_attrs: parts.flat_map { |p| p[:data_attrs].map { |a| a[:name] } }.uniq.sort,
         data_slots: parts.flat_map { |p| p[:data_slots] }.uniq.sort,
         radix_primitives: radix_primitives(imports),
-        third_party: imports.filter_map { |i| THIRD_PARTY[i[:from]] }.uniq,
+        third_party: imports.filter_map { |i| third_party_for(i[:from]) }.uniq,
         icons: imports.select { |i| i[:from] == "lucide-react" }.flat_map { |i| i[:names] }.sort,
         text_literals: source.scan(/>\s*([A-Za-z][^<>{}\n]*?)\s*<\//).flatten.uniq,
         registry_dependencies: imports.filter_map { |i| i[:from][%r{/ui/([\w-]+)\z}, 1] }.uniq.sort - [name],
@@ -201,6 +202,12 @@ module ShadcnOracle
     end
 
     private
+
+    # "@shadcn/react/message-scroller" belongs to "@shadcn/react": match the package and its subpaths.
+    def third_party_for(from)
+      THIRD_PARTY.each { |pkg, label| return label if from == pkg || from.start_with?("#{pkg}/") }
+      nil
+    end
 
     def parse_imports
       source.scan(/^import\s+(.*?)\s+from\s+"([^"]+)"/m).map do |clause, from|
@@ -215,7 +222,7 @@ module ShadcnOracle
     end
 
     def tier(imports, parts)
-      return :third_party if imports.any? { |i| THIRD_PARTY.key?(i[:from]) }
+      return :third_party if imports.any? { |i| third_party_for(i[:from]) }
 
       prims = radix_primitives(imports) - %w[Slot Label Separator AspectRatio]
       return :overlay if (prims & OVERLAY_PRIMITIVES).any?

@@ -8,7 +8,7 @@
 #   ruby .claude/scripts/shadcn/oracle_audit.rb [--oracle docs/shadcn-port/oracle]
 # Prints JSON { pass, scanned, findings: [{ code, component, detail }] }; exit 1 on findings.
 #
-# Codes: AUDIT_CVA_COUNT, AUDIT_CVA_EMPTY, AUDIT_SLOT_MISMATCH, AUDIT_PART_COUNT, AUDIT_NO_TOKENS, AUDIT_TIER, AUDIT_NO_EXPORTS
+# Codes: AUDIT_TIER_LIBRARY, AUDIT_CVA_COUNT, AUDIT_CVA_EMPTY, AUDIT_SLOT_MISMATCH, AUDIT_PART_COUNT, AUDIT_NO_TOKENS, AUDIT_TIER, AUDIT_NO_EXPORTS
 
 require "json"
 require "optparse"
@@ -39,6 +39,10 @@ Dir[File.join(oracle, "manifest/*.json")].sort.each do |file|
   add.call("AUDIT_NO_TOKENS", name, "source has className but manifest has no class tokens") if m["class_tokens"].empty? && src.include?("className")
   add.call("AUDIT_TIER", name, "tier static but uses #{m['radix_primitives'] - ['Slot']}") if m["tier"] == "static" && (m["radix_primitives"] - ["Slot"]).any?
   add.call("AUDIT_NO_EXPORTS", name, "no exports found") if m["exports"].empty?
+
+  # Behavior that does not come from Radix (Base UI, @shadcn/react, cmdk, vaul...) must never be planned as a Radix component.
+  non_radix = %w[@base-ui/react @shadcn/react cmdk sonner embla-carousel-react react-day-picker recharts input-otp react-resizable-panels vaul react-hook-form].select { |lib| src.include?("from \"#{lib}") }
+  add.call("AUDIT_TIER_LIBRARY", name, "imports #{non_radix.join(', ')} but tier is #{m['tier']} (expected third_party)") if non_radix.any? && m["tier"] != "third_party"
 end
 
 puts JSON.pretty_generate(pass: findings.empty?, scanned: scanned, findings: findings)
