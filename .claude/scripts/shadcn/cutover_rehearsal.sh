@@ -12,6 +12,7 @@
 set -u
 REPO="$(cd "$(dirname "$0")/../../.." && pwd)"
 BASE="http://localhost:3000"; KEEP=0; SAMPLES=""
+[ -f "$REPO/tmp/shadcn-port/servers.json" ] && BASE="$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0]))["rails"]["url"]' "$REPO/tmp/shadcn-port/servers.json")" # servers.rb start
 while [ $# -gt 0 ]; do case "$1" in --base) BASE="$2"; shift;; --keep) KEEP=1;; --samples) SAMPLES="--samples";; esac; shift; done
 PW="${PARITY_PLAYWRIGHT_DIR:-}"
 [ -n "$PW" ] && [ -d "$PW/node_modules/pixelmatch" ] || { echo "set PARITY_PLAYWRIGHT_DIR to a dir with node_modules/{playwright,pngjs,pixelmatch}"; exit 2; }

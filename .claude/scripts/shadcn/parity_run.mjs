@@ -33,9 +33,11 @@ const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) =>
 const component = args.component;
 if (!component) { console.error("usage: --component NAME"); process.exit(2); }
 
-const REACT = args.react || "http://localhost:5173";
-const PHLEX = args.phlex || "http://localhost:3000";
 const ROOT = path.resolve(process.cwd(), args.root || "..");
+// Server URLs: --react/--phlex, then env, then the free ports servers.rb recorded, then the classic defaults.
+const recorded = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "tmp/shadcn-port/servers.json"), "utf8")); } catch { return {}; } })();
+const REACT = args.react || process.env.PARITY_REACT_URL || recorded.vite?.url || "http://localhost:5173";
+const PHLEX = args.phlex || process.env.PARITY_PHLEX_URL || recorded.rails?.url || "http://localhost:3000";
 const scenariosFile = path.join(ROOT, "docs/shadcn-port/scenarios", `${component}.json`);
 const spec = JSON.parse(fs.readFileSync(scenariosFile, "utf8"));
 const only = args.only ? String(args.only).split(",") : null;

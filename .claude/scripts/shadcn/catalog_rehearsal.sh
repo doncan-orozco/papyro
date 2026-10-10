@@ -73,6 +73,7 @@ step "6 verify catalog == oracle (G0)" ruby .claude/scripts/shadcn/oracle_extrac
 step "6b vendor tw-animate + shadcn css" ruby .claude/scripts/shadcn/theme_sync.rb --vendor
 step "6c tokens.css covers every semantic class" ruby .claude/scripts/shadcn/theme_sync.rb --check-tokens
 step "6d cn: JS twMerge == Ruby tailwind_merge on real shadcn class strings" ruby .claude/scripts/shadcn/cn_differential.rb
+step "6e playwright can launch a browser from the catalog" ruby .claude/scripts/shadcn/playwright_ensure.rb
 cd react-shadcn-catalog || exit 2
 step "7 npm run build (type check + vite build)" npm run build
 step "7b dev server answers GET / (base fix)" bash -c 'PORT=$((20000 + RANDOM % 20000)); (npm run dev -- --port $PORT --strictPort > ../dev.log 2>&1 & echo $! > ../dev.pid); for i in $(seq 1 40); do code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$PORT/ || true); [ "$code" = "200" ] && break; sleep 0.5; done; pkill -P $(cat ../dev.pid) 2>/dev/null; kill $(cat ../dev.pid) 2>/dev/null; [ "$code" = "200" ]'

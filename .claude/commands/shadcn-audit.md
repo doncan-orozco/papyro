@@ -17,7 +17,7 @@ The old audit judged code quality bottom-up. Here the oracle exists, so truth is
 
 ## Phase 0: Prepare
 1. Resolve scope; `ruby .claude/scripts/shadcn/port_state.rb summary --json` to map names, ignore `_infra` unless named.
-2. Browser gates need servers (:3000 Rails, :5173 catalog). Check `curl`; if down and not `--no-browser`, stop with the commands to start them (do not start them here; `/shadcn-run` owns that).
+2. Browser gates need the dev servers: `ruby .claude/scripts/shadcn/servers.rb status` must exit 0 (they are started by `servers.rb start`, on free ports recorded in `tmp/shadcn-port/servers.json`, which the runner reads by itself). If it does not and you are not `--no-browser`, run `playwright_ensure.rb` then `servers.rb start`, and stop it again when the audit ends if YOU started it.
 3. `mkdir -p tmp/shadcn-port/<c>` per component. TodoWrite one item per component.
 
 ## Phase 1: Map (scripts, no agents)

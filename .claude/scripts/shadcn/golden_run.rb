@@ -7,7 +7,7 @@
 #   status PASS | FAIL | AGENT_PENDING (kind "agent": G1 part done, auditor still to run)
 #          | PLANNER_PENDING (kind "planner": workspace prepared, planner agent still to run)
 #   ruby .claude/scripts/shadcn/golden_run.rb planner-check <case-id>   # after the planner ran: validate its output
-# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, tokens, deviations, cn, helpers, dx_prototype, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
+# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, tokens, deviations, cn, helpers, dx_prototype, server_ports, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
 # Exit 0 when no script-tier case FAILs.
 
 require "json"
@@ -339,6 +339,21 @@ results = cases.map do |dir|
     out, err, = Open3.capture3("ruby", ".ai/skills/shadcn-port/references/dx-helpers-prototype.rb")
     problems = exp["expect"].reject { |needle| out.include?(needle) }.map { |n| "output lacks '#{n}' (stderr: #{err.lines.first.to_s.strip[0, 100]})" }
     r[:missed] = problems
+    r[:status] = problems.empty? ? "PASS" : "FAIL"
+    next r
+  when "server_ports"
+    require "socket"
+    default_rails = 3055
+    holder = begin TCPServer.new("127.0.0.1", default_rails) rescue nil end # may already be taken by something else: also a valid test
+    out, = Open3.capture2("ruby", File.join(SCRIPTS, "servers.rb"), "ports")
+    holder&.close
+    picked = begin JSON.parse(out) rescue {} end
+    problems = []
+    problems << "no ports printed" if picked.empty?
+    problems << "picked the occupied default Rails port #{default_rails}" if picked["rails"] == default_rails
+    problems << "rails and vite ports are equal" if picked["rails"] == picked["vite"]
+    r[:missed] = problems
+    r[:notes] << "picked=#{picked}"
     r[:status] = problems.empty? ? "PASS" : "FAIL"
     next r
   when "tokens"
