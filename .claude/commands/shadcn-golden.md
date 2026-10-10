@@ -25,6 +25,7 @@ Cases live in `.claude/shadcn-golden/cases/<id>/` as `files/<repo-relative path>
 | 09-state-waves | state | `port_state.rb` on the fixture graph: infra wave 0, pilot mini-waves (dialog after button), fan-out after pilots, resumable flow, re-init keeps progress and resets only components whose oracle source changed | all assertions and flow steps hold |
 | 30-state-skip-tier | state | `port_state.rb init --skip-tier`: whole tiers leave the plan, the choice persists across a plain init, `none` clears it, unknown tiers and dependency-breaking skips are refused | present/absent per step, clear error messages |
 | 31-nonrendered-slots | static | Dialog port that omits the `dialog`/`dialog-portal` slots (Radix renders no element for Root/Portal) | no `G1_SLOT_MISSING` |
+| 32-cn-differential | cn | JS `twMerge` (catalog) vs Ruby `tailwind_merge` agree on pairwise merges of real shadcn class strings (catalog must run tailwind-merge 3.x) | 0 mismatches; SKIPPED without catalog node_modules |
 | 10-command-lint | lint | Seeded bad command doc (missing script, flag, subcommand, rake task, reference, agent, slash command) | all 7 `LINT_*` codes |
 | 11-command-lint-real | lint | The REAL shadcn commands/agents/skills must reference only things that exist | nothing (control) |
 | 14-run-happy | run | Orchestrator protocol simulated against `port_state.rb` with scripted builders that all succeed | infra-internal order, pilot before fan-out, dependencies before dependents, no duplicate dispatch, run completes |

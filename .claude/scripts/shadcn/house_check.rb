@@ -49,6 +49,12 @@ Dir["docs/shadcn-port/deviations/*.json"].each do |f|
   add.call("G5_DEVIATION_UNREGISTERED", name) unless register.include?("`#{name}`")
 end
 
+if File.exist?("react-shadcn-catalog/node_modules/tailwind-merge/package.json") && Dir.exist?("docs/shadcn-port/oracle/src")
+  out, status = Open3.capture2("ruby", ".claude/scripts/shadcn/cn_differential.rb", "--show", "3")
+  summary = (JSON.parse(out) rescue {}).slice("js_version", "ruby_version", "mismatch_count", "classes_that_differ")
+  add.call("G5_CN_DIFFERENTIAL", "oracle cn (JS twMerge) and port cn (Ruby tailwind_merge) disagree: #{summary}") unless status.success?
+end
+
 catalog_css = "react-shadcn-catalog/src/index.css"
 if File.exist?(catalog_css) && File.read(catalog_css).match?(/^\s*(:root|\.dark)\b|@theme/)
   add.call("G5_CATALOG_CSS", "#{catalog_css} must only import tailwindcss, tw-animate-css and the host theme (the shadcn CLI appends HSL variables)")

@@ -7,7 +7,7 @@
 #   status PASS | FAIL | AGENT_PENDING (kind "agent": G1 part done, auditor still to run)
 #          | PLANNER_PENDING (kind "planner": workspace prepared, planner agent still to run)
 #   ruby .claude/scripts/shadcn/golden_run.rb planner-check <case-id>   # after the planner ran: validate its output
-# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, tokens, deviations, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
+# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, tokens, deviations, cn, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
 # Exit 0 when no script-tier case FAILs.
 
 require "json"
@@ -296,6 +296,18 @@ results = cases.map do |dir|
     problems << "row of a deleted file still listed" if File.read(file).include?("| `card` |")
     r[:missed] = problems
     r[:status] = problems.empty? ? "PASS" : "FAIL"
+    next r
+  when "cn"
+    unless File.exist?("react-shadcn-catalog/node_modules/tailwind-merge/package.json")
+      r[:status] = "SKIPPED"
+      r[:notes] << "catalog has no node_modules (npm install in react-shadcn-catalog)"
+      next r
+    end
+    out, = Open3.capture2("ruby", File.join(SCRIPTS, "cn_differential.rb"), "--oracle", ORACLE, "--show", "3")
+    report = begin JSON.parse(out) rescue { "pass" => false, "mismatch_count" => -1 } end
+    r[:status] = report["pass"] ? "PASS" : "FAIL"
+    r[:missed] = report["pass"] ? [] : ["#{report['mismatch_count']} mismatches between JS #{report['js_version']} and Ruby #{report['ruby_version']}: #{report['classes_that_differ']}"]
+    r[:notes] << "js=#{report['js_version']} ruby=#{report['ruby_version']} merges=#{report['merges']}"
     next r
   when "tokens"
     tokens = File.read("app/assets/tailwind/theme/tokens.css")

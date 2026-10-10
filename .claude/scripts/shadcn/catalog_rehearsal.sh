@@ -35,7 +35,7 @@ mv react-shadcn-catalog/src/components/ui tmp/shadcn-port/old-catalog-ui 2>/dev/
 cd react-shadcn-catalog || exit 2
 OLD_RADIX=$(node -e 'console.log(Object.keys(require("./package.json").dependencies).filter(d=>d.startsWith("@radix-ui/")).join(" "))')
 step "2a remove old dependencies" npm rm tailwindcss-animate autoprefixer postcss $OLD_RADIX
-step "2b runtime dependencies" npm i react@19 react-dom@19 tailwindcss@4 @tailwindcss/vite tw-animate-css radix-ui lucide-react class-variance-authority clsx tailwind-merge --no-audit --no-fund
+step "2b runtime dependencies" npm i react@19 react-dom@19 tailwindcss@4 @tailwindcss/vite tw-animate-css radix-ui lucide-react class-variance-authority clsx tailwind-merge@3 --no-audit --no-fund
 step "2c dev dependencies (React 19 types pinned)" npm i -D shadcn typescript vite @vitejs/plugin-react @types/node @types/react@19 @types/react-dom@19 --no-audit --no-fund
 rm -f tailwind.config.js postcss.config.js
 cat > components.json <<'J'
@@ -72,6 +72,7 @@ cd ..
 step "6 verify catalog == oracle (G0)" ruby .claude/scripts/shadcn/oracle_extract.rb --out docs/shadcn-port/oracle --verify-catalog react-shadcn-catalog/src/components/ui
 step "6b vendor tw-animate + shadcn css" ruby .claude/scripts/shadcn/theme_sync.rb --vendor
 step "6c tokens.css covers every semantic class" ruby .claude/scripts/shadcn/theme_sync.rb --check-tokens
+step "6d cn: JS twMerge == Ruby tailwind_merge on real shadcn class strings" ruby .claude/scripts/shadcn/cn_differential.rb
 cd react-shadcn-catalog || exit 2
 step "7 npm run build (type check + vite build)" npm run build
 step "7b dev server answers GET / (base fix)" bash -c 'PORT=$((20000 + RANDOM % 20000)); (npm run dev -- --port $PORT --strictPort > ../dev.log 2>&1 & echo $! > ../dev.pid); for i in $(seq 1 40); do code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$PORT/ || true); [ "$code" = "200" ] && break; sleep 0.5; done; pkill -P $(cat ../dev.pid) 2>/dev/null; kill $(cat ../dev.pid) 2>/dev/null; [ "$code" = "200" ]'

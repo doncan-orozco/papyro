@@ -5,6 +5,7 @@ Built in **wave 0** (before any overlay), pinned in `config/importmap.rb` with `
 | Module | API sketch | Replaces (Radix) |
 |---|---|---|
 | `presence.js` | `presence(el, { onExited })` waits for animation/transition end after `data-state=closed` | `@radix-ui/react-presence` |
+| `template_mount.js` | `mountTemplate(templateEl, { into: document.body \| "after" })` clones the inert `<template>` content, inserts it (portal to `body`, or in place right after the template) and returns `{ nodes, unmount() }`; remounting after `unmount()` yields a fresh copy. Used by EVERY part whose Radix counterpart is unmounted while closed/hidden/unloaded (18 specs: dialog, alert-dialog, sheet, popover, tooltip, hover-card, select, menus, navigation-menu, avatar, scroll-area, collapsible, accordion, tabs, sidebar...). The `data-*` names on the `<template>` are the spec's own; the primitive only receives the element | `react-presence` / conditional rendering |
 | `portal.js` | `portal(el, container = document.body)` + restore on release | `react-portal` |
 | `dismissable_layer.js` | `dismissable(el, { onEscape, onPointerDownOutside, onFocusOutside, onDismiss, disableOutsidePointerEvents })`; layer stack so only the top layer reacts | `react-dismissable-layer` |
 | `focus_scope.js` | `focusScope(el, { trapped, loop, onMountAutoFocus, onUnmountAutoFocus })` | `react-focus-scope` |
@@ -16,11 +17,12 @@ Built in **wave 0** (before any overlay), pinned in `config/importmap.rb` with `
 | `typeahead.js` | buffer with 1000 ms reset, repeated-letter cycling, `matchItem(items, search, current)` | internal in menu/select |
 | `hover_intent.js` | open/close delays with skip-delay provider state | tooltip/hover-card/navigation-menu |
 | `submenu_grace.js` | pointer-grace polygon for sub menus | `react-menu` |
-| `collection.js` | ordered item registry from DOM (`[data-collection-item]`) honoring disabled | `react-collection` |
+| `collection.js` | ordered item registry from DOM (`[data-radix-collection-item]`, the attribute Radix uses) honoring disabled | `react-collection` |
 | `ids.js` | stable id helpers; reads server ids first | `react-id` |
-| `direction.js` | reads `dir` from nearest ancestor/`html` | `react-direction` |
+| `direction.js` | `dir` prop, then a direction provider, then `"ltr"`; NEVER `html[dir]` (Radix `useDirection`) | `react-direction` |
 | `form_bubble_input.js` | hidden native input kept in sync (checkbox/switch/radio/select) so forms submit | internal BubbleInput |
 | `pointer_capture.js` | slider/resizable drag | native |
+| `collapsible_content.js` | the open/closed content mechanics shared by Collapsible and Accordion: `data-state`, `hidden`, `--radix-collapsible-content-height/width` measured for the height animation, Presence on close | `react-collapsible` |
 
 ## Rules for primitives
 

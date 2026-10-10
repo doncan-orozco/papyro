@@ -49,6 +49,10 @@ const PLAIN = `<div data-slot="probe" class="btn" style="padding:4px">x</div>`;
 const LATE_JS = (ms) => `const el = document.querySelector("[data-slot=probe]"); el.addEventListener("click", () => setTimeout(() => el.setAttribute("data-ready", "1"), ${ms}))`;
 // mousedown -> data-phase=down; mouseup -> data-phase=up (only when handled)
 const MOUSE_JS = (handlesUp) => `const el = document.querySelector("[data-slot=probe]"); el.addEventListener("mousedown", () => { el.dataset.phase = "down"; }); ${handlesUp ? 'el.addEventListener("mouseup", () => { el.dataset.phase = "up"; });' : ""}`;
+const CTX_JS = (listens) => listens ? `const el = document.querySelector("[data-slot=probe]"); el.addEventListener("contextmenu", (e) => { e.preventDefault(); el.dataset.menu = "open"; })` : "";
+const SELECT_BOX = `<select data-slot="native-select"><option data-slot="o" value="a">A</option><option data-slot="o" value="b">B</option></select>`;
+const SELECT_BOX_ATTR = (i) => `<select data-slot="native-select"><option data-slot="o" value="a"${i === 0 ? " selected" : ""}>A</option><option data-slot="o" value="b"${i === 1 ? " selected" : ""}>B</option></select>`;
+const SELECT_JS = (i) => `document.querySelectorAll("option")[${i}].selected = true`;
 const toggler = `onclick="this.dataset.state=this.dataset.state==='on'?'off':'on';this.classList.toggle('on')"`;
 
 // html: [reactHtml, phlexHtml, optional phlexStatus, optional phlexScript]
@@ -90,6 +94,12 @@ const S = [
   { id: "wait-differs", steps: [{ do: "click", target: "[data-slot=probe]" }, { do: "wait", ms: 500 }], html: [PLAIN, PLAIN], js: [LATE_JS(200), LATE_JS(1500)], expect: { kinds: ["ATTR"], step: "1:wait" } },
   { id: "mouse-down-up-honored", steps: [{ do: "mousedown", target: "[data-slot=probe]" }, { do: "mouseup", target: "[data-slot=probe]" }], html: [PLAIN, PLAIN], js: [MOUSE_JS(true), MOUSE_JS(true)], expect: { pass: true } },
   { id: "mouse-up-missing", steps: [{ do: "mousedown", target: "[data-slot=probe]" }, { do: "mouseup", target: "[data-slot=probe]" }], html: [PLAIN, PLAIN], js: [MOUSE_JS(true), MOUSE_JS(false)], expect: { kinds: ["ATTR"], step: "1:mouseup" } },
+  // Right click (context-menu opens on it). Only the React side listens for contextmenu, so the sides differ ONLY if the runner
+  // really presses the right button; a runner that ignores `button` left-clicks, nothing fires, and the test notices.
+  { id: "right-click-honored", steps: [{ do: "click", target: "[data-slot=probe]", button: "right" }], html: [PLAIN, PLAIN], js: [CTX_JS(true), CTX_JS(false)], expect: { kinds: ["ATTR"], step: "0:click" } },
+  // React sets option.selected as a PROPERTY (no attribute); the port can only write the attribute. Same property = no diff.
+  { id: "selected-property-same", html: [SELECT_BOX, SELECT_BOX_ATTR(1)], js: [SELECT_JS(1), ""], expect: { pass: true } },
+  { id: "selected-property-differs", html: [SELECT_BOX, SELECT_BOX_ATTR(0)], js: [SELECT_JS(1), ""], expect: { kinds: ["PROP"] } },
   { id: "tab-same", steps: [{ do: "tab" }], html: [btn(), btn()], expect: { pass: true } },
   { id: "tab-not-focusable", steps: [{ do: "tab" }], html: [btn(), btn('tabindex="-1"')], expect: { kinds: ["FOCUS", "FOCUSED"], step: "0:tab" } },
   { id: "dark-same", dark: true, html: [btn(), btn()], expect: { pass: true } },
@@ -168,6 +178,18 @@ for (const sc of S) {
   }
   results.push({ id: sc.id, ok, kinds, why });
 }
+
+// The worker pool must not change the report: run the whole scenario file with 1 and with 4 workers and compare.
+const full = (workers) => new Promise((resolve) => {
+  const child = spawn("node", [path.join(here, "parity_run.mjs"), "--component", "probe", "--react", reactUrl, "--phlex", phlexUrl, "--root", root, "--workers", String(workers), "--max", "10000"], { cwd: process.cwd(), env: process.env });
+  let out = "";
+  child.stdout.on("data", (d) => (out += d));
+  child.on("close", () => { try { resolve(JSON.parse(out)); } catch { resolve(null); } });
+});
+const [one, four] = [await full(1), await full(4)];
+const key = (r) => (r ? r.diffs.map((d) => `${d.scenario}|${d.kind}|${d.step ?? ""}|${d.at ?? ""}`).join("\n") : "unparseable");
+if (!one || !four || key(one) !== key(four)) results.push({ id: "workers-1-vs-4", ok: false, kinds: [], why: `reports differ (1 worker: ${one?.total_diffs} diffs, 4 workers: ${four?.total_diffs} diffs)` });
+else results.push({ id: "workers-1-vs-4", ok: true, kinds: [], why: "" });
 
 servers.forEach((s) => s.close());
 fs.rmSync(root, { recursive: true, force: true });

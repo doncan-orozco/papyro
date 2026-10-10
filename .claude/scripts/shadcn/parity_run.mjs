@@ -49,7 +49,7 @@ const STYLE_PROPS = [
   "outlineStyle", "zIndex", "flexDirection", "alignItems", "justifyContent", "whiteSpace", "textDecorationLine",
 ];
 // Attributes that legitimately differ between React/Radix and Rails/Stimulus and carry no contract.
-const IGNORED_ATTR = /^(class|style|id|for|data-controller|data-action|data-turbo.*|data-.*-target|data-.*-value|data-.*-class|data-parity.*|aria-labelledby|aria-controls|aria-describedby|aria-owns|aria-activedescendant|tabindex-managed)$|^data-v2--|^data-radix|^data-reactroot/;
+const IGNORED_ATTR = /^(class|style|id|for|selected|data-controller|data-action|data-turbo.*|data-.*-target|data-.*-value|data-.*-class|data-parity.*|aria-labelledby|aria-controls|aria-describedby|aria-owns|aria-activedescendant|tabindex-managed)$|^data-v2--|^data-radix|^data-reactroot/;
 
 async function snapshot(page) {
   return page.evaluate(({ STYLE_PROPS, IGNORED_ATTR }) => {
@@ -80,6 +80,8 @@ async function snapshot(page) {
           text: [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.trim()).filter(Boolean).join(" "),
           visible: el.checkVisibility?.({ checkOpacity: false, checkVisibilityCSS: true }) ?? true,
           focused: el === active,
+          // React sets these as DOM properties, never as attributes; a server render can only write the attribute. Compare the property.
+          props: el.tagName === "OPTION" ? { selected: el.selected } : el.tagName === "SELECT" ? { value: el.value } : {},
           box: [r.x, r.y, r.width, r.height].map((n) => Math.round(n * 2) / 2),
           style: Object.fromEntries(STYLE_PROPS.map((p) => [p, cs[p]])),
         };
@@ -93,10 +95,10 @@ async function frames(page) { await page.evaluate(() => new Promise((r) => reque
 async function runStep(page, step) {
   const target = step.target ? page.locator(step.target).first() : null;
   switch (step.do) {
-    case "click": await target.click(step.position ? { position: step.position } : {}); break; // position: {x, y} relative to the element's top-left
+    case "click": await target.click({ ...(step.position ? { position: step.position } : {}), ...(step.button ? { button: step.button } : {}) }); break; // button: "left"|"right"|"middle" (context-menu opens on a right click); position: {x, y} relative to the element's top-left
     case "wait": await page.waitForTimeout(step.ms); break; // real timers: Radix delays (100ms sub-open, 300ms grace, 1000ms typeahead reset)
-    case "mousedown": if (target) await target.hover(step.position ? { position: step.position } : {}); await page.mouse.down(); break;
-    case "mouseup": if (target) await target.hover(step.position ? { position: step.position } : {}); await page.mouse.up(); break; // press-drag-release selection
+    case "mousedown": if (target) await target.hover(step.position ? { position: step.position } : {}); await page.mouse.down(step.button ? { button: step.button } : {}); break;
+    case "mouseup": if (target) await target.hover(step.position ? { position: step.position } : {}); await page.mouse.up(step.button ? { button: step.button } : {}); break; // press-drag-release selection
     case "dblclick": await target.dblclick(); break;
     case "hover": await target.hover(); break;
     case "focus": await target.focus(); break;
@@ -155,6 +157,7 @@ function diffSnapshots(id, reactSnap, phlexSnap) {
     if (rn.tag !== pn.tag) add("TAG", { at, react: rn.tag, phlex: pn.tag });
     if (!same(rn.classes, pn.classes)) add("CLASS", { at, onlyReact: rn.classes.filter((c) => !pn.classes.includes(c)), onlyPhlex: pn.classes.filter((c) => !rn.classes.includes(c)) });
     if (!same(rn.attrs, pn.attrs)) add("ATTR", { at, react: rn.attrs, phlex: pn.attrs });
+    if (!same(rn.props, pn.props)) add("PROP", { at, react: rn.props, phlex: pn.props });
     if (!same(rn.rel, pn.rel)) add("A11Y_REL", { at, react: rn.rel, phlex: pn.rel });
     if (rn.text !== pn.text) add("TEXT", { at, react: rn.text, phlex: pn.text });
     if (rn.visible !== pn.visible) add("VISIBLE", { at, react: rn.visible, phlex: pn.visible });
@@ -167,10 +170,12 @@ function diffSnapshots(id, reactSnap, phlexSnap) {
 }
 
 const browser = await chromium.launch(process.env.PARITY_CHROMIUM ? { executablePath: process.env.PARITY_CHROMIUM } : {});
-const diffs = [];
-const ran = [];
-for (const sc of spec.scenarios.filter((s) => !only || only.includes(s.id))) {
-  ran.push(sc.id);
+const WORKERS = Math.max(1, Number(args.workers ?? 4)); // scenarios in flight at once (use --workers 1 for timing-sensitive reruns)
+const todo = spec.scenarios.filter((s) => !only || only.includes(s.id));
+const ran = todo.map((s) => s.id);
+
+async function runScenario(sc) {
+  const diffs = [];
   try {
     const [r, p] = await Promise.all([
       capture(browser, REACT, `/#/parity/${component}/${sc.id}`, sc, "react"),
@@ -188,7 +193,16 @@ for (const sc of spec.scenarios.filter((s) => !only || only.includes(s.id))) {
   } catch (e) {
     diffs.push({ scenario: sc.id, kind: "HARNESS_ERROR", detail: String(e).split("\n")[0] });
   }
+  return diffs;
 }
+
+// Fixed-size pool; results are kept in scenario order so the report is identical for any --workers value.
+const results = new Array(todo.length);
+let cursor = 0;
+await Promise.all(Array.from({ length: Math.min(WORKERS, todo.length) }, async () => {
+  for (let i = cursor++; i < todo.length; i = cursor++) results[i] = await runScenario(todo[i]);
+}));
+const diffs = results.flat();
 await browser.close();
 
 const capped = diffs.slice(0, Number(args.max ?? 200));

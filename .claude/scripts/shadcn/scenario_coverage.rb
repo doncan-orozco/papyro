@@ -52,6 +52,7 @@ end
 used_components = flat.flat_map { |_, ns| ns.map { |n| n["c"] } }.uniq
 manifest["parts"].each do |part|
   next if part["name"].match?(/\A[a-z]/)
+  next unless exports.include?(part["name"]) # a part the source does not export cannot appear in a tree (e.g. SheetPortal, SheetOverlay)
 
   gaps << { code: "SC_PART_UNUSED", detail: part["name"] } unless used_components.include?(part["name"])
 end
