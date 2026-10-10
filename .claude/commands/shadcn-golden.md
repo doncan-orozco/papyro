@@ -16,6 +16,7 @@ Cases live in `.claude/shadcn-golden/cases/<id>/` as `files/<repo-relative path>
 | 02-switch-api-gap | static | Faithful classes, `size` option and `data-size` missing | `G1_KWARG_MISSING G1_DATA_ATTR_MISSING` |
 | 03-switch-behavior | agent | Markup passes G1; controller toggles classes, adds a redundant keydown handler that duplicates the native click, leaks listener + interval | `Q_STATE_VIA_CLASS Q_CLEANUP` (+ mentions keydown) |
 | 28-auditor-doc-vs-source | agent | Project doc and test claim Slot class merging is conflict-resolved; the real Radix `mergeProps` (in the fixture) joins plainly; the code follows the doc | `Q_SPEC_DRIFT` MANDATORY, `DOC_CONTRADICTS_SOURCE`, mentions `className` (source over docs) |
+| 29-deviations-register | deviations | `deviations_register.rb` keeps `DEVIATIONS.md` in sync with `deviations/*.json` (the G5 house check needs every deviation listed) | rows present, idempotent, human `approved-by` preserved, deleted file dropped, pipes/newlines survive |
 | 04-dialog-reimplements | agent | Controller re-implements Esc/focus trap/scroll lock though primitives exist; no focus return | `Q_PRIMITIVE_REUSE Q_CLEANUP` (+ mentions focus) |
 | 05-card-hardcoded-colors | static | Palette + hex colors, old shadow, root part only | `G1_HARDCODED_COLOR G1_TOKEN_EXTRA G1_TOKEN_MISSING G1_PART_MISSING G1_SLOT_MISSING` |
 | 06-clean-badge | static | Control: verbatim port of badge.tsx | nothing (no G1 finding at all) |

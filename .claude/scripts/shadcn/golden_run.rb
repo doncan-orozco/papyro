@@ -7,7 +7,7 @@
 #   status PASS | FAIL | AGENT_PENDING (kind "agent": G1 part done, auditor still to run)
 #          | PLANNER_PENDING (kind "planner": workspace prepared, planner agent still to run)
 #   ruby .claude/scripts/shadcn/golden_run.rb planner-check <case-id>   # after the planner ran: validate its output
-# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, tokens, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
+# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, tokens, deviations, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
 # Exit 0 when no script-tier case FAILs.
 
 require "json"
@@ -263,6 +263,30 @@ results = cases.map do |dir|
                       "--scenarios", File.join(dir, "files/docs/shadcn-port/scenarios"))
     codes = report["gaps"].map { |g| g["code"] }.uniq
     r[:detected] = codes
+  when "deviations"
+    work = File.join(WORK, "deviations-work", exp["case"])
+    FileUtils.rm_rf(work)
+    FileUtils.mkdir_p(File.join(work, "docs/shadcn-port"))
+    FileUtils.cp_r(File.join(dir, "files/docs/shadcn-port/deviations"), File.join(work, "docs/shadcn-port/deviations"))
+    reg = ->(*a) { Open3.capture2("ruby", File.expand_path(File.join(SCRIPTS, "deviations_register.rb")), "--root", work, *a)[0] }
+    file = File.join(work, "docs/shadcn-port/DEVIATIONS.md")
+    problems = []
+    reg.call
+    first = File.read(file)
+    exp["expect_rows"].each { |n| problems << "row for `#{n}` missing" unless first.include?("| `#{n}` |") }
+    problems << "a row spans several lines (newline/pipe in a reason broke the table)" if first.lines.grep(/\A\| `/).any? { |l| l.count("|") != 5 }
+    reg.call
+    problems << "not idempotent" unless File.read(file) == first
+    File.write(file, first.sub("| pending |", "| alice |"))
+    reg.call
+    problems << "human approved-by was overwritten" unless File.read(file).include?("| alice |")
+    File.delete(File.join(work, "docs/shadcn-port/deviations/card.json"))
+    out = JSON.parse(reg.call)
+    problems << "removed row not reported (#{out['removed']})" unless out["removed"] == ["card"]
+    problems << "row of a deleted file still listed" if File.read(file).include?("| `card` |")
+    r[:missed] = problems
+    r[:status] = problems.empty? ? "PASS" : "FAIL"
+    next r
   when "tokens"
     tokens = File.read("app/assets/tailwind/theme/tokens.css")
     Array(exp["remove_lines_matching"]).each { |needle| tokens = tokens.lines.reject { |l| l.include?(needle) }.join }
