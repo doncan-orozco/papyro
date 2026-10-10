@@ -1,0 +1,755 @@
+{
+  "created_at": "2026-10-10T04:52:17Z",
+  "skip_tiers": [
+    "third_party"
+  ],
+  "skipped": [
+    "calendar",
+    "carousel",
+    "chart",
+    "combobox",
+    "command",
+    "drawer",
+    "form",
+    "input-otp",
+    "message-scroller",
+    "resizable",
+    "sonner"
+  ],
+  "oracle": {
+    "style": "new-york-v4",
+    "fetched_at": "2026-10-10T04:52:14Z",
+    "components": 61,
+    "digest": "7de7073d0e253001"
+  },
+  "dispatches": 0,
+  "components": {
+    "_theme": {
+      "status": "pending",
+      "tier": "infra",
+      "wave": 0,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T02:37:10Z",
+      "owns": [
+        "app/assets/tailwind/application.css",
+        "app/assets/tailwind/foundation/**",
+        "app/assets/tailwind/theme/** (bug fixes only)",
+        "app/assets/tailwind/vendor/**",
+        "app/javascript/controllers/v2/theme_controller.js",
+        "react-shadcn-catalog/src/index.css",
+        "lib/shadcn/**",
+        "lib/tasks/theme.rake",
+        "test/lib/shadcn/**"
+      ],
+      "kind": "infra",
+      "deps": [],
+      "source_sha": "infra"
+    },
+    "_harness": {
+      "status": "pending",
+      "tier": "infra",
+      "wave": 0,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T02:37:10Z",
+      "owns": [
+        "app/components/parity/**",
+        "app/views/design_system/parity/**",
+        "config/routes.rb (parity route only)",
+        "react-shadcn-catalog/src/parity/**",
+        "react-shadcn-catalog/vite.config.ts",
+        "react-shadcn-catalog/package.json"
+      ],
+      "kind": "infra",
+      "deps": [
+        "_theme",
+        "_base",
+        "_icons"
+      ],
+      "source_sha": "infra"
+    },
+    "_primitives": {
+      "status": "pending",
+      "tier": "infra",
+      "wave": 0,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T02:37:10Z",
+      "owns": [
+        "app/javascript/v2/primitives/**",
+        "config/importmap.rb (pin_all_from v2)",
+        "react-shadcn-catalog/src/parity/primitives/**",
+        "docs/shadcn-port/scenarios/_primitives-*.json"
+      ],
+      "kind": "infra",
+      "deps": [
+        "_harness"
+      ],
+      "source_sha": "infra"
+    },
+    "_base": {
+      "status": "pending",
+      "tier": "infra",
+      "wave": 0,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T02:37:10Z",
+      "owns": [
+        "app/components/v2/base.rb",
+        "test/components/v2/base_test.rb"
+      ],
+      "kind": "infra",
+      "deps": [],
+      "source_sha": "infra"
+    },
+    "_icons": {
+      "status": "pending",
+      "tier": "infra",
+      "wave": 0,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T02:37:10Z",
+      "owns": [
+        "app/components/v2/icon.rb",
+        "app/components/v2/icons/**"
+      ],
+      "kind": "infra",
+      "deps": [],
+      "source_sha": "infra"
+    },
+    "button": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 1,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:28:18Z",
+      "kind": "pilot",
+      "deps": [],
+      "source_sha": "79dd6f75f8136394"
+    },
+    "switch": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 1,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:29:05Z",
+      "kind": "pilot",
+      "deps": [],
+      "source_sha": "743676f33f823ffa"
+    },
+    "dialog": {
+      "status": "planned",
+      "tier": "overlay",
+      "wave": 2,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:32:51Z",
+      "kind": "pilot",
+      "deps": [
+        "button"
+      ],
+      "source_sha": "2ade6074e5fad0a4"
+    },
+    "tooltip": {
+      "status": "planned",
+      "tier": "overlay",
+      "wave": 1,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:34:02Z",
+      "kind": "pilot",
+      "deps": [],
+      "source_sha": "611e4305879b2773"
+    },
+    "dropdown-menu": {
+      "status": "planned",
+      "tier": "overlay",
+      "wave": 1,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:35:22Z",
+      "kind": "pilot",
+      "deps": [],
+      "source_sha": "d954efb735f13734"
+    },
+    "select": {
+      "status": "planned",
+      "tier": "overlay",
+      "wave": 1,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:33:53Z",
+      "kind": "pilot",
+      "deps": [],
+      "source_sha": "962830436bd0b7ee"
+    },
+    "accordion": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:41:11Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "99de242681eb4312"
+    },
+    "alert": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:37:00Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "d03dcae5cdb63c38"
+    },
+    "aspect-ratio": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:37:51Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "b1c157886236782c"
+    },
+    "avatar": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:39:21Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "0c5c48b8a1dff4fd"
+    },
+    "badge": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:37:58Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "13a9380dfff853ee"
+    },
+    "breadcrumb": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:38:54Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "c75fcd3d9e847018"
+    },
+    "bubble": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:47:14Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "df1e461e33e835b7"
+    },
+    "card": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:43:49Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "ef8305b12c3112da"
+    },
+    "checkbox": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:45:18Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "ba0ac64064e2d8fa"
+    },
+    "collapsible": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:46:56Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "c6598e5584f4258b"
+    },
+    "context-menu": {
+      "status": "planned",
+      "tier": "overlay",
+      "wave": 3,
+      "iteration": 0,
+      "note": "runner: touch/pen long-press (700ms) not expressible; uncovered by scenarios",
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:54:55Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "bcde5df1ed9887bb"
+    },
+    "direction": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:43:59Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "84ae2ad658207f0e"
+    },
+    "empty": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:58:22Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "54f529ccf72c18c4"
+    },
+    "hover-card": {
+      "status": "planned",
+      "tier": "overlay",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:01:10Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "73f59aa759656501"
+    },
+    "input": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:57:04Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "0c9457181f6ddc80"
+    },
+    "kbd": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:57:13Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "c0c0ae6a7d1adb77"
+    },
+    "label": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:57:49Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "344bde38b8531615"
+    },
+    "marker": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T03:58:53Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "036277635df058b8"
+    },
+    "menubar": {
+      "status": "planned",
+      "tier": "overlay",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:45:26Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "ca1a7f6775f90951"
+    },
+    "message": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:39:30Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "64e9ae0f9d1e268b"
+    },
+    "native-select": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:39:07Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "4bdbce5575dce610"
+    },
+    "navigation-menu": {
+      "status": "planned",
+      "tier": "overlay",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:45:27Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "fbe81d7c358df0d2"
+    },
+    "popover": {
+      "status": "planned",
+      "tier": "overlay",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:42:39Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "3f99d3add6c9fa4f"
+    },
+    "progress": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:40:18Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "e012e1f7e6e66d11"
+    },
+    "radio-group": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:51:36Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "cfc4f99ee68be2fb"
+    },
+    "scroll-area": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:52:47Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "8b73bb9be5130007"
+    },
+    "separator": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:47:50Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "ad7d5403fe337160"
+    },
+    "sheet": {
+      "status": "planned",
+      "tier": "overlay",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:52:43Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "ea473d38a26a9b0b"
+    },
+    "skeleton": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:46:38Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "f51ce0fcd31e5c31"
+    },
+    "slider": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:52:45Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "6a531f6182de6efe"
+    },
+    "spinner": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:55:01Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "5d040fc49cb54c02"
+    },
+    "table": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:55:23Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "bd1a9fc83a5a2149"
+    },
+    "tabs": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T05:00:04Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "e1df6e2f95ece373"
+    },
+    "textarea": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:55:07Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "5cafcfeeee29534f"
+    },
+    "toggle": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 3,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:56:14Z",
+      "kind": "fanout",
+      "deps": [],
+      "source_sha": "28ae7d72730890a3"
+    },
+    "alert-dialog": {
+      "status": "planned",
+      "tier": "overlay",
+      "wave": 4,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T04:59:22Z",
+      "kind": "fanout",
+      "deps": [
+        "button"
+      ],
+      "source_sha": "b3dfb83e54ed8c82"
+    },
+    "attachment": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 4,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T05:05:12Z",
+      "kind": "fanout",
+      "deps": [
+        "button"
+      ],
+      "source_sha": "243feb168430d012"
+    },
+    "button-group": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 4,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T05:05:00Z",
+      "kind": "fanout",
+      "deps": [
+        "separator"
+      ],
+      "source_sha": "a9ac862707ff8d78"
+    },
+    "field": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 4,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T05:06:13Z",
+      "kind": "fanout",
+      "deps": [
+        "label",
+        "separator"
+      ],
+      "source_sha": "4a4d17fcb933513f"
+    },
+    "input-group": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 4,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T05:06:37Z",
+      "kind": "fanout",
+      "deps": [
+        "button",
+        "input",
+        "textarea"
+      ],
+      "source_sha": "e379899ac50d6cab"
+    },
+    "item": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 4,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T05:04:16Z",
+      "kind": "fanout",
+      "deps": [
+        "separator"
+      ],
+      "source_sha": "9ade8136f010284b"
+    },
+    "pagination": {
+      "status": "planned",
+      "tier": "static",
+      "wave": 4,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T05:03:08Z",
+      "kind": "fanout",
+      "deps": [
+        "button"
+      ],
+      "source_sha": "224843c4f509e8b8"
+    },
+    "sidebar": {
+      "status": "planned",
+      "tier": "client",
+      "wave": 4,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T05:20:21Z",
+      "kind": "fanout",
+      "deps": [
+        "button",
+        "input",
+        "separator",
+        "sheet",
+        "skeleton",
+        "tooltip"
+      ],
+      "source_sha": "2ba1a9b9422f4172"
+    },
+    "toggle-group": {
+      "status": "planned",
+      "tier": "radix_stateful",
+      "wave": 4,
+      "iteration": 0,
+      "note": null,
+      "last_green_sha": null,
+      "updated_at": "2026-10-10T05:11:41Z",
+      "kind": "fanout",
+      "deps": [
+        "toggle"
+      ],
+      "source_sha": "45186473eaa30a96"
+    }
+  }
+}

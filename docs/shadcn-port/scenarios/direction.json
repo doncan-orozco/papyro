@@ -1,0 +1,1330 @@
+{
+  "component": "direction",
+  "scenarios": [
+    {
+      "id": "default__direction-rtl",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+            },
+            "children": [
+              {
+                "c": "_p",
+                "props": {
+                  "className": "font-medium ps-4"
+                },
+                "children": [
+                  "مرحبا بالعالم"
+                ]
+              },
+              {
+                "c": "_p",
+                "props": {
+                  "className": "text-muted-foreground"
+                },
+                "children": [
+                  "Hello world, start-aligned text"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "default__direction-rtl__dark",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+            },
+            "children": [
+              {
+                "c": "_p",
+                "props": {
+                  "className": "font-medium ps-4"
+                },
+                "children": [
+                  "مرحبا بالعالم"
+                ]
+              },
+              {
+                "c": "_p",
+                "props": {
+                  "className": "text-muted-foreground"
+                },
+                "children": [
+                  "Hello world, start-aligned text"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": true,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "direction-ltr",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "ltr"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+            },
+            "children": [
+              {
+                "c": "_p",
+                "props": {
+                  "className": "font-medium ps-4"
+                },
+                "children": [
+                  "مرحبا بالعالم"
+                ]
+              },
+              {
+                "c": "_p",
+                "props": {
+                  "className": "text-muted-foreground"
+                },
+                "children": [
+                  "Hello world, start-aligned text"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "direction-ltr__dark",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "ltr"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+            },
+            "children": [
+              {
+                "c": "_p",
+                "props": {
+                  "className": "font-medium ps-4"
+                },
+                "children": [
+                  "مرحبا بالعالم"
+                ]
+              },
+              {
+                "c": "_p",
+                "props": {
+                  "className": "text-muted-foreground"
+                },
+                "children": [
+                  "Hello world, start-aligned text"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": true,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "dir-rtl",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "dir": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+            },
+            "children": [
+              {
+                "c": "_p",
+                "props": {
+                  "className": "font-medium ps-4"
+                },
+                "children": [
+                  "مرحبا بالعالم"
+                ]
+              },
+              {
+                "c": "_p",
+                "props": {
+                  "className": "text-muted-foreground"
+                },
+                "children": [
+                  "Hello world, start-aligned text"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "dir-ltr",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "dir": "ltr"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+            },
+            "children": [
+              {
+                "c": "_p",
+                "props": {
+                  "className": "font-medium ps-4"
+                },
+                "children": [
+                  "مرحبا بالعالم"
+                ]
+              },
+              {
+                "c": "_p",
+                "props": {
+                  "className": "text-muted-foreground"
+                },
+                "children": [
+                  "Hello world, start-aligned text"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "no-props",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {},
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+            },
+            "children": [
+              {
+                "c": "_p",
+                "props": {
+                  "className": "font-medium ps-4"
+                },
+                "children": [
+                  "مرحبا بالعالم"
+                ]
+              },
+              {
+                "c": "_p",
+                "props": {
+                  "className": "text-muted-foreground"
+                },
+                "children": [
+                  "Hello world, start-aligned text"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "no-props__dark",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {},
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+            },
+            "children": [
+              {
+                "c": "_p",
+                "props": {
+                  "className": "font-medium ps-4"
+                },
+                "children": [
+                  "مرحبا بالعالم"
+                ]
+              },
+              {
+                "c": "_p",
+                "props": {
+                  "className": "text-muted-foreground"
+                },
+                "children": [
+                  "Hello world, start-aligned text"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": true,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "direction-overrides-dir__rtl-over-ltr",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "dir": "ltr",
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+            },
+            "children": [
+              {
+                "c": "_p",
+                "props": {
+                  "className": "font-medium ps-4"
+                },
+                "children": [
+                  "مرحبا بالعالم"
+                ]
+              },
+              {
+                "c": "_p",
+                "props": {
+                  "className": "text-muted-foreground"
+                },
+                "children": [
+                  "Hello world, start-aligned text"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "direction-overrides-dir__ltr-over-rtl",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "dir": "rtl",
+          "direction": "ltr"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+            },
+            "children": [
+              {
+                "c": "_p",
+                "props": {
+                  "className": "font-medium ps-4"
+                },
+                "children": [
+                  "مرحبا بالعالم"
+                ]
+              },
+              {
+                "c": "_p",
+                "props": {
+                  "className": "text-muted-foreground"
+                },
+                "children": [
+                  "Hello world, start-aligned text"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "children__text-only",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          "Plain text child"
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "children__empty",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "p-4"
+        },
+        "children": [
+          {
+            "c": "DirectionProvider",
+            "props": {
+              "direction": "rtl"
+            },
+            "children": []
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "children__multiple-siblings",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex flex-col gap-2 p-4"
+        },
+        "children": [
+          {
+            "c": "DirectionProvider",
+            "props": {
+              "direction": "rtl"
+            },
+            "children": [
+              {
+                "c": "_span",
+                "props": {
+                  "id": "a"
+                },
+                "children": [
+                  "A"
+                ]
+              },
+              {
+                "c": "_span",
+                "props": {
+                  "id": "b"
+                },
+                "children": [
+                  "B"
+                ]
+              },
+              "C text"
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "nested__rtl-inside-ltr",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "ltr"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "p-2"
+            },
+            "children": [
+              {
+                "c": "DirectionProvider",
+                "props": {
+                  "direction": "rtl"
+                },
+                "children": [
+                  {
+                    "c": "_div",
+                    "props": {
+                      "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                    },
+                    "children": [
+                      {
+                        "c": "_p",
+                        "props": {
+                          "className": "font-medium ps-4"
+                        },
+                        "children": [
+                          "مرحبا بالعالم"
+                        ]
+                      },
+                      {
+                        "c": "_p",
+                        "props": {
+                          "className": "text-muted-foreground"
+                        },
+                        "children": [
+                          "Hello world, start-aligned text"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "nested__ltr-inside-rtl",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "p-2"
+            },
+            "children": [
+              {
+                "c": "DirectionProvider",
+                "props": {
+                  "direction": "ltr"
+                },
+                "children": [
+                  {
+                    "c": "_div",
+                    "props": {
+                      "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                    },
+                    "children": [
+                      {
+                        "c": "_p",
+                        "props": {
+                          "className": "font-medium ps-4"
+                        },
+                        "children": [
+                          "مرحبا بالعالم"
+                        ]
+                      },
+                      {
+                        "c": "_p",
+                        "props": {
+                          "className": "text-muted-foreground"
+                        },
+                        "children": [
+                          "Hello world, start-aligned text"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "nested__inner-without-dir-resets",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "DirectionProvider",
+            "props": {},
+            "children": [
+              {
+                "c": "_div",
+                "props": {
+                  "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                },
+                "children": [
+                  {
+                    "c": "_p",
+                    "props": {
+                      "className": "font-medium ps-4"
+                    },
+                    "children": [
+                      "مرحبا بالعالم"
+                    ]
+                  },
+                  {
+                    "c": "_p",
+                    "props": {
+                      "className": "text-muted-foreground"
+                    },
+                    "children": [
+                      "Hello world, start-aligned text"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "sibling-after-provider-unaffected",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex flex-col gap-2 p-4"
+        },
+        "children": [
+          {
+            "c": "DirectionProvider",
+            "props": {
+              "direction": "rtl"
+            },
+            "children": [
+              {
+                "c": "_div",
+                "props": {
+                  "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                },
+                "children": [
+                  {
+                    "c": "_p",
+                    "props": {
+                      "className": "font-medium ps-4"
+                    },
+                    "children": [
+                      "مرحبا بالعالم"
+                    ]
+                  },
+                  {
+                    "c": "_p",
+                    "props": {
+                      "className": "text-muted-foreground"
+                    },
+                    "children": [
+                      "Hello world, start-aligned text"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "c": "_p",
+            "props": {
+              "className": "text-start"
+            },
+            "children": [
+              "Outside the provider"
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "child-own-dir-attribute-kept",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "ltr"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "dir": "rtl",
+              "className": "w-80 border p-4 text-start"
+            },
+            "children": [
+              "مرحبا"
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "html-rtl-ancestor__documented-usage",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "dir": "rtl",
+          "className": "p-4"
+        },
+        "children": [
+          {
+            "c": "DirectionProvider",
+            "props": {
+              "direction": "rtl"
+            },
+            "children": [
+              {
+                "c": "_div",
+                "props": {
+                  "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                },
+                "children": [
+                  {
+                    "c": "_p",
+                    "props": {
+                      "className": "font-medium ps-4"
+                    },
+                    "children": [
+                      "مرحبا بالعالم"
+                    ]
+                  },
+                  {
+                    "c": "_p",
+                    "props": {
+                      "className": "text-muted-foreground"
+                    },
+                    "children": [
+                      "Hello world, start-aligned text"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "html-rtl-ancestor__documented-usage__dark",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "dir": "rtl",
+          "className": "p-4"
+        },
+        "children": [
+          {
+            "c": "DirectionProvider",
+            "props": {
+              "direction": "rtl"
+            },
+            "children": [
+              {
+                "c": "_div",
+                "props": {
+                  "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                },
+                "children": [
+                  {
+                    "c": "_p",
+                    "props": {
+                      "className": "font-medium ps-4"
+                    },
+                    "children": [
+                      "مرحبا بالعالم"
+                    ]
+                  },
+                  {
+                    "c": "_p",
+                    "props": {
+                      "className": "text-muted-foreground"
+                    },
+                    "children": [
+                      "Hello world, start-aligned text"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": true,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "rtl-ancestor-without-provider-prop",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "dir": "rtl",
+          "className": "p-4"
+        },
+        "children": [
+          {
+            "c": "DirectionProvider",
+            "props": {},
+            "children": [
+              {
+                "c": "_div",
+                "props": {
+                  "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                },
+                "children": [
+                  {
+                    "c": "_p",
+                    "props": {
+                      "className": "font-medium ps-4"
+                    },
+                    "children": [
+                      "مرحبا بالعالم"
+                    ]
+                  },
+                  {
+                    "c": "_p",
+                    "props": {
+                      "className": "text-muted-foreground"
+                    },
+                    "children": [
+                      "Hello world, start-aligned text"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "focusable-children__tab",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "ltr"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex gap-2"
+            },
+            "children": [
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "First"
+                ]
+              },
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "Second"
+                ]
+              },
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "Third"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "tab"
+        },
+        {
+          "do": "tab"
+        },
+        {
+          "do": "tab"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "focusable-children__tab-rtl",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex gap-2"
+            },
+            "children": [
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "First"
+                ]
+              },
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "Second"
+                ]
+              },
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "Third"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "tab"
+        },
+        {
+          "do": "tab"
+        },
+        {
+          "do": "tab"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "focusable-children__tab-rtl-ancestor",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "dir": "rtl"
+        },
+        "children": [
+          {
+            "c": "DirectionProvider",
+            "props": {
+              "direction": "rtl"
+            },
+            "children": [
+              {
+                "c": "_div",
+                "props": {
+                  "className": "flex gap-2"
+                },
+                "children": [
+                  {
+                    "c": "_button",
+                    "props": {
+                      "type": "button",
+                      "className": "rounded-md border px-3 py-1"
+                    },
+                    "children": [
+                      "First"
+                    ]
+                  },
+                  {
+                    "c": "_button",
+                    "props": {
+                      "type": "button",
+                      "className": "rounded-md border px-3 py-1"
+                    },
+                    "children": [
+                      "Second"
+                    ]
+                  },
+                  {
+                    "c": "_button",
+                    "props": {
+                      "type": "button",
+                      "className": "rounded-md border px-3 py-1"
+                    },
+                    "children": [
+                      "Third"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "tab"
+        },
+        {
+          "do": "tab"
+        },
+        {
+          "do": "tab"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "focusable-children__click-focus",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex gap-2"
+            },
+            "children": [
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "First"
+                ]
+              },
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "Second"
+                ]
+              },
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "Third"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "click",
+          "target": "role=button[name=\"Second\"]"
+        },
+        {
+          "do": "press",
+          "key": "Tab"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "focusable-children__hover",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex gap-2"
+            },
+            "children": [
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "First"
+                ]
+              },
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "Second"
+                ]
+              },
+              {
+                "c": "_button",
+                "props": {
+                  "type": "button",
+                  "className": "rounded-md border px-3 py-1"
+                },
+                "children": [
+                  "Third"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "hover",
+          "target": "role=button[name=\"First\"]"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "viewport__narrow",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+            },
+            "children": [
+              {
+                "c": "_p",
+                "props": {
+                  "className": "font-medium ps-4"
+                },
+                "children": [
+                  "مرحبا بالعالم"
+                ]
+              },
+              {
+                "c": "_p",
+                "props": {
+                  "className": "text-muted-foreground"
+                },
+                "children": [
+                  "Hello world, start-aligned text"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "viewport",
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    }
+  ]
+}

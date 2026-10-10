@@ -1,0 +1,6 @@
+{
+  "reason": "Radix ScrollAreaScrollbar and ScrollAreaThumb are mounted only through Presence (type hover/scroll/auto visibility, hasThumb), but the client must later mount them with their server-known classes and caller attributes; the port keeps each scrollbar (and its thumb) in an inert <template> placeholder (no data-slot, no classes, not in the a11y tree or the parity snapshot) at its JSX position. Once mounted the DOM equals React's.",
+  "allow_tokens": [],
+  "allow_missing_tokens": [],
+  "api": ["ScrollArea::ScrollBar: unmounted scrollbar/thumb kept in an inert <template> placeholder (no data-slot) until the controller mounts them"]
+}

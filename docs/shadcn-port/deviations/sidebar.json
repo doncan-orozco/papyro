@@ -1,0 +1,16 @@
+{
+  "component": "sidebar",
+  "reason": "React picks the desktop or the mobile (Sheet) tree on the client from window.innerWidth (useIsMobile) and renders completely different DOM; the server cannot know the viewport, so it renders React's first (desktop) render plus an inert <template> holding the controlled mobile Sheet, and the controller swaps them and moves the single copy of the children. SidebarMenuSkeleton's width comes from Math.random() in the oracle itself, so its text skeleton box is non-deterministic on both sides. onOpenChange/onClick callbacks have no 1:1 Ruby form (events are always dispatched, listeners are additive).",
+  "allow_tokens": [],
+  "allow_missing_tokens": [],
+  "structure": [
+    "Sidebar (collapsible offcanvas|icon) renders an inert <template data-v2--sidebar-target=\"mobile\"> sibling (no data-slot, no classes) after the desktop [data-slot=sidebar] node, holding Components::V2::Sheet(open: false) > Sheet::Content(data-slot=sidebar, data-mobile=true) whose own host is the display: contents element declared in deviations/sheet.json",
+    "on mobile the v2--sidebar controller detaches the desktop [data-slot=sidebar] node and moves the server-rendered block nodes into the Sheet content body (and back on desktop) instead of re-rendering them",
+    "SidebarMenuSkeleton text width is random per render (oracle Math.floor(Math.random() * 40) + 50 percent; port rand(40) + 50): BOX width differences of the [data-sidebar=menu-skeleton-text] skeleton node in menu-skeleton__text-only and example__sidebar-rsc are ORACLE_NOISE"
+  ],
+  "api": [
+    "Sidebar::Provider: v2--sidebar:open-change is always dispatched and an uncontrolled Provider always updates; React's 'onOpenChange without open' (state never updates) has no equivalent",
+    "Sidebar::Rail: a caller data-action is added to the built-in toggle; React's caller onClick replaces it",
+    "Sidebar::Provider: extra informational event v2--sidebar:open-mobile-change (React exposes openMobile only via useSidebar)"
+  ]
+}
