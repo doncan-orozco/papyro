@@ -204,6 +204,41 @@ Composes `Components::V2::Sheet` (mobile; primitives `portal`, `presence`, `dism
 
 Not observable by the runner (controller unit tests instead): the cookie string, `open-change` / `open-mobile-change` details, two Providers on one page.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Sidebar` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Sidebar::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Sidebar::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `sidebar.content` | `Sidebar::Content` | `SidebarContent` |
+| `sidebar.footer` | `Sidebar::Footer` | `SidebarFooter` |
+| `sidebar.group` | `Sidebar::Group` | `SidebarGroup` |
+| `sidebar.group_action` | `Sidebar::GroupAction` | `SidebarGroupAction` |
+| `sidebar.group_content` | `Sidebar::GroupContent` | `SidebarGroupContent` |
+| `sidebar.group_label` | `Sidebar::GroupLabel` | `SidebarGroupLabel` |
+| `sidebar.header` | `Sidebar::Header` | `SidebarHeader` |
+| `sidebar.input` | `Sidebar::Input` | `SidebarInput` |
+| `sidebar.inset` | `Sidebar::Inset` | `SidebarInset` |
+| `sidebar.menu` | `Sidebar::Menu` | `SidebarMenu` |
+| `sidebar.menu_action` | `Sidebar::MenuAction` | `SidebarMenuAction` |
+| `sidebar.menu_badge` | `Sidebar::MenuBadge` | `SidebarMenuBadge` |
+| `sidebar.menu_button` | `Sidebar::MenuButton` | `SidebarMenuButton` |
+| `sidebar.menu_item` | `Sidebar::MenuItem` | `SidebarMenuItem` |
+| `sidebar.menu_skeleton` | `Sidebar::MenuSkeleton` | `SidebarMenuSkeleton` |
+| `sidebar.menu_sub` | `Sidebar::MenuSub` | `SidebarMenuSub` |
+| `sidebar.menu_sub_button` | `Sidebar::MenuSubButton` | `SidebarMenuSubButton` |
+| `sidebar.menu_sub_item` | `Sidebar::MenuSubItem` | `SidebarMenuSubItem` |
+| `sidebar.provider` | `Sidebar::Provider` | `SidebarProvider` |
+| `sidebar.rail` | `Sidebar::Rail` | `SidebarRail` |
+| `sidebar.separator` | `Sidebar::Separator` | `SidebarSeparator` |
+| `sidebar.trigger` | `Sidebar::Trigger` | `SidebarTrigger` |
+
+Names that shadow a Phlex HTML element inside `Sidebar`'s OWN `view_template` (use `tag(:footer)` there, never the bare method): `footer`, `header`, `input`, `menu`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Button` (Trigger), `Components::V2::Input` (Sidebar::Input), `Components::V2::Separator` (Sidebar::Separator), `Components::V2::Skeleton` (MenuSkeleton), `Components::V2::Sheet` + `Sheet::Content`, `Sheet::Header`, `Sheet::Title`, `Sheet::Description` (mobile), `Components::V2::Tooltip`, `Tooltip::Provider`, `Tooltip::Trigger`, `Tooltip::Content` (Provider and MenuButton `tooltip:`), `Components::V2::Icon` (`panel-left` in Trigger). All planned in `docs/shadcn-port/specs/`.

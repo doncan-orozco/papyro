@@ -84,6 +84,25 @@ All server-rendered; nothing set by Stimulus; no ids generated. Attribute order 
 - Text literals: `Previous`, `Next` (visible from `sm`), sr-only `More pages`, aria-labels `Go to previous page`, `Go to next page`, nav `aria-label="pagination"`. The DOM in the `en` locale must contain exactly these strings (G2 runs in `en`). If the builder localizes them (house rule: en + es), the keys and `es` entries are added by the orchestrator (locales are shared files, shadcn-port R13); defaults stay the English oracle strings.
 - State styling is pure CSS from the button tables: `hover:` (ghost `hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50`; outline `hover:bg-accent ...`), `focus-visible:` ring, `aria-invalid:`, `dark:`, `has-[>svg]:`, `sm:` (Previous/Next). `disabled:` tokens never match an `<a>`; `aria-disabled` has no styling (forwarded only, `state-link__aria-disabled`). No `data-[state=*]` tokens; `data-active` is not styled by the source.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Pagination` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Pagination::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Pagination::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `pagination.content` | `Pagination::Content` | `PaginationContent` |
+| `pagination.link` | `Pagination::Link` | `PaginationLink` |
+| `pagination.item` | `Pagination::Item` | `PaginationItem` |
+| `pagination.previous` | `Pagination::Previous` | `PaginationPrevious` |
+| `pagination.next` | `Pagination::Next` | `PaginationNext` |
+| `pagination.ellipsis` | `Pagination::Ellipsis` | `PaginationEllipsis` |
+
+Names that shadow a Phlex HTML element inside `Pagination`'s OWN `view_template` (use `tag(:link)` there, never the bare method): `link`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Button` (registry dependency `button`): only `Components::V2::Button.variants(variant:, size:, class:)` (the `buttonVariants` mapping), never the Button component itself.

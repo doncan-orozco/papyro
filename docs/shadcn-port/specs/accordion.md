@@ -137,6 +137,21 @@ Presence and measurement (collapsible.mjs:79-140, presence.mjs:20-130), reproduc
 
 Primitives composed: `presence` (exit-animation wait, Radix rules above), `collection` (ordered enabled triggers of this root only), `ids` (server ids first). The measurement/mount-prevention logic is identical in Collapsible and should live in ONE shared module (e.g. a `collapsible_content` helper next to `presence.js`), not inside the accordion controller. No `roving_focus` (Radix Accordion does not use RovingFocusGroup). Controller `v2--accordion`: one per root, targets item/trigger/header/content/body, `disconnect()` removes listeners and cancels pending animation waits/timeouts; on Turbo restore `connect()` reconciles from `data-state` (radix-stimulus R4, R10).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Accordion` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Accordion::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Accordion::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `accordion.item` | `Accordion::Item` | `AccordionItem` |
+| `accordion.trigger` | `Accordion::Trigger` | `AccordionTrigger` |
+| `accordion.content` | `Accordion::Content` | `AccordionContent` |
+
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Icon` (infra `_icons`): `Icon.new(name: "chevron-down", class: ...)` in every `Accordion::Trigger`.

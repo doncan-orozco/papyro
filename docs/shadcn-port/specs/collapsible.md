@@ -105,6 +105,20 @@ Content measurement and mount prevention (collapsible.mjs:87-122), implemented o
 - `force_mount: true`: always present (`present: forceMount || context.open`, collapsible.mjs:84): never `hidden`, children always rendered, `data-state` still toggles, mount prevention applies as for open content.
 - `disconnect()` removes listeners, cancels the rAF, pending animation waits and the fill-mode timeout; on Turbo restore `connect()` reconciles from the root's `data-state` (radix-stimulus R4, R10).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Collapsible` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Collapsible::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Collapsible::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `collapsible.trigger` | `Collapsible::Trigger` | `CollapsibleTrigger` |
+| `collapsible.content` | `Collapsible::Content` | `CollapsibleContent` |
+
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Base`: `cn`, `merge_attrs`, `render_as_child`, ids.

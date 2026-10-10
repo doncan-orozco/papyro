@@ -116,6 +116,33 @@ Identical to dropdown-menu (M:334-351, M:432-444, M:740-744, M:780-792; roving f
 
 Opening requires a right click: scenario steps use `{"do": "click", "button": "right"}` and `{"do": "mousedown"/"mouseup", "button": "right"}` (press-drag-release, M:425-431: pointerup on an item that did not get the pointerdown clicks it). Static visual cells use controlled `open: true` (content anchored at (2, 0)) so they do not depend on the opening path. Collision scenarios use a `fixed inset-0` trigger so `position` equals viewport coordinates. Outside clicks target `html` at `{x: 860, y: 20}` (body has `pointer-events: none` in modal mode). The demo renders `SubContent` un-portaled, so sub scenarios default to inline and `sub__portal*` cover the portaled path. Touch/pen long-press has no runner step and is not covered by a scenario.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::ContextMenu` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render ContextMenu::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::ContextMenu::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `context_menu.trigger` | `ContextMenu::Trigger` | `ContextMenuTrigger` |
+| `context_menu.content` | `ContextMenu::Content` | `ContextMenuContent` |
+| `context_menu.item` | `ContextMenu::Item` | `ContextMenuItem` |
+| `context_menu.checkbox_item` | `ContextMenu::CheckboxItem` | `ContextMenuCheckboxItem` |
+| `context_menu.radio_item` | `ContextMenu::RadioItem` | `ContextMenuRadioItem` |
+| `context_menu.label` | `ContextMenu::Label` | `ContextMenuLabel` |
+| `context_menu.separator` | `ContextMenu::Separator` | `ContextMenuSeparator` |
+| `context_menu.shortcut` | `ContextMenu::Shortcut` | `ContextMenuShortcut` |
+| `context_menu.group` | `ContextMenu::Group` | `ContextMenuGroup` |
+| `context_menu.portal` | `ContextMenu::Portal` | `ContextMenuPortal` |
+| `context_menu.sub` | `ContextMenu::Sub` | `ContextMenuSub` |
+| `context_menu.sub_content` | `ContextMenu::SubContent` | `ContextMenuSubContent` |
+| `context_menu.sub_trigger` | `ContextMenu::SubTrigger` | `ContextMenuSubTrigger` |
+| `context_menu.radio_group` | `ContextMenu::RadioGroup` | `ContextMenuRadioGroup` |
+
+Names that shadow a Phlex HTML element inside `ContextMenu`'s OWN `view_template` (use `tag(:label)` there, never the bare method): `label`, `sub`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Icon` (`check` in CheckboxItem, `circle` in RadioItem, `chevron-right` in SubTrigger; lucide 0.577.0, classes tsx:74, 154, 178).

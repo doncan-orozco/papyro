@@ -143,6 +143,28 @@ Positioning: none (CSS-centred `fixed`); no floating-ui.
 
 Primitives composed: `portal`, `presence`, `dismissable_layer` (layer stack, deferred pointer-down, dismissable surfaces), `focus_scope` (trap + loop + auto focus, stack), `focus_guards`, `hide_others`, `scroll_lock`, `ids`. Controller `v2--dialog` values: `open` (Boolean), `controlled` (Boolean), `modal` (Boolean, default true). `disconnect()` releases every primitive, removes portaled nodes and restores `body` (Turbo cache must not keep a dialog open).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Dialog` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Dialog::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Dialog::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `dialog.close` | `Dialog::Close` | `DialogClose` |
+| `dialog.content` | `Dialog::Content` | `DialogContent` |
+| `dialog.description` | `Dialog::Description` | `DialogDescription` |
+| `dialog.footer` | `Dialog::Footer` | `DialogFooter` |
+| `dialog.header` | `Dialog::Header` | `DialogHeader` |
+| `dialog.overlay` | `Dialog::Overlay` | `DialogOverlay` |
+| `dialog.portal` | `Dialog::Portal` | `DialogPortal` |
+| `dialog.title` | `Dialog::Title` | `DialogTitle` |
+| `dialog.trigger` | `Dialog::Trigger` | `DialogTrigger` |
+
+Names that shadow a Phlex HTML element inside `Dialog`'s OWN `view_template` (use `tag(:footer)` there, never the bare method): `footer`, `header`, `title`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Button`: `Dialog::Footer` with `show_close_button: true` renders `Button.new(variant: "outline")`; examples use it as `as_child` of Trigger/Close.

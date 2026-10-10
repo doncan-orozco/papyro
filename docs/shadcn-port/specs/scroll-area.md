@@ -147,6 +147,19 @@ Presence (presence.mjs:28-110, via the `presence` primitive): on `present -> fal
 
 Primitives composed: `presence` (scrollbar and thumb mount/unmount). The ResizeObserver+rAF helper, the debounce and the scroll state machine are private to react-scroll-area (no other Radix package uses them) and live in the controller, unless the orchestrator adds the `resize-observer` helper listed in radix-stimulus "Media/layout" as a primitive, in which case the controller uses it. `direction` is read from the Root's own `dir` attribute (direction spec note). Pointer capture uses the native API directly (Radix does too); `pointer_capture.js` may be reused if its API matches.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::ScrollArea` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render ScrollArea::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::ScrollArea::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `scroll_area.scroll_bar` | `ScrollArea::ScrollBar` | `ScrollBar` |
+
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 None. `registry_dependencies: []`; renders no other `Components::V2` component and no icon. Uses `Components::V2::Direction::Consumer` (`use_direction`) for the Root `dir`.

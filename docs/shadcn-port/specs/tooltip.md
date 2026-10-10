@@ -111,6 +111,21 @@ Turbo/cleanup: disconnect clears timers, removes the mounted content, the docume
 
 Not exercised by the runner (G3 unit tests in the controller test instead): `pointerType === "touch"` ignored, scroll-close, `hide_when_detached`, `update_position_strategy: "always"`, `collision_boundary`.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Tooltip` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Tooltip::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Tooltip::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `tooltip.trigger` | `Tooltip::Trigger` | `TooltipTrigger` |
+| `tooltip.content` | `Tooltip::Content` | `TooltipContent` |
+| `tooltip.provider` | `Tooltip::Provider` | `TooltipProvider` |
+
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - No `Components::V2` component is rendered by Tooltip itself (no icons, no sr-only literals; manifest `registry_dependencies: []`, `icons: []`).

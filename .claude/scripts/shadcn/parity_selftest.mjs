@@ -100,6 +100,10 @@ const S = [
   // React sets option.selected as a PROPERTY (no attribute); the port can only write the attribute. Same property = no diff.
   { id: "selected-property-same", html: [SELECT_BOX, SELECT_BOX_ATTR(1)], js: [SELECT_JS(1), ""], expect: { pass: true } },
   { id: "selected-property-differs", html: [SELECT_BOX, SELECT_BOX_ATTR(0)], js: [SELECT_JS(1), ""], expect: { kinds: ["PROP"] } },
+  // --dx helpers: the harness renders the SAME tree through the DX helpers; the runner must pass the flag on and still compare to React.
+  { id: "dx-helpers-differs", html: [btn(), btn()], dxHtml: btn("", "btn wide"), runnerArgs: ["--dx", "helpers"], expect: { kinds: ["CLASS"] } },
+  { id: "dx-helpers-same", html: [btn(), btn()], dxHtml: btn(), runnerArgs: ["--dx", "helpers"], expect: { pass: true } },
+  { id: "dx-not-requested", html: [btn(), btn()], dxHtml: btn("", "btn wide"), expect: { pass: true } },
   { id: "tab-same", steps: [{ do: "tab" }], html: [btn(), btn()], expect: { pass: true } },
   { id: "tab-not-focusable", steps: [{ do: "tab" }], html: [btn(), btn('tabindex="-1"')], expect: { kinds: ["FOCUS", "FOCUSED"], step: "0:tab" } },
   { id: "dark-same", dark: true, html: [btn(), btn()], expect: { pass: true } },
@@ -120,19 +124,22 @@ const T=${JSON.stringify(Object.fromEntries(S.map((s) => [s.id, s.html[0]])))};
 const J=${JSON.stringify(Object.fromEntries(S.filter((s) => s.js).map((s) => [s.id, s.js[0]])))};
 const id=location.hash.split("/").pop();document.getElementById("root").innerHTML=T[id]??"";if(J[id])new Function(J[id])();</script>`;
 
-const phlexPage = (id) => {
+// `?dx=helpers` stands for "render the same tree through the DX helpers": a scenario may give a different (e.g. broken) dxHtml for it.
+const phlexPage = (id, dx) => {
   const sc = S.find((s) => s.id === id);
-  return sc ? `<!doctype html><meta charset=utf-8><style>${CSS}</style><div id=root>${sc.html[1]}</div>${sc.js ? `<script>${sc.js[1]}</script>` : ""}` : "";
+  const body = dx === "helpers" && sc?.dxHtml ? sc.dxHtml : sc?.html[1];
+  return sc ? `<!doctype html><meta charset=utf-8><style>${CSS}</style><div id=root>${body}</div>${sc.js ? `<script>${sc.js[1]}</script>` : ""}` : "";
 };
 
 const servers = [
   http.createServer((_req, res) => { res.setHeader("content-type", "text/html"); res.end(reactPage()); }),
   http.createServer((req, res) => {
-    const id = decodeURIComponent(req.url.split("/").pop().split("?")[0]);
+    const url = new URL(req.url, "http://x");
+    const id = decodeURIComponent(url.pathname.split("/").pop());
     const sc = S.find((s) => s.id === id);
     res.statusCode = sc?.status ?? 200;
     res.setHeader("content-type", "text/html");
-    res.end(phlexPage(id));
+    res.end(phlexPage(id, url.searchParams.get("dx")));
   }),
 ];
 await Promise.all(servers.map((s) => new Promise((r) => s.listen(0, "127.0.0.1", r))));
@@ -152,6 +159,7 @@ const results = [];
 for (const sc of S) {
   const args = [path.join(here, "parity_run.mjs"), "--component", "probe", "--react", reactUrl, "--phlex", phlexUrl, "--root", root, "--only", sc.id];
   if (sc.theme) args.push("--theme", sc.theme);
+  if (sc.runnerArgs) args.push(...sc.runnerArgs);
   // Async on purpose: the fixture servers live in THIS process, so a blocking spawn would deadlock the browser's requests.
   const run = await new Promise((resolve) => {
     const child = spawn("node", args, { cwd: process.cwd(), env: process.env });

@@ -108,6 +108,27 @@ Styling semantics the port must not alter (pure CSS, pinned by scenarios):
 - `dark:` tokens: none in attachment's own classes; dark mode changes only through the theme variables and Button's `dark:` tokens on `Attachment::Action`.
 - No `aria-invalid:` or `disabled:` tokens of its own; `Attachment::Action` inherits Button's (`action__disabled`, `action__aria-invalid`).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Attachment` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Attachment::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Attachment::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `attachment.group` | `Attachment::Group` | `AttachmentGroup` |
+| `attachment.media` | `Attachment::Media` | `AttachmentMedia` |
+| `attachment.content` | `Attachment::Content` | `AttachmentContent` |
+| `attachment.title` | `Attachment::Title` | `AttachmentTitle` |
+| `attachment.description` | `Attachment::Description` | `AttachmentDescription` |
+| `attachment.actions` | `Attachment::Actions` | `AttachmentActions` |
+| `attachment.action` | `Attachment::Action` | `AttachmentAction` |
+| `attachment.trigger` | `Attachment::Trigger` | `AttachmentTrigger` |
+
+Names that shadow a Phlex HTML element inside `Attachment`'s OWN `view_template` (use `tag(:title)` there, never the bare method): `title`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Button` (`Attachment::Action`; spec `docs/shadcn-port/specs/button.md`). Must be DONE before attachment is built.

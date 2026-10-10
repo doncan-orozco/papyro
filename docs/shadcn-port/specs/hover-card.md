@@ -114,6 +114,20 @@ Turbo/cleanup: disconnect clears both timers, removes the mounted content, resto
 
 Not exercised by the runner (G3 controller unit tests instead): `pointerType === "touch"` ignored, `touchstart` passive no-op, `hide_when_detached`, `update_position_strategy: "always"`, `collision_boundary`, nesting inside a Dialog (focus-scope branch, layer stack), cancelable events.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::HoverCard` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render HoverCard::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::HoverCard::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `hover_card.trigger` | `HoverCard::Trigger` | `HoverCardTrigger` |
+| `hover_card.content` | `HoverCard::Content` | `HoverCardContent` |
+
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - No `Components::V2` component is rendered by HoverCard itself (manifest `icons: []`, `text_literals: []`, `registry_dependencies: []`).

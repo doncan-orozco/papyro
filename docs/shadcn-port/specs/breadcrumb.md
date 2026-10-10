@@ -73,6 +73,25 @@ All server-rendered; nothing set by Stimulus; no ids generated. Attribute order 
 - sr-only text: `More` inside Ellipsis (`<span className="sr-only">More</span>`, after the svg). The DOM in the `en` locale must contain exactly `More` (G2 runs in `en`). If the builder localizes it (house rule: en + es), the key and its `es` entry are added by the orchestrator (locales are shared files, shadcn-port R13); the default text stays `More`.
 - State styling is pure CSS: `hover:text-foreground` (Link), `transition-colors`, `sm:gap-2.5` (List, >= 640px), dark mode via semantic tokens only (`text-muted-foreground`, `text-foreground`). No `data-state`, `aria-invalid`, `disabled` or `focus-visible` tokens; focus ring on links is the UA default and must match because the DOM is identical.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Breadcrumb` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Breadcrumb::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Breadcrumb::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `breadcrumb.list` | `Breadcrumb::List` | `BreadcrumbList` |
+| `breadcrumb.item` | `Breadcrumb::Item` | `BreadcrumbItem` |
+| `breadcrumb.link` | `Breadcrumb::Link` | `BreadcrumbLink` |
+| `breadcrumb.page` | `Breadcrumb::Page` | `BreadcrumbPage` |
+| `breadcrumb.separator` | `Breadcrumb::Separator` | `BreadcrumbSeparator` |
+| `breadcrumb.ellipsis` | `Breadcrumb::Ellipsis` | `BreadcrumbEllipsis` |
+
+Names that shadow a Phlex HTML element inside `Breadcrumb`'s OWN `view_template` (use `tag(:link)` there, never the bare method): `link`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Icon` (`chevron-right` in Separator default, `ellipsis` in Ellipsis).

@@ -115,6 +115,24 @@ Port: Stimulus controller `v2--input-group` (`app/javascript/controllers/v2/inpu
 - Replacement rule (React spread semantics): `{...props}` comes after `onClick` (line 77), so a caller `onClick` REPLACES the focus handler, including the merged `onClick` a Radix trigger injects when the Addon is the `asChild` child of `PopoverTrigger`/`TooltipTrigger` (example `input-group-button`). The port mirrors this: if the caller `data-action` (after any `render_as_child` merge) contains a click descriptor (explicit `click->...`, or a descriptor without `->`, whose default event on a `div` is `click`), the Addon omits its own `click->v2--input-group#focusControl`; otherwise caller descriptors come first and the component's last. `data-controller` tokens are unioned (caller first, then `v2--input-group`). Unit-tested by the builder (not expressible in a JSON scenario: the React side cannot carry a JS handler).
 - Keyboard: none added; tab order is the DOM order of the controls and buttons.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::InputGroup` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render InputGroup::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::InputGroup::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `input_group.addon` | `InputGroup::Addon` | `InputGroupAddon` |
+| `input_group.button` | `InputGroup::Button` | `InputGroupButton` |
+| `input_group.text` | `InputGroup::Text` | `InputGroupText` |
+| `input_group.input` | `InputGroup::Input` | `InputGroupInput` |
+| `input_group.textarea` | `InputGroup::Textarea` | `InputGroupTextarea` |
+
+Names that shadow a Phlex HTML element inside `InputGroup`'s OWN `view_template` (use `tag(:button)` there, never the bare method): `button`, `input`, `textarea`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Button` (InputGroup::Button), `Components::V2::Input` (InputGroup::Input), `Components::V2::Textarea` (InputGroup::Textarea): all planned (`docs/shadcn-port/specs/{button,input,textarea}.md`). Relies on their documented rules: caller `data-slot` / `data-size` override, `cn` merge of caller `class`, `as_child:` on Button.

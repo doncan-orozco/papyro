@@ -156,6 +156,26 @@ Positioning: none (CSS `fixed` against a viewport edge); no floating-ui. Respons
 
 Primitives composed: `portal`, `presence`, `dismissable_layer` (layer stack, deferred pointer-down, dismissable surfaces), `focus_scope` (trap + loop + auto focus, stack), `focus_guards`, `hide_others`, `scroll_lock`, `ids` (`.ai/skills/radix-stimulus/references/primitives.md`). Controller `v2--sheet` (radix-stimulus R12) with values `open` (Boolean), `controlled` (Boolean), `modal` (Boolean, default true). Its logic is the same as `v2--dialog`; the builder must share it (import the dialog behavior / primitives), not copy it. `disconnect()` releases every primitive, removes portaled nodes and restores `body`.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Sheet` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Sheet::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Sheet::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `sheet.trigger` | `Sheet::Trigger` | `SheetTrigger` |
+| `sheet.close` | `Sheet::Close` | `SheetClose` |
+| `sheet.content` | `Sheet::Content` | `SheetContent` |
+| `sheet.header` | `Sheet::Header` | `SheetHeader` |
+| `sheet.footer` | `Sheet::Footer` | `SheetFooter` |
+| `sheet.title` | `Sheet::Title` | `SheetTitle` |
+| `sheet.description` | `Sheet::Description` | `SheetDescription` |
+
+Names that shadow a Phlex HTML element inside `Sheet`'s OWN `view_template` (use `tag(:header)` there, never the bare method): `header`, `footer`, `title`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Icon` (infra `_icons`): `Icon.new(name: "x", class: "size-4")` inside the Content X close.

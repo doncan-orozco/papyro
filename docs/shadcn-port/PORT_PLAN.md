@@ -79,6 +79,10 @@ Deviations are registered in `DEVIATIONS.md`. Blockers: none open.
 - `scenario_coverage.rb`: `SC_PART_UNUSED` only applies to parts the source exports (sheet's `SheetPortal`/`SheetOverlay` are not exported).
 - `parity_run.mjs`: click/mousedown/mouseup steps accept `button` (context-menu scenarios use right click; before, they would have been left clicks and passed vacuously).
 
+## DX helpers (added after the first review)
+
+Compound components also expose generated, yielded-root helpers (`render Components::V2::Table.new do |table| table.header { table.row { table.head { "x" } } } end`) on top of the 1:1 nested classes. No re-planning was needed: helpers add no DOM or behavior, so `spec_helpers.rb --all` appended a derived "DX helpers" section to the 35 compound specs (15 single-part components have none). Gate G2b (`parity_run.mjs --dx helpers`) proves the helper path against React; the generator is part of the `_base` task, with a verified reference implementation in `.ai/skills/shadcn-port/references/dx-helpers-prototype.rb`.
+
 ## Notes for `/shadcn-run` (from planners; shared files are orchestrator-owned)
 
 - Reference docs to correct: `radix-dom-contract.md` (trigger `aria-controls` only while open for dropdown/sub/accordion/popover/dialog; HoverCard trigger is an `<a>`; Select animates out and puts `data-radix-popper-*` on the trigger; Collapsible content has no role/labelledby; Popover title/description are plain elements), `api-mapping.md` (Slot merges `aria-describedby` child-first with dedupe), `primitives.md` (collection attribute must be `data-radix-collection-item`; direction reads the element's own `dir`, default `ltr`; add shared `collapsible_content` for accordion + collapsible), floating-ui pin note (catalog is 1.8.0, not 1.7.x).

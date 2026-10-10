@@ -88,6 +88,21 @@ Styling semantics the port must not alter (pure CSS, pinned by scenarios):
 - Reactions: `ring-3 ring-card` draws a card-colored halo; `has-[button]:p-0` removes padding when a button is inside.
 - No `data-[state=*]`, `aria-invalid:`, `disabled:` or `peer-*` tokens. `dark:` tokens only in `tinted`, `outline`, `ghost`, `destructive`.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Bubble` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Bubble::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Bubble::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `bubble.group` | `Bubble::Group` | `BubbleGroup` |
+| `bubble.content` | `Bubble::Content` | `BubbleContent` |
+| `bubble.reactions` | `Bubble::Reactions` | `BubbleReactions` |
+
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - None rendered by the component (`registry_dependencies: []`, no lucide import).

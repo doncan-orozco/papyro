@@ -76,6 +76,20 @@ Part `ButtonGroupText` (no data-slot):
 - `as_child:` = Radix Slot (slot.mjs:81-104 `mergeProps`), implemented by `Components::V2::Base#render_as_child`: the child element replaces the `div`; `class` is a plain join, Text classes first then the child's (no tailwind-merge; `text-as-child-classname-join`), `style` slot-then-child, `aria-describedby` concatenated, all other child props win. `as_child: :label` renders `<label class="..." for=...>` (`text-as-child-label`, the docs pattern `ButtonGroupText asChild > Label htmlFor`).
 - Inside a group it is a child like any other, so it loses inner radii/borders (`text-default`, `text-vertical-group`).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::ButtonGroup` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render ButtonGroup::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::ButtonGroup::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `button_group.separator` | `ButtonGroup::Separator` | `ButtonGroupSeparator` |
+| `button_group.text` | `ButtonGroup::Text` | `ButtonGroupText` |
+
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Separator` (registry dependency, rendered by `ButtonGroup::Separator`).

@@ -180,6 +180,28 @@ Typeahead reset 1000 ms; scroll-button autoscroll interval 50 ms; focus moves af
 ### Cleanup (radix-stimulus R10)
 `disconnect()` unmounts the content, releases layer, trap, guards, scroll lock, hideOthers, body pointer-events, autoUpdate, intervals and timers; a Turbo cache snapshot never contains an open select.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Select` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Select::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Select::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `select.content` | `Select::Content` | `SelectContent` |
+| `select.group` | `Select::Group` | `SelectGroup` |
+| `select.item` | `Select::Item` | `SelectItem` |
+| `select.label` | `Select::Label` | `SelectLabel` |
+| `select.scroll_down_button` | `Select::ScrollDownButton` | `SelectScrollDownButton` |
+| `select.scroll_up_button` | `Select::ScrollUpButton` | `SelectScrollUpButton` |
+| `select.separator` | `Select::Separator` | `SelectSeparator` |
+| `select.trigger` | `Select::Trigger` | `SelectTrigger` |
+| `select.value` | `Select::Value` | `SelectValue` |
+
+Names that shadow a Phlex HTML element inside `Select`'s OWN `view_template` (use `tag(:label)` there, never the bare method): `label`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 - `Components::V2::Icon` (`chevron-down` in Trigger and ScrollDownButton, `chevron-up` in ScrollUpButton, `check` in the Item indicator), lucide 0.577.0 markup with `aria-hidden="true"`.
 - `Components::V2::Base` (`cn`, `merge_attrs`, `render_as_child` for Group/Label/Separator, ids helper).

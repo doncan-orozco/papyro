@@ -144,6 +144,30 @@ Timers: only `setTimeout(0)` for close autofocus (fs:107) and the one-tick delay
 
 Primitives composed: `portal`, `presence`, `dismissable_layer` (escape + layer stack; outside pointer always prevented, so `onPointerDownOutside`/`onInteractOutside` are passed as `(e) => e.preventDefault()`), `focus_scope` (trapped, loop, mount autofocus overridden to the Cancel), `focus_guards`, `hide_others`, `scroll_lock`, `ids`. Controller `v2--alert-dialog`, values `open` (Boolean), `controlled` (Boolean); target `cancel` (last one wins). The builder may share code with `v2--dialog` only through the primitives (radix-stimulus R2), not by importing the dialog controller. `disconnect()` releases every primitive, removes portaled nodes and restores `body`.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::AlertDialog` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render AlertDialog::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::AlertDialog::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `alert_dialog.action` | `AlertDialog::Action` | `AlertDialogAction` |
+| `alert_dialog.cancel` | `AlertDialog::Cancel` | `AlertDialogCancel` |
+| `alert_dialog.content` | `AlertDialog::Content` | `AlertDialogContent` |
+| `alert_dialog.description` | `AlertDialog::Description` | `AlertDialogDescription` |
+| `alert_dialog.footer` | `AlertDialog::Footer` | `AlertDialogFooter` |
+| `alert_dialog.header` | `AlertDialog::Header` | `AlertDialogHeader` |
+| `alert_dialog.media` | `AlertDialog::Media` | `AlertDialogMedia` |
+| `alert_dialog.overlay` | `AlertDialog::Overlay` | `AlertDialogOverlay` |
+| `alert_dialog.portal` | `AlertDialog::Portal` | `AlertDialogPortal` |
+| `alert_dialog.title` | `AlertDialog::Title` | `AlertDialogTitle` |
+| `alert_dialog.trigger` | `AlertDialog::Trigger` | `AlertDialogTrigger` |
+
+Names that shadow a Phlex HTML element inside `AlertDialog`'s OWN `view_template` (use `tag(:footer)` there, never the bare method): `footer`, `header`, `title`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Button`: `Action` and `Cancel` render through `Button` as slot (`Button.variants(variant:, size:)` for the class, `data-variant`/`data-size`); examples use it as `as_child` of Trigger.

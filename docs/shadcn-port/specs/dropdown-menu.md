@@ -160,6 +160,33 @@ Middleware in Radix order (P:139-183): `offset({ mainAxis: side_offset + arrowHe
 
 The registry examples use `Button` as the `asChild` trigger, but the manifest lists no registry dependencies, so scenario trees cannot use `Button`; `example__*` trees use a raw `_button` as the `asChild` child (same Slot path, no Button classes). `example__dropdown-menu-dialog` keeps only the menu (Dialog/Field/Input are other components) and `example__combobox-dropdown-menu` replaces the `Command` inside the un-portaled SubContent with plain items. Outside clicks target `html` at `{x: 860, y: 20}` because a modal menu sets `body` `pointer-events: none` (Playwright cannot hit-test anything else). Disabled items are exercised through keyboard and typeahead (they are `pointer-events-none`, so Playwright cannot hover/click them).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::DropdownMenu` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render DropdownMenu::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::DropdownMenu::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `dropdown_menu.portal` | `DropdownMenu::Portal` | `DropdownMenuPortal` |
+| `dropdown_menu.trigger` | `DropdownMenu::Trigger` | `DropdownMenuTrigger` |
+| `dropdown_menu.content` | `DropdownMenu::Content` | `DropdownMenuContent` |
+| `dropdown_menu.group` | `DropdownMenu::Group` | `DropdownMenuGroup` |
+| `dropdown_menu.label` | `DropdownMenu::Label` | `DropdownMenuLabel` |
+| `dropdown_menu.item` | `DropdownMenu::Item` | `DropdownMenuItem` |
+| `dropdown_menu.checkbox_item` | `DropdownMenu::CheckboxItem` | `DropdownMenuCheckboxItem` |
+| `dropdown_menu.radio_group` | `DropdownMenu::RadioGroup` | `DropdownMenuRadioGroup` |
+| `dropdown_menu.radio_item` | `DropdownMenu::RadioItem` | `DropdownMenuRadioItem` |
+| `dropdown_menu.separator` | `DropdownMenu::Separator` | `DropdownMenuSeparator` |
+| `dropdown_menu.shortcut` | `DropdownMenu::Shortcut` | `DropdownMenuShortcut` |
+| `dropdown_menu.sub` | `DropdownMenu::Sub` | `DropdownMenuSub` |
+| `dropdown_menu.sub_trigger` | `DropdownMenu::SubTrigger` | `DropdownMenuSubTrigger` |
+| `dropdown_menu.sub_content` | `DropdownMenu::SubContent` | `DropdownMenuSubContent` |
+
+Names that shadow a Phlex HTML element inside `DropdownMenu`'s OWN `view_template` (use `tag(:label)` there, never the bare method): `label`, `sub`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Icon` (`check` in CheckboxItem, `circle` in RadioItem, `chevron-right` in SubTrigger; lucide 0.577.0 SVGs with the classes from tsx:102, 137, 219).

@@ -46,6 +46,19 @@ Both parts are server-rendered in full; nothing is set by JS.
   - `pointer-events-none` + `select-none`: no hover/active states exist; no `hover:`, `focus-visible:`, `aria-invalid:`, `disabled:`, `group-*`, `peer-*`, `has-*` or `data-[state=*]` tokens.
 - `Kbd::Group` does not style its children; spacing between `Kbd`s comes from its `gap-1`. Non-`Kbd` children (`<span>+</span>` in `kbd-demo`) render as-is.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Kbd` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Kbd::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Kbd::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `kbd.group` | `Kbd::Group` | `KbdGroup` |
+
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - None rendered by the component (`registry_dependencies: []`, no lucide import, `npm_dependencies: ["cn"]`).

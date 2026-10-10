@@ -204,6 +204,21 @@ Timers: none besides the `setTimeout(0)` focus hop. No dismissal, scroll lock, p
 
 Turbo: `disconnect()` cancels pending focus timeouts, removes listeners and restores templates (see Structure).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Tabs` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Tabs::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Tabs::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `tabs.list` | `Tabs::List` | `TabsList` |
+| `tabs.trigger` | `Tabs::Trigger` | `TabsTrigger` |
+| `tabs.content` | `Tabs::Content` | `TabsContent` |
+
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - No other V2 component is rendered by Tabs (`registry_dependencies: []`, manifest `icons: []`).

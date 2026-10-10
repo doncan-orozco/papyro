@@ -116,6 +116,28 @@ Composition semantics pinned by scenarios (all pure CSS, no JS):
 - `FieldGroup`: nested group gets `gap-4` (`field-group__nested`); `data-variant="outline"` pulls the separator up (`field-group__variant-outline-separator`).
 - Dark mode: the only explicit `dark:` token is FieldLabel's; all other differences come from theme tokens (`--destructive`, `--muted-foreground`, `--primary`, `--border`, `--background`), covered by `__dark` twins (every `orientation` option has one).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Field` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Field::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Field::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `field.label` | `Field::Label` | `FieldLabel` |
+| `field.description` | `Field::Description` | `FieldDescription` |
+| `field.error` | `Field::Error` | `FieldError` |
+| `field.group` | `Field::Group` | `FieldGroup` |
+| `field.legend` | `Field::Legend` | `FieldLegend` |
+| `field.separator` | `Field::Separator` | `FieldSeparator` |
+| `field.set` | `Field::Set` | `FieldSet` |
+| `field.content` | `Field::Content` | `FieldContent` |
+| `field.title` | `Field::Title` | `FieldTitle` |
+
+Names that shadow a Phlex HTML element inside `Field`'s OWN `view_template` (use `tag(:label)` there, never the bare method): `label`, `legend`, `title`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Label` (`Field::Label` renders it; spec `docs/shadcn-port/specs/label.md`).

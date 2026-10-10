@@ -102,6 +102,28 @@ Composition semantics the port must not alter (pinned by scenarios):
 - `line-clamp-2` + `text-balance` on Description (`content__description-long-clamps`); `[&>a]:*` / `[&>a:hover]:text-primary` style only direct child links (`content__description-with-link`, `state__description-link-hover`, `content__description-nested-link-not-direct-child`).
 - States: `focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50` on Item, visible only when the Item element itself is focusable (`as_child: :a`, `as_child: :button`, or `tabindex: 0`): `state__as-child-a__focus-visible`, `state__div-tabindex__focus-visible`, `as-child__button`; mouse click does not show it (`state__as-child-a__click-focus-not-visible`). `[a]:transition-colors [a]:hover:bg-accent/50` apply only when the Item IS an `<a>` (`state__as-child-a__hover`, per-variant hover scenarios); a `div` Item has no hover style (`state__div__hover-no-effect`). No `disabled:`, `aria-invalid:`, `data-[state]` or `dark:` tokens; dark mode differs only through theme tokens (`--border`, `--muted`, `--accent`, `--ring`, `--muted-foreground`, `--primary`), covered by `__dark` twins for every `variant` option of both cva tables and every Item `variant x size` cell.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Item` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Item::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Item::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `item.media` | `Item::Media` | `ItemMedia` |
+| `item.content` | `Item::Content` | `ItemContent` |
+| `item.actions` | `Item::Actions` | `ItemActions` |
+| `item.group` | `Item::Group` | `ItemGroup` |
+| `item.separator` | `Item::Separator` | `ItemSeparator` |
+| `item.title` | `Item::Title` | `ItemTitle` |
+| `item.description` | `Item::Description` | `ItemDescription` |
+| `item.header` | `Item::Header` | `ItemHeader` |
+| `item.footer` | `Item::Footer` | `ItemFooter` |
+
+Names that shadow a Phlex HTML element inside `Item`'s OWN `view_template` (use `tag(:title)` there, never the bare method): `title`, `header`, `footer`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Separator` (`ItemSeparator`; spec `docs/shadcn-port/specs/separator.md`).

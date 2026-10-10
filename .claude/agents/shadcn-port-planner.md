@@ -35,6 +35,7 @@ You are the **Planner** of the shadcn port. You decide WHAT must be true for one
 - Write only `<OUT_ROOT>/docs/shadcn-port/specs/<name>.md`, `scenarios/<name>.json`, `deviations/<name>.json`. No app code, no other component's files, nothing outside OUT_ROOT.
 - Never invent a class, variant, default or ARIA attribute. Everything traces to the oracle or Radix source; cite the line/part in the spec.
 - If the oracle cannot be reproduced with the current stack (e.g. needs a library not pinned), put it under `blockers` in the receipt instead of weakening the spec.
+- Do NOT write a "DX helpers" section: it is derived from the oracle and appended by `.claude/scripts/shadcn/spec_helpers.rb`. Scenario trees keep the React export names (`DialogContent`); the harness maps them to the explicit classes, or to the helpers in `--dx helpers` mode.
 - No prose outside the files and the receipt.
 
 ### Output: ONE JSON object

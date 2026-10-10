@@ -95,6 +95,23 @@ Rendering rules:
 - `loading-status-change` is dispatched after each status change that differs from the previous value (avatar.mjs:62-68); typical sequences: `loading` -> `loaded`, `loading` -> `error`, or `error` alone (no src).
 - Radix's development-only multiple-Image warning (avatar.mjs:126-153) has no port equivalent (console only, not part of the DOM).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Avatar` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Avatar::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Avatar::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `avatar.image` | `Avatar::Image` | `AvatarImage` |
+| `avatar.fallback` | `Avatar::Fallback` | `AvatarFallback` |
+| `avatar.badge` | `Avatar::Badge` | `AvatarBadge` |
+| `avatar.group` | `Avatar::Group` | `AvatarGroup` |
+| `avatar.group_count` | `Avatar::GroupCount` | `AvatarGroupCount` |
+
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 None. The component renders no other `Components::V2` component and no icon itself. Scenarios place lucide icons (`<icon:check>`, `<icon:plus>`) inside `AvatarBadge` / `AvatarGroupCount` as caller content, rendered by the harness through `Components::V2::Icon` like any child.

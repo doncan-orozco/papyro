@@ -7,7 +7,7 @@
 #   status PASS | FAIL | AGENT_PENDING (kind "agent": G1 part done, auditor still to run)
 #          | PLANNER_PENDING (kind "planner": workspace prepared, planner agent still to run)
 #   ruby .claude/scripts/shadcn/golden_run.rb planner-check <case-id>   # after the planner ran: validate its output
-# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, tokens, deviations, cn, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
+# Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, tokens, deviations, cn, helpers, dx_prototype, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
 # Exit 0 when no script-tier case FAILs.
 
 require "json"
@@ -308,6 +308,38 @@ results = cases.map do |dir|
     r[:status] = report["pass"] ? "PASS" : "FAIL"
     r[:missed] = report["pass"] ? [] : ["#{report['mismatch_count']} mismatches between JS #{report['js_version']} and Ruby #{report['ruby_version']}: #{report['classes_that_differ']}"]
     r[:notes] << "js=#{report['js_version']} ruby=#{report['ruby_version']} merges=#{report['merges']}"
+    next r
+  when "helpers"
+    work = File.join(WORK, "helpers-work", exp["case"])
+    specs = File.join(work, "specs")
+    FileUtils.rm_rf(work)
+    FileUtils.mkdir_p(specs)
+    exp["specs"].each { |n| File.write(File.join(specs, "#{n}.md"), "# #{n}\n\n## API\n\nx\n\n## Dependencies\n\nnone\n") }
+    run = ->(*a) { Open3.capture3("ruby", File.join(SCRIPTS, "spec_helpers.rb"), "--oracle", ORACLE, "--specs", specs, *a) }
+    problems = []
+    exp["print"].each do |n, want|
+      got = JSON.parse(run.call("--component", n, "--print")[0])["helpers"]
+      problems << "#{n}: helpers #{got.sort} != #{want.sort}" unless got.sort == want.sort
+    end
+    first = JSON.parse(run.call("--all")[0])
+    problems << "no_parts #{first['no_parts']} != #{exp['no_parts']}" unless first["no_parts"].sort == exp["no_parts"].sort
+    dialog = File.read(File.join(specs, "dialog.md"))
+    problems << "dialog.header row missing" unless dialog.include?("| `dialog.header` | `Dialog::Header` | `DialogHeader` |")
+    problems << "section is not before '## Dependencies'" unless dialog.index("spec_helpers:begin") && dialog.index("spec_helpers:begin") < dialog.index("## Dependencies")
+    exp["shadowing"].each { |n, names| names.each { |h| problems << "#{n}: shadowing note lacks `#{h}`" unless File.read(File.join(specs, "#{n}.md")).match?(/shadow a Phlex HTML element[^\n]*`#{h}`/) } }
+    problems << "switch (single part) got a section" if File.read(File.join(specs, "switch.md")).include?("spec_helpers:begin")
+    problems << "second run was not a no-op" unless JSON.parse(run.call("--all")[0])["updated"].empty?
+    problems << "--check fails on a fresh section" unless run.call("--all", "--check")[2].success?
+    File.write(File.join(specs, "dialog.md"), dialog.sub("`dialog.header`", "`dialog.hdr`"))
+    problems << "--check did not notice a stale section" if run.call("--all", "--check")[2].success?
+    r[:missed] = problems
+    r[:status] = problems.empty? ? "PASS" : "FAIL"
+    next r
+  when "dx_prototype"
+    out, err, = Open3.capture3("ruby", ".ai/skills/shadcn-port/references/dx-helpers-prototype.rb")
+    problems = exp["expect"].reject { |needle| out.include?(needle) }.map { |n| "output lacks '#{n}' (stderr: #{err.lines.first.to_s.strip[0, 100]})" }
+    r[:missed] = problems
+    r[:status] = problems.empty? ? "PASS" : "FAIL"
     next r
   when "tokens"
     tokens = File.read("app/assets/tailwind/theme/tokens.css")

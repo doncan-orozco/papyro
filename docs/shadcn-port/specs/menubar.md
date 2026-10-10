@@ -162,6 +162,34 @@ Same middleware stack as dropdown-menu (P:147-181): `offset({ mainAxis: side_off
 
 Menus that a scenario opens through `defaultValue`/`value` carry explicit `MenubarMenu value` props (auto values are not addressable). Outside interactions use a neutral `_button[data-testid=outside]` sibling (non-modal: the page stays clickable) or `html` at a fixed position. `framed(...)` trees wrap the menubar between `_button[data-testid=before]` and `_button[data-testid=outside]` to observe Tab entry and exit. Disabled items are exercised through keyboard and typeahead (they are `pointer-events-none`). The registry example is reproduced verbatim (trailing spaces before `MenubarShortcut` included); a keyboard tour and per-menu opens are added under `example__menubar-demo-*`.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Menubar` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Menubar::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Menubar::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `menubar.portal` | `Menubar::Portal` | `MenubarPortal` |
+| `menubar.menu` | `Menubar::Menu` | `MenubarMenu` |
+| `menubar.trigger` | `Menubar::Trigger` | `MenubarTrigger` |
+| `menubar.content` | `Menubar::Content` | `MenubarContent` |
+| `menubar.group` | `Menubar::Group` | `MenubarGroup` |
+| `menubar.separator` | `Menubar::Separator` | `MenubarSeparator` |
+| `menubar.label` | `Menubar::Label` | `MenubarLabel` |
+| `menubar.item` | `Menubar::Item` | `MenubarItem` |
+| `menubar.shortcut` | `Menubar::Shortcut` | `MenubarShortcut` |
+| `menubar.checkbox_item` | `Menubar::CheckboxItem` | `MenubarCheckboxItem` |
+| `menubar.radio_group` | `Menubar::RadioGroup` | `MenubarRadioGroup` |
+| `menubar.radio_item` | `Menubar::RadioItem` | `MenubarRadioItem` |
+| `menubar.sub` | `Menubar::Sub` | `MenubarSub` |
+| `menubar.sub_trigger` | `Menubar::SubTrigger` | `MenubarSubTrigger` |
+| `menubar.sub_content` | `Menubar::SubContent` | `MenubarSubContent` |
+
+Names that shadow a Phlex HTML element inside `Menubar`'s OWN `view_template` (use `tag(:menu)` there, never the bare method): `menu`, `label`, `sub`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Icon`: `check` in CheckboxItem (`size-4`, tsx:131), `circle` in RadioItem (`size-2 fill-current`, tsx:155), `chevron-right` in SubTrigger (`ml-auto h-4 w-4`, tsx:237); lucide version of the catalog.

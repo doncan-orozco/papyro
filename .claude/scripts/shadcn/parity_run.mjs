@@ -9,6 +9,8 @@
 //   ... --dark              force .dark on <html> for every scenario
 //   ... --shots DIR         also save side by side PNGs (artifact for humans, not a gate)
 //   ... --only id1,id2      subset of scenario ids
+//   ... --dx helpers        ask the Phlex harness to render the same scenario tree through the yielded-root DX helpers
+//                           (`table.header { ... }`) instead of the explicit nested classes; must match React just the same
 //
 // Contract (see .ai/skills/shadcn-port/references/parity-gates.md):
 //   React  : {REACT}/#/parity/<component>/<scenarioId>
@@ -179,7 +181,7 @@ async function runScenario(sc) {
   try {
     const [r, p] = await Promise.all([
       capture(browser, REACT, `/#/parity/${component}/${sc.id}`, sc, "react"),
-      capture(browser, PHLEX, `/design-system/parity/${component}/${sc.id}`, sc, "phlex"),
+      capture(browser, PHLEX, `/design-system/parity/${component}/${sc.id}${args.dx ? `?dx=${encodeURIComponent(args.dx)}` : ""}`, sc, "phlex"),
     ]);
     // A page that failed to render must never "match": both sides empty/erroring would otherwise compare equal.
     for (const [side, cap] of [["react", r], ["phlex", p]]) {

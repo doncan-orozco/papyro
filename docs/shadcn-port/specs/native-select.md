@@ -81,6 +81,21 @@ States, all pure CSS (pinned by scenarios):
 - `multiple`: the UA renders a listbox, but the `h-9` height is unchanged (rows clipped); identical on both sides.
 - `::selection`, `::placeholder`: tokens copied verbatim; no visible effect on a closed select.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::NativeSelect` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render NativeSelect::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::NativeSelect::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `native_select.opt_group` | `NativeSelect::OptGroup` | `NativeSelectOptGroup` |
+| `native_select.option` | `NativeSelect::Option` | `NativeSelectOption` |
+
+Names that shadow a Phlex HTML element inside `NativeSelect`'s OWN `view_template` (use `tag(:option)` there, never the bare method): `option`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Icon` (infra `_icons`): `Icon.new(name: "chevron-down", ...)` for `native-select-icon`, lucide 0.577.0 markup; must pass `data:`/`aria:` through.

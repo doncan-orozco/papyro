@@ -73,6 +73,24 @@ The `icon` variant repeats `flex shrink-0 items-center justify-center` from the 
   - `[&>a]:*` / `[&>a:hover]:text-primary` style only direct child links of Description (`content__description-with-link`, `state__description-link-hover`, `content__description-nested-link-not-direct-child`).
 - States: no `hover:`/`focus-visible:`/`disabled:`/`aria-invalid:`/`data-[state]`/`dark:` tokens on the parts themselves; the only interactive state is the `:hover` of a direct child `<a>` of Description. Dark mode differs only through theme tokens (`--muted`, `--foreground`, `--muted-foreground`, `--primary`, `--border`), covered by `__dark` twins (both `variant` options have one).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Empty` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Empty::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Empty::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `empty.header` | `Empty::Header` | `EmptyHeader` |
+| `empty.title` | `Empty::Title` | `EmptyTitle` |
+| `empty.description` | `Empty::Description` | `EmptyDescription` |
+| `empty.content` | `Empty::Content` | `EmptyContent` |
+| `empty.media` | `Empty::Media` | `EmptyMedia` |
+
+Names that shadow a Phlex HTML element inside `Empty`'s OWN `view_template` (use `tag(:header)` there, never the bare method): `header`, `title`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 None (`registry_dependencies: []`, `icons: []`). The component renders no other `Components::V2` component; icons inside Media are caller content.

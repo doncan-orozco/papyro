@@ -120,6 +120,25 @@ Turbo/cleanup: `disconnect()` removes the mounted content, releases every primit
 
 Not exercised by the runner (G3 controller unit tests instead): cancelable events and caller `preventDefault`, outside handlers that stop propagation (intercepted dismissal), `hide_when_detached`, `update_position_strategy: "always"`, `collision_boundary`, nesting inside a Dialog (branch registration, layer stack), caller `id:` on Content.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Popover` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Popover::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Popover::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `popover.trigger` | `Popover::Trigger` | `PopoverTrigger` |
+| `popover.content` | `Popover::Content` | `PopoverContent` |
+| `popover.anchor` | `Popover::Anchor` | `PopoverAnchor` |
+| `popover.header` | `Popover::Header` | `PopoverHeader` |
+| `popover.title` | `Popover::Title` | `PopoverTitle` |
+| `popover.description` | `Popover::Description` | `PopoverDescription` |
+
+Names that shadow a Phlex HTML element inside `Popover`'s OWN `view_template` (use `tag(:header)` there, never the bare method): `header`, `title`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - No `Components::V2` component is rendered by Popover itself (manifest `icons: []`, `text_literals: []`, `registry_dependencies: []`).

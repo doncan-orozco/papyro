@@ -142,6 +142,26 @@ Turbo/cleanup (R10): disconnect clears the three timers, ResizeObservers and rAF
 
 Not exercised by the runner (G3 controller unit tests instead): `pointerType` touch/pen ignored on move/leave, `metaKey` link click, cancelable events, `skip_delay_duration: 0` edge (`is_open_delayed` stays true), nested layers.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::NavigationMenu` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render NavigationMenu::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::NavigationMenu::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `navigation_menu.list` | `NavigationMenu::List` | `NavigationMenuList` |
+| `navigation_menu.item` | `NavigationMenu::Item` | `NavigationMenuItem` |
+| `navigation_menu.content` | `NavigationMenu::Content` | `NavigationMenuContent` |
+| `navigation_menu.trigger` | `NavigationMenu::Trigger` | `NavigationMenuTrigger` |
+| `navigation_menu.link` | `NavigationMenu::Link` | `NavigationMenuLink` |
+| `navigation_menu.indicator` | `NavigationMenu::Indicator` | `NavigationMenuIndicator` |
+| `navigation_menu.viewport` | `NavigationMenu::Viewport` | `NavigationMenuViewport` |
+
+Names that shadow a Phlex HTML element inside `NavigationMenu`'s OWN `view_template` (use `tag(:link)` there, never the bare method): `link`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Components::V2::Icon` (`chevron-down`, Trigger, tsx:73-79; manifest `icons: ["ChevronDownIcon"]`, lucide-react version of the catalog).

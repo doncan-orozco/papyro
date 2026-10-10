@@ -55,6 +55,12 @@ if File.exist?("react-shadcn-catalog/node_modules/tailwind-merge/package.json") 
   add.call("G5_CN_DIFFERENTIAL", "oracle cn (JS twMerge) and port cn (Ruby tailwind_merge) disagree: #{summary}") unless status.success?
 end
 
+if Dir.exist?("docs/shadcn-port/specs") && Dir.exist?("docs/shadcn-port/oracle/manifest")
+  out, = Open3.capture2("ruby", ".claude/scripts/shadcn/spec_helpers.rb", "--all", "--check")
+  stale = (JSON.parse(out)["stale"] rescue [])
+  add.call("G5_SPEC_HELPERS", "specs without a current DX helpers section (run spec_helpers.rb --all): #{stale.first(8).join(', ')}") if stale.any?
+end
+
 catalog_css = "react-shadcn-catalog/src/index.css"
 if File.exist?(catalog_css) && File.read(catalog_css).match?(/^\s*(:root|\.dark)\b|@theme/)
   add.call("G5_CATALOG_CSS", "#{catalog_css} must only import tailwindcss, tw-animate-css and the host theme (the shadcn CLI appends HSL variables)")

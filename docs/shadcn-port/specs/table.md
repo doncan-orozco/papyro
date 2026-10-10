@@ -82,6 +82,26 @@ Classes, verbatim from the tsx base strings (each part is `cn("<base>", classNam
 - No `dark:` tokens; dark mode differs only through theme tokens (`--muted`, `--foreground`, `--muted-foreground`, `--border`), covered by `__dark` twins.
 - No focusable element of its own; `interaction__tab-to-cell-link` checks that focus moves into cell content unchanged.
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Table` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Table::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Table::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `table.header` | `Table::Header` | `TableHeader` |
+| `table.body` | `Table::Body` | `TableBody` |
+| `table.footer` | `Table::Footer` | `TableFooter` |
+| `table.head` | `Table::Head` | `TableHead` |
+| `table.row` | `Table::Row` | `TableRow` |
+| `table.cell` | `Table::Cell` | `TableCell` |
+| `table.caption` | `Table::Caption` | `TableCaption` |
+
+Names that shadow a Phlex HTML element inside `Table`'s OWN `view_template` (use `tag(:header)` there, never the bare method): `header`, `body`, `footer`, `head`, `caption`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 None (`registry_dependencies: []`, `icons: []`). The component renders no other `Components::V2` component.

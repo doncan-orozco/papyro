@@ -24,7 +24,7 @@ The old audit judged code quality bottom-up. Here the oracle exists, so truth is
 For each component, in parallel Bash calls (up to 6 at a time), write outputs under `tmp/shadcn-port/<c>/`:
 1. G1: `ruby .claude/scripts/shadcn/static_gate.rb --component <c> > g1.json`
 2. Scenario coverage: `ruby .claude/scripts/shadcn/scenario_coverage.rb --component <c> > coverage.json` (a gap is a `Q_SCENARIO_GAP`, MANDATORY)
-3. G2+G3 (browser): `cd react-shadcn-catalog && node ../.claude/scripts/shadcn/parity_run.mjs --component <c> > ../tmp/shadcn-port/<c>/g2.json`
+3. G2+G3 (browser): `cd react-shadcn-catalog && node ../.claude/scripts/shadcn/parity_run.mjs --component <c> > ../tmp/shadcn-port/<c>/g2.json`; then G2b for components with DX helpers: the same with `--dx helpers --only <ids starting default, variant- or example__, cap 25>` > `g2b.json`
 4. G4 (browser, `--themes` or always for `--house`): `--theme slate|stone|zinc-radius0` with `--only` = scenario ids starting `default` or `variant-` (cap 12), plus `--dark`.
 Collect `{ component, g1, coverage, g2, g4 }` pass/fail and diff counts. A script crash is `HARNESS_ERROR`: re-run once, report it separately, never count it as a component failure.
 

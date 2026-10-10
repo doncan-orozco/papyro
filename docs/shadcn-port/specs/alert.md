@@ -46,6 +46,21 @@ Every part is a single `div`, server-rendered in full; nothing is set client-sid
 - Composition semantics the port must not alter (pinned by scenarios): with no direct svg the grid is `0 1fr` and title/description sit in column 2; with a direct svg the first column is `--spacing*4` with `gap-x-3`; the destructive variant colors descendant descriptions through the parent's `*:data-[slot=alert-description]:` selector, so a caller `class:` on the Description competes with it via CSS specificity, not tailwind_merge.
 - States: none in the source (no `hover:`, `focus-visible:`, `disabled:`, `aria-invalid:`, `data-[state]`, `dark:` tokens). Dark mode differs only through theme tokens (`--card`, `--card-foreground`, `--destructive`, `--muted-foreground`, `--border`).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Components::V2::Alert` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Alert::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Alert::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `alert.title` | `Alert::Title` | `AlertTitle` |
+| `alert.description` | `Alert::Description` | `AlertDescription` |
+
+Names that shadow a Phlex HTML element inside `Alert`'s OWN `view_template` (use `tag(:title)` there, never the bare method): `title`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 None rendered by the component itself (`registry_dependencies: []`, manifest `icons: []`). Callers and scenarios use `Components::V2::Icon` for the leading lucide icon (`circle-check`, `popcorn`, `circle-alert` in the registry `alert-demo` example: `CheckCircle2Icon`, `PopcornIcon`, `AlertCircleIcon`).

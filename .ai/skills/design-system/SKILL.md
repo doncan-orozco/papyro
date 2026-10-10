@@ -14,7 +14,7 @@ Cite as `design-system R<n>`.
 R1. **Semantic tokens only.** `bg-primary`, `text-muted-foreground`, `border-input`...; no palette classes, hex or rgb. The only color classes allowed are the ones the shadcn source itself uses (`text-white`, `bg-black/50`). → `shadcn-port` R9
 R2. **Namespace and location.** V2 lives in `app/components/v2/` as `Components::V2::<Name>`, every part inherits `Components::V2::Base` (cn, attribute merging, `render_as_child`); Stimulus identifiers are `v2--<name>`, controllers in `app/javascript/controllers/v2/`. Never import from legacy `app/components/ui/`. → `shadcn-port` R15
 R3. **Same API as React.** One Ruby class per React export: `Dialog` -> `Components::V2::Dialog`, `DialogContent` -> `Components::V2::Dialog::Content`, `DropdownMenuCheckboxItem` -> `DropdownMenu::CheckboxItem`. Props are snake_case kwargs; `className` -> `class:`; children -> block. → `shadcn-port` references/api-mapping.md
-R4. **Views never build compound parts with helpers.** No `dialog.content`, `card.header`, `dropdown.trigger` yielded helpers. Compose with `render Components::V2::Dialog::Content.new { ... }` exactly like the JSX tree. → references/compound-components.md
+R4. **Two equivalent ways to compose parts; the classes are canonical, the helpers are sugar.** (a) Explicit: `render Components::V2::Dialog::Content.new(...) { }`, one class per React export (used by scenarios, tests, the harness, and always valid). (b) DX helpers: the root yields itself and `Components::V2::Base` GENERATES one helper per nested part, so `render Components::V2::Table.new do |table| table.header { table.row { table.head { "Name" } } } end` reads like the JSX tree. A helper is exactly `render Root::Part.new(**attrs), &block`: never hand-written, never adds behavior. Mixing both in one view is fine. → references/compound-components.md
 R5. **`**attrs` everywhere.** Every class (root and each part) takes `**attrs`, passes them through, merges `class` via `cn` (caller wins) and deep-merges `data:`/`aria:` with the component's required attributes.
 R6. **Strings and symbols.** Variant-like options accept both (`variant: "outline"`, `variant: :outline`, `size: "icon-sm"`, `size: :icon_sm`); defaults equal the React `defaultVariants`.
 R7. **`data-slot` on every part,** exactly the shadcn value, plus `data-variant`/`data-size` where the React source emits them.
@@ -42,7 +42,21 @@ render Components::V2::Dialog.new do
   end
 end
 ```
-This mirrors the JSX tree one to one. Inside a view class, `include Phlex::Kit`-style shorthands are NOT used: explicit `render` keeps the mapping greppable and identical to the scenario renderer.
+This mirrors the JSX tree one to one. The same tree with the generated helpers (the root yields itself; `Components::V2::Base` defines `trigger`, `content`, `header`, `title`, `description`, `footer`, `close`... from the nested classes):
+
+```ruby
+render Components::V2::Dialog.new do |dialog|
+  dialog.trigger(as_child: Components::V2::Button.new(variant: "outline")) { "Edit profile" }
+  dialog.content(class: "sm:max-w-[425px]") do
+    dialog.header do
+      dialog.title { "Edit profile" }
+      dialog.description { "Make changes to your profile here." }
+    end
+    dialog.footer { render Components::V2::Button.new(type: "submit") { "Save changes" } }
+  end
+end
+```
+Components that are not compound parts (`Button`, `Input`...) are always rendered by their class. Each spec lists its helpers in the derived "DX helpers" section (`.claude/scripts/shadcn/spec_helpers.rb`).
 
 ## Legacy
 
