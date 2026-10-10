@@ -49,7 +49,7 @@ The first `theme.css` is **shadcn zinc** (clean baseline, same as the React cata
 
 Rehearsed on the real app, 7 pages x light/dark: no element moves or resizes (0 geometry differences), 0.00-0.28% of pixels change, no new page errors. The intended differences:
 - **Palette**: the old neutral becomes shadcn zinc (e.g. `oklch(0.145 0 0)` -> `oklch(0.141 0.005 285.8)`); visually close.
-- **Radius**: the old theme had no `--radius`, so Tailwind's defaults applied (`rounded-md` 6px, `lg` 8px, `xl` 12px). Every `rounded-*` now derives from `--radius`; zinc ships `0.625rem`, which makes them 8, 10 and 14px. To keep the legacy radii exactly, set `--radius: 0.5rem` (sm/md/lg/xl = 4/6/8/12px).
+- **Radius**: the old theme had no `--radius`, so Tailwind's defaults applied (`rounded-md` 6px, `lg` 8px, `xl` 12px). Every `rounded-*` now derives from `--radius`; zinc ships `0.625rem`, which makes them 8, 10 and 14px. To keep the legacy radii exactly, set `--radius: 0.5rem` (sm/md/lg/xl = 4/6/8/12px). **Decided: keep the shadcn default `0.625rem`** (existing pages become 2px rounder; a later deliberate change is a one-line edit to `theme.css`).
 - **`dark:` variant** is `&:is(.dark *)`: it matches descendants of `.dark`, no longer the `<html class="dark">` element itself.
 - **`html.light` rule is gone**: light is the absence of `.dark`. The old no-JS `prefers-color-scheme` fallback is not reproduced.
 - **Outline color** is set globally by the shadcn base layer (`outline-ring/50`), harmless without an outline width.

@@ -250,6 +250,8 @@ results = cases.map do |dir|
     ruby_files = files.select { |f| f.include?("app/components/v2/") && f.end_with?(".rb") }
     if ruby_files.empty?
       r[:notes] << "no component .rb in case (static gate skipped)"
+    elsif !File.exist?(File.join(ORACLE, "manifest", "#{exp['component']}.json"))
+      r[:notes] << "no oracle manifest for #{exp['component']} (infra case, static gate skipped)"
     else
       report = run_json("ruby", File.join(SCRIPTS, "static_gate.rb"), "--component", exp["component"], "--oracle", ORACLE,
                         "--files", ruby_files.join(","), "--deviations", File.join(WORK, "none"))

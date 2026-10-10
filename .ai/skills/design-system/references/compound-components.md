@@ -61,7 +61,7 @@ Local shorthand (optional, view-level only, still explicit): `V2 = Components::V
 
 ## `as_child`
 
-React `asChild` -> `as_child:` (see api-mapping.md). `false` by default; `as_child: :a` renders that tag; `as_child: Components::V2::Button.new(variant: "outline")` merges the part's attributes into the given component with Radix Slot semantics (child props win, classes joined, `data-action` concatenated). All of it lives in `Components::V2::Base#render_as_child`; parts call it, never reimplement it.
+React `asChild` -> `as_child:` (see api-mapping.md). `false` by default; `as_child: :a` renders that tag; `as_child: Components::V2::Button.new(variant: "outline")` merges the part's attributes into the given component with Radix Slot semantics (child props win, classes plainly joined with no conflict resolution, `data-action` concatenated child first). All of it lives in `Components::V2::Base#render_as_child`; parts call it, never reimplement it.
 
 ```ruby
 render Components::V2::Dialog::Trigger.new(as_child: Components::V2::Button.new(variant: "outline")) { "Edit profile" }

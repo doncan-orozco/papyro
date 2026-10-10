@@ -1,0 +1,19 @@
+{
+  "case": "28-auditor-doc-vs-source",
+  "kind": "agent",
+  "component": "_slot",
+  "description": "The project doc and the unit test both claim Slot class merging is conflict-resolved, the code follows them, but the real Radix mergeProps (given verbatim in the fixture) joins plainly. The auditor must side with the source: Q_SPEC_DRIFT, MANDATORY, DOC_CONTRADICTS_SOURCE, mentioning className.",
+  "static_must_pass": false,
+  "agent_must_find": [
+    "Q_SPEC_DRIFT"
+  ],
+  "agent_must_be_mandatory": [
+    "Q_SPEC_DRIFT"
+  ],
+  "agent_must_mention": [
+    "className",
+    "DOC_CONTRADICTS_SOURCE"
+  ],
+  "agent_may_find": [],
+  "must_not_detect": []
+}
