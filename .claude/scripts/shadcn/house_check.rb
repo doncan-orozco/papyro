@@ -55,6 +55,11 @@ if File.exist?(catalog_css) && File.read(catalog_css).match?(/^\s*(:root|\.dark)
 end
 
 importmap = File.exist?("config/importmap.rb") ? File.read("config/importmap.rb") : ""
+catalog_fui = "react-shadcn-catalog/node_modules/@floating-ui/dom/package.json"
+if File.exist?(catalog_fui) && (pinned = importmap[/pin "@floating-ui\/dom".*?# @([\d.]+)/, 1])
+  catalog_version = JSON.parse(File.read(catalog_fui))["version"]
+  add.call("G5_FLOATING_UI_VERSION", "importmap pins @floating-ui/dom #{pinned} but the catalog (oracle) runs #{catalog_version}: re-pin") unless pinned == catalog_version
+end
 add.call("G5_IMPORTMAP", "config/importmap.rb lacks pin_all_from \"app/javascript/v2\"") if Dir.exist?("app/javascript/v2") && !importmap.include?("app/javascript/v2")
 
 require_relative "../../../lib/shadcn/theme"

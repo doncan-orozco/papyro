@@ -46,7 +46,7 @@ findings = []
 add = ->(code, detail) { findings << { code: code, detail: detail } }
 
 STEP_REQUIRES = { "click" => :target, "dblclick" => :target, "hover" => :target, "focus" => :target, "fill" => :target,
-                  "press" => :key, "type" => :text, "tab" => nil, "viewport" => :width, "snapshot" => nil }.freeze
+                  "press" => :key, "type" => :text, "wait" => :ms, "mousedown" => nil, "mouseup" => nil, "tab" => nil, "viewport" => :width, "snapshot" => nil }.freeze
 
 # ---- spec -----------------------------------------------------------------------------------
 spec_file = File.join(base, "specs/#{name}.md")

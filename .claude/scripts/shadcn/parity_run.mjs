@@ -93,7 +93,10 @@ async function frames(page) { await page.evaluate(() => new Promise((r) => reque
 async function runStep(page, step) {
   const target = step.target ? page.locator(step.target).first() : null;
   switch (step.do) {
-    case "click": await target.click(); break;
+    case "click": await target.click(step.position ? { position: step.position } : {}); break; // position: {x, y} relative to the element's top-left
+    case "wait": await page.waitForTimeout(step.ms); break; // real timers: Radix delays (100ms sub-open, 300ms grace, 1000ms typeahead reset)
+    case "mousedown": if (target) await target.hover(step.position ? { position: step.position } : {}); await page.mouse.down(); break;
+    case "mouseup": if (target) await target.hover(step.position ? { position: step.position } : {}); await page.mouse.up(); break; // press-drag-release selection
     case "dblclick": await target.dblclick(); break;
     case "hover": await target.hover(); break;
     case "focus": await target.focus(); break;

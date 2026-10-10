@@ -14,7 +14,7 @@
 # Finding codes (cite them in reports):
 #   G1_FILE_MISSING     no Phlex file for the component
 #   G1_PART_MISSING     React exported part has no Phlex class
-#   G1_SLOT_MISSING     data-slot of a part never emitted
+#   G1_SLOT_MISSING     data-slot of a part never emitted (parts Radix renders no element for, e.g. Dialog Root/Portal, are exempt: `non_rendered_slots`)
 #   G1_DATA_ATTR_MISSING  static data-* attribute (e.g. data-variant, data-size) never emitted
 #   G1_TOKEN_MISSING    Tailwind token in the React source absent from the port (style drift)
 #   G1_TOKEN_EXTRA      Tailwind token in the port that React does not have (style drift)
@@ -79,7 +79,7 @@ module ShadcnStaticGate
     end
 
     def check_slots
-      @m["data_slots"].filter_map do |slot|
+      (@m["data_slots"] - Array(@m["non_rendered_slots"])).filter_map do |slot|
         next if @src.match?(/data[-_]slot["']?\s*(?:=>|:)\s*["']#{Regexp.escape(slot)}["']/) ||
                 @src.match?(/\bslot:\s*["']#{Regexp.escape(slot)}["']/) ||
                 @src.match?(/["']data-slot["']\s*=>\s*["']#{Regexp.escape(slot)}["']/)

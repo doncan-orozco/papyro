@@ -32,6 +32,9 @@ require "time"
 module ShadcnOracle
   BASE = "https://ui.shadcn.com/r"
   OVERLAY_PRIMITIVES = %w[Dialog AlertDialog Popover Tooltip HoverCard DropdownMenu ContextMenu Menubar Select NavigationMenu].freeze
+  # Radix parts that render NO element of their own (context providers / portals). shadcn still writes data-slot on them, but the
+  # attribute is dropped by Radix, so it never reaches the DOM: a port must not render it (G2) and G1 must not require it.
+  NO_DOM = /\A(?:(?:Dialog|AlertDialog|DropdownMenu|ContextMenu|Popover|Tooltip|HoverCard|Select)Primitive\.(?:Root|Sub|Provider)|MenubarPrimitive\.Menu|\w+Primitive\.Portal)\z/
   THIRD_PARTY = {
     "cmdk" => "cmdk", "sonner" => "sonner", "embla-carousel-react" => "embla", "react-day-picker" => "react-day-picker",
     "recharts" => "recharts", "input-otp" => "input-otp", "react-resizable-panels" => "resizable-panels",
@@ -190,6 +193,7 @@ module ShadcnOracle
         class_tokens: all_tokens,
         data_attrs: parts.flat_map { |p| p[:data_attrs].map { |a| a[:name] } }.uniq.sort,
         data_slots: parts.flat_map { |p| p[:data_slots] }.uniq.sort,
+        non_rendered_slots: parts.flat_map { |p| p[:slot_tags].select { |_, tag| tag.match?(NO_DOM) }.keys }.uniq.sort,
         radix_primitives: radix_primitives(imports),
         third_party: imports.filter_map { |i| third_party_for(i[:from]) }.uniq,
         icons: imports.select { |i| i[:from] == "lucide-react" }.flat_map { |i| i[:names] }.sort,
@@ -277,6 +281,8 @@ module ShadcnOracle
           data_slot: body[/data-slot=(?:"([^"]+)"|\{"([^"]+)"\})/, 1] || body[/data-slot=\{"([^"]+)"\}/, 1],
           wraps: body[/<(\w+Primitive\.\w+|Slot\.Root|Slot|Comp|\w+\.Root)\b/, 1],
           renders: body[/return\s*\(?\s*<(\w[\w.]*)/, 1],
+          # the element that carries each data-slot (a part may wrap its Content in a Portal: the slot is on the inner tag)
+          slot_tags: body.scan(/<([A-Z][\w.]*)\b[^<]*?data-slot=(?:"([^"]+)"|\{"([^"]+)"\})/m).to_h { |tag, a, b| [a || b, tag] },
           props: parse_props(signature),
           class_tokens: Scan.tokens(class_strings(body)).uniq.sort,
           uses_cva: body.match?(/\w+Variants\(/),

@@ -39,9 +39,14 @@ end
 
 flat = scenarios.map { |s| [s, nodes.call(s["tree"])] }
 exports = manifest["exports"]
+# A scenario may compose the components this one depends on (DialogTrigger asChild > Button): their exports are valid too.
+dependency_exports = manifest.fetch("registry_dependencies", []).flat_map do |dep|
+  dep_file = File.join(opts[:oracle], "manifest", "#{dep}.json")
+  File.exist?(dep_file) ? JSON.parse(File.read(dep_file))["exports"] : []
+end
 
 flat.each do |s, ns|
-  ns.each { |n| gaps << { code: "SC_UNKNOWN_COMPONENT", detail: "#{s['id']}: #{n['c']}" } unless exports.include?(n["c"]) || n["c"].to_s.start_with?("_") }
+  ns.each { |n| gaps << { code: "SC_UNKNOWN_COMPONENT", detail: "#{s['id']}: #{n['c']}" } unless exports.include?(n["c"]) || dependency_exports.include?(n["c"]) || n["c"].to_s.start_with?("_") }
 end
 
 used_components = flat.flat_map { |_, ns| ns.map { |n| n["c"] } }.uniq

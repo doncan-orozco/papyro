@@ -29,3 +29,17 @@ Prefer rendering `role`, `aria-*` static parts, `data-state`, `hidden` and ids o
 ## Ids
 
 Server-generated ids (`SecureRandom`-free: derive from an `id:` kwarg or a per-render counter) so `aria-labelledby/controls` resolve before JS. The runner normalizes ids by first-seen order, so any scheme works as long as the **relations** are the same.
+
+## Verified corrections (read from the Radix source by the dialog / dropdown-menu / select planners; the table above is a checklist, these override it)
+
+**Parts that render no element.** `Dialog.Root`, `AlertDialog.Root`, `DropdownMenu.Root/Sub`, `ContextMenu.Root/Sub`, `Popover.Root`, `Tooltip.Root/Provider`, `HoverCard.Root`, `Select.Root`, `Menubar.Menu` and every `*.Portal` render nothing; shadcn's `data-slot` on them is dropped by Radix and never reaches the DOM. The port renders NO element for them (rendering one fails G2 with NODE_COUNT). The manifest lists them as `non_rendered_slots` and G1 does not require them. Where the controller needs a host, it lives on the Trigger (menus, select, popover, tooltip). Only when a Trigger cannot host it (Dialog: several triggers, none, or controlled `open`) the port may add ONE `display: contents` element with no `data-slot`, no classes and no data attributes besides the controller wiring, declared in `deviations/<name>.json`.
+
+**Dialog** (react-dialog): `hideOthers` also sets `aria-hidden` on the Overlay; focus guards and the Tab loop apply to non-modal dialogs too; scroll lock belongs to the Overlay; `body` gets `pointer-events: none` from the modal Content, whose own style is `pointer-events: auto`; a controlled `open: true` dialog stays open on X/Esc and only dispatches the change event. Portal children go straight into `document.body` with no wrapper.
+
+**Menus** (react-menu): Content has `tabindex="0"` and `data-orientation="vertical"` from the roving group; items carry `data-orientation` and a roving `tabindex` (0 on the last focused item); `SubTrigger` always has `aria-controls`, even closed; Content has a `dir` attribute; `inset={false}` renders `data-inset="false"`; Escape inside a sub menu closes the whole menu; a portaled SubContent counts as inside the root dismissable layer and pauses the root focus trap; in modal mode `body` gets `pointer-events: none`, so the trigger's computed pointer-events is `none`.
+
+**Select** (react-select): no Presence, closed content is unmounted immediately (so `data-[state=closed]` exit animations never run); item-aligned positioning exists only here and is not part of floating-ui; the native hidden `<select>` / bubble input exists for forms; `useDirection` reads the prop or a DirectionProvider, NEVER `html[dir]`.
+
+**Popper middleware order** (react-popper): `offset -> shift -> flip -> size -> arrow -> transformOrigin -> hide` (shift BEFORE flip), `size` writes `--radix-popper-available-width/height` and `--radix-popper-anchor-width/height`.
+
+**Slot** (react-slot `mergeProps`): see api-mapping.md; additionally Stimulus `data-controller` tokens from both sides are UNIONED (slot first) so nested triggers (a Tooltip trigger wrapping a Dropdown trigger via `as_child`) keep both controllers. Radix has no equivalent because React has no such attribute.

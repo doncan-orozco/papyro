@@ -11,7 +11,7 @@ Built in **wave 0** (before any overlay), pinned in `config/importmap.rb` with `
 | `focus_guards.js` | sentinel spans at body edges while a modal layer is open | `react-focus-guards` |
 | `hide_others.js` | `aria-hidden` on siblings of the modal content; restore | `aria-hidden` package |
 | `scroll_lock.js` | body `overflow:hidden` + scrollbar-width padding compensation, ref-counted | `react-remove-scroll` |
-| `positioner.js` | floating-ui `computePosition/autoUpdate` with Radix's middleware order: offset(sideOffset+arrow), flip/shift (collisionPadding), size (sets `--radix-popper-available-width/height`, `--radix-popper-anchor-width/height`, `--radix-popper-transform-origin`), arrow, hide; writes `data-side`, `data-align` | `react-popper` |
+| `positioner.js` | floating-ui `computePosition/autoUpdate` with Radix's REAL middleware order (react-popper 104-127): offset(sideOffset+arrow, alignOffset), shift (mainAxis only, optional limitShift when `sticky=partial`), flip, size (sets `--radix-popper-available-width/height`, `--radix-popper-anchor-width/height`), arrow, transformOrigin (sets `--radix-popper-transform-origin`), hide (referenceHidden); the whole stack uses the same `collisionPadding`/`collisionBoundary` detectOverflow options; writes `data-side`, `data-align` | `react-popper` |
 | `roving_focus.js` | `rovingFocus(container, { orientation, loop, dir, currentTabStopId })` arrow/Home/End, `tabindex` swapping | `react-roving-focus` |
 | `typeahead.js` | buffer with 1000 ms reset, repeated-letter cycling, `matchItem(items, search, current)` | internal in menu/select |
 | `hover_intent.js` | open/close delays with skip-delay provider state | tooltip/hover-card/navigation-menu |

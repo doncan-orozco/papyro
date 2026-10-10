@@ -129,6 +129,22 @@
       "manifest": "sonner",
       "path": "tier",
       "equals": "third_party"
+    },
+    {
+      "manifest": "dialog",
+      "path": "non_rendered_slots",
+      "equals": [
+        "dialog",
+        "dialog-portal"
+      ]
+    },
+    {
+      "manifest": "dialog",
+      "path": "data_slots",
+      "includes": [
+        "dialog-content",
+        "dialog-trigger"
+      ]
     }
   ]
 }

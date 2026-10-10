@@ -37,6 +37,18 @@ body{margin:0;padding:32px;font:16px/1.5 sans-serif}
 html.dark body{background:#111;color:#eee}
 `;
 const btn = (extra = "", cls = "btn") => `<button data-slot="probe" class="${cls}" ${extra}>Hi</button>`;
+// A plain 200px box; the click handler is attached by script (an onclick ATTRIBUTE would differ between the sides and
+// report ATTR whatever the click position). React side: data-side is "right" when the click lands past x=150, else "left"
+// (a centre click is x=100). "Phlex" side with positionAware=false always says "left", so the sides differ ONLY if the
+// runner really clicks at the requested position.
+const POS_BOX = `<div data-slot="probe" class="btn" style="width:200px;padding:0">x</div>`;
+const POS_JS = (positionAware) => `document.querySelector("[data-slot=probe]").addEventListener("click", (e) => { e.currentTarget.dataset.side = ${positionAware ? "e.offsetX > 150 ? 'right' : 'left'" : "'left'"}; })`;
+const PLAIN = `<div data-slot="probe" class="btn" style="padding:4px">x</div>`;
+// A click starts a timer; data-ready appears `ms` later. Starting at the click (not at page load) means the wait step is what
+// separates "not yet" from "ready": a runner that ignores `wait` snapshots ~100ms after the click, before the 200ms timer fires.
+const LATE_JS = (ms) => `const el = document.querySelector("[data-slot=probe]"); el.addEventListener("click", () => setTimeout(() => el.setAttribute("data-ready", "1"), ${ms}))`;
+// mousedown -> data-phase=down; mouseup -> data-phase=up (only when handled)
+const MOUSE_JS = (handlesUp) => `const el = document.querySelector("[data-slot=probe]"); el.addEventListener("mousedown", () => { el.dataset.phase = "down"; }); ${handlesUp ? 'el.addEventListener("mouseup", () => { el.dataset.phase = "up"; });' : ""}`;
 const toggler = `onclick="this.dataset.state=this.dataset.state==='on'?'off':'on';this.classList.toggle('on')"`;
 
 // html: [reactHtml, phlexHtml, optional phlexStatus, optional phlexScript]
@@ -72,6 +84,12 @@ const S = [
   },
   { id: "click-same", steps: [{ do: "click", target: "[data-slot=probe]" }], html: [btn(toggler), btn(toggler)], expect: { pass: true } },
   { id: "click-missing-handler", steps: [{ do: "click", target: "[data-slot=probe]" }], html: [btn(toggler), btn()], expect: { kinds: ["ATTR", "CLASS", "STYLE"], step: "0:click" } },
+  { id: "click-position-honored", steps: [{ do: "click", target: "[data-slot=probe]", position: { x: 180, y: 5 } }], html: [POS_BOX, POS_BOX], js: [POS_JS(true), POS_JS(true)], expect: { pass: true } },
+  { id: "click-position-differs", steps: [{ do: "click", target: "[data-slot=probe]", position: { x: 180, y: 5 } }], html: [POS_BOX, POS_BOX], js: [POS_JS(true), POS_JS(false)], expect: { kinds: ["ATTR"], step: "0:click" } },
+  { id: "wait-honored", steps: [{ do: "click", target: "[data-slot=probe]" }, { do: "wait", ms: 500 }], html: [PLAIN, PLAIN], js: [LATE_JS(200), LATE_JS(200)], expect: { pass: true } },
+  { id: "wait-differs", steps: [{ do: "click", target: "[data-slot=probe]" }, { do: "wait", ms: 500 }], html: [PLAIN, PLAIN], js: [LATE_JS(200), LATE_JS(1500)], expect: { kinds: ["ATTR"], step: "1:wait" } },
+  { id: "mouse-down-up-honored", steps: [{ do: "mousedown", target: "[data-slot=probe]" }, { do: "mouseup", target: "[data-slot=probe]" }], html: [PLAIN, PLAIN], js: [MOUSE_JS(true), MOUSE_JS(true)], expect: { pass: true } },
+  { id: "mouse-up-missing", steps: [{ do: "mousedown", target: "[data-slot=probe]" }, { do: "mouseup", target: "[data-slot=probe]" }], html: [PLAIN, PLAIN], js: [MOUSE_JS(true), MOUSE_JS(false)], expect: { kinds: ["ATTR"], step: "1:mouseup" } },
   { id: "tab-same", steps: [{ do: "tab" }], html: [btn(), btn()], expect: { pass: true } },
   { id: "tab-not-focusable", steps: [{ do: "tab" }], html: [btn(), btn('tabindex="-1"')], expect: { kinds: ["FOCUS", "FOCUSED"], step: "0:tab" } },
   { id: "dark-same", dark: true, html: [btn(), btn()], expect: { pass: true } },
@@ -89,11 +107,12 @@ const S = [
 
 const reactPage = () => `<!doctype html><meta charset=utf-8><style>${CSS}</style><div id=root></div><script>
 const T=${JSON.stringify(Object.fromEntries(S.map((s) => [s.id, s.html[0]])))};
-const id=location.hash.split("/").pop();document.getElementById("root").innerHTML=T[id]??"";</script>`;
+const J=${JSON.stringify(Object.fromEntries(S.filter((s) => s.js).map((s) => [s.id, s.js[0]])))};
+const id=location.hash.split("/").pop();document.getElementById("root").innerHTML=T[id]??"";if(J[id])new Function(J[id])();</script>`;
 
 const phlexPage = (id) => {
   const sc = S.find((s) => s.id === id);
-  return sc ? `<!doctype html><meta charset=utf-8><style>${CSS}</style><div id=root>${sc.html[1]}</div>` : "";
+  return sc ? `<!doctype html><meta charset=utf-8><style>${CSS}</style><div id=root>${sc.html[1]}</div>${sc.js ? `<script>${sc.js[1]}</script>` : ""}` : "";
 };
 
 const servers = [
@@ -153,5 +172,6 @@ for (const sc of S) {
 servers.forEach((s) => s.close());
 fs.rmSync(root, { recursive: true, force: true });
 const failed = results.filter((r) => !r.ok);
+if (process.env.SELFTEST_VERBOSE) for (const r of results) console.error(`${r.ok ? "ok  " : "FAIL"} ${r.id.padEnd(28)} kinds=${r.kinds.join(",") || "-"}`);
 console.log(JSON.stringify({ status: failed.length ? "fail" : "pass", scenarios: results.length, failed: failed.map((r) => ({ id: r.id, why: r.why, kinds: r.kinds })) }, null, 2));
 process.exit(failed.length ? 1 : 0);
