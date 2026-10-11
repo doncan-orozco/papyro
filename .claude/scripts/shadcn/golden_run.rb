@@ -270,7 +270,8 @@ results = cases.map do |dir|
     end
   when "scenario"
     report = run_json("ruby", File.join(SCRIPTS, "scenario_coverage.rb"), "--component", exp["component"], "--oracle", ORACLE,
-                      "--scenarios", File.join(dir, "files/docs/shadcn-port/scenarios"))
+                      "--scenarios", File.join(dir, "files/docs/shadcn-port/scenarios"),
+                      "--state", File.join(dir, "files/docs/shadcn-port/state.json"))
     codes = report["gaps"].map { |g| g["code"] }.uniq
     r[:detected] = codes
   when "deviations"

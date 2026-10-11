@@ -38,6 +38,7 @@ Fully server-rendered; nothing is set by JS. Exact React output (lucide-react 0.
 - `role="status"`, `aria-label="Loading"` (literal English string from the tsx; not translated, to keep DOM parity). No sr-only text, no ids, no `data-state`, no `data-slot`.
 - No state classes: no `hover:`, `focus-visible:`, `aria-invalid:`, `disabled:`, `group-*`, `peer-*`, `has-*`, `data-[state=*]`, `dark:` tokens. Colour comes from `currentColor`, so dark mode only changes the inherited `color` (scenarios `context__inherits-current-color`, `api__class-merge-text-token`).
 - `animate-spin` is Tailwind's `spin` keyframe (rotate 360deg, 1s linear infinite). Scenarios run with motion disabled except `motion__spin` (`animations: true`).
+- Parity observation: because there is no `data-slot`, every scenario sets `"observe": ["svg.animate-spin"]` so the runner compares the spinner svg(s) under the synthetic slot `observe:svg.animate-spin[<i>]` (one node per Spinner in the tree; `animate-spin` is kept by every `cn` result, also with `role`/`aria-hidden` overrides).
 
 ## Dependencies
 

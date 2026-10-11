@@ -3055,15 +3055,6 @@
               {
                 "c": "NativeSelectOption",
                 "props": {
-                  "value": ""
-                },
-                "children": [
-                  "Select status"
-                ]
-              },
-              {
-                "c": "NativeSelectOption",
-                "props": {
                   "value": "todo"
                 },
                 "children": [

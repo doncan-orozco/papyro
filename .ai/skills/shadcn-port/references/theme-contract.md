@@ -52,6 +52,7 @@ Rehearsed on the real app, 7 pages x light/dark: no element moves or resizes (0 
 - **Radius**: the old theme had no `--radius`, so Tailwind's defaults applied (`rounded-md` 6px, `lg` 8px, `xl` 12px). Every `rounded-*` now derives from `--radius`; zinc ships `0.625rem`, which makes them 8, 10 and 14px. To keep the legacy radii exactly, set `--radius: 0.5rem` (sm/md/lg/xl = 4/6/8/12px). **Decided: keep the shadcn default `0.625rem`** (existing pages become 2px rounder; a later deliberate change is a one-line edit to `theme.css`).
 - **`dark:` variant** is `&:is(.dark *)`: it matches descendants of `.dark`, no longer the `<html class="dark">` element itself.
 - **`html.light` rule is gone**: light is the absence of `.dark`. The old no-JS `prefers-color-scheme` fallback is not reproduced.
+- **Animations**: the legacy `ui-enter`/`ui-exit` rules in `utilities/motion.css` are removed; `tw-animate-css` (keyframes `enter`/`exit`, 150ms, ease, fill none) is the single source for `animate-in/out`, `fade-*`, `zoom-*` and `slide-*`, so legacy `ui/*` overlays now animate exactly like shadcn (slightly different timing/easing, no `both` fill).
 - **Outline color** is set globally by the shadcn base layer (`outline-ring/50`), harmless without an outline width.
 - `var(--color-primary)` etc. used directly by `reader.css` and `ui-scroll-area.css` keep resolving (`@theme inline` still emits them).
 

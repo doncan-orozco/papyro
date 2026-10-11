@@ -3120,7 +3120,8 @@
           {
             "c": "_button",
             "props": {
-              "type": "button"
+              "type": "button",
+              "data-testid": "outside"
             },
             "children": [
               "Outside"
@@ -3138,7 +3139,7 @@
         },
         {
           "do": "focus",
-          "target": "role=button[name=\"Outside\"]"
+          "target": "[data-testid=outside]"
         }
       ],
       "dark": false,
@@ -7021,6 +7022,14 @@
                 ]
               }
             ]
+          },
+          {
+            "c": "_div",
+            "props": {
+              "data-testid": "neutral",
+              "className": "mt-24 size-16"
+            },
+            "children": []
           }
         ]
       },
@@ -7035,6 +7044,10 @@
         {
           "do": "wait",
           "ms": 300
+        },
+        {
+          "do": "hover",
+          "target": "[data-testid=neutral]"
         },
         {
           "do": "press",

@@ -16,7 +16,7 @@
 //   React  : {REACT}/#/parity/<component>/<scenarioId>
 //   Phlex  : {PHLEX}/design-system/parity/<component>/<scenarioId>
 //   Scenarios: docs/shadcn-port/scenarios/<component>.json  (single source of truth for both sides)
-// Failed renders never match: HTTP >= 400, [data-parity-error] and zero [data-slot] nodes are reported (PARITY_ERROR / HTTP_STATUS / EMPTY_RENDER).
+// Failed renders never match: HTTP >= 400, [data-parity-error] and zero [data-slot] nodes (or, with a scenario `observe` list, zero observed nodes) are reported (PARITY_ERROR / HTTP_STATUS / EMPTY_RENDER).
 // Output: JSON on stdout { component, pass, scenarios, diffs[] }; exit 1 when diffs exist.
 
 import fs from "node:fs";
@@ -55,8 +55,8 @@ const STYLE_PROPS = [
 // Attributes that legitimately differ between React/Radix and Rails/Stimulus and carry no contract.
 const IGNORED_ATTR = /^(class|style|id|for|selected|data-controller|data-action|data-turbo.*|data-.*-target|data-.*-value|data-.*-class|data-parity.*|aria-labelledby|aria-controls|aria-describedby|aria-owns|aria-activedescendant|tabindex-managed)$|^data-v2--|^data-radix|^data-reactroot/;
 
-async function snapshot(page) {
-  return page.evaluate(({ STYLE_PROPS, IGNORED_ATTR }) => {
+async function snapshot(page, observe = []) {
+  return page.evaluate(({ STYLE_PROPS, IGNORED_ATTR, observe }) => {
     const ignored = new RegExp(IGNORED_ATTR);
     const ids = new Map();
     const norm = (v) => (v == null ? v : v.split(/\s+/).map((t) => (ids.has(t) ? ids.get(t) : t)).join(" "));
@@ -65,18 +65,30 @@ async function snapshot(page) {
     const REF_ATTRS = ["aria-labelledby", "aria-controls", "aria-describedby", "aria-owns", "aria-activedescendant", "for"];
     document.querySelectorAll("*").forEach((el) => REF_ATTRS.forEach((a) => (el.getAttribute(a) ?? "").split(/\s+/).filter(Boolean).forEach((t) => { if (!ids.has(t)) ids.set(t, `#${ids.size + 1}`); })));
     const active = document.activeElement;
-    const slotPath = (el) => (el && el !== document.body ? (el.closest("[data-slot]")?.getAttribute("data-slot") ?? el.tagName.toLowerCase()) : "body");
+    // `observe` selectors (scenario key) add slot-less elements (e.g. an svg icon) to the compared nodes under the synthetic slot `observe:<selector>[<index>]`.
+    const slotOf = new Map();
+    const observed = [];
+    observe.forEach((sel) => {
+      let i = 0;
+      document.querySelectorAll(sel).forEach((el) => {
+        if (el.hasAttribute("data-slot") || slotOf.has(el)) return;
+        slotOf.set(el, `observe:${sel}[${i++}]`);
+        observed.push(el);
+      });
+    });
+    const compared = observed.length ? [...document.querySelectorAll("[data-slot]"), ...observed].sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1)) : [...document.querySelectorAll("[data-slot]")];
+    const slotPath = (el) => (el && el !== document.body ? (el.closest("[data-slot]")?.getAttribute("data-slot") ?? slotOf.get(el) ?? el.tagName.toLowerCase()) : "body");
     const rel = (el, name) => { const v = el.getAttribute(name); return v ? norm(v) : null; };
     return {
       focus: slotPath(active),
       scrollLocked: getComputedStyle(document.body).overflow === "hidden" || document.body.hasAttribute("data-scroll-locked"),
-      nodes: [...document.querySelectorAll("[data-slot]")].map((el) => {
+      nodes: compared.map((el) => {
         const cs = getComputedStyle(el);
         const r = el.getBoundingClientRect();
         const attrs = {};
-        for (const a of el.attributes) if (!ignored.test(a.name)) attrs[a.name] = a.value;
+        for (const a of [...el.attributes].sort((x, y) => (x.name < y.name ? -1 : 1))) if (!ignored.test(a.name)) attrs[a.name] = a.value;
         return {
-          slot: el.getAttribute("data-slot"),
+          slot: el.getAttribute("data-slot") ?? slotOf.get(el),
           tag: el.tagName.toLowerCase(),
           classes: [...new Set(el.className?.baseVal === undefined ? el.className.split(/\s+/) : el.className.baseVal.split(/\s+/))].filter(Boolean).sort(),
           attrs,
@@ -91,25 +103,70 @@ async function snapshot(page) {
         };
       }),
     };
-  }, { STYLE_PROPS, IGNORED_ATTR: IGNORED_ATTR.source });
+  }, { STYLE_PROPS, IGNORED_ATTR: IGNORED_ATTR.source, observe });
 }
 
-async function frames(page) { await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))); }
+// animations: true scenarios: CSS animations/transitions are sampled at a LOGICAL time instead of wall-clock time, so both pages
+// are compared at the same animation offset (see parity-gates.md, "Animation determinism"). `clock` is the sum of the `wait`
+// steps so far; an animation is anchored at the clock value of the first snapshot that sees it. Seeked animations are paused for
+// the snapshot and resumed after it (JS that waits for animationend, e.g. Radix Presence, keeps working); finished ones are finished.
+async function withAnimationClock(page, sc, clock, take) {
+  if (!sc.animations) return take();
+  const seek = (now) => page.evaluate((now) => {
+    const seen = (window.__parityAnim ??= new WeakMap());
+    const held = (window.__parityHeld = []);
+    for (const a of document.getAnimations()) {
+      if (!(a instanceof CSSAnimation || a instanceof CSSTransition) || a.playState === "idle" || a.playState === "finished") continue;
+      if (!seen.has(a)) seen.set(a, now);
+      const end = a.effect.getComputedTiming().endTime;
+      const at = now - seen.get(a);
+      if (at >= end) { a.finish(); continue; }
+      a.pause();
+      a.currentTime = at;
+      held.push(a);
+    }
+  }, now);
+  await seek(clock);
+  try { return await take(); } finally { await page.evaluate(() => { (window.__parityHeld ?? []).forEach((a) => a.play()); window.__parityHeld = []; }); }
+}
+
+// Settle = quiescence before every snapshot, identical on both sides: macrotask turn (setTimeout(0) focus hops, Presence/mount effects),
+// 2 rAF, macrotask turn again (work those frames scheduled). Real timers are NOT waited for; `wait` steps keep their meaning.
+async function frames(page) {
+  await page.evaluate(async () => {
+    const turn = () => new Promise((r) => setTimeout(r, 0));
+    await turn();
+    await turn();
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    await turn();
+    await turn();
+  });
+}
+
+// A real key press stays down for tens of ms, so setTimeout(0) hops started by keydown (roving focus, then arrow-select on focus while
+// the arrow is still held) run BEFORE keyup. keyboard.press fires keyup immediately, racing those hops; hold the key for two
+// macrotask turns instead (single keys only: chords keep Playwright's modifier handling).
+async function pressKey(page, key) {
+  if (key.includes("+") && key.length > 1) return page.keyboard.press(key);
+  await page.keyboard.down(key);
+  await page.evaluate(() => new Promise((r) => setTimeout(() => setTimeout(r, 0), 0)));
+  await page.keyboard.up(key);
+}
 
 async function runStep(page, step) {
   const target = step.target ? page.locator(step.target).first() : null;
   switch (step.do) {
-    case "click": await target.click({ ...(step.position ? { position: step.position } : {}), ...(step.button ? { button: step.button } : {}) }); break; // button: "left"|"right"|"middle" (context-menu opens on a right click); position: {x, y} relative to the element's top-left
+    case "click": /* force: disabled / pointer-events-none targets would time out in actionability; the browser still dispatches or suppresses events like for a user */ await target.click({ force: true, ...(step.position ? { position: step.position } : {}), ...(step.button ? { button: step.button } : {}) }); break; // button: "left"|"right"|"middle" (context-menu opens on a right click); position: {x, y} relative to the element's top-left
     case "wait": await page.waitForTimeout(step.ms); break; // real timers: Radix delays (100ms sub-open, 300ms grace, 1000ms typeahead reset)
-    case "mousedown": if (target) await target.hover(step.position ? { position: step.position } : {}); await page.mouse.down(step.button ? { button: step.button } : {}); break;
-    case "mouseup": if (target) await target.hover(step.position ? { position: step.position } : {}); await page.mouse.up(step.button ? { button: step.button } : {}); break; // press-drag-release selection
-    case "dblclick": await target.dblclick(); break;
-    case "hover": await target.hover(); break;
+    case "mousedown": if (target) await target.hover({ force: true, ...(step.position ? { position: step.position } : {}) }); await page.mouse.down(step.button ? { button: step.button } : {}); break;
+    case "mouseup": if (target) await target.hover({ force: true, ...(step.position ? { position: step.position } : {}) }); await page.mouse.up(step.button ? { button: step.button } : {}); break; // press-drag-release selection
+    case "dblclick": await target.dblclick({ force: true }); break;
+    case "hover": await target.hover({ force: true }); break;
     case "focus": await target.focus(); break;
     case "fill": await target.fill(step.value ?? ""); break;
-    case "press": await page.keyboard.press(step.key); break;
+    case "press": await pressKey(page, step.key); break;
     case "type": await page.keyboard.type(step.text, { delay: 5 }); break;
-    case "tab": await page.keyboard.press(step.shift ? "Shift+Tab" : "Tab"); break;
+    case "tab": await pressKey(page, step.shift ? "Shift+Tab" : "Tab"); break;
     case "viewport": await page.setViewportSize({ width: step.width, height: step.height ?? 800 }); break;
     case "snapshot": break;
     default: throw new Error(`unknown step ${step.do}`);
@@ -117,23 +174,64 @@ async function runStep(page, step) {
   await frames(page);
 }
 
+function installNoMotion(css) {
+  const add = () => {
+    if (!document.documentElement || document.getElementById("__parity-no-motion")) return !!document.documentElement;
+    const el = document.createElement("style");
+    el.id = "__parity-no-motion";
+    el.textContent = css;
+    document.documentElement.appendChild(el);
+    return true;
+  };
+  if (add()) return;
+  const obs = new MutationObserver(() => { if (add()) obs.disconnect(); });
+  obs.observe(document, { childList: true });
+}
+
+// Dark class + theme CSS before any page script/first style computation, so no colour transition ever starts after load.
+// Theme goes in adoptedStyleSheets: they sort after every document stylesheet, matching the old post-load <style> append.
+function installTheme({ css, dark }) {
+  try {
+    if (css) {
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(css);
+      document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    }
+  } catch (_) { /* fallback: post-load style tag */ }
+  if (!dark) return;
+  const add = () => {
+    if (!document.documentElement) return false;
+    document.documentElement.classList.add("dark");
+    return true;
+  };
+  if (add()) return;
+  const obs = new MutationObserver(() => { if (add()) obs.disconnect(); });
+  obs.observe(document, { childList: true });
+}
+
 async function capture(browser, base, urlPath, sc, side) {
-  const ctx = await browser.newContext({ viewport: { width: sc.viewport?.width ?? 900, height: sc.viewport?.height ?? 700 }, deviceScaleFactor: 1, reducedMotion: "reduce" });
+  const ctx = await browser.newContext({ viewport: { width: sc.viewport?.width ?? 900, height: sc.viewport?.height ?? 700 }, deviceScaleFactor: 1, reducedMotion: "no-preference" });
+  // Host-only `prefers-reduced-motion` rules must not make the two pages differ, so never emulate reduce; NO_MOTION goes in before any page script/layout.
+  await ctx.addInitScript(installTheme, { css: themeCss, dark: Boolean(args.dark || sc.dark) });
+  if (!sc.animations) await ctx.addInitScript(installNoMotion, NO_MOTION);
   const page = await ctx.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
   const response = await page.goto(`${base}${urlPath}`, { waitUntil: "networkidle" });
   const httpStatus = response ? response.status() : 0;
-  await page.addStyleTag({ content: sc.animations ? "" : NO_MOTION });
-  if (themeCss) await page.addStyleTag({ content: themeCss });
+  if (!sc.animations) await page.addStyleTag({ content: NO_MOTION });
+  if (themeCss && !(await page.evaluate(() => document.adoptedStyleSheets.length > 0))) await page.addStyleTag({ content: themeCss });
   if (args.dark || sc.dark) await page.evaluate(() => document.documentElement.classList.add("dark"));
   await page.evaluate(() => document.fonts?.ready);
   await frames(page);
   const parityError = await page.evaluate(() => document.querySelector("[data-parity-error]")?.textContent?.trim() ?? null);
-  const snaps = [{ step: "initial", ...(await snapshot(page)) }];
+  let clock = 0;
+  const snaps = [{ step: "initial", ...(await withAnimationClock(page, sc, clock, () => snapshot(page, sc.observe))) }];
   for (const [i, step] of (sc.steps ?? []).entries()) {
     await runStep(page, step);
-    snaps.push({ step: `${i}:${step.do}${step.target ? `(${step.target})` : step.key ? `(${step.key})` : ""}`, ...(await snapshot(page)) });
+    if (step.do === "wait") clock += step.ms;
+    if (step.snapshot === false) continue; // runs on both sides, compared by the next snapshot (see state-matrix.md)
+    snaps.push({ step: `${i}:${step.do}${step.target ? `(${step.target})` : step.key ? `(${step.key})` : ""}`, ...(await withAnimationClock(page, sc, clock, () => snapshot(page, sc.observe))) });
   }
   if (args.shots) {
     fs.mkdirSync(args.shots, { recursive: true });
@@ -143,7 +241,9 @@ async function capture(browser, base, urlPath, sc, side) {
   return { snaps, errors, httpStatus, parityError };
 }
 
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+// Key-order insensitive (attribute order differs between React and Phlex); values and array order still count.
+const canon = (v) => (Array.isArray(v) ? v.map(canon) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])])) : v);
+const same = (a, b) => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
 
 function diffSnapshots(id, reactSnap, phlexSnap) {
   const out = [];
@@ -181,15 +281,17 @@ const ran = todo.map((s) => s.id);
 async function runScenario(sc) {
   const diffs = [];
   try {
+    if (sc.observe !== undefined && !(Array.isArray(sc.observe) && sc.observe.length >= 1 && sc.observe.length <= 5 && sc.observe.every((o) => typeof o === "string" && o.trim() !== ""))) throw new Error(`observe of ${sc.id} must be an array of 1..5 non-empty CSS selector strings`);
+    if (sc.steps?.at(-1)?.snapshot === false) throw new Error(`last step of ${sc.id} has snapshot:false; the scenario would compare nothing after it`);
     const [r, p] = await Promise.all([
       capture(browser, REACT, `/#/parity/${component}/${sc.id}`, sc, "react"),
-      capture(browser, PHLEX, `/design-system/parity/${component}/${sc.id}${args.dx ? `?dx=${encodeURIComponent(args.dx)}` : ""}`, sc, "phlex"),
+      capture(browser, PHLEX, `/design-system/parity/${component}/${args["phlex-scenario"] ?? sc.id}${args.dx ? `?dx=${encodeURIComponent(args.dx)}` : ""}`, sc, "phlex"),
     ]);
     // A page that failed to render must never "match": both sides empty/erroring would otherwise compare equal.
     for (const [side, cap] of [["react", r], ["phlex", p]]) {
       if (cap.httpStatus >= 400) diffs.push({ scenario: sc.id, kind: "HTTP_STATUS", side, detail: String(cap.httpStatus) });
       if (cap.parityError) diffs.push({ scenario: sc.id, kind: "PARITY_ERROR", side, detail: cap.parityError.slice(0, 200) });
-      if (!sc.allowEmpty && cap.snaps[0].nodes.length === 0) diffs.push({ scenario: sc.id, kind: "EMPTY_RENDER", side, detail: "no [data-slot] elements rendered" });
+      if (!sc.allowEmpty && cap.snaps[0].nodes.length === 0) diffs.push({ scenario: sc.id, kind: "EMPTY_RENDER", side, detail: sc.observe ? "no [data-slot] or observed elements rendered" : "no [data-slot] elements rendered" });
     }
     r.errors.forEach((e) => diffs.push({ scenario: sc.id, kind: "REACT_PAGE_ERROR", detail: e }));
     p.errors.forEach((e) => diffs.push({ scenario: sc.id, kind: "PHLEX_JS_ERROR", detail: e }));

@@ -112,6 +112,8 @@ Presence: the enter animation (`data-[state=open]:animate-in fade-in-0 zoom-in-9
 
 Turbo/cleanup: disconnect clears both timers, removes the mounted content, restores body `user-select`, removes document listeners (`pointerup`, layer listeners), stops `autoUpdate`, unregisters the focus-scope branch. A cached page must not restore an open card.
 
+Scenario notes (parity harness, not component behavior): `click-trigger-href__reopens-on-focus` passes `data-turbo="false"` on the `href="#profile"` trigger (a forwarded attr, rendered identically by React and Phlex). Without it Turbo intercepts the click on the Phlex harness page as a visit (`turbo:before-visit` for `...#profile`), re-renders the body, the controller reconnects and focus falls to `body`, so the focus re-open could not be observed; React has no Turbo. Hover steps that start a short timer (`open_delay`/`close_delay` 0/10/100 in `open-delay-0__close-delay-0`, `open-delay-100__close-delay-100`, `example__hover-card-demo-docs`, `example__hover-card-sides`, `example__hover-card-rtl`) are `"snapshot": false` and are compared after a `wait` that ends well past the delay (delay + ~300 ms), because a snapshot taken right after the hover races the timer on both sides. Steps under the 700/300 ms defaults keep their immediate snapshots (the pre-delay state is stable there).
+
 Not exercised by the runner (G3 controller unit tests instead): `pointerType === "touch"` ignored, `touchstart` passive no-op, `hide_when_detached`, `update_position_strategy: "always"`, `collision_boundary`, nesting inside a Dialog (focus-scope branch, layer stack), cancelable events.
 
 <!-- spec_helpers:begin -->

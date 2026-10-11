@@ -1,5 +1,10 @@
 {
   "component": "direction",
+  "composes": [
+    "select",
+    "dropdown-menu",
+    "accordion"
+  ],
   "scenarios": [
     {
       "id": "default__direction-rtl",
@@ -12,25 +17,73 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_p",
+                "c": "Select",
                 "props": {
-                  "className": "font-medium ps-4"
+                  "defaultValue": "banana"
                 },
                 "children": [
-                  "مرحبا بالعالم"
-                ]
-              },
-              {
-                "c": "_p",
-                "props": {
-                  "className": "text-muted-foreground"
-                },
-                "children": [
-                  "Hello world, start-aligned text"
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
@@ -43,7 +96,8 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "note": "select-trigger dir=rtl from the provider (useDirection globalDir)"
     },
     {
       "id": "default__direction-rtl__dark",
@@ -56,25 +110,73 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_p",
+                "c": "Select",
                 "props": {
-                  "className": "font-medium ps-4"
+                  "defaultValue": "banana"
                 },
                 "children": [
-                  "مرحبا بالعالم"
-                ]
-              },
-              {
-                "c": "_p",
-                "props": {
-                  "className": "text-muted-foreground"
-                },
-                "children": [
-                  "Hello world, start-aligned text"
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
@@ -87,7 +189,8 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "note": "select-trigger dir=rtl from the provider (useDirection globalDir)"
     },
     {
       "id": "direction-ltr",
@@ -100,25 +203,73 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_p",
+                "c": "Select",
                 "props": {
-                  "className": "font-medium ps-4"
+                  "defaultValue": "banana"
                 },
                 "children": [
-                  "مرحبا بالعالم"
-                ]
-              },
-              {
-                "c": "_p",
-                "props": {
-                  "className": "text-muted-foreground"
-                },
-                "children": [
-                  "Hello world, start-aligned text"
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
@@ -144,25 +295,73 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_p",
+                "c": "Select",
                 "props": {
-                  "className": "font-medium ps-4"
+                  "defaultValue": "banana"
                 },
                 "children": [
-                  "مرحبا بالعالم"
-                ]
-              },
-              {
-                "c": "_p",
-                "props": {
-                  "className": "text-muted-foreground"
-                },
-                "children": [
-                  "Hello world, start-aligned text"
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
@@ -188,25 +387,73 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_p",
+                "c": "Select",
                 "props": {
-                  "className": "font-medium ps-4"
+                  "defaultValue": "banana"
                 },
                 "children": [
-                  "مرحبا بالعالم"
-                ]
-              },
-              {
-                "c": "_p",
-                "props": {
-                  "className": "text-muted-foreground"
-                },
-                "children": [
-                  "Hello world, start-aligned text"
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
@@ -219,7 +466,8 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "note": "Radix `dir` prop alias: consumer rtl"
     },
     {
       "id": "dir-ltr",
@@ -232,25 +480,73 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_p",
+                "c": "Select",
                 "props": {
-                  "className": "font-medium ps-4"
+                  "defaultValue": "banana"
                 },
                 "children": [
-                  "مرحبا بالعالم"
-                ]
-              },
-              {
-                "c": "_p",
-                "props": {
-                  "className": "text-muted-foreground"
-                },
-                "children": [
-                  "Hello world, start-aligned text"
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
@@ -274,25 +570,73 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_p",
+                "c": "Select",
                 "props": {
-                  "className": "font-medium ps-4"
+                  "defaultValue": "banana"
                 },
                 "children": [
-                  "مرحبا بالعالم"
-                ]
-              },
-              {
-                "c": "_p",
-                "props": {
-                  "className": "text-muted-foreground"
-                },
-                "children": [
-                  "Hello world, start-aligned text"
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
@@ -305,7 +649,8 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "note": "provider value undefined: consumer ltr"
     },
     {
       "id": "no-props__dark",
@@ -316,25 +661,73 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_p",
+                "c": "Select",
                 "props": {
-                  "className": "font-medium ps-4"
+                  "defaultValue": "banana"
                 },
                 "children": [
-                  "مرحبا بالعالم"
-                ]
-              },
-              {
-                "c": "_p",
-                "props": {
-                  "className": "text-muted-foreground"
-                },
-                "children": [
-                  "Hello world, start-aligned text"
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
@@ -347,7 +740,8 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "note": "provider value undefined: consumer ltr"
     },
     {
       "id": "direction-overrides-dir__rtl-over-ltr",
@@ -361,25 +755,73 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_p",
+                "c": "Select",
                 "props": {
-                  "className": "font-medium ps-4"
+                  "defaultValue": "banana"
                 },
                 "children": [
-                  "مرحبا بالعالم"
-                ]
-              },
-              {
-                "c": "_p",
-                "props": {
-                  "className": "text-muted-foreground"
-                },
-                "children": [
-                  "Hello world, start-aligned text"
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
@@ -406,170 +848,69 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_p",
+                "c": "Select",
                 "props": {
-                  "className": "font-medium ps-4"
-                },
-                "children": [
-                  "مرحبا بالعالم"
-                ]
-              },
-              {
-                "c": "_p",
-                "props": {
-                  "className": "text-muted-foreground"
-                },
-                "children": [
-                  "Hello world, start-aligned text"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      "steps": [],
-      "dark": false,
-      "viewport": {
-        "width": 900,
-        "height": 700
-      },
-      "animations": false
-    },
-    {
-      "id": "children__text-only",
-      "tree": {
-        "c": "DirectionProvider",
-        "props": {
-          "direction": "rtl"
-        },
-        "children": [
-          "Plain text child"
-        ]
-      },
-      "steps": [],
-      "dark": false,
-      "viewport": {
-        "width": 900,
-        "height": 700
-      },
-      "animations": false
-    },
-    {
-      "id": "children__empty",
-      "tree": {
-        "c": "_div",
-        "props": {
-          "className": "p-4"
-        },
-        "children": [
-          {
-            "c": "DirectionProvider",
-            "props": {
-              "direction": "rtl"
-            },
-            "children": []
-          }
-        ]
-      },
-      "steps": [],
-      "dark": false,
-      "viewport": {
-        "width": 900,
-        "height": 700
-      },
-      "animations": false
-    },
-    {
-      "id": "children__multiple-siblings",
-      "tree": {
-        "c": "_div",
-        "props": {
-          "className": "flex flex-col gap-2 p-4"
-        },
-        "children": [
-          {
-            "c": "DirectionProvider",
-            "props": {
-              "direction": "rtl"
-            },
-            "children": [
-              {
-                "c": "_span",
-                "props": {
-                  "id": "a"
-                },
-                "children": [
-                  "A"
-                ]
-              },
-              {
-                "c": "_span",
-                "props": {
-                  "id": "b"
-                },
-                "children": [
-                  "B"
-                ]
-              },
-              "C text"
-            ]
-          }
-        ]
-      },
-      "steps": [],
-      "dark": false,
-      "viewport": {
-        "width": 900,
-        "height": 700
-      },
-      "animations": false
-    },
-    {
-      "id": "nested__rtl-inside-ltr",
-      "tree": {
-        "c": "DirectionProvider",
-        "props": {
-          "direction": "ltr"
-        },
-        "children": [
-          {
-            "c": "_div",
-            "props": {
-              "className": "p-2"
-            },
-            "children": [
-              {
-                "c": "DirectionProvider",
-                "props": {
-                  "direction": "rtl"
+                  "defaultValue": "banana"
                 },
                 "children": [
                   {
-                    "c": "_div",
+                    "c": "SelectTrigger",
                     "props": {
-                      "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
                     },
                     "children": [
                       {
-                        "c": "_p",
+                        "c": "SelectValue",
                         "props": {
-                          "className": "font-medium ps-4"
-                        },
-                        "children": [
-                          "مرحبا بالعالم"
-                        ]
-                      },
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
                       {
-                        "c": "_p",
-                        "props": {
-                          "className": "text-muted-foreground"
-                        },
+                        "c": "SelectGroup",
                         "children": [
-                          "Hello world, start-aligned text"
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
                         ]
                       }
                     ]
@@ -589,6 +930,602 @@
       "animations": false
     },
     {
+      "id": "children__text-only",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex flex-col items-start gap-4 p-4"
+        },
+        "children": [
+          {
+            "c": "DirectionProvider",
+            "props": {
+              "direction": "rtl"
+            },
+            "children": [
+              "Plain text child"
+            ]
+          },
+          {
+            "c": "Select",
+            "props": {
+              "defaultValue": "banana"
+            },
+            "children": [
+              {
+                "c": "SelectTrigger",
+                "props": {
+                  "className": "w-[180px]",
+                  "aria-label": "after"
+                },
+                "children": [
+                  {
+                    "c": "SelectValue",
+                    "props": {
+                      "placeholder": "Select a fruit"
+                    }
+                  }
+                ]
+              },
+              {
+                "c": "SelectContent",
+                "children": [
+                  {
+                    "c": "SelectGroup",
+                    "children": [
+                      {
+                        "c": "SelectLabel",
+                        "children": [
+                          "Fruits"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "apple"
+                        },
+                        "children": [
+                          "Apple"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "banana"
+                        },
+                        "children": [
+                          "Banana"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "grapes"
+                        },
+                        "children": [
+                          "Grapes"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "note": "text-only provider renders the text only and does not leak to the following consumer (ltr)"
+    },
+    {
+      "id": "children__empty",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex flex-col items-start gap-4 p-4"
+        },
+        "children": [
+          {
+            "c": "DirectionProvider",
+            "props": {
+              "direction": "rtl"
+            },
+            "children": []
+          },
+          {
+            "c": "Select",
+            "props": {
+              "defaultValue": "banana"
+            },
+            "children": [
+              {
+                "c": "SelectTrigger",
+                "props": {
+                  "className": "w-[180px]",
+                  "aria-label": "after"
+                },
+                "children": [
+                  {
+                    "c": "SelectValue",
+                    "props": {
+                      "placeholder": "Select a fruit"
+                    }
+                  }
+                ]
+              },
+              {
+                "c": "SelectContent",
+                "children": [
+                  {
+                    "c": "SelectGroup",
+                    "children": [
+                      {
+                        "c": "SelectLabel",
+                        "children": [
+                          "Fruits"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "apple"
+                        },
+                        "children": [
+                          "Apple"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "banana"
+                        },
+                        "children": [
+                          "Banana"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "grapes"
+                        },
+                        "children": [
+                          "Grapes"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "note": "empty provider renders nothing; following consumer ltr"
+    },
+    {
+      "id": "children__multiple-siblings",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex flex-col items-start gap-4 p-4"
+            },
+            "children": [
+              {
+                "c": "_span",
+                "props": {
+                  "id": "a"
+                },
+                "children": [
+                  "A"
+                ]
+              },
+              {
+                "c": "Select",
+                "props": {
+                  "defaultValue": "banana"
+                },
+                "children": [
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "first"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "_span",
+                "props": {
+                  "id": "b"
+                },
+                "children": [
+                  "B"
+                ]
+              },
+              {
+                "c": "Select",
+                "props": {
+                  "defaultValue": "banana"
+                },
+                "children": [
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "second"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "note": "every consumer child of the provider is rtl"
+    },
+    {
+      "id": "nested__rtl-inside-ltr",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "ltr"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex flex-col items-start gap-4 p-4"
+            },
+            "children": [
+              {
+                "c": "Select",
+                "props": {
+                  "defaultValue": "banana"
+                },
+                "children": [
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "outer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "DirectionProvider",
+                "props": {
+                  "direction": "rtl"
+                },
+                "children": [
+                  {
+                    "c": "Select",
+                    "props": {
+                      "defaultValue": "banana"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectTrigger",
+                        "props": {
+                          "className": "w-[180px]",
+                          "aria-label": "inner"
+                        },
+                        "children": [
+                          {
+                            "c": "SelectValue",
+                            "props": {
+                              "placeholder": "Select a fruit"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "c": "SelectContent",
+                        "children": [
+                          {
+                            "c": "SelectGroup",
+                            "children": [
+                              {
+                                "c": "SelectLabel",
+                                "children": [
+                                  "Fruits"
+                                ]
+                              },
+                              {
+                                "c": "SelectItem",
+                                "props": {
+                                  "value": "apple"
+                                },
+                                "children": [
+                                  "Apple"
+                                ]
+                              },
+                              {
+                                "c": "SelectItem",
+                                "props": {
+                                  "value": "banana"
+                                },
+                                "children": [
+                                  "Banana"
+                                ]
+                              },
+                              {
+                                "c": "SelectItem",
+                                "props": {
+                                  "value": "grapes"
+                                },
+                                "children": [
+                                  "Grapes"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "Select",
+                "props": {
+                  "defaultValue": "banana"
+                },
+                "children": [
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "outer-after"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "note": "inner provider overrides outer; outer restored after the inner provider"
+    },
+    {
       "id": "nested__ltr-inside-rtl",
       "tree": {
         "c": "DirectionProvider",
@@ -599,9 +1536,75 @@
           {
             "c": "_div",
             "props": {
-              "className": "p-2"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
+              {
+                "c": "Select",
+                "props": {
+                  "defaultValue": "banana"
+                },
+                "children": [
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "outer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
               {
                 "c": "DirectionProvider",
                 "props": {
@@ -609,27 +1612,133 @@
                 },
                 "children": [
                   {
-                    "c": "_div",
+                    "c": "Select",
                     "props": {
-                      "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                      "defaultValue": "banana"
                     },
                     "children": [
                       {
-                        "c": "_p",
+                        "c": "SelectTrigger",
                         "props": {
-                          "className": "font-medium ps-4"
+                          "className": "w-[180px]",
+                          "aria-label": "inner"
                         },
                         "children": [
-                          "مرحبا بالعالم"
+                          {
+                            "c": "SelectValue",
+                            "props": {
+                              "placeholder": "Select a fruit"
+                            }
+                          }
                         ]
                       },
                       {
-                        "c": "_p",
-                        "props": {
-                          "className": "text-muted-foreground"
-                        },
+                        "c": "SelectContent",
                         "children": [
-                          "Hello world, start-aligned text"
+                          {
+                            "c": "SelectGroup",
+                            "children": [
+                              {
+                                "c": "SelectLabel",
+                                "children": [
+                                  "Fruits"
+                                ]
+                              },
+                              {
+                                "c": "SelectItem",
+                                "props": {
+                                  "value": "apple"
+                                },
+                                "children": [
+                                  "Apple"
+                                ]
+                              },
+                              {
+                                "c": "SelectItem",
+                                "props": {
+                                  "value": "banana"
+                                },
+                                "children": [
+                                  "Banana"
+                                ]
+                              },
+                              {
+                                "c": "SelectItem",
+                                "props": {
+                                  "value": "grapes"
+                                },
+                                "children": [
+                                  "Grapes"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "Select",
+                "props": {
+                  "defaultValue": "banana"
+                },
+                "children": [
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "outer-after"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
                         ]
                       }
                     ]
@@ -657,31 +1766,211 @@
         },
         "children": [
           {
-            "c": "DirectionProvider",
-            "props": {},
+            "c": "_div",
+            "props": {
+              "className": "flex flex-col items-start gap-4 p-4"
+            },
             "children": [
               {
-                "c": "_div",
+                "c": "Select",
                 "props": {
-                  "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                  "defaultValue": "banana"
                 },
                 "children": [
                   {
-                    "c": "_p",
+                    "c": "SelectTrigger",
                     "props": {
-                      "className": "font-medium ps-4"
+                      "className": "w-[180px]",
+                      "aria-label": "outer"
                     },
                     "children": [
-                      "مرحبا بالعالم"
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
                     ]
                   },
                   {
-                    "c": "_p",
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "DirectionProvider",
+                "props": {},
+                "children": [
+                  {
+                    "c": "Select",
                     "props": {
-                      "className": "text-muted-foreground"
+                      "defaultValue": "banana"
                     },
                     "children": [
-                      "Hello world, start-aligned text"
+                      {
+                        "c": "SelectTrigger",
+                        "props": {
+                          "className": "w-[180px]",
+                          "aria-label": "inner"
+                        },
+                        "children": [
+                          {
+                            "c": "SelectValue",
+                            "props": {
+                              "placeholder": "Select a fruit"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "c": "SelectContent",
+                        "children": [
+                          {
+                            "c": "SelectGroup",
+                            "children": [
+                              {
+                                "c": "SelectLabel",
+                                "children": [
+                                  "Fruits"
+                                ]
+                              },
+                              {
+                                "c": "SelectItem",
+                                "props": {
+                                  "value": "apple"
+                                },
+                                "children": [
+                                  "Apple"
+                                ]
+                              },
+                              {
+                                "c": "SelectItem",
+                                "props": {
+                                  "value": "banana"
+                                },
+                                "children": [
+                                  "Banana"
+                                ]
+                              },
+                              {
+                                "c": "SelectItem",
+                                "props": {
+                                  "value": "grapes"
+                                },
+                                "children": [
+                                  "Grapes"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "Select",
+                "props": {
+                  "defaultValue": "banana"
+                },
+                "children": [
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "outer-after"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
                     ]
                   }
                 ]
@@ -696,14 +1985,15 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "note": "inner provider without value shadows the outer one: inner consumer ltr (useDirection: undefined || ltr)"
     },
     {
       "id": "sibling-after-provider-unaffected",
       "tree": {
         "c": "_div",
         "props": {
-          "className": "flex flex-col gap-2 p-4"
+          "className": "flex flex-col items-start gap-4 p-4"
         },
         "children": [
           {
@@ -713,27 +2003,67 @@
             },
             "children": [
               {
-                "c": "_div",
+                "c": "Select",
                 "props": {
-                  "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                  "defaultValue": "banana"
                 },
                 "children": [
                   {
-                    "c": "_p",
+                    "c": "SelectTrigger",
                     "props": {
-                      "className": "font-medium ps-4"
+                      "className": "w-[180px]",
+                      "aria-label": "inside"
                     },
                     "children": [
-                      "مرحبا بالعالم"
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
                     ]
                   },
                   {
-                    "c": "_p",
-                    "props": {
-                      "className": "text-muted-foreground"
-                    },
+                    "c": "SelectContent",
                     "children": [
-                      "Hello world, start-aligned text"
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
                     ]
                   }
                 ]
@@ -741,12 +2071,69 @@
             ]
           },
           {
-            "c": "_p",
+            "c": "Select",
             "props": {
-              "className": "text-start"
+              "defaultValue": "banana"
             },
             "children": [
-              "Outside the provider"
+              {
+                "c": "SelectTrigger",
+                "props": {
+                  "className": "w-[180px]",
+                  "aria-label": "after"
+                },
+                "children": [
+                  {
+                    "c": "SelectValue",
+                    "props": {
+                      "placeholder": "Select a fruit"
+                    }
+                  }
+                ]
+              },
+              {
+                "c": "SelectContent",
+                "children": [
+                  {
+                    "c": "SelectGroup",
+                    "children": [
+                      {
+                        "c": "SelectLabel",
+                        "children": [
+                          "Fruits"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "apple"
+                        },
+                        "children": [
+                          "Apple"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "banana"
+                        },
+                        "children": [
+                          "Banana"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "grapes"
+                        },
+                        "children": [
+                          "Grapes"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
             ]
           }
         ]
@@ -762,19 +2149,159 @@
     {
       "id": "child-own-dir-attribute-kept",
       "tree": {
-        "c": "DirectionProvider",
+        "c": "_div",
         "props": {
-          "direction": "ltr"
+          "className": "flex flex-col items-start gap-4 p-4"
         },
         "children": [
           {
-            "c": "_div",
+            "c": "DirectionProvider",
             "props": {
-              "dir": "rtl",
-              "className": "w-80 border p-4 text-start"
+              "direction": "ltr"
             },
             "children": [
-              "مرحبا"
+              {
+                "c": "Select",
+                "props": {
+                  "defaultValue": "banana",
+                  "dir": "rtl"
+                },
+                "children": [
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "local-rtl"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "c": "DirectionProvider",
+            "props": {
+              "direction": "rtl"
+            },
+            "children": [
+              {
+                "c": "Select",
+                "props": {
+                  "defaultValue": "banana",
+                  "dir": "ltr"
+                },
+                "children": [
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "local-ltr"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
             ]
           }
         ]
@@ -785,15 +2312,16 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "note": "consumer local dir beats the provider (useDirection localDir || globalDir)"
     },
     {
       "id": "html-rtl-ancestor__documented-usage",
       "tree": {
         "c": "_div",
         "props": {
-          "dir": "rtl",
-          "className": "p-4"
+          "className": "flex flex-col items-start gap-4 p-4",
+          "dir": "rtl"
         },
         "children": [
           {
@@ -803,27 +2331,67 @@
             },
             "children": [
               {
-                "c": "_div",
+                "c": "Select",
                 "props": {
-                  "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                  "defaultValue": "banana"
                 },
                 "children": [
                   {
-                    "c": "_p",
+                    "c": "SelectTrigger",
                     "props": {
-                      "className": "font-medium ps-4"
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
                     },
                     "children": [
-                      "مرحبا بالعالم"
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
                     ]
                   },
                   {
-                    "c": "_p",
-                    "props": {
-                      "className": "text-muted-foreground"
-                    },
+                    "c": "SelectContent",
                     "children": [
-                      "Hello world, start-aligned text"
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
                     ]
                   }
                 ]
@@ -845,8 +2413,8 @@
       "tree": {
         "c": "_div",
         "props": {
-          "dir": "rtl",
-          "className": "p-4"
+          "className": "flex flex-col items-start gap-4 p-4",
+          "dir": "rtl"
         },
         "children": [
           {
@@ -856,27 +2424,67 @@
             },
             "children": [
               {
-                "c": "_div",
+                "c": "Select",
                 "props": {
-                  "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                  "defaultValue": "banana"
                 },
                 "children": [
                   {
-                    "c": "_p",
+                    "c": "SelectTrigger",
                     "props": {
-                      "className": "font-medium ps-4"
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
                     },
                     "children": [
-                      "مرحبا بالعالم"
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
                     ]
                   },
                   {
-                    "c": "_p",
-                    "props": {
-                      "className": "text-muted-foreground"
-                    },
+                    "c": "SelectContent",
                     "children": [
-                      "Hello world, start-aligned text"
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
                     ]
                   }
                 ]
@@ -898,8 +2506,8 @@
       "tree": {
         "c": "_div",
         "props": {
-          "dir": "rtl",
-          "className": "p-4"
+          "className": "flex flex-col items-start gap-4 p-4",
+          "dir": "rtl"
         },
         "children": [
           {
@@ -907,27 +2515,67 @@
             "props": {},
             "children": [
               {
-                "c": "_div",
+                "c": "Select",
                 "props": {
-                  "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+                  "defaultValue": "banana"
                 },
                 "children": [
                   {
-                    "c": "_p",
+                    "c": "SelectTrigger",
                     "props": {
-                      "className": "font-medium ps-4"
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
                     },
                     "children": [
-                      "مرحبا بالعالم"
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
                     ]
                   },
                   {
-                    "c": "_p",
-                    "props": {
-                      "className": "text-muted-foreground"
-                    },
+                    "c": "SelectContent",
                     "children": [
-                      "Hello world, start-aligned text"
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
                     ]
                   }
                 ]
@@ -942,188 +2590,233 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "note": "ancestor dir=rtl + provider without value: consumer ltr"
     },
     {
-      "id": "focusable-children__tab",
-      "tree": {
-        "c": "DirectionProvider",
-        "props": {
-          "direction": "ltr"
-        },
-        "children": [
-          {
-            "c": "_div",
-            "props": {
-              "className": "flex gap-2"
-            },
-            "children": [
-              {
-                "c": "_button",
-                "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
-                },
-                "children": [
-                  "First"
-                ]
-              },
-              {
-                "c": "_button",
-                "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
-                },
-                "children": [
-                  "Second"
-                ]
-              },
-              {
-                "c": "_button",
-                "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
-                },
-                "children": [
-                  "Third"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      "steps": [
-        {
-          "do": "tab"
-        },
-        {
-          "do": "tab"
-        },
-        {
-          "do": "tab"
-        }
-      ],
-      "dark": false,
-      "viewport": {
-        "width": 900,
-        "height": 700
-      },
-      "animations": false
-    },
-    {
-      "id": "focusable-children__tab-rtl",
-      "tree": {
-        "c": "DirectionProvider",
-        "props": {
-          "direction": "rtl"
-        },
-        "children": [
-          {
-            "c": "_div",
-            "props": {
-              "className": "flex gap-2"
-            },
-            "children": [
-              {
-                "c": "_button",
-                "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
-                },
-                "children": [
-                  "First"
-                ]
-              },
-              {
-                "c": "_button",
-                "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
-                },
-                "children": [
-                  "Second"
-                ]
-              },
-              {
-                "c": "_button",
-                "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
-                },
-                "children": [
-                  "Third"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      "steps": [
-        {
-          "do": "tab"
-        },
-        {
-          "do": "tab"
-        },
-        {
-          "do": "tab"
-        }
-      ],
-      "dark": false,
-      "viewport": {
-        "width": 900,
-        "height": 700
-      },
-      "animations": false
-    },
-    {
-      "id": "focusable-children__tab-rtl-ancestor",
+      "id": "rtl-ancestor-without-provider",
       "tree": {
         "c": "_div",
         "props": {
+          "className": "flex flex-col items-start gap-4 p-4",
           "dir": "rtl"
         },
         "children": [
           {
-            "c": "DirectionProvider",
+            "c": "Select",
             "props": {
-              "direction": "rtl"
+              "defaultValue": "banana"
             },
             "children": [
               {
-                "c": "_div",
+                "c": "SelectTrigger",
                 "props": {
-                  "className": "flex gap-2"
+                  "className": "w-[180px]",
+                  "aria-label": "consumer"
                 },
                 "children": [
                   {
-                    "c": "_button",
+                    "c": "SelectValue",
                     "props": {
-                      "type": "button",
-                      "className": "rounded-md border px-3 py-1"
-                    },
+                      "placeholder": "Select a fruit"
+                    }
+                  }
+                ]
+              },
+              {
+                "c": "SelectContent",
+                "children": [
+                  {
+                    "c": "SelectGroup",
+                    "children": [
+                      {
+                        "c": "SelectLabel",
+                        "children": [
+                          "Fruits"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "apple"
+                        },
+                        "children": [
+                          "Apple"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "banana"
+                        },
+                        "children": [
+                          "Banana"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "grapes"
+                        },
+                        "children": [
+                          "Grapes"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "note": "NEGATIVE html[dir] proof: dir=rtl ancestor and no provider, consumer stays ltr (Radix never reads DOM dir)"
+    },
+    {
+      "id": "no-provider__ltr",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex flex-col items-start gap-4 p-4"
+        },
+        "children": [
+          {
+            "c": "Select",
+            "props": {
+              "defaultValue": "banana"
+            },
+            "children": [
+              {
+                "c": "SelectTrigger",
+                "props": {
+                  "className": "w-[180px]",
+                  "aria-label": "consumer"
+                },
+                "children": [
+                  {
+                    "c": "SelectValue",
+                    "props": {
+                      "placeholder": "Select a fruit"
+                    }
+                  }
+                ]
+              },
+              {
+                "c": "SelectContent",
+                "children": [
+                  {
+                    "c": "SelectGroup",
+                    "children": [
+                      {
+                        "c": "SelectLabel",
+                        "children": [
+                          "Fruits"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "apple"
+                        },
+                        "children": [
+                          "Apple"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "banana"
+                        },
+                        "children": [
+                          "Banana"
+                        ]
+                      },
+                      {
+                        "c": "SelectItem",
+                        "props": {
+                          "value": "grapes"
+                        },
+                        "children": [
+                          "Grapes"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "c": "Accordion",
+            "props": {
+              "type": "single",
+              "orientation": "horizontal",
+              "className": "w-full"
+            },
+            "children": [
+              {
+                "c": "AccordionItem",
+                "props": {
+                  "value": "item-1"
+                },
+                "children": [
+                  {
+                    "c": "AccordionTrigger",
                     "children": [
                       "First"
                     ]
                   },
                   {
-                    "c": "_button",
-                    "props": {
-                      "type": "button",
-                      "className": "rounded-md border px-3 py-1"
-                    },
+                    "c": "AccordionContent",
+                    "children": [
+                      "One"
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "AccordionItem",
+                "props": {
+                  "value": "item-2"
+                },
+                "children": [
+                  {
+                    "c": "AccordionTrigger",
                     "children": [
                       "Second"
                     ]
                   },
                   {
-                    "c": "_button",
-                    "props": {
-                      "type": "button",
-                      "className": "rounded-md border px-3 py-1"
-                    },
+                    "c": "AccordionContent",
+                    "children": [
+                      "Two"
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "AccordionItem",
+                "props": {
+                  "value": "item-3"
+                },
+                "children": [
+                  {
+                    "c": "AccordionTrigger",
                     "children": [
                       "Third"
+                    ]
+                  },
+                  {
+                    "c": "AccordionContent",
+                    "children": [
+                      "Three"
                     ]
                   }
                 ]
@@ -1137,10 +2830,462 @@
           "do": "tab"
         },
         {
+          "do": "press",
+          "key": "ArrowRight"
+        },
+        {
+          "do": "press",
+          "key": "ArrowRight"
+        },
+        {
+          "do": "press",
+          "key": "ArrowLeft"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "note": "no provider at all: ltr consumers, ArrowRight moves to the next trigger"
+    },
+    {
+      "id": "focusable-children__tab",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "ltr"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex flex-col items-start gap-4 p-4"
+            },
+            "children": [
+              {
+                "c": "Accordion",
+                "props": {
+                  "type": "single",
+                  "orientation": "horizontal",
+                  "className": "w-full"
+                },
+                "children": [
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-1"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "First"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "One"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-2"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "Second"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "Two"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-3"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "Third"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "Three"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
           "do": "tab"
         },
         {
+          "do": "press",
+          "key": "ArrowRight"
+        },
+        {
+          "do": "press",
+          "key": "ArrowRight"
+        },
+        {
+          "do": "press",
+          "key": "ArrowLeft"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "note": "horizontal accordion: ArrowRight = next in ltr"
+    },
+    {
+      "id": "focusable-children__tab-rtl",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex flex-col items-start gap-4 p-4"
+            },
+            "children": [
+              {
+                "c": "Accordion",
+                "props": {
+                  "type": "single",
+                  "orientation": "horizontal",
+                  "className": "w-full"
+                },
+                "children": [
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-1"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "First"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "One"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-2"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "Second"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "Two"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-3"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "Third"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "Three"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
           "do": "tab"
+        },
+        {
+          "do": "press",
+          "key": "ArrowRight"
+        },
+        {
+          "do": "press",
+          "key": "ArrowRight"
+        },
+        {
+          "do": "press",
+          "key": "ArrowLeft"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "note": "horizontal accordion: ArrowRight = previous in rtl (direction from provider)"
+    },
+    {
+      "id": "focusable-children__tab-rtl-ancestor",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex flex-col items-start gap-4 p-4",
+          "dir": "rtl"
+        },
+        "children": [
+          {
+            "c": "Accordion",
+            "props": {
+              "type": "single",
+              "orientation": "horizontal",
+              "className": "w-full"
+            },
+            "children": [
+              {
+                "c": "AccordionItem",
+                "props": {
+                  "value": "item-1"
+                },
+                "children": [
+                  {
+                    "c": "AccordionTrigger",
+                    "children": [
+                      "First"
+                    ]
+                  },
+                  {
+                    "c": "AccordionContent",
+                    "children": [
+                      "One"
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "AccordionItem",
+                "props": {
+                  "value": "item-2"
+                },
+                "children": [
+                  {
+                    "c": "AccordionTrigger",
+                    "children": [
+                      "Second"
+                    ]
+                  },
+                  {
+                    "c": "AccordionContent",
+                    "children": [
+                      "Two"
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "AccordionItem",
+                "props": {
+                  "value": "item-3"
+                },
+                "children": [
+                  {
+                    "c": "AccordionTrigger",
+                    "children": [
+                      "Third"
+                    ]
+                  },
+                  {
+                    "c": "AccordionContent",
+                    "children": [
+                      "Three"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "tab"
+        },
+        {
+          "do": "press",
+          "key": "ArrowRight"
+        },
+        {
+          "do": "press",
+          "key": "ArrowRight"
+        },
+        {
+          "do": "press",
+          "key": "ArrowLeft"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "note": "html[dir]-style ancestor, no provider: keys behave ltr"
+    },
+    {
+      "id": "focusable-children__local-dir-beats-provider",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex flex-col items-start gap-4 p-4"
+            },
+            "children": [
+              {
+                "c": "Accordion",
+                "props": {
+                  "type": "single",
+                  "orientation": "horizontal",
+                  "className": "w-full",
+                  "dir": "ltr"
+                },
+                "children": [
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-1"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "First"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "One"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-2"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "Second"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "Two"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-3"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "Third"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "Three"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "tab"
+        },
+        {
+          "do": "press",
+          "key": "ArrowRight"
+        },
+        {
+          "do": "press",
+          "key": "ArrowRight"
+        },
+        {
+          "do": "press",
+          "key": "ArrowLeft"
         }
       ],
       "dark": false,
@@ -1161,37 +3306,77 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex gap-2"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_button",
+                "c": "Accordion",
                 "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
+                  "type": "single",
+                  "orientation": "horizontal",
+                  "className": "w-full"
                 },
                 "children": [
-                  "First"
-                ]
-              },
-              {
-                "c": "_button",
-                "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
-                },
-                "children": [
-                  "Second"
-                ]
-              },
-              {
-                "c": "_button",
-                "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
-                },
-                "children": [
-                  "Third"
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-1"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "First"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "One"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-2"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "Second"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "Two"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "AccordionItem",
+                    "props": {
+                      "value": "item-3"
+                    },
+                    "children": [
+                      {
+                        "c": "AccordionTrigger",
+                        "children": [
+                          "Third"
+                        ]
+                      },
+                      {
+                        "c": "AccordionContent",
+                        "children": [
+                          "Three"
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
@@ -1205,7 +3390,7 @@
         },
         {
           "do": "press",
-          "key": "Tab"
+          "key": "ArrowLeft"
         }
       ],
       "dark": false,
@@ -1226,37 +3411,73 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex gap-2"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_button",
+                "c": "Select",
                 "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
+                  "defaultValue": "banana"
                 },
                 "children": [
-                  "First"
-                ]
-              },
-              {
-                "c": "_button",
-                "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
-                },
-                "children": [
-                  "Second"
-                ]
-              },
-              {
-                "c": "_button",
-                "props": {
-                  "type": "button",
-                  "className": "rounded-md border px-3 py-1"
-                },
-                "children": [
-                  "Third"
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
@@ -1266,7 +3487,7 @@
       "steps": [
         {
           "do": "hover",
-          "target": "role=button[name=\"First\"]"
+          "target": "[data-slot=select-trigger]"
         }
       ],
       "dark": false,
@@ -1275,6 +3496,315 @@
         "height": 700
       },
       "animations": false
+    },
+    {
+      "id": "dropdown-menu__provider-rtl",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex flex-col items-start gap-4 p-4"
+            },
+            "children": [
+              {
+                "c": "DropdownMenu",
+                "props": {},
+                "children": [
+                  {
+                    "c": "DropdownMenuTrigger",
+                    "children": [
+                      "Open"
+                    ]
+                  },
+                  {
+                    "c": "DropdownMenuContent",
+                    "children": [
+                      {
+                        "c": "DropdownMenuItem",
+                        "children": [
+                          "New Tab"
+                        ]
+                      },
+                      {
+                        "c": "DropdownMenuSub",
+                        "children": [
+                          {
+                            "c": "DropdownMenuSubTrigger",
+                            "children": [
+                              "Share"
+                            ]
+                          },
+                          {
+                            "c": "DropdownMenuPortal",
+                            "children": [
+                              {
+                                "c": "DropdownMenuSubContent",
+                                "children": [
+                                  {
+                                    "c": "DropdownMenuItem",
+                                    "children": [
+                                      "Email"
+                                    ]
+                                  },
+                                  {
+                                    "c": "DropdownMenuItem",
+                                    "children": [
+                                      "Message"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "c": "DropdownMenuItem",
+                        "children": [
+                          "Print"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "focus",
+          "target": "[data-slot=dropdown-menu-trigger]"
+        },
+        {
+          "do": "press",
+          "key": "Enter"
+        },
+        {
+          "do": "press",
+          "key": "ArrowDown"
+        },
+        {
+          "do": "press",
+          "key": "ArrowLeft"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "note": "menu content dir=rtl from provider; ArrowLeft opens the sub menu in rtl"
+    },
+    {
+      "id": "dropdown-menu__provider-ltr",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "ltr"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex flex-col items-start gap-4 p-4"
+            },
+            "children": [
+              {
+                "c": "DropdownMenu",
+                "props": {},
+                "children": [
+                  {
+                    "c": "DropdownMenuTrigger",
+                    "children": [
+                      "Open"
+                    ]
+                  },
+                  {
+                    "c": "DropdownMenuContent",
+                    "children": [
+                      {
+                        "c": "DropdownMenuItem",
+                        "children": [
+                          "New Tab"
+                        ]
+                      },
+                      {
+                        "c": "DropdownMenuSub",
+                        "children": [
+                          {
+                            "c": "DropdownMenuSubTrigger",
+                            "children": [
+                              "Share"
+                            ]
+                          },
+                          {
+                            "c": "DropdownMenuPortal",
+                            "children": [
+                              {
+                                "c": "DropdownMenuSubContent",
+                                "children": [
+                                  {
+                                    "c": "DropdownMenuItem",
+                                    "children": [
+                                      "Email"
+                                    ]
+                                  },
+                                  {
+                                    "c": "DropdownMenuItem",
+                                    "children": [
+                                      "Message"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "c": "DropdownMenuItem",
+                        "children": [
+                          "Print"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "focus",
+          "target": "[data-slot=dropdown-menu-trigger]"
+        },
+        {
+          "do": "press",
+          "key": "Enter"
+        },
+        {
+          "do": "press",
+          "key": "ArrowDown"
+        },
+        {
+          "do": "press",
+          "key": "ArrowRight"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "select__provider-rtl-open",
+      "tree": {
+        "c": "DirectionProvider",
+        "props": {
+          "direction": "rtl"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "className": "flex flex-col items-start gap-4 p-4"
+            },
+            "children": [
+              {
+                "c": "Select",
+                "props": {
+                  "defaultValue": "banana"
+                },
+                "children": [
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "click",
+          "target": "[data-slot=select-trigger]"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "note": "select-content dir=rtl from provider"
     },
     {
       "id": "viewport__narrow",
@@ -1287,25 +3817,73 @@
           {
             "c": "_div",
             "props": {
-              "className": "flex w-80 flex-col gap-2 rounded-md border p-4 text-start"
+              "className": "flex flex-col items-start gap-4 p-4"
             },
             "children": [
               {
-                "c": "_p",
+                "c": "Select",
                 "props": {
-                  "className": "font-medium ps-4"
+                  "defaultValue": "banana"
                 },
                 "children": [
-                  "مرحبا بالعالم"
-                ]
-              },
-              {
-                "c": "_p",
-                "props": {
-                  "className": "text-muted-foreground"
-                },
-                "children": [
-                  "Hello world, start-aligned text"
+                  {
+                    "c": "SelectTrigger",
+                    "props": {
+                      "className": "w-[180px]",
+                      "aria-label": "consumer"
+                    },
+                    "children": [
+                      {
+                        "c": "SelectValue",
+                        "props": {
+                          "placeholder": "Select a fruit"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "SelectContent",
+                    "children": [
+                      {
+                        "c": "SelectGroup",
+                        "children": [
+                          {
+                            "c": "SelectLabel",
+                            "children": [
+                              "Fruits"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "apple"
+                            },
+                            "children": [
+                              "Apple"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "banana"
+                            },
+                            "children": [
+                              "Banana"
+                            ]
+                          },
+                          {
+                            "c": "SelectItem",
+                            "props": {
+                              "value": "grapes"
+                            },
+                            "children": [
+                              "Grapes"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]

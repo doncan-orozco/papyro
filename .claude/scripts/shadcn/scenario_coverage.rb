@@ -8,11 +8,12 @@
 require "json"
 require "optparse"
 
-opts = { oracle: "docs/shadcn-port/oracle", scenarios: "docs/shadcn-port/scenarios" }
+opts = { oracle: "docs/shadcn-port/oracle", scenarios: "docs/shadcn-port/scenarios", state: "docs/shadcn-port/state.json" }
 OptionParser.new do |o|
   o.on("--component NAME") { |v| opts[:component] = v }
   o.on("--oracle DIR") { |v| opts[:oracle] = v }
   o.on("--scenarios DIR") { |v| opts[:scenarios] = v }
+  o.on("--state FILE") { |v| opts[:state] = v }
 end.parse!
 abort("usage: --component NAME") unless opts[:component]
 
@@ -25,7 +26,8 @@ unless File.exist?(file)
   exit 1
 end
 
-scenarios = JSON.parse(File.read(file)).fetch("scenarios")
+scenario_file = JSON.parse(File.read(file))
+scenarios = scenario_file.fetch("scenarios")
 ids = scenarios.map { |s| s["id"] }
 (ids.tally.select { |_, n| n > 1 }.keys).each { |id| gaps << { code: "SC_DUPLICATE_ID", detail: id } }
 
@@ -44,6 +46,26 @@ dependency_exports = manifest.fetch("registry_dependencies", []).flat_map do |de
   dep_file = File.join(opts[:oracle], "manifest", "#{dep}.json")
   File.exist?(dep_file) ? JSON.parse(File.read(dep_file))["exports"] : []
 end
+
+# Opt-in at file level: "composes" lets a renderless component (direction) wrap the consumers that show its effect.
+MAX_COMPOSES = 8
+composes = Array(scenario_file["composes"])
+known = File.exist?(opts[:state]) ? JSON.parse(File.read(opts[:state])).fetch("components", {}).keys : []
+gaps << { code: "SC_COMPOSES_INVALID", detail: "more than #{MAX_COMPOSES} names (#{composes.size})" } if composes.size > MAX_COMPOSES
+composed_exports = composes.first(MAX_COMPOSES).flat_map do |name|
+  manifest_file = File.join(opts[:oracle], "manifest", "#{name}.json")
+  reason = if name == opts[:component] then "is the component itself"
+  elsif !File.exist?(manifest_file) then "has no oracle manifest"
+  elsif !known.include?(name) then "is not in state.json"
+  end
+  if reason
+    gaps << { code: "SC_COMPOSES_INVALID", detail: "#{name} #{reason}" }
+    next []
+  end
+
+  JSON.parse(File.read(manifest_file))["exports"]
+end
+dependency_exports += composed_exports
 
 flat.each do |s, ns|
   ns.each { |n| gaps << { code: "SC_UNKNOWN_COMPONENT", detail: "#{s['id']}: #{n['c']}" } unless exports.include?(n["c"]) || dependency_exports.include?(n["c"]) || n["c"].to_s.start_with?("_") }

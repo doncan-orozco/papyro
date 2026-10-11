@@ -9716,7 +9716,8 @@
       "tree": {
         "c": "DropdownMenu",
         "props": {
-          "dir": "rtl"
+          "dir": "rtl",
+          "defaultOpen": true
         },
         "children": [
           {

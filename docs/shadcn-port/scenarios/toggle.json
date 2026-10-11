@@ -476,7 +476,9 @@
       "tree": {
         "c": "_div",
         "props": {
-          "style": "width: 120px"
+          "style": {
+            "width": "120px"
+          }
         },
         "children": [
           {

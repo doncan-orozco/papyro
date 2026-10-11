@@ -28,7 +28,10 @@ done.each do |name|
   add.call("G5_SCENARIOS_MISSING", "docs/shadcn-port/scenarios/#{name}.json") unless File.exist?("docs/shadcn-port/scenarios/#{name}.json")
   interactive = manifest["tier"] != "static"
   controller = "app/javascript/controllers/v2/#{ruby_name}_controller.js"
-  add.call("G5_CONTROLLER_MISSING", controller) if interactive && !File.exist?(controller) && manifest["tier"] != "client"
+  # A spec may state that no controller is written on purpose (radix-stimulus R11: attaching one adds DOM the oracle lacks).
+  spec = File.exist?("docs/shadcn-port/specs/#{name}.md") ? File.read("docs/shadcn-port/specs/#{name}.md") : ""
+  no_controller = spec.match?(/No Stimulus controller|no `v2--#{Regexp.escape(name)}` controller|There is no `v2--#{Regexp.escape(name)}` controller/i)
+  add.call("G5_CONTROLLER_MISSING", controller) if interactive && !File.exist?(controller) && manifest["tier"] != "client" && !no_controller
   if opts[:static_all]
     out, = Open3.capture2("ruby", ".claude/scripts/shadcn/static_gate.rb", "--component", name)
     add.call("G5_REGRESSION_G1", name) unless JSON.parse(out)["pass"]
@@ -37,9 +40,13 @@ end
 
 # Orphan controllers: a ui controller without a component in the manifest set (base/theme helpers excepted).
 known = Dir["docs/shadcn-port/oracle/manifest/*.json"].map { |f| File.basename(f, ".json").tr("-", "_") }
+# Infra: theme_panel (harness) and _probe_<name> test controllers that have a react twin whose `probe.controller` is v2---probe-<name>.
+probe_ids = Dir["react-shadcn-catalog/src/parity/primitives/*.tsx"].filter_map { |f| File.read(f)[/controller:\s*"(v2---probe-[^"]+)"/, 1] }
 Dir["app/javascript/controllers/v2/*_controller.js"].each do |f|
   base = File.basename(f, "_controller.js")
-  add.call("G5_ORPHAN_CONTROLLER", f) unless known.include?(base) || %w[base theme].include?(base)
+  next if known.include?(base) || %w[base theme theme_panel].include?(base)
+  next if base.start_with?("_probe_") && probe_ids.include?("v2---probe-#{base.delete_prefix('_probe_').tr('_', '-')}")
+  add.call("G5_ORPHAN_CONTROLLER", f)
 end
 
 # Deviations register must list every deviations file, and vice versa.

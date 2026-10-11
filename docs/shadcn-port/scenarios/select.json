@@ -14184,11 +14184,12 @@
         },
         {
           "do": "hover",
-          "target": "[data-slot=select-scroll-down-button]"
+          "target": "[data-slot=select-scroll-down-button]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 300
+          "ms": 2000
         }
       ],
       "dark": false,

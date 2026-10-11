@@ -1271,6 +1271,53 @@
                 ]
               }
             ]
+          },
+          {
+            "c": "_div",
+            "props": {
+              "data-slot": "tooltip-content",
+              "className": "bg-foreground text-background rounded-md px-3 py-1.5 text-xs w-fit"
+            },
+            "children": [
+              "Save Changes ",
+              {
+                "c": "Kbd",
+                "props": {},
+                "children": [
+                  "S"
+                ]
+              }
+            ]
+          },
+          {
+            "c": "_div",
+            "props": {
+              "data-slot": "tooltip-content",
+              "className": "bg-foreground text-background rounded-md px-3 py-1.5 text-xs w-fit"
+            },
+            "children": [
+              "Print Document ",
+              {
+                "c": "KbdGroup",
+                "props": {},
+                "children": [
+                  {
+                    "c": "Kbd",
+                    "props": {},
+                    "children": [
+                      "Ctrl"
+                    ]
+                  },
+                  {
+                    "c": "Kbd",
+                    "props": {},
+                    "children": [
+                      "P"
+                    ]
+                  }
+                ]
+              }
+            ]
           }
         ]
       },

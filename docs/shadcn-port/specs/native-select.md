@@ -79,6 +79,7 @@ States, all pure CSS (pinned by scenarios):
 - Hover: the only hover token is `dark:hover:bg-input/50`, so hover is a no-op in light mode and changes the background in dark mode.
 - Dark: `dark:bg-input/30`, `dark:hover:bg-input/50`, `dark:aria-invalid:ring-destructive/40`. Options/optgroups use the system colours `Canvas`/`CanvasText`, which follow `color-scheme` (relevant for the native popup only).
 - `multiple`: the UA renders a listbox, but the `h-9` height is unchanged (rows clipped); identical on both sides.
+- Known difference (accepted divergence, not covered by parity): a server-rendered `select[multiple]` with selected options starts scrolled to the first selected option, while React-inserted starts at scrollTop 0; scenario `multiple` therefore selects the first option (`todo`, no placeholder option) so both start at 0.
 - `::selection`, `::placeholder`: tokens copied verbatim; no visible effect on a closed select.
 
 <!-- spec_helpers:begin -->

@@ -3555,13 +3555,13 @@
                         ]
                       }
                     ]
-                  },
-                  {
-                    "c": "BreadcrumbSeparator",
-                    "props": {},
-                    "children": []
                   }
                 ]
+              },
+              {
+                "c": "BreadcrumbSeparator",
+                "props": {},
+                "children": []
               },
               {
                 "c": "BreadcrumbItem",
@@ -3677,13 +3677,13 @@
                         ]
                       }
                     ]
-                  },
-                  {
-                    "c": "BreadcrumbSeparator",
-                    "props": {},
-                    "children": []
                   }
                 ]
+              },
+              {
+                "c": "BreadcrumbSeparator",
+                "props": {},
+                "children": []
               },
               {
                 "c": "BreadcrumbItem",

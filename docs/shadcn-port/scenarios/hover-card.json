@@ -1190,7 +1190,8 @@
               {
                 "c": "HoverCardTrigger",
                 "props": {
-                  "href": "#profile"
+                  "href": "#profile",
+                  "data-turbo": "false"
                 },
                 "children": [
                   "Hover"
@@ -1579,27 +1580,31 @@
       "steps": [
         {
           "do": "hover",
-          "target": "[data-slot=hover-card-trigger]"
+          "target": "[data-slot=hover-card-trigger]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 50
+          "ms": 50,
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 100
+          "ms": 350
         },
         {
           "do": "hover",
-          "target": "[data-testid=outside]"
+          "target": "[data-testid=outside]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 50
+          "ms": 50,
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 100
+          "ms": 350
         }
       ],
       "dark": false,
@@ -1661,19 +1666,21 @@
       "steps": [
         {
           "do": "hover",
-          "target": "[data-slot=hover-card-trigger]"
+          "target": "[data-slot=hover-card-trigger]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 50
+          "ms": 300
         },
         {
           "do": "hover",
-          "target": "[data-testid=outside]"
+          "target": "[data-testid=outside]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 50
+          "ms": 300
         }
       ],
       "dark": false,
@@ -4185,19 +4192,21 @@
       "steps": [
         {
           "do": "hover",
-          "target": "[data-slot=hover-card-trigger]"
+          "target": "[data-slot=hover-card-trigger]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 100
+          "ms": 400
         },
         {
           "do": "hover",
-          "target": "[data-testid=outside]"
+          "target": "[data-testid=outside]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 200
+          "ms": 400
         }
       ],
       "dark": false,
@@ -4460,35 +4469,39 @@
       "steps": [
         {
           "do": "hover",
-          "target": "role=button[name=\"left\"]"
+          "target": "role=button[name=\"left\"]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 200
+          "ms": 400
         },
         {
           "do": "hover",
-          "target": "role=button[name=\"top\"]"
+          "target": "role=button[name=\"top\"]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 200
+          "ms": 400
         },
         {
           "do": "hover",
-          "target": "role=button[name=\"bottom\"]"
+          "target": "role=button[name=\"bottom\"]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 200
+          "ms": 400
         },
         {
           "do": "hover",
-          "target": "role=button[name=\"right\"]"
+          "target": "role=button[name=\"right\"]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 200
+          "ms": 400
         }
       ],
       "dark": false,
@@ -4740,19 +4753,21 @@
       "steps": [
         {
           "do": "hover",
-          "target": "role=button[name=\"يسار\"]"
+          "target": "role=button[name=\"يسار\"]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 200
+          "ms": 400
         },
         {
           "do": "hover",
-          "target": "role=button[name=\"يمين\"]"
+          "target": "role=button[name=\"يمين\"]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 200
+          "ms": 400
         }
       ],
       "dark": false,

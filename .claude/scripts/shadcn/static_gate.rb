@@ -163,7 +163,11 @@ module ShadcnStaticGate
 
     def check_colors
       allowed = @m["class_tokens"] + Array(@dev["allow_tokens"])
-      hits = @literals.flat_map { |l| l.scan(COLOR_LITERAL) + l.scan(PALETTE) }.uniq - allowed
+      # A colour inside a class token that exists verbatim in the oracle (e.g. `bg-[oklch(from_var(--primary)_l_c_h/0.1)]`) is the source of truth (R2).
+      oracle_tokens = @m["class_tokens"]
+      hits = @literals.flat_map do |l|
+        l.split(/\s+/).reject { |t| oracle_tokens.include?(t) }.flat_map { |t| t.scan(COLOR_LITERAL) + t.scan(PALETTE) }
+      end.uniq - allowed
       hits.map { |h| Finding.new(code: "G1_HARDCODED_COLOR", severity: "MANDATORY", detail: "Hardcoded color outside the semantic tokens: #{h}", found: h) }
     end
   end
