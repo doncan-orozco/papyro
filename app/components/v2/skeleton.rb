@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+# shadcn `Skeleton` (new-york-v4). Spec: docs/shadcn-port/specs/skeleton.md. Static: no controller.
+class Components::V2::Skeleton < Components::V2::Base
+  BASE = "animate-pulse rounded-md bg-accent"
+
+  def initialize(**attrs)
+    @attrs = attrs
+  end
+
+  def view_template(&block)
+    attrs = merge_attrs({ data: { slot: "skeleton" } }, @attrs.except(:class))
+    div(**attrs, class: cn(BASE, @attrs[:class]), &block)
+  end
+end

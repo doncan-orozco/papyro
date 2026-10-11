@@ -14,6 +14,12 @@ Rails.application.routes.draw do
   get "design-system-react", to: "design_system#react", as: :design_system_react
   get "design-system-compare", to: "design_system#compare", as: :design_system_compare
 
+  # shadcn port parity harness + theme panel (internal tooling, never in production)
+  if Rails.env.development? || Rails.env.test?
+    get "design-system/parity/:component/:scenario", to: "design_system_parity#show", as: :design_system_parity
+    get "design-system/theme-panel", to: "design_system_parity#theme_panel", as: :design_system_theme_panel
+  end
+
   # ActionText Markdown uploads
   namespace :action_text, path: nil do
     get "/u/*slug" => "markdown/uploads#show", as: :markdown_upload
