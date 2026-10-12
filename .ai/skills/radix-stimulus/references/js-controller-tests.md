@@ -1,4 +1,4 @@
-# JavaScript controller tests (`test/javascript`)
+# JavaScript controller tests (`gems/phlex-shadcn/test/javascript`)
 
 The parity runner (`parity_run.mjs`) compares the Phlex port with the React oracle step by step, so it can only check what a scenario step can express and what React does identically. Everything else about a controller is tested here, in a real browser, against the real Phlex parity pages. There is no jsdom and no bundler: the pages load the importmap modules (Stimulus, controllers, primitives) exactly as in the app.
 
@@ -12,7 +12,7 @@ One file (the dev servers must be running):
 
 ```bash
 ruby .claude/scripts/shadcn/servers.rb start
-node --test --test-reporter=spec test/javascript/popover.test.mjs
+node --test --test-reporter=spec gems/phlex-shadcn/test/javascript/popover.test.mjs
 ```
 
 It uses the Playwright of `react-shadcn-catalog` (`playwright_ensure.rb` makes sure a browser launches) and Node's built-in `node:test`; nothing new is installed. It is not part of `bin/ci` (it needs a browser and two dev servers).

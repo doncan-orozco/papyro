@@ -23,6 +23,7 @@
 #   G1_KWARG_MISSING    React prop with no matching snake_case kwarg
 #   G1_HARDCODED_COLOR  hex/rgb/hsl/oklch literal or palette class outside the oracle
 
+require_relative "layout"
 require "json"
 require "optparse"
 require_relative "oracle_extract"
@@ -107,7 +108,7 @@ module ShadcnStaticGate
       end
       extra = @literals.flat_map do |lit|
         toks = lit.split(/\s+/).reject(&:empty?)
-        next [] if lit.include?("->") || lit.include?("v2--") || toks.size < 2
+        next [] if lit.include?("->") || lit.include?("#{ShadcnLayout::STIMULUS_PREFIX}--") || toks.size < 2
         next [] unless toks.all? { |t| UTILITY.match?(t) }
         next [] unless toks.size >= 4 || (toks & oracle).any?
 
@@ -187,7 +188,7 @@ if $PROGRAM_NAME == __FILE__
 
   name = opts[:component]
   manifest = JSON.parse(File.read(File.join(opts[:oracle], "manifest", "#{name}.json")))
-  files = opts[:files] || (Dir["app/components/v2/#{name.tr('-', '_')}.rb"] + Dir["app/components/v2/#{name.tr('-', '_')}/**/*.rb"])
+  files = opts[:files] || ShadcnLayout.component_files(name)
   files = files.select { |f| File.file?(f) }
   dev_file = File.join(opts[:deviations], "#{name}.json")
   deviations = File.exist?(dev_file) ? JSON.parse(File.read(dev_file)) : {}

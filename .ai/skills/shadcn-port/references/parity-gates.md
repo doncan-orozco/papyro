@@ -40,3 +40,18 @@ For each failing diff the auditor assigns exactly one `cause` and a `fix_target`
 `tmp/shadcn-port/<component>/{g1.json,g2.json,g4-<theme>.json,triage.json}` and `shots/` (optional PNG pairs). `docs/shadcn-port/state.json` stores per component: `status` (`pending|planned|built|fixing|done|blocked`), `iteration`, `last_green_sha`, `oracle_sha`, `blocked_reason`.
 
 The runner applies `--dark` and the theme CSS (as an adopted stylesheet) in an init script before any page script, so no colour transition starts after load.
+
+## Running the browser gates for many components: `parity_batch.rb`
+
+`ruby .claude/scripts/shadcn/parity_batch.rb --components button,card` ensures a Playwright that can launch (`playwright_ensure.rb`), starts the dev servers on free ports (`servers.rb start`), runs G2/G3 per component, and stops only the servers it started. Flags:
+
+- `--components a,b|all`: a comma list, or every scenario file whose name does not start with `_`.
+- `--dx`: also G2b, only for components that have yielded-root helpers (`spec_helpers.rb --print`), on scenarios starting `default`, `variant-` or `example__` (cap 25).
+- `--themes slate,stone,zinc-radius0`: also G4 on scenarios starting `variant-` or `default` (cap 12), plus one `--dark` run.
+- `--no-servers`: skip Playwright and server handling (they must already be running).
+
+Reports land in `tmp/shadcn-port/<component>/{g2,g2b,g4-<theme>,g4-dark}.json`; stdout is `{ pass, servers_started, components }`. Exit 0 all green, 1 a gate failed, 2 the environment cannot run the gates.
+
+## Where the files are (`layout.rb`)
+
+Scripts never hard-code component paths: `.claude/scripts/shadcn/layout.rb` is the single configuration point (Ruby dir, namespace, controller dir, primitives dir, test dirs, Stimulus identifier prefix) with `SHADCN_*` env overrides.

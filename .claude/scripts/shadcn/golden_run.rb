@@ -10,6 +10,7 @@
 # Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, tokens, deviations, cn, helpers, dx_prototype, server_ports, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
 # Exit 0 when no script-tier case FAILs.
 
+require_relative "layout"
 require "json"
 require "open3"
 require "fileutils"
@@ -257,7 +258,7 @@ results = cases.map do |dir|
 
   case exp["kind"]
   when "static", "agent"
-    ruby_files = files.select { |f| f.include?("app/components/v2/") && f.end_with?(".rb") }
+    ruby_files = files.select { |f| f.include?("#{ShadcnLayout::RUBY_DIR}/") && f.end_with?(".rb") }
     if ruby_files.empty?
       r[:notes] << "no component .rb in case (static gate skipped)"
     elsif !File.exist?(File.join(ORACLE, "manifest", "#{exp['component']}.json"))

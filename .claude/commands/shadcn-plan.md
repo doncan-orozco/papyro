@@ -43,7 +43,7 @@ If it passes, skip to Phase 3. Otherwise (first run, or the old Tailwind 3 / Rea
 `--dry-run`: stop here and print (including which components `--skip-tier` left out): waves, tier tally, third-party libraries needed (union of manifests' `third_party`) and which are already pinned in `config/importmap.rb` (flag the missing ones as pin tasks for the matching components).
 
 ## Phase 4: Migration map of the legacy components (no agents, informational)
-The port is from scratch in `app/components/v2/`; legacy `app/components/ui/*` stays untouched. For every legacy `app/components/ui/*.rb` that has a manifest, count callers (`grep -rln "Components::Ui::<Class>" app test ../papyro_studio/app ../papyro_studio/test`) and write `docs/shadcn-port/CALLERS.md` (component, legacy file, caller count, top 5 callers). It is only for the later Ui -> V2 migration and is NOT given to planners or builders.
+The port is from scratch in `gems/phlex-shadcn/lib/phlex/shadcn/`; legacy `app/components/ui/*` stays untouched. For every legacy `app/components/ui/*.rb` that has a manifest, count callers (`grep -rln "Components::Ui::<Class>" app test ../papyro_studio/app ../papyro_studio/test`) and write `docs/shadcn-port/CALLERS.md` (component, legacy file, caller count, top 5 callers). It is only for the later Ui -> V2 migration and is NOT given to planners or builders.
 
 ## Phase 5: Per-component planning (agents, skipped with `--lazy`)
 Dispatch `shadcn-port-planner` for every component in state `pending`, in parallel blocks of at most 6, ordered by wave (pilot first so problems surface early). Prompt per component (self-contained, include):
