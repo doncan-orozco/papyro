@@ -559,4 +559,99 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_equal "ready", state_of(a)["state"]
     refute_includes fake_db["issues"].find { |i| i["number"] == a }["labels"].map { |l| l["name"] }, "needs-human"
   end
+
+  # ---- review stage: waiting for a human merge ------------------------------------------------------------------------
+  def add_pr(number:, head:, state:)
+    db = fake_db
+    db["prs"] = Array(db["prs"]) << { "number" => number, "state" => state, "headRefName" => head, "mergedAt" => (state == "MERGED" ? T0 : nil), "url" => "https://github.test/o/r/pull/#{number}" }
+    File.write(@db, JSON.generate(db))
+  end
+
+  def move_to_review(number, session: "builder")
+    claim(number, session)
+    wb("advance", number.to_s, "--epic", "demo", "--session", session, "--stage", "review")
+  end
+
+  test "next never offers an item that waits in review, and says the epic is awaiting a merge" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    b = make_item("B", wave: 2, owns: "lib/b/**", blocked_by: [ a ])
+    move_to_review(a)
+    result, = wb("next", "--epic", "demo", "--session", "builder")
+
+    assert_nil result["item"]
+    assert_equal "awaiting_merge", result["reason"]
+    assert_equal [ a ], result["awaiting_merge"]
+    assert_equal "in-review", state_of(a)["state"]
+    assert_equal "waiting", state_of(b)["state"]
+    assert_equal a, wb("next", "--epic", "demo", "--stage", "review")[0]["item"]["number"], "a review sweep can still ask for them explicitly"
+  end
+
+  test "other ready work is still offered while an item waits for its merge" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    other = make_item("Other", wave: 1, owns: "lib/other/**")
+    move_to_review(a)
+
+    assert_equal other, wb("next", "--epic", "demo")[0]["item"]["number"]
+  end
+
+  test "reviews reports the PR verdict of every item in review" do
+    make_epic
+    items = %w[merged open closed none].to_h { |name| [ name, make_item(name, wave: 1, owns: "lib/#{name}/**") ] }
+    items.each_value { |n| move_to_review(n) }
+    add_pr(number: 31, head: "epic/demo/#{items['merged']}-merged-item", state: "MERGED")
+    add_pr(number: 32, head: "epic/demo/#{items['open']}-open-item", state: "OPEN")
+    add_pr(number: 33, head: "epic/demo/#{items['closed']}-closed-item", state: "CLOSED")
+    add_pr(number: 34, head: "epic/other/#{items['none']}-another-epic", state: "MERGED") # another epic's branch must not match
+    add_pr(number: 35, head: "epic/demo/#{items['open']}0-prefix-collision", state: "MERGED") # 'N0-' is not 'N-'
+    result, code = wb("reviews", "--epic", "demo")
+    verdicts = result["reviews"].to_h { |r| [ r["number"], r["verdict"] ] }
+
+    assert_equal 0, code
+    assert_equal({ items["merged"] => "merged", items["open"] => "open", items["closed"] => "closed_unmerged", items["none"] => "no_pr" }, verdicts)
+    assert_equal [ items["merged"] ], result["merged"]
+    assert_equal "https://github.test/o/r/pull/31", result["reviews"].find { |r| r["number"] == items["merged"] }["pr"]["url"]
+  end
+
+  test "reviews uses the newest PR of an item and excludes finished items" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    done = make_item("D", wave: 1, owns: "lib/d/**")
+    move_to_review(a)
+    claim(done, "s")
+    wb("advance", done.to_s, "--epic", "demo", "--session", "s", "--stage", "done")
+    add_pr(number: 10, head: "epic/demo/#{a}-first-try", state: "CLOSED")
+    add_pr(number: 12, head: "epic/demo/#{a}-second-try", state: "MERGED")
+    result = wb("reviews", "--epic", "demo")[0]
+
+    assert_equal [ a ], result["reviews"].map { |r| r["number"] }
+    assert_equal "merged", result["reviews"].first["verdict"]
+    assert_equal 12, result["reviews"].first["pr"]["number"]
+  end
+
+  test "a merged review lets the worker finish the item and that unblocks the dependent without any human step but the merge" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    b = make_item("B", wave: 2, owns: "lib/b/**", blocked_by: [ a ])
+    move_to_review(a)
+
+    assert_equal "awaiting_merge", wb("next", "--epic", "demo")[0]["reason"]
+    assert_empty wb("reviews", "--epic", "demo")[0]["merged"]
+    add_pr(number: 40, head: "epic/demo/#{a}-a", state: "MERGED")
+    merged = wb("reviews", "--epic", "demo")[0]["merged"]
+
+    assert_equal [ a ], merged
+    assert_equal 0, claim(a, "sweeper")[1]
+    wb("advance", a.to_s, "--epic", "demo", "--session", "sweeper", "--stage", "done", "--note", "merged, gates green on main")
+
+    assert_equal b, wb("next", "--epic", "demo")[0]["item"]["number"]
+  end
+
+  test "reviews on an epic without items in review makes no PR call" do
+    make_epic
+    make_item("A", wave: 1, owns: "lib/a/**")
+
+    assert_empty wb("reviews", "--epic", "demo")[0]["reviews"]
+  end
 end

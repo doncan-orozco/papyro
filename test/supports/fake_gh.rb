@@ -26,6 +26,7 @@ class FakeGh
     case [ group, verb ]
     when %w[issue create] then create(args)
     when %w[issue list] then list(args)
+    when %w[pr list] then pr_list(args)
     when %w[issue view] then JSON.generate(view(find(args.first)))
     when %w[issue edit] then edit(args)
     when %w[issue comment] then comment(args)
@@ -90,6 +91,14 @@ class FakeGh
     rows = rows.select { |i| (wanted - i["labels"].map { |l| l["name"] }).empty? }
     rows = rows.select { |i| state == "all" || i["state"].downcase == state }
     JSON.generate(rows.map { |i| view(i) })
+  end
+
+  # Pull requests are seeded by tests in db["prs"] (number, state OPEN|CLOSED|MERGED, headRefName, mergedAt, url).
+  def pr_list(args)
+    state = (flag(args, "--state") || "open").downcase
+    rows = locked { |db| Array(db["prs"]).dup }
+    rows = rows.select { |pr| state == "all" || pr["state"].downcase == state }
+    JSON.generate(rows)
   end
 
   def edit(args)

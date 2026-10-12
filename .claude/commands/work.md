@@ -13,18 +13,27 @@ Read `.ai/skills/epic-flow/SKILL.md` and `references/stages.md` first. Every rul
 ## Phase 0: Identify yourself
 `WB session` -> `SESSION`. Run `WB reap --epic S` once (frees claims whose lease expired). `WB status --epic S` and print the counts.
 
+## Phase 0.5: Merge sweep (at the start of Phase 0 AND at the start of every loop iteration)
+Items in `review` wait for a human to merge their PR; their dependents stay blocked until the item is `done`. Unblock them yourself, first:
+`WB reviews --epic S` -> for each row by `verdict`:
+- `merged`: `WB claim N ...`; fetch `origin/main` into a detached worktree (`git fetch origin && git worktree add --detach ../<repo>-wt/S-N-main origin/main`); run the item's Gates (`WB show N`) there exactly as written. Green -> post a `shared` note if other items consume the result, then `WB advance N --epic S --session SESSION --stage done --note "merged, gates green on main"`. Red -> `WB block N ... --reason "<gate output>"` (a merged change that breaks main is a human's problem). Remove the detached worktree afterwards.
+- `closed_unmerged`: `WB claim N ...` then `WB advance N ... --stage fix --note "PR closed without merge: <url>"` (releases it for a fix session).
+- `open` or `no_pr`: leave it. Report `no_pr` rows to the human (an item in review without a PR needs one).
+A row held by another session (`holder` set) is theirs; skip it.
+
 ## Phase 1: Loop (until `--max-items`, no work, or a stop)
 1. **Pick:** `WB next --epic S --session SESSION [--stage ...]`.
-   - `item: null` with `reason` `all_done` -> print the final status and stop. `claimed_by_others` / `waiting_on_dependencies` -> report who holds what and stop (do not poll in a loop; the human re-runs `/work` later). `needs_human` -> list the blocked items and stop. `filtered` -> report what your `--stage` excluded.
+   - `item: null` with `reason` `all_done` -> print the final status and stop. `awaiting_merge` -> run the merge sweep once more (a merge may just have happened); if nothing was merged, list the awaiting PRs with their URLs and stop: the human merges them and re-runs `/work` (or any session's next sweep picks it up). `claimed_by_others` / `waiting_on_dependencies` -> report who holds what and stop (do not poll in a loop; the human re-runs `/work` later). `needs_human` -> list the blocked items and stop. `filtered` -> report what your `--stage` excluded.
+   - `next` never returns items in stage `review`; only the sweep handles them.
 2. **Claim:** `WB claim N --epic S --session SESSION`. Exit 1 means someone else got it or the files overlap: go back to step 1 (at most 5 times, then stop).
 3. **Read:** `WB show N --epic S` (goal, owns, gates, acceptance, notes) and `WB digest --epic S --item N --format md`. Read all of it. Create or reuse the worktree: `git fetch origin && git worktree add ../<repo>-wt/S-N -b epic/S/N-<kebab-title> origin/main` (existing branch for later stages: `git worktree add ../<repo>-wt/S-N epic/S/N-<kebab-title>`). All edits happen there, only inside the item's Owns globs (R5, R6).
 4. **Work the stages** from the item's current `stage:` label with `references/stages.md` as the contract. Use the agents and skills named there (`feature-blueprint-planner` for plan, `senior-rails-dev` for test-plan/build/fix, `/audit-feature` for audit, specialised builders if the item's context names one). You run the Gates yourself; a green receipt from an agent is not a green gate (R9).
    - After each stage: `WB advance N --epic S --session SESSION --stage <next> --keep --note "<what changed, what to look at>"`.
    - Long stage: `WB heartbeat N --epic S --session SESSION` every ~15 min. If any board call says the item is no longer yours, STOP, do not push, go to step 1.
-   - Before `audit` and before `review`, advance WITHOUT `--keep`: that releases the item so another session takes over (R10). Your session continues with the next item.
+   - Before `audit` and before `review`, advance WITHOUT `--keep`: that releases the item so another session takes over (R10); after `review` nobody works it until its PR is merged (the merge sweep finishes it). Your session continues with the next item.
    - Fix loop: max 3 iterations (R11), then `WB block N --epic S --session SESSION --reason "<command, output, hypothesis>"`.
 5. **Share:** if you created something others will consume, `WB comment N --epic S --session SESSION --type shared --body "<path, public API, one usage example, PR>"`. A cross-cutting finding is a `lesson` note on the epic-root issue. Releasing unfinished work (budget, lease) requires a `handoff` note first.
-6. **Push, never merge:** push the item branch and open or update its PR (`gh pr create` / `gh pr edit`, body links the issue number, no auto-close keyword). Merging and every other outward action stays with a human (R13). After a human merges, a worker advances the item to `done` after re-running its Gates on `main` (R14).
+6. **Push, never merge:** push the item branch and open or update its PR (`gh pr create` / `gh pr edit`, body links the issue number, no auto-close keyword). Merging and every other outward action stays with a human (R13). After a human merges, the merge sweep (Phase 0.5) of any `/work` run advances the item to `done` after re-running its Gates on `main` (R14).
 7. Remove nothing of other sessions. Remove your own worktree only when the item is `done` or released with its branch pushed.
 
 ## Phase 2: Report

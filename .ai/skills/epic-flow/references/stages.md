@@ -10,8 +10,8 @@ One issue goes through these stages. The label `stage:<name>` is the column. A w
 | `gates` | same session | Runs every Gate command from the issue exactly as written, plus `bin/rubocop` on touched Ruby. Pastes the summary into the advance note. | gate output summary | all green | `audit` (release) |
 | `audit` | **different** session than build/fix (R10) | Runs `/audit-feature` on the branch diff (gem paths use the gem routing), re-runs the Gates independently. Findings go to the issue as one `blocker`-free `handoff` note, MANDATORY vs ADVISORY. | audit findings note | no MANDATORY finding | `review`, or `fix` |
 | `fix` | any, prefers the builder | Fixes MANDATORY findings, re-runs Gates, max 3 iterations (R11). | commits | Gates green and findings resolved | `audit` (release) |
-| `review` | human or maintainer's session | Opens/updates the PR (`Closes #N` is NOT used; the worker advances manually), requests review. Humans merge. | PR | merged to `main` | `done` |
-| `done` | worker after merge | Re-runs the Gates on `main`, posts a `shared` note if others consume the result, advances to `done` (closes the issue). | `shared` note | Gates green on `main` (R14) | |
+| `review` | the worker opens the PR; a human merges | Opens/updates the PR from branch `epic/<slug>/<N>-<title>` (the branch name is how `reviews` finds it; `Closes #N` is NOT used), requests review, releases the item. Nobody works an item in `review`. | PR | merged to `main` | `done` (via the merge sweep) |
+| `done` | the merge sweep, run first by every `/work` iteration | `reviews` reports `merged`; the sweeper claims the item, re-runs the Gates on `origin/main` in a detached worktree, posts a `shared` note if others consume the result, advances to `done` (closes the issue, unblocking dependents). Red on main -> `block`. PR `closed_unmerged` -> `fix`. | `shared` note | Gates green on `main` (R14) | |
 
 ## Rules of thumb
 

@@ -14,6 +14,7 @@
 #   work_board.rb show N --epic S                          # one item: stage, meta, body, notes (what a worker reads before starting)
 #   work_board.rb status --epic S
 #   work_board.rb next --epic S [--session ID] [--stage a,b]   # best claimable item, or why none
+#   work_board.rb reviews --epic S [--item N]               # items in stage review with their PR verdict: merged | open | closed_unmerged | no_pr
 #   work_board.rb claim N --epic S --session ID [--lease 45]   # atomic; exit 1 when someone else holds it
 #   work_board.rb heartbeat N --epic S --session ID [--lease 45]
 #   work_board.rb release N --epic S --session ID [--force]   # --force: a human frees an abandoned claim of any session
@@ -25,6 +26,8 @@
 #   work_board.rb reap --epic S                            # free claims whose lease expired
 #
 # Env: WORK_GH (default `gh`), WORK_REMOTE (default `origin`), WORK_NOW (ISO time, tests), WORK_SESSION.
+# `next` never offers items in stage `review` unless --stage includes it: a review item waits for a human merge; `reviews` tells which
+# of them were merged, so a worker can verify the gates on main and advance them to done (which unblocks their dependents).
 # Output is always one JSON object on stdout (digest --format md prints markdown). Exit 0 ok, 1 negative answer
 # (claim lost, validation findings), 2 error.
 
@@ -227,6 +230,16 @@ module WorkBoard
       end
     end
 
+    # PRs of item branches `epic/<slug>/<number>-<title>`; the newest PR of an item wins.
+    def pull_request_for(number, prs)
+      prefix = "epic/#{@slug}/#{number}"
+      prs.select { |pr| pr["headRefName"] == prefix || pr["headRefName"].to_s.start_with?("#{prefix}-") }.max_by { |pr| pr["number"] }
+    end
+
+    def pull_requests
+      gh_json("pr", "list", "--state", "all", "--limit", "200", "--json", "number,state,headRefName,mergedAt,url")
+    end
+
     # -- claims (git refs) -----------------------------------------------------------------------------------
     def claims
       # A failed fetch must raise: swallowing it would read as "nobody holds anything".
@@ -352,6 +365,7 @@ module WorkBoard
       when "show" then show
       when "status" then status
       when "next" then next_item
+      when "reviews" then reviews
       when "claim" then claim
       when "heartbeat" then heartbeat
       when "release" then release
@@ -499,6 +513,7 @@ module WorkBoard
         state = if i.done? then "done"
         elsif i.blocked? then "blocked"
         elsif c && !c[:expired] then "in-progress"
+        elsif b.ready?(i) && i.stage == "review" then "in-review"
         elsif b.ready?(i) then "ready"
         else "waiting"
         end
@@ -514,7 +529,8 @@ module WorkBoard
       active = b.active_claims
       stages = opts[:stage]&.split(",")
       pool = b.items.reject(&:done?)
-      candidates = pool.select { |i| b.ready?(i) && !active.key?(i.number) && (stages.nil? || stages.include?(i.stage)) }
+      # Items in review wait for a human merge; they are only offered when the worker asks for that stage (see `reviews`).
+      candidates = pool.select { |i| b.ready?(i) && !active.key?(i.number) && (stages.nil? ? i.stage != "review" : stages.include?(i.stage)) }
       candidates = candidates.reject { |i| b.conflicting_claims(i, active).any? }
       if opts[:session]
         candidates = candidates.reject do |i|
@@ -524,13 +540,37 @@ module WorkBoard
       pick = candidates.min_by { |i| [ i.wave, -i.priority, i.number ] }
       return out({ item: pick.summary }) if pick
 
+      awaiting = pool.select { |i| i.stage == "review" && !active.key?(i.number) }
       reason = if pool.empty? then "all_done"
+      elsif stages.nil? && awaiting.any? && pool.none? { |i| i.stage != "review" && b.ready?(i) && !active.key?(i.number) } then "awaiting_merge"
       elsif pool.any? { |i| b.ready?(i) && !active.key?(i.number) } then "filtered" # ready items exist but --stage, owns overlap or audit independence excluded them
       elsif pool.any? { |i| active.key?(i.number) } then "claimed_by_others"
       elsif pool.any?(&:blocked?) then "needs_human"
       else "waiting_on_dependencies"
       end
-      out({ item: nil, reason: reason, remaining: pool.map(&:number) })
+      out({ item: nil, reason: reason, remaining: pool.map(&:number), **(reason == "awaiting_merge" ? { awaiting_merge: awaiting.map(&:number) } : {}) })
+    end
+
+    # Items in review with the state of their PR. `merged` items are ready for the worker to verify the gates on main and advance to done.
+    def reviews
+      opts, = parse("--epic" => :v, "--item" => :v)
+      need(opts, :epic)
+      b = board(opts)
+      claims = b.claims
+      pool = opts[:item] ? [ b.item(opts[:item].to_i) ] : b.items.select { |i| i.stage == "review" && !i.done? }
+      prs = pool.empty? ? [] : b.pull_requests
+      rows = pool.map do |i|
+        pr = b.pull_request_for(i.number, prs)
+        verdict = if pr.nil? then "no_pr"
+        elsif pr["state"] == "MERGED" then "merged"
+        elsif pr["state"] == "OPEN" then "open"
+        else "closed_unmerged"
+        end
+        holder = claims[i.number]
+        { number: i.number, title: i.title, stage: i.stage, verdict: verdict, pr: pr && { number: pr["number"], state: pr["state"], url: pr["url"] },
+          holder: holder && !holder[:expired] ? holder[:session] : nil }
+      end
+      out({ epic: opts[:epic], reviews: rows, merged: rows.select { |r| r[:verdict] == "merged" }.map { |r| r[:number] } })
     end
 
     def claim
