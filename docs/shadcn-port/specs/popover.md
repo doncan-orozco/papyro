@@ -118,7 +118,7 @@ Presence (pr:20-130): on open the content mounts with `data-state="open"`; the e
 
 Turbo/cleanup: `disconnect()` removes the mounted content, releases every primitive (layer, scope, guards, hide-others, scroll lock, body pointer-events), stops `autoUpdate`, removes document listeners and pending `setTimeout`s. A cached page must not restore an open popover or a locked body.
 
-Not exercised by the runner (G3 controller unit tests instead): cancelable events and caller `preventDefault`, outside handlers that stop propagation (intercepted dismissal), `hide_when_detached`, `update_position_strategy: "always"`, `collision_boundary`, nesting inside a Dialog (branch registration, layer stack), caller `id:` on Content.
+Not expressible in the runner, covered by the browser tests in `test/javascript/popover.test.mjs` (cancelable events and caller `preventDefault`, an outside element that stops the click intercepts the dismissal like Radix, `hide_when_detached`, `update_position_strategy: "always"`, `collision_boundary`) and `test/javascript/nesting.test.mjs` (inside a Dialog: layer stack, Escape and outside clicks); caller `id:` on Content is a render test in `test/components/v2/popover_test.rb`. Run the browser tests with `bin/rails test:javascript`.
 
 <!-- spec_helpers:begin -->
 ## DX helpers (derived from the oracle, do not edit)

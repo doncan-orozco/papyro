@@ -44,3 +44,4 @@ The oracle is the running React catalog. Reading Radix source tells you *why*; t
 ## References
 
 - `references/primitives.md`: the primitive modules, their API and which Radix package each replaces.
+- `references/js-controller-tests.md`: the browser tests in `test/javascript` (touch, cancelable events, positioner options, layer nesting) and how to add one.

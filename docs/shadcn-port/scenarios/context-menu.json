@@ -1343,6 +1343,10 @@
           "button": "right"
         },
         {
+          "do": "wait",
+          "ms": 200
+        },
+        {
           "do": "hover",
           "target": "[data-slot=context-menu-sub-trigger]"
         },
@@ -6939,8 +6943,16 @@
           "button": "right"
         },
         {
-          "do": "type",
-          "text": "ppp"
+          "do": "press",
+          "key": "p"
+        },
+        {
+          "do": "press",
+          "key": "p"
+        },
+        {
+          "do": "press",
+          "key": "p"
         },
         {
           "do": "wait",

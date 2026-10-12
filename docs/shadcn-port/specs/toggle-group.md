@@ -90,6 +90,7 @@ Radix: `RovingFocusGroup.Root asChild` (rf:36-131) slotted onto `Primitive.div` 
 - NOT rendered on the root: `type`, `value`, `defaultValue`, `disabled`/`data-disabled`, `loop`, `rovingFocus` (all destructured, tg:25, 38-44, 101-109).
 - Caller `**attrs` (`id`, `aria-label`, `data-*`, `title`) pass through.
 - Children: exactly the block, in order.
+- Known oracle quirk (`as_child` on the root): shadcn renders `<ToggleGroupContext.Provider>` INSIDE `<ToggleGroupPrimitive.Root>` (tg.tsx:32-47), so with `asChild` Radix Slot clones the Provider (which ignores props) instead of the caller element; React drops every root attribute (`data-slot="toggle-group"`, `role`, `dir`, `tabindex`, `style`, classes) and only the items render slots. The port intentionally merges the root attributes onto the child (the Stimulus controller lives on the root). Registered in `deviations/toggle-group.json`; scenario `api__as-child-root` was removed because it can never match the oracle (React 3 slots vs Phlex 4).
 
 ### Part `ToggleGroupItem` (`data-slot="toggle-group-item"`)
 
@@ -192,4 +193,4 @@ Harness notes (not component deviations):
 
 ## Deviations
 
-None. Both parts map 1:1 (including `as_child` on root and item, `roving_focus: false`); no `deviations/toggle-group.json` is written.
+- `as_child` on the `ToggleGroup` root: React drops all root attributes (Context.Provider is the Slot child, tg.tsx:32-47); the port merges them onto the caller element because the Stimulus controller lives on the root. See the "Known oracle quirk" under Part `ToggleGroup`; entry in `deviations/toggle-group.json`. Everything else (item `as_child`, `roving_focus: false`) maps 1:1.

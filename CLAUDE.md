@@ -23,6 +23,7 @@ bin/rails test             # unit/integration tests (Minitest)
 bin/rails test test/path/to_test.rb:LINE   # single test
 bin/rails test ../papyro_studio/test/controllers/studio/articles_controller_test.rb   # ENGINE tests run from the host root
 bin/rails test:with_studio # host + engine tests (no system tests); test:system_with_studio for system tests
+bin/rails test:javascript   # browser tests of the V2 Stimulus controllers (test/javascript; Playwright, starts the dev servers; not in bin/ci)
 (cd ../papyro_studio && bin/rubocop)           # engine lint (its CI runs lint only)
 bin/rails test:system      # system tests (Capybara + Cuprite)
 bundle exec database_consistency

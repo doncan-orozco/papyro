@@ -3508,7 +3508,8 @@
           {
             "c": "_button",
             "props": {
-              "type": "button"
+              "type": "button",
+              "data-testid": "outside"
             },
             "children": [
               "Outside"
@@ -3526,7 +3527,7 @@
         },
         {
           "do": "focus",
-          "target": "role=button[name=\"Outside\"]"
+          "target": "[data-testid=outside]"
         }
       ],
       "dark": false,
@@ -9589,7 +9590,7 @@
         },
         {
           "do": "wait",
-          "ms": 300
+          "ms": 600
         }
       ],
       "dark": false,
@@ -9788,11 +9789,12 @@
         },
         {
           "do": "click",
-          "target": "role=button[name=\"Show Dialog\"]"
+          "target": "role=button[name=\"Show Dialog\"]",
+          "snapshot": false
         },
         {
           "do": "wait",
-          "ms": 300
+          "ms": 600
         }
       ],
       "dark": false,

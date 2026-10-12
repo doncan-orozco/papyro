@@ -109,7 +109,7 @@ Presence: enter animation (`animate-in fade-in-0 zoom-in-95` + `slide-in-from-*`
 
 Turbo/cleanup: disconnect clears timers, removes the mounted content, the document/window listeners, `autoUpdate`, and releases the provider subscription; a cached page must not restore an open tooltip.
 
-Not exercised by the runner (G3 unit tests in the controller test instead): `pointerType === "touch"` ignored, scroll-close, `hide_when_detached`, `update_position_strategy: "always"`, `collision_boundary`.
+Not expressible in the runner, covered by the browser tests in `test/javascript/tooltip.test.mjs` (`pointerType === "touch"` ignored, scroll-close, cancelable `escape-key-down`, `open-change`, `hide_when_detached`, `update_position_strategy: "always"`, `collision_boundary`). Run them with `bin/rails test:javascript`.
 
 <!-- spec_helpers:begin -->
 ## DX helpers (derived from the oracle, do not edit)

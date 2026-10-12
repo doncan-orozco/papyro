@@ -16260,8 +16260,11 @@
       },
       "steps": [
         {
-          "do": "click",
-          "target": "[data-slot=navigation-menu-trigger] >> nth=0"
+          "do": "tab"
+        },
+        {
+          "do": "press",
+          "key": "Enter"
         },
         {
           "do": "wait",
@@ -16491,8 +16494,11 @@
       },
       "steps": [
         {
-          "do": "click",
-          "target": "[data-slot=navigation-menu-trigger] >> nth=0"
+          "do": "tab"
+        },
+        {
+          "do": "press",
+          "key": "Enter"
         },
         {
           "do": "wait",
@@ -16942,8 +16948,11 @@
       },
       "steps": [
         {
-          "do": "click",
-          "target": "[data-slot=navigation-menu-trigger] >> nth=0"
+          "do": "tab"
+        },
+        {
+          "do": "press",
+          "key": "Enter"
         },
         {
           "do": "wait",
@@ -17620,6 +17629,243 @@
         {
           "do": "click",
           "target": "[data-slot=navigation-menu-trigger] >> nth=1"
+        },
+        {
+          "do": "wait",
+          "ms": 50
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "viewport__force-mount-closed",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex h-[520px] items-start justify-between gap-8 p-8"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "data-testid": "outside",
+              "className": "size-16 rounded-md border"
+            },
+            "children": []
+          },
+          {
+            "c": "NavigationMenu",
+            "props": {
+              "viewport": false
+            },
+            "children": [
+              {
+                "c": "NavigationMenuList",
+                "children": [
+                  {
+                    "c": "NavigationMenuItem",
+                    "children": [
+                      {
+                        "c": "NavigationMenuTrigger",
+                        "children": [
+                          "Getting started"
+                        ]
+                      },
+                      {
+                        "c": "NavigationMenuContent",
+                        "children": [
+                          {
+                            "c": "_ul",
+                            "props": {
+                              "className": "grid w-[400px] gap-2"
+                            },
+                            "children": [
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#introduction"
+                                    },
+                                    "children": [
+                                      "Introduction"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#installation"
+                                    },
+                                    "children": [
+                                      "Installation"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#typography"
+                                    },
+                                    "children": [
+                                      "Typography"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "NavigationMenuItem",
+                    "children": [
+                      {
+                        "c": "NavigationMenuTrigger",
+                        "children": [
+                          "Components"
+                        ]
+                      },
+                      {
+                        "c": "NavigationMenuContent",
+                        "children": [
+                          {
+                            "c": "_ul",
+                            "props": {
+                              "className": "grid w-[500px] grid-cols-2 gap-2"
+                            },
+                            "children": [
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#alert-dialog"
+                                    },
+                                    "children": [
+                                      "Alert Dialog"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#hover-card"
+                                    },
+                                    "children": [
+                                      "Hover Card"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#progress"
+                                    },
+                                    "children": [
+                                      "Progress"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#tooltip"
+                                    },
+                                    "children": [
+                                      "Tooltip"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "NavigationMenuItem",
+                    "children": [
+                      {
+                        "c": "NavigationMenuLink",
+                        "props": {
+                          "href": "#docs",
+                          "className": "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-[color,box-shadow] outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent/50 data-[state=open]:text-accent-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-accent"
+                        },
+                        "children": [
+                          "Docs"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "NavigationMenuViewport",
+                "props": {
+                  "forceMount": true
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "c": "_button",
+            "props": {
+              "type": "button",
+              "data-testid": "after"
+            },
+            "children": [
+              "After"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "tab"
+        },
+        {
+          "do": "press",
+          "key": "Enter"
+        },
+        {
+          "do": "wait",
+          "ms": 50
+        },
+        {
+          "do": "press",
+          "key": "Escape"
         },
         {
           "do": "wait",
@@ -19664,6 +19910,476 @@
         {
           "do": "click",
           "target": "[data-slot=navigation-menu-trigger] >> nth=1"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "content__force-mount-viewport-mode",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex h-[520px] items-start justify-between gap-8 p-8"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "data-testid": "outside",
+              "className": "size-16 rounded-md border"
+            },
+            "children": []
+          },
+          {
+            "c": "NavigationMenu",
+            "children": [
+              {
+                "c": "NavigationMenuList",
+                "children": [
+                  {
+                    "c": "NavigationMenuItem",
+                    "children": [
+                      {
+                        "c": "NavigationMenuTrigger",
+                        "children": [
+                          "Getting started"
+                        ]
+                      },
+                      {
+                        "c": "NavigationMenuContent",
+                        "children": [
+                          {
+                            "c": "_ul",
+                            "props": {
+                              "className": "grid w-[400px] gap-2"
+                            },
+                            "children": [
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#introduction"
+                                    },
+                                    "children": [
+                                      "Introduction"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#installation"
+                                    },
+                                    "children": [
+                                      "Installation"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#typography"
+                                    },
+                                    "children": [
+                                      "Typography"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ],
+                        "props": {
+                          "forceMount": true
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "NavigationMenuItem",
+                    "children": [
+                      {
+                        "c": "NavigationMenuTrigger",
+                        "children": [
+                          "Components"
+                        ]
+                      },
+                      {
+                        "c": "NavigationMenuContent",
+                        "children": [
+                          {
+                            "c": "_ul",
+                            "props": {
+                              "className": "grid w-[500px] grid-cols-2 gap-2"
+                            },
+                            "children": [
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#alert-dialog"
+                                    },
+                                    "children": [
+                                      "Alert Dialog"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#hover-card"
+                                    },
+                                    "children": [
+                                      "Hover Card"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#progress"
+                                    },
+                                    "children": [
+                                      "Progress"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#tooltip"
+                                    },
+                                    "children": [
+                                      "Tooltip"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "NavigationMenuItem",
+                    "children": [
+                      {
+                        "c": "NavigationMenuLink",
+                        "props": {
+                          "href": "#docs",
+                          "className": "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-[color,box-shadow] outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent/50 data-[state=open]:text-accent-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-accent"
+                        },
+                        "children": [
+                          "Docs"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "c": "_button",
+            "props": {
+              "type": "button",
+              "data-testid": "after"
+            },
+            "children": [
+              "After"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "tab"
+        },
+        {
+          "do": "press",
+          "key": "Enter"
+        },
+        {
+          "do": "wait",
+          "ms": 50
+        },
+        {
+          "do": "press",
+          "key": "Escape"
+        },
+        {
+          "do": "wait",
+          "ms": 50
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false
+    },
+    {
+      "id": "content__force-mount-viewport-force-mount",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex h-[520px] items-start justify-between gap-8 p-8"
+        },
+        "children": [
+          {
+            "c": "_div",
+            "props": {
+              "data-testid": "outside",
+              "className": "size-16 rounded-md border"
+            },
+            "children": []
+          },
+          {
+            "c": "NavigationMenu",
+            "props": {
+              "viewport": false
+            },
+            "children": [
+              {
+                "c": "NavigationMenuList",
+                "children": [
+                  {
+                    "c": "NavigationMenuItem",
+                    "children": [
+                      {
+                        "c": "NavigationMenuTrigger",
+                        "children": [
+                          "Getting started"
+                        ]
+                      },
+                      {
+                        "c": "NavigationMenuContent",
+                        "children": [
+                          {
+                            "c": "_ul",
+                            "props": {
+                              "className": "grid w-[400px] gap-2"
+                            },
+                            "children": [
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#introduction"
+                                    },
+                                    "children": [
+                                      "Introduction"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#installation"
+                                    },
+                                    "children": [
+                                      "Installation"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#typography"
+                                    },
+                                    "children": [
+                                      "Typography"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ],
+                        "props": {
+                          "forceMount": true
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "c": "NavigationMenuItem",
+                    "children": [
+                      {
+                        "c": "NavigationMenuTrigger",
+                        "children": [
+                          "Components"
+                        ]
+                      },
+                      {
+                        "c": "NavigationMenuContent",
+                        "children": [
+                          {
+                            "c": "_ul",
+                            "props": {
+                              "className": "grid w-[500px] grid-cols-2 gap-2"
+                            },
+                            "children": [
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#alert-dialog"
+                                    },
+                                    "children": [
+                                      "Alert Dialog"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#hover-card"
+                                    },
+                                    "children": [
+                                      "Hover Card"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#progress"
+                                    },
+                                    "children": [
+                                      "Progress"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "c": "_li",
+                                "children": [
+                                  {
+                                    "c": "NavigationMenuLink",
+                                    "props": {
+                                      "href": "#tooltip"
+                                    },
+                                    "children": [
+                                      "Tooltip"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "c": "NavigationMenuItem",
+                    "children": [
+                      {
+                        "c": "NavigationMenuLink",
+                        "props": {
+                          "href": "#docs",
+                          "className": "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-[color,box-shadow] outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent/50 data-[state=open]:text-accent-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-accent"
+                        },
+                        "children": [
+                          "Docs"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "NavigationMenuViewport",
+                "props": {
+                  "forceMount": true
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "c": "_button",
+            "props": {
+              "type": "button",
+              "data-testid": "after"
+            },
+            "children": [
+              "After"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "tab"
+        },
+        {
+          "do": "press",
+          "key": "Enter"
+        },
+        {
+          "do": "wait",
+          "ms": 50
+        },
+        {
+          "do": "press",
+          "key": "Escape"
+        },
+        {
+          "do": "wait",
+          "ms": 50
         }
       ],
       "dark": false,

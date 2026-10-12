@@ -2401,7 +2401,10 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "observe": [
+        ".rounded-md.border.shadow-xs.font-medium"
+      ]
     },
     {
       "id": "text-standalone__dark",
@@ -2418,7 +2421,10 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "observe": [
+        ".rounded-md.border.shadow-xs.font-medium"
+      ]
     },
     {
       "id": "text-with-icon",
@@ -2475,7 +2481,10 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "observe": [
+        ".rounded-md.border.shadow-xs.font-medium"
+      ]
     },
     {
       "id": "text-as-child-label",
@@ -2589,7 +2598,10 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "observe": [
+        ".rounded-md.border.shadow-xs.font-medium"
+      ]
     },
     {
       "id": "text-class-merge",
@@ -2608,7 +2620,10 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "observe": [
+        ".rounded-md.border.shadow-xs.font-medium"
+      ]
     },
     {
       "id": "text-forwarded-attrs",
@@ -2630,7 +2645,10 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "observe": [
+        ".rounded-md.border.shadow-xs.font-medium"
+      ]
     },
     {
       "id": "text-vertical-group",
@@ -2702,7 +2720,10 @@
         "width": 900,
         "height": 700
       },
-      "animations": false
+      "animations": false,
+      "observe": [
+        ".rounded-md.border.shadow-xs.font-medium"
+      ]
     },
     {
       "id": "class-merge__w-full",

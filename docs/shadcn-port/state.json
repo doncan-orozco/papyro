@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-10-10T07:23:41Z",
+  "created_at": "2026-10-11T08:02:07Z",
   "skip_tiers": [
     "third_party"
   ],
@@ -22,7 +22,7 @@
     "components": 61,
     "digest": "7de7073d0e253001"
   },
-  "dispatches": 77,
+  "dispatches": 1,
   "components": {
     "_theme": {
       "status": "done",
@@ -318,13 +318,13 @@
       "source_sha": "c6598e5584f4258b"
     },
     "context-menu": {
-      "status": "planned",
+      "status": "done",
       "tier": "overlay",
       "wave": 3,
-      "iteration": 0,
-      "note": "runner: touch/pen long-press (700ms) not expressible; uncovered by scenarios",
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T03:54:55Z",
+      "iteration": 4,
+      "note": "intermittent (2/5 alone, quiet machine) animation__sub-open-close 1px BOX offset of sub-content; dropdown-menu equivalent 5/5 clean; triage in progress",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T07:13:20Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "bcde5df1ed9887bb"
@@ -354,13 +354,13 @@
       "source_sha": "54f529ccf72c18c4"
     },
     "hover-card": {
-      "status": "planned",
+      "status": "done",
       "tier": "overlay",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:01:10Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T03:16:56Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "73f59aa759656501"
@@ -414,13 +414,13 @@
       "source_sha": "036277635df058b8"
     },
     "menubar": {
-      "status": "planned",
+      "status": "done",
       "tier": "overlay",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:45:26Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T03:31:30Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "ca1a7f6775f90951"
@@ -438,37 +438,37 @@
       "source_sha": "64e9ae0f9d1e268b"
     },
     "native-select": {
-      "status": "planned",
+      "status": "done",
       "tier": "static",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:39:07Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T03:08:15Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "4bdbce5575dce610"
     },
     "navigation-menu": {
-      "status": "planned",
+      "status": "done",
       "tier": "overlay",
       "wave": 3,
-      "iteration": 0,
-      "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:45:27Z",
+      "iteration": 4,
+      "note": "house Q review: new scenario content__force-mount-viewport-mode exposes real gap (forceMount Content when no viewport mounted must render in place); builder fixing",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T06:57:40Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "fbe81d7c358df0d2"
     },
     "popover": {
-      "status": "planned",
+      "status": "done",
       "tier": "overlay",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:42:39Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T03:00:04Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "3f99d3add6c9fa4f"
@@ -486,25 +486,25 @@
       "source_sha": "e012e1f7e6e66d11"
     },
     "radio-group": {
-      "status": "planned",
+      "status": "done",
       "tier": "radix_stateful",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:51:36Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T04:00:41Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "cfc4f99ee68be2fb"
     },
     "scroll-area": {
-      "status": "planned",
+      "status": "done",
       "tier": "radix_stateful",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 2,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:52:47Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T04:17:38Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "8b73bb9be5130007"
@@ -522,13 +522,13 @@
       "source_sha": "ad7d5403fe337160"
     },
     "sheet": {
-      "status": "planned",
+      "status": "done",
       "tier": "overlay",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:52:43Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T04:03:40Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "ea473d38a26a9b0b"
@@ -546,49 +546,49 @@
       "source_sha": "f51ce0fcd31e5c31"
     },
     "slider": {
-      "status": "planned",
+      "status": "done",
       "tier": "radix_stateful",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:52:45Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T03:02:05Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "6a531f6182de6efe"
     },
     "spinner": {
-      "status": "planned",
+      "status": "done",
       "tier": "static",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:55:01Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T02:55:02Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "5d040fc49cb54c02"
     },
     "table": {
-      "status": "planned",
+      "status": "done",
       "tier": "static",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:55:23Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T04:24:13Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "bd1a9fc83a5a2149"
     },
     "tabs": {
-      "status": "planned",
+      "status": "done",
       "tier": "radix_stateful",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T05:00:04Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T04:30:56Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "e1df6e2f95ece373"
@@ -606,25 +606,25 @@
       "source_sha": "5cafcfeeee29534f"
     },
     "toggle": {
-      "status": "planned",
+      "status": "done",
       "tier": "radix_stateful",
       "wave": 3,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:56:14Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T04:27:52Z",
       "kind": "fanout",
       "deps": [],
       "source_sha": "28ae7d72730890a3"
     },
     "alert-dialog": {
-      "status": "planned",
+      "status": "done",
       "tier": "overlay",
       "wave": 4,
-      "iteration": 0,
+      "iteration": 2,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T04:59:22Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T05:54:26Z",
       "kind": "fanout",
       "deps": [
         "button"
@@ -632,13 +632,13 @@
       "source_sha": "b3dfb83e54ed8c82"
     },
     "attachment": {
-      "status": "planned",
+      "status": "done",
       "tier": "static",
       "wave": 4,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T05:05:12Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T05:17:07Z",
       "kind": "fanout",
       "deps": [
         "button"
@@ -646,13 +646,13 @@
       "source_sha": "243feb168430d012"
     },
     "button-group": {
-      "status": "planned",
+      "status": "done",
       "tier": "static",
       "wave": 4,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T05:05:00Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T05:26:37Z",
       "kind": "fanout",
       "deps": [
         "separator"
@@ -660,13 +660,13 @@
       "source_sha": "a9ac862707ff8d78"
     },
     "field": {
-      "status": "planned",
+      "status": "done",
       "tier": "static",
       "wave": 4,
-      "iteration": 0,
+      "iteration": 2,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T05:06:13Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T05:29:17Z",
       "kind": "fanout",
       "deps": [
         "label",
@@ -675,13 +675,13 @@
       "source_sha": "4a4d17fcb933513f"
     },
     "input-group": {
-      "status": "planned",
+      "status": "done",
       "tier": "static",
       "wave": 4,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T05:06:37Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T06:01:15Z",
       "kind": "fanout",
       "deps": [
         "button",
@@ -691,13 +691,13 @@
       "source_sha": "e379899ac50d6cab"
     },
     "item": {
-      "status": "planned",
+      "status": "done",
       "tier": "static",
       "wave": 4,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T05:04:16Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T06:01:14Z",
       "kind": "fanout",
       "deps": [
         "separator"
@@ -705,13 +705,13 @@
       "source_sha": "9ade8136f010284b"
     },
     "pagination": {
-      "status": "planned",
+      "status": "done",
       "tier": "static",
       "wave": 4,
-      "iteration": 0,
+      "iteration": 1,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T05:03:08Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T06:01:15Z",
       "kind": "fanout",
       "deps": [
         "button"
@@ -719,13 +719,13 @@
       "source_sha": "224843c4f509e8b8"
     },
     "sidebar": {
-      "status": "planned",
+      "status": "done",
       "tier": "client",
       "wave": 4,
-      "iteration": 0,
+      "iteration": 2,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T05:20:21Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T08:24:31Z",
       "kind": "fanout",
       "deps": [
         "button",
@@ -738,13 +738,13 @@
       "source_sha": "2ba1a9b9422f4172"
     },
     "toggle-group": {
-      "status": "planned",
+      "status": "done",
       "tier": "radix_stateful",
       "wave": 4,
-      "iteration": 0,
+      "iteration": 2,
       "note": null,
-      "last_green_sha": null,
-      "updated_at": "2026-10-10T05:11:41Z",
+      "last_green_sha": "d3375e0",
+      "updated_at": "2026-10-11T06:05:09Z",
       "kind": "fanout",
       "deps": [
         "toggle"

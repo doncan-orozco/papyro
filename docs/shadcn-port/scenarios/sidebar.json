@@ -34039,6 +34039,15 @@
                   {
                     "c": "SidebarTrigger",
                     "children": []
+                  },
+                  {
+                    "c": "_span",
+                    "props": {
+                      "data-testid": "neutral-pointer"
+                    },
+                    "children": [
+                      "Neutral"
+                    ]
                   }
                 ]
               }
@@ -34049,7 +34058,17 @@
       "steps": [
         {
           "do": "click",
-          "target": "[data-slot=sidebar-trigger]"
+          "target": "[data-slot=sidebar-trigger]",
+          "snapshot": false
+        },
+        {
+          "do": "hover",
+          "target": "[data-testid=neutral-pointer]",
+          "snapshot": false
+        },
+        {
+          "do": "wait",
+          "ms": 100
         }
       ],
       "dark": false,
@@ -35138,6 +35157,15 @@
                   {
                     "c": "SidebarTrigger",
                     "children": []
+                  },
+                  {
+                    "c": "_span",
+                    "props": {
+                      "data-testid": "neutral-pointer"
+                    },
+                    "children": [
+                      "Neutral"
+                    ]
                   }
                 ]
               }
@@ -35148,7 +35176,17 @@
       "steps": [
         {
           "do": "click",
-          "target": "[data-slot=sidebar-trigger]"
+          "target": "[data-slot=sidebar-trigger]",
+          "snapshot": false
+        },
+        {
+          "do": "hover",
+          "target": "[data-testid=neutral-pointer]",
+          "snapshot": false
+        },
+        {
+          "do": "wait",
+          "ms": 100
         }
       ],
       "dark": false,
@@ -37099,6 +37137,15 @@
                   {
                     "c": "SidebarTrigger",
                     "children": []
+                  },
+                  {
+                    "c": "_span",
+                    "props": {
+                      "data-testid": "neutral-pointer"
+                    },
+                    "children": [
+                      "Neutral"
+                    ]
                   }
                 ]
               }
@@ -37109,11 +37156,31 @@
       "steps": [
         {
           "do": "click",
-          "target": "[data-slot=sidebar-inset] [data-slot=sidebar-trigger]"
+          "target": "[data-slot=sidebar-inset] [data-slot=sidebar-trigger]",
+          "snapshot": false
+        },
+        {
+          "do": "hover",
+          "target": "[data-testid=neutral-pointer]",
+          "snapshot": false
+        },
+        {
+          "do": "wait",
+          "ms": 100
         },
         {
           "do": "click",
-          "target": "[data-slot=sidebar] [data-slot=sidebar-trigger]"
+          "target": "[data-slot=sidebar] [data-slot=sidebar-trigger]",
+          "snapshot": false
+        },
+        {
+          "do": "hover",
+          "target": "[data-testid=neutral-pointer]",
+          "snapshot": false
+        },
+        {
+          "do": "wait",
+          "ms": 100
         }
       ],
       "dark": false,
@@ -37315,6 +37382,15 @@
                   {
                     "c": "SidebarTrigger",
                     "children": []
+                  },
+                  {
+                    "c": "_span",
+                    "props": {
+                      "data-testid": "neutral-pointer"
+                    },
+                    "children": [
+                      "Neutral"
+                    ]
                   }
                 ]
               }
@@ -37325,11 +37401,31 @@
       "steps": [
         {
           "do": "click",
-          "target": "[data-slot=sidebar-trigger]"
+          "target": "[data-slot=sidebar-trigger]",
+          "snapshot": false
+        },
+        {
+          "do": "hover",
+          "target": "[data-testid=neutral-pointer]",
+          "snapshot": false
+        },
+        {
+          "do": "wait",
+          "ms": 100
         },
         {
           "do": "click",
-          "target": "[data-slot=sidebar-rail]"
+          "target": "[data-slot=sidebar-rail]",
+          "snapshot": false
+        },
+        {
+          "do": "hover",
+          "target": "[data-testid=neutral-pointer]",
+          "snapshot": false
+        },
+        {
+          "do": "wait",
+          "ms": 100
         }
       ],
       "dark": false,
@@ -37530,6 +37626,15 @@
                   {
                     "c": "SidebarTrigger",
                     "children": []
+                  },
+                  {
+                    "c": "_span",
+                    "props": {
+                      "data-testid": "neutral-pointer"
+                    },
+                    "children": [
+                      "Neutral"
+                    ]
                   }
                 ]
               }
@@ -37540,7 +37645,17 @@
       "steps": [
         {
           "do": "click",
-          "target": "[data-slot=sidebar-trigger]"
+          "target": "[data-slot=sidebar-trigger]",
+          "snapshot": false
+        },
+        {
+          "do": "hover",
+          "target": "[data-testid=neutral-pointer]",
+          "snapshot": false
+        },
+        {
+          "do": "wait",
+          "ms": 100
         }
       ],
       "dark": false,
@@ -39877,6 +39992,15 @@
                   {
                     "c": "SidebarTrigger",
                     "children": []
+                  },
+                  {
+                    "c": "_span",
+                    "props": {
+                      "data-testid": "neutral-pointer"
+                    },
+                    "children": [
+                      "Neutral"
+                    ]
                   }
                 ]
               }
@@ -39887,7 +40011,17 @@
       "steps": [
         {
           "do": "click",
-          "target": "[data-slot=sidebar-trigger]"
+          "target": "[data-slot=sidebar-trigger]",
+          "snapshot": false
+        },
+        {
+          "do": "hover",
+          "target": "[data-testid=neutral-pointer]",
+          "snapshot": false
+        },
+        {
+          "do": "wait",
+          "ms": 100
         }
       ],
       "dark": false,

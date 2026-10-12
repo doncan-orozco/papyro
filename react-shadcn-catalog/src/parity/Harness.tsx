@@ -8,6 +8,10 @@ import * as React from "react"
 import * as Lucide from "lucide-react"
 import * as probes from "./probes"
 
+// Parity only: SidebarMenuSkeleton draws its width from Math.random() (floor(r * 40) + 50 percent). Pin r = 0.5 (70 percent)
+// so it matches the Phlex parity controller, which pins the same width.
+Math.random = () => 0.5
+
 const modules = import.meta.glob("../components/ui/*.tsx", { eager: true }) as Record<string, Record<string, unknown>>
 const registry: Record<string, React.ElementType> = {}
 for (const mod of Object.values(modules)) {

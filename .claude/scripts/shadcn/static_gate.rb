@@ -150,6 +150,8 @@ module ShadcnStaticGate
       signatures = @src.scan(/def initialize\((.*?)\)\s*$/m).flatten.join(" ")
       @m["parts"].flat_map do |part|
         names = part["props"]["destructured"].reject { |p| p["rest"] }.map { |p| p["name"] } + part["props"]["typed"].map { |p| p["name"] }
+        # A renamed destructure (`open: openProp`) is listed as "open: openProp"; the kwarg is the public name before the colon.
+        names = names.map { |n| n.split(":").first.strip }
         (names.uniq - IGNORED_PROPS).filter_map do |prop|
           next if prop.match?(/\Aon[A-Z]/) # events become Stimulus dispatches, covered by the behavior gate
 

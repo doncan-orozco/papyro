@@ -557,24 +557,44 @@
           "target": "[data-slot=item-apple]"
         },
         {
-          "do": "type",
-          "text": "bbb"
+          "do": "press",
+          "key": "b"
+        },
+        {
+          "do": "press",
+          "key": "b"
+        },
+        {
+          "do": "press",
+          "key": "b"
         },
         {
           "do": "wait",
           "ms": 1100
         },
         {
-          "do": "type",
-          "text": "aa"
+          "do": "press",
+          "key": "a"
+        },
+        {
+          "do": "press",
+          "key": "a"
         },
         {
           "do": "wait",
           "ms": 1100
         },
         {
-          "do": "type",
-          "text": "aaa"
+          "do": "press",
+          "key": "a"
+        },
+        {
+          "do": "press",
+          "key": "a"
+        },
+        {
+          "do": "press",
+          "key": "a"
         }
       ],
       "dark": false,
