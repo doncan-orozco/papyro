@@ -6,12 +6,13 @@ class Components::Parity::Scenario
 
   NAME = /\A_?[a-z0-9][a-z0-9-]*\z/
   ID = /\A[\w.-]+\z/
+  DIRECTORY = Rails.root.join("docs/shadcn-port/scenarios")
 
   def self.find(component, id)
     raise NotFound, "invalid component name #{component.inspect}" unless component.to_s.match?(NAME)
     raise NotFound, "invalid scenario id #{id.inspect}" unless id.to_s.match?(ID)
 
-    file = Rails.root.join("docs/shadcn-port/scenarios", "#{component}.json")
+    file = DIRECTORY.join("#{component}.json")
     raise NotFound, "no scenarios for #{component}" unless file.exist?
 
     JSON.parse(file.read).fetch("scenarios").find { |s| s["id"] == id } || raise(NotFound, "unknown scenario #{id}")

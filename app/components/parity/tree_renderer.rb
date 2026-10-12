@@ -137,6 +137,9 @@ class Components::Parity::TreeRenderer < Components::Base
 
   def resolve(name)
     namespace, bare, roots = name.start_with?("_") ? [ Components::Parity, name.delete_prefix("_"), PARITY_ROOTS ] : [ Components::V2, name, v2_roots ]
+    # An exact root match wins over a same-named nested part of a longer root (Button vs InputGroup::Button).
+    return Target.new(namespace.const_get(bare), nil, nil) if roots.include?(bare)
+
     ordered = ([ @primary ] & roots) + roots.sort_by { |r| -r.size }
 
     ordered.uniq.each do |root_name|

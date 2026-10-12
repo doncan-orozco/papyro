@@ -26,6 +26,7 @@ import { nextMatch, typeahead } from "v2/primitives/typeahead"
 // nested groups too. Items are scoped by their closest [data-radix-menu-content].
 const TEMPLATE = "v2--dropdown-menu-template"
 const CONTENT = "[data-radix-menu-content]"
+const SUB_TRIGGER = "[data-slot=dropdown-menu-sub-trigger]" // controllers reusing MenuLevel may set `subTriggerSelector`
 const SELECTION_KEYS = ["Enter", " "]
 const FIRST_LAST_KEYS = ["ArrowDown", "PageUp", "Home", "ArrowUp", "PageDown", "End"]
 const LAST_KEYS = ["ArrowUp", "PageDown", "End"]
@@ -54,6 +55,7 @@ export class SubMenu {
     this.isOpen = trigger.dataset.state === "open"
     this.level = null
     this.openTimer = 0
+    this.options = JSON.parse(this.template?.getAttribute("data-options") || "{}")
   }
 
   get template() {
@@ -129,8 +131,11 @@ export class MenuLevel {
     this.#place()
     this.#render()
     this.presence = presence(this.content, { onExited: () => this.teardown() })
+    // In-place subs mount first: React runs child effects before the parent's, so their layers register below the root's.
+    // A portaled sub only mounts after the parent's commit.
+    this.#mountSubs(false)
     this.#effects()
-    this.#mountSubs()
+    this.#mountSubs(true)
   }
 
   // Begin the exit: state flips now, the node stays until its exit animation ends (Presence).
@@ -192,6 +197,7 @@ export class MenuLevel {
   // Radix effect order is children first: dismissable layer, focus scope, scroll lock, focus guards, hide others.
   #effects() {
     if (this.isOpen) this.#engage()
+    else this.#engageIdle()
     this.releases.push(
       focusScope(this.content, {
         trapped: this.modal && this.isOpen,
@@ -204,16 +210,17 @@ export class MenuLevel {
     if (this.modal) this.releases.push(hideOthers(this.content))
   }
 
-  #mountSubs() {
-    this.content.querySelectorAll("[data-slot=dropdown-menu-sub-trigger]").forEach((trigger) => {
-      if (!this.#owns(trigger)) return
-      const sub = new SubMenu(this, trigger)
-      this.subs.set(trigger, sub)
+  #mountSubs(portaled) {
+    if (!portaled) this.content.querySelectorAll(this.controller.subTriggerSelector ?? SUB_TRIGGER).forEach((trigger) => {
+      if (this.#owns(trigger)) this.subs.set(trigger, new SubMenu(this, trigger))
+    })
+    this.subs.forEach((sub) => {
+      if (Boolean(sub.options.portal) !== portaled) return
       // MenuSub closes itself (and reports it) when its menu mounts: default_open never survives, only a controlled
       // open: true keeps the sub content mounted (M:618-621; the oracle shows every default_open sub closed).
       sub.request(false)
       if (sub.isOpen) sub.mountLevel()
-      else if (sub.template && JSON.parse(sub.template.getAttribute("data-options") || "{}").forceMount) sub.mountLevel(false)
+      else if (sub.options.forceMount) sub.mountLevel(false)
     })
   }
 

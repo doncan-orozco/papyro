@@ -65,4 +65,21 @@ class DesignSystemControllerTest < ActionDispatch::IntegrationTest
     # we expect at least one svg element to be rendered by Components::Ui::Icon
     assert_select "svg", minimum: 1
   end
+
+  test "v2 catalog lists every ported component with a preview, without authentication" do
+    get design_system_v2_path
+
+    assert_response :success
+    assert_select "h1", text: "V2 Component Catalog"
+    assert_select "section#v2-button [data-slot=button]"
+    assert_select "section#v2-dialog [data-slot=dialog-trigger]"
+    assert_select "nav a[href='#v2-tooltip']"
+    assert_select "section[id^=v2-]", count: Components::Parity::Catalog.entries.size
+  end
+
+  test "v2 catalog is linked from the catalog index" do
+    get design_system_path
+
+    assert_select "a[href='#{design_system_v2_path}']"
+  end
 end

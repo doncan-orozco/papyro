@@ -12,7 +12,10 @@ module Views
                 p(class: "text-muted-foreground mt-2") { t("design_system.catalog.subtitle") }
               end
 
-              render Components::Shared::ThemeToggle.new
+              div(class: "flex items-center gap-4") do
+                link_to(t("design_system.catalog.v2_link"), design_system_v2_path, class: "text-sm underline underline-offset-4")
+                render Components::Shared::ThemeToggle.new
+              end
             end
           end
         end

@@ -1,5 +1,7 @@
 // Port of @radix-ui/react-dismissable-layer. Known divergences: "inside the layer" is DOM containment (there is no
-// React tree to follow through portals), plus `branches` for related elements that must not count as outside.
+// React tree to follow through portals) plus the content of every layer opened after it, which stands in for Radix's
+// React-tree check (a popover opened from a dialog is a child of the dialog even though it is portaled to <body>), plus
+// `branches` for related elements that must not count as outside.
 //
 //   const release = dismissable(contentEl, {
 //     onEscape, onPointerDownOutside, onFocusOutside, onInteractOutside,   // receive a cancelable CustomEvent
@@ -24,6 +26,7 @@ export function dismissable(el, options = {}) {
 
   const isBranch = (target) => (branches?.() ?? []).some((branch) => branch.contains(target))
   const index = () => [...layers].indexOf(layer)
+  const isInChildLayer = (target) => [...layers].slice(index() + 1).some((child) => child.el.contains(target))
   const pointerEventsEnabled = () => index() >= highestBlockingIndex()
 
   const dispatch = (name, handler, originalEvent) => {
@@ -35,7 +38,7 @@ export function dismissable(el, options = {}) {
 
   let removeClick = null
   const onPointerDown = (event) => {
-    if (el.contains(event.target)) return
+    if (el.contains(event.target) || isInChildLayer(event.target)) return
     if (!pointerEventsEnabled() || isBranch(event.target)) return
     const handle = () => dispatch(POINTER_DOWN_OUTSIDE, onPointerDownOutside, event)
     if (event.pointerType === "touch") {
@@ -49,7 +52,7 @@ export function dismissable(el, options = {}) {
   }
 
   const onFocusIn = (event) => {
-    if (el.contains(event.target) || isBranch(event.target)) return
+    if (el.contains(event.target) || isInChildLayer(event.target) || isBranch(event.target)) return
     if (!pointerEventsEnabled()) return
     dispatch(FOCUS_OUTSIDE, onFocusOutside, event)
   }

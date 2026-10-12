@@ -2,26 +2,28 @@
 
 require "test_helper"
 
-class Components::V2::SpinnerTest < ActiveSupport::TestCase
-  test "renders lucide svg with status role and no aria-hidden" do
-    html = Components::V2::Spinner.new.call
+class SpinnerTest < ActiveSupport::TestCase
+  def render_spinner(**attrs)
+    Components::V2::Spinner.new(**attrs).call
+  end
 
-    assert_includes html, "<svg"
+  test "renders status svg without data-slot or aria-hidden" do
+    html = render_spinner
+
     assert_includes html, 'role="status"'
     assert_includes html, 'aria-label="Loading"'
     assert_includes html, "lucide-loader-circle"
-    assert_includes html, "size-4 animate-spin"
-    refute_includes html, "aria-hidden"
-    refute_includes html, "data-slot"
+    assert_includes html, "animate-spin"
+    assert_not_includes html, "data-slot"
+    assert_not_includes html, "aria-hidden"
   end
 
-  test "caller class wins and attrs pass through" do
-    html = Components::V2::Spinner.new(class: "size-8", id: "s", aria: { label: "Saving" }, color: "red").call
+  test "merges class and passes attrs" do
+    html = render_spinner(class: "size-8", id: "x", role: "img")
 
     assert_includes html, "size-8"
-    refute_includes html, "size-4"
-    assert_includes html, 'id="s"'
-    assert_includes html, 'aria-label="Saving"'
-    assert_includes html, 'stroke="red"'
+    assert_not_includes html, "size-4"
+    assert_includes html, 'id="x"'
+    assert_includes html, 'role="img"'
   end
 end

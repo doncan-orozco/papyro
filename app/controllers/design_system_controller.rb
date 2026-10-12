@@ -8,6 +8,11 @@ class DesignSystemController < ApplicationController
     render Views::DesignSystem::Index.new
   end
 
+  def v2
+    skip_authorization
+    render Views::DesignSystem::V2Catalog.new
+  end
+
   def react
     skip_authorization
     render Views::DesignSystem::React.new

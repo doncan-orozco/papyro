@@ -18,6 +18,8 @@ export function presence(el, { onExited } = {}) {
   }
   const onEnd = (event) => {
     if (event.target !== el || !exiting) return
+    // Radix isCurrentAnimation: the cancelled enter animation must not end the exit.
+    if (event.animationName && !getComputedStyle(el).animationName.includes(event.animationName)) return
     finish()
   }
 

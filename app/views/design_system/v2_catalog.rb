@@ -1,0 +1,85 @@
+# frozen_string_literal: true
+
+include Phlex::Rails::Helpers::ContentFor
+
+module Views
+  module DesignSystem
+    # Index of every ported Components::V2 component, generated from the scenario files (see Components::Parity::Catalog).
+    class V2Catalog < Views::Base
+      def initialize(entries: Components::Parity::Catalog.entries)
+        @entries = entries
+        super()
+      end
+
+      def view_template
+        content_for :head do
+          tag(:meta, name: "turbo-cache-control", content: "no-cache")
+          tag(:meta, name: "turbo-visit-control", content: "reload")
+        end
+
+        div(class: "min-h-screen bg-background text-foreground") do
+          header_section
+          div(class: "max-w-7xl mx-auto px-4 py-8 lg:grid lg:grid-cols-[14rem_1fr] lg:gap-8") do
+            nav_section
+            main(class: "min-w-0 space-y-8") { @entries.each { |entry| entry_card(entry) } }
+          end
+        end
+      end
+
+      private
+
+      def header_section
+        header(class: "border-b border-border bg-card") do
+          div(class: "max-w-7xl mx-auto px-4 py-6 flex items-center justify-between gap-4") do
+            div do
+              h1(class: "text-3xl font-bold") { t("design_system.catalog_v2.title") }
+              p(class: "text-muted-foreground mt-2") { t("design_system.catalog_v2.subtitle", count: @entries.size) }
+            end
+            div(class: "flex items-center gap-4") do
+              link_to(t("design_system.catalog_v2.back"), design_system_path, class: "text-sm underline underline-offset-4")
+              render Components::Shared::ThemeToggle.new
+            end
+          end
+        end
+      end
+
+      def nav_section
+        nav(aria_label: t("design_system.catalog_v2.nav"), class: "hidden lg:block sticky top-4 self-start max-h-[calc(100vh-2rem)] overflow-auto") do
+          ul(class: "space-y-1 text-sm") do
+            @entries.each do |entry|
+              li { a(href: "##{entry.anchor}", class: "block rounded-md px-2 py-1 hover:bg-muted") { entry.title } }
+            end
+          end
+        end
+      end
+
+      def entry_card(entry)
+        section(id: entry.anchor, class: "scroll-mt-4 rounded-lg border border-border bg-card text-card-foreground") do
+          div(class: "flex flex-wrap items-baseline justify-between gap-2 border-b border-border px-6 py-4") do
+            h2(class: "text-xl font-semibold") { entry.title }
+            p(class: "text-xs text-muted-foreground") do
+              plain t("design_system.catalog_v2.scenario", id: entry.scenario_id, count: entry.scenario_count)
+              parity_link(entry)
+            end
+          end
+          # contain-layout makes this box the containing block of fixed descendants (sidebar, sheet triggers' layers stay in it).
+          div(class: "p-6 overflow-auto max-h-[32rem] contain-layout") { preview(entry) }
+        end
+      end
+
+      def parity_link(entry)
+        return unless Rails.env.development? || Rails.env.test?
+
+        plain " · "
+        a(href: design_system_parity_path(entry.component, entry.scenario_id), class: "underline underline-offset-4") { t("design_system.catalog_v2.parity") }
+      end
+
+      def preview(entry)
+        render Components::Parity::TreeRenderer.new(tree: entry.tree, component: entry.component)
+      rescue StandardError => e
+        Rails.logger.error("[design-system v2] #{entry.component}: #{e.class}: #{e.message}")
+        p(class: "text-sm text-destructive") { t("design_system.catalog_v2.unavailable", error: e.class.name) }
+      end
+    end
+  end
+end
