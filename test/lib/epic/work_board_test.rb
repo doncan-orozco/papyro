@@ -547,4 +547,16 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_equal 1, code
     assert_equal "NO_ROOT", result["findings"].first["code"]
   end
+
+  test "unblock works although the blocked label was never created (real gh rejects removing unknown labels)" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    claim(a, "s1")
+    wb("block", a.to_s, "--epic", "demo", "--session", "s1", "--reason", "stuck")
+    result, code = wb("unblock", a.to_s, "--epic", "demo")
+
+    assert_equal 0, code, result.inspect
+    assert_equal "ready", state_of(a)["state"]
+    refute_includes fake_db["issues"].find { |i| i["number"] == a }["labels"].map { |l| l["name"] }, "needs-human"
+  end
 end

@@ -64,9 +64,16 @@ class FakeGh
     ""
   end
 
+  # Real gh rejects labels that do not exist in the repository (create, add and remove alike).
+  def require_labels!(db, names)
+    missing = names - db["labels"]
+    raise Error, "'#{missing.first}' not found" if missing.any?
+  end
+
   def create(args)
     body = body_of(args)
     number = locked do |db|
+      require_labels!(db, flag_values(args, "--label"))
       n = db["next"]
       db["next"] += 1
       db["issues"] << { "number" => n, "title" => flag(args, "--title"), "state" => "OPEN", "body" => body,
@@ -86,6 +93,7 @@ class FakeGh
   end
 
   def edit(args)
+    locked { |db| require_labels!(db, flag_values(args, "--add-label") + flag_values(args, "--remove-label")) }
     mutate(args.first) do |i|
       names = i["labels"].map { |l| l["name"] }
       names |= flag_values(args, "--add-label")

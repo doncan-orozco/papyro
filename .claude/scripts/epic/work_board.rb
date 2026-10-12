@@ -275,8 +275,15 @@ module WorkBoard
       end
     end
 
+    def current_labels(number)
+      gh_json("issue", "view", number.to_s, "--json", "labels").fetch("labels").map { |l| l["name"] }
+    end
+
+    # gh rejects removing a label that does not exist in the repository (e.g. `blocked`, which is only created when used),
+    # so removals are limited to the labels the issue really carries.
     def edit_labels(number, add: [], remove: [])
       ensure_labels(add) if add.any?
+      remove &= current_labels(number) if remove.any?
       args = [ "issue", "edit", number.to_s ]
       args += [ "--add-label", add.join(",") ] if add.any?
       args += [ "--remove-label", remove.join(",") ] if remove.any?
