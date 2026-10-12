@@ -147,7 +147,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_31_100500) do
     t.string "email_address", null: false
     t.string "password_digest", null: false
     t.string "provider"
-    t.integer "role", default: 0
+    t.integer "role", default: 0, null: false
     t.datetime "suspended_at"
     t.string "uid"
     t.datetime "updated_at", null: false
