@@ -401,6 +401,7 @@ en:
       system: "System"
     catalog:
       title: "shadcn/ui Phlex Catalog"
+      v2_link: "V2 components →"
       subtitle: "42 components - Zinc theme - OKLCH colors"
       toggle_dark: "Switch to dark mode"
       toggle_light: "Switch to light mode"
@@ -664,3 +665,12 @@ en:
       react_iframe_title: "React shadcn/ui Components"
       phlex_iframe_title: "Phlex Design System Components"
       hint: "💡 Open both side panels to pixel-compare components"
+
+    catalog_v2:
+      title: "V2 Component Catalog"
+      subtitle: "%{count} Phlex components ported from shadcn/ui, generated from their parity scenarios"
+      back: "Back to the catalog"
+      nav: "V2 components"
+      scenario: "Scenario %{id} of %{count}"
+      parity: "Open parity page"
+      unavailable: "Preview unavailable (%{error})"

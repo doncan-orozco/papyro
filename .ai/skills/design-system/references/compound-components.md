@@ -1,489 +1,99 @@
-# Compound Component Pattern - Complete Reference
+# Compound components: nested part classes
 
-## Overview
+shadcn exposes compound components as sibling exports (`Dialog`, `DialogTrigger`, `DialogContent`...). The V2 port mirrors them 1:1 as **one class per export, parts nested under the root class** and all defined in the root's file. Views compose them with explicit `render`, like JSX.
 
-**Every multi-part Phlex component in Papyro uses the compound component pattern.** This ensures consistency, maintainability, and a clean API across all 40+ UI components.
+> The nested classes below are the canonical API. The legacy-style "parent yields self" helpers (`card.header`, `dropdown.trigger`) exist in V2 too, but as GENERATED sugar over those classes (see "DX helpers"), never hand-written.
 
-The pattern ensures:
-- Clean, intuitive view code without `.new` calls on children
-- Type-safe composition (IDE autocomplete)
-- Consistent styling across child parts
-- Easy backward compatibility migration
-- Single source of truth for default styling
+## Naming rule (single source: `shadcn-port` references/api-mapping.md)
 
-## Components Using This Pattern (Complete List)
+`<Root><Part>` -> `Components::V2::<Root>::<Part>`; strip the root prefix once.
 
-| Component | Child Parts | Interactive |
-|-----------|------------|-------------|
-| **Accordion** | Item, Trigger, Content | Yes (Stimulus) |
-| **Alert** | Title, Description | No |
-| **AlertDialog** | Overlay, Content, Header, Footer, Title, Description, Cancel, Action | Yes |
-| **Avatar** | Image, Fallback | No |
-| **Breadcrumb** | List, Item, Link, Page, Separator | No |
-| **Calendar** | Header, Body, Day Cell | Yes |
-| **Card** | Header, Title, Description, Content, Footer | No |
-| **Carousel** | Content, Item, Previous, Next, Indicators | Yes |
-| **Collapsible** | Trigger, Content | Yes |
-| **Command** | Input, List, Empty, Group, Item, Shortcut, Separator | Yes |
-| **ContextMenu** | Trigger, Content, Item, CheckboxItem, RadioGroup, Separator, Label | Yes |
-| **DataTable** | Header, Body, Row, Head, Cell, Footer, Pagination | No |
-| **Dialog** | Overlay, Content, Header, Title, Description, Footer, Close | Yes |
-| **DropdownMenu** | Trigger, Content, Item, Separator, Label | Yes |
-| **Form** | Field, Label, Input, Error, Help | No |
-| **HoverCard** | Trigger, Content | Yes |
-| **MenuBar** | Menu, Trigger, Content, Item, Separator, Sub | Yes |
-| **NavigationMenu** | List, Item, Link, Trigger, Content, Indicator, Viewport | Yes |
-| **Pagination** | Content, Item, PreviousLink, NextLink, Ellipsis | No |
-| **Popover** | Trigger, Content, Anchor | Yes |
-| **RadioGroup** | Item, Label | Yes |
-| **Resizable** | PanelGroup, Panel, Handle | Yes |
-| **ScrollArea** | Viewport, Scrollbar, Thumb | No |
-| **Sheet** | Overlay, Content, Header, Title, Description, Footer, Close | Yes |
-| **Table** | Header, Body, Footer, Row, Head, Cell, Caption | No |
-| **Tabs** | List, Trigger, Content | Yes |
-| **Toast** | Provider, Viewport, Root, Title, Description, Action, Close | Yes |
-| **ToggleGroup** | Item | Yes |
+| React | Phlex |
+|---|---|
+| `Dialog` | `Components::V2::Dialog` |
+| `DialogTrigger` | `Components::V2::Dialog::Trigger` |
+| `DialogContent` | `Components::V2::Dialog::Content` |
+| `DropdownMenuCheckboxItem` | `Components::V2::DropdownMenu::CheckboxItem` |
+| `CardHeader`, `CardAction` | `Components::V2::Card::Header`, `Card::Action` |
+| `SelectScrollUpButton` | `Components::V2::Select::ScrollUpButton` |
+| `buttonVariants(...)` | `Components::V2::Button.variants(...)` (class method, returns the class string) |
 
-## Complete Pattern Example: DropdownMenu
-
-This is the canonical example showing all pattern elements:
+## File layout
 
 ```ruby
-# app/components/ui/dropdown_menu.rb
-
+# app/components/v2/dialog.rb  (Zeitwerk: Components::V2::Dialog)
 module Components
-  module Ui
-    # Parent component that yields itself
-    class DropdownMenu < Components::Base
-      def initialize(**attrs)
-        @attrs = attrs
-        # Set default Stimulus controller (eliminates boilerplate in views)
-        @attrs[:data] ||= {}
-        @attrs[:data][:controller] = "ui--dropdown" unless @attrs[:data][:controller]
+  module V2
+    class Dialog < Components::V2::Base
+      def initialize(open: nil, default_open: false, modal: true, **attrs)
+        ...
       end
 
-      def view_template(&block)
-        div(class: merged_classes, **attrs_without_class) do
-          yield self if block
-        end
-      end
+      def view_template(&block) = ...   # root part: data-slot="dialog", controller v2--dialog
 
-      # === Helper Methods for Child Parts ===
-      # These are what views call. They handle instantiation internally.
-
-      def trigger(**attrs, &block)
-        render Trigger.new(**attrs, &block)
-      end
-
-      def content(**attrs, &block)
-        render Content.new(**attrs, &block)
-      end
-
-      def item(**attrs, &block)
-        render Item.new(**attrs, &block)
-      end
-
-      def separator(**attrs)
-        render Separator.new(**attrs)
-      end
-
-      def label(**attrs, &block)
-        render Label.new(**attrs, &block)
-      end
-
-      # === Nested Child Classes ===
-      # Each child is a nested class with full styling responsibility
-
-      class Trigger < Components::Base
-        def initialize(**attrs)
-          @attrs = attrs
-        end
-
-        def view_template(&block)
-          button(
-            type: :button,
-            class: merged_classes,
-            **attrs_without_class,
-            &block
-          )
-        end
-
-        private
-
-        def classes
-          [
-            "inline-flex items-center justify-center",
-            "rounded-lg px-3 py-2",
-            "text-sm font-medium",
-            "transition-colors",
-            "hover:bg-muted",
-            "focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20",
-            "disabled:pointer-events-none disabled:opacity-50"
-          ].join(" ")
-        end
-      end
-
-      class Content < Components::Base
-        def initialize(**attrs)
-          @attrs = attrs
-        end
-
-        def view_template(&block)
-          div(
-            role: :menu,
-            class: merged_classes,
-            **attrs_without_class,
-            &block
-          )
-        end
-
-        private
-
-        def classes
-          [
-            "!fixed z-50 min-w-[8rem]",
-            "overflow-hidden",
-            "rounded-lg border border-border bg-popover p-1",
-            "text-popover-foreground shadow-md"
-          ].join(" ")
-        end
-      end
-
-      class Item < Components::Base
-        def initialize(href: nil, variant: :default, **attrs)
-          @href = href
-          @variant = variant
-          @attrs = attrs
-        end
-
-        def view_template(&block)
-          element = @href ? :a : :button
-          
-          send(element,
-            href: @href,
-            type: (@href ? nil : :button),
-            role: :menuitem,
-            class: merged_classes,
-            **attrs_without_class,
-            &block
-          )
-        end
-
-        private
-
-        def classes
-          [
-            "relative flex cursor-pointer select-none items-center w-full",
-            "rounded-md px-2 py-1.5",
-            "text-sm text-left outline-none",
-            "transition-colors",
-            "hover:bg-accent hover:text-accent-foreground",
-            "focus:bg-accent focus:text-accent-foreground",
-            "disabled:pointer-events-none disabled:opacity-50",
-            variant_classes.fetch(@variant, "")
-          ].join(" ")
-        end
-
-        def variant_classes
-          {
-            default: "",
-            destructive: "text-destructive hover:bg-destructive hover:text-destructive-foreground"
-          }
-        end
-      end
-
-      class Separator < Components::Base
-        def initialize(**attrs)
-          @attrs = attrs
-        end
-
-        def view_template
-          div(class: merged_classes, **attrs_without_class)
-        end
-
-        private
-
-        def classes
-          "-mx-1 my-1 h-px bg-muted"
-        end
-      end
-
-      class Label < Components::Base
-        def initialize(**attrs)
-          @attrs = attrs
-        end
-
-        def view_template(&block)
-          div(class: merged_classes, **attrs_without_class, &block)
-        end
-
-        private
-
-        def classes
-          "px-2 py-1.5 text-xs font-medium text-muted-foreground"
-        end
-      end
-
-      # === Legacy Compatibility Aliases ===
-      # Maps old class names to new nested classes for gradual migration
-      DropdownMenuTrigger = Trigger
-      DropdownMenuContent = Content
-      DropdownMenuItem = Item
-      DropdownMenuSeparator = Separator
-      DropdownMenuLabel = Label
+      class Trigger < Components::V2::Base ... end   # data-slot="dialog-trigger"
+      class Content < Components::V2::Base ... end   # data-slot="dialog-content"
+      class Header  < Components::V2::Base ... end   # data-slot="dialog-header"
     end
   end
 end
 ```
 
-## Usage Examples
+- Every part is a `Components::V2::Base` subclass (which is a `Components::Base`) with its own `initialize(..., **attrs)` and `view_template`. Parts that would push the file past ~250 lines move to `app/components/v2/dialog/content.rb` (still `Dialog::Content`; Zeitwerk reopens the namespace).
+- Parts never reach into the parent's instance. Shared state travels through the DOM (the root renders `data-controller="v2--dialog"` and ids; parts use Stimulus targets/outlets and the ids from `aria-*` wiring). Cross-part ids come from the `id:` kwarg or a deterministic helper in the root class (`Dialog.ids(id)` -> `{ trigger:, content:, title:, description: }`), so server-rendered `aria-labelledby/controls` resolve before JS.
+- Parts are order-independent in Ruby; DOM order is the order the caller renders them, as in React.
 
-### Simple Dropdown Menu (New Pattern)
+## Usage
 
 ```ruby
-# app/views/articles/show.rb
-
-render Components::Ui::DropdownMenu.new(
-  data: { ui__dropdown_placement_value: "bottom-end" }
-) do |dropdown|
-  dropdown.trigger(variant: :ghost, size: :icon) do
-    render Components::Ui::Icon.new(:"more-horizontal")
+render Components::V2::Card.new do
+  render Components::V2::Card::Header.new do
+    render Components::V2::Card::Title.new { "Settings" }
+    render Components::V2::Card::Description.new { "Manage your account" }
+    render Components::V2::Card::Action.new { render Components::V2::Button.new(variant: "link") { "Edit" } }
   end
-
-  dropdown.content do
-    dropdown.item { "Edit" }
-    dropdown.item { "Duplicate" }
-    dropdown.separator
-    dropdown.item(variant: :destructive) { "Delete" }
-  end
+  render Components::V2::Card::Content.new { render_form }
+  render Components::V2::Card::Footer.new(class: "justify-end") { render Components::V2::Button.new { "Save" } }
 end
 ```
 
-### Card with Multiple Sections (New Pattern)
+Local shorthand (optional, view-level only, still explicit): `V2 = Components::V2` constant at the top of the view file to shorten calls; no helper methods generated by the components.
+
+## `as_child`
+
+React `asChild` -> `as_child:` (see api-mapping.md). `false` by default; `as_child: :a` renders that tag; `as_child: Components::V2::Button.new(variant: "outline")` merges the part's attributes into the given component with Radix Slot semantics (child props win, classes plainly joined with no conflict resolution, `data-action` concatenated child first). All of it lives in `Components::V2::Base#render_as_child`; parts call it, never reimplement it.
 
 ```ruby
-# app/views/admin/dashboard/index.rb
-
-render Components::Ui::Card.new(class: "mb-6") do |card|
-  card.header do
-    card.title { "User Statistics" }
-    card.description { "Year-to-date overview" }
-  end
-
-  card.content(class: "space-y-4") do
-    # Chart or list content
-  end
-
-  card.footer do
-    render Components::Ui::Button.new { "View Details" }
-  end
-end
+render Components::V2::Dialog::Trigger.new(as_child: Components::V2::Button.new(variant: "outline")) { "Edit profile" }
 ```
 
-### Table with Rows (New Pattern)
+## DX helpers (generated, equivalent to the explicit classes)
 
 ```ruby
-# app/views/admin/articles/index.rb
-
-render Components::Ui::Table.new do |table|
+render Components::V2::Table.new do |table|
   table.header do
     table.row do
-      table.head { "Title" }
-      table.head { "Author" }
-      table.head { "Published" }
+      table.head { "Article" }
+      table.head(class: "text-right") { "Actions" }
     end
   end
-
   table.body do
-    articles.each do |article|
-      table.row do
-        table.cell { article.title }
-        table.cell { article.author.name }
-        table.cell { l(article.published_at, format: :short) }
-      end
-    end
+    @articles.each { |article| render Row.new(table: table, article: article) }
   end
 end
 ```
 
-### Accordion with Multiple Items (New Pattern)
+- **Contract:** the root `view_template` calls `yield self`; every class nested under the root and inheriting `Components::V2::Base` gets a public instance method named after it (`Header` -> `header`, `CheckboxItem` -> `checkbox_item`, `ScrollUpButton` -> `scroll_up_button`), defined automatically (`const_added`). `table.header(**attrs, &block)` is exactly `render Table::Header.new(**attrs), &block`.
+- **Same rule as the class names:** strip the root prefix once from the React export (`TableHead` -> `head`); a capitalized export without the prefix keeps its name (`ScrollBar` -> `scroll_bar`). The list per component is in each spec ("DX helpers" section, derived).
+- **Passing the root around** (as the legacy `Row.new(table: table, ...)` does) works: the helpers live on the yielded instance.
+- **Shadowing:** 22 components have a part whose helper name equals a Phlex HTML element (`header`, `footer`, `title`, `label`, `link`...). Harmless for callers; inside the root's own `view_template` use `tag(:header)` instead of the bare method. A name that collides with a Ruby core or Phlex API method is refused when the class loads.
+- **Verification:** each component's unit test asserts every helper exists and renders the same HTML as the explicit class; the parity runner can render the whole scenario set through the helpers (`parity_run.mjs --dx helpers`, gate G2b) and compare it to React.
 
-```ruby
-# app/views/help/index.rb
+## Common mistakes
 
-render Components::Ui::Accordion.new(type: :single) do |accordion|
-  accordion.item do
-    accordion.trigger { "How do I reset my password?" }
-    accordion.content { "Visit the account settings page..." }
-  end
-
-  accordion.item do
-    accordion.trigger { "What payment methods do you accept?" }
-    accordion.content { "We accept all major credit cards..." }
-  end
-end
-```
-
-## Sheet / Dialog — Stacking Context Rule
-
-Sheet and Dialog both render a `position: fixed` overlay and panel. **These elements must not be composed inside a container that creates a stacking context** (any element with `position: sticky/relative/absolute/fixed` combined with a `z-index`, or a container with `transform`, `filter`, or `will-change`).
-
-If the Sheet root is nested inside such a container, its fixed children are scoped to that stacking context and can appear *behind* higher-stacked ancestors (e.g. a sticky navbar with `z-50`).
-
-**Correct pattern — split trigger and content across the block:**
-
-Because the compound block can wrap arbitrary DOM, the trigger can live inside the sticky container while `sheet.content` renders after it.
-
-```ruby
-# CORRECT
-render Components::Ui::Sheet.new do |sheet|
-  div(class: "sticky top-0 z-20 ...") do   # stacking context
-    sheet.trigger { ... }                   # trigger — safe inside
-  end
-  div(class: "page-body ...") { ... }       # regular page content
-  sheet.content(side: :right) { ... }       # panel — outside sticky
-end
-
-# WRONG — content trapped inside stacking context
-div(class: "sticky top-0 z-20 ...") do
-  render Components::Ui::Sheet.new do |sheet|
-    sheet.trigger { ... }
-    sheet.content(side: :right) { ... }    # ← covered by higher z-index layers
-  end
-end
-```
-
-The same rule applies to `Components::Ui::Dialog`, Popover, DropdownMenu, and any other component that renders `position: fixed` children.
-
-## Migration Guide (Old → New)
-
-### Before (Old Pattern - Avoid in New Code)
-
-```ruby
-# Using old nested classes
-render Components::Ui::CardHeader.new do
-  render Components::Ui::CardTitle.new { "Settings" }
-  render Components::Ui::CardDescription.new { "Manage your account" }
-end
-
-render Components::Ui::CardContent.new do
-  # form fields
-end
-```
-
-### After (New Pattern - Required for New Code)
-
-```ruby
-# Using yielded helper methods
-render Components::Ui::Card.new do |card|
-  card.header do
-    card.title { "Settings" }
-    card.description { "Manage your account" }
-  end
-
-  card.content do
-    # form fields
-  end
-end
-```
-
-## Checklist for Creating Compound Components
-
-When building a new multi-part UI component, follow this checklist:
-
-1. **Parent Class Setup**
-   - [ ] Inherit from `Components::Base`
-   - [ ] Accept `**attrs` in `initialize`
-   - [ ] Store as `@attrs = attrs`
-   - [ ] Define `view_template(&block)` that yields self
-   - [ ] If interactive, inject default Stimulus controller in initialize
-
-2. **Child Helper Methods**
-   - [ ] Define one method per child part (e.g., `def header(**attrs, &block)`)
-   - [ ] Each method renders the child class immediately
-   - [ ] Pass `**attrs` and `&block` to child
-
-3. **Nested Child Classes**
-   - [ ] Create one nested class per child part
-   - [ ] Each inherits from `Components::Base`
-   - [ ] Each has `initialize(**attrs)` storing to `@attrs`
-   - [ ] Each implements `view_template` method
-   - [ ] Each has private `classes` method with all styling
-
-4. **Backward Compatibility**
-   - [ ] Add aliases at end of parent: `ChildAlias = ChildClass`
-   - [ ] Allows gradual migration from old code
-
-5. **Design System**
-   - [ ] Add examples to `app/views/design_system/index.rb`
-   - [ ] Display all variants and interactive states
-   - [ ] Add English and Spanish translations in `config/locales/{en,es}/design_system.yml`
-
-6. **Documentation**
-   - [ ] Update copilot-instructions.md if new component type
-   - [ ] Add to compound components list at top of this document
-
-## Performance Notes
-
-- Each child helper method creates a new instance (standard Phlex pattern)
-- No unnecessary re-renders because parent manages the tree
-- Stimulus controllers attached once to parent, manage child interactions
-- CSS class merging happens in `Components::Base` — use `merged_classes` in `view_template`
-
-## Common Pitfalls
-
-❌ **Don't**: Call `.new` on nested classes in views
-```ruby
-render Components::Ui::CardTitle.new { "Title" }  # ❌ Wrong
-```
-
-✅ **Do**: Call helper methods on parent
-```ruby
-render Components::Ui::Card.new do |card|
-  card.title { "Title" }  # ✅ Correct
-end
-```
-
-❌ **Don't**: Forget `initialize(**attrs)` in nested classes
-```ruby
-class Title < Components::Base
-  # Missing initialize!
-  def view_template(&block)
-    h2(class: merged_classes, &block)
-  end
-end
-```
-
-✅ **Do**: Always include initialize
-```ruby
-class Title < Components::Base
-  def initialize(**attrs)
-    @attrs = attrs
-  end
-
-  def view_template(&block)
-    h2(class: merged_classes, **attrs_without_class, &block)
-  end
-end
-```
-
-❌ **Don't**: Hardcode Stimulus data in parent without allowing override
-```ruby
-def initialize(**attrs)
-  @attrs = attrs
-  @attrs[:data][:controller] = "ui--dropdown"  # No escape hatch!
-end
-```
-
-✅ **Do**: Allow caller to override
-```ruby
-def initialize(**attrs)
-  @attrs = attrs
-  @attrs[:data] ||= {}
-  @attrs[:data][:controller] = "ui--dropdown" unless @attrs[:data][:controller]
-end
-```
-
-## Questions?
-
-Refer to the implementations in `app/components/ui/`. All 40+ components follow this exact pattern.
+- Hand-writing a helper (`def content(**attrs, &b) = render Content.new(**attrs, &b)`): helpers are generated by `Components::V2::Base`; a hand-written one can drift from the class (and the `--dx helpers` parity gate would no longer prove them).
+- Calling a bare element name inside a root's own `view_template` when a part helper shadows it (`header`, `title`, `footer`, `label`, `link`, `menu`, `sub`, `input`, ...): use `tag(:header)` there.
+- Wrapping parts in extra divs: breaks `has-data-[slot=...]` / `[&>svg]` selectors that the shadcn classes rely on.
+- Putting `Button` inside `Trigger` as content: nested interactive elements. Use `as_child:` (design-system R8).
+- Adding wrapper elements for layout: use `class:` on the part.
+- Reading `Current`, `params` or models inside a part: pass values in.

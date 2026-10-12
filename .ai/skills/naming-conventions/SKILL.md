@@ -52,6 +52,9 @@ Code should read like domain discussion. A casual observer should not be able to
 - Prefer keyword arguments when two or more arguments share a type and the order is not self-evident.
 - `enroll(user: user, course: course)` beats `enroll(user, course)` when both are objects.
 
+### Library exception (gems that mirror an external API)
+R1 (domain vocabulary) does not apply inside a library whose purpose is to reproduce an external, named API: for `phlex-shadcn` the shadcn/Radix vocabulary (`Dialog::Content`, `as_child`, `data-slot` names) IS the domain language and is kept 1:1 even where it would not be our choice. R2 (no stuttering), R4 to R12 (outcome-named methods, predicates, bang methods, variables, keyword arguments, casing) still apply. The gem's own helpers and internals follow the normal rules. See `ruby-gem-conventions`.
+
 ### Avoid
 - Abbreviations that are not universal in the domain (`usr`, `cfg`, `mgr`, `tmp`).
 - Technical suffixes that leak implementation (`_hash`, `_array`, `_list`) unless the data structure is itself the domain concept.

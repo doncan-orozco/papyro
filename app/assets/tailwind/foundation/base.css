@@ -1,0 +1,8 @@
+/* Host-only global rules that are not part of a shadcn theme. */
+html {
+  scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: 6rem;
+}

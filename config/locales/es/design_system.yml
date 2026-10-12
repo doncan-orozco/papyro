@@ -404,6 +404,7 @@ es:
       system: "Sistema"
     catalog:
       title: "Catalogo shadcn/ui Phlex"
+      v2_link: "Componentes V2 →"
       subtitle: "42 componentes - Tema Zinc - Colores OKLCH"
       toggle_dark: "Cambiar a modo oscuro"
       toggle_light: "Cambiar a modo claro"
@@ -664,3 +665,12 @@ es:
       react_iframe_title: "Componentes React shadcn/ui"
       phlex_iframe_title: "Componentes Phlex Design System"
       hint: "💡 Abre ambos paneles para comparar componentes pixel a pixel"
+
+    catalog_v2:
+      title: "Catalogo de componentes V2"
+      subtitle: "%{count} componentes Phlex portados de shadcn/ui, generados desde sus escenarios de paridad"
+      back: "Volver al catalogo"
+      nav: "Componentes V2"
+      scenario: "Escenario %{id} de %{count}"
+      parity: "Abrir pagina de paridad"
+      unavailable: "Vista previa no disponible (%{error})"
