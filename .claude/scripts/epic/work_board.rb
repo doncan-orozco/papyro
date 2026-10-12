@@ -25,7 +25,7 @@
 #   work_board.rb digest --epic S [--item N] [--format json|md]
 #   work_board.rb reap --epic S                            # free claims whose lease expired
 #
-# Env: WORK_GH (default `gh`), WORK_REMOTE (default `origin`), WORK_NOW (ISO time, tests), WORK_SESSION.
+# Env: WORK_GH (default `gh`), WORK_REMOTE (default `origin`), WORK_NOW (ISO time, tests), WORK_SESSION (else CLAUDE_CODE_SESSION_ID, else tmp/epic/session).
 # `next` never offers items in stage `review` unless --stage includes it: a review item waits for a human merge; `reviews` tells which
 # of them were merged, so a worker can verify the gates on main and advance them to done (which unblocks their dependents).
 # Output is always one JSON object on stdout (digest --format md prints markdown). Exit 0 ok, 1 negative answer
@@ -401,6 +401,8 @@ module WorkBoard
 
     def session
       id = ENV["WORK_SESSION"]
+      # One id per Claude Code session: the file fallback below is shared by every session started in this checkout.
+      id ||= "#{Socket.gethostname.split('.').first}-#{ENV['CLAUDE_CODE_SESSION_ID'][0, 8]}" if ENV["CLAUDE_CODE_SESSION_ID"].to_s.size >= 8
       unless id
         path = "tmp/epic/session"
         FileUtils.mkdir_p(File.dirname(path))
