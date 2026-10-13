@@ -140,7 +140,7 @@ Primitives composed: `presence` (exit-animation wait, Radix rules above), `colle
 <!-- spec_helpers:begin -->
 ## DX helpers (derived from the oracle, do not edit)
 
-`Components::V2::Accordion` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Accordion::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Accordion::Content.new`) stay valid.
+`Phlex::Shadcn::Accordion` MUST `yield self` from `view_template`; `Phlex::Shadcn::Base` generates one helper per nested part (`const_added`), each exactly `render Accordion::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Phlex::Shadcn::Accordion::Content.new`) stay valid.
 
 | helper | part class | React export |
 |---|---|---|
