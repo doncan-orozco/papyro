@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 require "rubygems"
+# Always this app's Gemfile: ignore a BUNDLE_GEMFILE inherited from another project's shell.
+ENV["BUNDLE_GEMFILE"] = File.expand_path("../Gemfile", __dir__)
 require "bundler/setup"
 
 # Explicit RuboCop config increases performance slightly while avoiding config confusion.
