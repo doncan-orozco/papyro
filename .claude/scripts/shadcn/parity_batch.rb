@@ -44,11 +44,14 @@ end
 def parse_options(argv)
   options = { components: nil, dx: false, themes: [], servers: true, out: "tmp/shadcn-port" }
   OptionParser.new do |parser|
-    parser.on("--components LIST") { |value| options[:components] = value }
-    parser.on("--dx") { options[:dx] = true }
-    parser.on("--themes LIST") { |value| options[:themes] = value.split(",").map(&:strip).reject(&:empty?).uniq }
-    parser.on("--no-servers") { options[:servers] = false }
-    parser.on("--out DIR") { |value| options[:out] = value }
+    parser.banner = "usage: parity_batch.rb --components a,b|all [--dx] [--themes LIST] [--no-servers] [--out DIR]"
+    parser.on("--components LIST", "comma list of components, or all (scenario files not starting with _)") { |value| options[:components] = value }
+    parser.on("--dx", "also G2b through the yielded-root helpers") { options[:dx] = true }
+    parser.on("--themes LIST", "also G4 for each theme preset plus one --dark run") do |value|
+      options[:themes] = value.split(",").map(&:strip).reject(&:empty?).uniq
+    end
+    parser.on("--no-servers", "servers already running; do not ensure Playwright or start/stop servers") { options[:servers] = false }
+    parser.on("--out DIR", "report directory (default tmp/shadcn-port)") { |value| options[:out] = value }
   end.parse!(argv)
   options
 rescue OptionParser::ParseError => error
@@ -141,10 +144,14 @@ def start_servers
   raise EnvironmentFailure, "no usable Playwright browser (run playwright_ensure.rb)" unless status.success?
 
   stdout, status = Open3.capture2("ruby", File.join(SCRIPTS, "servers.rb"), "start")
-  started = parse_report(stdout[/\{.*\}/m].to_s) || {}
-  raise EnvironmentFailure, "dev servers did not start (see tmp/shadcn-port/{rails,vite}.log)" unless status.success?
+  unless status.success?
+    # servers.rb reuses only healthy servers and then exits 0, so a failed start is always this run's: stop the half that came up.
+    stop_servers
+    raise EnvironmentFailure, "dev servers did not start (see tmp/shadcn-port/{rails,vite}.log)"
+  end
 
-  !started["reused"]
+  report = parse_report(stdout)
+  !(report.is_a?(Hash) && report["reused"]) # unparseable after a successful start: assume ours, so it is stopped
 end
 
 def stop_servers
@@ -166,17 +173,10 @@ components = component_names(options)
 servers_started = false
 results = {}
 begin
-  # A failed start may leave one of the two servers running: always stop what this run began (never reused ones).
-  begin
-    options[:servers] ? servers_started = start_servers : require_running_servers
-  rescue EnvironmentFailure
-    stop_servers if options[:servers]
-    raise
-  end
+  options[:servers] ? servers_started = start_servers : require_running_servers
   components.each { |component| results[component] = run_gates(component, options) }
 rescue EnvironmentFailure, SystemCallError => error
-  stop_servers if servers_started
-  environment_failure(error.message, servers_started: servers_started)
+  environment_failure(error.message, servers_started: servers_started) # exits; the ensure below stops the servers once
 ensure
   stop_servers if servers_started
 end

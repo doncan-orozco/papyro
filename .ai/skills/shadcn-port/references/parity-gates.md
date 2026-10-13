@@ -9,7 +9,7 @@ A component is DONE when every gate passes. Gates are scripts; agents only fix a
 | **G2b DX helpers** | The same scenario tree rendered through the yielded-root helpers (`table.header { ... }`) instead of the explicit classes must also equal React. Run on the scenarios whose id starts with `default`, `variant-`, `example__` (cap 25) of every component that has helpers (`spec_helpers.rb --print` lists them) | `node parity_run.mjs --component NAME --dx helpers --only <ids>` | same kinds as G2 |
 | **G3 behavior** | Same steps (click, hover, Tab, keys, typing) produce the same snapshot after every step: state attrs, focus target, open/close, scroll lock, roving focus, typeahead, dismissal | same run (steps in the scenario) | `FOCUS FOCUSED SCROLL_LOCK VISIBLE ATTR` at a step > 0, `PHLEX_JS_ERROR` |
 | **G4 theme** | Re-run G2 on the default scenarios with each preset in `app/assets/tailwind/theme/presets/` (slate, stone, zinc-radius0) and `--dark` | `parity_run.mjs --theme slate [--dark]` | `STYLE` |
-| **G5 house (per wave and final)** | All previously DONE components still pass G1+G2 (regression), host test suite and rubocop green, catalog complete, importmap pins resolve, no unused controllers, deviations register consistent | `/shadcn-audit all --house` | `G5_*` |
+| **G5 house (per wave and final)** | All previously DONE components still pass G1+G2 (regression), host test suite and rubocop green, catalog complete, importmap pins resolve (`G5_IMPORTMAP`), the JS directories exist (`G5_LAYOUT_MISSING`), no unused controllers, deviations register consistent | `/shadcn-audit all --house` | `G5_*` |
 
 ## Severity
 
@@ -48,9 +48,10 @@ The runner applies `--dark` and the theme CSS (as an adopted stylesheet) in an i
 - `--components a,b|all`: a comma list, or every scenario file whose name does not start with `_`.
 - `--dx`: also G2b, only for components that have yielded-root helpers (`spec_helpers.rb --print`), on scenarios starting `default`, `variant-` or `example__` (cap 25).
 - `--themes slate,stone,zinc-radius0`: also G4 on scenarios starting `variant-` or `default` (cap 12), plus one `--dark` run.
-- `--no-servers`: skip Playwright and server handling (they must already be running).
+- `--no-servers`: skip Playwright and server handling (they must already be running: the recorded ones, or `PARITY_REACT_URL` and `PARITY_PHLEX_URL`).
+- `--out DIR`: report directory (default `tmp/shadcn-port`).
 
-Reports land in `tmp/shadcn-port/<component>/{g2,g2b,g4-<theme>,g4-dark}.json`; stdout is `{ pass, servers_started, components }`. Exit 0 all green, 1 a gate failed, 2 the environment cannot run the gates.
+Reports land in `tmp/shadcn-port/<component>/{g2,g2b,g4-<theme>,g4-dark}.json`; stdout is `{ pass, servers_started, components }`. Exit 0 all green, 1 a gate found diffs, 2 bad arguments or an environment that cannot run the gates (no browser, servers down, a gate crashed without a report). Gates that cannot apply (`--dx` on a component without helpers) appear as `skipped` with a reason.
 
 ## Where the files are (`layout.rb`)
 

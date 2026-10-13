@@ -60,7 +60,7 @@ module ShadcnStaticGate
     private
 
     def root
-      @root ||= @m["name"].split("-").map(&:capitalize).join
+      @root ||= ShadcnLayout.root_class_name(@m["name"])
     end
 
     def short(part_name)

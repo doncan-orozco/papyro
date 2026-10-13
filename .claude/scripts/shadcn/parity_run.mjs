@@ -53,7 +53,12 @@ const STYLE_PROPS = [
   "outlineStyle", "zIndex", "flexDirection", "alignItems", "justifyContent", "whiteSpace", "textDecorationLine",
 ];
 // Attributes that legitimately differ between React/Radix and Rails/Stimulus and carry no contract.
-const IGNORED_ATTR = /^(class|style|id|for|selected|data-controller|data-action|data-turbo.*|data-.*-target|data-.*-value|data-.*-class|data-parity.*|aria-labelledby|aria-controls|aria-describedby|aria-owns|aria-activedescendant|tabindex-managed)$|^data-v2--|^data-radix|^data-reactroot/;
+// Same variable and default as ShadcnLayout::STIMULUS_PREFIX (layout.rb): keep them in sync.
+const STIMULUS_PREFIX = (process.env.SHADCN_STIMULUS_PREFIX || "v2").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const IGNORED_ATTR = new RegExp(
+  "^(class|style|id|for|selected|data-controller|data-action|data-turbo.*|data-.*-target|data-.*-value|data-.*-class|data-parity.*|aria-labelledby|aria-controls|aria-describedby|aria-owns|aria-activedescendant|tabindex-managed)$" +
+  `|^data-${STIMULUS_PREFIX}--|^data-radix|^data-reactroot`
+);
 
 async function snapshot(page, observe = []) {
   return page.evaluate(({ STYLE_PROPS, IGNORED_ATTR, observe }) => {

@@ -21,6 +21,12 @@ state_file = "docs/shadcn-port/state.json"
 state = File.exist?(state_file) ? JSON.parse(File.read(state_file)) : abort("no #{state_file}")
 done = state["components"].select { |n, c| c["status"] == "done" && !n.start_with?("_") }.keys
 
+# A done library without its JS directories means a wrong SHADCN_* override or a layout that has not landed yet: every controller check
+# below would be meaningless, so report that once instead of a false red per component or a silent pass.
+js_dirs = [ShadcnLayout::CONTROLLER_DIR, ShadcnLayout::PRIMITIVES_DIR]
+js_layout_missing = done.any? && js_dirs.none? { |dir| Dir.exist?(dir) }
+add.call("G5_LAYOUT_MISSING", "#{js_dirs.join(', ')} missing (check SHADCN_CONTROLLER_DIR / SHADCN_PRIMITIVES_DIR)") if js_layout_missing
+
 done.each do |name|
   manifest = JSON.parse(File.read("docs/shadcn-port/oracle/manifest/#{name}.json"))
   ruby_name = ShadcnLayout.ruby_name(name)
@@ -33,7 +39,7 @@ done.each do |name|
   # A spec may state that no controller is written on purpose (radix-stimulus R11: attaching one adds DOM the oracle lacks).
   spec = File.exist?("docs/shadcn-port/specs/#{name}.md") ? File.read("docs/shadcn-port/specs/#{name}.md") : ""
   no_controller = spec.match?(/No Stimulus controller|no `#{Regexp.escape(ShadcnLayout.identifier(name))}` controller|There is no `#{Regexp.escape(ShadcnLayout.identifier(name))}` controller/i)
-  add.call("G5_CONTROLLER_MISSING", controller) if interactive && !File.exist?(controller) && manifest["tier"] != "client" && !no_controller
+  add.call("G5_CONTROLLER_MISSING", controller) if !js_layout_missing && interactive && !File.exist?(controller) && manifest["tier"] != "client" && !no_controller
   if opts[:static_all]
     out, = Open3.capture2("ruby", ".claude/scripts/shadcn/static_gate.rb", "--component", name)
     add.call("G5_REGRESSION_G1", name) unless JSON.parse(out)["pass"]
@@ -81,8 +87,12 @@ if File.exist?(catalog_fui) && (pinned = importmap[/pin "@floating-ui\/dom".*?# 
   catalog_version = JSON.parse(File.read(catalog_fui))["version"]
   add.call("G5_FLOATING_UI_VERSION", "importmap pins @floating-ui/dom #{pinned} but the catalog (oracle) runs #{catalog_version}: re-pin") unless pinned == catalog_version
 end
-primitives_root = File.dirname(ShadcnLayout::PRIMITIVES_DIR)
-add.call("G5_IMPORTMAP", "config/importmap.rb lacks pin_all_from \"#{primitives_root}\"") if Dir.exist?(primitives_root) && !importmap.include?(primitives_root)
+[File.dirname(ShadcnLayout::PRIMITIVES_DIR), ShadcnLayout::CONTROLLER_DIR].each do |dir|
+  next unless Dir.exist?(dir)
+  next if importmap.match?(/^\s*pin_all_from\s+["']#{Regexp.escape(dir)}["']/)
+
+  add.call("G5_IMPORTMAP", "config/importmap.rb lacks pin_all_from \"#{dir}\"")
+end
 
 require_relative "../../../lib/shadcn/theme"
 if File.exist?("app/assets/tailwind/theme/theme.css")

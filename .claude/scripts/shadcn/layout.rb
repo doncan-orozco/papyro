@@ -36,9 +36,10 @@ module ShadcnLayout
   def self.ruby_name(component) = component.tr("-", "_")
 
   # `button-group` => `Phlex::Shadcn::ButtonGroup`
-  def self.root_constant(component)
-    "#{NAMESPACE}::#{CONSTANT_OVERRIDES.fetch(component) { component.split('-').map(&:capitalize).join }}"
-  end
+  def self.root_constant(component) = "#{NAMESPACE}::#{root_class_name(component)}"
+
+  # `button-group` => `ButtonGroup` (the class name without the namespace)
+  def self.root_class_name(component) = CONSTANT_OVERRIDES.fetch(component) { component.split("-").map(&:capitalize).join }
 
   def self.component_files(component)
     name = ruby_name(component)
