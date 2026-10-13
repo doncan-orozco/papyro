@@ -44,7 +44,7 @@ The extraction proof is mechanical: run the gem's tests from its own directory w
 
 ## Namespacing
 
-`Phlex::Shadcn::Button`, `Phlex::Shadcn::Dialog::Content`. Stimulus identifiers use the `shadcn--` prefix, matching `app/javascript/shadcn/controllers/<name>_controller.js` inside the gem. A rename (for example from `Components::V2`) is a mechanical, reviewed change and is followed by the full parity gates: the DOM must not change.
+`Phlex::Shadcn::Button`, `Phlex::Shadcn::Dialog::Content`. Stimulus identifiers use the `shadcn--` prefix, matching `app/javascript/controllers/shadcn/<name>_controller.js` inside the gem. A rename (for example from `Components::V2`) is a mechanical, reviewed change and is followed by the full parity gates: the DOM must not change.
 
 ## Public API
 
