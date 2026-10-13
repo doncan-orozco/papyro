@@ -1,23 +1,28 @@
 # frozen_string_literal: true
 
-# Parent of every V2 (shadcn port) part. Provides attribute merging, the Radix Slot merge used by `as_child:`
-# and the generated yielded-root DX helpers. See .ai/skills/shadcn-port/references/api-mapping.md.
+# Parent of every Phlex::Shadcn part. Provides attribute merging, the Radix Slot merge used by `as_child:`
+# and the generated yielded-root DX helpers (`root.header { ... }`).
+#
+# Everything on this class except subclassing it is plumbing for the components and is marked `@api private`.
 require "active_support"
 require "active_support/core_ext/hash/deep_merge"
 require "active_support/core_ext/hash/except"
 require "active_support/core_ext/object/blank"
-require "active_support/core_ext/object/json" # same JSON escaping as the host app
+require "active_support/core_ext/object/json" # same JSON escaping as ActiveSupport in a Rails app
 require "active_support/core_ext/enumerable"
 require "active_support/core_ext/string/inflections"
 require "date" # Phlex::SGML::Attributes references Date without requiring it
 require "securerandom"
 
 class Phlex::Shadcn::Base < Phlex::HTML
+  # @api private
   ELEMENT_METHODS = (Phlex::HTML::StandardElements.public_instance_methods +
                      Phlex::HTML::VoidElements.public_instance_methods).freeze
 
   # React DOM props written as snake_case kwargs (`tab_index:`) => the real HTML attribute (`tabindex`).
   # Without this Phlex dasherizes them into invalid names (`tab-index`). aria-*/data-* are handled separately.
+  #
+  # @api private
   DOM_ATTRIBUTES = (%w[
     tabIndex formNoValidate readOnly maxLength minLength autoComplete autoFocus autoCapitalize autoCorrect autoSave
     spellCheck contentEditable crossOrigin encType formAction formEncType formMethod formTarget noValidate colSpan
@@ -35,6 +40,8 @@ class Phlex::Shadcn::Base < Phlex::HTML
   # Ruby 3.2+: runs for every constant assigned in a class body, nested `class Header < Base` included.
   # Defines `root.header(**attrs, &block)` == `render Root::Header.new(**attrs), &block`.
   # An HTML element name (`header`, `title`) may be shadowed on purpose: roots use `tag(:header)` internally.
+  #
+  # @api private
   def self.const_added(name)
     super
     part = begin
@@ -53,20 +60,27 @@ class Phlex::Shadcn::Base < Phlex::HTML
     define_method(helper) { |**attrs, &block| render self.class.const_get(name, false).new(**attrs), &block }
   end
 
+  # @api private
   def self.reserved_helper_names
     (Object.public_instance_methods + Phlex::HTML.public_instance_methods) - ELEMENT_METHODS
   end
 
   # Slot accessors used by `render_as_child` on the child instance (components keep caller props in @attrs).
+  #
+  # @api private
   def as_child_attrs = @attrs || {}
 
   # `slot_class` is joined plainly in front of the child's own (cn-resolved) class, like Radix does.
+  #
+  # @api private
   def receive_slot(attrs, slot_class)
     @attrs = attrs
     @slot_class = slot_class
   end
 
   # Memoized TailwindMerge::Merger shared by every component (class-level).
+  #
+  # @api private
   def self.tw_merger
     @tw_merger ||= TailwindMerge::Merger.new
   end
@@ -74,6 +88,8 @@ class Phlex::Shadcn::Base < Phlex::HTML
   protected
 
   # Mirrors React's cn(...inputs) => twMerge(clsx(inputs)): strings, arrays, hashes (truthy keys) and nil, conflicts resolved.
+  #
+  # @api private
   def cn(*inputs)
     flattened = flatten_class_inputs(inputs)
     return "" if flattened.empty?
@@ -82,11 +98,15 @@ class Phlex::Shadcn::Base < Phlex::HTML
   end
 
   # `"icon-sm"`, `:icon_sm` and `"icon_sm"` all become `"icon-sm"` (React variant keys).
+  #
+  # @api private
   def normalize_option(value)
     value&.to_s&.tr("_", "-")
   end
 
   # Ids for aria wiring: `ids("dialog-1")[:title]` => "dialog-1-title". Without a base a random one is used.
+  #
+  # @api private
   def ids(base = nil)
     base ||= "v2-#{SecureRandom.alphanumeric(6).downcase}"
     Hash.new { |_, part| "#{base}-#{part.to_s.tr("_", "-")}" }
@@ -94,6 +114,8 @@ class Phlex::Shadcn::Base < Phlex::HTML
 
   # Component defaults + caller attrs: `data:`/`aria:` deep-merged (caller wins), `class` through `cn`
   # (caller wins on Tailwind conflicts), `data-action` descriptors concatenated (defaults first).
+  #
+  # @api private
   def merge_attrs(defaults, attrs)
     defaults = canonical_attrs(defaults)
     attrs = canonical_attrs(attrs)
@@ -104,8 +126,10 @@ class Phlex::Shadcn::Base < Phlex::HTML
     css.empty? ? merged.except(:class) : merged.merge(class: css)
   end
 
-  # Radix `Slot`: renders `child` (a V2 component instance, or a tag symbol) with `slot_attrs` merged in,
+  # Radix `Slot`: renders `child` (a Phlex::Shadcn component instance, or a tag symbol) with `slot_attrs` merged in,
   # exactly like `@radix-ui/react-slot` mergeProps. NOT `merge_attrs`: no tailwind-merge here.
+  #
+  # @api private
   def render_as_child(child, **slot_attrs, &block)
     slot = canonical_attrs(slot_attrs)
     if child.is_a?(Symbol) || child.is_a?(String)
