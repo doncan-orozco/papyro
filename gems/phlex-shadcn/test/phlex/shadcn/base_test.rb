@@ -182,4 +182,18 @@ class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
 
     assert_equal '<button aria-pressed="true" tabindex="0">t</button>', html
   end
+
+  test "nil data and aria are treated as empty" do
+    html = render_view { render(Slotter.new(as_child: :button, data: nil, aria: nil)) { "t" } }
+
+    assert_equal "<button>t</button>", html
+  end
+
+  class AppTable < Table; end
+
+  test "helpers keep working on a subclass of a root" do
+    html = render_view { render(AppTable.new) { |t| t.header { "Hi" } } }
+
+    assert_includes html, "Hi"
+  end
 end

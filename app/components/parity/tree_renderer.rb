@@ -153,8 +153,11 @@ class Components::Parity::TreeRenderer < Components::Base
     raise Error, "unknown component #{name}"
   end
 
+  # Root components: the top-level classes of the gem (registered by its loader, so no file access needed).
   def v2_roots
-    Dir[Phlex::Shadcn::Loader.dirs.first.then { |dir| File.join(dir, "shadcn", "*.rb") }]
-      .filter_map { |file| File.basename(file, ".rb").camelize unless %w[base.rb version.rb].include?(File.basename(file)) }
+    @v2_roots ||= Phlex::Shadcn.constants(false).select do |name|
+      part = Phlex::Shadcn.const_get(name)
+      part.is_a?(Class) && part < Phlex::Shadcn::Base
+    end.map(&:to_s)
   end
 end

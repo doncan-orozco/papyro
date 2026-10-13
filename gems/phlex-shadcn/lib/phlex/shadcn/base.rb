@@ -50,6 +50,10 @@ class Phlex::Shadcn::Base < Phlex::HTML
     part = begin
       const_get(name, false)
     rescue NameError
+      # Zeitwerk is still registering this namespace's lazy parts and the part's file references a sibling that is not
+      # registered yet; const_added fires again when the file assigns the constant. Any other NameError is a real bug.
+      raise unless autoload?(name, false)
+
       nil
     end
     return unless part.is_a?(Class) && part < Phlex::Shadcn::Base
@@ -58,7 +62,9 @@ class Phlex::Shadcn::Base < Phlex::HTML
     raise ArgumentError, "helper ##{helper} (from #{name}) would override a Ruby/Phlex API method" if reserved_helper_names.include?(helper)
 
     # Resolved at call time (not captured): `const_added` fires when the class is created, before its file has defined `initialize`.
-    define_method(helper) { |**attrs, &block| render self.class.const_get(name, false).new(**attrs), &block }
+    # Looked up on the namespace that owns the part, so subclasses of a root (`class AppTable < Phlex::Shadcn::Table`) keep the helpers.
+    owner = self
+    define_method(helper) { |**attrs, &block| render owner.const_get(name, false).new(**attrs), &block }
   end
 
   # @api private
@@ -168,7 +174,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
         (result[group.to_sym] ||= {})[flat.delete_prefix("#{group}-").tr("-", "_").to_sym] = stringify_boolean(value)
       elsif DATA_ARIA.include?(flat)
         nested = (result[flat.to_sym] ||= {})
-        value.each { |k, v| nested[k.to_s.tr("-", "_").to_sym] = stringify_boolean(v) }
+        (value || {}).each { |k, v| nested[k.to_s.tr("-", "_").to_sym] = stringify_boolean(v) }
       else
         result[DOM_ATTRIBUTES.fetch(flat, key)] = value
       end
@@ -182,7 +188,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
 
   def slot_merge(slot, child)
     merged = slot.deep_merge(child) # child wins everything by default
-    data = merged[:data] ||= {}
+    data = merged[:data] = (merged[:data] || {}).dup # never mutate a hash the caller or the child still holds
     actions = [ child.dig(:data, :action), slot.dig(:data, :action) ].compact_blank
     data[:action] = actions.join(" ") if actions.any?
     controllers = [ slot.dig(:data, :controller), child.dig(:data, :controller) ].compact_blank.flat_map { |c| c.to_s.split }.uniq
