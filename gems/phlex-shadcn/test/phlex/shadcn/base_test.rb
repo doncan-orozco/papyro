@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "phlex/test_case"
+require "tempfile"
 
 class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
   class Probe < Phlex::Shadcn::Base
@@ -194,6 +195,38 @@ class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
   test "helpers keep working on a subclass of a root" do
     html = render_view { render(AppTable.new) { |t| t.header { "Hi" } } }
 
-    assert_includes html, "Hi"
+    assert_includes html, "<thead>Hi</thead>"
+  end
+
+  # Parts that live in their own file are registered lazily by the loader; the hook must still define their helper at
+  # registration time, and a real NameError raised by a part's file must propagate instead of being swallowed.
+  module LazyRoots; end
+
+  def lazy_root(name, source)
+    root = Class.new(Phlex::Shadcn::Base)
+    LazyRoots.const_set(name, root)
+    file = Tempfile.new([ name.to_s, ".rb" ])
+    file.write(source.call(root))
+    file.flush
+    [ root, file ]
+  end
+
+  test "a lazily loaded part gets its helper when it is registered" do
+    root, file = lazy_root(:Good, ->(r) { "class #{r.name}::FooBar < Phlex::Shadcn::Base; end" })
+    root.autoload(:FooBar, file.path)
+
+    assert_respond_to root.new, :foo_bar
+  ensure
+    file&.close!
+  end
+
+  test "a NameError raised by a part file is deferred to the first real access, not lost" do
+    root, file = lazy_root(:Bad, ->(r) { "class #{r.name}::Broken < Phlex::Shadcn::Base\n  NotDefinedAnywhere\nend" })
+    root.autoload(:Broken, file.path)
+
+    error = assert_raises(NameError) { root.const_get(:Broken) }
+    assert_match(/NotDefinedAnywhere/, error.message)
+  ensure
+    file&.close!
   end
 end
