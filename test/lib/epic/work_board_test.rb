@@ -5,6 +5,7 @@ require "rbconfig"
 require "stringio"
 require Rails.root.join("test/supports/fake_gh").to_s
 require Rails.root.join(".claude/scripts/epic/work_board").to_s
+require Rails.root.join(".claude/scripts/audit_receipt").to_s
 
 # In-process runs route `gh` to FakeGh (fast); the concurrency test runs the real script as subprocesses instead.
 module FakeGhRoute
@@ -197,14 +198,17 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_equal "filtered", wb("next", "--epic", "demo", "--stage", "review")[0]["reason"]
   end
 
-  test "the session that built an item is never offered its audit" do
+  test "the session that built an item is offered its own audit: the same session audits and iterates" do
     make_epic
     a = make_item("A", wave: 1, owns: "lib/a/**", stage: "build")
     claim(a, "builder")
-    wb("advance", a.to_s, "--epic", "demo", "--session", "builder", "--stage", "audit", "--note", "built")
+    wb("advance", a.to_s, "--epic", "demo", "--session", "builder", "--stage", "audit", "--keep", "--note", "built")
 
-    assert_nil wb("next", "--epic", "demo", "--stage", "audit", "--session", "builder")[0]["item"]
-    assert_equal a, wb("next", "--epic", "demo", "--stage", "audit", "--session", "reviewer")[0]["item"]["number"]
+    assert_equal "builder", state_of(a)["holder"], "audit keeps the claim, nobody else gets the item"
+    assert_nil wb("next", "--epic", "demo", "--stage", "audit")[0]["item"], "a held item is not offered to anyone"
+    wb("release", a.to_s, "--epic", "demo", "--session", "builder")
+
+    assert_equal a, wb("next", "--epic", "demo", "--stage", "audit", "--session", "builder")[0]["item"]["number"]
   end
 
   # ---- claims --------------------------------------------------------------------------------------------------------
@@ -569,7 +573,82 @@ class WorkBoardTest < ActiveSupport::TestCase
 
   def move_to_review(number, session: "builder")
     claim(number, session)
-    wb("advance", number.to_s, "--epic", "demo", "--session", session, "--stage", "review")
+    wb("advance", number.to_s, "--epic", "demo", "--session", session, "--stage", "review", "--audit-receipt", audit_receipt)
+  end
+
+  # A receipt like the one /audit-feature persists, written outside the work dir so it is not part of the audited code.
+  AUDIT_OK = { "architecture" => 9, "clean_code" => 8, "scalability" => 8, "security" => 9, "testability" => 8 }.freeze
+
+  def audit_receipt(scores: AUDIT_OK, verdict: "PASS", mandatory_open: 0, name: "scorecard.json")
+    File.write(File.join(@work, "feature.rb"), "# feature\n") unless File.exist?(File.join(@work, "feature.rb"))
+    path = File.join(@dir, name)
+    AuditReceipt.write(path, scores: scores, verdict: verdict, mandatory_open: mandatory_open, iterations: 2, dir: @work)
+    path
+  end
+
+  def advance_to_review(number, receipt, session: "s1")
+    Dir.chdir(@work) { wb("advance", number.to_s, "--epic", "demo", "--session", session, "--stage", "review", "--audit-receipt", receipt) }
+  end
+
+  # ---- audit bar: the script judges the receipt, not the agent -----------------------------------------------------------
+  test "review needs an audit receipt that passes: every dimension >= 8, PASS, nothing mandatory open, for this very code" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**", stage: "audit")
+    claim(a, "s1")
+
+    none, code = wb("advance", a.to_s, "--epic", "demo", "--session", "s1", "--stage", "review")
+
+    assert_equal 1, code
+    assert_equal "audit_not_passed", none["reason"]
+    assert_match(/no receipt/, none["reasons"].join)
+
+    low, code = advance_to_review(a, audit_receipt(scores: AUDIT_OK.merge("security" => 7)))
+
+    assert_equal 1, code
+    assert_equal [ "security=7 is below 8" ], low["reasons"], "one weak dimension fails even when the others are 10"
+
+    assert_equal 1, advance_to_review(a, audit_receipt(verdict: "NEEDS-REWORK"))[1]
+    assert_equal 1, advance_to_review(a, audit_receipt(mandatory_open: 2))[1]
+    incomplete = File.join(@dir, "incomplete.json")
+    File.write(incomplete, JSON.generate(JSON.parse(File.read(audit_receipt)).tap { |r| r["scores"].delete("testability") }))
+    missing, code = advance_to_review(a, incomplete)
+
+    assert_equal 1, code
+    assert_match(/testability score is missing/, missing["reasons"].join)
+    assert_equal "audit", state_of(a)["stage"], "a refused advance changes nothing"
+    assert_equal "s1", state_of(a)["holder"], "and keeps the claim so the worker can fix and retry"
+
+    good, code = advance_to_review(a, audit_receipt)
+
+    assert_equal 0, code, good.inspect
+    assert_equal "review", state_of(a)["stage"]
+    note = fake_db["issues"].find { |i| i["number"] == a }["comments"].map { |c| c["body"] }.last
+
+    assert_match(/audit min=8 verdict=PASS iterations=2/, note)
+  end
+
+  test "a receipt goes stale the moment the code changes after the audit" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**", stage: "audit")
+    claim(a, "s1")
+    receipt = audit_receipt
+    File.write(File.join(@work, "feature.rb"), "# changed after the audit\n")
+
+    stale, code = advance_to_review(a, receipt)
+
+    assert_equal 1, code
+    assert_match(/stale receipt/, stale["reasons"].join)
+  end
+
+  test "committing the audited code does not make the receipt stale" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**", stage: "audit")
+    claim(a, "s1")
+    receipt = audit_receipt
+    system("git", "-C", @work, "add", "-A", exception: true)
+    system("git", "-C", @work, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "feature", exception: true)
+
+    assert_equal 0, advance_to_review(a, receipt)[1]
   end
 
   test "next never offers an item that waits in review, and says the epic is awaiting a merge" do
