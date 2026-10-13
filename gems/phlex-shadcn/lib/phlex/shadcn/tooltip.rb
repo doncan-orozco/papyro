@@ -2,6 +2,8 @@
 
 # shadcn Tooltip (Radix Tooltip). Spec: docs/shadcn-port/specs/tooltip.md. Behavior in controllers/shadcn/tooltip_controller.js.
 # Provider and Root render no element: they push their options into the Phlex render context for the parts inside.
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
   CONTEXT_KEY = :shadcn_tooltip_root
   PROVIDER_KEY = :shadcn_tooltip_provider
@@ -77,7 +79,7 @@ class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
 
     # Radix concatAriaDescribedby: caller ids first, deduplicated.
     def describedby(attrs, content_id)
-      [ attrs.dig(:aria, :describedby), content_id ].compact_blank.flat_map { |ids| ids.to_s.split }.uniq.join(" ")
+      [ attrs.dig(:aria, :describedby), content_id ].reject_blank.flat_map { |ids| ids.to_s.split }.uniq.join(" ")
     end
 
     def values(root)
@@ -127,7 +129,7 @@ class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
       attrs = canonical_attrs(@attrs)
       label = attrs.dig(:aria, :label)
       options = @options.merge(dir: attrs[:dir]).compact
-      template(data: { shadcn__tooltip_template: root[:key], options: options.to_json }) do
+      template(data: { shadcn__tooltip_template: root[:key], options: json(options) }) do
         div(**content_attrs(attrs, label)) do
           yield if block_given?
           arrow

@@ -134,7 +134,7 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
       root = root_context
       attrs = canonical_attrs(@attrs)
       host = claim_host(root) ? host_data(root) : {}
-      template(data: { shadcn__popover_template: root[:key], options: @options.merge(dir: attrs[:dir]).compact.to_json }.merge(host)) do
+      template(data: { shadcn__popover_template: root[:key], options: json(@options.merge(dir: attrs[:dir]).compact) }.merge(host)) do
         div(**content_attrs(root, attrs), &)
       end
     end

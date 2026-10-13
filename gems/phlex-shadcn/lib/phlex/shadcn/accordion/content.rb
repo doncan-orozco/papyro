@@ -2,6 +2,8 @@
 
 # shadcn AccordionContent: the region div has fixed classes, the caller class goes to the inner div. Radix mounts the
 # children only while open: closed bodies ship in an inert template that the controller takes over on connect.
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::Accordion::Content < Phlex::Shadcn::Base
   include Phlex::Shadcn::Accordion::Support
 
@@ -51,6 +53,6 @@ class Phlex::Shadcn::Accordion::Content < Phlex::Shadcn::Base
 
   # The mount animation stays suspended for content that is present at first paint (Radix isMountAnimationPrevented).
   def style_for(mounted)
-    [ VARS, style_string(@style), (MOUNT_PREVENTION if mounted) ].compact_blank.join("; ")
+    [ VARS, style_string(@style), (MOUNT_PREVENTION if mounted) ].reject_blank.join("; ")
   end
 end

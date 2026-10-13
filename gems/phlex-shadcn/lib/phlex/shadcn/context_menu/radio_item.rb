@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::ContextMenu::RadioItem < Phlex::Shadcn::Base
   include Phlex::Shadcn::ContextMenu::Support
 
@@ -18,7 +20,7 @@ class Phlex::Shadcn::ContextMenu::RadioItem < Phlex::Shadcn::Base
   def view_template(&)
     group = context[Phlex::Shadcn::ContextMenu::RADIO_GROUP_KEY]
     checked = !group.nil? && !group[:value].nil? && group[:value].to_s == @value
-    defaults = item_attrs(disabled: @disabled, text_value: @text_value).deep_merge(
+    defaults = item_attrs(disabled: @disabled, text_value: @text_value).merge_deep(
       role: "menuitemradio", class: CLASSES,
       aria: { checked: checked.to_s },
       data: { slot: "context-menu-radio-item", state: checked ? "checked" : "unchecked", shadcn__dropdown_menu_value: @value }

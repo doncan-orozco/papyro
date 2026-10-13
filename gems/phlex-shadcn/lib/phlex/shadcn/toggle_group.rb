@@ -90,7 +90,7 @@ class Phlex::Shadcn::ToggleGroup < Phlex::Shadcn::Base
         orientation: (@roving_focus ? @orientation : nil),
         shadcn__toggle_group_type_value: @type,
         shadcn__toggle_group_controlled_value: @controlled.to_s,
-        shadcn__toggle_group_initial_value: (@type == "multiple" ? @value.to_json : nil),
+        shadcn__toggle_group_initial_value: (@type == "multiple" ? json(@value) : nil),
         shadcn__toggle_group_loop_value: @loop.to_s,
         shadcn__toggle_group_roving_focus_value: @roving_focus.to_s,
         shadcn__toggle_group_orientation_value: @orientation,

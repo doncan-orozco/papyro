@@ -3,6 +3,8 @@
 # shadcn TabsContent: Radix Content over Presence. React mounts the children only while the panel is present: inactive
 # bodies ship in an inert template that the controller takes over on connect (an inactive as_child panel is only that
 # template, since React renders nothing for it).
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::Tabs::Content < Phlex::Shadcn::Base
   include Phlex::Shadcn::Tabs::Support
 
@@ -41,7 +43,7 @@ class Phlex::Shadcn::Tabs::Content < Phlex::Shadcn::Base
   def render_deferred(root, &block)
     attrs = content_attrs(root, true).merge(style: join_style(@style))
     template(data: { shadcn__tabs_target: "deferred", shadcn__tabs_item_value: @value, shadcn__tabs_as_child: "true" }) do
-      render_as_child(@as_child, **attrs.compact_blank, &block)
+      render_as_child(@as_child, **attrs.reject_blank, &block)
     end
   end
 

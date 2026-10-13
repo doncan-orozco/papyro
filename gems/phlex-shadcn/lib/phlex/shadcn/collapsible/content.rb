@@ -2,6 +2,8 @@
 
 # shadcn CollapsibleContent. Radix mounts the children only while open: closed bodies ship in an inert template that the
 # controller takes over on connect. With as_child a closed content renders no element at all, only that template.
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::Collapsible::Content < Phlex::Shadcn::Base
   include Phlex::Shadcn::Collapsible::Support
 
@@ -40,12 +42,12 @@ class Phlex::Shadcn::Collapsible::Content < Phlex::Shadcn::Base
                   style: style_for(prevent),
                   data: { state: open ? "open" : "closed", disabled: disabled_data(root),
                           slot: "collapsible-content", shadcn__collapsible_target: "content",
-                          shadcn__collapsible_force_mount: @force_mount.to_s, shadcn__collapsible_as_child: @as_child.present?.to_s }
+                          shadcn__collapsible_force_mount: @force_mount.to_s, shadcn__collapsible_as_child: @as_child.filled?.to_s }
                 }, @attrs)
   end
 
   # The mount animation stays suspended for content that is present at first paint (Radix isMountAnimationPrevented).
   def style_for(prevent)
-    [ (MOUNT_PREVENTION if prevent), style_string(@style) ].compact_blank.join("; ")
+    [ (MOUNT_PREVENTION if prevent), style_string(@style) ].reject_blank.join("; ")
   end
 end

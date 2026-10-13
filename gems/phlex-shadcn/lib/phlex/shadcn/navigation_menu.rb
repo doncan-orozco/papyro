@@ -6,6 +6,8 @@
 # Item renders only its `li`; it pushes the item value into the Phlex render context for Trigger and Content.
 # Radix mounts Content, the inner Viewport and the Indicator on the client, so those parts ship their markup in an
 # inert <template> (deviation: docs/shadcn-port/deviations/navigation-menu.json) that the controller clones.
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
@@ -45,7 +47,8 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
                         data: {
                           orientation: @orientation, slot: "navigation-menu", viewport: @viewport.to_s, controller: "shadcn--navigation-menu",
                           shadcn__navigation_menu_value_value: @value, shadcn__navigation_menu_controlled_value: @controlled.to_s,
-                          shadcn__navigation_menu_delay_duration_value: @delay_duration, shadcn__navigation_menu_skip_delay_duration_value: @skip_delay_duration,
+                          shadcn__navigation_menu_delay_duration_value: @delay_duration,
+                          shadcn__navigation_menu_skip_delay_duration_value: @skip_delay_duration,
                           shadcn__navigation_menu_orientation_value: @orientation, shadcn__navigation_menu_dir_value: dir,
                           shadcn__navigation_menu_activation_mode_value: @activation_mode
                         }
@@ -65,11 +68,11 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     private
 
     def root_context
-      context[ROOT_KEY] || raise(ArgumentError, "`#{self.class.name.demodulize}` must be used within `NavigationMenu`")
+      context[ROOT_KEY] || raise(ArgumentError, "`#{self.class.name.unqualified}` must be used within `NavigationMenu`")
     end
 
     def item_context
-      context[ITEM_KEY] || raise(ArgumentError, "`#{self.class.name.demodulize}` must be used within `NavigationMenu::Item`")
+      context[ITEM_KEY] || raise(ArgumentError, "`#{self.class.name.unqualified}` must be used within `NavigationMenu::Item`")
     end
   end
 
@@ -99,7 +102,7 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     include Support
 
     def initialize(value: nil, as_child: false, **attrs)
-      @value = value&.to_s.presence
+      @value = value&.to_s&.unless_blank
       @as_child = as_child
       @attrs = attrs
       super()

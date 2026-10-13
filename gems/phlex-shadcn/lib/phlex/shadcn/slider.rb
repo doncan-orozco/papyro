@@ -2,6 +2,8 @@
 
 # shadcn Slider over Radix Slider (Root, Track, Range, Thumb rendered internally). Spec: docs/shadcn-port/specs/slider.md.
 # Behavior: controllers/shadcn/slider_controller.js (one controller on the root span).
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
@@ -81,7 +83,7 @@ class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
     {
       aria: { disabled: @disabled.to_s },
       dir: (@horizontal ? @direction : @dir),
-      style: [ style_string(@attrs[:style]).presence,
+      style: [ style_string(@attrs[:style]).unless_blank,
                "--radix-slider-thumb-transform: #{THUMB_TRANSFORM[@orientation]};" ].compact.join("; "),
       class: ROOT_CLASS,
       data: {

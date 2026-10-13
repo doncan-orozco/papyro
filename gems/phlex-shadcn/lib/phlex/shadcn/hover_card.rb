@@ -95,7 +95,7 @@ class Phlex::Shadcn::HoverCard < Phlex::Shadcn::Base
       root = context[CONTEXT_KEY] or raise ArgumentError, "`HoverCardContent` must be used within `HoverCard`"
       attrs = canonical_attrs(@attrs)
       options = @options.merge(dir: attrs[:dir]).compact
-      template(data: { shadcn__hover_card_template: root[:key], options: options.to_json }) do
+      template(data: { shadcn__hover_card_template: root[:key], options: json(options) }) do
         div(**content_attrs(attrs), &)
       end
     end

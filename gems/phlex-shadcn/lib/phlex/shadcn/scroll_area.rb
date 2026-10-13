@@ -2,6 +2,8 @@
 
 # shadcn ScrollArea over Radix ScrollArea (Root, Viewport, Scrollbar, Thumb, Corner). Spec: docs/shadcn-port/specs/scroll-area.md.
 # Behavior: controllers/shadcn/scroll_area_controller.js (one controller on the root div; it mounts the scrollbars kept in templates).
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
@@ -49,7 +51,7 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
     {
       dir: direction,
       class: ROOT_CLASS,
-      style: [ ROOT_STYLE, style_string(@attrs[:style]).presence&.then { |css| "#{css};" } ].compact.join(" "),
+      style: [ ROOT_STYLE, style_string(@attrs[:style]).unless_blank&.then { |css| "#{css};" } ].compact.join(" "),
       data: {
         slot: "scroll-area", controller: "shadcn--scroll-area",
         shadcn__scroll_area_type_value: @type, shadcn__scroll_area_scroll_hide_delay_value: @scroll_hide_delay

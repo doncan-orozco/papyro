@@ -164,10 +164,10 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     pinned = Sidebar::MenuSkeleton.with_pinned_width(70) { provider { render(Sidebar::MenuSkeleton.new) } }
 
     assert_includes fragment(pinned).at_css("[data-sidebar=menu-skeleton-text]")["style"], "--skeleton-width: 70%"
-    assert_nil ActiveSupport::IsolatedExecutionState[Sidebar::MenuSkeleton::PIN_KEY]
+    assert_nil Thread.current[Sidebar::MenuSkeleton::PIN_KEY]
 
     assert_raises(RuntimeError) { Sidebar::MenuSkeleton.with_pinned_width(70) { raise "boom" } }
-    assert_nil ActiveSupport::IsolatedExecutionState[Sidebar::MenuSkeleton::PIN_KEY]
+    assert_nil Thread.current[Sidebar::MenuSkeleton::PIN_KEY]
   end
 
   test "every DX helper renders the same HTML as the explicit class" do

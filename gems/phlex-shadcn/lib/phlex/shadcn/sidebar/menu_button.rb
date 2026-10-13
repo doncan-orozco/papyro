@@ -2,6 +2,8 @@
 
 # shadcn SidebarMenuButton. With `tooltip:` the button is the trigger of a Tooltip whose content stays hidden unless the
 # sidebar is collapsed on desktop (tsx:525-545); the controller keeps `hidden` current.
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
   include Phlex::Shadcn::Sidebar::Support
 
@@ -38,7 +40,7 @@ class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
     sidebar = Phlex::Shadcn::Sidebar.use_sidebar(self)
     attrs = part_attrs(cn(self.class.variants(variant: @variant, size: @size)),
                        data: { slot: "sidebar-menu-button", sidebar: "menu-button", size: @size, active: @is_active.to_s })
-    return render_part(:button, @as_child, attrs, &) if @tooltip.blank?
+    return render_part(:button, @as_child, attrs, &) if @tooltip.blank_value?
 
     with_tooltip(attrs, sidebar, &)
   end
@@ -69,7 +71,7 @@ class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
     defaults = { side: "right", align: "center", hidden: }
     # Only the computed `hidden` is kept current by the controller; a caller value is never touched.
     defaults[:data] = { shadcn__sidebar_tooltip: sidebar.id } unless options.key?(:hidden)
-    defaults.deep_merge(options)
+    defaults.merge_deep(options)
   end
 
   # `tooltip:` is a String (the content text) or the TooltipContent props (React or Ruby names) plus `children`.
@@ -78,7 +80,7 @@ class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
 
     @tooltip.to_h.to_h do |key, value|
       name = key.to_s
-      [ TOOLTIP_CLASS_KEYS.include?(name) ? :class : name.underscore.to_sym, value ]
+      [ TOOLTIP_CLASS_KEYS.include?(name) ? :class : name.snake_case.to_sym, value ]
     end
   end
 

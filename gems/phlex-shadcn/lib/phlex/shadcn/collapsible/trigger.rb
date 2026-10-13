@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 # shadcn CollapsibleTrigger: a Radix button with no classes of its own.
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::Collapsible::Trigger < Phlex::Shadcn::Base
   include Phlex::Shadcn::Collapsible::Support
 
@@ -27,7 +29,7 @@ class Phlex::Shadcn::Collapsible::Trigger < Phlex::Shadcn::Base
                                   shadcn__collapsible_target: "trigger" }
                         }, @attrs)
     # Radix composes the consumer onClick first, then the toggle: our action goes last.
-    action = [ attrs.dig(:data, :action), "click->shadcn--collapsible#toggle" ].compact_blank.join(" ")
+    action = [ attrs.dig(:data, :action), "click->shadcn--collapsible#toggle" ].reject_blank.join(" ")
     attrs.merge(data: attrs[:data].merge(action:))
   end
 end

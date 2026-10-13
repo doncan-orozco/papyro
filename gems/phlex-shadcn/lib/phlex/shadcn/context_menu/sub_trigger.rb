@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::ContextMenu::SubTrigger < Phlex::Shadcn::Base
   include Phlex::Shadcn::ContextMenu::Support
 
@@ -17,7 +19,7 @@ class Phlex::Shadcn::ContextMenu::SubTrigger < Phlex::Shadcn::Base
   def view_template
     sub = context[Phlex::Shadcn::ContextMenu::SUB_KEY] or raise ArgumentError, "#{self.class.name} must be used within ContextMenu::Sub"
     open = sub[:open]
-    defaults = item_attrs(disabled: @disabled, text_value: @text_value).deep_merge(
+    defaults = item_attrs(disabled: @disabled, text_value: @text_value).merge_deep(
       role: "menuitem", id: sub[:trigger_id], class: CLASSES,
       aria: { haspopup: "menu", expanded: open.to_s, controls: (sub[:content_id] if open) },
       data: {

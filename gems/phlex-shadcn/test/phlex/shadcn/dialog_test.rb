@@ -147,7 +147,7 @@ class Phlex::Shadcn::DialogTest < Phlex::Shadcn::TestCase
     assert_equal explicit, helper
     HELPERS.each do |name, part|
       assert Dialog.public_method_defined?(name), "missing helper ##{name}"
-      assert_equal part, Dialog.const_get(name.to_s.camelize)
+      assert_equal part, Dialog.const_get(name.to_s.split("_").map(&:capitalize).join)
     end
   end
 end

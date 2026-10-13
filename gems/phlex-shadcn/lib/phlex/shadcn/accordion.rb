@@ -2,6 +2,8 @@
 
 # shadcn Accordion over Radix Accordion. Spec: docs/shadcn-port/specs/accordion.md.
 # Behavior: controllers/shadcn/accordion_controller.js.
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::Accordion < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
@@ -28,7 +30,7 @@ class Phlex::Shadcn::Accordion < Phlex::Shadcn::Base
   def view_template
     previous = context[ROOT_KEY]
     context[ROOT_KEY] = { open_values: @open_values, collapsible: @collapsible, disabled: @disabled, orientation: @orientation }
-    @dir = use_direction(@dir) if @dir.present? || context[Phlex::Shadcn::Direction::KEY]
+    @dir = use_direction(@dir) if @dir.filled? || context[Phlex::Shadcn::Direction::KEY]
     attrs = merge_attrs({ data: root_data }, @attrs)
     content = proc { yield self if block_given? }
     @as_child ? render_as_child(@as_child, **attrs, &content) : div(**attrs, &content)

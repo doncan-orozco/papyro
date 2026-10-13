@@ -2,6 +2,8 @@
 
 # shadcn Tabs over Radix Tabs. Spec: docs/shadcn-port/specs/tabs.md.
 # Behavior: controllers/shadcn/tabs_controller.js.
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::Tabs < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
@@ -42,7 +44,7 @@ class Phlex::Shadcn::Tabs < Phlex::Shadcn::Base
   private
 
   def base_id
-    @attrs[:id].presence || "radix-tabs-#{SecureRandom.alphanumeric(6).downcase}"
+    @attrs[:id].unless_blank || "radix-tabs-#{SecureRandom.alphanumeric(6).downcase}"
   end
 
   def root_data

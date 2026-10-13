@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 # Radix ContextMenuTrigger: a span without classes, ids or aria. Hosts the shadcn--context-menu controller.
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::ContextMenu::Trigger < Phlex::Shadcn::Base
   include Phlex::Shadcn::ContextMenu::Support
 
@@ -20,7 +22,7 @@ class Phlex::Shadcn::ContextMenu::Trigger < Phlex::Shadcn::Base
                           }
                         }, @attrs.except(:style))
     attrs = verbatim_class(attrs, @attrs)
-    attrs[:style] = [ "-webkit-touch-callout: none", style_string(@attrs[:style]) ].compact_blank.join("; ")
+    attrs[:style] = [ "-webkit-touch-callout: none", style_string(@attrs[:style]) ].reject_blank.join("; ")
     render_part(:span, @as_child, attrs, &)
   end
 

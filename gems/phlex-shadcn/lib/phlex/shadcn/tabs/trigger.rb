@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 # shadcn TabsTrigger: Radix Trigger on a roving focus item.
+using Phlex::Shadcn::Support::Refinements
+
 class Phlex::Shadcn::Tabs::Trigger < Phlex::Shadcn::Base
   include Phlex::Shadcn::Tabs::Support
 
@@ -35,7 +37,7 @@ class Phlex::Shadcn::Tabs::Trigger < Phlex::Shadcn::Base
                         }, @attrs)
     # Radix composes the consumer handlers first, then the tab logic: our actions go last.
     action = [ attrs.dig(:data, :action),
-               "mousedown->shadcn--tabs#mousedown keydown->shadcn--tabs#keydown focus->shadcn--tabs#focus" ].compact_blank.join(" ")
+               "mousedown->shadcn--tabs#mousedown keydown->shadcn--tabs#keydown focus->shadcn--tabs#focus" ].reject_blank.join(" ")
     render_part(:button, @as_child, attrs.merge(data: attrs[:data].merge(action:)), &)
   end
 end
