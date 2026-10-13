@@ -8,7 +8,7 @@ require "active_support"
 require "active_support/core_ext/hash/deep_merge"
 require "active_support/core_ext/hash/except"
 require "active_support/core_ext/object/blank"
-require "active_support/core_ext/object/json" # same JSON escaping as ActiveSupport in a Rails app
+require "active_support/core_ext/object/json" # ActiveSupport JSON escaping (HTML-safe)
 require "active_support/core_ext/enumerable"
 require "active_support/core_ext/string/inflections"
 require "date" # Phlex::SGML::Attributes references Date without requiring it
