@@ -4,7 +4,7 @@
 class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
   EXTRA_CLASSES = "w-auto min-w-0 shrink-0 px-3 focus:z-10 focus-visible:z-10"
   SPACING_CLASSES = "data-[spacing=0]:rounded-none data-[spacing=0]:shadow-none data-[spacing=0]:first:rounded-l-md data-[spacing=0]:last:rounded-r-md data-[spacing=0]:data-[variant=outline]:border-l-0 data-[spacing=0]:data-[variant=outline]:first:border-l"
-  ACTION = "click->v2--toggle-group#toggle"
+  ACTION = "click->shadcn--toggle-group#toggle"
 
   def initialize(value:, variant: nil, size: nil, disabled: false, as_child: false, **attrs)
     @value = value.to_s
@@ -42,7 +42,7 @@ class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
       disabled:,
       data: {
         state: (pressed ? "on" : "off"), disabled: (disabled ? "" : nil), slot: "toggle-group-item",
-        variant:, size:, spacing: root[:spacing], v2__toggle_group_item_value: @value
+        variant:, size:, spacing: root[:spacing], shadcn__toggle_group_item_value: @value
       }
     }.deep_merge(roving_attrs(root)).deep_merge(pressed_attrs(root, pressed))
   end

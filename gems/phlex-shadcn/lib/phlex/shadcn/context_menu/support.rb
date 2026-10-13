@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Context menu flavour of the dropdown menu part helpers (item markup, position options, as_child switch).
-# The data-v2--dropdown-menu-* names are the shared menu module's contract (template, sub ids, radio value).
+# The data-shadcn--dropdown-menu-* names are the shared menu module's contract (template, sub ids, radio value).
 module Phlex::Shadcn::ContextMenu::Support
   include Phlex::Shadcn::DropdownMenu::Support
 

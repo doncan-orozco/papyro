@@ -22,7 +22,7 @@ It uses the Playwright of `react-shadcn-catalog` (`playwright_ensure.rb` makes s
 Behavior the runner cannot compare, per component spec ("Not expressible in the runner"):
 
 - touch / pen input (`pointerType`), long press, `touchstart`;
-- cancelable public events (`v2--x:escape-key-down`, `pointer-down-outside`, `interact-outside`, `open-auto-focus`, `close-auto-focus`) and a caller's `preventDefault`;
+- cancelable public events (`shadcn--x:escape-key-down`, `pointer-down-outside`, `interact-outside`, `open-auto-focus`, `close-auto-focus`) and a caller's `preventDefault`;
 - positioner options (`hide_when_detached`, `update_position_strategy`, `collision_boundary`), shared by popover, hover-card and tooltip in `positioning.mjs`;
 - nesting one layer in another (`nesting.test.mjs`: a popover or hover card inside a modal Dialog), which no scenario can render because a scenario tree may only use its own component.
 

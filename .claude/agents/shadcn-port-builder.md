@@ -21,7 +21,7 @@ For components you may create/modify ONLY: `gems/phlex-shadcn/lib/phlex/shadcn/<
 ### Procedure
 1. **Port structure from the oracle, mechanically.** Copy every class string verbatim from the TSX (including variant tables with the React keys), add `data-slot`, mirror tag/role/aria/data attributes from the spec's Structure section. Normalize `variant`/`size` with `.to_s` and accept both `"icon-sm"` and `:icon_sm`. `initialize(..., **attrs)`, `class` through `cn(...)` last, deep-merge `data:`/`aria:`.
 1b. **DX helpers (compound roots).** The root's `view_template` calls `yield self`. Do NOT write helper methods for the nested parts: `Phlex::Shadcn::Base` generates them (`const_added`) from the nested classes, and the spec's derived "DX helpers" section lists them. Inside the root's own template use `tag(:header)` (not the bare method) for any element name that a part helper shadows (the spec's section names them).
-2. **Behavior:** compose the existing primitives in `gems/phlex-shadcn/app/javascript/shadcn/primitives/`; set `data-state` & co. exactly as Radix; render initial state server-side; follow the spec's Behavior section. One controller `v2--<name>`.
+2. **Behavior:** compose the existing primitives in `gems/phlex-shadcn/app/javascript/shadcn/primitives/`; set `data-state` & co. exactly as Radix; render initial state server-side; follow the spec's Behavior section. One controller `shadcn--<name>`.
 3. **Run the gates in this order, fixing after each failure:**
    - `ruby .claude/scripts/shadcn/static_gate.rb --component <name>` (G1) until `pass: true`.
    - `bin/rubocop gems/phlex-shadcn/lib/phlex/shadcn/<name>.rb` and the component's unit test.

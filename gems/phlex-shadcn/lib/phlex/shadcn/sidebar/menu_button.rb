@@ -61,14 +61,14 @@ class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
     controllers = attrs.dig(:data, :controller)
     return attrs unless controllers
 
-    attrs.merge(data: attrs[:data].merge(controller: "v2--tooltip #{controllers}"))
+    attrs.merge(data: attrs[:data].merge(controller: "shadcn--tooltip #{controllers}"))
   end
 
   def content_options(options, sidebar)
     hidden = sidebar.state != "collapsed" || sidebar.is_mobile
     defaults = { side: "right", align: "center", hidden: }
     # Only the computed `hidden` is kept current by the controller; a caller value is never touched.
-    defaults[:data] = { v2__sidebar_tooltip: sidebar.id } unless options.key?(:hidden)
+    defaults[:data] = { shadcn__sidebar_tooltip: sidebar.id } unless options.key?(:hidden)
     defaults.deep_merge(options)
   end
 

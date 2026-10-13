@@ -20,7 +20,7 @@ import { createRequire } from "node:module";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // Same variable and default as ShadcnLayout::STIMULUS_PREFIX (layout.rb).
-const PREFIX = process.env.SHADCN_STIMULUS_PREFIX || "v2";
+const PREFIX = process.env.SHADCN_STIMULUS_PREFIX || "shadcn";
 try {
   createRequire(path.join(process.cwd(), "package.json"))("playwright");
 } catch {

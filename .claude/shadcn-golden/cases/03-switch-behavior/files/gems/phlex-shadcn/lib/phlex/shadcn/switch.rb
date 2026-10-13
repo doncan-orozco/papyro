@@ -17,10 +17,10 @@ module Components
         state = @checked ? "checked" : "unchecked"
         button(
           type: "button", role: "switch", aria: { checked: @checked },
-          data: { slot: "switch", size: @size, state: state, controller: "v2--switch", action: "click->v2--switch#toggle keydown->v2--switch#key" },
+          data: { slot: "switch", size: @size, state: state, controller: "shadcn--switch", action: "click->shadcn--switch#toggle keydown->shadcn--switch#key" },
           class: cn(ROOT, @attrs[:class]), **attrs_without_class
         ) do
-          span(data: { slot: "switch-thumb", state: state, v2__switch_target: "thumb" }, class: THUMB)
+          span(data: { slot: "switch-thumb", state: state, shadcn__switch_target: "thumb" }, class: THUMB)
         end
       end
     end

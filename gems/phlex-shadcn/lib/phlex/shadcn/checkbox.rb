@@ -40,7 +40,7 @@ class Phlex::Shadcn::Checkbox < Phlex::Shadcn::Base
 
   # Radix composes the consumer handlers first, then its own: our actions go last.
   def root_with_action(attrs)
-    action = [ attrs.dig(:data, :action), "click->v2--checkbox#toggle keydown->v2--checkbox#keydown" ].compact_blank.join(" ")
+    action = [ attrs.dig(:data, :action), "click->shadcn--checkbox#toggle keydown->shadcn--checkbox#keydown" ].compact_blank.join(" ")
     attrs.merge(data: attrs[:data].merge(action:))
   end
 
@@ -49,8 +49,8 @@ class Phlex::Shadcn::Checkbox < Phlex::Shadcn::Base
       type: "button",
       role: "checkbox",
       aria: { checked: ARIA_CHECKED.fetch(state), **(@required.nil? ? {} : { required: @required }) },
-      data: { state:, slot: "checkbox", controller: "v2--checkbox", v2__checkbox_controlled_value: @controlled,
-              v2__checkbox_indicator_html_value: indicator_html,
+      data: { state:, slot: "checkbox", controller: "shadcn--checkbox", shadcn__checkbox_controlled_value: @controlled,
+              shadcn__checkbox_indicator_html_value: indicator_html,
               **(@disabled ? { disabled: "" } : {}) },
       disabled: @disabled,
       value: @value,

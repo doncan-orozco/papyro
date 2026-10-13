@@ -34,8 +34,8 @@ class Phlex::Shadcn::Sidebar::Provider < Phlex::Shadcn::Base
 
   def wrapper_data
     {
-      slot: "sidebar-wrapper", controller: "v2--sidebar", v2__sidebar_open_value: @open.to_s, v2__sidebar_controlled_value: @controlled.to_s,
-      v2__sidebar_open_mobile_value: "false", v2__sidebar_id_value: context[Phlex::Shadcn::Sidebar::CONTEXT_KEY].id
+      slot: "sidebar-wrapper", controller: "shadcn--sidebar", shadcn__sidebar_open_value: @open.to_s, shadcn__sidebar_controlled_value: @controlled.to_s,
+      shadcn__sidebar_open_mobile_value: "false", shadcn__sidebar_id_value: context[Phlex::Shadcn::Sidebar::CONTEXT_KEY].id
     }
   end
 

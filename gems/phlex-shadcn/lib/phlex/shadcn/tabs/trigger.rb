@@ -31,11 +31,11 @@ class Phlex::Shadcn::Tabs::Trigger < Phlex::Shadcn::Base
                           class: CLASSES,
                           aria: { selected:, controls: "#{root[:base_id]}-content-#{@value}" },
                           data: { state: selected ? "active" : "inactive", disabled: (@disabled ? "" : nil), orientation: root[:orientation],
-                                  radix_collection_item: "", slot: "tabs-trigger", v2__tabs_target: "trigger", v2__tabs_item_value: @value }
+                                  radix_collection_item: "", slot: "tabs-trigger", shadcn__tabs_target: "trigger", shadcn__tabs_item_value: @value }
                         }, @attrs)
     # Radix composes the consumer handlers first, then the tab logic: our actions go last.
     action = [ attrs.dig(:data, :action),
-               "mousedown->v2--tabs#mousedown keydown->v2--tabs#keydown focus->v2--tabs#focus" ].compact_blank.join(" ")
+               "mousedown->shadcn--tabs#mousedown keydown->shadcn--tabs#keydown focus->shadcn--tabs#focus" ].compact_blank.join(" ")
     render_part(:button, @as_child, attrs.merge(data: attrs[:data].merge(action:)), &)
   end
 end

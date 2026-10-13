@@ -2,7 +2,7 @@
 
 # What the sidebar parts share: the as_child switch and the default/caller attribute merge.
 module Phlex::Shadcn::Sidebar::Support
-  TOGGLE = "click->v2--sidebar#toggle"
+  TOGGLE = "click->shadcn--sidebar#toggle"
 
   private
 

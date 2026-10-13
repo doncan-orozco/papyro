@@ -22,7 +22,7 @@ class Phlex::Shadcn::DropdownMenu::SubTrigger < Phlex::Shadcn::Base
       aria: { haspopup: "menu", expanded: open.to_s, controls: (sub[:content_id] if open) },
       data: {
         slot: "dropdown-menu-sub-trigger", state: open ? "open" : "closed", inset: inset_value(@inset),
-        v2__dropdown_menu_sub_content_id: sub[:content_id], v2__dropdown_menu_sub_controlled: sub[:controlled].to_s
+        shadcn__dropdown_menu_sub_content_id: sub[:content_id], shadcn__dropdown_menu_sub_controlled: sub[:controlled].to_s
       }
     )
     render_part(:div, @as_child, merge_attrs(defaults, @attrs)) do

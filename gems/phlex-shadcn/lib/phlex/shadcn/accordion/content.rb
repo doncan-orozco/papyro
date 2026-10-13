@@ -25,7 +25,7 @@ class Phlex::Shadcn::Accordion::Content < Phlex::Shadcn::Base
       if mounted
         inner(&block)
       else
-        template(data: { v2__accordion_target: "body" }) { inner(&block) }
+        template(data: { shadcn__accordion_target: "body" }) { inner(&block) }
       end
     end
   end
@@ -45,7 +45,7 @@ class Phlex::Shadcn::Accordion::Content < Phlex::Shadcn::Base
                   style: style_for(mounted),
                   aria: { labelledby: item[:trigger_id] },
                   data: { state: state_of(item), disabled: disabled_data(item), orientation: item[:root][:orientation],
-                          slot: "accordion-content", v2__accordion_target: "content", v2__accordion_force_mount: @force_mount.to_s }
+                          slot: "accordion-content", shadcn__accordion_target: "content", shadcn__accordion_force_mount: @force_mount.to_s }
                 }, @attrs)
   end
 

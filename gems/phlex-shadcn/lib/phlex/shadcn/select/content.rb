@@ -43,7 +43,7 @@ class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
     return capture(&block) if collecting?
 
     state = select_state
-    template(data: { v2__select_template: "#{state[:base]}-content", v2__select_indicator: capture do
+    template(data: { shadcn__select_template: "#{state[:base]}-content", shadcn__select_indicator: capture do
       indicator
     end, options: @options.to_json }) do
       div(**content_attrs(state)) do

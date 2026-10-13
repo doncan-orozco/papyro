@@ -115,7 +115,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
   #
   # @api private
   def ids(base = nil)
-    base ||= "v2-#{SecureRandom.alphanumeric(6).downcase}"
+    base ||= "shadcn-#{SecureRandom.alphanumeric(6).downcase}"
     Hash.new { |_, part| "#{base}-#{part.to_s.tr('_', '-')}" }
   end
 

@@ -31,8 +31,8 @@ class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
       "block-end" => "order-last w-full justify-start px-3 pb-3 group-has-[>input]/input-group:pb-2.5 [.border-t]:pt-3"
     }.freeze
 
-    CONTROLLER = "v2--input-group"
-    ACTION = "click->v2--input-group#focusControl"
+    CONTROLLER = "shadcn--input-group"
+    ACTION = "click->shadcn--input-group#focusControl"
 
     def initialize(align: "inline-start", **attrs)
       @align = normalize_option(align) || "inline-start"

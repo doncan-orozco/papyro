@@ -11,10 +11,10 @@ One table, applied mechanically by the builder AND by the harness (`Components::
 | `data-foo="x"`, `aria-*`, `role`, `id`, `type`, `disabled`... | same keys through `**attrs` | `data: {}` / `aria: {}` hashes deep-merged with component defaults; `Base#merge_attrs` maps React DOM props (`tab_index:`, `read_only:`, `max_length:`, `html_for:`...) to their HTML names and renders boolean aria/data values as `"true"`/`"false"` like React. |
 | `asChild` | `as_child:` | `false` (default) \| a tag symbol (`as_child: :a`, the part renders that tag with its own classes, `data-slot` and attrs) \| a V2 component **instance** (`as_child: Phlex::Shadcn::Button.new(variant: "outline")`, Radix `Slot` semantics via `Phlex::Shadcn::Base#render_as_child`). |
 | `disabled` boolean | `disabled: true` | Renders attribute exactly like React (`disabled=""`). |
-| `open` / `onOpenChange` | `open:` (initial/controlled) + event `v2--dialog:open-change` with `detail: { open }` | Controlled mode = the server renders the next state; client mode = Stimulus value. |
+| `open` / `onOpenChange` | `open:` (initial/controlled) + event `shadcn--dialog:open-change` with `detail: { open }` | Controlled mode = the server renders the next state; client mode = Stimulus value. |
 | `defaultOpen` | `default_open:` | |
-| `value` / `defaultValue` / `onValueChange` | `value:` / `default_value:` / event `v2--<name>:value-change` (`detail: { value }`) | |
-| `checked` / `onCheckedChange` | `checked:` / event `v2--<name>:checked-change` | `checked: "indeterminate"` supported where Radix supports it. |
+| `value` / `defaultValue` / `onValueChange` | `value:` / `default_value:` / event `shadcn--<name>:value-change` (`detail: { value }`) | |
+| `checked` / `onCheckedChange` | `checked:` / event `shadcn--<name>:checked-change` | `checked: "indeterminate"` supported where Radix supports it. |
 | `onClick` etc. | plain DOM events; use `data: { action: "click->foo#bar" }` | No JS callbacks in Ruby. |
 | `ref` | `data: { <controller>_target: ... }` or no equivalent | Not part of the API. List in the spec if React callers rely on it. |
 | Compound exports `Dialog`, `DialogTrigger`, `DialogContent`... | `Phlex::Shadcn::Dialog`, `Dialog::Trigger`, `Dialog::Content`... | Rule: strip the root name prefix. Exceptions (`buttonVariants`, `useSidebar`) map to class methods: `Phlex::Shadcn::Button.variants(variant:, size:)` returns the class string. |

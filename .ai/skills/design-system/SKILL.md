@@ -1,6 +1,6 @@
 ---
 name: design-system
-description: "Papyro design system built on the shadcn/ui port: `Phlex::Shadcn` in `gems/phlex-shadcn/lib/phlex/shadcn/*` with 1:1 React API (`Dialog`, `Dialog::Trigger`, `Dialog::Content`), semantic tokens, shadcn-format theme variables and the `v2--` Stimulus controllers. Use when creating or editing `gems/phlex-shadcn/lib/phlex/shadcn/*`, composing V2 components in views, or touching theme tokens. Legacy `app/components/ui/*` is frozen."
+description: "Papyro design system built on the shadcn/ui port: `Phlex::Shadcn` in `gems/phlex-shadcn/lib/phlex/shadcn/*` with 1:1 React API (`Dialog`, `Dialog::Trigger`, `Dialog::Content`), semantic tokens, shadcn-format theme variables and the `shadcn--` Stimulus controllers. Use when creating or editing `gems/phlex-shadcn/lib/phlex/shadcn/*`, composing V2 components in views, or touching theme tokens. Legacy `app/components/ui/*` is frozen."
 ---
 
 # Design System (shadcn/ui port: `Phlex::Shadcn`)
@@ -12,7 +12,7 @@ The design system is a **1:1 Phlex port of shadcn/ui (new-york-v4, Radix)**. How
 Cite as `design-system R<n>`.
 
 R1. **Semantic tokens only.** `bg-primary`, `text-muted-foreground`, `border-input`...; no palette classes, hex or rgb. The only color classes allowed are the ones the shadcn source itself uses (`text-white`, `bg-black/50`). → `shadcn-port` R9
-R2. **Namespace and location.** V2 lives in `gems/phlex-shadcn/lib/phlex/shadcn/` as `Phlex::Shadcn::<Name>`, every part inherits `Phlex::Shadcn::Base` (cn, attribute merging, `render_as_child`); Stimulus identifiers are `v2--<name>`, controllers in `gems/phlex-shadcn/app/javascript/controllers/shadcn/`. Never import from legacy `app/components/ui/`. → `shadcn-port` R15
+R2. **Namespace and location.** V2 lives in `gems/phlex-shadcn/lib/phlex/shadcn/` as `Phlex::Shadcn::<Name>`, every part inherits `Phlex::Shadcn::Base` (cn, attribute merging, `render_as_child`); Stimulus identifiers are `shadcn--<name>`, controllers in `gems/phlex-shadcn/app/javascript/controllers/shadcn/`. Never import from legacy `app/components/ui/`. → `shadcn-port` R15
 R3. **Same API as React.** One Ruby class per React export: `Dialog` -> `Phlex::Shadcn::Dialog`, `DialogContent` -> `Phlex::Shadcn::Dialog::Content`, `DropdownMenuCheckboxItem` -> `DropdownMenu::CheckboxItem`. Props are snake_case kwargs; `className` -> `class:`; children -> block. → `shadcn-port` references/api-mapping.md
 R4. **Two equivalent ways to compose parts; the classes are canonical, the helpers are sugar.** (a) Explicit: `render Phlex::Shadcn::Dialog::Content.new(...) { }`, one class per React export (used by scenarios, tests, the harness, and always valid). (b) DX helpers: the root yields itself and `Phlex::Shadcn::Base` GENERATES one helper per nested part, so `render Phlex::Shadcn::Table.new do |table| table.header { table.row { table.head { "Name" } } } end` reads like the JSX tree. A helper is exactly `render Root::Part.new(**attrs), &block`: never hand-written, never adds behavior. Mixing both in one view is fine. → references/compound-components.md
 R5. **`**attrs` everywhere.** Every class (root and each part) takes `**attrs`, passes them through, merges `class` via `cn` (caller wins) and deep-merges `data:`/`aria:` with the component's required attributes.

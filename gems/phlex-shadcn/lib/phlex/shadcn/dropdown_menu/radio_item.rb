@@ -21,7 +21,7 @@ class Phlex::Shadcn::DropdownMenu::RadioItem < Phlex::Shadcn::Base
     defaults = item_attrs(disabled: @disabled, text_value: @text_value).deep_merge(
       role: "menuitemradio", class: CLASSES,
       aria: { checked: checked.to_s },
-      data: { slot: "dropdown-menu-radio-item", state: checked ? "checked" : "unchecked", v2__dropdown_menu_value: @value }
+      data: { slot: "dropdown-menu-radio-item", state: checked ? "checked" : "unchecked", shadcn__dropdown_menu_value: @value }
     )
     render_part(:div, @as_child, merge_attrs(defaults, @attrs)) do
       span(class: INDICATOR_CLASSES) do

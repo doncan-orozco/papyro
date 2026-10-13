@@ -32,7 +32,7 @@ class Phlex::Shadcn::Switch < Phlex::Shadcn::Base
 
   # Radix composes the consumer onClick first, then the toggle: our action goes last.
   def root_with_action(attrs)
-    action = [ attrs.dig(:data, :action), "click->v2--switch#toggle" ].compact_blank.join(" ")
+    action = [ attrs.dig(:data, :action), "click->shadcn--switch#toggle" ].compact_blank.join(" ")
     attrs.merge(data: attrs[:data].merge(action:))
   end
 
@@ -41,7 +41,7 @@ class Phlex::Shadcn::Switch < Phlex::Shadcn::Base
       type: "button",
       role: "switch",
       aria: { checked: @checked, **(@required.nil? ? {} : { required: @required }) },
-      data: { state:, slot: "switch", size: @size, controller: "v2--switch", v2__switch_controlled_value: @controlled,
+      data: { state:, slot: "switch", size: @size, controller: "shadcn--switch", shadcn__switch_controlled_value: @controlled,
               **(@disabled ? { disabled: "" } : {}) },
       disabled: @disabled,
       value: @value,

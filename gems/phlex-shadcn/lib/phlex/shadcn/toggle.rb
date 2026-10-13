@@ -51,8 +51,8 @@ class Phlex::Shadcn::Toggle < Phlex::Shadcn::Base
     {
       type: "button",
       aria: { pressed: @pressed },
-      data: { state: @pressed ? "on" : "off", slot: "toggle", controller: "v2--toggle",
-              v2__toggle_controlled_value: @controlled, v2__toggle_disabled_value: @disabled,
+      data: { state: @pressed ? "on" : "off", slot: "toggle", controller: "shadcn--toggle",
+              shadcn__toggle_controlled_value: @controlled, shadcn__toggle_disabled_value: @disabled,
               **(@disabled ? { disabled: "" } : {}) },
       disabled: @disabled
     }
@@ -60,7 +60,7 @@ class Phlex::Shadcn::Toggle < Phlex::Shadcn::Base
 
   # Radix runs the consumer onClick first, then the toggle: our action goes last.
   def with_action(attrs)
-    action = [ attrs.dig(:data, :action), "click->v2--toggle#toggle" ].compact_blank.join(" ")
+    action = [ attrs.dig(:data, :action), "click->shadcn--toggle#toggle" ].compact_blank.join(" ")
     attrs.merge(data: attrs[:data].merge(action:))
   end
 end

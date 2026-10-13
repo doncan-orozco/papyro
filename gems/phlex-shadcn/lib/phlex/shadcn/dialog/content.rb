@@ -45,7 +45,7 @@ class Phlex::Shadcn::Dialog::Content < Phlex::Shadcn::Base
     attrs = merge_attrs({
                           id: root[:content_id], role: "dialog", tabindex: "-1", class: CLASSES,
                           aria: { labelledby: (root[:title_id] if root[:title_present]) },
-                          data: { slot: "dialog-content", state: "open", v2__dialog_part: "content" }
+                          data: { slot: "dialog-content", state: "open", shadcn__dialog_part: "content" }
                         }, @attrs)
     attrs.merge(aria: (attrs[:aria] || {}).merge(describedby: describedby(root, attrs.dig(:aria, :describedby))))
   end
