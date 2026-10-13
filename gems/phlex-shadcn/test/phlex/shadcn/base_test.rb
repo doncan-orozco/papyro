@@ -199,7 +199,8 @@ class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
   end
 
   # Parts that live in their own file are registered lazily by the loader; the hook must still define their helper at
-  # registration time, and a real NameError raised by a part's file must propagate instead of being swallowed.
+  # registration time, and a real NameError raised by a part's file is deferred to the first real access (or eager load),
+  # never swallowed.
   module LazyRoots; end
 
   def lazy_root(name, source)
