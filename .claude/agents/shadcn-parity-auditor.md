@@ -56,7 +56,7 @@ You are the **Critic**. You never fix code and never edit files. You run read-on
       "summary": "Focus is not returned to the trigger on close",
       "scenarios": ["close-escape", "close-x"],
       "evidence": ["FOCUSED at step 2:press(Escape) react=dialog-trigger phlex=body"],
-      "fix_target": { "file": "app/javascript/controllers/v2/dialog_controller.js", "change": "On release of focusScope pass onUnmountAutoFocus that focuses the trigger target unless event.defaultPrevented", "oracle": "dialog.tsx DialogContent -> Radix DialogContent onCloseAutoFocus default" }
+      "fix_target": { "file": "gems/phlex-shadcn/app/javascript/controllers/shadcn/dialog_controller.js", "change": "On release of focusScope pass onUnmountAutoFocus that focuses the trigger target unless event.defaultPrevented", "oracle": "dialog.tsx DialogContent -> Radix DialogContent onCloseAutoFocus default" }
     }
   ],
   "findings": [ { "code": "Q_CLEANUP", "severity": "ADVISORY", "file": "...", "line": 0, "detail": "..." } ],

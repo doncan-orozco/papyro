@@ -19,6 +19,7 @@
 # reported under `waiting` with the root blocker. Stop rules live in `checkpoint`, not in the command prose.
 # Waves: 0 infra (theme, harness, primitives), 1 pilot (one per behavior family), 2.. fan-out by oracle dependency layers.
 
+require_relative "layout"
 require "json"
 require "optparse"
 require "time"
@@ -29,11 +30,11 @@ GRAPH = "docs/shadcn-port/oracle/graph.json"
 STATUSES = %w[pending planned built done blocked].freeze
 DEFAULT_PILOT = %w[button switch dialog tooltip dropdown-menu select].freeze
 INFRA = [
-  { "name" => "_theme", "owns" => ["app/assets/tailwind/application.css", "app/assets/tailwind/foundation/**", "app/assets/tailwind/theme/** (bug fixes only)", "app/assets/tailwind/vendor/**", "app/javascript/controllers/v2/theme_controller.js", "react-shadcn-catalog/src/index.css", "lib/shadcn/**", "lib/tasks/theme.rake", "test/lib/shadcn/**"] },
+  { "name" => "_theme", "owns" => ["app/assets/tailwind/application.css", "app/assets/tailwind/foundation/**", "app/assets/tailwind/theme/** (bug fixes only)", "app/assets/tailwind/vendor/**", "#{ShadcnLayout::CONTROLLER_DIR}/theme_controller.js", "react-shadcn-catalog/src/index.css", "lib/shadcn/**", "lib/tasks/theme.rake", "test/lib/shadcn/**"] },
   { "name" => "_harness", "owns" => ["app/components/parity/**", "app/views/design_system/parity/**", "config/routes.rb (parity route only)", "react-shadcn-catalog/src/parity/**", "react-shadcn-catalog/vite.config.ts", "react-shadcn-catalog/package.json"] },
-  { "name" => "_primitives", "owns" => ["app/javascript/v2/primitives/**", "config/importmap.rb (pin_all_from v2)", "react-shadcn-catalog/src/parity/primitives/**", "docs/shadcn-port/scenarios/_primitives-*.json"] },
-  { "name" => "_base", "owns" => ["app/components/v2/base.rb", "test/components/v2/base_test.rb"] },
-  { "name" => "_icons", "owns" => ["app/components/v2/icon.rb", "app/components/v2/icons/**"] },
+  { "name" => "_primitives", "owns" => ["#{ShadcnLayout::PRIMITIVES_DIR}/**", "config/importmap.rb (primitives and controllers pins)", "react-shadcn-catalog/src/parity/primitives/**", "docs/shadcn-port/scenarios/_primitives-*.json"] },
+  { "name" => "_base", "owns" => ["#{ShadcnLayout::RUBY_DIR}/base.rb", "#{ShadcnLayout::RUBY_TEST_DIR}/base_test.rb"] },
+  { "name" => "_icons", "owns" => ["#{ShadcnLayout::RUBY_DIR}/icon.rb", "#{ShadcnLayout::RUBY_DIR}/icons/**"] },
 ].freeze
 
 INFRA_DEPS = { "_harness" => %w[_theme _base _icons], "_primitives" => %w[_harness] }.freeze

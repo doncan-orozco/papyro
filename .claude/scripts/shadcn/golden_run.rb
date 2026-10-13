@@ -10,6 +10,7 @@
 # Kinds: static, agent, scenario, extract, lint, state, planner, oracle_audit, tokens, deviations, cn, helpers, dx_prototype, server_ports, browser, run (orchestrator protocol simulation), contract (required invocations in a command doc).
 # Exit 0 when no script-tier case FAILs.
 
+require_relative "layout"
 require "json"
 require "open3"
 require "fileutils"
@@ -241,6 +242,25 @@ def check_contract(exp)
     Array(exp["must_not_reference"]).select { |needle| text.include?(needle) }.map { |n| "#{exp['file']} still references: #{n}" }
 end
 
+# Runs a tool script with arguments and an optional env and checks its exit status and JSON stdout (no browser or servers needed).
+# Each run: { script, args, env?, exit, error_includes?, finding? }
+def check_cli(runs)
+  Array(runs).filter_map do |run|
+    label = "#{run['script']} #{Array(run['args']).join(' ')}".strip
+    out, _err, status = Open3.capture3(run.fetch("env", {}), "ruby", File.join(SCRIPTS, run["script"]), *Array(run["args"]))
+    report = begin
+      JSON.parse(out)
+    rescue JSON::ParserError
+      nil
+    end
+    if status.exitstatus != run["exit"] then "#{label}: exit #{status.exitstatus} != #{run['exit']}"
+    elsif !report.is_a?(Hash) then "#{label}: stdout is not one JSON object"
+    elsif run["error_includes"] && !report["error"].to_s.include?(run["error_includes"]) then "#{label}: error lacks #{run['error_includes'].inspect}"
+    elsif run["finding"] && Array(report["findings"]).none? { |finding| finding["code"] == run["finding"] } then "#{label}: finding #{run['finding']} missing"
+    end
+  end
+end
+
 def check_lint(exp, files)
   cmd = ["ruby", File.join(SCRIPTS, "command_lint.rb")]
   cmd += ["--docs", *files.select { |f| f.end_with?(".md") }] if exp["target"] == "docs"
@@ -257,9 +277,11 @@ results = cases.map do |dir|
 
   case exp["kind"]
   when "static", "agent"
-    ruby_files = files.select { |f| f.include?("app/components/v2/") && f.end_with?(".rb") }
+    ruby_files = files.select { |f| f.include?("#{ShadcnLayout::RUBY_DIR}/") && f.end_with?(".rb") }
     if ruby_files.empty?
-      r[:notes] << "no component .rb in case (static gate skipped)"
+      r[:notes] << "no component .rb under files/#{ShadcnLayout::RUBY_DIR} (static gate not run)"
+      # A static case that runs nothing must fail loudly (e.g. under a SHADCN_RUBY_DIR override), never pass vacuously.
+      codes = r[:detected] = [ "GOLDEN_NO_COMPONENT_FILE" ] if exp["kind"] == "static"
     elsif !File.exist?(File.join(ORACLE, "manifest", "#{exp['component']}.json"))
       r[:notes] << "no oracle manifest for #{exp['component']} (infra case, static gate skipped)"
     else
@@ -424,6 +446,11 @@ results = cases.map do |dir|
     FileUtils.cp_r(ORACLE, File.join(out, "oracle"))
     r[:status] = "PLANNER_PENDING"
     r[:notes] << "OUT_ROOT=#{File.join(WORK, 'planner-out', exp['case'])}"
+    next r
+  when "cli"
+    problems = check_cli(exp["runs"])
+    r[:missed] = problems
+    r[:status] = problems.empty? ? "PASS" : "FAIL"
     next r
   when "extract"
     failures = check_extract(exp["assertions"])

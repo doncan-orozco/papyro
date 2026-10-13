@@ -1,9 +1,9 @@
 ---
 name: design-system
-description: "Papyro design system built on the shadcn/ui port: `Components::V2` in `app/components/v2/*` with 1:1 React API (`Dialog`, `Dialog::Trigger`, `Dialog::Content`), semantic tokens, shadcn-format theme variables and the `v2--` Stimulus controllers. Use when creating or editing `app/components/v2/*`, composing V2 components in views, or touching theme tokens. Legacy `app/components/ui/*` is frozen."
+description: "Papyro design system built on the shadcn/ui port: `Phlex::Shadcn` in `gems/phlex-shadcn/lib/phlex/shadcn/*` with 1:1 React API (`Dialog`, `Dialog::Trigger`, `Dialog::Content`), semantic tokens, shadcn-format theme variables and the `v2--` Stimulus controllers. Use when creating or editing `gems/phlex-shadcn/lib/phlex/shadcn/*`, composing V2 components in views, or touching theme tokens. Legacy `app/components/ui/*` is frozen."
 ---
 
-# Design System (shadcn/ui port: `Components::V2`)
+# Design System (shadcn/ui port: `Phlex::Shadcn`)
 
 The design system is a **1:1 Phlex port of shadcn/ui (new-york-v4, Radix)**. How a component is ported, verified and kept faithful is owned by `shadcn-port` (API, classes, themes, gates) and `radix-stimulus` (behavior). This skill is the day-to-day contract for **writing and using** V2 components.
 
@@ -12,13 +12,13 @@ The design system is a **1:1 Phlex port of shadcn/ui (new-york-v4, Radix)**. How
 Cite as `design-system R<n>`.
 
 R1. **Semantic tokens only.** `bg-primary`, `text-muted-foreground`, `border-input`...; no palette classes, hex or rgb. The only color classes allowed are the ones the shadcn source itself uses (`text-white`, `bg-black/50`). → `shadcn-port` R9
-R2. **Namespace and location.** V2 lives in `app/components/v2/` as `Components::V2::<Name>`, every part inherits `Components::V2::Base` (cn, attribute merging, `render_as_child`); Stimulus identifiers are `v2--<name>`, controllers in `app/javascript/controllers/v2/`. Never import from legacy `app/components/ui/`. → `shadcn-port` R15
-R3. **Same API as React.** One Ruby class per React export: `Dialog` -> `Components::V2::Dialog`, `DialogContent` -> `Components::V2::Dialog::Content`, `DropdownMenuCheckboxItem` -> `DropdownMenu::CheckboxItem`. Props are snake_case kwargs; `className` -> `class:`; children -> block. → `shadcn-port` references/api-mapping.md
-R4. **Two equivalent ways to compose parts; the classes are canonical, the helpers are sugar.** (a) Explicit: `render Components::V2::Dialog::Content.new(...) { }`, one class per React export (used by scenarios, tests, the harness, and always valid). (b) DX helpers: the root yields itself and `Components::V2::Base` GENERATES one helper per nested part, so `render Components::V2::Table.new do |table| table.header { table.row { table.head { "Name" } } } end` reads like the JSX tree. A helper is exactly `render Root::Part.new(**attrs), &block`: never hand-written, never adds behavior. Mixing both in one view is fine. → references/compound-components.md
+R2. **Namespace and location.** V2 lives in `gems/phlex-shadcn/lib/phlex/shadcn/` as `Phlex::Shadcn::<Name>`, every part inherits `Phlex::Shadcn::Base` (cn, attribute merging, `render_as_child`); Stimulus identifiers are `v2--<name>`, controllers in `gems/phlex-shadcn/app/javascript/controllers/shadcn/`. Never import from legacy `app/components/ui/`. → `shadcn-port` R15
+R3. **Same API as React.** One Ruby class per React export: `Dialog` -> `Phlex::Shadcn::Dialog`, `DialogContent` -> `Phlex::Shadcn::Dialog::Content`, `DropdownMenuCheckboxItem` -> `DropdownMenu::CheckboxItem`. Props are snake_case kwargs; `className` -> `class:`; children -> block. → `shadcn-port` references/api-mapping.md
+R4. **Two equivalent ways to compose parts; the classes are canonical, the helpers are sugar.** (a) Explicit: `render Phlex::Shadcn::Dialog::Content.new(...) { }`, one class per React export (used by scenarios, tests, the harness, and always valid). (b) DX helpers: the root yields itself and `Phlex::Shadcn::Base` GENERATES one helper per nested part, so `render Phlex::Shadcn::Table.new do |table| table.header { table.row { table.head { "Name" } } } end` reads like the JSX tree. A helper is exactly `render Root::Part.new(**attrs), &block`: never hand-written, never adds behavior. Mixing both in one view is fine. → references/compound-components.md
 R5. **`**attrs` everywhere.** Every class (root and each part) takes `**attrs`, passes them through, merges `class` via `cn` (caller wins) and deep-merges `data:`/`aria:` with the component's required attributes.
 R6. **Strings and symbols.** Variant-like options accept both (`variant: "outline"`, `variant: :outline`, `size: "icon-sm"`, `size: :icon_sm`); defaults equal the React `defaultVariants`.
 R7. **`data-slot` on every part,** exactly the shadcn value, plus `data-variant`/`data-size` where the React source emits them.
-R8. **No button inside a trigger part.** `Dialog::Trigger` renders its own `<button>`; never nest `Components::V2::Button` as its content. To render the trigger as a Button use React's own mechanism: `Dialog::Trigger.new(as_child: Components::V2::Button.new(variant: "outline"))`.
+R8. **No button inside a trigger part.** `Dialog::Trigger` renders its own `<button>`; never nest `Phlex::Shadcn::Button` as its content. To render the trigger as a Button use React's own mechanism: `Dialog::Trigger.new(as_child: Phlex::Shadcn::Button.new(variant: "outline"))`.
 R9. **Behavior through Stimulus + shared primitives only.** No inline JS, no per-component copies of focus/dismiss/positioning logic. → `radix-stimulus`
 R10. **Theme in shadcn format, one file.** Colors live only in `app/assets/tailwind/theme/theme.css` as `--primary: oklch(...)` in `:root`/`.dark`; `tokens.css` maps them to utilities and is never edited. Change the look with `bin/rails theme:use[preset]`, `theme:import[...]`, `theme:check`; a theme pasted from ui.shadcn.com works unchanged. Never put colors in components or other stylesheets. → `shadcn-port` references/theme-contract.md
 R11. **Catalog.** Every V2 component appears in the design-system catalog (`/design-system`), generated from the scenario files (no hand-written demos that can drift). Catalog copy is localized in `config/locales/{en,es}/design_system.yml`.
@@ -29,30 +29,30 @@ R14. **Verified, not eyeballed.** A V2 component is correct only if `/shadcn-aud
 ## Using V2 components (what a view looks like)
 
 ```ruby
-render Components::V2::Dialog.new do
-  render Components::V2::Dialog::Trigger.new(as_child: Components::V2::Button.new(variant: "outline")) { "Edit profile" }
-  render Components::V2::Dialog::Content.new(class: "sm:max-w-[425px]") do
-    render Components::V2::Dialog::Header.new do
-      render Components::V2::Dialog::Title.new { "Edit profile" }
-      render Components::V2::Dialog::Description.new { "Make changes to your profile here." }
+render Phlex::Shadcn::Dialog.new do
+  render Phlex::Shadcn::Dialog::Trigger.new(as_child: Phlex::Shadcn::Button.new(variant: "outline")) { "Edit profile" }
+  render Phlex::Shadcn::Dialog::Content.new(class: "sm:max-w-[425px]") do
+    render Phlex::Shadcn::Dialog::Header.new do
+      render Phlex::Shadcn::Dialog::Title.new { "Edit profile" }
+      render Phlex::Shadcn::Dialog::Description.new { "Make changes to your profile here." }
     end
-    render Components::V2::Dialog::Footer.new do
-      render Components::V2::Button.new(type: "submit") { "Save changes" }
+    render Phlex::Shadcn::Dialog::Footer.new do
+      render Phlex::Shadcn::Button.new(type: "submit") { "Save changes" }
     end
   end
 end
 ```
-This mirrors the JSX tree one to one. The same tree with the generated helpers (the root yields itself; `Components::V2::Base` defines `trigger`, `content`, `header`, `title`, `description`, `footer`, `close`... from the nested classes):
+This mirrors the JSX tree one to one. The same tree with the generated helpers (the root yields itself; `Phlex::Shadcn::Base` defines `trigger`, `content`, `header`, `title`, `description`, `footer`, `close`... from the nested classes):
 
 ```ruby
-render Components::V2::Dialog.new do |dialog|
-  dialog.trigger(as_child: Components::V2::Button.new(variant: "outline")) { "Edit profile" }
+render Phlex::Shadcn::Dialog.new do |dialog|
+  dialog.trigger(as_child: Phlex::Shadcn::Button.new(variant: "outline")) { "Edit profile" }
   dialog.content(class: "sm:max-w-[425px]") do
     dialog.header do
       dialog.title { "Edit profile" }
       dialog.description { "Make changes to your profile here." }
     end
-    dialog.footer { render Components::V2::Button.new(type: "submit") { "Save changes" } }
+    dialog.footer { render Phlex::Shadcn::Button.new(type: "submit") { "Save changes" } }
   end
 end
 ```

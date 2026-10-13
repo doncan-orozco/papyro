@@ -19,6 +19,8 @@ import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
+// Same variable and default as ShadcnLayout::STIMULUS_PREFIX (layout.rb).
+const PREFIX = process.env.SHADCN_STIMULUS_PREFIX || "v2";
 try {
   createRequire(path.join(process.cwd(), "package.json"))("playwright");
 } catch {
@@ -61,7 +63,7 @@ const S = [
   { id: "extra-class", html: [btn(), btn("", "btn wide")], expect: { kinds: ["CLASS", "STYLE", "BOX"] } },
   { id: "attr-differs", html: [btn('aria-pressed="false"'), btn('aria-pressed="true"')], expect: { kinds: ["ATTR"] } },
   { id: "text-differs", html: [btn(), btn().replace(">Hi<", ">Hello<")], expect: { kinds: ["TEXT"] } },
-  { id: "framework-noise-ignored", html: [btn(), btn('id="x1" data-controller="v2--probe" data-action="click->v2--probe#go" data-v2--probe-target="t" data-turbo-permanent')], expect: { pass: true } },
+  { id: "framework-noise-ignored", html: [btn(), btn(`id="x1" data-controller="${PREFIX}--probe" data-action="click->${PREFIX}--probe#go" data-${PREFIX}--probe-target="t" data-turbo-permanent`)], expect: { pass: true } },
   {
     id: "id-normalization",
     html: [

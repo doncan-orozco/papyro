@@ -31,7 +31,7 @@ Repeat until `port_state.rb next` returns `done: true`, or a stop condition fire
 3. **Build:** dispatch one `shadcn-port-builder` per batch item, all in ONE message (parallel). Count every planner, builder and auditor dispatch with `port_state.rb bump <n>` (the global cap is enforced by `checkpoint`). Prompt (self-contained): `COMPONENT`, `SERVERS_UP`, `OWNS` (infra only), paths of spec/scenarios/oracle, `MAX_RUNS=4`, list of DONE dependencies (their Phlex class names). `_primitives` is one task executed by four parallel family builders (overlay, floating, selection, forms); mark it `done` only after its acceptance checks pass.
 4. **Verify yourself (never trust the receipt):** for each returned component run, in this order, and stop at the first red:
    - `ruby .claude/scripts/shadcn/static_gate.rb --component X` (G1)
-   - `bin/rubocop app/components/v2/<x>.rb app/javascript/controllers/v2` is not required for JS; run rubocop on the Ruby files only.
+   - `bin/rubocop gems/phlex-shadcn/lib/phlex/shadcn/<x>.rb gems/phlex-shadcn/app/javascript/controllers/shadcn` is not required for JS; run rubocop on the Ruby files only.
    - if browser: `cd react-shadcn-catalog && node ../.claude/scripts/shadcn/parity_run.mjs --component X > ../tmp/shadcn-port/X/g2.json` (G2+G3), then G2b for components with helpers (`--dx helpers --only <ids starting default, variant- or example__, cap 25>`), then G4: for each `--theme slate|stone|zinc-radius0` with `--only` = the scenarios whose id starts with `variant-` or equals `default*` (cap 12), and once with `--dark`.
    - infra items: the acceptance checks in `references/infra-tasks.md`.
    Green -> `port_state.rb set X done --sha $(git rev-parse --short HEAD) --iteration n`. No browser -> `built`.
@@ -42,8 +42,8 @@ Repeat until `port_state.rb next` returns `done: true`, or a stop condition fire
    - Exhausted -> `port_state.rb set X blocked --note "<top cause, scenario ids>"`; write `tmp/shadcn-port/X/BLOCKED.md` with the last triage. `next` stops returning its dependents by itself; do not mark them.
 6. **After every batch:** `ruby .claude/scripts/shadcn/port_state.rb checkpoint`. If `stop` is true, follow "Stop conditions" below; never continue past it.
 7. **When `next` moves to a new wave:**
-   - regression: `ruby .claude/scripts/shadcn/house_check.rb --static-all`; if any file under `app/javascript/v2/`, `app/assets/tailwind/theme/` or `app/components/base.rb` changed this wave (`git diff --name-only` against the wave start sha you recorded) re-run G2 default scenarios (`--only` ids starting `default`) for all `done` components, and treat red ones as new work for the fix loop.
-   - `bin/rails test test/components` (if the dir exists) must stay green.
+   - regression: `ruby .claude/scripts/shadcn/house_check.rb --static-all`; if any file under `gems/phlex-shadcn/app/javascript/shadcn/`, `app/assets/tailwind/theme/` or `app/components/base.rb` changed this wave (`git diff --name-only` against the wave start sha you recorded) re-run G2 default scenarios (`--only` ids starting `default`) for all `done` components, and treat red ones as new work for the fix loop.
+   - `(cd gems/phlex-shadcn && bundle exec rake test)` (the gem suite) and `bin/rails test test/components` (host components, if the dir exists) must stay green.
    - print `port_state.rb summary` (compact).
 
 ## Stop conditions
@@ -58,7 +58,7 @@ After any stop, finish with Phase 3 (report) so nothing is lost. The user fixes 
 ## Phase 2: House (final)
 1. `ruby .claude/scripts/shadcn/house_check.rb --static-all` (must be clean).
 2. Full G4: for every `done` component run G2 with `--theme slate` and `--theme stone` over its `default*` scenarios, and `--dark`.
-3. `bin/rubocop`, `bin/rails test` (host) and `bin/rails test:with_studio` if available. V2 is additive (`Components::V2`), so existing pages must be unaffected: any new failure is a regression from shared files (`theme/*.css`, importmap, `Components::Base`) and goes back through the fix loop (`_theme` or `_harness` owner). Migrating callers from `Ui` to `V2` is out of scope for this command.
+3. `bin/rubocop`, `bin/rails test` (host) and `bin/rails test:with_studio` if available. V2 is additive (`Phlex::Shadcn`), so existing pages must be unaffected: any new failure is a regression from shared files (`theme/*.css`, importmap, `Components::Base`) and goes back through the fix loop (`_theme` or `_harness` owner). Migrating callers from `Ui` to `V2` is out of scope for this command.
 4. Dispatch ONE `shadcn-parity-auditor` per `done` interactive component in `MODE: static` only for the `Q_*` review (parallel, 6 at a time) and attach advisories to the report; MANDATORY `Q_*` findings re-open the component through the fix loop once.
 5. Catalog: confirm `app/views/design_system/index.rb` lists every `done` component (generated from state by the `_harness` task's catalog generator if present; otherwise report it as a gap, do not hand-edit).
 
