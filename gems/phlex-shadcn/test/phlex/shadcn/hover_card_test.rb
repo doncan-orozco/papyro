@@ -10,7 +10,7 @@ class Phlex::Shadcn::HoverCardTest < Phlex::Shadcn::TestCase
       define_method(:view_template) do
         render HoverCard.new(**root) do
           render HoverCard::Trigger.new(**trigger) { plain "Hover" }
-          render HoverCard::Content.new(**content), &(block || proc { plain "Card" })
+          render HoverCard::Content.new(**content), &block || proc { plain "Card" }
         end
       end
     end.new.call

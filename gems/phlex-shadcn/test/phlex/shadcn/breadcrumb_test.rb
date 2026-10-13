@@ -5,8 +5,8 @@ require "phlex/test_case"
 class Phlex::Shadcn::BreadcrumbTest < Phlex::Shadcn::TestCase
   B = Phlex::Shadcn::Breadcrumb
 
-  def render_root(**opts, &block)
-    B.new(**opts).call(&block)
+  def render_root(**, &)
+    B.new(**).call(&)
   end
 
   test "root has aria-label, slot, and class is not merged" do
@@ -48,10 +48,10 @@ class Phlex::Shadcn::BreadcrumbTest < Phlex::Shadcn::TestCase
 
       assert_respond_to root, name
       helper_html = Class.new(Phlex::HTML) do
-        define_method(:view_template) { render B.new { |b| b.public_send(name, id: "i") { "x" } } }
+        define_method(:view_template) { render(B.new { |b| b.public_send(name, id: "i") { "x" } }) }
       end.new.call
       explicit = Class.new(Phlex::HTML) do
-        define_method(:view_template) { render B.new { render klass.new(id: "i") { "x" } } }
+        define_method(:view_template) { render(B.new { render klass.new(id: "i") { "x" } }) }
       end.new.call
 
       assert_equal explicit, helper_html

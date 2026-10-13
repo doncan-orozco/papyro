@@ -6,8 +6,8 @@ class Phlex::Shadcn::TableTest < Phlex::Shadcn::TestCase
   PARTS = { header: "table-header", body: "table-body", footer: "table-footer", row: "table-row",
             head: "table-head", cell: "table-cell", caption: "table-caption" }.freeze
 
-  def html(**opts, &block)
-    Phlex::Shadcn::Table.new(**opts).call(&(block || proc { |_| "x" }))
+  def html(**, &block)
+    Phlex::Shadcn::Table.new(**).call(&block || proc { |_| "x" })
   end
 
   test "attrs and class go to the inner table, container is fixed" do

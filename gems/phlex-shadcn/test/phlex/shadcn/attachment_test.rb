@@ -7,8 +7,8 @@ class Phlex::Shadcn::AttachmentTest < Phlex::Shadcn::TestCase
             title: "attachment-title", description: "attachment-description", actions: "attachment-actions",
             action: "attachment-action", trigger: "attachment-trigger" }.freeze
 
-  def html(**opts, &block)
-    Phlex::Shadcn::Attachment.new(**opts).call(&(block || proc { |_| "Body" }))
+  def html(**, &block)
+    Phlex::Shadcn::Attachment.new(**).call(&block || proc { |_| "Body" })
   end
 
   test "root renders data attributes, defaults and merged class" do
@@ -36,7 +36,7 @@ class Phlex::Shadcn::AttachmentTest < Phlex::Shadcn::TestCase
 
     assert_includes out, 'data-variant="ghost"'
     assert_includes out, 'data-size="icon-xs"'
-    assert_includes html { |a| a.trigger }, 'type="button"'
+    assert_includes html(&:trigger), 'type="button"'
   end
 
   test "trigger as_child drops type and joins classes" do

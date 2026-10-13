@@ -10,7 +10,7 @@ class Phlex::Shadcn::PopoverTest < Phlex::Shadcn::TestCase
       define_method(:view_template) do
         render Popover.new(**root) do
           render Popover::Trigger.new(**trigger) { plain "Open" }
-          render Popover::Content.new(**content), &(block || proc { plain "Body" })
+          render Popover::Content.new(**content), &block || proc { plain "Body" }
         end
       end
     end.new.call
@@ -68,8 +68,8 @@ class Phlex::Shadcn::PopoverTest < Phlex::Shadcn::TestCase
     explicit = Class.new(Phlex::HTML) do
       def view_template
         render Popover.new do
-          render Popover::Header.new { render(Popover::Title.new { "T" }) }
-          render Popover::Description.new { "D" }
+          render(Popover::Header.new { render(Popover::Title.new { "T" }) })
+          render(Popover::Description.new { "D" })
         end
       end
     end.new.call

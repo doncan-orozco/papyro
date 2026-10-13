@@ -30,7 +30,8 @@ class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
     @form = form
     @dir = choice(dir, DIRECTIONS, "dir")
     @values = (@controlled ? value : default_value) || [ min ]
-    @thumb_count = (value.is_a?(Array) ? value : default_value.is_a?(Array) ? default_value : [ min, max ]).length
+    initial = [ value, default_value ].find { |candidate| candidate.is_a?(Array) } || [ min, max ]
+    @thumb_count = initial.length
     @attrs = attrs
     super()
   end
@@ -55,20 +56,33 @@ class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
     value = value.to_s
     return value if allowed.include?(value)
 
-    raise ArgumentError, "#{name} must be one of #{allowed.join(", ")}, got #{value.inspect}"
+    raise ArgumentError, "#{name} must be one of #{allowed.join(', ')}, got #{value.inspect}"
   end
 
   def disabled_data = (@disabled ? "" : nil)
 
-  def start_edge = @horizontal ? (@from_start ? "left" : "right") : (@from_start ? "bottom" : "top")
+  def start_edge
+    if @horizontal
+      @from_start ? "left" : "right"
+    else
+      (@from_start ? "bottom" : "top")
+    end
+  end
 
-  def end_edge = @horizontal ? (@from_start ? "right" : "left") : (@from_start ? "top" : "bottom")
+  def end_edge
+    if @horizontal
+      @from_start ? "right" : "left"
+    else
+      (@from_start ? "top" : "bottom")
+    end
+  end
 
   def root_defaults
     {
       aria: { disabled: @disabled.to_s },
       dir: (@horizontal ? @direction : @dir),
-      style: [ style_string(@attrs[:style]).presence, "--radix-slider-thumb-transform: #{THUMB_TRANSFORM[@orientation]};" ].compact.join("; "),
+      style: [ style_string(@attrs[:style]).presence,
+               "--radix-slider-thumb-transform: #{THUMB_TRANSFORM[@orientation]};" ].compact.join("; "),
       class: ROOT_CLASS,
       data: {
         slot: "slider", orientation: @orientation, disabled: disabled_data, controller: "v2--slider",
@@ -93,7 +107,8 @@ class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
   def thumb_attrs(index, value)
     {
       role: "slider",
-      aria: { label: thumb_label(index), valuemin: js(@min), valuenow: (js(value) unless value.nil?), valuemax: js(@max), orientation: @orientation },
+      aria: { label: thumb_label(index), valuemin: js(@min), valuenow: (js(value) unless value.nil?), valuemax: js(@max),
+              orientation: @orientation },
       data: { orientation: @orientation, disabled: disabled_data, slot: "slider-thumb", radix_collection_item: "" },
       tabindex: (@disabled ? nil : 0),
       style: (value.nil? ? "display: none;" : nil),
@@ -104,7 +119,7 @@ class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
   def input_name
     return unless @name
 
-    "#{@name}#{"[]" if @values.length > 1}"
+    "#{@name}#{'[]' if @values.length > 1}"
   end
 
   def thumb_label(index)

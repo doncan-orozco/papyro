@@ -39,12 +39,14 @@ class Phlex::Shadcn::Sidebar::Provider < Phlex::Shadcn::Base
     }
   end
 
+  def css_declarations(hash) = hash.map { |name, value| "#{name}: #{value}" }.join("; ")
+
   # Component variables first, the caller style after (tsx:136-138).
   def style_attribute
     base = { "--sidebar-width" => Phlex::Shadcn::Sidebar::SIDEBAR_WIDTH, "--sidebar-width-icon" => Phlex::Shadcn::Sidebar::SIDEBAR_WIDTH_ICON }
-    return base.merge(declarations(@style)).map { |name, value| "#{name}: #{value}" }.join("; ") + ";" unless @style.is_a?(String)
+    return "#{css_declarations(base.merge(declarations(@style)))};" unless @style.is_a?(String)
 
-    [ base.map { |name, value| "#{name}: #{value}" }.join("; ") + ";", @style.strip ].compact_blank.join(" ")
+    [ "#{css_declarations(base)};", @style.strip ].compact_blank.join(" ")
   end
 
   def declarations(style)

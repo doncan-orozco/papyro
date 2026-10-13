@@ -12,11 +12,11 @@ class Phlex::Shadcn::Label < Phlex::Shadcn::Base
     super()
   end
 
-  def view_template(&block)
+  def view_template(&)
     attrs = merge_attrs({ data: { slot: "label" }, class: BASE }, @attrs)
-    return render_as_child(@as_child, **attrs, &block) if @as_child
+    return render_as_child(@as_child, **attrs, &) if @as_child
 
-    label(**attrs, &block)
+    label(**attrs, &)
   end
 
   private

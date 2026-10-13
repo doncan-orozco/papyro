@@ -11,7 +11,7 @@ class Phlex::Shadcn::AlertDialog::Content < Phlex::Shadcn::Base
   # force_mount has no effect: the Portal that shadcn wraps around the Content is not force-mounted (spec, forceMount).
   def initialize(size: "default", force_mount: false, as_child: false, **attrs)
     @size = normalize_option(size) || "default"
-    raise ArgumentError, "size must be one of #{SIZES.join(", ")}, got #{size.inspect}" unless SIZES.include?(@size)
+    raise ArgumentError, "size must be one of #{SIZES.join(', ')}, got #{size.inspect}" unless SIZES.include?(@size)
 
     @as_child = as_child
     @attrs = attrs
@@ -33,10 +33,10 @@ class Phlex::Shadcn::AlertDialog::Content < Phlex::Shadcn::Base
 
   def content_attrs(root, state)
     attrs = merge_attrs({
-      id: root[:content_id], role: "alertdialog", tabindex: "-1", class: CLASSES,
-      aria: { labelledby: (root[:title_id] if root[:title_present]) },
-      data: { slot: "alert-dialog-content", size: @size, state: state, v2__dialog_part: "content" }
-    }, @attrs)
+                          id: root[:content_id], role: "alertdialog", tabindex: "-1", class: CLASSES,
+                          aria: { labelledby: (root[:title_id] if root[:title_present]) },
+                          data: { slot: "alert-dialog-content", size: @size, state: state, v2__dialog_part: "content" }
+                        }, @attrs)
     attrs.merge(aria: (attrs[:aria] || {}).merge(describedby: describedby(root, attrs.dig(:aria, :describedby))))
   end
 

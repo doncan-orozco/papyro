@@ -19,7 +19,7 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
 
   def self.fetch_option!(value, default, allowed, name)
     option = value&.to_s&.tr("_", "-") || default
-    raise ArgumentError, "unknown #{name}: #{value.inspect} (expected one of #{allowed.join(", ")})" unless allowed.include?(option)
+    raise ArgumentError, "unknown #{name}: #{value.inspect} (expected one of #{allowed.join(', ')})" unless allowed.include?(option)
 
     option
   end
@@ -150,14 +150,14 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
       super()
     end
 
-    def view_template(&block)
+    def view_template(&)
       defaults = { data: { slot: "attachment-trigger" } }
       defaults[:type] = @type || "button" unless @as_child
       attrs = merge_attrs(defaults, @attrs.except(:class))
       attrs = attrs.merge(class: [ @slot_class, cn(CLASS_NAME, @attrs[:class]) ].compact_blank.join(" "))
-      return render_as_child(@as_child, **attrs, &block) if @as_child
+      return render_as_child(@as_child, **attrs, &) if @as_child
 
-      button(**attrs, &block)
+      button(**attrs, &)
     end
   end
 end

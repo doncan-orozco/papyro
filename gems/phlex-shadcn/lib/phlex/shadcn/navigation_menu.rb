@@ -40,16 +40,16 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     dir = use_direction(@dir)
     context[ROOT_KEY] = { base: "navigation-menu-#{self.class.next_sequence(context)}", value: @value, orientation: @orientation, dir: dir }
     nav(**merge_attrs({
-      aria: { label: "Main" }, dir: dir,
-      class: CLASSES,
-      data: {
-        orientation: @orientation, slot: "navigation-menu", viewport: @viewport.to_s, controller: "v2--navigation-menu",
-        v2__navigation_menu_value_value: @value, v2__navigation_menu_controlled_value: @controlled.to_s,
-        v2__navigation_menu_delay_duration_value: @delay_duration, v2__navigation_menu_skip_delay_duration_value: @skip_delay_duration,
-        v2__navigation_menu_orientation_value: @orientation, v2__navigation_menu_dir_value: dir,
-        v2__navigation_menu_activation_mode_value: @activation_mode
-      }
-    }, @attrs)) do
+                        aria: { label: "Main" }, dir: dir,
+                        class: CLASSES,
+                        data: {
+                          orientation: @orientation, slot: "navigation-menu", viewport: @viewport.to_s, controller: "v2--navigation-menu",
+                          v2__navigation_menu_value_value: @value, v2__navigation_menu_controlled_value: @controlled.to_s,
+                          v2__navigation_menu_delay_duration_value: @delay_duration, v2__navigation_menu_skip_delay_duration_value: @skip_delay_duration,
+                          v2__navigation_menu_orientation_value: @orientation, v2__navigation_menu_dir_value: dir,
+                          v2__navigation_menu_activation_mode_value: @activation_mode
+                        }
+                      }, @attrs)) do
       yield self if block_given?
       render Viewport.new if @viewport
     end
@@ -86,7 +86,8 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
 
     def view_template(&)
       root = root_context
-      attrs = merge_attrs({ dir: root[:dir], class: CLASSES, data: { orientation: root[:orientation], slot: "navigation-menu-list" } }, @attrs)
+      attrs = merge_attrs({ dir: root[:dir], class: CLASSES, data: { orientation: root[:orientation], slot: "navigation-menu-list" } },
+                          @attrs)
       # Radix indicator track: the Indicator is mounted as the last child of this div.
       div(style: "position: relative;") do
         @as_child ? render_as_child(@as_child, **attrs, &) : ul(**attrs, &)
@@ -108,7 +109,9 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
       root = root_context
       previous = context[ITEM_KEY]
       value = @value || "#{root[:base]}-item-#{self.class.next_sequence(context)}"
-      context[ITEM_KEY] = { value: value, open: value == root[:value], trigger_id: "#{root[:base]}-trigger-#{value}", content_id: "#{root[:base]}-content-#{value}" }
+      context[ITEM_KEY] =
+        { value: value, open: value == root[:value], trigger_id: "#{root[:base]}-trigger-#{value}",
+          content_id: "#{root[:base]}-content-#{value}" }
       attrs = merge_attrs({ class: "relative", data: { slot: "navigation-menu-item" } }, @attrs)
       @as_child ? render_as_child(@as_child, **attrs, &) : li(**attrs, &)
     ensure
@@ -131,16 +134,19 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
       item = item_context
       open = item[:open]
       button(**merge_attrs({
-        id: item[:trigger_id], disabled: (true if @disabled), class: cn(Phlex::Shadcn::NavigationMenu.trigger_style, "group"),
-        aria: { expanded: open.to_s, controls: (item[:content_id] if open) },
-        data: {
-          state: open ? "open" : "closed", disabled: (@disabled ? "" : nil), slot: "navigation-menu-trigger", radix_collection_item: "",
-          v2__navigation_menu_value_param: item[:value], v2__navigation_menu_controls_param: item[:content_id]
-        }
-      }, @attrs)) do
+                             id: item[:trigger_id], disabled: (if @disabled
+                                                                 true
+                                                               end), class: cn(Phlex::Shadcn::NavigationMenu.trigger_style, "group"),
+                             aria: { expanded: open.to_s, controls: (item[:content_id] if open) },
+                             data: {
+                               state: open ? "open" : "closed", disabled: (@disabled ? "" : nil), slot: "navigation-menu-trigger", radix_collection_item: "",
+                               v2__navigation_menu_value_param: item[:value], v2__navigation_menu_controls_param: item[:content_id]
+                             }
+                           }, @attrs)) do
         yield if block_given?
         plain " "
-        render Phlex::Shadcn::Icon.new("chevron-down", class: "relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180", aria: { hidden: "true" })
+        render Phlex::Shadcn::Icon.new("chevron-down",
+                                       class: "relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180", aria: { hidden: "true" })
       end
     end
   end
@@ -165,9 +171,9 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
       root = root_context
       item = item_context
       attrs = merge_attrs({
-        id: item[:content_id], aria: { labelledby: item[:trigger_id] }, dir: root[:dir], class: cn(*CLASSES),
-        data: { orientation: root[:orientation], slot: "navigation-menu-content" }
-      }, @attrs)
+                            id: item[:content_id], aria: { labelledby: item[:trigger_id] }, dir: root[:dir], class: cn(*CLASSES),
+                            data: { orientation: root[:orientation], slot: "navigation-menu-content" }
+                          }, @attrs)
       template(data: { v2__navigation_menu_target: "contentTemplate", value: item[:value], force_mount: (@force_mount ? "true" : nil) }) do
         @as_child ? render_as_child(@as_child, **attrs, &) : div(**attrs, &)
       end
@@ -207,9 +213,9 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
 
     def view_template(&)
       attrs = merge_attrs({
-        class: CLASSES, aria: { current: (@active ? "page" : nil) },
-        data: { active: (@active ? "" : nil), slot: "navigation-menu-link", radix_collection_item: "" }
-      }, @attrs)
+                            class: CLASSES, aria: { current: (@active ? "page" : nil) },
+                            data: { active: (@active ? "" : nil), slot: "navigation-menu-link", radix_collection_item: "" }
+                          }, @attrs)
       @as_child ? render_as_child(@as_child, **attrs, &) : a(**attrs, &)
     end
   end
@@ -229,7 +235,9 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     def view_template
       root = root_context
       template(data: { v2__navigation_menu_target: "indicatorTemplate", force_mount: (@force_mount ? "true" : nil) }) do
-        div(**merge_attrs({ aria: { hidden: "true" }, class: CLASSES, data: { orientation: root[:orientation], slot: "navigation-menu-indicator" } }, @attrs)) do
+        div(**merge_attrs(
+          { aria: { hidden: "true" }, class: CLASSES, data: { orientation: root[:orientation], slot: "navigation-menu-indicator" } }, @attrs
+        )) do
           div(class: "relative top-[60%] h-2 w-2 rotate-45 rounded-tl-sm bg-border shadow-md")
         end
       end

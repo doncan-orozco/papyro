@@ -13,7 +13,9 @@ class Phlex::Shadcn::Select::ScrollDownButton < Phlex::Shadcn::Base
   end
 
   def view_template
-    attrs = merge_attrs({ aria: { hidden: "true" }, class: CLASSES, style: "flex-shrink: 0;", data: { slot: "select-scroll-down-button" } }, @attrs)
+    attrs = merge_attrs(
+      { aria: { hidden: "true" }, class: CLASSES, style: "flex-shrink: 0;", data: { slot: "select-scroll-down-button" } }, @attrs
+    )
     div(**attrs) { render Phlex::Shadcn::Icon.new("chevron-down", class: "size-4") }
   end
 end

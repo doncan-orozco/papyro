@@ -36,12 +36,12 @@ class Phlex::Shadcn::Button < Phlex::Shadcn::Base
     @attrs = attrs
   end
 
-  def view_template(&block)
+  def view_template(&)
     attrs = merge_attrs({ data: { slot: "button", variant: @variant, size: @size } }, @attrs.except(:class))
     attrs = attrs.merge(class: [ @slot_class, classes(@attrs[:class]) ].compact_blank.join(" "))
-    return render_as_child(@as_child, **attrs, &block) if @as_child
+    return render_as_child(@as_child, **attrs, &) if @as_child
 
-    button(**attrs, &block)
+    button(**attrs, &)
   end
 
   private
@@ -52,6 +52,6 @@ class Phlex::Shadcn::Button < Phlex::Shadcn::Base
     key = normalize_option(value) || "default"
     return key if table.key?(key)
 
-    raise ArgumentError, "unknown #{label}: #{value.inspect} (expected one of #{table.keys.join(", ")})"
+    raise ArgumentError, "unknown #{label}: #{value.inspect} (expected one of #{table.keys.join(', ')})"
   end
 end

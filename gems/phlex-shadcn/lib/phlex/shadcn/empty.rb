@@ -41,7 +41,10 @@ class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
 
     def initialize(variant: "default", **attrs)
       @variant = normalize_option(variant) || "default"
-      raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(", ")})" unless VARIANTS.key?(@variant)
+      unless VARIANTS.key?(@variant)
+        raise ArgumentError,
+              "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(', ')})"
+      end
 
       @attrs = attrs
       super()

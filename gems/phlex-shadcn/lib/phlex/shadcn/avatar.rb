@@ -7,7 +7,7 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
 
   def initialize(size: "default", as_child: false, **attrs)
     @size = normalize_option(size) || "default"
-    raise ArgumentError, "unknown size #{size.inspect}, expected one of #{SIZES.join(", ")}" unless SIZES.include?(@size)
+    raise ArgumentError, "unknown size #{size.inspect}, expected one of #{SIZES.join(', ')}" unless SIZES.include?(@size)
 
     @as_child = as_child
     @attrs = attrs

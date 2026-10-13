@@ -48,16 +48,16 @@ class Phlex::Shadcn::Tabs::Content < Phlex::Shadcn::Base
   def content_attrs(root, selected)
     present = selected || @force_mount
     merge_attrs({
-      role: "tabpanel",
-      id: "#{root[:base_id]}-content-#{@value}",
-      tabindex: 0,
-      hidden: !present,
-      # Radix keeps the mount animation off for the panel that is selected at first render (isMountAnimationPrevented).
-      style: join_style(@style, ("animation-duration: 0s" if selected)),
-      class: CLASSES,
-      aria: { labelledby: "#{root[:base_id]}-trigger-#{@value}" },
-      data: { state: selected ? "active" : "inactive", orientation: root[:orientation], slot: "tabs-content",
-              v2__tabs_target: "content", v2__tabs_item_value: @value, v2__tabs_force_mount: @force_mount.to_s, v2__tabs_as_child: (@as_child ? "true" : nil) }
-    }, @attrs)
+                  role: "tabpanel",
+                  id: "#{root[:base_id]}-content-#{@value}",
+                  tabindex: 0,
+                  hidden: !present,
+                  # Radix keeps the mount animation off for the panel that is selected at first render (isMountAnimationPrevented).
+                  style: join_style(@style, ("animation-duration: 0s" if selected)),
+                  class: CLASSES,
+                  aria: { labelledby: "#{root[:base_id]}-trigger-#{@value}" },
+                  data: { state: selected ? "active" : "inactive", orientation: root[:orientation], slot: "tabs-content",
+                          v2__tabs_target: "content", v2__tabs_item_value: @value, v2__tabs_force_mount: @force_mount.to_s, v2__tabs_as_child: (@as_child ? "true" : nil) }
+                }, @attrs)
   end
 end

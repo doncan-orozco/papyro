@@ -39,7 +39,8 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
   end
 
   test "trigger keeps the caller class verbatim and appends the caller style" do
-    trigger = fragment(menu(trigger: { class: "rounded-md rounded-full", style: "color: red", disabled: true })).at_css("[data-slot=context-menu-trigger]")
+    trigger = fragment(menu(trigger: { class: "rounded-md rounded-full", style: "color: red",
+                                       disabled: true })).at_css("[data-slot=context-menu-trigger]")
 
     assert_equal "rounded-md rounded-full", trigger["class"]
     assert_equal "-webkit-touch-callout: none; color: red", trigger["style"]
@@ -96,7 +97,7 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
 
     assert_equal "mixed", doc.at_css("[data-slot=context-menu-checkbox-item]")["aria-checked"]
     assert_equal "p-1 p-2", doc.at_css("[data-slot=context-menu-radio-group]")["class"]
-    assert_equal %w[true false], doc.css("[data-slot=context-menu-radio-item]").map { |el| el["aria-checked"] }
+    assert_equal(%w[true false], doc.css("[data-slot=context-menu-radio-item]").map { |el| el["aria-checked"] })
   end
 
   test "sub wires trigger and content ids" do

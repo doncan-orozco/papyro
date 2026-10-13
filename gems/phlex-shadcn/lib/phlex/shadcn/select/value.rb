@@ -16,9 +16,9 @@ class Phlex::Shadcn::Select::Value < Phlex::Shadcn::Base
 
     children = capture(&block).presence if block
     attrs = merge_attrs({
-      style: "pointer-events: none;",
-      data: { slot: "select-value", v2__select_placeholder: @placeholder, v2__select_children: children }
-    }, @attrs)
+                          style: "pointer-events: none;",
+                          data: { slot: "select-value", v2__select_placeholder: @placeholder, v2__select_children: children }
+                        }, @attrs)
     span(**attrs) { content(children) }
   end
 

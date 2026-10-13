@@ -38,15 +38,15 @@ class Phlex::Shadcn::Accordion::Content < Phlex::Shadcn::Base
 
   def region_attrs(item, mounted)
     merge_attrs({
-      id: item[:content_id],
-      role: "region",
-      hidden: !mounted,
-      class: CLASSES,
-      style: style_for(mounted),
-      aria: { labelledby: item[:trigger_id] },
-      data: { state: state_of(item), disabled: disabled_data(item), orientation: item[:root][:orientation],
-              slot: "accordion-content", v2__accordion_target: "content", v2__accordion_force_mount: @force_mount.to_s }
-    }, @attrs)
+                  id: item[:content_id],
+                  role: "region",
+                  hidden: !mounted,
+                  class: CLASSES,
+                  style: style_for(mounted),
+                  aria: { labelledby: item[:trigger_id] },
+                  data: { state: state_of(item), disabled: disabled_data(item), orientation: item[:root][:orientation],
+                          slot: "accordion-content", v2__accordion_target: "content", v2__accordion_force_mount: @force_mount.to_s }
+                }, @attrs)
   end
 
   # The mount animation stays suspended for content that is present at first paint (Radix isMountAnimationPrevented).

@@ -17,7 +17,7 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
     raise ArgumentError, "#{self.class.name} does not support as_child" if attrs.key?(:as_child) || attrs.key?(:asChild)
 
     @type = type.to_s
-    raise ArgumentError, "type must be one of #{TYPES.join(", ")}, got #{type.inspect}" unless TYPES.include?(@type)
+    raise ArgumentError, "type must be one of #{TYPES.join(', ')}, got #{type.inspect}" unless TYPES.include?(@type)
 
     @dir = dir
     @scroll_hide_delay = scroll_hide_delay
@@ -33,7 +33,8 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
     content = capture { yield self if block_given? }
     div(**merge_attrs(root_defaults(direction), @attrs.except(:style))) do
       style { raw(safe(VIEWPORT_CSS)) }
-      div(data: { radix_scroll_area_viewport: "", slot: "scroll-area-viewport" }, class: VIEWPORT_CLASS, style: viewport_style(state[:orientations])) do
+      div(data: { radix_scroll_area_viewport: "", slot: "scroll-area-viewport" }, class: VIEWPORT_CLASS,
+          style: viewport_style(state[:orientations])) do
         div(style: "min-width: 100%; display: table;") { raw(safe(content)) }
       end
       render ScrollBar.new(orientation: "vertical")
@@ -58,7 +59,7 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
 
   def viewport_style(orientations)
     overflow = ->(orientation) { orientations.include?(orientation) ? "scroll" : "hidden" }
-    "overflow-x: #{overflow.("horizontal")}; overflow-y: #{overflow.("vertical")};"
+    "overflow-x: #{overflow.call('horizontal')}; overflow-y: #{overflow.call('vertical')};"
   end
 
   # Radix ScrollAreaScrollbar + Thumb. Both stay in inert <template>s until the controller mounts them (spec: Deviations).
@@ -75,7 +76,10 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
       raise ArgumentError, "#{self.class.name} does not support as_child" if attrs.key?(:as_child) || attrs.key?(:asChild)
 
       @orientation = orientation.to_s
-      raise ArgumentError, "orientation must be one of #{ORIENTATIONS.join(", ")}, got #{orientation.inspect}" unless ORIENTATIONS.include?(@orientation)
+      unless ORIENTATIONS.include?(@orientation)
+        raise ArgumentError,
+              "orientation must be one of #{ORIENTATIONS.join(', ')}, got #{orientation.inspect}"
+      end
 
       @force_mount = force_mount
       @attrs = attrs
@@ -90,7 +94,8 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
       template(data: { v2__scroll_area_target: "scrollbar", v2__scroll_area_force_mount: (@force_mount ? "true" : nil) }) do
         div(**merge_attrs(defaults, @attrs)) do
           template do
-            div(data: { state: "visible", slot: "scroll-area-thumb" }, class: THUMB_CLASS, style: "width: var(--radix-scroll-area-thumb-width); height: var(--radix-scroll-area-thumb-height);")
+            div(data: { state: "visible", slot: "scroll-area-thumb" }, class: THUMB_CLASS,
+                style: "width: var(--radix-scroll-area-thumb-width); height: var(--radix-scroll-area-thumb-height);")
           end
         end
       end

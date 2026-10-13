@@ -15,7 +15,7 @@ class Phlex::Shadcn::ContextMenu::Content < Phlex::Shadcn::Base
 
     @options = position_options(side_offset: 2, align: "start", align_offset:, avoid_collisions:, collision_padding:, collision_boundary:,
                                 sticky:, hide_when_detached:, update_position_strategy:, arrow_padding:, loop:)
-                 .merge(side: "right", forceMount: force_mount).compact
+               .merge(side: "right", forceMount: force_mount).compact
     @as_child = as_child
     @attrs = attrs
     super()

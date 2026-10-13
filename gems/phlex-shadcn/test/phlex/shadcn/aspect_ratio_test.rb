@@ -3,8 +3,8 @@
 require "phlex/test_case"
 
 class Phlex::Shadcn::AspectRatioTest < Phlex::Shadcn::TestCase
-  def render_ratio(**props, &block)
-    Phlex::Shadcn::AspectRatio.new(**props).call(&block)
+  def render_ratio(**props, &)
+    Phlex::Shadcn::AspectRatio.new(**props).call(&)
   end
 
   test "renders wrapper and inner element" do

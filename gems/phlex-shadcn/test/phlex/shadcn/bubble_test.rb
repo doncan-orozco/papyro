@@ -3,8 +3,8 @@
 require "phlex/test_case"
 
 class Phlex::Shadcn::BubbleTest < Phlex::Shadcn::TestCase
-  def html(**opts, &block)
-    Phlex::Shadcn::Bubble.new(**opts).call(&(block || proc { |_| "Hi" }))
+  def html(**, &block)
+    Phlex::Shadcn::Bubble.new(**).call(&block || proc { |_| "Hi" })
   end
 
   test "renders each variant with slot, data attrs and defaults" do
@@ -45,11 +45,15 @@ class Phlex::Shadcn::BubbleTest < Phlex::Shadcn::TestCase
   end
 
   test "helpers render the same HTML as the explicit classes" do
-    helpers = html { |b| b.group { "g" }; b.content(class: "c") { "C" }; b.reactions { "R" } }
+    helpers = html do |b|
+      b.group { "g" }
+      b.content(class: "c") { "C" }
+      b.reactions { "R" }
+    end
     explicit = html do |b|
-      b.render Phlex::Shadcn::Bubble::Group.new { "g" }
+      b.render(Phlex::Shadcn::Bubble::Group.new { "g" })
       b.render Phlex::Shadcn::Bubble::Content.new(class: "c") { "C" }
-      b.render Phlex::Shadcn::Bubble::Reactions.new { "R" }
+      b.render(Phlex::Shadcn::Bubble::Reactions.new { "R" })
     end
 
     assert_equal explicit, helpers

@@ -16,14 +16,14 @@ class Phlex::Shadcn::Tabs::List < Phlex::Shadcn::Base
   def view_template(&)
     root = root_context
     attrs = merge_attrs({
-      role: "tablist",
-      tabindex: 0,
-      style: join_style("outline: none", @style),
-      class: Phlex::Shadcn::Tabs.list_variants(variant: @variant),
-      aria: { orientation: root[:orientation] },
-      data: { orientation: root[:orientation], slot: "tabs-list", variant: @variant,
-              v2__tabs_target: "list", v2__tabs_loop_value: @loop.to_s }
-    }, @attrs)
+                          role: "tablist",
+                          tabindex: 0,
+                          style: join_style("outline: none", @style),
+                          class: Phlex::Shadcn::Tabs.list_variants(variant: @variant),
+                          aria: { orientation: root[:orientation] },
+                          data: { orientation: root[:orientation], slot: "tabs-list", variant: @variant,
+                                  v2__tabs_target: "list", v2__tabs_loop_value: @loop.to_s }
+                        }, @attrs)
     render_part(:div, @as_child, attrs, &)
   end
 end

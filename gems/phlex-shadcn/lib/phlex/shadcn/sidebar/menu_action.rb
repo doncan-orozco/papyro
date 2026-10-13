@@ -22,6 +22,7 @@ class Phlex::Shadcn::Sidebar::MenuAction < Phlex::Shadcn::Base
   end
 
   def view_template(&)
-    render_part(:button, @as_child, part_attrs(cn(CLASSES, (SHOW_ON_HOVER if @show_on_hover)), data: { slot: "sidebar-menu-action", sidebar: "menu-action" }), &)
+    render_part(:button, @as_child,
+                part_attrs(cn(CLASSES, (SHOW_ON_HOVER if @show_on_hover)), data: { slot: "sidebar-menu-action", sidebar: "menu-action" }), &)
   end
 end

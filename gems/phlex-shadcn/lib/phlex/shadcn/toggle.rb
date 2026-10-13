@@ -23,8 +23,8 @@ class Phlex::Shadcn::Toggle < Phlex::Shadcn::Base
   def initialize(variant: "default", size: "default", pressed: nil, default_pressed: false, disabled: false, as_child: false, **attrs)
     @variant = normalize_option(variant) || "default"
     @size = normalize_option(size) || "default"
-    raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(", ")})" unless VARIANTS.key?(@variant)
-    raise ArgumentError, "unknown size: #{size.inspect} (expected one of #{SIZES.keys.join(", ")})" unless SIZES.key?(@size)
+    raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(', ')})" unless VARIANTS.key?(@variant)
+    raise ArgumentError, "unknown size: #{size.inspect} (expected one of #{SIZES.keys.join(', ')})" unless SIZES.key?(@size)
 
     @controlled = !pressed.nil?
     @pressed = @controlled ? pressed : default_pressed
@@ -34,13 +34,13 @@ class Phlex::Shadcn::Toggle < Phlex::Shadcn::Base
     super()
   end
 
-  def view_template(&block)
+  def view_template(&)
     attrs = merge_attrs(root_attrs, @attrs.except(:class))
     attrs = attrs.merge(class: [ @slot_class, classes(@attrs[:class]) ].compact_blank.join(" "))
     attrs = with_action(attrs)
-    return render_as_child(@as_child, **attrs, &block) if @as_child
+    return render_as_child(@as_child, **attrs, &) if @as_child
 
-    button(**attrs, &block)
+    button(**attrs, &)
   end
 
   private

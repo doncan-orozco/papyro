@@ -98,7 +98,7 @@ class Phlex::Shadcn::MenubarTest < Phlex::Shadcn::TestCase
     end)
 
     assert_equal "mixed", doc.at_css("[data-slot=menubar-checkbox-item]")["aria-checked"]
-    assert_equal %w[true false], doc.css("[data-slot=menubar-radio-item]").map { |el| el["aria-checked"] }
+    assert_equal(%w[true false], doc.css("[data-slot=menubar-radio-item]").map { |el| el["aria-checked"] })
   end
 
   test "sub trigger carries the chevron and the menubar marker, sub content sits in a template" do

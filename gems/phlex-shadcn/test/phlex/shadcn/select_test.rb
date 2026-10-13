@@ -78,7 +78,7 @@ class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
   test "name renders the native select with one option per item" do
     options = fragment(select(root: { name: "fruit" })).css("select[aria-hidden=true] option")
 
-    assert_equal [ "", "apple", "banana" ], options.map { |option| option["value"] }
+    assert_equal([ "", "apple", "banana" ], options.map { |option| option["value"] })
   end
 
   test "as_child is rejected on trigger and item" do

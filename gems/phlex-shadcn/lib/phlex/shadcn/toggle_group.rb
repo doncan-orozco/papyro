@@ -14,7 +14,7 @@ class Phlex::Shadcn::ToggleGroup < Phlex::Shadcn::Base
   # value: non-nil is controlled (user actions only dispatch value-change, the caller re-renders with the new value).
   def initialize(type:, value: nil, default_value: nil, variant: nil, size: nil, spacing: 0, disabled: false,
                  roving_focus: true, orientation: nil, dir: nil, loop: true, as_child: false, **attrs)
-    @type = choice(type, TYPES, "type") or raise ArgumentError, "type is required, one of #{TYPES.join(", ")}"
+    @type = choice(type, TYPES, "type") or raise ArgumentError, "type is required, one of #{TYPES.join(', ')}"
     @controlled = !value.nil?
     @value = initial_value(@controlled ? value : default_value)
     @variant = normalize_option(variant)
@@ -53,7 +53,7 @@ class Phlex::Shadcn::ToggleGroup < Phlex::Shadcn::Base
     value = value.to_s
     return value if allowed.include?(value)
 
-    raise ArgumentError, "#{name} must be one of #{allowed.join(", ")}, got #{value.inspect}"
+    raise ArgumentError, "#{name} must be one of #{allowed.join(', ')}, got #{value.inspect}"
   end
 
   # single: String ("" = none); multiple: Array of Strings in activation order.
@@ -71,13 +71,13 @@ class Phlex::Shadcn::ToggleGroup < Phlex::Shadcn::Base
 
   # JavaScript number formatting: 2.0 renders as "2".
   def format_number(number)
-    number.to_f == number.to_i ? number.to_i.to_s : number.to_s
+    (number.to_f % 1).zero? ? number.to_i.to_s : number.to_s
   end
 
   # Radix outline:none, then shadcn --gap; a caller style replaces the --gap declaration.
   def style
     custom = @attrs[:style]
-    [ (@roving_focus ? "outline: none" : nil), (custom ? style_string(custom) : "--gap: #{@spacing}") ].compact.join("; ") + ";"
+    "#{[ (@roving_focus ? 'outline: none' : nil), (custom ? style_string(custom) : "--gap: #{@spacing}") ].compact.join('; ')};"
   end
 
   def root_defaults
@@ -96,6 +96,10 @@ class Phlex::Shadcn::ToggleGroup < Phlex::Shadcn::Base
         v2__toggle_group_orientation_value: @orientation,
         v2__toggle_group_dir_value: @dir
       }
-    }.merge(@roving_focus ? { tabindex: (@disabled ? -1 : 0) } : {})
+    }.merge(if @roving_focus
+              { tabindex: (@disabled ? -1 : 0) }
+            else
+              {}
+            end)
   end
 end

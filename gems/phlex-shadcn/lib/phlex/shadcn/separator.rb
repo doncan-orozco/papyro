@@ -13,22 +13,23 @@ class Phlex::Shadcn::Separator < Phlex::Shadcn::Base
     @attrs = attrs
   end
 
-  def view_template(&block)
+  def view_template(&)
     attrs = merge_attrs(defaults, @attrs.except(:class))
     attrs = attrs.merge(class: [ @slot_class, cn(BASE, @attrs[:class]) ].compact_blank.join(" "))
-    return render_as_child(@as_child, **attrs, &block) if @as_child
+    return render_as_child(@as_child, **attrs, &) if @as_child
 
-    div(**attrs, &block)
+    div(**attrs, &)
   end
 
   private
 
   def defaults
-    semantics = if @decorative
-      { role: "none" }
-    else
-      { role: "separator", aria: { orientation: (@orientation if @orientation == "vertical") }.compact }
-    end
+    semantics =
+      if @decorative
+        { role: "none" }
+      else
+        { role: "separator", aria: { orientation: (@orientation if @orientation == "vertical") }.compact }
+      end
     { data: { slot: "separator", orientation: @orientation } }.merge(semantics)
   end
 end

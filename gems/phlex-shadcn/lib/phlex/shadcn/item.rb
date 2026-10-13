@@ -23,8 +23,8 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   def initialize(variant: "default", size: "default", as_child: false, **attrs)
     @variant = normalize_option(variant) || "default"
     @size = normalize_option(size) || "default"
-    raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(", ")})" unless VARIANTS.key?(@variant)
-    raise ArgumentError, "unknown size: #{size.inspect} (expected one of #{SIZES.keys.join(", ")})" unless SIZES.key?(@size)
+    raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(', ')})" unless VARIANTS.key?(@variant)
+    raise ArgumentError, "unknown size: #{size.inspect} (expected one of #{SIZES.keys.join(', ')})" unless SIZES.key?(@size)
 
     @as_child = as_child
     @attrs = attrs
@@ -58,13 +58,16 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
 
     def initialize(variant: "default", **attrs)
       @variant = normalize_option(variant) || "default"
-      raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(", ")})" unless VARIANTS.key?(@variant)
+      unless VARIANTS.key?(@variant)
+        raise ArgumentError,
+              "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(', ')})"
+      end
 
       @attrs = attrs
     end
 
-    def view_template(&block)
-      div(**merge_attrs({ data: { slot: "item-media", variant: @variant }, class: classes(nil) }, @attrs), &block)
+    def view_template(&)
+      div(**merge_attrs({ data: { slot: "item-media", variant: @variant }, class: classes(nil) }, @attrs), &)
     end
 
     private
@@ -79,8 +82,8 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
       @attrs = attrs
     end
 
-    def view_template(&block)
-      div(**merge_attrs({ data: { slot: "item-content" }, class: CLASS_NAME }, @attrs), &block)
+    def view_template(&)
+      div(**merge_attrs({ data: { slot: "item-content" }, class: CLASS_NAME }, @attrs), &)
     end
   end
 
@@ -91,8 +94,8 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
       @attrs = attrs
     end
 
-    def view_template(&block)
-      div(**merge_attrs({ data: { slot: "item-actions" }, class: CLASS_NAME }, @attrs), &block)
+    def view_template(&)
+      div(**merge_attrs({ data: { slot: "item-actions" }, class: CLASS_NAME }, @attrs), &)
     end
   end
 
@@ -103,8 +106,8 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
       @attrs = attrs
     end
 
-    def view_template(&block)
-      div(**merge_attrs({ role: "list", data: { slot: "item-group" }, class: CLASS_NAME }, @attrs), &block)
+    def view_template(&)
+      div(**merge_attrs({ role: "list", data: { slot: "item-group" }, class: CLASS_NAME }, @attrs), &)
     end
   end
 
@@ -115,8 +118,8 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
       @attrs = attrs
     end
 
-    def view_template(&block)
-      div(**merge_attrs({ data: { slot: "item-title" }, class: CLASS_NAME }, @attrs), &block)
+    def view_template(&)
+      div(**merge_attrs({ data: { slot: "item-title" }, class: CLASS_NAME }, @attrs), &)
     end
   end
 
@@ -127,8 +130,8 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
       @attrs = attrs
     end
 
-    def view_template(&block)
-      p(**merge_attrs({ data: { slot: "item-description" }, class: CLASS_NAME }, @attrs), &block)
+    def view_template(&)
+      p(**merge_attrs({ data: { slot: "item-description" }, class: CLASS_NAME }, @attrs), &)
     end
   end
 
@@ -139,8 +142,8 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
       @attrs = attrs
     end
 
-    def view_template(&block)
-      div(**merge_attrs({ data: { slot: "item-header" }, class: CLASS_NAME }, @attrs), &block)
+    def view_template(&)
+      div(**merge_attrs({ data: { slot: "item-header" }, class: CLASS_NAME }, @attrs), &)
     end
   end
 
@@ -151,8 +154,8 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
       @attrs = attrs
     end
 
-    def view_template(&block)
-      div(**merge_attrs({ data: { slot: "item-footer" }, class: CLASS_NAME }, @attrs), &block)
+    def view_template(&)
+      div(**merge_attrs({ data: { slot: "item-footer" }, class: CLASS_NAME }, @attrs), &)
     end
   end
 
@@ -162,7 +165,8 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
     end
 
     def view_template
-      render Phlex::Shadcn::Separator.new(**merge_attrs({ data: { slot: "item-separator" }, orientation: "horizontal", class: "my-0" }, @attrs))
+      render Phlex::Shadcn::Separator.new(**merge_attrs({ data: { slot: "item-separator" }, orientation: "horizontal", class: "my-0" },
+                                                        @attrs))
     end
   end
 end

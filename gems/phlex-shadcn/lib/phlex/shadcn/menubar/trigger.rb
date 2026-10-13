@@ -17,14 +17,14 @@ class Phlex::Shadcn::Menubar::Trigger < Phlex::Shadcn::Base
     menu = menu_context
     open = menu[:open]
     attrs = merge_attrs({
-      type: "button", role: "menuitem", id: menu[:trigger_id], disabled: @disabled, tabindex: "-1", class: CLASSES,
-      aria: { haspopup: "menu", expanded: open.to_s, controls: (menu[:content_id] if open) },
-      data: {
-        slot: "menubar-trigger", state: open ? "open" : "closed", disabled: (@disabled ? "" : nil),
-        orientation: "horizontal", radix_collection_item: "",
-        v2__menubar_menu_value: menu[:value], v2__menubar_content_id: menu[:content_id]
-      }
-    }, @attrs)
+                          type: "button", role: "menuitem", id: menu[:trigger_id], disabled: @disabled, tabindex: "-1", class: CLASSES,
+                          aria: { haspopup: "menu", expanded: open.to_s, controls: (menu[:content_id] if open) },
+                          data: {
+                            slot: "menubar-trigger", state: open ? "open" : "closed", disabled: (@disabled ? "" : nil),
+                            orientation: "horizontal", radix_collection_item: "",
+                            v2__menubar_menu_value: menu[:value], v2__menubar_content_id: menu[:content_id]
+                          }
+                        }, @attrs)
     render_part(:button, @as_child, attrs, &)
   end
 end

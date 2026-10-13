@@ -14,7 +14,7 @@ class Phlex::Shadcn::Sidebar::MenuSubButton < Phlex::Shadcn::Base
   def initialize(as_child: false, size: "md", is_active: false, **attrs)
     @as_child = as_child
     @size = normalize_option(size) || "md"
-    raise ArgumentError, "unknown size: #{size.inspect} (expected one of #{SIZES.join(", ")})" unless SIZES.include?(@size)
+    raise ArgumentError, "unknown size: #{size.inspect} (expected one of #{SIZES.join(', ')})" unless SIZES.include?(@size)
 
     @is_active = is_active
     @attrs = attrs
@@ -23,6 +23,7 @@ class Phlex::Shadcn::Sidebar::MenuSubButton < Phlex::Shadcn::Base
 
   def view_template(&)
     classes = cn(CLASSES, SIZE_CLASSES.fetch(@size), "group-data-[collapsible=icon]:hidden")
-    render_part(:a, @as_child, part_attrs(classes, data: { slot: "sidebar-menu-sub-button", sidebar: "menu-sub-button", size: @size, active: @is_active.to_s }), &)
+    render_part(:a, @as_child,
+                part_attrs(classes, data: { slot: "sidebar-menu-sub-button", sidebar: "menu-sub-button", size: @size, active: @is_active.to_s }), &)
   end
 end

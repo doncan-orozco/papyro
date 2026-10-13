@@ -29,10 +29,12 @@ class Phlex::Shadcn::Select < Phlex::Shadcn::Base
 
   def view_template(&block)
     previous = context[ROOT_KEY]
-    state = context[ROOT_KEY] = @options.merge(dir: use_direction(@options[:dir]), base: @options[:base] || "select-#{next_sequence}", known: [], phase: :collect)
+    state = context[ROOT_KEY] =
+      @options.merge(dir: use_direction(@options[:dir]), base: @options[:base] || "select-#{next_sequence}", known: [], phase: :collect)
     if block
       capture { yield self }
-      state.merge!(phase: :render, counter: 0)
+      state[:phase] = :render
+      state[:counter] = 0
       yield self
     end
   ensure

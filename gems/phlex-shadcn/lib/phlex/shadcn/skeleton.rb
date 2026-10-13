@@ -8,8 +8,8 @@ class Phlex::Shadcn::Skeleton < Phlex::Shadcn::Base
     @attrs = attrs
   end
 
-  def view_template(&block)
+  def view_template(&)
     attrs = merge_attrs({ data: { slot: "skeleton" } }, @attrs.except(:class))
-    div(**attrs, class: cn(BASE, @attrs[:class]), &block)
+    div(**attrs, class: cn(BASE, @attrs[:class]), &)
   end
 end

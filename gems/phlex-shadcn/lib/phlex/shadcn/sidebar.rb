@@ -13,9 +13,9 @@ class Phlex::Shadcn::Sidebar < Phlex::Shadcn::Base
   SIDEBAR_WIDTH_ICON = "3rem"
   SIDEBAR_WIDTH_MOBILE = "18rem"
 
-  SIDES = [ "left", "right" ].freeze
-  VARIANTS = [ "sidebar", "floating", "inset" ].freeze
-  COLLAPSIBLES = [ "offcanvas", "icon", "none" ].freeze
+  SIDES = %w[left right].freeze
+  VARIANTS = %w[sidebar floating inset].freeze
+  COLLAPSIBLES = %w[offcanvas icon none].freeze
 
   NONE_CLASSES = "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground"
   OUTER_CLASSES = "group peer hidden text-sidebar-foreground md:block"
@@ -49,11 +49,11 @@ class Phlex::Shadcn::Sidebar < Phlex::Shadcn::Base
     super()
   end
 
-  def view_template(&block)
+  def view_template(&)
     sidebar = self.class.use_sidebar(self)
-    return unmanaged(&block) if @collapsible == "none"
+    return unmanaged(&) if @collapsible == "none"
 
-    desktop(sidebar, &block)
+    desktop(sidebar, &)
     mobile
   end
 
@@ -63,7 +63,7 @@ class Phlex::Shadcn::Sidebar < Phlex::Shadcn::Base
     key = value.nil? ? default : value.to_s
     return key if allowed.include?(key)
 
-    raise ArgumentError, "unknown #{label}: #{value.inspect} (expected one of #{allowed.join(", ")})"
+    raise ArgumentError, "unknown #{label}: #{value.inspect} (expected one of #{allowed.join(', ')})"
   end
 
   def unmanaged(&block)
@@ -74,10 +74,12 @@ class Phlex::Shadcn::Sidebar < Phlex::Shadcn::Base
 
   def desktop(sidebar, &block)
     div(class: OUTER_CLASSES, data: {
-      state: sidebar.state, collapsible: sidebar.state == "collapsed" ? @collapsible : "", variant: @variant, side: @side,
-      slot: "sidebar", v2__sidebar_target: "sidebar", v2__sidebar_collapsible_param: @collapsible
-    }) do
-      div(data: { slot: "sidebar-gap" }, class: cn(GAP_CLASSES, "group-data-[collapsible=offcanvas]:w-0", "group-data-[side=right]:rotate-180", padded? ? GAP_ICON_PADDED : GAP_ICON))
+          state: sidebar.state, collapsible: sidebar.state == "collapsed" ? @collapsible : "", variant: @variant, side: @side,
+          slot: "sidebar", v2__sidebar_target: "sidebar", v2__sidebar_collapsible_param: @collapsible
+        }) do
+      div(data: { slot: "sidebar-gap" },
+          class: cn(GAP_CLASSES, "group-data-[collapsible=offcanvas]:w-0", "group-data-[side=right]:rotate-180",
+                    padded? ? GAP_ICON_PADDED : GAP_ICON))
       div(**merge_attrs({ class: container_classes, data: { slot: "sidebar-container" } }, @attrs)) do
         div(data: { sidebar: "sidebar", slot: "sidebar-inner" }, class: INNER_CLASSES) { yield self if block }
       end
@@ -94,7 +96,7 @@ class Phlex::Shadcn::Sidebar < Phlex::Shadcn::Base
     template(data: { v2__sidebar_target: "mobile" }) do
       render Phlex::Shadcn::Sheet.new(open: false) do
         render Phlex::Shadcn::Sheet::Content.new(side: @side, class: MOBILE_CLASSES, style: "--sidebar-width: #{SIDEBAR_WIDTH_MOBILE};",
-                                                  data: { sidebar: "sidebar", slot: "sidebar", mobile: "true" }) do
+                                                 data: { sidebar: "sidebar", slot: "sidebar", mobile: "true" }) do
           render Phlex::Shadcn::Sheet::Header.new(class: "sr-only") do
             render(Phlex::Shadcn::Sheet::Title.new) { "Sidebar" }
             render(Phlex::Shadcn::Sheet::Description.new) { MOBILE_DESCRIPTION.join(" ") }

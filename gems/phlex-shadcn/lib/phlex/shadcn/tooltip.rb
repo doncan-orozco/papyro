@@ -65,8 +65,8 @@ class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
     def view_template(&)
       root = context[CONTEXT_KEY] or raise ArgumentError, "`TooltipTrigger` must be used within `Tooltip`"
       attrs = merge_attrs({
-        data: { state: root[:open] ? "instant-open" : "closed", slot: "tooltip-trigger", controller: "v2--tooltip" }.merge(values(root))
-      }, @attrs)
+                            data: { state: root[:open] ? "instant-open" : "closed", slot: "tooltip-trigger", controller: "v2--tooltip" }.merge(values(root))
+                          }, @attrs)
       attrs[:aria] = (attrs[:aria] || {}).merge(describedby: describedby(attrs, root[:key])) if root[:open]
       return render_as_child(@as_child, **attrs, &) if @as_child
 
@@ -140,17 +140,21 @@ class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
 
     def content_attrs(attrs, label)
       defaults = { class: CLASSES, data: { slot: "tooltip-content" } }
-      defaults.merge!(role: "tooltip", id: attrs[:id] || context[CONTEXT_KEY][:key]) unless label
+      unless label
+        defaults[:role] = "tooltip"
+        defaults[:id] = attrs[:id] || context[CONTEXT_KEY][:key]
+      end
       aria = attrs.fetch(:aria, {}).except(:label)
       merged = merge_attrs(defaults, attrs.except(:id, :style, :aria).merge(aria:))
       merged.delete(:aria) if merged[:aria].empty?
-      merged[:style] = [ STYLE_VARS.map { |name, value| "#{name}: #{value}" }, attrs[:style] ].flatten.compact.join("; ") + ";"
+      merged[:style] = "#{[ STYLE_VARS.map { |name, value| "#{name}: #{value}" }, attrs[:style] ].flatten.compact.join('; ')};"
       merged
     end
 
     def arrow
       span(style: "position: absolute;") do
-        svg(class: ARROW_CLASSES, width: 10, height: 5, viewBox: [ 0, 0, 30, 10 ].join(" "), preserveAspectRatio: "none", style: "display: block;") do
+        svg(class: ARROW_CLASSES, width: 10, height: 5, viewBox: [ 0, 0, 30, 10 ].join(" "), preserveAspectRatio: "none",
+            style: "display: block;") do
           raw(safe(ARROW_POLYGON))
         end
       end

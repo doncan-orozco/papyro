@@ -6,7 +6,7 @@ class Phlex::Shadcn::ItemTest < Phlex::Shadcn::TestCase
   Item = Phlex::Shadcn::Item
 
   def html(component = Item.new, &block)
-    component.call(&(block || proc { |_| "x" }))
+    component.call(&block || proc { |_| "x" })
   end
 
   test "renders defaults" do

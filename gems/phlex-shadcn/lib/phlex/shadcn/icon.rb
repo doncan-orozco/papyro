@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Lucide icon, rendered like lucide-react 0.577.0 (see icons/catalog.rb).
 # No default size class, like lucide-react (width/height 24): shadcn components size icons via parent selectors
 # such as `[&_svg:not([class*='size-'])]:size-4`, which need the icon to carry no `size-*` class of its own.

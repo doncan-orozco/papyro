@@ -12,7 +12,11 @@ class Phlex::Shadcn::ScrollAreaTest < Phlex::Shadcn::TestCase
   def fragment(html) = Nokogiri::HTML5.fragment(html)
 
   def area(**props, &block)
-    fragment(render_view { render(ScrollArea.new(**props)) { |scroll_area| block ? instance_exec(scroll_area, &block) : plain("content") } })
+    fragment(render_view do
+      render(ScrollArea.new(**props)) do |scroll_area|
+        block ? instance_exec(scroll_area, &block) : plain("content")
+      end
+    end)
   end
 
   test "root renders slot, dir, merged class, style and passthrough attrs" do
@@ -22,7 +26,8 @@ class Phlex::Shadcn::ScrollAreaTest < Phlex::Shadcn::TestCase
     assert_equal "tags", root["id"]
     assert_equal "Tags", root["aria-label"]
     assert_equal "h-72 static", root["class"]
-    assert_equal "position: relative; --radix-scroll-area-corner-width: 0px; --radix-scroll-area-corner-height: 0px; color: red;", root["style"]
+    assert_equal "position: relative; --radix-scroll-area-corner-width: 0px; --radix-scroll-area-corner-height: 0px; color: red;",
+                 root["style"]
     assert_equal "hover", root["data-v2--scroll-area-type-value"]
   end
 
@@ -41,7 +46,7 @@ class Phlex::Shadcn::ScrollAreaTest < Phlex::Shadcn::TestCase
   test "scrollbars and thumbs wait in templates with the oracle classes" do
     doc = area { |scroll_area| scroll_area.scroll_bar(orientation: "horizontal", force_mount: true, class: "h-4", id: "bar") }
     bars = doc.css("template[data-v2--scroll-area-target=scrollbar]")
-    horizontal = bars.first.at_css("template",).parent
+    horizontal = bars.first.at_css("template").parent
 
     assert_equal 2, bars.size
     assert_equal "true", bars.first["data-v2--scroll-area-force-mount"]

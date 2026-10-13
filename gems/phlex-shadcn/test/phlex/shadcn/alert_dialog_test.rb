@@ -41,7 +41,9 @@ class Phlex::Shadcn::AlertDialogTest < Phlex::Shadcn::TestCase
   end
 
   test "content is an alertdialog with size, ids and no close button" do
-    content = fragment(dialog(root: { default_open: true }, content: { size: :sm, role: "dialog" })).at_css("[data-slot=alert-dialog-content]")
+    content = fragment(dialog(root: { default_open: true },
+                              content: { size: :sm,
+                                         role: "dialog" })).at_css("[data-slot=alert-dialog-content]")
 
     assert_equal "dialog", content["role"]
     assert_equal "sm", content["data-size"]

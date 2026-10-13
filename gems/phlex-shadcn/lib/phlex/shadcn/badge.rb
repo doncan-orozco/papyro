@@ -20,18 +20,18 @@ class Phlex::Shadcn::Badge < Phlex::Shadcn::Base
 
   def initialize(variant: "default", as_child: false, **attrs)
     @variant = normalize_option(variant) || "default"
-    raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(", ")})" unless VARIANTS.key?(@variant)
+    raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(', ')})" unless VARIANTS.key?(@variant)
 
     @as_child = as_child
     @attrs = attrs
   end
 
-  def view_template(&block)
+  def view_template(&)
     attrs = merge_attrs({ data: { slot: "badge", variant: @variant } }, @attrs.except(:class))
     attrs = attrs.merge(class: [ @slot_class, classes(@attrs[:class]) ].compact_blank.join(" "))
-    return render_as_child(@as_child, **attrs, &block) if @as_child
+    return render_as_child(@as_child, **attrs, &) if @as_child
 
-    span(**attrs, &block)
+    span(**attrs, &)
   end
 
   private

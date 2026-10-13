@@ -37,7 +37,8 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
   end
 
   test "root options and caller attrs win" do
-    out = render_menu(root: { viewport: false, orientation: :vertical, dir: "rtl", class: "max-w-full", aria: { label: "Primary" }, id: "nav" })
+    out = render_menu(root: { viewport: false, orientation: :vertical, dir: "rtl", class: "max-w-full", aria: { label: "Primary" },
+                              id: "nav" })
 
     assert_includes out, 'data-viewport="false"'
     assert_includes out, 'data-orientation="vertical"'

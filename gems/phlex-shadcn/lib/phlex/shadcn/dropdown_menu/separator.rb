@@ -12,7 +12,9 @@ class Phlex::Shadcn::DropdownMenu::Separator < Phlex::Shadcn::Base
   end
 
   def view_template(&)
-    attrs = merge_attrs({ role: "separator", class: CLASSES, aria: { orientation: "horizontal" }, data: { slot: "dropdown-menu-separator" } }, @attrs)
+    attrs = merge_attrs(
+      { role: "separator", class: CLASSES, aria: { orientation: "horizontal" }, data: { slot: "dropdown-menu-separator" } }, @attrs
+    )
     render_part(:div, @as_child, attrs, &)
   end
 end

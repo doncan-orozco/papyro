@@ -3,8 +3,8 @@
 require "phlex/test_case"
 
 class Phlex::Shadcn::SkeletonTest < Phlex::Shadcn::TestCase
-  def html(**opts, &block)
-    Phlex::Shadcn::Skeleton.new(**opts).call(&block)
+  def html(**, &)
+    Phlex::Shadcn::Skeleton.new(**).call(&)
   end
 
   test "renders defaults" do

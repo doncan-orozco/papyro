@@ -39,6 +39,6 @@ class Phlex::Shadcn::AspectRatio < Phlex::Shadcn::Base
   def style_string(style)
     return super unless style.is_a?(Hash)
 
-    style.map { |key, value| "#{key.to_s.tr("_", "-").gsub(/([a-z\d])([A-Z])/, '\1-\2').downcase}: #{value}" }.join("; ")
+    style.map { |key, value| "#{key.to_s.tr('_', '-').gsub(/([a-z\d])([A-Z])/, '\1-\2').downcase}: #{value}" }.join("; ")
   end
 end

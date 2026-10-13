@@ -3,8 +3,8 @@
 require "phlex/test_case"
 
 class ButtonGroupTest < Phlex::Shadcn::TestCase
-  def render_group(**attrs, &block)
-    Phlex::Shadcn::ButtonGroup.new(**attrs).call(&block)
+  def render_group(**attrs, &)
+    Phlex::Shadcn::ButtonGroup.new(**attrs).call(&)
   end
 
   test "renders group without data-orientation by default" do

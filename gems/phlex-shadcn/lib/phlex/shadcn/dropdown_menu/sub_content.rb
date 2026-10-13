@@ -25,7 +25,8 @@ class Phlex::Shadcn::DropdownMenu::SubContent < Phlex::Shadcn::Base
     options = @options.merge(
       forceMount: @force_mount || portal&.dig(:force_mount) || false, portal: !portal.nil?, container: portal&.dig(:container)
     ).compact
-    attrs = menu_content_attrs(classes: CLASSES, slot: "dropdown-menu-sub-content", id: sub[:content_id], labelledby: sub[:trigger_id], dir: root[:dir])
+    attrs = menu_content_attrs(classes: CLASSES, slot: "dropdown-menu-sub-content", id: sub[:content_id], labelledby: sub[:trigger_id],
+                               dir: root[:dir])
     # A Portal reaches only its own SubContent: sub menus nested inside need a Portal of their own.
     context[Phlex::Shadcn::DropdownMenu::PORTAL_KEY] = nil
     template(data: { v2__dropdown_menu_template: sub[:content_id], options: options.to_json }) do

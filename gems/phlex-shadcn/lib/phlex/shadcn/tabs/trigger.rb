@@ -23,18 +23,19 @@ class Phlex::Shadcn::Tabs::Trigger < Phlex::Shadcn::Base
     root = root_context
     selected = root[:value] == @value
     attrs = merge_attrs({
-      type: "button",
-      role: "tab",
-      id: "#{root[:base_id]}-trigger-#{@value}",
-      tabindex: -1,
-      disabled: (true if @disabled),
-      class: CLASSES,
-      aria: { selected:, controls: "#{root[:base_id]}-content-#{@value}" },
-      data: { state: selected ? "active" : "inactive", disabled: (@disabled ? "" : nil), orientation: root[:orientation],
-              radix_collection_item: "", slot: "tabs-trigger", v2__tabs_target: "trigger", v2__tabs_item_value: @value }
-    }, @attrs)
+                          type: "button",
+                          role: "tab",
+                          id: "#{root[:base_id]}-trigger-#{@value}",
+                          tabindex: -1,
+                          disabled: (true if @disabled),
+                          class: CLASSES,
+                          aria: { selected:, controls: "#{root[:base_id]}-content-#{@value}" },
+                          data: { state: selected ? "active" : "inactive", disabled: (@disabled ? "" : nil), orientation: root[:orientation],
+                                  radix_collection_item: "", slot: "tabs-trigger", v2__tabs_target: "trigger", v2__tabs_item_value: @value }
+                        }, @attrs)
     # Radix composes the consumer handlers first, then the tab logic: our actions go last.
-    action = [ attrs.dig(:data, :action), "mousedown->v2--tabs#mousedown keydown->v2--tabs#keydown focus->v2--tabs#focus" ].compact_blank.join(" ")
+    action = [ attrs.dig(:data, :action),
+               "mousedown->v2--tabs#mousedown keydown->v2--tabs#keydown focus->v2--tabs#focus" ].compact_blank.join(" ")
     render_part(:button, @as_child, attrs.merge(data: attrs[:data].merge(action:)), &)
   end
 end

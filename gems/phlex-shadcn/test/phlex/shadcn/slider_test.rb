@@ -31,8 +31,8 @@ class Phlex::Shadcn::SliderTest < Phlex::Shadcn::TestCase
     thumbs = doc.css("[role=slider]")
 
     assert_equal "left: 25%; right: 25%;", doc.at_css("[data-slot=slider-range]")["style"]
-    assert_equal %w[25 75], thumbs.map { |t| t["aria-valuenow"] }
-    assert_equal %w[Minimum Maximum], thumbs.map { |t| t["aria-label"] }
+    assert_equal(%w[25 75], thumbs.map { |t| t["aria-valuenow"] })
+    assert_equal(%w[Minimum Maximum], thumbs.map { |t| t["aria-label"] })
     assert_includes thumbs.first.parent["style"], "left: calc(25% + 0px)"
   end
 
@@ -60,8 +60,8 @@ class Phlex::Shadcn::SliderTest < Phlex::Shadcn::TestCase
   test "bubble inputs carry name and value" do
     inputs = slider(default_value: [ 20, 80 ], name: "price").css("input")
 
-    assert_equal %w[price[] price[]], inputs.map { |i| i["name"] }
-    assert_equal %w[20 80], inputs.map { |i| i["value"] }
+    assert_equal(%w[price[] price[]], inputs.map { |i| i["name"] })
+    assert_equal(%w[20 80], inputs.map { |i| i["value"] })
   end
 
   test "dir resolves from the direction provider and a local dir wins" do

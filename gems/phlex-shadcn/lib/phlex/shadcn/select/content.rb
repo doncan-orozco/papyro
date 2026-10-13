@@ -28,7 +28,7 @@ class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
                  collision_padding: 10, collision_boundary: nil, sticky: "partial", hide_when_detached: false, arrow_padding: 0,
                  force_mount: false, **attrs)
     @position = normalize_option(position)
-    raise ArgumentError, "position must be one of #{POSITIONS.join(", ")}" unless POSITIONS.include?(@position)
+    raise ArgumentError, "position must be one of #{POSITIONS.join(', ')}" unless POSITIONS.include?(@position)
 
     @options = {
       position: @position, side: side.to_s, sideOffset: side_offset, align: align.to_s, alignOffset: align_offset,
@@ -43,11 +43,16 @@ class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
     return capture(&block) if collecting?
 
     state = select_state
-    template(data: { v2__select_template: "#{state[:base]}-content", v2__select_indicator: capture { indicator }, options: @options.to_json }) do
+    template(data: { v2__select_template: "#{state[:base]}-content", v2__select_indicator: capture do
+      indicator
+    end, options: @options.to_json }) do
       div(**content_attrs(state)) do
         render Phlex::Shadcn::Select::ScrollUpButton.new
         tag(:style) { raw(safe(VIEWPORT_CSS)) }
-        div(data: { radix_select_viewport: "" }, role: "presentation", class: cn(VIEWPORT_CLASSES, (VIEWPORT_POPPER_CLASSES if popper?)), style: VIEWPORT_STYLE, &block)
+        div(
+          data: { radix_select_viewport: "" }, role: "presentation", style: VIEWPORT_STYLE,
+          class: cn(VIEWPORT_CLASSES, (VIEWPORT_POPPER_CLASSES if popper?)), &block
+        )
         render Phlex::Shadcn::Select::ScrollDownButton.new
       end
     end
@@ -59,16 +64,17 @@ class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
 
   def content_attrs(state)
     attrs = merge_attrs({
-      role: "listbox", id: "#{state[:base]}-content", dir: state[:dir], tabindex: -1,
-      class: cn(CLASSES, (POPPER_CLASSES if popper?)),
-      data: { slot: "select-content", state: "open" }
-    }, @attrs.except(:style))
+                          role: "listbox", id: "#{state[:base]}-content", dir: state[:dir], tabindex: -1,
+                          class: cn(CLASSES, (POPPER_CLASSES if popper?)),
+                          data: { slot: "select-content", state: "open" }
+                        }, @attrs.except(:style))
     attrs.merge(style: [ *base_style, style_string(@attrs[:style]), *(popper_vars if popper?) ].compact_blank.join("; "))
   end
 
   # sel:L683-690 and L714-726 (the flex layout lets the scroll buttons sit above and below the viewport).
   def base_style
-    styles = { "box-sizing" => "border-box", "max-height" => ("100%" unless popper?), "display" => "flex", "flex-direction" => "column", "outline" => "none" }
+    styles = { "box-sizing" => "border-box", "max-height" => ("100%" unless popper?), "display" => "flex", "flex-direction" => "column",
+               "outline" => "none" }
     styles.compact.map { |name, value| "#{name}: #{value}" }
   end
 

@@ -8,7 +8,8 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
   end
 
   def view_template(&block)
-    defaults = { role: "navigation", aria: { label: "pagination" }, data: { slot: "pagination" }, class: "mx-auto flex w-full justify-center" }
+    defaults = { role: "navigation", aria: { label: "pagination" }, data: { slot: "pagination" },
+                 class: "mx-auto flex w-full justify-center" }
     nav(**merge_attrs(defaults, @attrs)) { yield self if block }
   end
 

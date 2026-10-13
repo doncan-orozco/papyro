@@ -13,7 +13,8 @@ class Phlex::Shadcn::Select::ScrollUpButton < Phlex::Shadcn::Base
   end
 
   def view_template
-    attrs = merge_attrs({ aria: { hidden: "true" }, class: CLASSES, style: "flex-shrink: 0;", data: { slot: "select-scroll-up-button" } }, @attrs)
+    attrs = merge_attrs({ aria: { hidden: "true" }, class: CLASSES, style: "flex-shrink: 0;", data: { slot: "select-scroll-up-button" } },
+                        @attrs)
     div(**attrs) { render Phlex::Shadcn::Icon.new("chevron-up", class: "size-4") }
   end
 end

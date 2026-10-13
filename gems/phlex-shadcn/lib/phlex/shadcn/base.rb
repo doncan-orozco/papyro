@@ -19,11 +19,14 @@ class Phlex::Shadcn::Base < Phlex::HTML
   ELEMENT_METHODS = (Phlex::HTML::StandardElements.public_instance_methods +
                      Phlex::HTML::VoidElements.public_instance_methods).freeze
 
+  DATA_ARIA = %w[data aria].freeze
+  private_constant :DATA_ARIA
+
   # React DOM props written as snake_case kwargs (`tab_index:`) => the real HTML attribute (`tabindex`).
   # Without this Phlex dasherizes them into invalid names (`tab-index`). aria-*/data-* are handled separately.
   #
   # @api private
-  DOM_ATTRIBUTES = (%w[
+  DOM_ATTRIBUTES = %w[
     tabIndex formNoValidate readOnly maxLength minLength autoComplete autoFocus autoCapitalize autoCorrect autoSave
     spellCheck contentEditable crossOrigin encType formAction formEncType formMethod formTarget noValidate colSpan
     rowSpan srcSet srcDoc useMap dateTime inputMode enterKeyHint accessKey allowFullScreen playsInline hrefLang
@@ -31,11 +34,11 @@ class Phlex::Shadcn::Base < Phlex::HTML
     frameBorder marginHeight marginWidth radioGroup referrerPolicy popoverTarget popoverTargetAction fetchPriority
     itemID itemProp itemRef itemScope itemType
   ].flat_map { |name| [ name, name.underscore ].uniq.map { |spelling| [ spelling, name.downcase.to_sym ] } }
-    .to_h
-    .merge(%w[httpEquiv http_equiv].to_h { |spelling| [ spelling, :"http-equiv" ] })
-    .merge(%w[acceptCharset accept_charset].to_h { |spelling| [ spelling, :"accept-charset" ] })
-    .merge("className" => :class, "class_name" => :class, "htmlFor" => :for, "html_for" => :for)
-    .freeze)
+   .to_h
+   .merge(%w[httpEquiv http_equiv].to_h { |spelling| [ spelling, :"http-equiv" ] })
+   .merge(%w[acceptCharset accept_charset].to_h { |spelling| [ spelling, :"accept-charset" ] })
+   .merge("className" => :class, "class_name" => :class, "htmlFor" => :for, "html_for" => :for)
+   .freeze
 
   # Ruby 3.2+: runs for every constant assigned in a class body, nested `class Header < Base` included.
   # Defines `root.header(**attrs, &block)` == `render Root::Header.new(**attrs), &block`.
@@ -52,9 +55,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
     return unless part.is_a?(Class) && part < Phlex::Shadcn::Base
 
     helper = name.to_s.gsub(/([a-z\d])([A-Z])/, '\1_\2').downcase.to_sym
-    if reserved_helper_names.include?(helper)
-      raise ArgumentError, "helper ##{helper} (from #{name}) would override a Ruby/Phlex API method"
-    end
+    raise ArgumentError, "helper ##{helper} (from #{name}) would override a Ruby/Phlex API method" if reserved_helper_names.include?(helper)
 
     # Resolved at call time (not captured): `const_added` fires when the class is created, before its file has defined `initialize`.
     define_method(helper) { |**attrs, &block| render self.class.const_get(name, false).new(**attrs), &block }
@@ -109,7 +110,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
   # @api private
   def ids(base = nil)
     base ||= "v2-#{SecureRandom.alphanumeric(6).downcase}"
-    Hash.new { |_, part| "#{base}-#{part.to_s.tr("_", "-")}" }
+    Hash.new { |_, part| "#{base}-#{part.to_s.tr('_', '-')}" }
   end
 
   # Component defaults + caller attrs: `data:`/`aria:` deep-merged (caller wins), `class` through `cn`
@@ -130,13 +131,13 @@ class Phlex::Shadcn::Base < Phlex::HTML
   # exactly like `@radix-ui/react-slot` mergeProps. NOT `merge_attrs`: no tailwind-merge here.
   #
   # @api private
-  def render_as_child(child, **slot_attrs, &block)
+  def render_as_child(child, **slot_attrs, &)
     slot = canonical_attrs(slot_attrs)
     if child.is_a?(Symbol) || child.is_a?(String)
-      tag(child.to_sym, **slot, &block)
+      tag(child.to_sym, **slot, &)
     else
       child.receive_slot(slot_merge(slot.except(:class), canonical_attrs(child.as_child_attrs)), slot[:class])
-      render(child, &block)
+      render(child, &)
     end
   end
 
@@ -165,7 +166,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
       group = flat[/\A(data|aria)-/, 1]
       if group
         (result[group.to_sym] ||= {})[flat.delete_prefix("#{group}-").tr("-", "_").to_sym] = stringify_boolean(value)
-      elsif %w[data aria].include?(flat)
+      elsif DATA_ARIA.include?(flat)
         nested = (result[flat.to_sym] ||= {})
         value.each { |k, v| nested[k.to_s.tr("-", "_").to_sym] = stringify_boolean(v) }
       else
@@ -204,6 +205,6 @@ class Phlex::Shadcn::Base < Phlex::HTML
   end
 
   def style_string(style)
-    style.is_a?(Hash) ? style.map { |k, v| "#{k.to_s.tr("_", "-")}: #{v}" }.join("; ") : style.to_s.strip.chomp(";")
+    style.is_a?(Hash) ? style.map { |k, v| "#{k.to_s.tr('_', '-')}: #{v}" }.join("; ") : style.to_s.strip.chomp(";")
   end
 end

@@ -3,8 +3,8 @@
 require "phlex/test_case"
 
 class Phlex::Shadcn::EmptyTest < Phlex::Shadcn::TestCase
-  def html(**opts, &block)
-    Phlex::Shadcn::Empty.new(**opts).call(&(block || proc { |_| "Body" }))
+  def html(**, &block)
+    Phlex::Shadcn::Empty.new(**).call(&block || proc { |_| "Body" })
   end
 
   test "root renders slot and merges class" do

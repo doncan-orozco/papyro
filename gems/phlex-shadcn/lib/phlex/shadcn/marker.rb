@@ -13,14 +13,14 @@ class Phlex::Shadcn::Marker < Phlex::Shadcn::Base
   # React `markerVariants`.
   def self.variants(variant: "default", class: nil)
     key = variant&.to_s&.tr("_", "-") || "default"
-    raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(", ")})" unless VARIANTS.key?(key)
+    raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(', ')})" unless VARIANTS.key?(key)
 
     TailwindMerge::Merger.new.merge([ BASE, VARIANTS[key], binding.local_variable_get(:class) ].compact_blank.join(" "))
   end
 
   def initialize(variant: "default", as_child: false, **attrs)
     @variant = normalize_option(variant) || "default"
-    raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(", ")})" unless VARIANTS.key?(@variant)
+    raise ArgumentError, "unknown variant: #{variant.inspect} (expected one of #{VARIANTS.keys.join(', ')})" unless VARIANTS.key?(@variant)
 
     @as_child = as_child
     @attrs = attrs

@@ -16,22 +16,23 @@ class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
     super()
   end
 
-  def view_template(&block)
+  def view_template(&)
     root = context[Phlex::Shadcn::ToggleGroup::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within ToggleGroup"
     variant = root[:variant] || @variant
     size = root[:size] || @size
     disabled = root[:disabled] || @disabled
     attrs = merge_attrs(defaults(root, variant, size, disabled), @attrs.except(:class))
     attrs = with_action(attrs.merge(class: [ @slot_class, classes(variant, size) ].compact_blank.join(" ")))
-    return render_as_child(@as_child, **attrs, &block) if @as_child
+    return render_as_child(@as_child, **attrs, &) if @as_child
 
-    button(**attrs, &block)
+    button(**attrs, &)
   end
 
   private
 
   def classes(variant, size)
-    cn(Phlex::Shadcn::Toggle.variants(variant: variant || "default", size: size || "default"), EXTRA_CLASSES, SPACING_CLASSES, @attrs[:class])
+    cn(Phlex::Shadcn::Toggle.variants(variant: variant || "default", size: size || "default"), EXTRA_CLASSES, SPACING_CLASSES,
+       @attrs[:class])
   end
 
   def defaults(root, variant, size, disabled)

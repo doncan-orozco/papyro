@@ -11,7 +11,7 @@ class Phlex::Shadcn::TooltipTest < Phlex::Shadcn::TestCase
         render Tooltip::Provider.new(**provider) do
           render Tooltip.new(**root) do
             render Tooltip::Trigger.new(**trigger) { plain "Hover" }
-            render Tooltip::Content.new(**content), &(block || proc { plain "Tip" })
+            render Tooltip::Content.new(**content), &block || proc { plain "Tip" }
           end
         end
       end
@@ -54,7 +54,8 @@ class Phlex::Shadcn::TooltipTest < Phlex::Shadcn::TestCase
 
   test "delay falls back to the provider and the root wins" do
     assert_includes render_tooltip(provider: { delay_duration: 700 }), 'data-v2--tooltip-delay-duration-value="700"'
-    assert_includes render_tooltip(provider: { delay_duration: 700 }, root: { delay_duration: 500 }), 'data-v2--tooltip-delay-duration-value="500"'
+    assert_includes render_tooltip(provider: { delay_duration: 700 }, root: { delay_duration: 500 }),
+                    'data-v2--tooltip-delay-duration-value="500"'
   end
 
   test "options reach the template and as_child merges onto the child" do

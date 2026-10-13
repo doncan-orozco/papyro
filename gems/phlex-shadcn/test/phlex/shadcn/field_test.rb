@@ -6,8 +6,8 @@ class Phlex::Shadcn::FieldTest < Phlex::Shadcn::TestCase
   HELPERS = { label: "field-label", description: "field-description", group: "field-group", legend: "field-legend",
               separator: "field-separator", set: "field-set", content: "field-content", title: "field-label" }.freeze
 
-  def html(**opts, &block)
-    Phlex::Shadcn::Field.new(**opts).call(&(block || proc { |_| "Body" }))
+  def html(**, &block)
+    Phlex::Shadcn::Field.new(**).call(&block || proc { |_| "Body" })
   end
 
   test "root renders slot, role, orientation, merged class and passthrough attrs" do
@@ -56,6 +56,6 @@ class Phlex::Shadcn::FieldTest < Phlex::Shadcn::TestCase
 
   test "separator marks content" do
     assert_includes html { |f| f.separator { "Or" } }, 'data-content="true"'
-    assert_includes html { |f| f.separator }, 'data-content="false"'
+    assert_includes html(&:separator), 'data-content="false"'
   end
 end

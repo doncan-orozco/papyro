@@ -108,7 +108,8 @@ class Phlex::Shadcn::DialogTest < Phlex::Shadcn::TestCase
   end
 
   test "content merges class, attributes and as_child" do
-    content = fragment(dialog(content: { class: "rounded-xl", "data-testid": "x", aria: { label: "L" } })).at_css("[data-slot=dialog-content]")
+    content = fragment(dialog(content: { class: "rounded-xl", "data-testid": "x",
+                                         aria: { label: "L" } })).at_css("[data-slot=dialog-content]")
 
     assert_includes content["class"], "rounded-xl"
     refute_includes content["class"], "rounded-lg"

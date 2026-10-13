@@ -9,7 +9,7 @@ class Phlex::Shadcn::Sidebar::MenuSkeleton < Phlex::Shadcn::Base
 
   PIN_KEY = :v2_sidebar_menu_skeleton_pinned_width
 
-  def self.width_percent = ActiveSupport::IsolatedExecutionState[PIN_KEY] || (rand(40) + 50)
+  def self.width_percent = ActiveSupport::IsolatedExecutionState[PIN_KEY] || rand(50..89)
 
   def self.with_pinned_width(percent)
     previous = ActiveSupport::IsolatedExecutionState[PIN_KEY]
@@ -29,7 +29,7 @@ class Phlex::Shadcn::Sidebar::MenuSkeleton < Phlex::Shadcn::Base
     div(**part_attrs(CLASSES, data: { slot: "sidebar-menu-skeleton", sidebar: "menu-skeleton" })) do
       render Phlex::Shadcn::Skeleton.new(class: "size-4 rounded-md", data: { sidebar: "menu-skeleton-icon" }) if @show_icon
       render Phlex::Shadcn::Skeleton.new(class: "h-4 max-w-(--skeleton-width) flex-1", data: { sidebar: "menu-skeleton-text" },
-                                          style: "--skeleton-width: #{self.class.width_percent}%;")
+                                         style: "--skeleton-width: #{self.class.width_percent}%;")
     end
   end
 end

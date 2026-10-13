@@ -3,7 +3,7 @@
 require "phlex/test_case"
 
 class Phlex::Shadcn::ProgressTest < Phlex::Shadcn::TestCase
-  def html(**opts) = Phlex::Shadcn::Progress.new(**opts).call
+  def html(**) = Phlex::Shadcn::Progress.new(**).call
 
   test "renders the indeterminate progressbar" do
     out = html(value: 13)

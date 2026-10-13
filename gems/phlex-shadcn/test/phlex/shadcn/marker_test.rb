@@ -4,7 +4,10 @@ require "phlex/test_case"
 
 class Phlex::Shadcn::MarkerTest < Phlex::Shadcn::TestCase
   def html(**opts)
-    Phlex::Shadcn::Marker.new(**opts).call { |m| m.icon { "i" }; m.content { "Text" } }
+    Phlex::Shadcn::Marker.new(**opts).call do |m|
+      m.icon { "i" }
+      m.content { "Text" }
+    end
   end
 
   test "renders defaults" do
@@ -50,7 +53,10 @@ class Phlex::Shadcn::MarkerTest < Phlex::Shadcn::TestCase
   end
 
   test "helpers match explicit parts" do
-    helper = Phlex::Shadcn::Marker.new.call { |m| m.icon(class: "a") { "x" }; m.content(id: "c") { "y" } }
+    helper = Phlex::Shadcn::Marker.new.call do |m|
+      m.icon(class: "a") { "x" }
+      m.content(id: "c") { "y" }
+    end
     explicit = Phlex::Shadcn::Marker.new.call do |m|
       m.render Phlex::Shadcn::Marker::Icon.new(class: "a") { "x" }
       m.render Phlex::Shadcn::Marker::Content.new(id: "c") { "y" }

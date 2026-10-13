@@ -16,9 +16,10 @@ module Phlex::Shadcn::AlertDialog::ActionButton
 
   def view_template(&)
     attrs = merge_attrs({
-      type: "button",
-      data: slot_data.merge(variant: @variant, size: @size, v2__dialog_part: "close", action: "click->v2--alert-dialog#close")
-    }, @attrs.except(:class))
+                          type: "button",
+                          data: slot_data.merge(variant: @variant, size: @size, v2__dialog_part: "close",
+                                                action: "click->v2--alert-dialog#close")
+                        }, @attrs.except(:class))
     attrs[:class] = [ @button_classes, *Array(@attrs[:class]) ].compact_blank.join(" ")
     render_part(:button, @as_child, attrs, &)
   end

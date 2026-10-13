@@ -5,6 +5,9 @@
 class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
   include Phlex::Shadcn::Sidebar::Support
 
+  TOOLTIP_CLASS_KEYS = %w[className class_name].freeze
+  private_constant :TOOLTIP_CLASS_KEYS
+
   BASE = "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0"
   VARIANTS = {
     "default" => "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
@@ -31,12 +34,13 @@ class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
     super()
   end
 
-  def view_template(&block)
+  def view_template(&)
     sidebar = Phlex::Shadcn::Sidebar.use_sidebar(self)
-    attrs = part_attrs(cn(self.class.variants(variant: @variant, size: @size)), data: { slot: "sidebar-menu-button", sidebar: "menu-button", size: @size, active: @is_active.to_s })
-    return render_part(:button, @as_child, attrs, &block) if @tooltip.blank?
+    attrs = part_attrs(cn(self.class.variants(variant: @variant, size: @size)),
+                       data: { slot: "sidebar-menu-button", sidebar: "menu-button", size: @size, active: @is_active.to_s })
+    return render_part(:button, @as_child, attrs, &) if @tooltip.blank?
 
-    with_tooltip(attrs, sidebar, &block)
+    with_tooltip(attrs, sidebar, &)
   end
 
   private
@@ -74,7 +78,7 @@ class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
 
     @tooltip.to_h.to_h do |key, value|
       name = key.to_s
-      [ %w[className class_name].include?(name) ? :class : name.underscore.to_sym, value ]
+      [ TOOLTIP_CLASS_KEYS.include?(name) ? :class : name.underscore.to_sym, value ]
     end
   end
 
@@ -82,6 +86,6 @@ class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
     key = normalize_option(value) || "default"
     return key if table.key?(key)
 
-    raise ArgumentError, "unknown #{label}: #{value.inspect} (expected one of #{table.keys.join(", ")})"
+    raise ArgumentError, "unknown #{label}: #{value.inspect} (expected one of #{table.keys.join(', ')})"
   end
 end

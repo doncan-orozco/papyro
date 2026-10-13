@@ -20,7 +20,8 @@ class Phlex::Shadcn::Sidebar::Rail < Phlex::Shadcn::Base
 
   def view_template(&)
     Phlex::Shadcn::Sidebar.use_sidebar(self)
-    attrs = with_toggle(part_attrs(cn(CLASSES), data: { slot: "sidebar-rail", sidebar: "rail" }, aria: { label: "Toggle Sidebar" }, tabindex: -1, title: "Toggle Sidebar"))
+    attrs = with_toggle(part_attrs(cn(CLASSES), data: { slot: "sidebar-rail", sidebar: "rail" }, aria: { label: "Toggle Sidebar" },
+                                                tabindex: -1, title: "Toggle Sidebar"))
     button(**attrs, &)
   end
 end

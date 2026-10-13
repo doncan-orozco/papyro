@@ -14,11 +14,11 @@ class Phlex::Shadcn::ContextMenu::Trigger < Phlex::Shadcn::Base
   def view_template(&)
     root = root_context
     attrs = merge_attrs({
-      data: {
-        slot: "context-menu-trigger", state: root[:open] ? "open" : "closed", disabled: (@disabled ? "" : nil),
-        controller: "v2--context-menu", **values(root)
-      }
-    }, @attrs.except(:style))
+                          data: {
+                            slot: "context-menu-trigger", state: root[:open] ? "open" : "closed", disabled: (@disabled ? "" : nil),
+                            controller: "v2--context-menu", **values(root)
+                          }
+                        }, @attrs.except(:style))
     attrs = verbatim_class(attrs, @attrs)
     attrs[:style] = [ "-webkit-touch-callout: none", style_string(@attrs[:style]) ].compact_blank.join("; ")
     render_part(:span, @as_child, attrs, &)

@@ -72,10 +72,10 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
     def view_template(&)
       root = root_context
       attrs = merge_attrs({
-        type: "button",
-        aria: { haspopup: "dialog", expanded: root[:open].to_s, controls: (root[:content_id] if root[:open]) },
-        data: { state: root[:open] ? "open" : "closed", slot: "popover-trigger" }.merge(host_data_for(root))
-      }, @attrs)
+                            type: "button",
+                            aria: { haspopup: "dialog", expanded: root[:open].to_s, controls: (root[:content_id] if root[:open]) },
+                            data: { state: root[:open] ? "open" : "closed", slot: "popover-trigger" }.merge(host_data_for(root))
+                          }, @attrs)
       render_part(:button, @as_child, attrs, &)
     end
 
@@ -143,9 +143,10 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
 
     def content_attrs(root, attrs)
       merged = merge_attrs({
-        id: root[:content_id], role: "dialog", tabindex: "-1", class: CLASSES, data: { slot: "popover-content", state: "open" }
-      }, attrs.except(:style))
-      merged[:style] = [ attrs[:style], STYLE_VARS.map { |name, value| "#{name}: #{value}" } ].flatten.compact.join("; ") + ";"
+                             id: root[:content_id], role: "dialog", tabindex: "-1", class: CLASSES, data: { slot: "popover-content",
+                                                                                                            state: "open" }
+                           }, attrs.except(:style))
+      merged[:style] = "#{[ attrs[:style], STYLE_VARS.map { |name, value| "#{name}: #{value}" } ].flatten.compact.join('; ')};"
       merged
     end
   end

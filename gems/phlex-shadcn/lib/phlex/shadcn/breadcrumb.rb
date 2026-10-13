@@ -48,12 +48,12 @@ class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
       super()
     end
 
-    def view_template(&block)
+    def view_template(&)
       attrs = merge_attrs({ data: { slot: "breadcrumb-link" }, class: CLASS_NAME }, @attrs)
       if @as_child
-        render_as_child(@as_child, **attrs, &block)
+        render_as_child(@as_child, **attrs, &)
       else
-        a(**attrs, &block)
+        a(**attrs, &)
       end
     end
   end

@@ -42,11 +42,16 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
   end
 
   test "desktop sidebar carries the state attributes, the container takes class and attrs, a template holds the mobile sheet" do
-    html = provider(default_open: false) { render(Sidebar.new(side: :right, variant: :floating, collapsible: :icon, class: "w-9", id: "side")) { "block" } }
+    html = provider(default_open: false) do
+      render(Sidebar.new(side: :right, variant: :floating, collapsible: :icon, class: "w-9",
+                         id: "side")) do
+        "block"
+      end
+    end
     doc = fragment(html)
     outer = doc.at_css("[data-slot=sidebar]")
 
-    assert_equal %w[collapsed icon floating right], %w[state collapsible variant side].map { |name| outer["data-#{name}"] }
+    assert_equal(%w[collapsed icon floating right], %w[state collapsible variant side].map { |name| outer["data-#{name}"] })
     assert_equal "side", outer.at_css("[data-slot=sidebar-container]")["id"]
     assert_nil outer["id"]
     assert_includes outer.at_css("[data-slot=sidebar-container]")["class"], "w-9"
@@ -102,14 +107,22 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
   end
 
   test "menu button renders variants, sizes, active state and as_child" do
-    button = fragment(provider { render(Sidebar::MenuButton.new(variant: :outline, size: :lg, is_active: true, class: "p-4")) { "x" } }).at_css("button")
+    button = fragment(provider do
+      render(Sidebar::MenuButton.new(variant: :outline, size: :lg, is_active: true, class: "p-4")) do
+        "x"
+      end
+    end).at_css("button")
 
     assert_equal "true", button["data-active"]
     assert_equal "lg", button["data-size"]
     assert_includes button["class"], "h-12"
     assert_includes button["class"], "p-4"
     assert_not_includes button["class"], " p-2 "
-    link = fragment(provider { render(Sidebar::MenuButton.new(as_child: :a, href: "#")) { "x" } }).at_css("a[data-slot=sidebar-menu-button]")
+    link = fragment(provider do
+      render(Sidebar::MenuButton.new(as_child: :a, href: "#")) do
+        "x"
+      end
+    end).at_css("a[data-slot=sidebar-menu-button]")
 
     assert_equal "false", link["data-active"]
     assert_raises(ArgumentError) { Sidebar::MenuButton.new(size: "huge") }
@@ -144,7 +157,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
   test "menu skeleton width is random by default" do
     widths = Array.new(8) { fragment(provider { render(Sidebar::MenuSkeleton.new) }).at_css("[data-sidebar=menu-skeleton-text]")["style"][/--skeleton-width: (\d+)%/, 1].to_i }
 
-    assert widths.all? { |w| (50..89).cover?(w) }
+    assert(widths.all? { |w| (50..89).cover?(w) })
   end
 
   test "menu skeleton width can be pinned and the pin is always restored" do

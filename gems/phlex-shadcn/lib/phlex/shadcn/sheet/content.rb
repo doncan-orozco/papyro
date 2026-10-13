@@ -18,7 +18,7 @@ class Phlex::Shadcn::Sheet::Content < Phlex::Shadcn::Base
   # force_mount has no effect: the Portal that shadcn wraps around the Content is not force-mounted (spec, forceMount).
   def initialize(side: "right", show_close_button: true, close_label: "Close", force_mount: false, as_child: false, **attrs)
     @side = (side || "right").to_s
-    raise ArgumentError, "side must be one of #{SIDES.keys.join(", ")}, got #{side.inspect}" unless SIDES.key?(@side)
+    raise ArgumentError, "side must be one of #{SIDES.keys.join(', ')}, got #{side.inspect}" unless SIDES.key?(@side)
 
     @show_close_button = show_close_button
     @close_label = close_label
@@ -53,10 +53,10 @@ class Phlex::Shadcn::Sheet::Content < Phlex::Shadcn::Base
 
   def content_attrs(root)
     attrs = merge_attrs({
-      id: root[:content_id], role: "dialog", tabindex: "-1", class: cn(CLASSES, SIDES.fetch(@side)),
-      aria: { labelledby: (root[:title_id] if root[:title_present]) },
-      data: { slot: "sheet-content", state: "open", v2__dialog_part: "content" }
-    }, @attrs)
+                          id: root[:content_id], role: "dialog", tabindex: "-1", class: cn(CLASSES, SIDES.fetch(@side)),
+                          aria: { labelledby: (root[:title_id] if root[:title_present]) },
+                          data: { slot: "sheet-content", state: "open", v2__dialog_part: "content" }
+                        }, @attrs)
     attrs.merge(aria: (attrs[:aria] || {}).merge(describedby: describedby(root, attrs.dig(:aria, :describedby))))
   end
 

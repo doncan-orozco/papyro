@@ -3,8 +3,8 @@
 require "phlex/test_case"
 
 class Phlex::Shadcn::KbdTest < Phlex::Shadcn::TestCase
-  def html(**opts, &block)
-    Phlex::Shadcn::Kbd.new(**opts).call(&(block || proc { |_| "K" }))
+  def html(**, &block)
+    Phlex::Shadcn::Kbd.new(**).call(&block || proc { |_| "K" })
   end
 
   test "renders kbd with slot, merged class and passthrough attrs" do

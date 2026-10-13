@@ -5,8 +5,8 @@ require "phlex/test_case"
 class Phlex::Shadcn::InputGroupTest < Phlex::Shadcn::TestCase
   IG = Phlex::Shadcn::InputGroup
 
-  def render_part(part, **opts, &block)
-    part.new(**opts).call(&(block || proc { "x" }))
+  def render_part(part, **, &block)
+    part.new(**).call(&block || proc { "x" })
   end
 
   test "root renders slot, role, merged class and passthrough attrs" do

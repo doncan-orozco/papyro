@@ -16,6 +16,6 @@ class Phlex::Shadcn::Sidebar::Separator < Phlex::Shadcn::Base
     attrs = canonical_attrs(@attrs).except(:class)
     data = { slot: "sidebar-separator", sidebar: "separator" }.merge(attrs[:data] || {})
     render(Phlex::Shadcn::Separator.new(orientation: @orientation, decorative: @decorative, as_child: @as_child,
-                                         class: cn(CLASSES, @attrs[:class]), **attrs.merge(data:)), &)
+                                        class: cn(CLASSES, @attrs[:class]), **attrs.merge(data:)), &)
   end
 end

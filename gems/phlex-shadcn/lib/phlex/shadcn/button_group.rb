@@ -21,7 +21,8 @@ class Phlex::Shadcn::ButtonGroup < Phlex::Shadcn::Base
   end
 
   def view_template(&block)
-    defaults = { role: "group", data: { slot: "button-group", orientation: @orientation&.to_s }.compact, class: self.class.variants(orientation: @orientation) }
+    defaults = { role: "group", data: { slot: "button-group", orientation: @orientation&.to_s }.compact,
+                 class: self.class.variants(orientation: @orientation) }
     div(**merge_attrs(defaults, @attrs)) { yield self if block }
   end
 
@@ -49,12 +50,12 @@ class Phlex::Shadcn::ButtonGroup < Phlex::Shadcn::Base
       super()
     end
 
-    def view_template(&block)
+    def view_template(&)
       attrs = merge_attrs({}, @attrs.except(:class))
       attrs = attrs.merge(class: [ @slot_class, cn(CLASS_NAME, @attrs[:class]) ].compact_blank.join(" "))
-      return render_as_child(@as_child, **attrs, &block) if @as_child
+      return render_as_child(@as_child, **attrs, &) if @as_child
 
-      div(**attrs, &block)
+      div(**attrs, &)
     end
   end
 end

@@ -10,22 +10,22 @@ class Phlex::Shadcn::Collapsible::Trigger < Phlex::Shadcn::Base
     super()
   end
 
-  def view_template(&block)
+  def view_template(&)
     root = root_context
     attrs = trigger_attrs(root)
-    @as_child ? render_as_child(@as_child, **attrs, &block) : button(**attrs, &block)
+    @as_child ? render_as_child(@as_child, **attrs, &) : button(**attrs, &)
   end
 
   private
 
   def trigger_attrs(root)
     attrs = merge_attrs({
-      type: "button",
-      disabled: root[:disabled],
-      aria: { controls: (root[:content_id] if root[:open]), expanded: root[:open] },
-      data: { state: state_of(root), disabled: disabled_data(root), slot: "collapsible-trigger",
-              v2__collapsible_target: "trigger" }
-    }, @attrs)
+                          type: "button",
+                          disabled: root[:disabled],
+                          aria: { controls: (root[:content_id] if root[:open]), expanded: root[:open] },
+                          data: { state: state_of(root), disabled: disabled_data(root), slot: "collapsible-trigger",
+                                  v2__collapsible_target: "trigger" }
+                        }, @attrs)
     # Radix composes the consumer onClick first, then the toggle: our action goes last.
     action = [ attrs.dig(:data, :action), "click->v2--collapsible#toggle" ].compact_blank.join(" ")
     attrs.merge(data: attrs[:data].merge(action:))

@@ -17,8 +17,9 @@ class Phlex::Shadcn::Dialog::Overlay < Phlex::Shadcn::Base
     return unless root_context[:modal]
 
     attrs = merge_attrs({
-      class: CLASSES, style: "pointer-events: auto", data: { slot: "dialog-overlay", state: "open", v2__dialog_part: "overlay" }
-    }, @attrs)
+                          class: CLASSES, style: "pointer-events: auto", data: { slot: "dialog-overlay", state: "open",
+                                                                                 v2__dialog_part: "overlay" }
+                        }, @attrs)
     render_part(:div, @as_child, attrs, &)
   end
 end

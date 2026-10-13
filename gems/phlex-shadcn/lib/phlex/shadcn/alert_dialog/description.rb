@@ -13,7 +13,8 @@ class Phlex::Shadcn::AlertDialog::Description < Phlex::Shadcn::Base
   def view_template(&)
     root = root_context
     root[:description_present] = true
-    attrs = merge_attrs({ id: root[:description_id], class: "text-sm text-muted-foreground", data: { slot: "alert-dialog-description" } }, @attrs)
+    attrs = merge_attrs({ id: root[:description_id], class: "text-sm text-muted-foreground", data: { slot: "alert-dialog-description" } },
+                        @attrs)
     render_part(:p, @as_child, attrs, &)
   end
 end

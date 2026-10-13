@@ -12,7 +12,7 @@ class Phlex::Shadcn::Menubar::Content < Phlex::Shadcn::Base
                  arrow_padding: 0, loop: false, force_mount: false, as_child: false, **attrs)
     @options = position_options(side_offset:, align:, align_offset:, avoid_collisions:, collision_padding:, collision_boundary:,
                                 sticky:, hide_when_detached:, update_position_strategy:, arrow_padding:, loop:)
-                 .merge(side: side.to_s, forceMount: force_mount).compact
+               .merge(side: side.to_s, forceMount: force_mount).compact
     @as_child = as_child
     @attrs = attrs
     super()
@@ -21,7 +21,8 @@ class Phlex::Shadcn::Menubar::Content < Phlex::Shadcn::Base
   def view_template
     root = root_context
     menu = menu_context
-    attrs = menu_content_attrs(classes: CLASSES, slot: "menubar-content", id: menu[:content_id], labelledby: menu[:trigger_id], dir: root[:dir])
+    attrs = menu_content_attrs(classes: CLASSES, slot: "menubar-content", id: menu[:content_id], labelledby: menu[:trigger_id],
+                               dir: root[:dir])
     template(data: { v2__menubar_template: menu[:content_id], options: @options.to_json }) do
       render_part(:div, @as_child, attrs) { yield if block_given? }
     end

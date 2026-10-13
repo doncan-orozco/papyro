@@ -3,8 +3,8 @@
 require "phlex/test_case"
 
 class Phlex::Shadcn::AlertTest < Phlex::Shadcn::TestCase
-  def html(**opts, &block)
-    Phlex::Shadcn::Alert.new(**opts).call(&(block || proc { |_| "Body" }))
+  def html(**, &block)
+    Phlex::Shadcn::Alert.new(**).call(&block || proc { |_| "Body" })
   end
 
   test "renders each variant with slot and role" do
@@ -33,10 +33,13 @@ class Phlex::Shadcn::AlertTest < Phlex::Shadcn::TestCase
   end
 
   test "helpers render the same HTML as the explicit classes" do
-    helpers = html { |a| a.title(class: "t") { "T" }; a.description { "D" } }
+    helpers = html do |a|
+      a.title(class: "t") { "T" }
+      a.description { "D" }
+    end
     explicit = html do |a|
       a.render Phlex::Shadcn::Alert::Title.new(class: "t") { "T" }
-      a.render Phlex::Shadcn::Alert::Description.new { "D" }
+      a.render(Phlex::Shadcn::Alert::Description.new { "D" })
     end
 
     assert_equal explicit, helpers

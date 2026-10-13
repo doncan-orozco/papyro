@@ -3,7 +3,7 @@
 require "phlex/test_case"
 
 class Phlex::Shadcn::SeparatorTest < Phlex::Shadcn::TestCase
-  def html(**opts) = Phlex::Shadcn::Separator.new(**opts).call
+  def html(**) = Phlex::Shadcn::Separator.new(**).call
 
   test "decorative horizontal by default" do
     out = html

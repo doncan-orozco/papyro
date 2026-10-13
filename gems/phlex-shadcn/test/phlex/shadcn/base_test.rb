@@ -10,15 +10,19 @@ class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
   class Kid < Phlex::Shadcn::Base
     def initialize(**attrs) = @attrs = attrs
 
-    def view_template(&block)
+    def view_template(&)
       attrs = merge_attrs({ class: "px-2", data: { slot: "kid" } }, @attrs)
-      tag(:span, **attrs, &block)
+      tag(:span, **attrs, &)
     end
   end
 
   class Slotter < Phlex::Shadcn::Base
-    def initialize(as_child:, **slot) = (@child, @slot = as_child, slot)
-    def view_template(&block) = render_as_child(@child, **@slot, &block)
+    def initialize(as_child:, **slot)
+      (@child = as_child
+       @slot = slot)
+    end
+
+    def view_template(&) = render_as_child(@child, **@slot, &)
   end
 
   class Table < Phlex::Shadcn::Base

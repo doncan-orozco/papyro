@@ -34,13 +34,13 @@ class Phlex::Shadcn::Menubar < Phlex::Shadcn::Base
     root = { base: "menubar-#{self.class.next_sequence(context)}", value: @value, dir: use_direction(@dir) }
     context[ROOT_KEY] = root
     attrs = merge_attrs({
-      role: "menubar", class: CLASSES, tabindex: "0", style: "outline: none",
-      data: {
-        slot: "menubar", orientation: "horizontal", controller: "v2--menubar",
-        v2__menubar_value_value: @value, v2__menubar_controlled_value: @controlled.to_s,
-        v2__menubar_loop_value: @loop.to_s, v2__menubar_dir_value: root[:dir]
-      }
-    }, @attrs)
+                          role: "menubar", class: CLASSES, tabindex: "0", style: "outline: none",
+                          data: {
+                            slot: "menubar", orientation: "horizontal", controller: "v2--menubar",
+                            v2__menubar_value_value: @value, v2__menubar_controlled_value: @controlled.to_s,
+                            v2__menubar_loop_value: @loop.to_s, v2__menubar_dir_value: root[:dir]
+                          }
+                        }, @attrs)
     if @as_child
       render_as_child(@as_child, **attrs) { yield self if block_given? }
     else

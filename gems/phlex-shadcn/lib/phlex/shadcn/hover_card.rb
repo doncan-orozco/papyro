@@ -45,8 +45,8 @@ class Phlex::Shadcn::HoverCard < Phlex::Shadcn::Base
     def view_template(&)
       root = context[CONTEXT_KEY] or raise ArgumentError, "`HoverCardTrigger` must be used within `HoverCard`"
       attrs = merge_attrs({
-        data: { state: root[:open] ? "open" : "closed", slot: "hover-card-trigger", controller: "v2--hover-card" }.merge(values(root))
-      }, @attrs)
+                            data: { state: root[:open] ? "open" : "closed", slot: "hover-card-trigger", controller: "v2--hover-card" }.merge(values(root))
+                          }, @attrs)
       return render_as_child(@as_child, **attrs, &) if @as_child
 
       a(**attrs, &)
@@ -104,7 +104,7 @@ class Phlex::Shadcn::HoverCard < Phlex::Shadcn::Base
 
     def content_attrs(attrs)
       merged = merge_attrs({ class: CLASSES, data: { slot: "hover-card-content" } }, attrs.except(:style))
-      merged[:style] = [ STYLE_VARS.map { |name, value| "#{name}: #{value}" }, attrs[:style] ].flatten.compact.join("; ") + ";"
+      merged[:style] = "#{[ STYLE_VARS.map { |name, value| "#{name}: #{value}" }, attrs[:style] ].flatten.compact.join('; ')};"
       merged
     end
   end

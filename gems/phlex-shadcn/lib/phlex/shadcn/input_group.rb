@@ -36,18 +36,18 @@ class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
 
     def initialize(align: "inline-start", **attrs)
       @align = normalize_option(align) || "inline-start"
-      raise ArgumentError, "unknown align: #{align.inspect} (expected one of #{ALIGNS.keys.join(", ")})" unless ALIGNS.key?(@align)
+      raise ArgumentError, "unknown align: #{align.inspect} (expected one of #{ALIGNS.keys.join(', ')})" unless ALIGNS.key?(@align)
 
       @attrs = attrs
     end
 
-    def view_template(&block)
+    def view_template(&)
       caller_attrs = canonical_attrs(@attrs)
       defaults = { role: "group", data: { slot: "input-group-addon", align: @align }, class: cn(BASE, ALIGNS[@align]) }
       attrs = merge_attrs(defaults, caller_attrs.except(:class))
       attrs = attrs.merge(class: [ @slot_class, cn(BASE, ALIGNS[@align], caller_attrs[:class]) ].compact_blank.join(" "))
       attrs[:data] = wire_controller(attrs[:data] || {})
-      div(**attrs, &block)
+      div(**attrs, &)
     end
 
     private
@@ -77,7 +77,7 @@ class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
 
     def initialize(type: "button", variant: "ghost", size: "xs", as_child: false, **attrs)
       @size = normalize_option(size) || "xs"
-      raise ArgumentError, "unknown size: #{size.inspect} (expected one of #{SIZES.keys.join(", ")})" unless SIZES.key?(@size)
+      raise ArgumentError, "unknown size: #{size.inspect} (expected one of #{SIZES.keys.join(', ')})" unless SIZES.key?(@size)
 
       @type = type
       @variant = variant

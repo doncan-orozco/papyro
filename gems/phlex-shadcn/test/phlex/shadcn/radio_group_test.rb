@@ -48,11 +48,11 @@ class Phlex::Shadcn::RadioGroupTest < Phlex::Shadcn::TestCase
   test "default value checks the item and renders the indicator" do
     items = fragment(group(root: { default_value: "b" })).css("[data-slot=radio-group-item]")
 
-    assert_equal %w[false true], items.map { |i| i["aria-checked"] }
-    assert_equal %w[unchecked checked], items.map { |i| i["data-state"] }
+    assert_equal(%w[false true], items.map { |i| i["aria-checked"] })
+    assert_equal(%w[unchecked checked], items.map { |i| i["data-state"] })
     assert_equal 1, items.last.css("[data-slot=radio-group-indicator]").size
     assert_empty items.first.css("[data-slot=radio-group-indicator]")
-    assert_equal [ "-1", "-1" ], items.map { |i| i["tabindex"] }
+    assert_equal([ "-1", "-1" ], items.map { |i| i["tabindex"] })
   end
 
   test "item attrs, class merge, disabled and bubble input" do

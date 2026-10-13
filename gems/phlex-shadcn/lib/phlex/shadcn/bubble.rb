@@ -18,7 +18,7 @@ class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
 
   def self.fetch_option!(value, default, allowed, name)
     option = value&.to_s&.tr("_", "-") || default
-    raise ArgumentError, "unknown #{name}: #{value.inspect} (expected one of #{allowed.join(", ")})" unless allowed.include?(option)
+    raise ArgumentError, "unknown #{name}: #{value.inspect} (expected one of #{allowed.join(', ')})" unless allowed.include?(option)
 
     option
   end
@@ -57,12 +57,12 @@ class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
       super()
     end
 
-    def view_template(&block)
+    def view_template(&)
       attrs = merge_attrs({ data: { slot: "bubble-content" }, class: CLASS_NAME }, @attrs.except(:class))
       attrs = attrs.merge(class: [ @slot_class, cn(CLASS_NAME, @attrs[:class]) ].compact_blank.join(" "))
-      return render_as_child(@as_child, **attrs, &block) if @as_child
+      return render_as_child(@as_child, **attrs, &) if @as_child
 
-      div(**attrs, &block)
+      div(**attrs, &)
     end
   end
 

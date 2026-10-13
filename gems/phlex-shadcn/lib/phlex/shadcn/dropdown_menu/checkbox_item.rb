@@ -8,7 +8,12 @@ class Phlex::Shadcn::DropdownMenu::CheckboxItem < Phlex::Shadcn::Base
   INDICATOR_CLASSES = "pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"
 
   def initialize(checked: false, disabled: false, text_value: nil, as_child: false, **attrs)
-    @state = checked.to_s == "indeterminate" ? "indeterminate" : (checked ? "checked" : "unchecked")
+    @state =
+      if checked.to_s == "indeterminate"
+        "indeterminate"
+      else
+        checked ? "checked" : "unchecked"
+      end
     @disabled = disabled
     @text_value = text_value
     @as_child = as_child

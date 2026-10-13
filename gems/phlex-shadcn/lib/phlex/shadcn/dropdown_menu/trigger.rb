@@ -15,13 +15,13 @@ class Phlex::Shadcn::DropdownMenu::Trigger < Phlex::Shadcn::Base
     root = root_context
     open = root[:open]
     attrs = merge_attrs({
-      type: "button", id: root[:trigger_id], disabled: @disabled,
-      aria: { haspopup: "menu", expanded: open.to_s, controls: (root[:content_id] if open) },
-      data: {
-        slot: "dropdown-menu-trigger", state: open ? "open" : "closed", disabled: (@disabled ? "" : nil),
-        controller: "v2--dropdown-menu", **values(root)
-      }
-    }, @attrs)
+                          type: "button", id: root[:trigger_id], disabled: @disabled,
+                          aria: { haspopup: "menu", expanded: open.to_s, controls: (root[:content_id] if open) },
+                          data: {
+                            slot: "dropdown-menu-trigger", state: open ? "open" : "closed", disabled: (@disabled ? "" : nil),
+                            controller: "v2--dropdown-menu", **values(root)
+                          }
+                        }, @attrs)
     render_part(:button, @as_child, attrs, &)
   end
 

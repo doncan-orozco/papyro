@@ -27,15 +27,15 @@ module Phlex::Shadcn::DropdownMenu::Support
   end
 
   # inset={false} renders data-inset=false in React; an omitted prop renders nothing.
-  def inset_value(inset) = inset.nil? ? nil : inset.to_s
+  def inset_value(inset) = inset&.to_s
 
   # Content and SubContent: PopperContent + MenuContentImpl markup as it is when open.
   def menu_content_attrs(classes:, slot:, id:, labelledby:, dir:)
     attrs = merge_attrs({
-      role: "menu", id:, dir:, class: classes,
-      aria: { orientation: "vertical", labelledby: },
-      data: { slot:, state: "open", radix_menu_content: "", orientation: "vertical" }
-    }, @attrs.except(:style))
+                          role: "menu", id:, dir:, class: classes,
+                          aria: { orientation: "vertical", labelledby: },
+                          data: { slot:, state: "open", radix_menu_content: "", orientation: "vertical" }
+                        }, @attrs.except(:style))
     style = [ "outline: none", style_string(@attrs[:style]), *STYLE_VARS.map { |name, value| "#{name}: #{value}" } ]
     attrs.merge(style: style.compact_blank.join("; "))
   end

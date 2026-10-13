@@ -5,8 +5,8 @@ require "phlex/test_case"
 class Phlex::Shadcn::MessageTest < Phlex::Shadcn::TestCase
   PARTS = { group: "group", avatar: "avatar", content: "content", footer: "footer", header: "header" }.freeze
 
-  def html(**opts, &block)
-    Phlex::Shadcn::Message.new(**opts).call(&(block || proc { |_| "Hi" }))
+  def html(**, &block)
+    Phlex::Shadcn::Message.new(**).call(&block || proc { |_| "Hi" })
   end
 
   test "root renders slot, align default and symbol align" do

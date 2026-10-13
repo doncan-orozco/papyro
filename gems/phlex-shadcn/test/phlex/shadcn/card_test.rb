@@ -6,8 +6,8 @@ class Phlex::Shadcn::CardTest < Phlex::Shadcn::TestCase
   PARTS = { header: "card-header", footer: "card-footer", title: "card-title",
             action: "card-action", description: "card-description", content: "card-content" }.freeze
 
-  def html(**opts, &block)
-    Phlex::Shadcn::Card.new(**opts).call(&(block || proc { |_| "Body" }))
+  def html(**, &block)
+    Phlex::Shadcn::Card.new(**).call(&block || proc { |_| "Body" })
   end
 
   test "root renders slot, merged class and passthrough attrs" do

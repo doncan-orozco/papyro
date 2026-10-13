@@ -7,7 +7,7 @@ class Phlex::Shadcn::Message < Phlex::Shadcn::Base
 
   def initialize(align: "start", **attrs)
     @align = align&.to_s || "start"
-    raise ArgumentError, "unknown align: #{align.inspect} (expected one of #{ALIGNS.join(", ")})" unless ALIGNS.include?(@align)
+    raise ArgumentError, "unknown align: #{align.inspect} (expected one of #{ALIGNS.join(', ')})" unless ALIGNS.include?(@align)
 
     @attrs = attrs
     super()

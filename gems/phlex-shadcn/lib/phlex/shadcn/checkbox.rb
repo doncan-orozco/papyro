@@ -11,7 +11,7 @@ class Phlex::Shadcn::Checkbox < Phlex::Shadcn::Base
   def initialize(checked: nil, default_checked: false, disabled: false, required: nil,
                  name: nil, value: "on", form: nil, **attrs)
     @controlled = !checked.nil?
-    @checked = normalize_checked(@controlled ? checked : (default_checked.nil? ? false : default_checked))
+    @checked = normalize_checked(@controlled ? checked : (default_checked || false))
     @disabled = disabled
     @required = required
     @name = name

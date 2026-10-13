@@ -47,7 +47,7 @@ class Phlex::Shadcn::RadioGroup < Phlex::Shadcn::Base
     value = value.to_s
     return value if allowed.include?(value)
 
-    raise ArgumentError, "#{name} must be one of #{allowed.join(", ")}, got #{value.inspect}"
+    raise ArgumentError, "#{name} must be one of #{allowed.join(', ')}, got #{value.inspect}"
   end
 
   def root_defaults

@@ -51,10 +51,10 @@ class Phlex::Shadcn::ToggleGroupTest < Phlex::Shadcn::TestCase
   test "single items are radios and the default value presses one" do
     items = fragment(group(root: { type: "single", default_value: "b" })).css("[data-slot=toggle-group-item]")
 
-    assert_equal %w[radio radio], items.map { |i| i["role"] }
-    assert_equal %w[false true], items.map { |i| i["aria-checked"] }
-    assert_equal %w[off on], items.map { |i| i["data-state"] }
-    assert_equal %w[-1 -1], items.map { |i| i["tabindex"] }
+    assert_equal(%w[radio radio], items.map { |i| i["role"] })
+    assert_equal(%w[false true], items.map { |i| i["aria-checked"] })
+    assert_equal(%w[off on], items.map { |i| i["data-state"] })
+    assert_equal(%w[-1 -1], items.map { |i| i["tabindex"] })
     assert_nil items.first["aria-pressed"]
     assert_nil items.first["value"]
   end
@@ -62,12 +62,13 @@ class Phlex::Shadcn::ToggleGroupTest < Phlex::Shadcn::TestCase
   test "multiple items expose aria-pressed" do
     items = fragment(group(root: { type: "multiple", default_value: %w[a b] })).css("[data-slot=toggle-group-item]")
 
-    assert_equal %w[true true], items.map { |i| i["aria-pressed"] }
+    assert_equal(%w[true true], items.map { |i| i["aria-pressed"] })
     assert_nil items.first["role"]
   end
 
   test "group variant and size win over the item" do
-    item = fragment(group(root: { type: "single", variant: "outline" }, item: { variant: "default", size: :sm })).at_css("[data-slot=toggle-group-item]")
+    item = fragment(group(root: { type: "single", variant: "outline" },
+                          item: { variant: "default", size: :sm })).at_css("[data-slot=toggle-group-item]")
 
     assert_equal "outline", item["data-variant"]
     assert_equal "sm", item["data-size"]
@@ -78,7 +79,7 @@ class Phlex::Shadcn::ToggleGroupTest < Phlex::Shadcn::TestCase
     html = fragment(group(root: { type: "single", disabled: true }))
 
     assert_equal "-1", html.at_css("[data-slot=toggle-group]")["tabindex"]
-    assert html.css("[data-slot=toggle-group-item]").all? { |i| i["data-disabled"] == "" && i.key?("disabled") }
+    assert(html.css("[data-slot=toggle-group-item]").all? { |i| i["data-disabled"] == "" && i.key?("disabled") })
   end
 
   test "roving_focus false drops roving attributes" do

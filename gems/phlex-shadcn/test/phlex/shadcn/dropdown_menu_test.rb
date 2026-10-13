@@ -90,7 +90,7 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
 
   test "item: variants, inset, disabled, text_value, class merge and passthrough" do
     html = menu do
-      render DropdownMenu::Item.new { "Plain" }
+      render(DropdownMenu::Item.new { "Plain" })
       render DropdownMenu::Item.new(variant: :destructive, inset: true, class: "p-4", "aria-label": "Del") { "Delete" }
       render DropdownMenu::Item.new(inset: false, disabled: true, text_value: "Dis") { "Disabled" }
     end
