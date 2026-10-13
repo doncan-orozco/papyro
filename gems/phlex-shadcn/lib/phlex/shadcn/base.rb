@@ -99,7 +99,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
     Phlex::Shadcn::Base.tw_merger.merge(flattened.join(" "))
   end
 
-  # JSON for a data attribute, with the HTML-sensitive characters escaped (see Support.json).
+  # JSON for a data attribute, with the HTML-sensitive characters escaped (see Values.json).
   #
   # @api private
   def json(value) = Phlex::Shadcn::Values.json(value)

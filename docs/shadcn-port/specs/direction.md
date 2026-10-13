@@ -38,7 +38,7 @@ Semantics copied from dir.mjs:17-20: `localDir || globalDir || "ltr"`:
 - `globalDir` = the value of the NEAREST enclosing `Direction::Provider` in the render tree (React context, dir.mjs:12,18). A nearer Provider whose value is `nil` shadows an outer one (React context value `undefined`), so the result is `"ltr"`, not the outer provider's value.
 - Fallback `"ltr"` (dir.mjs:19 `Direction.LTR`). Radix does NOT read `document.dir`, `<html dir>` or any ancestor `dir` attribute: a consumer outside any Provider is `"ltr"` even inside `<html dir="rtl">`.
 
-Server-side mechanism (React context -> Phlex user context, Phlex 2.4.1 `Phlex::SGML#context`, `phlex/sgml.rb:89`): `Provider#view_template` saves `context[:v2_direction]`, sets it to the effective value (possibly `nil`), yields, and restores the previous value in an `ensure`, so siblings after the Provider and the outer tree are unaffected and nesting behaves like React context. Content that a consumer later portals (Select/menu content moved to `body`) is rendered inside the same render tree, so it gets the same value, matching React portals preserving context.
+Server-side mechanism (React context -> Phlex user context, Phlex 2.4.1 `Phlex::SGML#context`, `phlex/sgml.rb:89`): `Provider#view_template` saves `context[Phlex::Shadcn::Direction::KEY]`, sets it to the effective value (possibly `nil`), yields, and restores the previous value in an `ensure`, so siblings after the Provider and the outer tree are unaffected and nesting behaves like React context. Content that a consumer later portals (Select/menu content moved to `body`) is rendered inside the same render tree, so it gets the same value, matching React portals preserving context.
 
 ## Structure
 

@@ -16,7 +16,7 @@ class SmokeTest < Minitest::Test
   # A clean process is the only real proof: the test process itself may have loaded anything. It eager-loads the gem, renders a
   # simple part, a compound with generated helpers and a part that serializes JSON options, then checks that no ActiveSupport
   # file was loaded and no core class was extended.
-  CLEAN_PROCESS_SCRIPT = <<~RUBY
+  CLEAN_PROCESS_SCRIPT = <<~RUBY.freeze
     require "phlex/shadcn"
     Phlex::Shadcn::Loader.eager_load
 
@@ -35,6 +35,9 @@ class SmokeTest < Minitest::Test
     loaded = $LOADED_FEATURES.grep(/active_support/)
     abort("ActiveSupport was loaded: \#{loaded.first(3).inspect}") unless loaded.empty?
     abort("a core class was extended") if "".respond_to?(:blank?) || {}.respond_to?(:deep_merge) || [].respond_to?(:compact_blank)
+    helpers = %i[blank_value? filled? unless_blank reject_blank merge_deep snake_case unqualified]
+    leaked = [ Object, String, Hash, Array, Enumerable ].flat_map { |mod| helpers.select { |name| mod.method_defined?(name) }.map { |name| "\#{mod}##{name}" } }
+    abort("a Values helper leaked out of its refinement: \#{leaked.inspect}") unless leaked.empty?
     print html
   RUBY
 
