@@ -4,7 +4,7 @@ include Phlex::Rails::Helpers::ContentFor
 
 module Views
   module DesignSystem
-    # Index of every ported Components::V2 component, generated from the scenario files (see Components::Parity::Catalog).
+    # Index of every ported Phlex::Shadcn component, generated from the scenario files (see Components::Parity::Catalog).
     class V2Catalog < Views::Base
       def initialize(entries: Components::Parity::Catalog.entries)
         @entries = entries

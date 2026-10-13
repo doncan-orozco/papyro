@@ -13,7 +13,7 @@ class Components::Parity::Catalog
   def self.entries(directory: Components::Parity::Scenario::DIRECTORY)
     Dir[directory.join("*.json").to_s].filter_map do |file|
       component = File.basename(file, ".json")
-      next if component.start_with?("_") || !Components::V2.const_defined?(component.tr("-", "_").camelize, false)
+      next if component.start_with?("_") || !Phlex::Shadcn.const_defined?(component.tr("-", "_").camelize, false)
 
       build(component, JSON.parse(File.read(file)).fetch("scenarios", []))
     end.sort_by(&:component)

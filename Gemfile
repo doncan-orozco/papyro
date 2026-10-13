@@ -26,6 +26,7 @@ gem "phlex"
 gem "phlex-rails"
 gem "tailwindcss-rails"
 gem "tailwind_merge"
+gem "phlex-shadcn", path: "gems/phlex-shadcn"
 gem "lucide-rails" # Server-rendered SVGs
 
 # Papyro Core Engines
