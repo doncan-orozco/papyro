@@ -6,12 +6,14 @@
 #
 #   ruby .claude/scripts/shadcn/parity_batch.rb --components button,card          # G2 + G3
 #   ruby .claude/scripts/shadcn/parity_batch.rb --components all --dx --themes slate,stone,zinc-radius0
+#   ruby .claude/scripts/shadcn/parity_batch.rb --components all --dx --themes        # the same: the default presets
 #   ruby .claude/scripts/shadcn/parity_batch.rb --components dialog --no-servers   # servers already running (servers.rb status)
 #
 # --components LIST|all  comma list of component names (each needs a scenario file), or every scenario file not starting with `_`
 # --dx                   also G2b: scenarios starting default / variant- / example__ (cap 25) through the yielded-root helpers,
 #                        only for components that have helpers (spec_helpers.rb --print)
-# --themes LIST          also G4: each theme preset on the scenarios starting variant- or default (cap 12), plus one --dark run
+# --themes [LIST]        also G4: each theme preset on the scenarios starting variant- or default (cap 12), plus one --dark run;
+#                        without a list: slate,stone,zinc-radius0
 # --no-servers           neither ensure Playwright nor start/stop servers (they must already be running)
 # --out DIR              reports go to DIR/<component>/{g2,g2b,g4-<theme>,g4-dark}.json (default tmp/shadcn-port)
 #
@@ -31,6 +33,7 @@ SCRIPTS = ".claude/scripts/shadcn"
 SCENARIOS = "docs/shadcn-port/scenarios"
 CATALOG = "react-shadcn-catalog"
 NAME_PATTERN = /\A[a-z0-9][a-z0-9-]*\z/
+DEFAULT_THEMES = %w[slate stone zinc-radius0].freeze
 DX_PREFIXES = %w[default variant- example__].freeze
 THEME_PREFIXES = %w[variant- default].freeze
 
@@ -44,11 +47,11 @@ end
 def parse_options(argv)
   options = { components: nil, dx: false, themes: [], servers: true, out: "tmp/shadcn-port" }
   OptionParser.new do |parser|
-    parser.banner = "usage: parity_batch.rb --components a,b|all [--dx] [--themes LIST] [--no-servers] [--out DIR]"
+    parser.banner = "usage: parity_batch.rb --components a,b|all [--dx] [--themes [LIST]] [--no-servers] [--out DIR]"
     parser.on("--components LIST", "comma list of components, or all (scenario files not starting with _)") { |value| options[:components] = value }
     parser.on("--dx", "also G2b through the yielded-root helpers") { options[:dx] = true }
-    parser.on("--themes LIST", "also G4 for each theme preset plus one --dark run") do |value|
-      options[:themes] = value.split(",").map(&:strip).reject(&:empty?).uniq
+    parser.on("--themes [LIST]", "also G4 for each theme preset plus one --dark run (default presets: #{DEFAULT_THEMES.join(',')})") do |value|
+      options[:themes] = value ? value.split(",").map(&:strip).reject(&:empty?).uniq : DEFAULT_THEMES.dup
     end
     parser.on("--no-servers", "servers already running; do not ensure Playwright or start/stop servers") { options[:servers] = false }
     parser.on("--out DIR", "report directory (default tmp/shadcn-port)") { |value| options[:out] = value }

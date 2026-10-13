@@ -47,7 +47,7 @@ The runner applies `--dark` and the theme CSS (as an adopted stylesheet) in an i
 
 - `--components a,b|all`: a comma list, or every scenario file whose name does not start with `_`.
 - `--dx`: also G2b, only for components that have yielded-root helpers (`spec_helpers.rb --print`), on scenarios starting `default`, `variant-` or `example__` (cap 25).
-- `--themes slate,stone,zinc-radius0`: also G4 on scenarios starting `variant-` or `default` (cap 12), plus one `--dark` run.
+- `--themes [slate,stone,zinc-radius0]`: also G4 on scenarios starting `variant-` or `default` (cap 12), plus one `--dark` run; without a list the three presets above are used.
 - `--no-servers`: skip Playwright and server handling (they must already be running: the recorded ones, or `PARITY_REACT_URL` and `PARITY_PHLEX_URL`).
 - `--out DIR`: report directory (default `tmp/shadcn-port`).
 
