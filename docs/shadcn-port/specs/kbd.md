@@ -49,7 +49,7 @@ Both parts are server-rendered in full; nothing is set by JS.
 <!-- spec_helpers:begin -->
 ## DX helpers (derived from the oracle, do not edit)
 
-`Components::V2::Kbd` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Kbd::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Kbd::Content.new`) stay valid.
+`Phlex::Shadcn::Kbd` MUST `yield self` from `view_template`; `Phlex::Shadcn::Base` generates one helper per nested part (`const_added`), each exactly `render Kbd::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Phlex::Shadcn::Kbd::Content.new`) stay valid.
 
 | helper | part class | React export |
 |---|---|---|

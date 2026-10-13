@@ -163,7 +163,7 @@ The registry examples use `Button` as the `asChild` trigger, but the manifest li
 <!-- spec_helpers:begin -->
 ## DX helpers (derived from the oracle, do not edit)
 
-`Components::V2::DropdownMenu` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render DropdownMenu::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::DropdownMenu::Content.new`) stay valid.
+`Phlex::Shadcn::DropdownMenu` MUST `yield self` from `view_template`; `Phlex::Shadcn::Base` generates one helper per nested part (`const_added`), each exactly `render DropdownMenu::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Phlex::Shadcn::DropdownMenu::Content.new`) stay valid.
 
 | helper | part class | React export |
 |---|---|---|

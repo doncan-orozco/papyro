@@ -49,7 +49,7 @@ Every part is a single `div`, server-rendered in full; nothing is set client-sid
 <!-- spec_helpers:begin -->
 ## DX helpers (derived from the oracle, do not edit)
 
-`Components::V2::Alert` MUST `yield self` from `view_template`; `Components::V2::Base` generates one helper per nested part (`const_added`), each exactly `render Alert::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::Alert::Content.new`) stay valid.
+`Phlex::Shadcn::Alert` MUST `yield self` from `view_template`; `Phlex::Shadcn::Base` generates one helper per nested part (`const_added`), each exactly `render Alert::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Phlex::Shadcn::Alert::Content.new`) stay valid.
 
 | helper | part class | React export |
 |---|---|---|
