@@ -22,7 +22,7 @@ R8. **Timing constants copied from Radix** (tooltip 700ms delay and 300ms skip, 
 R9. **Pointer details count:** `pointerdown` vs `click` (Select/Menu open on pointerdown), pointer capture (Slider), pointer-grace triangle (sub menus), touch vs mouse, `pointer-events: none` on body while a modal layer is open.
 R10. **Cleanup everything** (listeners, observers, timers, floating-ui `autoUpdate`) in `disconnect()`; a Turbo cache restore must not leave a modal open or body scroll-locked.
 R11. **Accessibility is verified by the gate,** not assumed: if the DOM snapshot after each key step equals the oracle's, a11y equals Radix's. Do not add extra ARIA the oracle lacks.
-R12. **One controller per component, named `v2--<name>`,** with values for every controllable prop from `shadcn-port` api-mapping (`open`, `value`, `default-value`, `disabled`, `modal`, `side`, `align`, `side-offset`...).
+R12. **One controller per component, named `shadcn--<name>`,** with values for every controllable prop from `shadcn-port` api-mapping (`open`, `value`, `default-value`, `disabled`, `modal`, `side`, `align`, `side-offset`...).
 
 ## Behavior families
 

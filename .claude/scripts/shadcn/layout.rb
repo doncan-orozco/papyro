@@ -12,8 +12,8 @@
 #   SHADCN_PRIMITIVES_DIR    directory of the shared JS primitives             (default gems/phlex-shadcn/app/javascript/shadcn/primitives)
 #   SHADCN_RUBY_TEST_DIR     directory of the Ruby component tests             (default gems/phlex-shadcn/test/phlex/shadcn)
 #   SHADCN_JS_TEST_DIR       directory of the browser controller tests         (default gems/phlex-shadcn/test/javascript)
-#   SHADCN_STIMULUS_PREFIX   Stimulus identifier prefix, `v2` => `v2--dialog`  (default v2; becomes `shadcn`). The React twins of
-#                            the parity probes carry the same prefix (`v2---probe-*`): change both together.
+#   SHADCN_STIMULUS_PREFIX   Stimulus identifier prefix, `shadcn` => `shadcn--dialog`  (default shadcn). The React twins of
+#                            the parity probes carry the same prefix (`shadcn---probe-*`): change both together.
 module ShadcnLayout
   def self.env_or(name, default)
     value = ENV.fetch(name, "")
@@ -27,7 +27,7 @@ module ShadcnLayout
   PRIMITIVES_DIR = env_or("SHADCN_PRIMITIVES_DIR", "#{GEM_DIR}/app/javascript/shadcn/primitives")
   RUBY_TEST_DIR = env_or("SHADCN_RUBY_TEST_DIR", "#{GEM_DIR}/test/phlex/shadcn")
   JS_TEST_DIR = env_or("SHADCN_JS_TEST_DIR", "#{GEM_DIR}/test/javascript")
-  STIMULUS_PREFIX = env_or("SHADCN_STIMULUS_PREFIX", "v2")
+  STIMULUS_PREFIX = env_or("SHADCN_STIMULUS_PREFIX", "shadcn")
 
   # Components whose Ruby constant is not the PascalCase of the kebab-case name (acronyms); empty today.
   CONSTANT_OVERRIDES = {}.freeze
@@ -48,6 +48,6 @@ module ShadcnLayout
 
   def self.controller_file(component) = File.join(CONTROLLER_DIR, "#{ruby_name(component)}_controller.js")
 
-  # `dialog` => `v2--dialog`
+  # `dialog` => `shadcn--dialog`
   def self.identifier(component) = "#{STIMULUS_PREFIX}--#{component}"
 end

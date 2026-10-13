@@ -4,7 +4,7 @@ import * as React from "react"
 import { DismissableLayer } from "@radix-ui/react-dismissable-layer"
 import { actionOf, flag, items, isTemplate, templateName, only, type El } from "./_overlay"
 
-const C = "v2---probe-dismissable"
+const C = "shadcn---probe-dismissable"
 
 function DismissableProbe({ children, ...props }: Record<string, any>) {
   const [open, setOpen] = React.useState<string[]>([])
@@ -46,4 +46,4 @@ function DismissableProbe({ children, ...props }: Record<string, any>) {
 }
 
 // Harness.tsx renders the raw root whose data-controller is `controller` with this component.
-export const probe = { controller: "v2---probe-dismissable", Component: DismissableProbe }
+export const probe = { controller: "shadcn---probe-dismissable", Component: DismissableProbe }

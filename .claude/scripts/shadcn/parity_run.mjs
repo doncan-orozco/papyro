@@ -54,7 +54,7 @@ const STYLE_PROPS = [
 ];
 // Attributes that legitimately differ between React/Radix and Rails/Stimulus and carry no contract.
 // Same variable and default as ShadcnLayout::STIMULUS_PREFIX (layout.rb): keep them in sync.
-const STIMULUS_PREFIX = (process.env.SHADCN_STIMULUS_PREFIX || "v2").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const STIMULUS_PREFIX = (process.env.SHADCN_STIMULUS_PREFIX || "shadcn").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const IGNORED_ATTR = new RegExp(
   "^(class|style|id|for|selected|data-controller|data-action|data-turbo.*|data-.*-target|data-.*-value|data-.*-class|data-parity.*|aria-labelledby|aria-controls|aria-describedby|aria-owns|aria-activedescendant|tabindex-managed)$" +
   `|^data-${STIMULUS_PREFIX}--|^data-radix|^data-reactroot`

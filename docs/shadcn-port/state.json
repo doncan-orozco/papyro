@@ -37,7 +37,7 @@
         "app/assets/tailwind/foundation/**",
         "app/assets/tailwind/theme/** (bug fixes only)",
         "app/assets/tailwind/vendor/**",
-        "app/javascript/controllers/v2/theme_controller.js",
+        "gems/phlex-shadcn/app/javascript/controllers/shadcn/theme_controller.js",
         "react-shadcn-catalog/src/index.css",
         "lib/shadcn/**",
         "lib/tasks/theme.rake",
@@ -81,7 +81,7 @@
       "updated_at": "2026-10-10T17:29:16Z",
       "owns": [
         "app/javascript/v2/primitives/**",
-        "config/importmap.rb (pin_all_from v2)",
+        "config/importmap.rb (primitives and controllers pins)",
         "react-shadcn-catalog/src/parity/primitives/**",
         "docs/shadcn-port/scenarios/_primitives-*.json"
       ],

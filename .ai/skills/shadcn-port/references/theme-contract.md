@@ -59,13 +59,13 @@ Rehearsed on the real app, 7 pages x light/dark: no element moves or resizes (0 
 ## Rules
 
 - No component may reference a color, radius or shadow that is not a token (`design-system` R1). `text-white`, `bg-black/50` are allowed only because the oracle uses them.
-- Dark mode is the `.dark` class on `<html>` (V2 controller `v2--theme`, toggles `.dark` only).
+- Dark mode is the `.dark` class on `<html>` (V2 controller `shadcn--theme`, toggles `.dark` only).
 - `--radius` changes must change every derived `rounded-*` identically in both apps (the `zinc-radius0` preset proves it).
 - Fonts load once for both apps from the same URL; `font-sans` resolves to the same family.
 
 ## Theme panel (design-system catalog)
 
-`Views::DesignSystem::ThemePanel` + Stimulus `v2--theme-panel`: preset select (CSS embedded as JSON from the presets directory, applied by writing the variables onto `document.documentElement.style`), radius slider, light/dark toggle, per-pair contrast badges (same math as `Shadcn::Theme`, ported to JS), and a "Copy CSS" button producing a block `theme:import` accepts. Nothing is persisted; reload restores `theme.css`. Built in the `_harness` task because the parity runner reuses the same preset-injection mechanism.
+`Views::DesignSystem::ThemePanel` + Stimulus `shadcn--theme-panel`: preset select (CSS embedded as JSON from the presets directory, applied by writing the variables onto `document.documentElement.style`), radius slider, light/dark toggle, per-pair contrast badges (same math as `Shadcn::Theme`, ported to JS), and a "Copy CSS" button producing a block `theme:import` accepts. Nothing is persisted; reload restores `theme.css`. Built in the `_harness` task because the parity runner reuses the same preset-injection mechanism.
 
 ## Theme gate (G4)
 
