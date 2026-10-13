@@ -2,21 +2,21 @@
 
 require "phlex/test_case"
 
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 # Refinements are invisible to respond_to?/send, so the refined predicates are called directly (no assert_predicate), and the
-# custom failure message of `assert Support.blank_value?(value), value.inspect` is intended.
+# custom failure message of `assert Values.blank_value?(value), value.inspect` is intended.
 # rubocop:disable Minitest/AssertPredicate, Minitest/AssertWithExpectedArgument
 
-class Phlex::Shadcn::SupportTest < Phlex::Shadcn::TestCase
-  Support = Phlex::Shadcn::Support
+class Phlex::Shadcn::ValuesTest < Phlex::Shadcn::TestCase
+  Values = Phlex::Shadcn::Values
 
   test "blank values are nil, false, empty or whitespace strings and empty collections" do
-    [ nil, false, "", "  \n\t", [], {}, [].freeze ].each { |value| assert Support.blank_value?(value), value.inspect }
-    [ true, 0, "a", " a ", [ nil ], { a: nil }, :sym, Object.new ].each { |value| refute Support.blank_value?(value), value.inspect }
+    [ nil, false, "", "  \n\t", [], {}, [].freeze ].each { |value| assert Values.blank_value?(value), value.inspect }
+    [ true, 0, "a", " a ", [ nil ], { a: nil }, :sym, Object.new ].each { |value| refute Values.blank_value?(value), value.inspect }
   end
 
-  test "blank_value?, filled? and unless_blank agree with Support.blank_value?" do
+  test "blank_value?, filled? and unless_blank agree with Values.blank_value?" do
     assert "  ".blank_value?
     assert "x".filled?
     assert_nil "".unless_blank
@@ -59,9 +59,37 @@ class Phlex::Shadcn::SupportTest < Phlex::Shadcn::TestCase
     backslash = "\\"
     expected = [ '{"a":"', backslash, "u003cb", backslash, "u003e ", backslash, "u0026 x", backslash, 'u2028"}' ].join
 
-    assert_equal expected, Support.json({ a: unsafe })
-    assert_equal '["a","b"]', Support.json(%w[a b])
-    assert_equal '{"side":"top","avoid":true,"n":null}', Support.json({ side: "top", avoid: true, n: nil })
+    assert_equal expected, Values.json({ a: unsafe })
+    assert_equal '["a","b"]', Values.json(%w[a b])
+    assert_equal '{"side":"top","avoid":true,"n":null}', Values.json({ side: "top", avoid: true, n: nil })
+  end
+
+  test "blank values also cover numbers, times and objects, and reject_blank reaches every enumerable" do
+    [ 1, 0.0, Time.now, Struct.new(:a).new(1), :sym ].each { |value| refute Values.blank_value?(value), value.inspect }
+    assert_equal [ 1, 2, 3 ], (1..3).reject_blank
+    assert_equal [ "a" ], Set["a", nil, ""].reject_blank
+    assert_equal [ 0, 1 ], [ 0, nil, 1, false ].each.reject_blank
+    assert_nil false.unless_blank
+    assert_equal 0, 0.unless_blank
+  end
+
+  test "the Hash refinement of reject_blank wins over the Enumerable one" do
+    assert_equal({ a: "x" }, { a: "x", b: "" }.reject_blank)
+  end
+
+  test "json handles symbols, non-ASCII text and nested data" do
+    assert_equal '{"side":"top","name":"café","n":[1,2.5,null]}', Values.json({ side: :top, name: "café", n: [ 1, 2.5, nil ] })
+  end
+
+  test "every library file that calls a helper opts in with using" do
+    names = /\.(?:blank_value\?|filled\?|unless_blank|reject_blank|merge_deep|snake_case|unqualified)\b/
+    library = File.expand_path("../../../lib", __dir__)
+    missing = Dir[File.join(library, "**/*.rb")].reject { |file| file.end_with?("shadcn/values.rb", "icons/catalog.rb") }.select do |file|
+      code = File.readlines(file).reject { |line| line.lstrip.start_with?("#") }.join
+      code.match?(names) && !code.include?("using Phlex::Shadcn::Values::Refinements")
+    end
+
+    assert_empty missing, "these files call a Values helper without `using Phlex::Shadcn::Values::Refinements`"
   end
 end
 # rubocop:enable Minitest/AssertPredicate, Minitest/AssertWithExpectedArgument

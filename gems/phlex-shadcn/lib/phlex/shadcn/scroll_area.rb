@@ -2,7 +2,7 @@
 
 # shadcn ScrollArea over Radix ScrollArea (Root, Viewport, Scrollbar, Thumb, Corner). Spec: docs/shadcn-port/specs/scroll-area.md.
 # Behavior: controllers/shadcn/scroll_area_controller.js (one controller on the root div; it mounts the scrollbars kept in templates).
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer

@@ -2,7 +2,7 @@
 
 # Action and Cancel: Button as slot around Primitive.Close. The Slot joins classes as plain strings (button
 # classes first, then the caller class, no tailwind-merge), so a caller rounded-full keeps both radius classes.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 module Phlex::Shadcn::AlertDialog::ActionButton
   include Phlex::Shadcn::AlertDialog::Support

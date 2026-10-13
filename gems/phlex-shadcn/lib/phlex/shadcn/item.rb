@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn `Item` (new-york-v4) and its parts. Spec: docs/shadcn-port/specs/item.md. Static: no controller.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   BASE = "group/item flex flex-wrap items-center rounded-md border border-transparent text-sm transition-colors duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-accent/50"

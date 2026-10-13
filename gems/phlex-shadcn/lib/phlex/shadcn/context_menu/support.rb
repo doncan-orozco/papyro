@@ -2,7 +2,7 @@
 
 # Context menu flavour of the dropdown menu part helpers (item markup, position options, as_child switch).
 # The data-shadcn--dropdown-menu-* names are the shared menu module's contract (template, sub ids, radio value).
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 module Phlex::Shadcn::ContextMenu::Support
   include Phlex::Shadcn::DropdownMenu::Support

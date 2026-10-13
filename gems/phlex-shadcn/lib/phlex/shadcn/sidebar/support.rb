@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # What the sidebar parts share: the as_child switch and the default/caller attribute merge.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 module Phlex::Shadcn::Sidebar::Support
   TOGGLE = "click->shadcn--sidebar#toggle"

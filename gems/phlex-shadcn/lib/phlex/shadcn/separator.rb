@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn `Separator` over Radix Separator. Spec: docs/shadcn-port/specs/separator.md. Static: no controller.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Separator < Phlex::Shadcn::Base
   BASE = "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px"

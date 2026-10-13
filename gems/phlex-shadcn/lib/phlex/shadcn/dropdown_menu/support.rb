@@ -2,7 +2,7 @@
 
 # What the parts share: the render context, the Radix MenuItemImpl + RovingFocusGroup.Item markup (the controller keeps
 # tabindex and data-highlighted in sync afterwards), the Content markup and the as_child switch.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 module Phlex::Shadcn::DropdownMenu::Support
   # shadcn does not set these; Radix re-namespaces the popper variables on every (Sub)Content (DM:125-135).

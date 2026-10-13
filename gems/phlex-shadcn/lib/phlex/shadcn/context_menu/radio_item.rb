@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::ContextMenu::RadioItem < Phlex::Shadcn::Base
   include Phlex::Shadcn::ContextMenu::Support

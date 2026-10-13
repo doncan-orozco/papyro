@@ -2,7 +2,7 @@
 
 # shadcn Accordion over Radix Accordion. Spec: docs/shadcn-port/specs/accordion.md.
 # Behavior: controllers/shadcn/accordion_controller.js.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Accordion < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer

@@ -3,7 +3,7 @@
 # shadcn SheetContent = Portal + Overlay + Radix Content (+ the X close button). The body is captured first because
 # aria-labelledby / aria-describedby depend on whether a Title / Description was rendered inside (Radix learns it in
 # an effect, dialog:261-262).
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Sheet::Content < Phlex::Shadcn::Base
   include Phlex::Shadcn::Sheet::Support

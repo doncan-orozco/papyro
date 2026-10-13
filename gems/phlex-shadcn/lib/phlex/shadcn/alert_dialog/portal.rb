@@ -2,7 +2,7 @@
 
 # Radix AlertDialogPortal: renders no element. Its children ship in an inert template that the controller mounts
 # directly in the body (or in `container`, a CSS selector) while the dialog is open.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::AlertDialog::Portal < Phlex::Shadcn::Base
   include Phlex::Shadcn::AlertDialog::Support

@@ -6,7 +6,7 @@
 # Item renders only its `li`; it pushes the item value into the Phlex render context for Trigger and Content.
 # Radix mounts Content, the inner Viewport and the Indicator on the client, so those parts ship their markup in an
 # inert <template> (deviation: docs/shadcn-port/deviations/navigation-menu.json) that the controller clones.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer

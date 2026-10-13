@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn `InputGroup` (new-york-v4). Spec: docs/shadcn-port/specs/input-group.md
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
   CLASS_NAME = [

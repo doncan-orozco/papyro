@@ -2,7 +2,7 @@
 
 # shadcn Tabs over Radix Tabs. Spec: docs/shadcn-port/specs/tabs.md.
 # Behavior: controllers/shadcn/tabs_controller.js.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Tabs < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer

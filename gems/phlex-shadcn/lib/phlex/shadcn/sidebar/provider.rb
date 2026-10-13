@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn SidebarProvider: the wrapper div, the Stimulus host and the state every other part reads (`useSidebar`).
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Sidebar::Provider < Phlex::Shadcn::Base
   CLASSES = "group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar"

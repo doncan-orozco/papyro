@@ -2,7 +2,7 @@
 
 # shadcn AccordionContent: the region div has fixed classes, the caller class goes to the inner div. Radix mounts the
 # children only while open: closed bodies ship in an inert template that the controller takes over on connect.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Accordion::Content < Phlex::Shadcn::Base
   include Phlex::Shadcn::Accordion::Support

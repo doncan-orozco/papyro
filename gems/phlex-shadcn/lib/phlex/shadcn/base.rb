@@ -7,7 +7,7 @@
 require "date" # Phlex::SGML::Attributes references Date without requiring it
 require "securerandom"
 
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Base < Phlex::HTML
   # @api private
@@ -102,7 +102,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
   # JSON for a data attribute, with the HTML-sensitive characters escaped (see Support.json).
   #
   # @api private
-  def json(value) = Phlex::Shadcn::Support.json(value)
+  def json(value) = Phlex::Shadcn::Values.json(value)
 
   # `"icon-sm"`, `:icon_sm` and `"icon_sm"` all become `"icon-sm"` (React variant keys).
   #

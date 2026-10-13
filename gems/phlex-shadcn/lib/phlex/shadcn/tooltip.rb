@@ -2,7 +2,7 @@
 
 # shadcn Tooltip (Radix Tooltip). Spec: docs/shadcn-port/specs/tooltip.md. Behavior in controllers/shadcn/tooltip_controller.js.
 # Provider and Root render no element: they push their options into the Phlex render context for the parts inside.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
   CONTEXT_KEY = :shadcn_tooltip_root

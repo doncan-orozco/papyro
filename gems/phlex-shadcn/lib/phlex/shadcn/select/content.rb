@@ -3,7 +3,7 @@
 # shadcn SelectContent = Portal + Radix Content + Viewport + scroll buttons. Radix mounts it only while open, so the markup
 # ships in an inert <template> that the controller clones into <body> (deviations/select.json). The positioning wrapper
 # (item-aligned wrapper or popper wrapper) is created by the controller.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
   include Phlex::Shadcn::Select::Support

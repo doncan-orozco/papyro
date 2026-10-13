@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn Bubble (new-york-v4). Spec: docs/shadcn-port/specs/bubble.md. Static: no controller.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
   BASE = "group/bubble relative flex w-fit max-w-[80%] min-w-0 flex-col gap-1 group-data-[align=end]/message:self-end data-[align=end]:self-end data-[variant=ghost]:max-w-full"

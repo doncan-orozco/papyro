@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn Pagination (new-york-v4). Spec: docs/shadcn-port/specs/pagination.md. Static: no controller.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
   def initialize(**attrs)

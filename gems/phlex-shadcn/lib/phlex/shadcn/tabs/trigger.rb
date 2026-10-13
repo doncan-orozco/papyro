@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn TabsTrigger: Radix Trigger on a roving focus item.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Tabs::Trigger < Phlex::Shadcn::Base
   include Phlex::Shadcn::Tabs::Support

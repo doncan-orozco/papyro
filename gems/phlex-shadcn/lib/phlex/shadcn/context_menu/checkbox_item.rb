@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # checked: is controlled only, like Radix: the port never flips it, it dispatches checked-change.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::ContextMenu::CheckboxItem < Phlex::Shadcn::Base
   include Phlex::Shadcn::ContextMenu::Support

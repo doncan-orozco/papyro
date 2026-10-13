@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn Breadcrumb (new-york-v4). Spec: docs/shadcn-port/specs/breadcrumb.md. Static: no controller.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
   def initialize(**attrs)

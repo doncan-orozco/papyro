@@ -2,7 +2,7 @@
 
 # shadcn CollapsibleContent. Radix mounts the children only while open: closed bodies ship in an inert template that the
 # controller takes over on connect. With as_child a closed content renders no element at all, only that template.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Collapsible::Content < Phlex::Shadcn::Base
   include Phlex::Shadcn::Collapsible::Support

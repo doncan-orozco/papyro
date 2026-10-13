@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn Field (new-york-v4). Spec: docs/shadcn-port/specs/field.md. Static: no controller.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   BASE = "group/field flex w-full gap-3 data-[invalid=true]:text-destructive"

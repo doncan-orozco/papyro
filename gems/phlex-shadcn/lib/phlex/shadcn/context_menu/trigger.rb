@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Radix ContextMenuTrigger: a span without classes, ids or aria. Hosts the shadcn--context-menu controller.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::ContextMenu::Trigger < Phlex::Shadcn::Base
   include Phlex::Shadcn::ContextMenu::Support

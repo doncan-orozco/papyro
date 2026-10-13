@@ -6,14 +6,14 @@ module Phlex
   module Shadcn
     # Small plain-Ruby helpers the components use, so the gem needs only Phlex and tailwind_merge. The Hash/Array/String/Object
     # helpers are refinements (nothing is patched globally): a component file opts in with
-    # `using Phlex::Shadcn::Support::Refinements`. Their names are the gem's own, never the names of framework extensions.
+    # `using Phlex::Shadcn::Values::Refinements`. Their names are the gem's own, never the names of framework extensions.
     #
     # @api private
-    module Support
+    module Values
       BLANK_STRING = /\A[[:space:]]*\z/
       # Replacement texts are the literal backslash-u sequences (double backslash), not the characters themselves.
       JSON_ESCAPES = { ">" => "\\u003e", "<" => "\\u003c", "&" => "\\u0026", [ 0x2028 ].pack("U") => "\\u2028", [ 0x2029 ].pack("U") => "\\u2029" }.freeze
-      JSON_UNSAFE = Regexp.union(JSON_ESCAPES.keys)
+      JSON_UNSAFE = Regexp.union(JSON_ESCAPES.keys).freeze
 
       # nil, false, empty or whitespace-only strings and empty collections are blank; everything else (0, true, objects) is not.
       def self.blank_value?(value)
@@ -49,23 +49,23 @@ module Phlex
 
       module Refinements
         refine Object do
-          def blank_value? = Support.blank_value?(self)
-          def filled? = !Support.blank_value?(self)
-          def unless_blank = (self unless Support.blank_value?(self))
+          def blank_value? = Values.blank_value?(self)
+          def filled? = !Values.blank_value?(self)
+          def unless_blank = (self unless Values.blank_value?(self))
         end
 
         refine Enumerable do
-          def reject_blank = reject { |element| Support.blank_value?(element) }
+          def reject_blank = reject { |element| Values.blank_value?(element) }
         end
 
         refine Hash do
-          def reject_blank = reject { |_key, value| Support.blank_value?(value) }
-          def merge_deep(other) = Support.merge_deep(self, other)
+          def reject_blank = reject { |_key, value| Values.blank_value?(value) }
+          def merge_deep(other) = Values.merge_deep(self, other)
         end
 
         refine String do
-          def snake_case = Support.snake_case(self)
-          def unqualified = Support.unqualified(self)
+          def snake_case = Values.snake_case(self)
+          def unqualified = Values.unqualified(self)
         end
       end
     end

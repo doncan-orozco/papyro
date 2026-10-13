@@ -2,7 +2,7 @@
 
 # shadcn/ui AspectRatio over Radix AspectRatio. Spec: docs/shadcn-port/specs/aspect-ratio.md
 # Radix renders a padding-bottom wrapper plus an absolutely positioned inner element; class is passed verbatim (no cn).
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::AspectRatio < Phlex::Shadcn::Base
   FORCED_STYLE = "position: absolute; top: 0px; right: 0px; bottom: 0px; left: 0px;"

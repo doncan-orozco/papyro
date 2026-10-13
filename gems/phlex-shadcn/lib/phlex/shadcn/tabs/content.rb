@@ -3,7 +3,7 @@
 # shadcn TabsContent: Radix Content over Presence. React mounts the children only while the panel is present: inactive
 # bodies ship in an inert template that the controller takes over on connect (an inactive as_child panel is only that
 # template, since React renders nothing for it).
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Tabs::Content < Phlex::Shadcn::Base
   include Phlex::Shadcn::Tabs::Support

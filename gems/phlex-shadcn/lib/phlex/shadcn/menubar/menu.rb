@@ -2,7 +2,7 @@
 
 # Radix MenubarMenu: renders no element. value: identifies the menu for the root value; nil gets an auto value from the
 # per-render counter (Mb:97-98). Modal is forced off by Radix and is not an option.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Menubar::Menu < Phlex::Shadcn::Base
   include Phlex::Shadcn::Menubar::Support

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::DropdownMenu::Item < Phlex::Shadcn::Base
   include Phlex::Shadcn::DropdownMenu::Support

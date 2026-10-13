@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn ToggleGroupItem: Radix Toggle inside a RovingFocusGroup item.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
   EXTRA_CLASSES = "w-auto min-w-0 shrink-0 px-3 focus:z-10 focus-visible:z-10"

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn AccordionTrigger: Radix Header (h3) > Trigger (button) + chevron.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Accordion::Trigger < Phlex::Shadcn::Base
   include Phlex::Shadcn::Accordion::Support

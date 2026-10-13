@@ -2,7 +2,7 @@
 
 # Radix SelectValue. className and style are destructured and dropped (sel:L244); the span shows the placeholder, its own
 # block, or a copy of the children of the selected item (Radix portals the ItemText children into it, sel:L959).
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Select::Value < Phlex::Shadcn::Base
   include Phlex::Shadcn::Select::Support

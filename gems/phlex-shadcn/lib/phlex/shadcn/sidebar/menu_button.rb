@@ -2,7 +2,7 @@
 
 # shadcn SidebarMenuButton. With `tooltip:` the button is the trigger of a Tooltip whose content stays hidden unless the
 # sidebar is collapsed on desktop (tsx:525-545); the controller keeps `hidden` current.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
   include Phlex::Shadcn::Sidebar::Support

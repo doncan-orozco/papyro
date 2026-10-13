@@ -2,7 +2,7 @@
 
 # shadcn/ui Direction over Radix Direction. Spec: docs/shadcn-port/specs/direction.md
 # Namespace plus the use_direction helper; the provider part renders no element.
-using Phlex::Shadcn::Support::Refinements
+using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Direction < Phlex::Shadcn::Base
   KEY = :shadcn_direction
