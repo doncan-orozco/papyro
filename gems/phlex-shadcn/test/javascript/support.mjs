@@ -6,12 +6,14 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import assert from "node:assert/strict";
 
-const ROOT = path.resolve(import.meta.dirname, "../../../..");
+// Dev-kit coupling (temporary, ruby-gem-conventions R1/R10): the Playwright install and the running Phlex server come from the
+// monorepo dev kit. PHLEX_SHADCN_DEV_ROOT and PARITY_PHLEX_URL let the suite run from any checkout.
+const ROOT = process.env.PHLEX_SHADCN_DEV_ROOT || path.resolve(import.meta.dirname, "../../../..");
 const require = createRequire(path.join(ROOT, "react-shadcn-catalog/package.json"));
 const { chromium } = require("playwright");
 
-const servers = JSON.parse(fs.readFileSync(path.join(ROOT, "tmp/shadcn-port/servers.json"), "utf8"));
-export const PHLEX = process.env.PARITY_PHLEX_URL || servers.rails.url;
+export const PHLEX = process.env.PARITY_PHLEX_URL
+  || JSON.parse(fs.readFileSync(path.join(ROOT, "tmp/shadcn-port/servers.json"), "utf8")).rails.url;
 
 const NO_MOTION = "*,*::before,*::after{animation:none!important;transition:none!important}";
 
