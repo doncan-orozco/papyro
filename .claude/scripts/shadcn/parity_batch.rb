@@ -8,107 +8,179 @@
 #   ruby .claude/scripts/shadcn/parity_batch.rb --components all --dx --themes slate,stone,zinc-radius0
 #   ruby .claude/scripts/shadcn/parity_batch.rb --components dialog --no-servers   # servers already running (servers.rb status)
 #
-# --components LIST|all  comma list of component names, or every scenario file that does not start with `_`
+# --components LIST|all  comma list of component names (each needs a scenario file), or every scenario file not starting with `_`
 # --dx                   also G2b: scenarios starting default / variant- / example__ (cap 25) through the yielded-root helpers,
 #                        only for components that have helpers (spec_helpers.rb --print)
 # --themes LIST          also G4: each theme preset on the scenarios starting variant- or default (cap 12), plus one --dark run
 # --no-servers           neither ensure Playwright nor start/stop servers (they must already be running)
 # --out DIR              reports go to DIR/<component>/{g2,g2b,g4-<theme>,g4-dark}.json (default tmp/shadcn-port)
 #
-# Prints JSON { pass, servers_started, components: { name => { gates => { gate => { pass, diffs } } } } } and exits 1 when any gate fails
-# or the environment cannot run the gates (exit 2).
+# Prints JSON { pass, servers_started, components: { name => { pass, gates => { gate => { pass, diffs } | { skipped } } } } }.
+# Exit 0 every gate passed, 1 a gate found diffs, 2 the environment or the arguments are unusable (no browser, servers down,
+# a gate crashed without a report, unknown component). Servers this run started are always stopped, also on a failed start.
 
 require "fileutils"
 require "json"
 require "open3"
 require "optparse"
 
+ROOT = File.expand_path("../../..", __dir__)
+Dir.chdir(ROOT)
+
 SCRIPTS = ".claude/scripts/shadcn"
 SCENARIOS = "docs/shadcn-port/scenarios"
 CATALOG = "react-shadcn-catalog"
+NAME_PATTERN = /\A[a-z0-9][a-z0-9-]*\z/
 DX_PREFIXES = %w[default variant- example__].freeze
 THEME_PREFIXES = %w[variant- default].freeze
 
-opts = { components: nil, dx: false, themes: [], servers: true, out: "tmp/shadcn-port" }
-OptionParser.new do |o|
-  o.on("--components LIST") { |v| opts[:components] = v }
-  o.on("--dx") { opts[:dx] = true }
-  o.on("--themes LIST") { |v| opts[:themes] = v.split(",").map(&:strip).reject(&:empty?) }
-  o.on("--no-servers") { opts[:servers] = false }
-  o.on("--out DIR") { |v| opts[:out] = v }
-end.parse!
-abort("usage: --components a,b|all [--dx] [--themes slate,stone] [--no-servers] [--out DIR]") unless opts[:components]
+class EnvironmentFailure < StandardError; end
 
-def scenario_ids(component, prefixes, cap)
-  file = File.join(SCENARIOS, "#{component}.json")
-  return [] unless File.exist?(file)
-
-  ids = JSON.parse(File.read(file)).fetch("scenarios", []).map { |s| s["id"] }.compact
-  ids.select { |id| prefixes.any? { |prefix| id.start_with?(prefix) } }.first(cap)
-end
-
-def helpers?(component)
-  out, = Open3.capture2("ruby", File.join(SCRIPTS, "spec_helpers.rb"), "--print", "--component", component)
-  (JSON.parse(out[/\{.*\}/m] || "{}")["helpers"] || []).any?
-rescue JSON::ParserError
-  false
-end
-
-def run_parity(component, out_file, *flags)
-  out, = Open3.capture2("node", File.expand_path(File.join(SCRIPTS, "parity_run.mjs")), "--component", component, *flags, chdir: CATALOG)
-  FileUtils.mkdir_p(File.dirname(out_file))
-  File.write(out_file, out)
-  report = JSON.parse(out[/\{.*\}/m] || "{}")
-  { "pass" => report["pass"] == true, "diffs" => Array(report["diffs"]).size, "report" => out_file }
-rescue JSON::ParserError
-  { "pass" => false, "diffs" => 0, "error" => "unparseable output", "report" => out_file }
-end
-
-components =
-  if opts[:components] == "all"
-    Dir[File.join(SCENARIOS, "*.json")].map { |f| File.basename(f, ".json") }.reject { |n| n.start_with?("_") }.sort
-  else
-    opts[:components].split(",").map(&:strip).reject(&:empty?)
-  end
-abort("no components") if components.empty?
-
-def environment_failure(message)
-  puts JSON.pretty_generate(pass: false, error: message)
+def environment_failure(message, servers_started: false)
+  puts JSON.pretty_generate(pass: false, servers_started: servers_started, error: message)
   exit 2
 end
 
-servers_started = false
-if opts[:servers]
-  _, status = Open3.capture2e("ruby", File.join(SCRIPTS, "playwright_ensure.rb"))
-  environment_failure("no usable Playwright browser (run playwright_ensure.rb)") unless status.success?
-
-  out, status = Open3.capture2("ruby", File.join(SCRIPTS, "servers.rb"), "start")
-  started = JSON.parse(out[/\{.*\}/m] || "{}")
-  environment_failure("dev servers did not start (see tmp/shadcn-port/{rails,vite}.log)") unless status.success?
-  servers_started = !started["reused"]
+def parse_options(argv)
+  options = { components: nil, dx: false, themes: [], servers: true, out: "tmp/shadcn-port" }
+  OptionParser.new do |parser|
+    parser.on("--components LIST") { |value| options[:components] = value }
+    parser.on("--dx") { options[:dx] = true }
+    parser.on("--themes LIST") { |value| options[:themes] = value.split(",").map(&:strip).reject(&:empty?).uniq }
+    parser.on("--no-servers") { options[:servers] = false }
+    parser.on("--out DIR") { |value| options[:out] = value }
+  end.parse!(argv)
+  options
+rescue OptionParser::ParseError => error
+  environment_failure(error.message)
 end
 
+def component_names(options)
+  names =
+    if options[:components] == "all"
+      Dir[File.join(SCENARIOS, "*.json")].map { |file| File.basename(file, ".json") }.reject { |name| name.start_with?("_") }.sort
+    else
+      options[:components].to_s.split(",").map(&:strip).reject(&:empty?).uniq
+    end
+  environment_failure("usage: --components a,b|all [--dx] [--themes slate,stone] [--no-servers] [--out DIR]") if names.empty?
+
+  invalid = (names + options[:themes]).grep_v(NAME_PATTERN)
+  environment_failure("invalid name(s): #{invalid.join(', ')}") if invalid.any?
+
+  unknown = names.reject { |name| File.exist?(File.join(SCENARIOS, "#{name}.json")) }
+  environment_failure("no scenario file for: #{unknown.join(', ')}") if unknown.any?
+  names
+end
+
+def scenario_ids(component, prefixes, cap)
+  scenarios = JSON.parse(File.read(File.join(SCENARIOS, "#{component}.json"))).fetch("scenarios", [])
+  scenarios.filter_map { |scenario| scenario["id"] }.select { |id| prefixes.any? { |prefix| id.start_with?(prefix) } }.first(cap)
+end
+
+def run_tool(*command, **spawn_options)
+  Open3.capture3(*command, **spawn_options)
+rescue SystemCallError => error
+  raise EnvironmentFailure, "cannot run #{command.first(2).join(' ')}: #{error.message}"
+end
+
+# The whole stdout is the report (parity_run.mjs and spec_helpers.rb print one JSON document); nil when it is not JSON.
+def parse_report(stdout)
+  JSON.parse(stdout)
+rescue JSON::ParserError
+  nil
+end
+
+def helpers?(component)
+  stdout, stderr, status = run_tool("ruby", File.join(SCRIPTS, "spec_helpers.rb"), "--print", "--component", component)
+  return false if status.success? && stdout.strip.empty? # the component has no nested parts
+  raise EnvironmentFailure, "spec_helpers.rb --print #{component} failed: #{stderr.lines.last(3).join.strip}" unless status.success?
+
+  Array(parse_report(stdout)&.fetch("helpers", nil)).any?
+end
+
+def run_parity(component, report_path, *flags)
+  stdout, stderr, = run_tool("node", File.expand_path(File.join(SCRIPTS, "parity_run.mjs")), "--component", component, *flags, chdir: CATALOG)
+  FileUtils.mkdir_p(File.dirname(report_path))
+  File.write(report_path, stdout)
+  report = parse_report(stdout)
+  unless report.is_a?(Hash) && report.key?("pass")
+    raise EnvironmentFailure, "parity_run.mjs produced no report for #{component} #{flags.join(' ')}: #{stderr.lines.last(3).join.strip}"
+  end
+
+  { "pass" => report["pass"] == true, "diffs" => Array(report["diffs"]).size, "report" => report_path }
+end
+
+def run_gates(component, options)
+  directory = File.join(options[:out], component)
+  gates = { "g2" => run_parity(component, File.join(directory, "g2.json")) }
+
+  if options[:dx]
+    ids = scenario_ids(component, DX_PREFIXES, 25)
+    gates["g2b"] =
+      if !helpers?(component) then { "skipped" => "component has no yielded-root helpers" }
+      elsif ids.empty? then { "skipped" => "no default/variant-/example__ scenarios" }
+      else run_parity(component, File.join(directory, "g2b.json"), "--dx", "helpers", "--only", ids.join(","))
+      end
+  end
+
+  if options[:themes].any?
+    ids = scenario_ids(component, THEME_PREFIXES, 12)
+    if ids.empty?
+      gates["g4"] = { "skipped" => "no variant-/default scenarios" }
+    else
+      options[:themes].each { |theme| gates["g4-#{theme}"] = run_parity(component, File.join(directory, "g4-#{theme}.json"), "--theme", theme, "--only", ids.join(",")) }
+      gates["g4-dark"] = run_parity(component, File.join(directory, "g4-dark.json"), "--dark", "--only", ids.join(","))
+    end
+  end
+
+  { "pass" => gates.values.all? { |gate| gate["skipped"] || gate["pass"] }, "gates" => gates }
+end
+
+def start_servers
+  _, status = Open3.capture2e("ruby", File.join(SCRIPTS, "playwright_ensure.rb"))
+  raise EnvironmentFailure, "no usable Playwright browser (run playwright_ensure.rb)" unless status.success?
+
+  stdout, status = Open3.capture2("ruby", File.join(SCRIPTS, "servers.rb"), "start")
+  started = parse_report(stdout[/\{.*\}/m].to_s) || {}
+  raise EnvironmentFailure, "dev servers did not start (see tmp/shadcn-port/{rails,vite}.log)" unless status.success?
+
+  !started["reused"]
+end
+
+def stop_servers
+  system("ruby", File.join(SCRIPTS, "servers.rb"), "stop", out: File::NULL)
+end
+
+# --no-servers: the caller promises running servers (the recorded ones, or PARITY_REACT_URL + PARITY_PHLEX_URL); without them every
+# scenario would fail as a diff, which is an environment problem rather than a parity result.
+def require_running_servers
+  return if ENV["PARITY_REACT_URL"] && ENV["PARITY_PHLEX_URL"]
+
+  _, status = Open3.capture2("ruby", File.join(SCRIPTS, "servers.rb"), "status")
+  raise EnvironmentFailure, "--no-servers but no dev servers are running (servers.rb start, or set PARITY_REACT_URL and PARITY_PHLEX_URL)" unless status.success?
+end
+
+options = parse_options(ARGV)
+components = component_names(options)
+
+servers_started = false
 results = {}
 begin
-  components.each do |component|
-    dir = File.join(opts[:out], component)
-    gates = {}
-    gates["g2"] = run_parity(component, File.join(dir, "g2.json"))
-    if opts[:dx] && helpers?(component)
-      ids = scenario_ids(component, DX_PREFIXES, 25)
-      gates["g2b"] = run_parity(component, File.join(dir, "g2b.json"), "--dx", "helpers", "--only", ids.join(",")) if ids.any?
-    end
-    theme_ids = scenario_ids(component, THEME_PREFIXES, 12)
-    if theme_ids.any?
-      opts[:themes].each { |theme| gates["g4-#{theme}"] = run_parity(component, File.join(dir, "g4-#{theme}.json"), "--theme", theme, "--only", theme_ids.join(",")) }
-      gates["g4-dark"] = run_parity(component, File.join(dir, "g4-dark.json"), "--dark", "--only", theme_ids.join(",")) if opts[:themes].any?
-    end
-    results[component] = { "pass" => gates.values.all? { |g| g["pass"] }, "gates" => gates }
+  # A failed start may leave one of the two servers running: always stop what this run began (never reused ones).
+  begin
+    options[:servers] ? servers_started = start_servers : require_running_servers
+  rescue EnvironmentFailure
+    stop_servers if options[:servers]
+    raise
   end
+  components.each { |component| results[component] = run_gates(component, options) }
+rescue EnvironmentFailure, SystemCallError => error
+  stop_servers if servers_started
+  environment_failure(error.message, servers_started: servers_started)
 ensure
-  system("ruby", File.join(SCRIPTS, "servers.rb"), "stop", out: File::NULL) if servers_started
+  stop_servers if servers_started
 end
 
-pass = results.values.all? { |r| r["pass"] }
+pass = results.values.all? { |result| result["pass"] }
 puts JSON.pretty_generate(pass: pass, servers_started: servers_started, components: results)
 exit(pass ? 0 : 1)

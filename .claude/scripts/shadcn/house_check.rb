@@ -23,7 +23,7 @@ done = state["components"].select { |n, c| c["status"] == "done" && !n.start_wit
 
 done.each do |name|
   manifest = JSON.parse(File.read("docs/shadcn-port/oracle/manifest/#{name}.json"))
-  ruby_name = name.tr("-", "_")
+  ruby_name = ShadcnLayout.ruby_name(name)
   ruby_file = File.join(ShadcnLayout::RUBY_DIR, "#{ruby_name}.rb")
   add.call("G5_FILE_MISSING", ruby_file) unless File.exist?(ruby_file)
   add.call("G5_SPEC_MISSING", "docs/shadcn-port/specs/#{name}.md") unless File.exist?("docs/shadcn-port/specs/#{name}.md")
@@ -41,7 +41,7 @@ done.each do |name|
 end
 
 # Orphan controllers: a ui controller without a component in the manifest set (base/theme helpers excepted).
-known = Dir["docs/shadcn-port/oracle/manifest/*.json"].map { |f| File.basename(f, ".json").tr("-", "_") }
+known = Dir["docs/shadcn-port/oracle/manifest/*.json"].map { |f| ShadcnLayout.ruby_name(File.basename(f, ".json")) }
 # Infra: theme_panel (harness) and _probe_<name> test controllers that have a react twin whose `probe.controller` is v2---probe-<name>.
 probe_ids = Dir["react-shadcn-catalog/src/parity/primitives/*.tsx"].filter_map { |f| File.read(f)[/controller:\s*"(#{Regexp.escape(ShadcnLayout::STIMULUS_PREFIX)}---probe-[^"]+)"/, 1] }
 Dir[File.join(ShadcnLayout::CONTROLLER_DIR, "*_controller.js")].each do |f|

@@ -80,7 +80,7 @@ def section(manifest, list)
     #{BEGIN_MARK}
     ## DX helpers (derived from the oracle, do not edit)
 
-    `#{ShadcnLayout::NAMESPACE}::#{root}` MUST `yield self` from `view_template`; `#{ShadcnLayout::NAMESPACE}::Base` generates one helper per nested part (`const_added`), each exactly `render #{root}::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Components::V2::#{root}::Content.new`) stay valid.
+    `#{ShadcnLayout::NAMESPACE}::#{root}` MUST `yield self` from `view_template`; `#{ShadcnLayout::NAMESPACE}::Base` generates one helper per nested part (`const_added`), each exactly `render #{root}::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render #{ShadcnLayout::NAMESPACE}::#{root}::Content.new`) stay valid.
 
     | helper | part class | React export |
     |---|---|---|
