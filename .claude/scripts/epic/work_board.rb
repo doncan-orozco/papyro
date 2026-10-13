@@ -18,7 +18,9 @@
 #   work_board.rb claim N --epic S --session ID [--lease 45]   # atomic; exit 1 when someone else holds it
 #   work_board.rb heartbeat N --epic S --session ID [--lease 45]
 #   work_board.rb release N --epic S --session ID [--force]   # --force: a human frees an abandoned claim of any session
-#   work_board.rb advance N --epic S --session ID --stage X [--keep] [--note TXT]
+#   work_board.rb advance N --epic S --session ID --stage X [--keep] [--note TXT] [--audit-receipt FILE]
+#       --stage review needs --audit-receipt: the scorecard.json /audit-feature wrote (audit_receipt.rb), every score >= 8, verdict PASS,
+#       no mandatory finding open and the receipt's tree equal to the code in the current directory (run it inside the item worktree).
 #   work_board.rb block N --epic S --session ID --reason TXT
 #   work_board.rb unblock N --epic S
 #   work_board.rb comment N --epic S --session ID --type shared|lesson|handoff|blocker|announce (--body TXT | --body-file F)
@@ -38,6 +40,7 @@ require "shellwords"
 require "securerandom"
 require "socket"
 require "tempfile"
+require_relative "../audit_receipt"
 require "time"
 require "fileutils"
 
@@ -45,6 +48,7 @@ module WorkBoard
   class Failure < StandardError; end
 
   STAGES = %w[plan test-plan build gates audit fix review done].freeze
+  AUDIT_MIN = 8 # every scorecard dimension (epic-flow R10)
   NOTE_TYPES = %w[shared lesson handoff blocker announce].freeze
   BLOCKING_LABELS = %w[blocked needs-human].freeze
   CLAIM_NS = "refs/claims"
@@ -534,18 +538,13 @@ module WorkBoard
       # Items in review wait for a human merge; they are only offered when the worker asks for that stage (see `reviews`).
       candidates = pool.select { |i| b.ready?(i) && !active.key?(i.number) && (stages.nil? ? i.stage != "review" : stages.include?(i.stage)) }
       candidates = candidates.reject { |i| b.conflicting_claims(i, active).any? }
-      if opts[:session]
-        candidates = candidates.reject do |i|
-          i.stage == "audit" && b.comments(i.number).any? { |c| c[:type] == "stage-log" && %w[build fix].include?(c[:stage]) && c[:session] == opts[:session] }
-        end
-      end
       pick = candidates.min_by { |i| [ i.wave, -i.priority, i.number ] }
       return out({ item: pick.summary }) if pick
 
       awaiting = pool.select { |i| i.stage == "review" && !active.key?(i.number) }
       reason = if pool.empty? then "all_done"
       elsif stages.nil? && awaiting.any? && pool.none? { |i| i.stage != "review" && b.ready?(i) && !active.key?(i.number) } then "awaiting_merge"
-      elsif pool.any? { |i| b.ready?(i) && !active.key?(i.number) } then "filtered" # ready items exist but --stage, owns overlap or audit independence excluded them
+      elsif pool.any? { |i| b.ready?(i) && !active.key?(i.number) } then "filtered" # ready items exist but --stage or an owns overlap excluded them
       elsif pool.any? { |i| active.key?(i.number) } then "claimed_by_others"
       elsif pool.any?(&:blocked?) then "needs_human"
       else "waiting_on_dependencies"
@@ -639,14 +638,21 @@ module WorkBoard
     end
 
     def advance
-      opts, rest = parse("--epic" => :v, "--session" => :v, "--stage" => :v, "--keep" => :flag, "--note" => :v)
+      opts, rest = parse("--epic" => :v, "--session" => :v, "--stage" => :v, "--keep" => :flag, "--note" => :v, "--audit-receipt" => :v)
       need(opts, :epic, :session, :stage)
       out({ error: "unknown stage #{opts[:stage]}" }, 2) unless STAGES.include?(opts[:stage])
       b = board(opts)
       number = rest.first.to_i
       current = held_by(b, number, opts[:session])
       item = b.item(number)
-      b.post_note(number, type: "stage-log", session: opts[:session], stage: item.stage, text: "#{item.stage} -> #{opts[:stage]}#{opts[:note] ? ": #{opts[:note]}" : ''}")
+      note = opts[:note]
+      if opts[:stage] == "review"
+        # The audit bar is checked by a script on the code in front of us, never taken from the agent's word (epic-flow R10).
+        verdict = AuditReceipt.check(opts[:audit_receipt].to_s, min: AUDIT_MIN)
+        out({ ok: false, reason: "audit_not_passed", reasons: verdict["reasons"], bar: "all five scores >= #{AUDIT_MIN}, verdict PASS, 0 mandatory open, receipt for the current code" }, 1) unless verdict["ok"]
+        note = [ verdict["summary"], note ].compact.join("; ")
+      end
+      b.post_note(number, type: "stage-log", session: opts[:session], stage: item.stage, text: "#{item.stage} -> #{opts[:stage]}#{note ? ": #{note}" : ''}")
       b.edit_labels(number, add: [ "stage:#{opts[:stage]}" ], remove: [ "stage:#{item.stage}" ])
       b.gh("issue", "close", number.to_s) if opts[:stage] == "done"
       if opts[:keep] && opts[:stage] != "done"
