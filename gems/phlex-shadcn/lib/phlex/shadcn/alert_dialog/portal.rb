@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
-# Radix AlertDialogPortal: renders no element. Its children ship in an inert template that the controller mounts
-# directly in the body (or in `container`, a CSS selector) while the dialog is open.
 using Phlex::Shadcn::Values::Refinements
 
-# Mounts its children (an inert template) into the body, or into `container`, while the alert dialog is open.
+# Radix AlertDialogPortal: renders no element. Its children ship in an inert template that the controller mounts
+# in the body, or in `container` (a CSS selector), while the alert dialog is open.
 #
 # @example
-#   alert_dialog.portal(container: "#modals") { alert_dialog.overlay }
+#   render Phlex::Shadcn::AlertDialog.new do |alert_dialog|
+#     alert_dialog.portal(container: "#modals") do
+#       alert_dialog.overlay
+#       alert_dialog.content { alert_dialog.title { "Delete?" } }
+#     end
+#   end
 class Phlex::Shadcn::AlertDialog::Portal < Phlex::Shadcn::Base
   include Phlex::Shadcn::AlertDialog::Support
 
