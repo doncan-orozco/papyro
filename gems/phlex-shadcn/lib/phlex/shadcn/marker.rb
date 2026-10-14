@@ -48,8 +48,10 @@ class Phlex::Shadcn::Marker < Phlex::Shadcn::Base
     super()
   end
 
-  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+component.title { ... }+).
+  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+marker.content { ... }+).
+  # The block is skipped when none is given.
   #
+  # @yieldparam marker [Phlex::Shadcn::Marker] the component itself
   # @return [void]
   def view_template(&block)
     attrs = merge_attrs({ data: { slot: "marker", variant: @variant }, class: cn(BASE, VARIANTS[@variant]) }, @attrs)

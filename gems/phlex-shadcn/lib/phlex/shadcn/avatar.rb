@@ -13,7 +13,7 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
   # @api private
   ROOT_CLASS = "group/avatar relative flex size-8 shrink-0 overflow-hidden rounded-full select-none data-[size=lg]:size-10 data-[size=sm]:size-6"
 
-  # @param size [String, Symbol] one of the keys of {SIZES}
+  # @param size [String, Symbol, nil] one of {SIZES}; nil means +default+
   # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
   # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
   # @raise [ArgumentError] on an unknown size
@@ -26,8 +26,10 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
     super()
   end
 
-  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+component.title { ... }+).
+  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+avatar.fallback { ... }+).
+  # The block is skipped when none is given.
   #
+  # @yieldparam avatar [Phlex::Shadcn::Avatar] the component itself
   # @return [void]
   def view_template(&block)
     attrs = merge_attrs({ data: { slot: "avatar", size: @size, controller: "shadcn--avatar" }, class: ROOT_CLASS }, @attrs)
@@ -56,7 +58,7 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
       super()
     end
 
-    # Renders the element with the block as its content.
+    # Renders the +template+ that holds the +img+. The block is only used with +as_child:+ (+img+ is a void element).
     #
     # @return [void]
     def view_template(&)
@@ -84,7 +86,9 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
       super()
     end
 
-    # Without a delay the fallback is a live element (SSR and no-JS show it). With one, it waits in a template.
+    # Renders the fallback content (the block). Without a delay it is a live element (SSR and no-JS show it); with one, it waits in a template.
+    #
+    # @return [void]
     def view_template(&)
       return element(&) unless @delay_ms
 
@@ -100,7 +104,7 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
     end
   end
 
-  # A small status dot anchored to the bottom-right corner of the avatar.
+  # A small status dot (or tiny icon) anchored to the bottom-right corner of the avatar.
   class Badge < Phlex::Shadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #

@@ -54,8 +54,10 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
     super()
   end
 
-  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+component.title { ... }+).
+  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+attachment.content { ... }+).
+  # The block is skipped when none is given.
   #
+  # @yieldparam attachment [Phlex::Shadcn::Attachment] the component itself
   # @return [void]
   def view_template(&block)
     defaults = {
@@ -204,11 +206,10 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
 
   # An icon {Phlex::Shadcn::Button} (+ghost+, +icon-xs+ by default) inside the actions area.
   class Action < Phlex::Shadcn::Base
-    # @param variant [String, Symbol] one of the keys of {VARIANTS} (underscores read as dashes)
-    # @param size [String, Symbol] one of the keys of {SIZES}
-    # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
-    # @raise [ArgumentError] on an unknown variant
-    # @raise [ArgumentError] on an unknown size
+    # @param variant [String, Symbol, nil] any {Phlex::Shadcn::Button} variant (default +ghost+)
+    # @param size [String, Symbol] any {Phlex::Shadcn::Button} size (default +icon-xs+)
+    ## @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
+    # @note Variant and size are validated by {Phlex::Shadcn::Button} when the action renders, not here.
     def initialize(variant: nil, size: "icon-xs", **attrs)
       @variant = variant || "ghost"
       @size = size
@@ -232,7 +233,7 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
     # @api private
     CLASS_NAME = "absolute inset-0 z-10 outline-none"
 
-    # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
+    # @param as_child [Symbol, Phlex::Shadcn::Base, false] render this tag name or component instance instead of the +button+ (Radix +asChild+)
     # @param type [String, nil] button type (default +"button"+; not set with +as_child:+)
     # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
     def initialize(as_child: false, type: nil, **attrs)

@@ -48,8 +48,10 @@ class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
     super()
   end
 
-  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+component.title { ... }+).
+  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+bubble.content { ... }+).
+  # The block is skipped when none is given.
   #
+  # @yieldparam bubble [Phlex::Shadcn::Bubble] the component itself
   # @return [void]
   def view_template(&block)
     defaults = { data: { slot: "bubble", variant: @variant, align: @align }, class: cn(BASE, VARIANTS[@variant]) }

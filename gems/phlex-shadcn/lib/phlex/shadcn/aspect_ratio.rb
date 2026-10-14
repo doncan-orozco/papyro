@@ -8,15 +8,16 @@ using Phlex::Shadcn::Values::Refinements
 # @example
 #   Phlex::Shadcn::AspectRatio.new(ratio: 16.0 / 9) { img(src: "/cover.jpg", class: "size-full object-cover") }
 class Phlex::Shadcn::AspectRatio < Phlex::Shadcn::Base
-  # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
+  # Inline positioning styles of the inner element; part of the DOM contract, not of the Ruby API.
   #
   # @api private
   FORCED_STYLE = "position: absolute; top: 0px; right: 0px; bottom: 0px; left: 0px;"
 
-  # @param ratio [Numeric] width / height of the box
+  # @param ratio [Numeric] positive width / height of the box
   # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
   # @param style [String, Hash, nil] caller styles, applied before the positioning styles
-  # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
+  # @param attrs [Hash] attributes of the inner, absolutely positioned element (the wrapper only carries
+  #   +data-radix-aspect-ratio-wrapper+); +class+ is applied verbatim (no Tailwind merge), +data+/+aria+ are deep-merged
   def initialize(ratio: 1, as_child: false, style: nil, **attrs)
     @ratio = ratio
     @as_child = as_child

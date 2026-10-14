@@ -55,8 +55,10 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
     @attrs = attrs
   end
 
-  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+component.title { ... }+).
+  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+item.content { ... }+).
+  # The block is skipped when none is given.
   #
+  # @yieldparam item [Phlex::Shadcn::Item] the component itself
   # @return [void]
   def view_template(&block)
     attrs = merge_attrs({ data: { slot: "item", variant: @variant, size: @size } }, @attrs.except(:class))
@@ -269,7 +271,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
       @attrs = attrs
     end
 
-    # Renders the element with the block as its content.
+    # Renders a horizontal {Phlex::Shadcn::Separator} marked +data-slot="item-separator"+ (takes no block).
     #
     # @return [void]
     def view_template

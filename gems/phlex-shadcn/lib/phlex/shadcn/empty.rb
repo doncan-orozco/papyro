@@ -16,8 +16,10 @@ class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
     super()
   end
 
-  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+component.title { ... }+).
+  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+empty.title { ... }+).
+  # The block is skipped when none is given.
   #
+  # @yieldparam empty [Phlex::Shadcn::Empty] the component itself
   # @return [void]
   def view_template(&block)
     div(**merge_attrs({ data: { slot: "empty" }, class: CLASS_NAME }, @attrs)) { yield self if block }

@@ -16,8 +16,10 @@ class Phlex::Shadcn::Card < Phlex::Shadcn::Base
     super()
   end
 
-  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+component.title { ... }+).
+  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+card.title { ... }+).
+  # The block is skipped when none is given.
   #
+  # @yieldparam card [Phlex::Shadcn::Card] the component itself
   # @return [void]
   def view_template(&block)
     div(**merge_attrs({ data: { slot: "card" }, class: CLASS_NAME }, @attrs)) { yield self if block }

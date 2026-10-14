@@ -9,8 +9,8 @@ class Phlex::Shadcn::Progress < Phlex::Shadcn::Base
   # The +max+ used when none (or an invalid one) is given.
   DEFAULT_MAX = 100
 
-  # @param value [Numeric, nil] progress, 0 up to +max+; positions the indicator
-  # @param max [Numeric, nil] upper bound; ignored unless a positive number (default 100)
+  # @param value [Numeric, nil] a percentage (0-100) that positions the indicator; above 100 no style is rendered
+  # @param max [Numeric, nil] only exposed as +data-max+ and +aria-valuemax+ (ignored unless a positive number, default 100)
   # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
   def initialize(value: nil, max: nil, **attrs)
     @value = value || 0
@@ -18,7 +18,7 @@ class Phlex::Shadcn::Progress < Phlex::Shadcn::Base
     @attrs = attrs
   end
 
-  # Renders the element with the block as its content.
+  # Renders the track and its indicator (takes no block; +aria-valuenow+ is never rendered, like shadcn).
   #
   # @return [void]
   def view_template

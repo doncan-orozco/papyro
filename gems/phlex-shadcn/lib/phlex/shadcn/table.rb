@@ -6,11 +6,11 @@
 # @example
 #   Phlex::Shadcn::Table.new { |t| t.header { t.row { t.head { "Name" } } }; t.body { t.row { t.cell { "Ada" } } } }
 class Phlex::Shadcn::Table < Phlex::Shadcn::Base
-  # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
+  # Tailwind classes of the wrapper +div+; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
   CONTAINER_CLASS = "relative w-full overflow-x-auto"
-  # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
+  # Tailwind classes of the inner +table+; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
   CLASS_NAME = "w-full caption-bottom text-sm"
@@ -21,8 +21,10 @@ class Phlex::Shadcn::Table < Phlex::Shadcn::Base
     super()
   end
 
-  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+component.title { ... }+).
+  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+table.row { ... }+).
+  # The block is skipped when none is given.
   #
+  # @yieldparam table [Phlex::Shadcn::Table] the component itself
   # @return [void]
   def view_template(&block)
     div(data: { slot: "table-container" }, class: CONTAINER_CLASS) do

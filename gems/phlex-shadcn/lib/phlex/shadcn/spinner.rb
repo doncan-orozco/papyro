@@ -5,12 +5,12 @@
 # @example
 #   Phlex::Shadcn::Spinner.new(class: "size-6")
 class Phlex::Shadcn::Spinner < Phlex::Shadcn::Base
-  # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
+  # @param attrs [Hash] attributes for the icon; +class+ is merged with the defaults, +color+ is passed on as +stroke+
   def initialize(**attrs)
     @attrs = attrs
   end
 
-  # Renders the element with the block as its content.
+  # Renders the icon (the block is forwarded to {Phlex::Shadcn::Icon}).
   #
   # @return [void]
   def view_template(&)

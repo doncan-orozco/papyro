@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-# shadcn Message: one chat message row (avatar, content, header, footer). +align+ puts it on either side.
+# shadcn Message: one chat message row row. +align+ puts it on either side. Compose with {Message::Group}, {Message::Avatar}, {Message::Content},
+# {Message::Header} and {Message::Footer} (the header and footer sit inside the content).
 #
 # @example
 #   Phlex::Shadcn::Message.new(align: :end) { |message| message.content { message.header { "You" } } }
@@ -23,8 +24,10 @@ class Phlex::Shadcn::Message < Phlex::Shadcn::Base
     super()
   end
 
-  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+component.title { ... }+).
+  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+message.content { ... }+).
+  # The block is skipped when none is given.
   #
+  # @yieldparam message [Phlex::Shadcn::Message] the component itself
   # @return [void]
   def view_template(&block)
     div(**merge_attrs({ data: { slot: "message", align: @align }, class: BASE }, @attrs)) { yield self if block }

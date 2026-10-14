@@ -14,11 +14,10 @@ class Phlex::Shadcn::Separator < Phlex::Shadcn::Base
   # Accepted +orientation+ values.
   ORIENTATIONS = %w[horizontal vertical].freeze
 
-  # @param orientation [String, Symbol] +horizontal+ or +vertical+
-  # @param decorative [Boolean] +true+ renders +role="none"+; +false+ renders +role="separator"+
+  # @param orientation [String, Symbol] +horizontal+ or +vertical+; any other value falls back to +horizontal+
+  # @param decorative [Boolean] +true+ renders +role="none"+; +false+ renders +role="separator"+ (plus +aria-orientation+ when vertical)
   # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
   # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
-  # @raise [ArgumentError] on an unknown orientation
   def initialize(orientation: "horizontal", decorative: true, as_child: false, **attrs)
     orientation = orientation.to_s
     @orientation = ORIENTATIONS.include?(orientation) ? orientation : "horizontal"

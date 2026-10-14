@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# shadcn Alert: a callout box with an optional icon, {Alert::Title} and {Alert::Description}.
+# shadcn Alert: a callout box with an optional leading +svg+ icon (a direct child, styled by the classes), {Alert::Title} and {Alert::Description}.
 #
 # @example
 #   Phlex::Shadcn::Alert.new(variant: :destructive) { |alert| alert.title { "Heads up" }; alert.description { "Something broke." } }
@@ -27,8 +27,10 @@ class Phlex::Shadcn::Alert < Phlex::Shadcn::Base
     super()
   end
 
-  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+component.title { ... }+).
+  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+alert.title { ... }+).
+  # The block is skipped when none is given.
   #
+  # @yieldparam alert [Phlex::Shadcn::Alert] the component itself
   # @return [void]
   def view_template(&block)
     attrs = merge_attrs({ data: { slot: "alert" }, role: "alert", class: cn(BASE, VARIANTS[@variant]) }, @attrs)

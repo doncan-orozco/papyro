@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# shadcn Kbd: a keyboard key cap (+kbd+).
+# shadcn Kbd: a keyboard key cap (+kbd+), optionally grouped with {Kbd::Group}.
 #
 # @example
 #   Phlex::Shadcn::Kbd.new { "Esc" }
@@ -16,8 +16,10 @@ class Phlex::Shadcn::Kbd < Phlex::Shadcn::Base
     super()
   end
 
-  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+component.title { ... }+).
+  # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+kbd.group { ... }+).
+  # The block is skipped when none is given.
   #
+  # @yieldparam kbd [Phlex::Shadcn::Kbd] the component itself
   # @return [void]
   def view_template(&block)
     kbd(**merge_attrs({ data: { slot: "kbd" }, class: CLASS_NAME }, @attrs)) { yield self if block }
