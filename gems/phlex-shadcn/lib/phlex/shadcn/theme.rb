@@ -44,7 +44,7 @@ module Phlex
       # The directory that holds theme.css and presets/. The engine sets it from `config.phlex_shadcn.theme_dir` (default: the app's
       # app/assets/tailwind/theme); outside an app it has to be assigned.
       def dir
-        @dir || raise(Error, "Phlex::Shadcn::Theme.dir is not set (Rails apps: config.phlex_shadcn.theme_dir)")
+        @dir || raise(Error, "Phlex::Shadcn::Theme.dir is not set (host apps: config.phlex_shadcn.theme_dir)")
       end
 
       def dir=(path)
