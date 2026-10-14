@@ -20,7 +20,8 @@
  * Shared skip-delay state of a Tooltip provider.
  * @param {object} [options]
  * @param {number} [options.skipDelayDuration=300] Window (ms) after a close in which the next open skips its delay; <= 0 disables it.
- * @returns {{ readonly isOpenDelayed: boolean, isPointerInTransit: boolean (read/write accessor), onOpen: () => void, onClose: () => void, release: () => void }}
+ * @returns {{ readonly isOpenDelayed: boolean, isPointerInTransit: boolean, onOpen: () => void, onClose: () => void, release: () => void }}
+ *   `isPointerInTransit` is a read/write accessor; `isOpenDelayed` is read-only.
  * @example
  * const provider = hoverProvider({ skipDelayDuration: 300 })
  */

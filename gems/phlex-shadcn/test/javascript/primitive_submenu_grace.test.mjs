@@ -80,6 +80,7 @@ primitiveTest("submenu_grace: pointer direction is tracked for mouse moves over 
     const rightAgain = grace.isPointerMovingToSubmenu({ clientX: 300, clientY: 150 });
     grace.release();
     const pending = window.__clock.pending();
+    // Note: the post-release `afterRelease: true` below is incidental to the accepted release behavior, not a contract.
     const immediately = grace.isPointerMovingToSubmenu({ clientX: 300, clientY: 150 });
     move(40);
     grace.subTriggerLeave({ clientX: 190, clientY: 150 }, sub);

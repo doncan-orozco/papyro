@@ -8,7 +8,7 @@ const EVENT_OPTIONS = { bubbles: false, cancelable: true }
 /**
  * Traps and/or loops focus inside a container and restores focus on release.
  *
- * On mount focus moves to the first tabbable descendant (or the container); on release it returns to the element that
+ * On mount focus moves to the first tabbable non-link descendant (or the container); on release it returns to the element that
  * was focused before. Nested scopes pause the previous one (stack). The container gets a temporary `tabindex="-1"`
  * unless it already has a tabindex; it is removed on release.
  * @param {HTMLElement} container

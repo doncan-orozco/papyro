@@ -126,6 +126,18 @@ primitiveTest("focus_scope: releasing nested scopes outer-first leaves the inner
     window.__releases.inner = focusScope(document.getElementById("inner"), { trapped: true });
   });
   await release(page, "scope");
+  await tick(page);
   await page.evaluate(() => document.getElementById("after").focus());
   assert.equal(await active(page), "innerOne", "the inner trap still pulls focus back");
+}, { html });
+
+primitiveTest("focus_scope: onMountAutoFocus is not dispatched when focus is already inside the container at mount", async (page) => {
+  await page.focus("#one");
+  await page.evaluate(async () => {
+    const { focusScope } = await import("shadcn/primitives/focus_scope");
+    window.__log = [];
+    window.__release = focusScope(document.getElementById("scope"), { onMountAutoFocus: () => window.__log.push("mount") });
+  });
+  assert.deepEqual(await page.evaluate(() => window.__log), []);
+  assert.equal(await active(page), "one");
 }, { html });

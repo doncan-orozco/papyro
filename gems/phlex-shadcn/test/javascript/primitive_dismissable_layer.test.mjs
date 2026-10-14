@@ -157,3 +157,19 @@ primitiveTest("dismissable_layer: positive control, Escape before release() dism
   });
   assert.deepEqual(log, ["dismiss"]);
 }, { html });
+
+primitiveTest("dismissable_layer: positive control, a touch pointerdown outside then a click dismisses", async (page) => {
+  await page.evaluate(async () => {
+    const { dismissable } = await import("shadcn/primitives/dismissable_layer");
+    window.__log = [];
+    dismissable(document.getElementById("layer"), { onDismiss: () => window.__log.push("dismiss") });
+  });
+  await tick(page);
+  const log = await page.evaluate(() => {
+    const outside = document.getElementById("outside");
+    outside.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }));
+    outside.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    return window.__log;
+  });
+  assert.deepEqual(log, ["dismiss"]);
+}, { html });

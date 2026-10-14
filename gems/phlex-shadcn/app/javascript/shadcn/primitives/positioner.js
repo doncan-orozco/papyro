@@ -98,10 +98,6 @@ const roundByDPR = (element, value) => {
   return Math.round(value * dpr) / dpr
 }
 
-// positioner(anchor, content, options) -> { update(partialOptions), release() }
-// options: side sideOffset align alignOffset arrow(span element) arrowPadding avoidCollisions collisionBoundary(Element|Element[])
-//          collisionPadding(number|{top,right,bottom,left}) sticky("partial"|"always") hideWhenDetached
-//          updatePositionStrategy("optimized"|"always") dir onPlaced
 /**
  * Positions `content` against `anchor` with Radix's middleware stack (offset, shift, flip, size, arrow, hide).
  * @param {Element} anchor

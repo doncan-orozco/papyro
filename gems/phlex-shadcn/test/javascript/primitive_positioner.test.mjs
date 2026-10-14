@@ -118,7 +118,7 @@ primitiveTest("positioner: release() stops tracking and removes the anchor attri
   assert.deepEqual(after, { y: before, side: null, align: null });
 }, { html });
 
-primitiveTest("positioner: update() after release() is a no-op", async (page) => {
+primitiveTest("positioner: update() after release() does not reposition", async (page) => {
   await run(page, place("{}"));
   const result = await run(page, `
     const wrapper = document.getElementById("content").parentElement;

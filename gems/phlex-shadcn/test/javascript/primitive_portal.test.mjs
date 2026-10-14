@@ -41,7 +41,7 @@ primitiveTest("portal: releasing twice does not throw or duplicate nodes", async
   assert.deepEqual(result, { order: ["before", "el", "after"], count: 1, otherEmpty: 0 });
 }, { html });
 
-primitiveTest("portal: release() is a no-op when the placeholder was removed from the document", async (page) => {
+primitiveTest("portal: release() is a no-op when the placeholder was removed (no parent)", async (page) => {
   const result = await page.evaluate(async () => {
     const { portal } = await import("shadcn/primitives/portal");
     const el = document.getElementById("el");
