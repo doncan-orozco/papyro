@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Radix MenuSubContent. Mounted in place right after its SubTrigger, or in the Portal container when wrapped in
+# Radix MenuSubContent. Mounted in place right after its own template, or in the Portal container when wrapped in
 # DropdownMenu::Portal. Side is not an option: it follows the root direction (right for ltr, left for rtl). Like Content,
 # its markup ships in an inert <template> and the positioning keywords are serialized as-is, without validation.
 #
@@ -19,7 +19,7 @@ class Phlex::Shadcn::DropdownMenu::SubContent < Phlex::Shadcn::Base
   # @param align_offset [Integer] default +0+
   # @param avoid_collisions [Boolean] default +true+
   # @param collision_padding [Integer] default +0+
-  # @param collision_boundary [String, nil] default +nil+ (omitted from the options)
+  # @param collision_boundary [String, Array<String>, nil] default +nil+ (omitted from the options)
   # @param sticky ["partial", "always", Symbol] default +"partial"+
   # @param hide_when_detached [Boolean] default +false+
   # @param update_position_strategy ["optimized", "always", Symbol] default +"optimized"+

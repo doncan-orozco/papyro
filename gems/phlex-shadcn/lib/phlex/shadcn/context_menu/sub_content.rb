@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# Radix MenuSubContent. Mounted in place right after its SubTrigger, or in the Portal container when wrapped in
-# ContextMenu::Portal. Side is not an option: it follows the root direction (right for ltr, left for rtl).
 # Radix MenuSubContent (+role="menu"+, labelled by its SubTrigger). Mounted in place right after its SubTrigger, or in the Portal
 # container when wrapped in {Portal}. Its side is not an option: it follows the root direction (right for ltr, left for rtl).
 #

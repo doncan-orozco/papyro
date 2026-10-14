@@ -160,6 +160,11 @@ class Phlex::Shadcn::MenubarTest < Phlex::Shadcn::TestCase
     assert_equal "nav", as_nav.name
     assert_equal "menubar", as_nav["role"]
     assert_includes as_nav["class"], "extra"
+
+    as_button = fragment(render_view { render(Menubar.new(as_child: Phlex::Shadcn::Button.new(variant: "outline"))) { "x" } }).at_css("[data-slot=menubar]")
+
+    assert_equal "button", as_button.name
+    assert_equal "menubar", as_button["role"]
   end
 
   test "menu without value gets an auto value that the trigger exposes, an explicit value is used as is" do
@@ -335,7 +340,7 @@ class Phlex::Shadcn::MenubarTest < Phlex::Shadcn::TestCase
     refute inner["portal"]
   end
 
-  test "sub content follows the root direction for its side" do
+  test "sub content carries the root direction in its dir attribute" do
     html = bar(root: { dir: :rtl }) { render(Menubar::Sub.new) { render(Menubar::SubContent.new) { "x" } } }
 
     assert_equal "rtl", fragment(html).at_css("[data-slot=menubar-sub-content]")["dir"]

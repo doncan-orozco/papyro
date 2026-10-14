@@ -10,7 +10,9 @@ class Phlex::Shadcn::Menubar::Sub < Phlex::Shadcn::Base
   include Phlex::Shadcn::Menubar::Support
 
   # @param open [Boolean, nil] non-nil is controlled: renders open/closed and the user cannot change it. Default +nil+
-  # @param default_open [Boolean] initial state when uncontrolled. Default +false+
+  # @param default_open [Boolean] only affects the server markup (rendered +aria-expanded="true"+, +data-state="open"+): the controller
+  #   closes every sub on mount and dispatches +open-change+ (+open: false+), so it never stays open. A controlled +open: true+ stays open
+  #   (it also dispatches +open-change+ with +open: false+ at mount). Default +false+
   # @raise [ArgumentError] at render, when not inside a {Phlex::Shadcn::Menubar}
   def initialize(open: nil, default_open: false)
     @controlled = !open.nil?

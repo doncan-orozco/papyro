@@ -2,7 +2,7 @@
 
 # Radix MenuPortal: renders no element. Only meaningful around SubContent (Content already portals itself); it tells
 # SubContent to mount in container: (a CSS selector, default body) instead of in place. It reaches only its own SubContent:
-# sub menus nested inside need a Portal of their own.
+# sub menus nested inside need a Portal of their own. It only sets render context, so it never raises outside a root.
 #
 # @example
 #   menu.sub do

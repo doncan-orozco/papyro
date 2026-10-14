@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# Radix SelectScrollUpButton: Content renders one automatically, explicit ones go inside the viewport. The controller keeps
-# the node out of the document until the viewport can scroll up (sel:L976-1065).
-#
-# Chevron-up button shown by the controller when the viewport can scroll up.
+# Chevron-up button shown by the controller when the viewport can scroll up; until then the controller keeps the node out of the
+# document. {Phlex::Shadcn::Select::Content} already renders one above and one below the viewport, and the controller tracks every
+# scroll button it finds, so an explicit one is an extra duplicate.
 #
 # @example
 #   select.scroll_up_button

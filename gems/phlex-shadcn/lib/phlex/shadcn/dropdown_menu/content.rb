@@ -24,13 +24,14 @@ class Phlex::Shadcn::DropdownMenu::Content < Phlex::Shadcn::Base
   # @param align_offset [Integer] default +0+
   # @param avoid_collisions [Boolean] default +true+
   # @param collision_padding [Integer] default +0+
-  # @param collision_boundary [String, nil] default +nil+ (omitted from the options)
+  # @param collision_boundary [String, Array<String>, nil] default +nil+ (omitted from the options)
   # @param sticky ["partial", "always", Symbol] default +"partial"+
   # @param hide_when_detached [Boolean] default +false+
   # @param update_position_strategy ["optimized", "always", Symbol] default +"optimized"+
   # @param arrow_padding [Integer] default +0+
   # @param loop [Boolean] wrap keyboard navigation around the ends, default +false+
-  # @param force_mount [Boolean] default +false+; forwarded as +forceMount+
+  # @param force_mount [Boolean] default +false+; serialized as +forceMount+ but without effect on this root Content (the
+  #   controller only honors it on sub menus)
   # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String
   #   or a component instance renders that instead, receiving this part's attributes merged in (Radix Slot)
   # @param attrs [Hash] extra HTML attributes merged over the defaults: +class:+ is merged with tailwind_merge,

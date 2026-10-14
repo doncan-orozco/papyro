@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# Radix SelectValue. className and style are destructured and dropped (sel:L244); the span shows the placeholder, its own
-# block, or a copy of the children of the selected item (Radix portals the ItemText children into it, sel:L959).
 using Phlex::Shadcn::Values::Refinements
 
-# Shows the selected item's content, or the placeholder while no value is selected. +class+ and +style+ are dropped.
+# Shows the selected item's content, or the placeholder while no value is selected (the span shows the placeholder, its own
+# block, or a copy of the selected item's HTML children). +class+ and +style+ are dropped. +as_child:+ is not offered and is
+# rendered as a literal HTML attribute.
 # Renders nothing during the root's collect pass. When the selected value matches no registered item the span stays empty.
 #
 # @example
@@ -21,7 +21,8 @@ class Phlex::Shadcn::Select::Value < Phlex::Shadcn::Base
     super()
   end
 
-  # @yield optional content that replaces the copy of the selected item's children
+  # @yield optional content that replaces the copy of the selected item's children; while the value is blank the placeholder
+  #   takes priority over the block
   # @return [void]
   # @raise [ArgumentError] at render when used outside {Phlex::Shadcn::Select}
   def view_template(&block)

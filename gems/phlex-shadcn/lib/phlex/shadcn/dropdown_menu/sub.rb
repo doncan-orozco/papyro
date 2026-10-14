@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Radix MenuSub: renders no element. It wires a SubTrigger to its SubContent (ids, open state) for the parts inside.
-# +open:+ non-nil is controlled, like the root.
+# +open:+ non-nil is controlled, like the root. Its +open-change+ event is dispatched with the SubTrigger as target.
 #
 # @example
 #   menu.sub do
@@ -12,7 +12,8 @@ class Phlex::Shadcn::DropdownMenu::Sub < Phlex::Shadcn::Base
   include Phlex::Shadcn::DropdownMenu::Support
 
   # @param open [Boolean, nil] non-nil makes the sub menu controlled (user actions only dispatch +open-change+), default +nil+
-  # @param default_open [Boolean] initial state when uncontrolled, default +false+; ignored when +open:+ is given
+  # @param default_open [Boolean] default +false+; only affects the server markup: the controller closes every sub when
+  #   its menu mounts (reporting +open-change+), so only a controlled +open: true+ keeps a sub open
   def initialize(open: nil, default_open: false)
     @controlled = !open.nil?
     @open = @controlled ? open : default_open

@@ -17,9 +17,9 @@ class Phlex::Shadcn::Select::Item < Phlex::Shadcn::Base
 
   # @param value [String, Symbol, Integer] value of the option (converted with +to_s+); required
   # @param disabled [Boolean] not selectable or focusable (+aria-disabled+, +data-disabled+, no +tabindex+)
-  # @param text_value [String, nil] text used for typeahead and the hidden native option; defaults to the stripped text of the block
+  # @param text_value [String, nil] text used for typeahead (+data-shadcn--select-text-value+); defaults to the stripped text of the block
   # @param attrs [Hash] HTML attributes merged into the element (+class+ is merged with Tailwind conflict resolution, +data+/+aria+ deep-merged, caller wins)
-  # @raise [ArgumentError] at construction when +as_child:+ is passed (not supported, as in React)
+  # @raise [ArgumentError] at construction when +value:+ is missing or +as_child:+ is passed (not supported, as in React)
   def initialize(value:, disabled: false, text_value: nil, **attrs)
     raise ArgumentError, "#{self.class.name} does not support as_child" if attrs.key?(:as_child)
 

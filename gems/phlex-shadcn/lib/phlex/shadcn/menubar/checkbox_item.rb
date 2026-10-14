@@ -4,6 +4,7 @@ using Phlex::Shadcn::Values::Refinements
 
 # A menu item with a checked state (+role="menuitemcheckbox"+). +checked:+ is controlled only, like Radix: the port never
 # flips it, the controller dispatches +checked-change+ (+detail.checked+) and the server re-renders.
+# Choosing it also dispatches the cancelable +select+ event and closes the menu unless that event is prevented.
 #
 # @example
 #   bar.checkbox_item(checked: true) { "Show toolbar" }

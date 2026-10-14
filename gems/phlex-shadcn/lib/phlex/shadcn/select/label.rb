@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Radix SelectLabel: takes the id its Group points to with aria-labelledby (React throws outside a Group, sel:L811).
+# Takes the id its Group points to with +aria-labelledby+ (raises outside a Group, as React does).
 #
 # @example
 #   select.label { "Fruits" }

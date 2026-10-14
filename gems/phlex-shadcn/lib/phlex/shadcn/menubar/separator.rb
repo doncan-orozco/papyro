@@ -19,7 +19,7 @@ class Phlex::Shadcn::Menubar::Separator < Phlex::Shadcn::Base
     super()
   end
 
-  # @yield the part's content
+  # @yield accepted but meaningless: a separator has no content
   # @return [void]
   def view_template(&)
     attrs = merge_attrs({ role: "separator", class: CLASSES, aria: { orientation: "horizontal" }, data: { slot: "menubar-separator" } },

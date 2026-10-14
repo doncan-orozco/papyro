@@ -15,7 +15,7 @@ class Phlex::Shadcn::Menubar::Item < Phlex::Shadcn::Base
 
   # @param variant [String, Symbol] +"default"+ or +"destructive"+ (rendered as +data-variant+, not validated). Default +"default"+
   # @param inset [Boolean, nil] adds left padding to align with items that have an indicator (+data-inset+). +nil+ renders nothing, +false+ renders
-  #   +data-inset="false"+. Default +nil+
+  #   +data-inset="false"+ (which still matches +data-[inset]:pl-8+, so it pads like +true+). Default +nil+
   # @param disabled [Boolean] renders +aria-disabled+ and +data-disabled+ so the item cannot be chosen. Default +false+
   # @param text_value [String, nil] text the typeahead matches against (+data-text-value+); defaults to the item's text. Default +nil+
   # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String or a component instance

@@ -3,10 +3,22 @@
 # shadcn ContextMenu (Radix ContextMenu over the Menu code shared with DropdownMenu). Spec: docs/shadcn-port/specs/context-menu.md.
 # Behavior lives in controllers/shadcn/context_menu_controller.js (hosted by the {Trigger}).
 #
-# The root renders no element: it pushes its state into the Phlex render context for the parts inside, so every part must be
-# rendered within a ContextMenu (they raise +ArgumentError+ at render time otherwise). {Content} and {SubContent} ship their
+# The root renders no element: it pushes its state into the Phlex render context for the parts inside. Only {Trigger},
+# {Content}, {Sub} and {SubContent} read that state and raise +ArgumentError+ at render time outside a ContextMenu ({SubTrigger}
+# raises only when there is no surrounding {Sub}); the other parts ({Item}, {CheckboxItem}, {RadioItem}, {RadioGroup},
+# {Group}, {Label}, {Separator}, {Shortcut} and {Portal}) render without a root. {Content} and {SubContent} ship their
 # markup in an inert +<template>+ that the controller clones while the menu is open. A right click (or a long press with touch
 # or pen) on the {Trigger} opens the menu at the pointer.
+#
+# Events and focus: every event is named +shadcn--context-menu:<name>+. The root dispatches +open-change+ (+detail.open+; the
+# only state change a controlled menu performs). Selecting an item dispatches the cancelable +select+ on the item (preventing it
+# keeps the menu open), then +checked-change+ (+detail.checked+) for a {CheckboxItem} or +value-change+ (+detail.value+) for a
+# {RadioItem}; those two are not cancelable and fire even when +select+ was prevented. The content forwards the cancelable
+# +escape-key-down+, +pointer-down-outside+, +focus-outside+ and +interact-outside+ (each with +detail.originalEvent+; preventing
+# one keeps the menu from dismissing) and the cancelable +open-auto-focus+; +close-auto-focus+ is cancelable and is dispatched
+# on the {Trigger}. A {Sub} dispatches its own +open-change+ (+detail.open+) on its {SubTrigger}. When the menu closes, focus
+# returns to the element that had it when the menu mounted, unless +close-auto-focus+ was prevented, the user interacted outside
+# the menu, or the page is disconnecting.
 #
 # The parts are available as helpers on the yielded root (and on any subclass of it); see the +@!method+ entries below.
 #

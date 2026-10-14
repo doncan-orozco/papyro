@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # Groups items: a +div role="group"+ whose +aria-labelledby+ points at the id that a {Phlex::Shadcn::Select::Label} inside it takes.
+# The attribute is always set, so without a Label it references an id that does not exist.
 #
 # @example
 #   select.group { select.label { "Fruits" }; select.item(value: "apple") { "Apple" } }

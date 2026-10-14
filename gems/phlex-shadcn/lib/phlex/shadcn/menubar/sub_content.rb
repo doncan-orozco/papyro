@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Radix MenuSubContent: the popup of a {Sub}. Mounted in place right after its SubTrigger, or in the {Portal} container when
+# Radix MenuSubContent: the popup of a {Sub}. Mounted in place right after its own template, or in the {Portal} container when
 # wrapped in a Portal. Like {Content} it ships in an inert +<template>+. Side is not an option: it follows the root direction
 # (right for ltr, left for rtl). Must be rendered inside a {Sub} (raises +ArgumentError+ at render otherwise).
 #
@@ -29,7 +29,8 @@ class Phlex::Shadcn::Menubar::SubContent < Phlex::Shadcn::Base
   # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String or a component instance
   #   renders that element carrying this part's attributes instead
   # @param attrs [Hash] extra HTML attributes for the content element; +class+ is merged with {CLASSES}, +data+/+aria+ are deep merged, +style+ is
-  #   appended to the required inline style
+  #   placed before the Radix CSS variables (those win on a clash); a caller +id:+ replaces the generated id, so the {SubTrigger}'s
+  #   +aria-controls+ (rendered while open) no longer points at the content
   # @raise [ArgumentError] at render, when not inside a {Phlex::Shadcn::Menubar} and a {Sub}
   def initialize(side_offset: 0, align: "start", align_offset: 0, avoid_collisions: true, collision_padding: 0,
                  collision_boundary: nil, sticky: "partial", hide_when_detached: false, update_position_strategy: "optimized",

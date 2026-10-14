@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-# shadcn SelectContent = Portal + Radix Content + Viewport + scroll buttons. Radix mounts it only while open, so the markup
-# ships in an inert <template> that the controller clones into <body> (deviations/select.json). The positioning wrapper
-# (item-aligned wrapper or popper wrapper) is created by the controller.
 using Phlex::Shadcn::Values::Refinements
 
 # The popup: a +div role="listbox"+ inside an inert +template+ (with the viewport, the scroll buttons and a +data-options+ JSON
-# for the controller). Renders only the block during the root's collect pass. The +side+, +align+ and collision options are
+# for the controller; the controller clones it into +body+ when opening and creates the positioning wrapper). Radix mounts it only
+# while open, hence the inert template. Renders only the block during the root's collect pass. +as_child:+ is not offered and is
+# rendered as a literal HTML attribute. The +side+, +align+ and collision options are
 # only applied by the controller in the +"popper"+ position.
 #
 # @example
@@ -28,7 +27,6 @@ class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
   VIEWPORT_STYLE = "position: relative; flex: 1 1 0%; overflow: hidden auto;"
   # @api private
   # @return [String] CSS that hides the viewport scrollbar (rendered in a +style+ tag)
-  # sel:L740-748
   VIEWPORT_CSS = "[data-radix-select-viewport]{scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;}[data-radix-select-viewport]::-webkit-scrollbar{display:none}"
   # @return [Hash{String=>String}] CSS variables mapping the Radix select tokens to the popper ones (popper position only)
   POPPER_STYLE_VARS = {
@@ -41,8 +39,8 @@ class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
   # @return [Array<String>] accepted +position:+ values
   POSITIONS = %w[item-aligned popper].freeze
 
-  # The popper options only apply to the popper position (sel:L438-449); the Radix popper default start alignment is overridden
-  # by the shadcn center and collision_padding defaults to CONTENT_MARGIN (sel:L702).
+  # The popper options only apply to the popper position; the Radix popper default start alignment is overridden by the shadcn
+  # center.
   #
   # @param position [String, Symbol] +"item-aligned"+ or +"popper"+ (underscores become hyphens)
   # @param align [String, Symbol] +"start"+, +"center"+ or +"end"+ (popper only; not validated)
@@ -50,11 +48,11 @@ class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
   # @param side_offset [Integer] distance in px from the trigger (popper only)
   # @param align_offset [Integer] offset in px along the alignment axis (popper only)
   # @param avoid_collisions [Boolean] flip/shift to stay in the viewport (popper only)
-  # @param collision_padding [Integer, Hash] padding in px kept from the boundary edges
+  # @param collision_padding [Integer, Hash] padding in px kept from the boundary edges (popper only)
   # @param collision_boundary [String, Array<String>, nil] CSS selector(s) of the collision boundary elements; +nil+ uses the viewport
   # @param sticky [String, Symbol] +"partial"+ or +"always"+ (popper only; not validated)
   # @param hide_when_detached [Boolean] hide when the trigger is fully clipped (popper only)
-  # @param arrow_padding [Integer] padding in px between the arrow and the edges
+  # @param arrow_padding [Integer] padding in px between the arrow and the edges (popper only)
   # @param force_mount [Boolean] keep the content mounted while closed
   # @param attrs [Hash] HTML attributes merged into the element (+class+ is merged with Tailwind conflict resolution, +data+/+aria+ deep-merged, caller wins)
   # @raise [ArgumentError] at construction when +position+ is not one of {POSITIONS}
@@ -108,7 +106,7 @@ class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
     attrs.merge(style: [ *base_style, style_string(@attrs[:style]), *(popper_vars if popper?) ].reject_blank.join("; "))
   end
 
-  # sel:L683-690 and L714-726 (the flex layout lets the scroll buttons sit above and below the viewport).
+  # The flex layout lets the scroll buttons sit above and below the viewport.
   def base_style
     styles = { "box-sizing" => "border-box", "max-height" => ("100%" unless popper?), "display" => "flex", "flex-direction" => "column",
                "outline" => "none" }

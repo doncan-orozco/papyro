@@ -3,7 +3,7 @@
 # A keyboard-shortcut hint, a plain +span+ in the oracle (no Radix primitive, so no +as_child+).
 #
 # @example
-#   bar.item { "New"; bar.shortcut { "Ctrl+N" } }
+#   bar.item { plain "New"; bar.shortcut { "Ctrl+N" } }
 class Phlex::Shadcn::Menubar::Shortcut < Phlex::Shadcn::Base
   # @return [String] default Tailwind classes; the +class:+ you pass is merged on top
   CLASSES = "ml-auto text-xs tracking-widest text-muted-foreground"

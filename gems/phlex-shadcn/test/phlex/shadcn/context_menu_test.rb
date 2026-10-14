@@ -182,10 +182,38 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
     assert_equal ContextMenu::RadioItem::INDICATOR_CLASSES, doc.at_css("[data-slot=context-menu-radio-item] > span")["class"]
   end
 
-  test "the style variable table names the context menu popper variables" do
-    assert_equal "var(--radix-popper-transform-origin)", ContextMenu::Support::STYLE_VARS["--radix-context-menu-content-transform-origin"]
-    assert_equal %w[available-height available-width transform-origin trigger-height trigger-width],
-                 ContextMenu::Support::STYLE_VARS.keys.map { |name| name.delete_prefix("--radix-context-menu-").delete_prefix("content-") }.sort
+  test "content style maps every context menu popper variable to its popper source" do
+    style = fragment(menu).at_css("[data-slot=context-menu-content]")["style"]
+
+    %w[content-available-height content-available-width content-transform-origin trigger-height trigger-width].each do |name|
+      assert_match(/--radix-context-menu-#{name}: var\(--radix-popper-[a-z-]+\)/, style, name)
+    end
+    assert_includes style, "--radix-context-menu-content-transform-origin: var(--radix-popper-transform-origin)"
+  end
+
+  test "parts that do not read the root render without a ContextMenu" do
+    html = render_view do
+      render(ContextMenu::Group.new) { render(ContextMenu::Label.new) { "People" } }
+      render(ContextMenu::Item.new) { "Back" }
+      render(ContextMenu::Separator.new)
+      render(ContextMenu::Shortcut.new) { "Cmd+[" }
+      render(ContextMenu::RadioGroup.new(value: "a")) { render(ContextMenu::RadioItem.new(value: "a")) { "A" } }
+      render(ContextMenu::Portal.new) { plain "inside" }
+    end
+    doc = fragment(html)
+
+    assert_equal "Back", doc.at_css("[data-slot=context-menu-item]").text
+    assert_equal "People", doc.at_css("[data-slot=context-menu-label]").text
+    assert doc.at_css("[data-slot=context-menu-separator]")
+    assert_equal "Cmd+[", doc.at_css("[data-slot=context-menu-shortcut]").text
+    assert_equal "checked", doc.at_css("[data-slot=context-menu-radio-item]")["data-state"]
+    assert_includes html, "inside"
+  end
+
+  test "trigger, content, sub and sub content raise without a ContextMenu" do
+    [ ContextMenu::Trigger, ContextMenu::Content, ContextMenu::Sub, ContextMenu::SubContent ].each do |part|
+      assert_raises(ArgumentError, part.name) { render_view { render(part.new) } }
+    end
   end
 
   test "root passes dir and modal to the trigger values and the content" do

@@ -4,7 +4,8 @@ using Phlex::Shadcn::Values::Refinements
 
 # shadcn ContextMenuRadioItem: a +div+ with +role="menuitemradio"+ and a circle indicator. It is checked when the enclosing
 # {RadioGroup}'s +value:+ equals its +value:+ (compared as strings); outside a RadioGroup it is never checked. Selecting it
-# dispatches +shadcn--context-menu:value-change+ and the cancelable +select+, and closes the menu unless +select+ was prevented.
+# dispatches +shadcn--context-menu:value-change+ (with +detail.value+, the item's +value:+ as a string)
+# and the cancelable +select+, and closes the menu unless +select+ was prevented.
 #
 # @example
 #   menu.radio_item(value: "pedro") { "Pedro Duarte" }
@@ -25,6 +26,7 @@ class Phlex::Shadcn::ContextMenu::RadioItem < Phlex::Shadcn::Base
   #   (Radix Slot)
   # @param attrs [Hash] HTML attributes for the element; +class+ is merged with the defaults through tailwind-merge, +data+ and
   #   +aria+ are deep-merged (the caller wins)
+  # @raise [ArgumentError] at construction when +value:+ is missing ("missing keyword: :value")
   def initialize(value:, disabled: false, text_value: nil, as_child: false, **attrs)
     @value = value.to_s
     @disabled = disabled

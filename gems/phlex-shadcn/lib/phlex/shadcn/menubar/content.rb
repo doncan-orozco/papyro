@@ -33,7 +33,8 @@ class Phlex::Shadcn::Menubar::Content < Phlex::Shadcn::Base
   # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String or a component instance
   #   renders that element carrying this part's attributes instead
   # @param attrs [Hash] extra HTML attributes for the content element; +class+ is merged with {CLASSES}, +data+/+aria+ are deep merged, +style+ is
-  #   appended to the required inline style
+  #   placed before the Radix CSS variables (those win on a clash); a caller +id:+ replaces the generated id, so the {Trigger}'s
+  #   +aria-controls+ (rendered while open) no longer points at the content
   # @raise [ArgumentError] at render, when not inside a {Phlex::Shadcn::Menubar} and a {Menu}
   def initialize(side: "bottom", side_offset: 8, align: "start", align_offset: -4, avoid_collisions: true, collision_padding: 0,
                  collision_boundary: nil, sticky: "partial", hide_when_detached: false, update_position_strategy: "optimized",

@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-# Radix MenuPortal: renders no element. Only meaningful around SubContent (Content already portals itself); it tells
-# SubContent to mount in container: (a CSS selector, default body) instead of in place.
 # Radix MenuPortal: renders no element. Only meaningful around {SubContent} (+Content+ already portals itself): it tells the
-# SubContent to mount in +container+ (a CSS selector, default +body+) instead of in place. It reaches only the SubContent directly
-# inside it; sub menus nested in that SubContent need a Portal of their own. It does not require a surrounding root.
+# SubContent to mount in +container+ (a CSS selector, default +body+) instead of in place. It reaches every SubContent rendered directly
+# inside it; sub menus nested inside one of those SubContents need a Portal of their own. It does not require a surrounding root.
 #
 # @example
 #   menu.portal(container: "#overlays") { menu.sub_content { menu.item { "Save" } } }

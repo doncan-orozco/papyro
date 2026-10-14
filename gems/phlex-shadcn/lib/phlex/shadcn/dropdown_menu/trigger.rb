@@ -2,11 +2,12 @@
 
 # Radix DropdownMenuTrigger: a +button+ that hosts the +shadcn--dropdown-menu+ controller for the root menu and all its
 # subs. It carries the open/controlled/modal/dir values for the controller and +aria-haspopup+, +aria-expanded+ and
-# +aria-controls+ (only while open).
+# +aria-controls+ (only while open). It opens on primary-button pointerdown (no ctrl) and on Enter, Space or ArrowDown,
+# and ignores all of them when +disabled+.
 #
 # @example
 #   menu.trigger(class: "w-full") { "Open" }
-#   menu.trigger(as_child: :a, href: "/menu") { "Open" }
+#   menu.trigger(as_child: :span, class: "cursor-pointer") { "Open" }
 class Phlex::Shadcn::DropdownMenu::Trigger < Phlex::Shadcn::Base
   include Phlex::Shadcn::DropdownMenu::Support
 

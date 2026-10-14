@@ -275,7 +275,7 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
     assert content["style"].start_with?("outline: none; color: red; ")
   end
 
-  test "trigger, content and sub raise ArgumentError at render when used outside a DropdownMenu" do
+  test "trigger, content, sub and sub content raise ArgumentError at render when used outside a DropdownMenu" do
     [ DropdownMenu::Trigger, DropdownMenu::Content, DropdownMenu::Sub, DropdownMenu::SubContent ].each do |klass|
       error = assert_raises(ArgumentError, klass.name) { render_view { render(klass.new) } }
 
@@ -343,7 +343,7 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
     assert_equal "default", item["data-variant"]
   end
 
-  test "each CLASSES table is a non-empty string and the part classes appear in the rendered output" do
+  test "each part renders exactly its CLASSES table on its data-slot element" do
     tables = {
       DropdownMenu::Content => "dropdown-menu-content", DropdownMenu::SubContent => "dropdown-menu-sub-content",
       DropdownMenu::Item => "dropdown-menu-item", DropdownMenu::CheckboxItem => "dropdown-menu-checkbox-item",
@@ -392,10 +392,16 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
 
   test "ids are unique per menu in one render and the trigger points at its own content template" do
     html = render_view do
-      render(DropdownMenu.new) { render(DropdownMenu::Trigger.new) { "a" } }
+      render(DropdownMenu.new) do
+        render(DropdownMenu::Trigger.new) { "a" }
+        render(DropdownMenu::Content.new) { "x" }
+      end
       render(DropdownMenu.new) { render(DropdownMenu::Trigger.new) { "b" } }
     end
-    first, second = fragment(html).css("button")
+    doc = fragment(html)
+    first, second = doc.css("button")
+
+    assert_equal first["data-shadcn--dropdown-menu-template-value"], doc.at_css("template")["data-shadcn--dropdown-menu-template"]
 
     assert_not_equal first["id"], second["id"]
     assert_not_equal first["data-shadcn--dropdown-menu-template-value"], second["data-shadcn--dropdown-menu-template-value"]
@@ -438,7 +444,7 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
     refute inner["forceMount"]
   end
 
-  test "sub content has no side option: side comes from the direction and the options hold no side" do
+  test "sub content options hold no side key and carry the sub defaults for align and side_offset" do
     options = JSON.parse(fragment(menu { render(DropdownMenu::Sub.new) { render(DropdownMenu::SubContent.new) { "x" } } }).at_css("template template, template[data-shadcn--dropdown-menu-template*='-sub-']")["data-options"])
 
     assert_not options.key?("side")

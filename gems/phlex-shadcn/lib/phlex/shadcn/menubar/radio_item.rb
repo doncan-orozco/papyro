@@ -3,7 +3,8 @@
 using Phlex::Shadcn::Values::Refinements
 
 # A menu item that is one of a {RadioGroup} (+role="menuitemradio"+). It renders checked when its +value:+ equals the
-# group's; outside a group it renders unchecked. Choosing it dispatches +value-change+ with its value.
+# group's; outside a group it renders unchecked. Choosing it dispatches the cancelable +select+ event, then
+# +value-change+ with its value (both on the item), and closes the menu unless +select+ was prevented.
 #
 # @example
 #   bar.radio_item(value: "grid") { "Grid" }

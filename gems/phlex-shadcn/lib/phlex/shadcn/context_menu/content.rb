@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# shadcn ContextMenuContent = Portal + Radix Content. side/side_offset/align are forced (right, 2, start) and are not
-# options. The markup ships in an inert <template> that the controller clones into <body> while the menu is open.
 # shadcn ContextMenuContent = Portal + Radix Content. +side+, +side_offset+ and +align+ are forced (+"right"+, +2+, +"start"+) and are not
 # options: passing them raises. The markup ships in an inert +<template>+ that the controller clones into +<body>+ while the
 # menu is open; the rendered element is +role="menu"+ with no id.

@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
-# shadcn ContextMenuShortcut: a plain +span+ in the oracle (no Radix primitive, so no +as_child+) that shows a keyboard hint at the
-# end of an item.
+# shadcn ContextMenuShortcut: a plain +span+ in the oracle (no Radix primitive, so there is no +as_child+ option: an +as_child:+
+# keyword lands in +attrs+ and is rendered as a literal HTML attribute) that shows a keyboard hint at the end of an item.
 #
 # @example
-#   menu.item { plain "Back"; menu.shortcut { "Cmd+[" } }
+#   menu.item do
+#     plain "Back"
+#     menu.shortcut { "Cmd+[" }
+#   end
 class Phlex::Shadcn::ContextMenu::Shortcut < Phlex::Shadcn::Base
   # @return [String] the default Tailwind classes (shadcn new-york-v4)
   CLASSES = "ml-auto text-xs tracking-widest text-muted-foreground"

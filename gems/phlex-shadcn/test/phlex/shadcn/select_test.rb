@@ -91,10 +91,37 @@ class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
 
     HELPERS.each_key { |helper| assert_respond_to root, helper }
 
-    explicit = render_view { render(Select.new(value: "a")) { render(Select::Content.new) { render(Select::Separator.new(class: "x")) } } }
-    helped = render_view { render(Select.new(value: "a")) { |s| s.content { |_| render(Select::Separator.new(class: "x")) } } }
+    explicit = render_view do
+      render(Select.new(value: "a")) do
+        render(Select::Trigger.new(class: "t")) { render(Select::Value.new(placeholder: "Pick")) }
+        render(Select::Content.new(class: "c")) do
+          render(Select::ScrollUpButton.new(class: "u"))
+          render(Select::Group.new(class: "g")) do
+            render(Select::Label.new(class: "l")) { "L" }
+            render(Select::Item.new(value: "a", class: "i")) { "A" }
+          end
+          render(Select::Separator.new(class: "x"))
+          render(Select::ScrollDownButton.new(class: "d"))
+        end
+      end
+    end
+    helped = render_view do
+      render(Select.new(value: "a")) do |s|
+        s.trigger(class: "t") { s.value(placeholder: "Pick") }
+        s.content(class: "c") do
+          s.scroll_up_button(class: "u")
+          s.group(class: "g") do
+            s.label(class: "l") { "L" }
+            s.item(value: "a", class: "i") { "A" }
+          end
+          s.separator(class: "x")
+          s.scroll_down_button(class: "d")
+        end
+      end
+    end
 
     assert_equal explicit, helped
+    assert(HELPERS.keys.all? { |helper| helped.include?("select-#{helper.to_s.tr('_', '-')}") })
   end
 
   test "dir resolves from the direction provider and a local dir wins" do
@@ -105,15 +132,17 @@ class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
     assert_equal "ltr", fragment(local).at_css("[data-slot=select-trigger]")["dir"]
   end
 
-  test "constants expose the documented tables" do
-    assert_equal %w[ltr rtl], Select::DIRECTIONS
-    assert_equal %w[item-aligned popper], Select::Content::POSITIONS
-    assert_equal [ "--radix-select-content-transform-origin", "--radix-select-content-available-width", "--radix-select-content-available-height",
-                   "--radix-select-trigger-width", "--radix-select-trigger-height" ], Select::Content::POPPER_STYLE_VARS.keys
-    assert_includes Select::Trigger::VISUALLY_HIDDEN, "clip: rect(0px, 0px, 0px, 0px)"
-    assert_equal "p-1", Select::Content::VIEWPORT_CLASSES
-    assert_equal "pointer-events-none -mx-1 my-1 h-px bg-border", Select::Separator::CLASSES
-    assert_equal "px-2 py-1.5 text-xs text-muted-foreground", Select::Label::CLASSES
+  test "the constants are used in the rendered markup" do
+    doc = fragment(select(root: { name: "fruit", form: "f1" }, content: { position: :popper }))
+    content = doc.at_css("template [data-slot=select-content]")
+    viewport = doc.at_css("template [data-radix-select-viewport]")
+
+    assert_equal Select::Trigger::VISUALLY_HIDDEN, doc.at_css("select[aria-hidden=true]")["style"]
+    assert_includes content["style"], Select::Content::POPPER_STYLE_VARS.map { |name, value| "#{name}: #{value}" }.join("; ")
+    assert_equal Select::Content::VIEWPORT_STYLE, viewport["style"]
+    assert_includes viewport["class"], Select::Content::VIEWPORT_CLASSES
+    assert_includes doc.at_css("template style").text, Select::Content::VIEWPORT_CSS
+    assert_includes doc.at_css("template [data-slot=select-label]")["class"], Select::Label::CLASSES
   end
 
   test "an unsupported dir is ignored and the direction falls back to ltr" do
@@ -127,7 +156,9 @@ class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
     error = assert_raises(ArgumentError) { Select::Content.new(position: "floating") }
 
     assert_equal "position must be one of item-aligned, popper", error.message
-    assert_equal "popper", Select::Content.new(position: :popper).instance_variable_get(:@position)
+    popper = render_view { render(Select.new) { render(Select::Content.new(position: :popper)) } }
+
+    assert_equal "popper", JSON.parse(fragment(popper).at_css("template")["data-options"])["position"]
   end
 
   test "parts raise at render, not at construction, when used outside a Select" do
@@ -182,7 +213,11 @@ class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
 
   test "disabled on the root or on the trigger disables the button" do
     assert fragment(select(root: { disabled: true })).at_css("[data-slot=select-trigger]")["disabled"]
-    assert_equal "", fragment(select(trigger: { disabled: true })).at_css("[data-slot=select-trigger]")["data-disabled"]
+    on_trigger = fragment(select(trigger: { disabled: true })).at_css("[data-slot=select-trigger]")
+
+    assert on_trigger.key?("disabled")
+    assert_equal "", on_trigger["data-disabled"]
+    refute fragment(select).at_css("[data-slot=select-trigger]").key?("disabled")
     assert_nil fragment(select).at_css("[data-slot=select-trigger]")["data-disabled"]
   end
 
@@ -232,7 +267,7 @@ class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
     assert_equal "pointer-events: none;", value["style"]
   end
 
-  test "item text_value, value and class are written to the option" do
+  test "item text_value, value and class are written to the option element" do
     html = render_view do
       render(Select.new) { render(Select::Content.new) { render(Select::Item.new(value: :one, text_value: "Uno", class: "extra")) { "One" } } }
     end
@@ -245,6 +280,24 @@ class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
     assert_equal "unchecked", item["data-state"]
     assert_equal "-1", item["tabindex"]
     assert_equal "One", item.at_css("span:last-child").text
+  end
+
+  test "the hidden native option text is the block text, whatever text_value says" do
+    html = render_view do
+      render(Select.new(name: "n", form: "f")) do
+        render(Select::Trigger.new)
+        render(Select::Content.new) do
+          render(Select::Item.new(value: "one", text_value: "Uno")) { "One" }
+          render(Select::Item.new(value: "two")) { "Two" }
+        end
+      end
+    end
+    doc = fragment(html)
+
+    assert_equal %w[One Two], doc.css("select[aria-hidden=true] option").reject { |option| option["value"].empty? }.map(&:text)
+    typeahead = doc.css("template [data-slot=select-item]").filter_map { |item| item["data-shadcn--select-text-value"] }
+
+    assert_equal %w[Uno], typeahead
   end
 
   test "content options are serialized for the controller and attrs merge" do

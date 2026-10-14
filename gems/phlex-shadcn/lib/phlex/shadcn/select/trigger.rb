@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-# Radix SelectTrigger (+ Icon asChild). Hosts the shadcn--select controller. as_child is not offered: the React original throws
-# for it (shadcn passes the children plus an Icon to the Radix Slot).
-#
 # Renders a +button+ with +role="combobox"+ and the +data-controller="shadcn--select"+ wiring (values mirror the root state), plus
-# a trailing chevron icon. When the root has +name:+ or +form:+ it also renders the hidden native +select+ after the button.
-# Renders nothing during the root's collect pass.
+# a trailing chevron icon. When the root has +name:+ or +form:+ it also renders the hidden native +select+ after the button; the
+# controller keeps that select only when the Trigger is inside a form or +form:+ is set, so +name:+ alone outside a form submits
+# nothing. Renders nothing during the root's collect pass. Hosts the +shadcn--select+ controller. +as_child:+ is not offered (the
+# React original throws for it).
 #
 # @example
 #   select.trigger(size: :sm, class: "w-40") { select.value(placeholder: "Pick") }
@@ -20,6 +19,7 @@ class Phlex::Shadcn::Select::Trigger < Phlex::Shadcn::Base
   # @param size [String, Symbol] +"default"+ or +"sm"+ (written to +data-size+, which the classes style; not validated); +nil+ falls back to +"default"+
   # @param disabled [Boolean] disables the button (also disabled when the root is)
   # @param attrs [Hash] HTML attributes merged into the element (+class+ is merged with Tailwind conflict resolution, +data+/+aria+ deep-merged, caller wins)
+  # @return [void]
   # @raise [ArgumentError] at construction when +as_child:+ is passed (not supported, as in React)
   def initialize(size: "default", disabled: false, **attrs)
     raise ArgumentError, "#{self.class.name} does not support as_child" if attrs.key?(:as_child)
@@ -70,7 +70,7 @@ class Phlex::Shadcn::Select::Trigger < Phlex::Shadcn::Base
 
   def content_id(state) = "#{state[:base]}-content"
 
-  # SelectBubbleInput: the controller adopts it inside a form and removes it elsewhere (sel:L97, L154-159).
+  # SelectBubbleInput: the controller adopts it inside a form (or with +form:+) and removes it elsewhere.
   def native_select(state)
     value = state[:value].to_s
     select(aria: { hidden: "true" }, tabindex: -1, name: state[:name], form: state[:form], autocomplete: state[:auto_complete],
