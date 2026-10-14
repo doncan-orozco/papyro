@@ -67,7 +67,7 @@ class Phlex::Shadcn::TooltipTest < Phlex::Shadcn::TestCase
   end
 
   test "root outside a provider raises" do
-    assert_raises(ArgumentError) { Tooltip.new.call { |_| nil } }
+    assert_match(/`Tooltip` must be used within `TooltipProvider`/, assert_raises(ArgumentError) { Tooltip.new.call { |_| nil } }.message)
   end
 
   test "yielded root exposes helpers that render like the explicit parts" do
@@ -88,23 +88,15 @@ class Phlex::Shadcn::TooltipTest < Phlex::Shadcn::TestCase
     assert_equal explicit, helpers
   end
 
-  test "every root and part keyword is accepted" do
-    out = Class.new(Phlex::HTML) do
-      define_method(:view_template) do
-        render Tooltip::Provider.new(delay_duration: 100, skip_delay_duration: 200, disable_hoverable_content: true) do
-          render Tooltip.new(open: false, default_open: true, delay_duration: 5, disable_hoverable_content: false) do
-            render Tooltip::Trigger.new(as_child: false, class: "x-trigger") { "T" }
-            render Tooltip::Content.new(side: :top, side_offset: 8, align: :start, align_offset: 2, avoid_collisions: false, collision_padding: 4, collision_boundary: "#b", arrow_padding: 3, sticky: :always, hide_when_detached: true, update_position_strategy: :always, force_mount: true, class: "x-content") { "Tip" }
-          end
-        end
-      end
-    end.new.call
+  test "content positioning keywords are serialized for the controller" do
+    out = render_tooltip(content: { side: :top, side_offset: 8, align: :start, align_offset: 2, avoid_collisions: false, collision_padding: 4,
+                                    collision_boundary: "#b", arrow_padding: 3, sticky: :always, hide_when_detached: true, update_position_strategy: :always,
+                                    force_mount: true })
+    options = JSON.parse(Nokogiri::HTML5.fragment(out).at_css("template[data-shadcn--tooltip-template]")["data-options"])
 
-    assert_includes out, "x-trigger"
-    assert_includes out, "x-content"
-    assert_includes out, 'data-shadcn--tooltip-skip-delay-duration-value="200"'
-    assert_includes out, 'data-shadcn--tooltip-disable-hoverable-content-value="false"'
-    assert_includes out, "&quot;sideOffset&quot;:8"
+    assert_equal({ "side" => "top", "sideOffset" => 8, "align" => "start", "alignOffset" => 2, "avoidCollisions" => false, "collisionPadding" => 4,
+                   "collisionBoundary" => "#b", "arrowPadding" => 3, "sticky" => "always", "hideWhenDetached" => true,
+                   "updatePositionStrategy" => "always" }, options)
   end
 
   test "the provider options reach the tooltips" do
@@ -115,21 +107,8 @@ class Phlex::Shadcn::TooltipTest < Phlex::Shadcn::TestCase
     assert_includes out, 'data-shadcn--tooltip-disable-hoverable-content-value="true"'
   end
 
-  test "parts raise a clear ArgumentError outside their root" do
-    assert_match(/`Tooltip` must be used within `TooltipProvider`/, assert_raises(ArgumentError) { Tooltip.new.call { |_| nil } }.message)
+  test "trigger and content raise outside a tooltip" do
     assert_match(/`TooltipTrigger` must be used within `Tooltip`/, assert_raises(ArgumentError) { Tooltip::Trigger.new.call }.message)
     assert_match(/`TooltipContent` must be used within `Tooltip`/, assert_raises(ArgumentError) { Tooltip::Content.new.call }.message)
-  end
-
-  test "the root lists its generated helpers" do
-    %i[provider trigger content].each do |name|
-      assert Tooltip.public_method_defined?(name), "missing helper ##{name}"
-    end
-  end
-
-  test "as_child renders the trigger onto the given element" do
-    out = render_tooltip(trigger: { as_child: :span, class: "t" })
-
-    assert_match(/<span [^>]*data-slot="tooltip-trigger"/, out)
   end
 end

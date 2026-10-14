@@ -111,34 +111,15 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
 
     # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
-    # @raise [ArgumentError] when rendered outside Popover
-    #
-    # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
-    # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
-    # @raise [ArgumentError] when rendered outside Popover
     def initialize(as_child: false, **attrs)
       @as_child = as_child
       @attrs = attrs
       super()
     end
 
-    # @yield the content
-    # @return [void]
-    #
     # @yield the button content
     # @return [void]
-    #
-    # @yield the anchor content
-    # @return [void]
-    #
-    # @yield the header content
-    # @return [void]
-    #
-    # @yield the title content
-    # @return [void]
-    #
-    # @yield the description content
-    # @return [void]
+    # @raise [ArgumentError] when rendered outside Popover
     def view_template(&)
       root = root_context
       attrs = merge_attrs({
@@ -165,12 +146,17 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
   class Anchor < Phlex::Shadcn::Base
     include Phlex::Shadcn::Popover::Support
 
+    # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
+    # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
     def initialize(as_child: false, **attrs)
       @as_child = as_child
       @attrs = attrs
       super()
     end
 
+    # @yield the anchor content
+    # @return [void]
+    # @raise [ArgumentError] when rendered outside Popover
     def view_template(&)
       attrs = merge_attrs({ data: { slot: "popover-anchor", shadcn__popover_anchor: root_context[:key] } }, @attrs)
       render_part(:div, @as_child, attrs, &)
@@ -213,7 +199,6 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
     # @param update_position_strategy [String, Symbol] optimized or always
     # @param force_mount [Boolean] accepted for API parity only, it has no effect
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
-    # @raise [ArgumentError] when rendered outside Popover
     def initialize(side: "bottom", side_offset: 4, align: "center", align_offset: 0, avoid_collisions: true, collision_padding: 0,
                    collision_boundary: nil, arrow_padding: 0, sticky: "partial", hide_when_detached: false,
                    update_position_strategy: "optimized", force_mount: false, **attrs)
@@ -227,6 +212,10 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
     end
 
     # The markup is shipped in an inert <template>: Radix mounts the content (in a body portal) only while open.
+    #
+    # @yield the popover body
+    # @return [void]
+    # @raise [ArgumentError] when rendered outside Popover
     def view_template(&)
       root = root_context
       attrs = canonical_attrs(@attrs)
@@ -251,15 +240,13 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
   # Popover header (`div`). Needs no root context.
   class Header < Phlex::Shadcn::Base
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
-    #
-    # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
-    #
-    # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
     def initialize(**attrs)
       @attrs = attrs
       super()
     end
 
+    # @yield the header content
+    # @return [void]
     def view_template(&)
       div(**merge_attrs({ class: "flex flex-col gap-1 text-sm", data: { slot: "popover-header" } }, @attrs), &)
     end
@@ -267,11 +254,14 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
 
   # Popover title (`div`). Needs no root context.
   class Title < Phlex::Shadcn::Base
+    # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
     def initialize(**attrs)
       @attrs = attrs
       super()
     end
 
+    # @yield the title content
+    # @return [void]
     def view_template(&)
       div(**merge_attrs({ class: "font-medium", data: { slot: "popover-title" } }, @attrs), &)
     end
@@ -279,11 +269,14 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
 
   # Popover description (`p`). Needs no root context.
   class Description < Phlex::Shadcn::Base
+    # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
     def initialize(**attrs)
       @attrs = attrs
       super()
     end
 
+    # @yield the description content
+    # @return [void]
     def view_template(&)
       p(**merge_attrs({ class: "text-muted-foreground", data: { slot: "popover-description" } }, @attrs), &)
     end

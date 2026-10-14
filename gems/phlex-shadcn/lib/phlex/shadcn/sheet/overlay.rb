@@ -14,7 +14,6 @@ class Phlex::Shadcn::Sheet::Overlay < Phlex::Shadcn::Base
   # @param force_mount [Boolean] accepted for API parity only, it has no effect (the Portal owns the mount gate)
   # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
   # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
-  # @raise [ArgumentError] when rendered outside Sheet
   def initialize(force_mount: false, as_child: false, **attrs)
     @as_child = as_child
     @attrs = attrs
@@ -23,6 +22,7 @@ class Phlex::Shadcn::Sheet::Overlay < Phlex::Shadcn::Base
 
   # @yield the part's content
   # @return [void]
+  # @raise [ArgumentError] when rendered outside Sheet
   def view_template(&)
     return unless root_context[:modal]
 

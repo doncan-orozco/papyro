@@ -34,7 +34,7 @@ class Phlex::Shadcn::Sheet::Content < Phlex::Shadcn::Base
   # @param force_mount [Boolean] accepted for API parity only, it has no effect (the Portal owns the mount gate)
   # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
   # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
-  # @raise [ArgumentError] when rendered outside Sheet
+  # @raise [ArgumentError] when `side:` is not a supported value
   def initialize(side: "right", show_close_button: true, close_label: "Close", force_mount: false, as_child: false, **attrs)
     @side = (side || "right").to_s
     raise ArgumentError, "side must be one of #{SIDES.keys.join(', ')}, got #{side.inspect}" unless SIDES.key?(@side)
@@ -48,6 +48,7 @@ class Phlex::Shadcn::Sheet::Content < Phlex::Shadcn::Base
 
   # @yield the panel content
   # @return [void]
+  # @raise [ArgumentError] when rendered outside Sheet
   def view_template
     root = root_context
     body = capture do

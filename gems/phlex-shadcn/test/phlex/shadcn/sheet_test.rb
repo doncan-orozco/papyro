@@ -44,7 +44,9 @@ class Phlex::Shadcn::SheetTest < Phlex::Shadcn::TestCase
     { "right" => "right-0", "left" => "left-0", "top" => "top-0", "bottom" => "bottom-0" }.each do |side, token|
       assert_includes fragment(sheet(content: { side: side.to_sym })).at_css("[data-slot=sheet-content]")["class"], token
     end
-    assert_raises(ArgumentError) { sheet(content: { side: "middle" }) }
+    error = assert_raises(ArgumentError) { sheet(content: { side: "middle" }) }
+
+    assert_match(/side must be one of right, left, top, bottom, got "middle"/, error.message)
   end
 
   test "x close has no data-slot, content merges class and aria ids" do
@@ -69,24 +71,46 @@ class Phlex::Shadcn::SheetTest < Phlex::Shadcn::TestCase
     end
   end
 
-  test "every root and part keyword is accepted and rendered" do
-    out = render_view do
-      render(Sheet.new(open: false, default_open: true, modal: false, class: "x-root", data: { foo: "bar" })) do
-        render(Sheet::Trigger.new(as_child: false, id: "t")) { "Open" }
-        render(Sheet::Portal.new) { "" }
-        render(Sheet::Content.new(side: :left, show_close_button: false, close_label: "Fermer", force_mount: true, as_child: false, class: "x-content")) do
-          render(Sheet::Header.new(class: "h")) { "H" }
-          render(Sheet::Title.new(as_child: false, class: "ti")) { "T" }
-          render(Sheet::Description.new(as_child: false, class: "d")) { "D" }
-          render(Sheet::Overlay.new(force_mount: true, as_child: false, class: "o"))
-          render(Sheet::Close.new(as_child: false, class: "c")) { "C" }
-          render(Sheet::Footer.new(class: "f")) { "F" }
+  test "root attributes and options land on the host" do
+    host = fragment(sheet(root: { default_open: true, modal: false, class: "x-root", data: { foo: "bar" } })).at_css("[data-controller=shadcn--sheet]")
+
+    assert_includes host["class"], "x-root"
+    assert_equal "bar", host["data-foo"]
+    assert_equal "true", host["data-shadcn--sheet-open-value"]
+    assert_equal "false", host["data-shadcn--sheet-controlled-value"]
+    assert_equal "false", host["data-shadcn--sheet-modal-value"]
+  end
+
+  test "close_label names the x button and show_close_button false removes it" do
+    content = fragment(sheet(content: { close_label: "Fermer" })).at_css("[data-slot=sheet-content]")
+
+    assert_equal "Fermer", content.at_css("button .sr-only").text
+    assert_nil fragment(sheet(content: { show_close_button: false })).at_css("[data-slot=sheet-content] button")
+  end
+
+  test "force_mount on content and overlay leaves the markup unchanged" do
+    plain = render_view { render(Sheet.new) { render(Sheet::Content.new) { render(Sheet::Overlay.new) } } }
+    forced = render_view { render(Sheet.new) { render(Sheet::Content.new(force_mount: true)) { render(Sheet::Overlay.new(force_mount: true)) } } }
+
+    assert_equal plain, forced
+  end
+
+  test "parts merge their class and attributes" do
+    html = render_view do
+      render(Sheet.new(default_open: true)) do
+        render(Sheet::Content.new(class: "x-content")) do
+          render(Sheet::Header.new(class: "x-header")) { "H" }
+          render(Sheet::Title.new(class: "x-title")) { "T" }
+          render(Sheet::Description.new(class: "x-description")) { "D" }
+          render(Sheet::Footer.new(class: "x-footer")) { "F" }
+          render(Sheet::Close.new(class: "x-close", id: "c")) { "C" }
         end
       end
     end
+    doc = fragment(html)
 
-    assert_includes out, "x-root"
-    assert_includes out, "x-content"
+    %w[content header title description footer].each { |slot| assert_includes doc.at_css("[data-slot=sheet-#{slot}]")["class"], "x-#{slot}" }
+    assert_includes doc.at_css("#c")["class"], "x-close"
   end
 
   test "parts raise a clear ArgumentError outside the root" do
@@ -94,12 +118,6 @@ class Phlex::Shadcn::SheetTest < Phlex::Shadcn::TestCase
       error = assert_raises(ArgumentError, part.to_s) { render_view { render(Sheet.const_get(part).new) } }
 
       assert_match(/must be used within Sheet/, error.message, part.to_s)
-    end
-  end
-
-  test "the root lists every generated helper" do
-    %i[trigger close portal overlay content header footer title description].each do |name|
-      assert Sheet.public_method_defined?(name), "missing helper ##{name}"
     end
   end
 
@@ -114,11 +132,5 @@ class Phlex::Shadcn::SheetTest < Phlex::Shadcn::TestCase
     assert_equal "a", trigger.name
     assert_equal "/x", trigger["href"]
     assert_includes trigger["class"], "t"
-  end
-
-  test "an unknown side names the accepted ones" do
-    error = assert_raises(ArgumentError) { Sheet::Content.new(side: "middle") }
-
-    assert_match(/side must be one of right, left, top, bottom, got "middle"/, error.message)
   end
 end

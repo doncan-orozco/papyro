@@ -77,22 +77,32 @@ class Phlex::Shadcn::PopoverTest < Phlex::Shadcn::TestCase
     assert_equal explicit, helper
   end
 
-  test "every root and part keyword is accepted" do
-    out = Class.new(Phlex::HTML) do
+  test "content positioning keywords are serialized for the controller" do
+    out = render_popover(content: { side: :top, side_offset: 8, align: :start, align_offset: 2, avoid_collisions: false, collision_padding: 4,
+                                    collision_boundary: "#b", arrow_padding: 3, sticky: :always, hide_when_detached: true, update_position_strategy: :always,
+                                    force_mount: true })
+    options = JSON.parse(Nokogiri::HTML5.fragment(out).at_css("template[data-shadcn--popover-template]")["data-options"])
+
+    assert_equal({ "side" => "top", "sideOffset" => 8, "align" => "start", "alignOffset" => 2, "avoidCollisions" => false, "collisionPadding" => 4,
+                   "collisionBoundary" => "#b", "arrowPadding" => 3, "sticky" => "always", "hideWhenDetached" => true,
+                   "updatePositionStrategy" => "always" }, options)
+  end
+
+  test "modal reaches the controller host and the anchor and header parts merge their class" do
+    html = Class.new(Phlex::HTML) do
       define_method(:view_template) do
-        render Popover.new(open: false, default_open: true, modal: true) do
-          render Popover::Anchor.new(as_child: false, class: "x-anchor") { "A" }
-          render Popover::Trigger.new(as_child: false, class: "x-trigger") { "T" }
-          render Popover::Content.new(side: :top, side_offset: 8, align: :start, align_offset: 2, avoid_collisions: false, collision_padding: 4, collision_boundary: "#b", arrow_padding: 3, sticky: :always, hide_when_detached: true, update_position_strategy: :always, force_mount: true, class: "x-content") do
-            render(Popover::Header.new(class: "x-header")) { "H" }
-          end
+        render Popover.new(modal: true) do
+          render(Popover::Anchor.new(class: "x-anchor")) { "A" }
+          render(Popover::Trigger.new) { "T" }
+          render(Popover::Content.new) { render(Popover::Header.new(class: "x-header")) { "H" } }
         end
       end
     end.new.call
+    doc = Nokogiri::HTML5.fragment(html)
 
-    %w[x-anchor x-trigger x-content x-header].each { |token| assert_includes out, token }
-    assert_includes out, "&quot;sideOffset&quot;:8"
-    assert_includes out, "&quot;sticky&quot;:&quot;always&quot;"
+    assert_equal "true", doc.at_css("[data-controller=shadcn--popover]")["data-shadcn--popover-modal-value"]
+    assert_includes doc.at_css("[data-slot=popover-anchor]")["class"], "x-anchor"
+    assert_includes doc.at_css("[data-slot=popover-header]")["class"], "x-header"
   end
 
   test "parts that need the root raise a clear ArgumentError outside it" do
@@ -100,12 +110,6 @@ class Phlex::Shadcn::PopoverTest < Phlex::Shadcn::TestCase
       error = assert_raises(ArgumentError, part.to_s) { Popover.const_get(part).new.call }
 
       assert_match(/must be used within Popover/, error.message, part.to_s)
-    end
-  end
-
-  test "the root lists its generated helpers" do
-    %i[trigger anchor content header title description].each do |name|
-      assert Popover.public_method_defined?(name), "missing helper ##{name}"
     end
   end
 

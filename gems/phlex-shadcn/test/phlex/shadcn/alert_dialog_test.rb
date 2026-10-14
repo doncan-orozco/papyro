@@ -50,7 +50,9 @@ class Phlex::Shadcn::AlertDialogTest < Phlex::Shadcn::TestCase
     assert_equal content["aria-labelledby"], content.at_css("h2")["id"]
     assert_equal content.at_css("p")["id"], content["aria-describedby"]
     assert_nil content.at_css("[data-slot=alert-dialog-content] > button:last-child.absolute")
-    assert_raises(ArgumentError) { dialog(content: { size: "lg" }) }
+    error = assert_raises(ArgumentError) { dialog(content: { size: "lg" }) }
+
+    assert_match(/size must be one of default, sm, got "lg"/, error.message)
   end
 
   test "action and cancel join the caller class without merging" do
@@ -66,7 +68,9 @@ class Phlex::Shadcn::AlertDialogTest < Phlex::Shadcn::TestCase
   end
 
   test "modal is not accepted" do
-    assert_raises(ArgumentError) { dialog(root: { modal: false }) }
+    error = assert_raises(ArgumentError) { dialog(root: { modal: false }) }
+
+    assert_match(/unknown keyword: :modal/, error.message)
   end
 
   test "every DX helper renders the same HTML as the explicit class" do
@@ -79,27 +83,64 @@ class Phlex::Shadcn::AlertDialogTest < Phlex::Shadcn::TestCase
     end
   end
 
-  test "every root and part keyword is accepted and rendered" do
-    out = render_view do
-      render(AlertDialog.new(open: false, default_open: true, class: "x-root", data: { foo: "bar" })) do
-        render(AlertDialog::Trigger.new(as_child: false, id: "t")) { "Open" }
-        render(AlertDialog::Portal.new(force_mount: true, container: "#c")) { "" }
-        render(AlertDialog::Content.new(size: :sm, force_mount: true, as_child: false, class: "x-content")) do
-          render(AlertDialog::Header.new(class: "h")) { "H" }
-          render(AlertDialog::Media.new(class: "m")) { "M" }
-          render(AlertDialog::Title.new(as_child: false, class: "ti")) { "T" }
-          render(AlertDialog::Description.new(as_child: false, class: "d")) { "D" }
-          render(AlertDialog::Overlay.new(force_mount: true, as_child: false, class: "o"))
-          render(AlertDialog::Footer.new(class: "f")) do
-            render(AlertDialog::Cancel.new(variant: :ghost, size: "sm", as_child: false, class: "c")) { "C" }
-            render(AlertDialog::Action.new(variant: "destructive", size: "lg", as_child: false, class: "a")) { "A" }
-          end
+  test "root attributes and options land on the host" do
+    host = fragment(dialog(root: { default_open: true, class: "x-root", data: { foo: "bar" } })).at_css("[data-controller=shadcn--alert-dialog]")
+
+    assert_includes host["class"], "x-root"
+    assert_equal "bar", host["data-foo"]
+    assert_equal "true", host["data-shadcn--alert-dialog-open-value"]
+  end
+
+  test "portal forwards force_mount and container to the controller" do
+    html = render_view do
+      render(AlertDialog.new) { render(AlertDialog::Portal.new(force_mount: true, container: "#c")) { "" } }
+    end
+    options = JSON.parse(fragment(html).at_css("template[data-shadcn--dialog-options]")["data-shadcn--dialog-options"])
+
+    assert_equal({ "forceMount" => true, "container" => "#c" }, options)
+  end
+
+  test "force_mount on content and overlay leaves the markup unchanged" do
+    plain = render_view { render(AlertDialog.new) { render(AlertDialog::Content.new) { render(AlertDialog::Overlay.new) } } }
+    forced = render_view do
+      render(AlertDialog.new) { render(AlertDialog::Content.new(force_mount: true)) { render(AlertDialog::Overlay.new(force_mount: true)) } }
+    end
+
+    assert_equal plain, forced
+  end
+
+  test "cancel and action take their variant and size" do
+    doc = fragment(dialog(root: { default_open: true }, action: { variant: "destructive", size: "lg" }))
+    action = doc.at_css("[data-slot=alert-dialog-action]")
+
+    assert_equal "destructive", action["data-variant"]
+    assert_equal "lg", action["data-size"]
+
+    cancel = fragment(render_view do
+      render(AlertDialog.new(default_open: true)) { render(AlertDialog::Cancel.new(variant: :ghost, size: "sm")) { "C" } }
+    end).at_css("[data-slot=alert-dialog-cancel]")
+
+    assert_equal "ghost", cancel["data-variant"]
+    assert_equal "sm", cancel["data-size"]
+  end
+
+  test "parts merge their class" do
+    html = render_view do
+      render(AlertDialog.new(default_open: true)) do
+        render(AlertDialog::Content.new(class: "x-content")) do
+          render(AlertDialog::Header.new(class: "x-header")) { "H" }
+          render(AlertDialog::Media.new(class: "x-media")) { "M" }
+          render(AlertDialog::Title.new(class: "x-title")) { "T" }
+          render(AlertDialog::Description.new(class: "x-description")) { "D" }
+          render(AlertDialog::Footer.new(class: "x-footer")) { "F" }
         end
       end
     end
+    doc = fragment(html)
 
-    assert_includes out, "x-root"
-    assert_includes out, "x-content"
+    %w[content header media title description footer].each do |slot|
+      assert_includes doc.at_css("[data-slot=alert-dialog-#{slot}]")["class"], "x-#{slot}"
+    end
   end
 
   test "parts raise a clear ArgumentError outside the root" do
@@ -107,12 +148,6 @@ class Phlex::Shadcn::AlertDialogTest < Phlex::Shadcn::TestCase
       error = assert_raises(ArgumentError, part.to_s) { render_view { render(AlertDialog.const_get(part).new) } }
 
       assert_match(/must be used within AlertDialog/, error.message, part.to_s)
-    end
-  end
-
-  test "the root lists every generated helper" do
-    %i[trigger portal overlay content header footer title description media action cancel].each do |name|
-      assert AlertDialog.public_method_defined?(name), "missing helper ##{name}"
     end
   end
 
@@ -127,25 +162,5 @@ class Phlex::Shadcn::AlertDialogTest < Phlex::Shadcn::TestCase
     assert_equal "a", trigger.name
     assert_equal "/x", trigger["href"]
     assert_includes trigger["class"], "t"
-  end
-
-  test "the modal rejection and an unknown size explain themselves" do
-    error = assert_raises(ArgumentError) { AlertDialog.new(modal: true) }
-
-    assert_match(/unknown keyword: :modal/, error.message)
-    error = assert_raises(ArgumentError) { AlertDialog::Content.new(size: "xl") }
-
-    assert_match(/size must be one of default, sm/, error.message)
-    assert_equal %w[default sm], AlertDialog::Content::SIZES
-  end
-
-  test "action and cancel render onto an as_child element" do
-    out = render_view do
-      render(AlertDialog.new) { render(AlertDialog::Action.new(as_child: :a, href: "/ok")) { "Go" } }
-    end
-    action = Nokogiri::HTML5.fragment(out).at_css("[data-slot=alert-dialog-action]")
-
-    assert_equal "a", action.name
-    assert_equal "/ok", action["href"]
   end
 end

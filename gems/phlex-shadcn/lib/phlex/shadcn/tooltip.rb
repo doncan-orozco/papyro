@@ -93,12 +93,6 @@ class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
 
     # @yield the tooltips
     # @return [void]
-    #
-    # @yield the trigger content
-    # @return [void]
-    #
-    # @yield the content
-    # @return [void]
     def view_template(&)
       previous = context[PROVIDER_KEY]
       context[SEQUENCE_KEY] = context.fetch(SEQUENCE_KEY, 0) + 1
@@ -118,13 +112,15 @@ class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
   class Trigger < Phlex::Shadcn::Base
     # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
-    # @raise [ArgumentError] when rendered outside Tooltip
     def initialize(as_child: false, **attrs)
       @as_child = as_child
       @attrs = attrs
       super()
     end
 
+    # @yield the trigger content
+    # @return [void]
+    # @raise [ArgumentError] when rendered outside Tooltip
     def view_template(&)
       root = context[CONTEXT_KEY] or raise ArgumentError, "`TooltipTrigger` must be used within `Tooltip`"
       attrs = merge_attrs({
@@ -197,7 +193,6 @@ class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
     # @param update_position_strategy [String, Symbol] optimized or always
     # @param force_mount [Boolean] accepted for API parity only, it has no effect
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
-    # @raise [ArgumentError] when rendered outside Tooltip
     def initialize(side: "top", side_offset: 0, align: "center", align_offset: 0, avoid_collisions: true, collision_padding: 0,
                    collision_boundary: nil, arrow_padding: 0, sticky: "partial", hide_when_detached: false,
                    update_position_strategy: "optimized", force_mount: false, **attrs)
@@ -212,6 +207,10 @@ class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
 
     # The markup is shipped in an inert <template>: Radix mounts the content (in a body portal) only while open.
     # The controller clones it on open. Deviation: docs/shadcn-port/deviations/tooltip.json.
+    #
+    # @yield the tooltip content
+    # @return [void]
+    # @raise [ArgumentError] when rendered outside Tooltip
     def view_template(&)
       root = context[CONTEXT_KEY] or raise ArgumentError, "`TooltipContent` must be used within `Tooltip`"
       attrs = canonical_attrs(@attrs)

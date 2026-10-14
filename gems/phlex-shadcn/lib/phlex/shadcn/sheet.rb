@@ -52,8 +52,6 @@ class Phlex::Shadcn::Sheet < Phlex::Shadcn::Base
   # @api private
   SEQUENCE_KEY = :shadcn_sheet_sequence
 
-  # open: non-nil is controlled (user actions only dispatch open-change, the caller updates the open value).
-  #
   # @param open [Boolean, nil] controlled open state when not nil (user actions only dispatch open-change; the caller updates it)
   # @param default_open [Boolean] initial open state when uncontrolled
   # @param modal [Boolean] modal (overlay and focus trap) or not; default true
