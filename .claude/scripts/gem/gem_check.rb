@@ -4,7 +4,7 @@
 # Mechanical gate for a gem that lives in (or was extracted from) a host Rails app: proves the gem stands alone and is packaged
 # like a gem. Deterministic, no network, no bundler context needed.
 #
-#   ruby .claude/scripts/gem/gem_check.rb --gem-dir gems/phlex-shadcn [--host-dir .] [--rails-files 'lib/**/engine.rb,lib/**/railtie.rb,lib/generators/**,lib/tasks/**']
+#   ruby .claude/scripts/gem/gem_check.rb --gem-dir gems/phlex-shadcn [--host-dir .] [--rails-files 'lib/**/engine.rb,lib/**/railtie.rb,lib/generators/**/*,lib/tasks/**/*']
 #
 # Prints JSON { gem_dir, pass, findings: [{ code, file, line, detail }] }; exit 1 when findings, 2 on usage error.
 #
@@ -27,7 +27,7 @@ require "json"
 require "optparse"
 require "rubygems"
 
-opts = { host_dir: ".", rails_files: %w[lib/**/engine.rb lib/**/railtie.rb lib/generators/** lib/tasks/**] }
+opts = { host_dir: ".", rails_files: %w[lib/**/engine.rb lib/**/railtie.rb lib/generators/**/* lib/tasks/**/*] }
 OptionParser.new do |o|
   o.on("--gem-dir DIR") { |v| opts[:gem_dir] = v }
   o.on("--host-dir DIR") { |v| opts[:host_dir] = v }
@@ -117,10 +117,12 @@ end
 
 # Rails / ActiveSupport use outside the integration layer.
 rails_re = /(?<![\w:])(?:Rails|ActionView|ActionController|ActiveRecord|ActionDispatch)\b/
+# `defined?(Rails::Engine)` (R2: the engine is loaded only when Rails is there) probes for Rails, it does not depend on it.
+rails_guard = /\bdefined\?\(\s*Rails(?:::\w+)*\s*\)/
 sources.each do |file, lines|
   next if rails_glob.include?(file)
 
-  lines.each { |n, text| add.call("GEM_RAILS_REFERENCE", file, n, "#{text[rails_re]} used outside the Rails integration files (engine/railtie/generators/tasks)") if text.match?(rails_re) }
+  lines.each { |n, text| add.call("GEM_RAILS_REFERENCE", file, n, "#{text[rails_re]} used outside the Rails integration files (engine/railtie/generators/tasks)") if text.gsub(rails_guard, "").match?(rails_re) }
 end
 
 runtime = spec ? spec.runtime_dependencies.map(&:name) : []
