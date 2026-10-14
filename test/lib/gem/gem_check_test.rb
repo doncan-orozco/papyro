@@ -97,6 +97,30 @@ class GemCheckTest < ActiveSupport::TestCase
     assert_equal "lib/phlex/shadcn/dev.rb", finding(result, "GEM_RAILS_REFERENCE")["file"]
   end
 
+  test "integration files in nested generator and task directories may use Rails and host paths" do
+    write(@gem, "lib/generators/phlex/shadcn/install/install_generator.rb",
+          "class Phlex::Shadcn::InstallGenerator < Rails::Generators::Base\n  CSS = \"app/assets/tailwind/application.css\"\nend\n")
+    write(@gem, "lib/tasks/deep/theme.rake", "namespace :theme do\n  task x: :environment do\n    puts Rails.root.join(\"app/assets/x\")\n  end\nend\n")
+    codes, = check
+
+    assert_not_includes codes, "GEM_RAILS_REFERENCE"
+    assert_not_includes codes, "GEM_ESCAPES_ROOT"
+  end
+
+  test "loading the engine only when Rails is present is not a Rails reference" do
+    write(@gem, "lib/phlex/shadcn/loader.rb", "require \"phlex/shadcn/engine\" if defined?(Rails::Engine)\nrequire \"x/railtie\" if defined?( Rails )\n")
+
+    assert_not_includes check[0], "GEM_RAILS_REFERENCE"
+  end
+
+  test "a real Rails dependency next to a guard is still reported" do
+    write(@gem, "lib/phlex/shadcn/mixed.rb", "x = defined?(Rails::Engine)\nRails.logger.info(\"hi\") if defined?(Rails)\n")
+    codes, _, result = check
+
+    assert_includes codes, "GEM_RAILS_REFERENCE"
+    assert_equal [ 2 ], result["findings"].select { |f| f["code"] == "GEM_RAILS_REFERENCE" }.map { |f| f["line"] }
+  end
+
   test "a library namespace used without its gem declared is reported" do
     write(@gem, "phlex-x.gemspec", GEMSPEC.sub(%(  s.add_dependency "tailwind_merge", ">= 1"\n), ""))
     result = check[2]
