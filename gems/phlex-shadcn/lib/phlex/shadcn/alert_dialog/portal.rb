@@ -8,7 +8,6 @@ using Phlex::Shadcn::Values::Refinements
 # @example
 #   render Phlex::Shadcn::AlertDialog.new do |alert_dialog|
 #     alert_dialog.portal(container: "#modals") do
-#       alert_dialog.overlay
 #       alert_dialog.content { alert_dialog.title { "Delete?" } }
 #     end
 #   end

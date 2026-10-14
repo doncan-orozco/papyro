@@ -14,6 +14,10 @@
 #   @param size [String, Symbol] Button size (default "default")
 #   @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
 #   @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
+#
+# @!method view_template(&)
+#   @yield the button content
+#   @return [void]
 class Phlex::Shadcn::AlertDialog::Action < Phlex::Shadcn::Base
   include Phlex::Shadcn::AlertDialog::ActionButton
 
