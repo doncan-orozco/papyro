@@ -28,6 +28,9 @@ module Papyro
     config.i18n.default_locale = :en
     config.i18n.fallbacks = { es: [ :en ] }
 
+    # The host still defines its own theme:* tasks (lib/tasks/theme.rake) until the cutover (#101/#102): no gem aliases meanwhile.
+    config.phlex_shadcn.theme_task_aliases = false
+
     config.mission_control.jobs.base_controller_class = "AdminController"
     config.mission_control.jobs.http_basic_auth_enabled = false
   end

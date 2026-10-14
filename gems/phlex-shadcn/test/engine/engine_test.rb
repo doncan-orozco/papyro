@@ -53,6 +53,42 @@ class EngineTest::Wiring < Minitest::Test
     assert_equal 1, excluded.count(GEM_ROOT.join("app/assets/tailwind").to_s)
   end
 
+  def test_propshaft_does_not_serve_the_tailwind_inputs
+    roots = app.assets.load_path.paths.map(&:to_s)
+
+    refute_includes roots, GEM_ROOT.join("app/assets/tailwind").to_s
+    assert_nil app.assets.load_path.find("phlex-shadcn/engine.css")
+    assert_nil app.assets.load_path.find("engine.css")
+  end
+
+  def run_theme_initializer
+    Phlex::Shadcn::Engine.instance.initializers.find { |initializer| initializer.name == "phlex_shadcn.theme" }.run(app)
+  end
+
+  # Runs the initializer with the given app setting and gem setting, restoring both afterwards.
+  def with_theme_settings(app_value, gem_value)
+    previous = [ app.config.phlex_shadcn.theme_dir, Phlex::Shadcn.config.theme_dir ]
+    app.config.phlex_shadcn.theme_dir = app_value
+    Phlex::Shadcn.configure { |config| config.theme_dir = gem_value }
+    run_theme_initializer
+    yield
+  ensure
+    app.config.phlex_shadcn.theme_dir = previous.first
+    Phlex::Shadcn.configure { |config| config.theme_dir = previous.last }
+  end
+
+  def test_an_explicit_configure_value_survives_when_the_app_sets_no_theme_dir
+    with_theme_settings(nil, "/explicit/theme") { assert_equal "/explicit/theme", Theme.dir }
+  end
+
+  def test_the_app_setting_wins_over_an_explicit_configure_value
+    with_theme_settings("custom/other", "/explicit/theme") { assert_equal EngineTest::ROOT.join("custom/other").to_s, Theme.dir }
+  end
+
+  def test_the_default_theme_dir_is_app_assets_tailwind_theme_of_the_app
+    with_theme_settings(nil, nil) { assert_equal EngineTest::ROOT.join("app/assets/tailwind/theme").to_s, Theme.dir }
+  end
+
   def test_importmap_pins_the_controllers_the_primitives_and_floating_ui
     pins = imports
 
@@ -96,17 +132,14 @@ class EngineTest::Wiring < Minitest::Test
     end
   end
 
-  def test_no_short_aliases_while_the_host_still_has_its_own_theme_rake
-    host_tasks = EngineTest::ROOT.join("lib/tasks/theme.rake")
-    FileUtils.mkdir_p(host_tasks.dirname)
-    FileUtils.touch(host_tasks)
-
+  def test_no_short_aliases_when_the_app_turns_them_off
+    app.config.phlex_shadcn.theme_task_aliases = false
     with_tasks do
       assert Rake::Task.task_defined?("phlex_shadcn:theme:use")
       %w[list use import check].each { |name| refute Rake::Task.task_defined?("theme:#{name}"), "theme:#{name} would run twice" }
     end
   ensure
-    FileUtils.rm_f(host_tasks)
+    app.config.phlex_shadcn.theme_task_aliases = true
   end
 
   def test_the_alias_forwards_its_argument_and_switches_the_preset
@@ -122,14 +155,16 @@ class EngineTest::Wiring < Minitest::Test
   def test_an_unknown_preset_exits_with_the_message_and_changes_nothing
     seed_theme
     before = EngineTest::THEME_DIR.join("theme.css").read
-    error = nil
+    error = stderr = nil
     with_tasks do
-      capture_io do
+      _out, stderr = capture_io do
         error = assert_raises(SystemExit) { Rake::Task["phlex_shadcn:theme:use"].invoke("nope") }
       end
     end
 
     refute_predicate error, :success?
+    assert_match(/nope/, stderr)
+    assert_match(/slate/, stderr)
     assert_equal before, EngineTest::THEME_DIR.join("theme.css").read
   end
 

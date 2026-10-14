@@ -26,8 +26,9 @@ module Phlex
 
         class_option :css, type: :string, default: "app/assets/tailwind/application.css",
                            desc: "The Tailwind entry file of the app"
-        class_option :theme_dir, type: :string, default: Phlex::Shadcn::Engine::DEFAULT_THEME_DIR,
-                                 desc: "Where theme.css and presets/ are kept (config.phlex_shadcn.theme_dir)"
+        class_option :theme_dir, type: :string,
+                                 desc: "Where theme.css and presets/ are kept (default: config.phlex_shadcn.theme_dir, " \
+                                       "else #{Phlex::Shadcn::Engine::DEFAULT_THEME_DIR})"
 
         BLOCK_START = "/* phlex-shadcn:start (managed by rails g phlex:shadcn:install) */"
         BLOCK_END = "/* phlex-shadcn:end */"
@@ -56,29 +57,33 @@ module Phlex
         end
 
         def copy_default_theme
-          copy_file "theme.css", File.join(options[:theme_dir], "theme.css"), skip: true
-          directory "presets", File.join(options[:theme_dir], "presets"), skip: true
+          copy_file "theme.css", File.join(theme_dir, "theme.css"), skip: true
+          directory "presets", File.join(theme_dir, "presets"), skip: true
         end
 
         def show_next_steps
           say "\nRun bin/rails tailwindcss:build (it bundles the engine CSS) and restart the server.", :green
-          return if options[:theme_dir] == Phlex::Shadcn::Engine::DEFAULT_THEME_DIR
+          return if theme_dir == (configured_theme_dir || Phlex::Shadcn::Engine::DEFAULT_THEME_DIR)
 
-          say "The theme tasks look in #{Phlex::Shadcn::Engine::DEFAULT_THEME_DIR}: add " \
-              "config.phlex_shadcn.theme_dir = \"#{options[:theme_dir]}\" to config/application.rb.", :yellow
+          say "The theme tasks look in #{configured_theme_dir || Phlex::Shadcn::Engine::DEFAULT_THEME_DIR}: set " \
+              "config.phlex_shadcn.theme_dir = \"#{theme_dir}\" in config/application.rb.", :yellow
         end
 
         private
 
         def css_path = File.expand_path(options[:css], destination_root)
 
-        def theme_path = File.expand_path(File.join(options[:theme_dir], "theme.css"), destination_root)
+        def configured_theme_dir = ::Rails.application&.config&.phlex_shadcn&.theme_dir # rubocop:disable Style/SafeNavigationChainLength
+
+        def theme_dir = options[:theme_dir] || configured_theme_dir || Phlex::Shadcn::Engine::DEFAULT_THEME_DIR
+
+        def theme_path = File.expand_path(File.join(theme_dir, "theme.css"), destination_root)
 
         def relative_to_css(path)
           Pathname.new(File.expand_path(path)).relative_path_from(Pathname.new(css_path).dirname).to_s
         rescue ::ArgumentError => e # Phlex::ArgumentError would win the constant lookup here
           raise Thor::Error, "cannot express #{path} relative to #{options[:css]} (#{e.message}): after @import \"tailwindcss\"; add an @source for " \
-                             "#{File.join(Phlex::Shadcn.root.to_s, 'lib')} and @imports of #{ENGINE_BUNDLE} and #{options[:theme_dir]}/theme.css"
+                             "#{File.join(Phlex::Shadcn.root.to_s, 'lib')} and @imports of #{ENGINE_BUNDLE} and #{theme_dir}/theme.css"
         end
 
         # With `eol` the block uses the file's own line endings (CRLF files stay consistent).

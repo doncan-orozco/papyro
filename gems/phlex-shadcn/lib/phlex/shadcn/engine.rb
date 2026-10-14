@@ -19,6 +19,9 @@ module Phlex
     #
     # Configuration (config/application.rb):
     #   config.phlex_shadcn.theme_dir = "app/assets/tailwind/theme"   # where theme.css and presets/ live; relative to the app root
+    #   config.phlex_shadcn.theme_task_aliases = true                 # false when the app defines its own theme:* tasks
+    #
+    # `theme_dir` wins over a value already set with Phlex::Shadcn.configure, which wins over the default.
     #
     # @api private
     class Engine < ::Rails::Engine
@@ -32,6 +35,9 @@ module Phlex
 
       config.phlex_shadcn = ActiveSupport::OrderedOptions.new
       config.phlex_shadcn.theme_dir = nil
+      # Short `theme:list|use|import|check` aliases of the phlex_shadcn:theme:* tasks. Turn them off while the app defines its own
+      # `theme:*` tasks (Rake would run both bodies). Read when the tasks load, so set it in config/application.rb.
+      config.phlex_shadcn.theme_task_aliases = true
 
       initializer "phlex_shadcn.assets" do |app|
         if app.config.respond_to?(:assets)
@@ -58,9 +64,13 @@ module Phlex
         end
       end
 
+      # Precedence: config.phlex_shadcn.theme_dir, then a value already set with Phlex::Shadcn.configure, then the default.
       initializer "phlex_shadcn.theme" do |app|
+        configured = app.config.phlex_shadcn.theme_dir
+        next if configured.nil? && Phlex::Shadcn.config.theme_dir
+
         # Pathname#join keeps an absolute value and roots a relative one at the app, whatever the working directory is.
-        theme_dir = app.root.join(app.config.phlex_shadcn.theme_dir || DEFAULT_THEME_DIR).to_s
+        theme_dir = app.root.join(configured || DEFAULT_THEME_DIR).to_s
         Phlex::Shadcn.configure { |config| config.theme_dir = theme_dir }
       end
     end

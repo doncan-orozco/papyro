@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-# Short aliases `theme:list|use|import|check` of the phlex_shadcn:theme:* tasks. They are defined only while the host has no theme.rake
-# of its own (both would run: `theme:import[-]` would read stdin twice); once the host drops its copy they appear on their own.
-unless Rails.root.join("lib/tasks/theme.rake").exist?
+# Short aliases `theme:list|use|import|check` of the phlex_shadcn:theme:* tasks, unless the app turns them off with
+# `config.phlex_shadcn.theme_task_aliases = false` (needed while it defines its own theme:* tasks: Rake would run both bodies, and
+# `theme:import[-]` would read stdin twice).
+if Rails.application.config.phlex_shadcn.theme_task_aliases
   namespace :theme do
     {
       list: nil, check: nil, use: :name, import: :source

@@ -15,10 +15,17 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     @import "./components/other.css";
   CSS
 
+  # The booted test app configures a custom theme_dir; the generator reads it, so each test starts from "not configured".
   setup do
+    @configured_theme_dir = Rails.application.config.phlex_shadcn.theme_dir
+    Rails.application.config.phlex_shadcn.theme_dir = nil
     prepare_destination
     write("app/assets/tailwind/application.css", TAILWIND_ENTRY)
   end
+
+  teardown { Rails.application.config.phlex_shadcn.theme_dir = @configured_theme_dir }
+
+  Minitest.after_run { FileUtils.rm_rf(destination_root) }
 
   def css = File.read(File.join(destination_root, "app/assets/tailwind/application.css"))
 
@@ -199,6 +206,16 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     output = run_generator %w[--theme-dir config/theme]
 
     assert_match(%r{config\.phlex_shadcn\.theme_dir = "config/theme"}, output)
+  end
+
+  test "uses config.phlex_shadcn.theme_dir when --theme-dir is not given and gives no hint" do
+    Rails.application.config.phlex_shadcn.theme_dir = "config/theme"
+    output = run_generator
+
+    assert_file "config/theme/theme.css"
+    assert_includes css, %(@import "../../../config/theme/theme.css";)
+    assert_no_file "app/assets/tailwind/theme/theme.css"
+    refute_match(/theme_dir/, output)
   end
 
   test "says nothing about theme_dir for the default location" do
