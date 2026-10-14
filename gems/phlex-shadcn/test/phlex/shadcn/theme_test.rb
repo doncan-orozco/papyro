@@ -23,21 +23,23 @@ class Phlex::Shadcn::ThemeTest < Phlex::Shadcn::TestCase
   CSS
 
   def setup
-    @original_dir = Theme.instance_variable_get(:@dir)
-    @tmp = Dir.mktmpdir
-    FileUtils.mkdir_p(File.join(@tmp, "presets"))
-    FileUtils.cp(ASSETS.join("theme.css"), File.join(@tmp, "theme.css"))
-    %w[zinc slate].each { |n| FileUtils.cp(ASSETS.join("presets/#{n}.css"), File.join(@tmp, "presets")) }
-    Theme.dir = @tmp
+    @original_dir = (Theme.dir if Theme.configured?)
+    @theme_dir = Dir.mktmpdir
+    FileUtils.mkdir_p(File.join(@theme_dir, "presets"))
+    FileUtils.cp(ASSETS.join("theme.css"), File.join(@theme_dir, "theme.css"))
+    Dir[ASSETS.join("presets/*.css").to_s].each { |preset| FileUtils.cp(preset, File.join(@theme_dir, "presets")) }
+    Theme.dir = @theme_dir
   end
 
   def teardown
     Theme.dir = @original_dir
-    FileUtils.remove_entry(@tmp)
+    FileUtils.remove_entry(@theme_dir)
   end
 
   test "the directory has to be configured and the error says how" do
     Theme.dir = nil
+
+    refute_predicate Theme, :configured?
     error = assert_raises(Theme::Error) { Theme.theme_file }
 
     assert_match(/config\.phlex_shadcn\.theme_dir/, error.message)
@@ -55,8 +57,9 @@ class Phlex::Shadcn::ThemeTest < Phlex::Shadcn::TestCase
 
   test "shipped theme and every preset are valid" do
     assert_empty Theme.check[:errors]
+    assert_equal ASSETS.join("presets").children.map { |file| file.basename(".css").to_s }.sort, Theme.presets
     Theme.presets.each do |name|
-      palette = Theme.parse(File.read(File.join(@tmp, "presets", "#{name}.css")))
+      palette = Theme.parse(File.read(File.join(@theme_dir, "presets", "#{name}.css")))
 
       assert_empty Theme.validate(palette)[:errors], name
     end
@@ -69,7 +72,7 @@ class Phlex::Shadcn::ThemeTest < Phlex::Shadcn::TestCase
 
     assert_includes css, "source: preset slate"
     assert_includes css, "theme:brand:start"
-    assert_equal Theme.parse(File.read(File.join(@tmp, "presets", "slate.css"))).root, Theme.parse(css).root
+    assert_equal Theme.parse(File.read(File.join(@theme_dir, "presets", "slate.css"))).root, Theme.parse(css).root
   end
 
   test "use rejects an unknown preset listing the available ones" do
@@ -108,7 +111,7 @@ class Phlex::Shadcn::ThemeTest < Phlex::Shadcn::TestCase
   end
 
   test "strict mode turns low contrast into an error" do
-    palette = Theme.parse(File.read(File.join(@tmp, "presets", "zinc.css")))
+    palette = Theme.parse(File.read(File.join(@theme_dir, "presets", "zinc.css")))
     palette.root["muted-foreground"] = "oklch(0.9 0 0)"
 
     assert_empty Theme.validate(palette)[:errors]

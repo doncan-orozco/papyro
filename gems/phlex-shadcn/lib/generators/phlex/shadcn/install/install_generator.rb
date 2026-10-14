@@ -2,6 +2,7 @@
 
 require "rails/generators"
 require "pathname"
+require "phlex/shadcn"
 
 module Phlex
   module Shadcn
@@ -13,7 +14,11 @@ module Phlex
       #    scanned files, so without it the components render unstyled), the import of the engine bundle and of the theme file;
       # 2. copies the default theme (theme.css and presets/) into the host's theme directory unless they already exist.
       #
-      # It is idempotent: a second run rewrites the same block and skips the existing theme files, so nothing changes.
+      # It is idempotent: a second run rewrites the same block and skips the existing theme files, so nothing changes. The block is
+      # managed by the generator; edits inside the markers are overwritten. (The engine's own CSS also carries a relative `@source`,
+      # regenerated on every tailwindcss:build, so a gem update that moves the absolute path in this block cannot unstyle the app.)
+      #
+      # @api private
       class InstallGenerator < ::Rails::Generators::Base
         desc "Imports the phlex-shadcn Tailwind assets (with the @source line for the gem) and copies the default theme."
 
@@ -21,61 +26,78 @@ module Phlex
 
         class_option :css, type: :string, default: "app/assets/tailwind/application.css",
                            desc: "The Tailwind entry file of the app"
-        class_option :theme_dir, type: :string, default: "app/assets/tailwind/theme",
+        class_option :theme_dir, type: :string, default: Phlex::Shadcn::Engine::DEFAULT_THEME_DIR,
                                  desc: "Where theme.css and presets/ are kept (config.phlex_shadcn.theme_dir)"
 
         BLOCK_START = "/* phlex-shadcn:start (managed by rails g phlex:shadcn:install) */"
         BLOCK_END = "/* phlex-shadcn:end */"
-        TAILWIND_IMPORT = /^@import\s+["']tailwindcss["'];?[ \t]*$/
+        # `@import "tailwindcss";` also with options such as `source(none)` or `prefix(tw)`, LF or CRLF.
+        TAILWIND_IMPORT = /^@import\s+["']tailwindcss["'][^;\n]*;[ \t]*(?=\r?$)/
+        MANAGED_BLOCK = /#{Regexp.escape(BLOCK_START)}.*?#{Regexp.escape(BLOCK_END)}/m
+        ENGINE_BUNDLE = "app/assets/builds/tailwind/phlex-shadcn"
+        private_constant :BLOCK_START, :BLOCK_END, :TAILWIND_IMPORT, :MANAGED_BLOCK, :ENGINE_BUNDLE
 
         def check_entry_file
-          return if File.file?(destination_path(options[:css]))
+          return if File.file?(css_path)
 
           raise Thor::Error, "#{options[:css]} not found: install tailwindcss-rails first (bin/rails tailwindcss:install)"
         end
 
         def write_css_block
-          path = destination_path(options[:css])
-          original = File.read(path)
+          original = File.binread(css_path).force_encoding(Encoding::UTF_8)
           updated = with_block(original)
           return say_status(:identical, options[:css], :blue) if updated == original
 
-          File.write(path, updated)
+          File.binwrite(css_path, updated) unless options[:pretend]
           say_status(original.include?(BLOCK_START) ? :update : :insert, options[:css], :green)
         end
 
         def copy_default_theme
           copy_file "theme.css", File.join(options[:theme_dir], "theme.css"), skip: true
-          Dir.children(File.join(self.class.source_root, "presets")).sort.each do |preset|
-            copy_file File.join("presets", preset), File.join(options[:theme_dir], "presets", preset), skip: true
-          end
+          directory "presets", File.join(options[:theme_dir], "presets"), skip: true
         end
 
         def show_next_steps
           say "\nRun bin/rails tailwindcss:build (it bundles the engine CSS) and restart the server.", :green
+          return if options[:theme_dir] == Phlex::Shadcn::Engine::DEFAULT_THEME_DIR
+
+          say "The theme tasks look in #{Phlex::Shadcn::Engine::DEFAULT_THEME_DIR}: add " \
+              "config.phlex_shadcn.theme_dir = \"#{options[:theme_dir]}\" to config/application.rb.", :yellow
         end
 
         private
 
-        def destination_path(relative) = File.join(destination_root, relative)
+        def css_path = File.expand_path(options[:css], destination_root)
 
-        def css_directory = Pathname.new(destination_path(options[:css])).dirname
+        def theme_path = File.expand_path(File.join(options[:theme_dir], "theme.css"), destination_root)
 
-        def relative_to_css(path) = Pathname.new(path).relative_path_from(css_directory).to_s
+        def relative_to_css(path)
+          Pathname.new(File.expand_path(path)).relative_path_from(Pathname.new(css_path).dirname).to_s
+        rescue ArgumentError => e
+          raise Thor::Error, "cannot express #{path} relative to #{options[:css]} (#{e.message}); add the lines by hand:\n#{managed_block(nil)}"
+        end
 
-        def block
+        # With `eol` the block uses the file's own line endings (CRLF files stay consistent).
+        def managed_block(eol)
           source = relative_to_css(Phlex::Shadcn.root.join("lib"))
-          bundle = relative_to_css(destination_path("app/assets/builds/tailwind/phlex-shadcn"))
-          theme = relative_to_css(destination_path(File.join(options[:theme_dir], "theme.css")))
-          [ BLOCK_START, %(@source "#{source}";), %(@import "#{bundle}";), %(@import "#{theme.start_with?('.') ? theme : "./#{theme}"}";),
-            BLOCK_END ].join("\n")
+          bundle = relative_to_css(File.expand_path(ENGINE_BUNDLE, destination_root))
+          theme = relative_to_css(theme_path)
+          lines = [ BLOCK_START, %(@source "#{source}";), %(@import "#{bundle}";), %(@import "#{theme.start_with?('.') ? theme : "./#{theme}"}";), BLOCK_END ]
+          lines.join(eol || "\n")
         end
 
         def with_block(css)
-          return css.sub(/#{Regexp.escape(BLOCK_START)}.*?#{Regexp.escape(BLOCK_END)}/mo) { block } if css.include?(BLOCK_START)
-          raise Thor::Error, %(#{options[:css]} does not contain @import "tailwindcss";) unless css.match?(TAILWIND_IMPORT)
+          eol = css.include?("\r\n") ? "\r\n" : "\n"
+          if css.include?(BLOCK_START)
+            raise Thor::Error, "#{options[:css]} has a #{BLOCK_START} marker without its end marker: fix or remove it" unless css.include?(BLOCK_END)
 
-          css.sub(TAILWIND_IMPORT) { |import| "#{import}\n#{block}" }
+            return css.sub(MANAGED_BLOCK) { managed_block(eol) }
+          end
+          unless css.match?(TAILWIND_IMPORT)
+            raise Thor::Error, %(#{options[:css]} does not contain @import "tailwindcss"; add these lines after it by hand:#{eol}#{managed_block(eol)})
+          end
+
+          css.sub(TAILWIND_IMPORT) { |import| "#{import}#{eol}#{managed_block(eol)}" }
         end
       end
     end

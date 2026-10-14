@@ -6,7 +6,7 @@ require "generators/phlex/shadcn/install/install_generator"
 
 class InstallGeneratorTest < Rails::Generators::TestCase
   tests Phlex::Shadcn::Generators::InstallGenerator
-  destination File.expand_path("../../tmp/generator-destination", __dir__)
+  destination File.join(Dir.tmpdir, "phlex-shadcn-generator-destination-#{Process.pid}")
 
   TAILWIND_ENTRY = <<~CSS
     @import url("https://fonts.googleapis.com/css2?family=Manrope&display=swap");
@@ -41,6 +41,8 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     lines = css.lines.map(&:chomp)
     start = lines.index { |line| line.start_with?("/* phlex-shadcn:start") }
 
+    refute_nil start
+
     assert_equal %(@import "tailwindcss";), lines[start - 1]
     assert_equal [ %(@source "#{source}";), %(@import "../builds/tailwind/phlex-shadcn";), %(@import "./theme/theme.css";), "/* phlex-shadcn:end */" ],
                  lines[(start + 1)..(start + 4)]
@@ -62,7 +64,9 @@ class InstallGeneratorTest < Rails::Generators::TestCase
 
     assert_file "app/assets/tailwind/theme/theme.css", /theme:colors:start/
     assert_file "app/assets/tailwind/theme/presets/slate.css"
-    assert_equal %w[gray neutral slate stone zinc zinc-radius0], Dir.children(File.join(destination_root, "app/assets/tailwind/theme/presets")).map { |f| File.basename(f, ".css") }.sort
+    shipped = Phlex::Shadcn.root.join("app/assets/tailwind/phlex-shadcn/presets").children.map { |file| file.basename.to_s }.sort
+
+    assert_equal shipped, Dir.children(File.join(destination_root, "app/assets/tailwind/theme/presets")).sort
     assert_no_file "app/assets/tailwind/theme/tokens.css"
   end
 
@@ -104,6 +108,66 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     assert_file "config/theme/theme.css"
   end
 
+  test "accepts tailwind imports with options and keeps the block right after them" do
+    write("app/assets/tailwind/application.css", %(@import "tailwindcss" source("../../app");\n@import "./other.css";\n))
+    run_generator
+    lines = css.lines.map(&:chomp)
+
+    assert_equal %(@import "tailwindcss" source("../../app");), lines[0]
+    assert_match(/phlex-shadcn:start/, lines[1])
+    assert_equal %(@import "./other.css";), lines.last
+  end
+
+  test "keeps CRLF files consistent and idempotent" do
+    write("app/assets/tailwind/application.css", %(@import "tailwindcss";\r\n@import "./other.css";\r\n))
+    run_generator
+    first = File.binread(File.join(destination_root, "app/assets/tailwind/application.css"))
+    run_generator
+
+    refute_match(/(?<!\r)\n/, first, "a bare LF was mixed into a CRLF file")
+    assert_includes first, "phlex-shadcn:start"
+    assert_equal first, File.binread(File.join(destination_root, "app/assets/tailwind/application.css"))
+  end
+
+  test "refuses a start marker without its end marker instead of reporting identical" do
+    run_generator
+    broken = css.sub("/* phlex-shadcn:end */", "")
+    write("app/assets/tailwind/application.css", broken)
+    output = capture(:stderr) { run_generator }
+
+    assert_match(/without its end marker/, output)
+    assert_equal broken, css
+  end
+
+  test "--pretend changes no file" do
+    before = snapshot
+    run_generator %w[--pretend]
+
+    assert_equal before, snapshot
+  end
+
+  test "absolute --css and --theme-dir paths are used as given" do
+    elsewhere = Dir.mktmpdir("phlex-shadcn-elsewhere")
+    File.write(File.join(elsewhere, "tw.css"), %(@import "tailwindcss";\n))
+    run_generator [ "--css", File.join(elsewhere, "tw.css"), "--theme-dir", File.join(elsewhere, "theme") ]
+
+    assert_includes File.read(File.join(elsewhere, "tw.css")), %(@import "./theme/theme.css";)
+    assert_path_exists File.join(elsewhere, "theme/theme.css")
+    assert_path_exists File.join(elsewhere, "theme/presets/slate.css")
+  ensure
+    FileUtils.remove_entry(elsewhere) if elsewhere
+  end
+
+  test "points at config.phlex_shadcn.theme_dir when the theme lives elsewhere" do
+    output = run_generator %w[--theme-dir config/theme]
+
+    assert_match(%r{config\.phlex_shadcn\.theme_dir = "config/theme"}, output)
+  end
+
+  test "says nothing about theme_dir for the default location" do
+    refute_match(/theme_dir/, run_generator)
+  end
+
   test "fails with a clear message when the tailwind entry file is missing" do
     FileUtils.rm(File.join(destination_root, "app/assets/tailwind/application.css"))
     output = capture(:stderr) { run_generator }
@@ -117,6 +181,7 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     output = capture(:stderr) { run_generator }
 
     assert_match(/does not contain @import "tailwindcss"/, output)
+    assert_match(/phlex-shadcn:start/, output, "the message shows the lines to add by hand")
     assert_equal "body { color: red; }\n", css, "the file is left untouched"
   end
 end

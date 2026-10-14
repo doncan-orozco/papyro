@@ -51,6 +51,9 @@ module Phlex
         @dir = path
       end
 
+      # Whether a directory has been assigned (`dir` raises while it is not).
+      def configured? = !@dir.nil?
+
       def theme_file = File.join(dir, "theme.css")
       def presets_dir = File.join(dir, "presets")
 
@@ -175,15 +178,20 @@ module Phlex
         c = (1 - ((2 * l) - 1).abs) * s
         x = c * (1 - (((h / 60) % 2) - 1).abs)
         m = l - (c / 2)
-        r, g, b = case (h % 360) / 60
-                  when 0...1 then [ c, x, 0 ]
-                  when 1...2 then [ x, c, 0 ]
-                  when 2...3 then [ 0, c, x ]
-                  when 3...4 then [ 0, x, c ]
-                  when 4...5 then [ x, 0, c ]
-                  else [ c, 0, x ]
-        end
+        r, g, b = hue_sector((h % 360) / 60, c, x)
         [ r + m, g + m, b + m ].map { |v| srgb_to_linear(v) }
+      end
+
+      # The (r, g, b) triple of an HSL hue sector (0...6) before the lightness offset.
+      def hue_sector(sector, c, x)
+        case sector
+        when 0...1 then [ c, x, 0 ]
+        when 1...2 then [ x, c, 0 ]
+        when 2...3 then [ 0, c, x ]
+        when 3...4 then [ 0, x, c ]
+        when 4...5 then [ x, 0, c ]
+        else [ c, 0, x ]
+        end
       end
 
       def srgb_to_linear(v)
@@ -265,9 +273,13 @@ module Phlex
         end
       end
 
-      def check
-        validate(parse(File.read(theme_file)))
+      def check(strict: false)
+        validate(parse(File.read(theme_file)), strict: strict)
       end
+
+      # Parsing, color math and file helpers behind the methods above.
+      private_class_method :block, :variables, :normalize_value, :luminance, :to_linear_rgb, :oklch_to_linear, :hsl_to_linear,
+                           :srgb_to_linear, :hue_sector, :render_colors, :write_colors, :fill, :read_source
     end
   end
 end
