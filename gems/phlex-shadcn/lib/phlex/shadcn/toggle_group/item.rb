@@ -10,7 +10,7 @@ using Phlex::Shadcn::Values::Refinements
 # @example
 #   group.item(value: "bold", aria: { label: "Bold" }) { "B" }
 class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
-  # Classes added on top of {Toggle} classes.
+  # Classes added on top of {Phlex::Shadcn::Toggle} classes.
   #
   # @return [String]
   EXTRA_CLASSES = "w-auto min-w-0 shrink-0 px-3 focus:z-10 focus-visible:z-10"

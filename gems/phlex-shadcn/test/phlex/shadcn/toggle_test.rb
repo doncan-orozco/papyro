@@ -30,6 +30,7 @@ class Phlex::Shadcn::ToggleTest < Phlex::Shadcn::TestCase
     assert_includes out, 'aria-pressed="true"'
     assert_includes out, 'data-state="on"'
     assert_includes out, 'data-disabled=""'
+    assert Nokogiri::HTML5.fragment(out).at_css("button").key?("disabled")
     assert_includes html(pressed: false, default_pressed: true), 'data-state="off"'
   end
 
@@ -44,7 +45,10 @@ class Phlex::Shadcn::ToggleTest < Phlex::Shadcn::TestCase
   end
 
   test "variants helper" do
-    assert_includes Phlex::Shadcn::Toggle.variants(variant: :outline, size: :sm, class: "x"), "h-8"
+    classes = Phlex::Shadcn::Toggle.variants(variant: :outline, size: :sm, class: "x").split
+
+    assert_includes classes, "h-8"
+    assert_includes classes, "x"
   end
 
   test "constant tables" do

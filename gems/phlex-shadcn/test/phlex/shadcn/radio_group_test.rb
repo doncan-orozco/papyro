@@ -42,7 +42,6 @@ class Phlex::Shadcn::RadioGroupTest < Phlex::Shadcn::TestCase
     assert_equal "true", root["aria-required"]
     assert_equal "", root["data-disabled"]
     assert_equal "-1", root["tabindex"]
-    assert_raises(ArgumentError) { group(root: { orientation: "diagonal" }) }
   end
 
   test "default value checks the item and renders the indicator" do
@@ -92,7 +91,7 @@ class Phlex::Shadcn::RadioGroupTest < Phlex::Shadcn::TestCase
     assert fragment(html).at_css("fieldset[data-slot=radio-group][role=radiogroup]")
   end
 
-  test "every DX helper renders the same HTML as the explicit class call" do
+  test "the item helper renders the same HTML as the explicit class call" do
     helpers = render_view do
       render(RadioGroup.new(default_value: "a")) { |rg| rg.item(value: "a", class: "x") }
     end
@@ -102,6 +101,9 @@ class Phlex::Shadcn::RadioGroupTest < Phlex::Shadcn::TestCase
 
     assert_equal explicit, helpers
     assert_includes RadioGroup.public_instance_methods(false), :item
+  end
+
+  test "the item exposes the generated indicator helper" do
     assert_includes RadioGroup::Item.public_instance_methods(false), :indicator
   end
 

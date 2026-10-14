@@ -60,11 +60,11 @@ class Phlex::Shadcn::FieldTest < Phlex::Shadcn::TestCase
   end
 
   test "every orientation renders its classes and data attribute" do
-    Phlex::Shadcn::Field::ORIENTATIONS.each do |name, classes|
-      out = html(orientation: name)
+    Phlex::Shadcn::Field::ORIENTATIONS.each_key do |name|
+      root = Nokogiri::HTML5.fragment(html(orientation: name)).at_css("[data-slot=field]")
 
-      assert_includes out, %(data-orientation="#{name}")
-      assert_includes out, classes.split.first
+      assert_equal name, root["data-orientation"]
+      assert_equal Phlex::Shadcn::Field.variants(orientation: name).split.sort, root["class"].split.sort
     end
   end
 

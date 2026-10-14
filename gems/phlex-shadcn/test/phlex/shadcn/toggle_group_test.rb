@@ -42,7 +42,7 @@ class Phlex::Shadcn::ToggleGroupTest < Phlex::Shadcn::TestCase
   end
 
   test "type is required and validated" do
-    assert_raises(ArgumentError) { group(root: {}) }
+    assert_raises(ArgumentError) { group(root: { type: nil }) }
     assert_raises(ArgumentError) { group(root: { type: "triple" }) }
     assert_raises(ArgumentError) { group(root: { type: "single", default_value: [ "a" ] }) }
     assert_raises(ArgumentError) { group(root: { type: "multiple", default_value: "a" }) }
@@ -92,7 +92,9 @@ class Phlex::Shadcn::ToggleGroupTest < Phlex::Shadcn::TestCase
   end
 
   test "item outside a group raises" do
-    assert_raises(ArgumentError) { render_view { render ToggleGroup::Item.new(value: "a") } }
+    error = assert_raises(ArgumentError) { render_view { render ToggleGroup::Item.new(value: "a") } }
+
+    assert_includes error.message, "ToggleGroup"
   end
 
   test "as_child renders the root on the given tag" do
@@ -122,7 +124,7 @@ class Phlex::Shadcn::ToggleGroupTest < Phlex::Shadcn::TestCase
     assert_equal 1, fragment(html).css("[data-slot=toggle-group]").size, "no wrapper element is added"
   end
 
-  test "every DX helper renders the same HTML as the explicit class call" do
+  test "the item helper renders the same HTML as the explicit class call" do
     helper = render_view do
       render(ToggleGroup.new(type: "single")) { |toggle_group| toggle_group.item(value: "a") { "x" } }
     end
@@ -131,16 +133,44 @@ class Phlex::Shadcn::ToggleGroupTest < Phlex::Shadcn::TestCase
     end
 
     assert_equal explicit, helper
-    assert_respond_to ToggleGroup.new(type: "single"), :item
   end
 
-  test "constant tables and unknown options" do
+  test "constant tables list the accepted values" do
     assert_equal %w[single multiple], ToggleGroup::TYPES
     assert_equal %w[horizontal vertical], ToggleGroup::ORIENTATIONS
     assert_equal %w[ltr rtl], ToggleGroup::DIRECTIONS
+  end
+
+  test "unknown orientation, dir and non-string spacing raise" do
     assert_raises(ArgumentError) { group(root: { type: "single", orientation: "diagonal" }) }
     assert_raises(ArgumentError) { group(root: { type: "single", dir: "up" }) }
     assert_raises(ArgumentError) { group(root: { type: "single", spacing: "2" }) }
+  end
+
+  test "controlled value, multiple initial value, loop and dir reach the controller" do
+    root = fragment(group(root: { type: "multiple", value: %w[a], dir: "rtl", loop: false })).at_css("[data-slot=toggle-group]")
+
+    assert_equal "true", root["data-shadcn--toggle-group-controlled-value"]
+    assert_equal %(["a"]), root["data-shadcn--toggle-group-initial-value"]
+    assert_equal "false", root["data-shadcn--toggle-group-loop-value"]
+    assert_equal "rtl", root["dir"]
+  end
+
+  test "orientation is emitted on the root only with roving focus" do
+    with = fragment(group(root: { type: "single", orientation: :vertical })).at_css("[data-slot=toggle-group]")
+    without = fragment(group(root: { type: "single", orientation: :vertical, roving_focus: false })).at_css("[data-slot=toggle-group]")
+
+    assert_equal "vertical", with["data-orientation"]
+    assert_nil without["data-orientation"]
+  end
+
+  test "an item uses its own variant and size when the group sets none, and can be disabled on its own" do
+    item = fragment(group(root: { type: "single" }, item: { variant: "outline", size: :sm, disabled: true })).at_css("[data-slot=toggle-group-item]")
+
+    assert_equal "outline", item["data-variant"]
+    assert_equal "sm", item["data-size"]
+    assert item.key?("disabled")
+    assert_equal "", item["data-disabled"]
   end
 
   test "item as_child renders the given tag" do

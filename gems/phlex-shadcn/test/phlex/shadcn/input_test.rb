@@ -22,8 +22,10 @@ class Phlex::Shadcn::InputTest < Phlex::Shadcn::TestCase
 
     assert_includes html, "h-12"
     refute_includes html, "h-9"
-    assert_includes html, "disabled"
-    assert_includes html, "readonly"
+    input = Nokogiri::HTML5.fragment(html).at_css("input")
+
+    assert input.key?("disabled")
+    assert input.key?("readonly")
     assert_includes html, 'aria-invalid="true"'
     assert_includes html, 'data-x="1"'
   end

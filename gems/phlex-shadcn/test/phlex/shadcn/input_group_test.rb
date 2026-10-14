@@ -52,8 +52,8 @@ class Phlex::Shadcn::InputGroupTest < Phlex::Shadcn::TestCase
 
   test "text has no slot, input and textarea use the control slot" do
     assert_not_includes render_part(IG::Text), "data-slot"
-    assert_includes render_part(IG::Input, placeholder: "p", class: "w-1"), 'data-slot="input-group-control"'
-    assert_includes render_part(IG::Textarea, default_value: "hi"), 'data-slot="input-group-control"'
+    assert_includes render_part(IG::Input, placeholder: "p"), 'data-slot="input-group-control"'
+    assert_includes render_part(IG::Textarea), 'data-slot="input-group-control"'
   end
 
   test "every helper renders the same HTML as the explicit class" do

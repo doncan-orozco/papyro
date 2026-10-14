@@ -16,7 +16,7 @@ using Phlex::Shadcn::Values::Refinements
 class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
   # Root classes, one string per concern (joined through `cn`).
   #
-  # @return [Array<String>]
+  # @api private
   CLASS_NAME = [
     "group/input-group relative flex w-full items-center rounded-md border border-input shadow-xs transition-[color,box-shadow] outline-none dark:bg-input/30",
     "h-9 min-w-0 has-[>textarea]:h-auto",
@@ -48,7 +48,7 @@ class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
   class Addon < Phlex::Shadcn::Base
     # Classes shared by every alignment.
     #
-    # @return [String]
+    # @api private
     BASE = "flex h-auto cursor-text items-center justify-center gap-2 py-1.5 text-sm font-medium text-muted-foreground select-none group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-4"
 
     # Alignment => Tailwind classes; the keys are the accepted values of `align:`.
@@ -63,10 +63,12 @@ class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
 
     # Stimulus identifier.
     #
+    # @return [String]
     # @api private
     CONTROLLER = "shadcn--input-group"
     # Stimulus action descriptor.
     #
+    # @return [String]
     # @api private
     ACTION = "click->shadcn--input-group#focusControl"
 
@@ -113,7 +115,7 @@ class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
   class Button < Phlex::Shadcn::Base
     # Classes added to the wrapped button.
     #
-    # @return [String]
+    # @api private
     BASE = "flex items-center gap-2 text-sm shadow-none"
 
     # Size name => Tailwind classes; the keys are the accepted values of `size:`.
@@ -159,7 +161,7 @@ class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
   class Text < Phlex::Shadcn::Base
     # Default text classes.
     #
-    # @return [String]
+    # @api private
     CLASS_NAME = "flex items-center gap-2 text-sm text-muted-foreground [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4"
 
     # @param attrs [Hash] HTML attributes merged onto the `<span>`
@@ -181,7 +183,7 @@ class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
   class Input < Phlex::Shadcn::Base
     # Default input classes.
     #
-    # @return [String]
+    # @api private
     CLASS_NAME = "flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
 
     # @param attrs [Hash] attributes forwarded to `Phlex::Shadcn::Input` (`type:`, `name:`, `placeholder:`...)
@@ -202,7 +204,7 @@ class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
   class Textarea < Phlex::Shadcn::Base
     # Default textarea classes.
     #
-    # @return [String]
+    # @api private
     CLASS_NAME = "flex-1 resize-none rounded-none border-0 bg-transparent py-3 shadow-none focus-visible:ring-0 dark:bg-transparent"
 
     # @param attrs [Hash] attributes forwarded to `Phlex::Shadcn::Textarea`

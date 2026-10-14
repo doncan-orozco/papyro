@@ -41,6 +41,7 @@ class Phlex::Shadcn::LabelTest < Phlex::Shadcn::TestCase
     assert_includes out, "<span"
     assert_not_includes out, "<label"
     assert_includes out, 'data-slot="label"'
+    assert_includes out, 'for="a"'
   end
 
   test "for: string key is replaced by html_for" do

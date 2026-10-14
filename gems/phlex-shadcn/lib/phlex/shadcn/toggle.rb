@@ -43,8 +43,8 @@ class Phlex::Shadcn::Toggle < Phlex::Shadcn::Base
     new(variant:, size:).send(:classes, binding.local_variable_get(:class))
   end
 
-  # @param variant [String, Symbol] a key of {VARIANTS}; underscores are normalized to dashes
-  # @param size [String, Symbol] a key of {SIZES}; underscores are normalized to dashes
+  # @param variant [String, Symbol, nil] a key of {VARIANTS}; underscores are normalized to dashes, nil means "default"
+  # @param size [String, Symbol, nil] a key of {SIZES}; underscores are normalized to dashes, nil means "default"
   # @param pressed [Boolean, nil] controlled state (non-nil: user input only dispatches an event, the caller re-renders)
   # @param default_pressed [Boolean] initial state (uncontrolled)
   # @param disabled [Boolean] disables the button (`disabled` attribute and `data-disabled`)

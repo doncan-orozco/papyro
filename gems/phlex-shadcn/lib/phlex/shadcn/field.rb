@@ -272,6 +272,7 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   # Validation messages, a `role="alert"` `<div>` (helper: `field.error`). Renders nothing when there is no content.
   #
   # Block content wins over `errors:`; one message renders as text, several as a bulleted list (duplicates removed).
+  # Blank entries count toward the choice, so +[message, nil]+ renders a one-item list.
   #
   # @example
   #   field.error(errors: [ { message: "can't be blank" } ])

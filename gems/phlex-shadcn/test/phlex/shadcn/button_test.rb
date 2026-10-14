@@ -29,7 +29,7 @@ class Phlex::Shadcn::ButtonTest < Phlex::Shadcn::TestCase
     assert_not_includes out, "rounded-md"
     assert_includes out, 'id="x"'
     assert_includes out, 'data-foo="1"'
-    assert_includes out, "disabled"
+    assert Nokogiri::HTML5.fragment(out).at_css("button").key?("disabled")
   end
 
   test "unknown options raise" do
@@ -44,7 +44,11 @@ class Phlex::Shadcn::ButtonTest < Phlex::Shadcn::TestCase
   end
 
   test "variants class method" do
-    assert_includes Phlex::Shadcn::Button.variants(variant: :outline, size: :sm, class: "x"), "border bg-background"
+    classes = Phlex::Shadcn::Button.variants(variant: :outline, size: :sm, class: "x").split
+
+    assert_includes classes, "bg-background"
+    assert_includes classes, "h-8"
+    assert_includes classes, "x"
   end
 
   test "variants raises on unknown options and defaults nil" do
