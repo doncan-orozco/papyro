@@ -6,6 +6,18 @@ using Phlex::Shadcn::Values::Refinements
 #
 # @example
 #   Phlex::Shadcn::Bubble.new(variant: :muted, align: :end) { |bubble| bubble.content { "Hello" } }
+#
+# @!method group(**attrs, &block)
+#   Renders a {Bubble::Group}; same as +render Bubble::Group.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method content(**attrs, &block)
+#   Renders a {Bubble::Content}; same as +render Bubble::Content.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method reactions(**attrs, &block)
+#   Renders a {Bubble::Reactions}; same as +render Bubble::Reactions.new(**attrs), &block+.
+#   @return [void]
 class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #

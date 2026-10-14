@@ -1,10 +1,30 @@
 # frozen_string_literal: true
 
-# shadcn Message: one chat message row row. +align+ puts it on either side. Compose with {Message::Group}, {Message::Avatar}, {Message::Content},
+# shadcn Message: one chat message row. +align+ puts it on either side. Compose with {Message::Group}, {Message::Avatar}, {Message::Content},
 # {Message::Header} and {Message::Footer} (the header and footer sit inside the content).
 #
 # @example
 #   Phlex::Shadcn::Message.new(align: :end) { |message| message.content { message.header { "You" } } }
+#
+# @!method group(**attrs, &block)
+#   Renders a {Message::Group}; same as +render Message::Group.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method avatar(**attrs, &block)
+#   Renders a {Message::Avatar}; same as +render Message::Avatar.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method content(**attrs, &block)
+#   Renders a {Message::Content}; same as +render Message::Content.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method header(**attrs, &block)
+#   Renders a {Message::Header}; same as +render Message::Header.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method footer(**attrs, &block)
+#   Renders a {Message::Footer}; same as +render Message::Footer.new(**attrs), &block+.
+#   @return [void]
 class Phlex::Shadcn::Message < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #

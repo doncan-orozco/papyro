@@ -4,6 +4,26 @@
 #
 # @example
 #   Phlex::Shadcn::Empty.new { |empty| empty.header { empty.media(variant: :icon) { "i" }; empty.title { "No projects" } } }
+#
+# @!method header(**attrs, &block)
+#   Renders a {Empty::Header}; same as +render Empty::Header.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method media(**attrs, &block)
+#   Renders a {Empty::Media}; same as +render Empty::Media.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method title(**attrs, &block)
+#   Renders a {Empty::Title}; same as +render Empty::Title.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method description(**attrs, &block)
+#   Renders a {Empty::Description}; same as +render Empty::Description.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method content(**attrs, &block)
+#   Renders a {Empty::Content}; same as +render Empty::Content.new(**attrs), &block+.
+#   @return [void]
 class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
@@ -64,7 +84,7 @@ class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
     # @example
     #   Phlex::Shadcn::Empty::Media.variants(variant: :icon)
     #
-    # @param variant [String, Symbol] one of {VARIANTS}
+    # @param variant [String, Symbol] one of the keys of {VARIANTS}
     # @param class [String, nil] extra classes, merged last
     # @return [String]
     # @raise [ArgumentError] on an unknown variant

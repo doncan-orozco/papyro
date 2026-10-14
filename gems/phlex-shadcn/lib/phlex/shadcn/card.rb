@@ -4,6 +4,30 @@
 #
 # @example
 #   Phlex::Shadcn::Card.new { |card| card.header { card.title { "Plan" } }; card.content { "Body" } }
+#
+# @!method header(**attrs, &block)
+#   Renders a {Card::Header}; same as +render Card::Header.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method title(**attrs, &block)
+#   Renders a {Card::Title}; same as +render Card::Title.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method description(**attrs, &block)
+#   Renders a {Card::Description}; same as +render Card::Description.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method action(**attrs, &block)
+#   Renders a {Card::Action}; same as +render Card::Action.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method content(**attrs, &block)
+#   Renders a {Card::Content}; same as +render Card::Content.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method footer(**attrs, &block)
+#   Renders a {Card::Footer}; same as +render Card::Footer.new(**attrs), &block+.
+#   @return [void]
 class Phlex::Shadcn::Card < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #

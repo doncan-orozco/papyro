@@ -6,6 +6,14 @@ using Phlex::Shadcn::Values::Refinements
 #
 # @example
 #   Phlex::Shadcn::Marker.new(variant: :separator) { |marker| marker.content { "Today" } }
+#
+# @!method icon(**attrs, &block)
+#   Renders a {Marker::Icon}; same as +render Marker::Icon.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method content(**attrs, &block)
+#   Renders a {Marker::Content}; same as +render Marker::Content.new(**attrs), &block+.
+#   @return [void]
 class Phlex::Shadcn::Marker < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
@@ -24,7 +32,7 @@ class Phlex::Shadcn::Marker < Phlex::Shadcn::Base
   # @example
   #   Phlex::Shadcn::Marker.variants(variant: :border)
   #
-  # @param variant [String, Symbol] one of {VARIANTS}
+  # @param variant [String, Symbol] one of the keys of {VARIANTS}
   # @param class [String, nil] extra classes, merged last
   # @return [String]
   # @raise [ArgumentError] on an unknown variant

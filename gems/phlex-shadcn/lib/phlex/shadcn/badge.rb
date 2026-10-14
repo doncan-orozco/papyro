@@ -27,7 +27,7 @@ class Phlex::Shadcn::Badge < Phlex::Shadcn::Base
   # @example
   #   Phlex::Shadcn::Badge.variants(variant: :outline, class: "ml-2")
   #
-  # @param variant [String, Symbol] one of {VARIANTS}
+  # @param variant [String, Symbol] one of the keys of {VARIANTS}
   # @param class [String, nil] extra classes, merged last
   # @return [String]
   # @raise [ArgumentError] on an unknown variant

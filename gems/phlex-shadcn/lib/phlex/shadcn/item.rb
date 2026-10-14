@@ -6,6 +6,42 @@ using Phlex::Shadcn::Values::Refinements
 #
 # @example
 #   Phlex::Shadcn::Item.new(variant: :outline) { |item| item.content { item.title { "Invoice" }; item.description { "Due Friday" } } }
+#
+# @!method media(**attrs, &block)
+#   Renders a {Item::Media}; same as +render Item::Media.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method content(**attrs, &block)
+#   Renders a {Item::Content}; same as +render Item::Content.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method actions(**attrs, &block)
+#   Renders a {Item::Actions}; same as +render Item::Actions.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method group(**attrs, &block)
+#   Renders a {Item::Group}; same as +render Item::Group.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method title(**attrs, &block)
+#   Renders a {Item::Title}; same as +render Item::Title.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method description(**attrs, &block)
+#   Renders a {Item::Description}; same as +render Item::Description.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method header(**attrs, &block)
+#   Renders a {Item::Header}; same as +render Item::Header.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method footer(**attrs, &block)
+#   Renders a {Item::Footer}; same as +render Item::Footer.new(**attrs), &block+.
+#   @return [void]
+#
+# @!method separator(**attrs, &block)
+#   Renders a {Item::Separator}; same as +render Item::Separator.new(**attrs), &block+.
+#   @return [void]
 class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
@@ -30,8 +66,8 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   # @example
   #   Phlex::Shadcn::Item.variants(variant: :outline, size: :sm)
   #
-  # @param variant [String, Symbol] one of {VARIANTS}
-  # @param size [String, Symbol] one of {SIZES}
+  # @param variant [String, Symbol] one of the keys of {VARIANTS}
+  # @param size [String, Symbol] one of the keys of {SIZES}
   # @param class [String, nil] extra classes, merged last
   # @return [String]
   # @raise [ArgumentError] on an unknown variant/size
@@ -91,7 +127,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
     # @example
     #   Phlex::Shadcn::Item::Media.variants(variant: :icon)
     #
-    # @param variant [String, Symbol] one of {VARIANTS}
+    # @param variant [String, Symbol] one of the keys of {VARIANTS}
     # @param class [String, nil] extra classes, merged last
     # @return [String]
     # @raise [ArgumentError] on an unknown variant
