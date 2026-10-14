@@ -97,12 +97,6 @@ class Phlex::Shadcn::ToggleGroupTest < Phlex::Shadcn::TestCase
     assert_includes error.message, "ToggleGroup"
   end
 
-  test "as_child renders the root on the given tag" do
-    html = render_view { render(ToggleGroup.new(type: "single", as_child: :section)) { } }
-
-    assert fragment(html).at_css("section[data-slot=toggle-group]")
-  end
-
   # Documented deviation (deviations/toggle-group.json): React drops every root attribute with as_child (the Slot clones
   # the Context.Provider); the port keeps them on the caller's element because the Stimulus controller lives there.
   test "as_child keeps every root attribute and the controller on the caller's element (deviation from React)" do

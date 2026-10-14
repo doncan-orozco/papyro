@@ -15,7 +15,7 @@ class Phlex::Shadcn::InputGroupTest < Phlex::Shadcn::TestCase
     assert_includes out, 'data-slot="input-group"'
     assert_includes out, 'role="group"'
     assert_includes out, "h-12"
-    assert_not_includes out, " h-9 "
+    assert_not_includes Nokogiri::HTML5.fragment(out).at_css("[data-slot=input-group]")["class"].split, "h-9"
     assert_includes out, 'id="g"'
     assert_includes out, 'data-disabled="true"'
   end

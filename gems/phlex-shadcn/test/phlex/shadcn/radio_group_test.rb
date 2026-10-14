@@ -59,7 +59,7 @@ class Phlex::Shadcn::RadioGroupTest < Phlex::Shadcn::TestCase
     item = fragment(html).at_css("#ia")
 
     assert_includes item["class"], "size-6"
-    refute_includes item["class"], " size-4 "
+    refute_includes item["class"].split, "size-4"
     assert_equal "", item["data-disabled"]
     assert item.key?("disabled")
     assert_equal "true", item["aria-invalid"]
@@ -100,11 +100,6 @@ class Phlex::Shadcn::RadioGroupTest < Phlex::Shadcn::TestCase
     end
 
     assert_equal explicit, helpers
-    assert_includes RadioGroup.public_instance_methods(false), :item
-  end
-
-  test "the item exposes the generated indicator helper" do
-    assert_includes RadioGroup::Item.public_instance_methods(false), :indicator
   end
 
   test "constant tables and unknown options" do

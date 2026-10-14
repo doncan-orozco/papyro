@@ -32,10 +32,12 @@ class ButtonGroupTest < Phlex::Shadcn::TestCase
     assert_not_includes html, "rounded-l-none"
   end
 
-  test "caller class merges last and attrs reach the root" do
+  test "caller class overrides a conflicting base class and attrs reach the root" do
     html = render_group(class: "w-full", id: "g")
+    classes = Nokogiri::HTML5.fragment(html).at_css("[data-slot=button-group]")["class"].split
 
-    assert_includes html, "w-full"
+    assert_includes classes, "w-full"
+    assert_not_includes classes, "w-fit"
     assert_includes html, 'id="g"'
   end
 

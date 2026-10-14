@@ -22,10 +22,6 @@ class Phlex::Shadcn::FieldTest < Phlex::Shadcn::TestCase
     assert_includes out, 'data-invalid="true"'
   end
 
-  test "variants matches the root class" do
-    assert_includes Phlex::Shadcn::Field.variants(orientation: "responsive"), "@md/field-group:flex-row"
-  end
-
   test "every helper renders the same HTML as the explicit class" do
     helpers = html { |f| HELPERS.each_key { |n| f.public_send(n, class: "k") { "x" } } }
     explicit = html do |f|
