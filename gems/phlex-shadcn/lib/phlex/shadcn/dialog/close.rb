@@ -16,7 +16,6 @@ class Phlex::Shadcn::Dialog::Close < Phlex::Shadcn::Base
 
   # @yield the button content
   # @return [void]
-  # @raise [ArgumentError] when rendered outside Dialog
   def view_template(&)
     attrs = merge_attrs({
                           type: "button", data: { slot: "dialog-close", shadcn__dialog_part: "close", action: "click->shadcn--dialog#close" }

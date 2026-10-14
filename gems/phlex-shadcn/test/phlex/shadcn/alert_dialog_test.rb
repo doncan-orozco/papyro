@@ -139,7 +139,7 @@ class Phlex::Shadcn::AlertDialogTest < Phlex::Shadcn::TestCase
     doc = fragment(html)
 
     %w[content header media title description footer].each do |slot|
-      assert_includes doc.at_css("[data-slot=alert-dialog-#{slot}]")["class"], "x-#{slot}"
+      assert_includes doc.at_css("[data-slot=alert-dialog-#{slot}]")["class"], "x-#{slot}", slot
     end
   end
 

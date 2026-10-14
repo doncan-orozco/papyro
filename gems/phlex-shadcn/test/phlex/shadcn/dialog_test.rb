@@ -192,7 +192,7 @@ class Phlex::Shadcn::DialogTest < Phlex::Shadcn::TestCase
       render(Dialog::Close.new(class: "x-close", id: "c")) { "C" }
     end)
 
-    %w[content header title description footer].each { |slot| assert_includes doc.at_css("[data-slot=dialog-#{slot}]")["class"], "x-#{slot}" }
+    %w[content header title description footer].each { |slot| assert_includes doc.at_css("[data-slot=dialog-#{slot}]")["class"], "x-#{slot}", slot }
     close = doc.at_css("#c")
 
     assert_includes close["class"], "x-close"
@@ -205,5 +205,11 @@ class Phlex::Shadcn::DialogTest < Phlex::Shadcn::TestCase
 
       assert_match(/must be used within Dialog/, error.message, part.to_s)
     end
+  end
+
+  test "Close renders outside the root without raising" do
+    out = render_view { render(Dialog::Close.new) { "C" } }
+
+    assert_includes out, "data-slot=\"dialog-close\""
   end
 end

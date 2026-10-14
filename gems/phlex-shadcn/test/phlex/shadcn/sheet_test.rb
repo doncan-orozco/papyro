@@ -109,7 +109,7 @@ class Phlex::Shadcn::SheetTest < Phlex::Shadcn::TestCase
     end
     doc = fragment(html)
 
-    %w[content header title description footer].each { |slot| assert_includes doc.at_css("[data-slot=sheet-#{slot}]")["class"], "x-#{slot}" }
+    %w[content header title description footer].each { |slot| assert_includes doc.at_css("[data-slot=sheet-#{slot}]")["class"], "x-#{slot}", slot }
     assert_includes doc.at_css("#c")["class"], "x-close"
   end
 
@@ -119,6 +119,12 @@ class Phlex::Shadcn::SheetTest < Phlex::Shadcn::TestCase
 
       assert_match(/must be used within Sheet/, error.message, part.to_s)
     end
+  end
+
+  test "Close renders outside the root without raising" do
+    out = render_view { render(Sheet::Close.new) { "C" } }
+
+    assert_includes out, "data-slot=\"sheet-close\""
   end
 
   test "as_child renders the trigger onto the given element" do

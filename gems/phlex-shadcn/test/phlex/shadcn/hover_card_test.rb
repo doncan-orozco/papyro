@@ -91,11 +91,16 @@ class Phlex::Shadcn::HoverCardTest < Phlex::Shadcn::TestCase
     assert_not_includes options, "forceMount"
   end
 
-  test "open_delay and close_delay reach the trigger and attrs merge onto it" do
-    trigger = Nokogiri::HTML5.fragment(render_card(root: { open_delay: 10, close_delay: 20 }, trigger: { class: "x-trigger", href: "/u/1" })).at_css("a")
+  test "open_delay and close_delay reach the trigger" do
+    trigger = Nokogiri::HTML5.fragment(render_card(root: { open_delay: 10, close_delay: 20 })).at_css("a")
 
     assert_equal "10", trigger["data-shadcn--hover-card-open-delay-value"]
     assert_equal "20", trigger["data-shadcn--hover-card-close-delay-value"]
+  end
+
+  test "attrs merge onto the trigger" do
+    trigger = Nokogiri::HTML5.fragment(render_card(trigger: { class: "x-trigger", href: "/u/1" })).at_css("a")
+
     assert_includes trigger["class"], "x-trigger"
     assert_equal "/u/1", trigger["href"]
   end

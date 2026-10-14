@@ -94,10 +94,23 @@ class Phlex::Shadcn::PopoverTest < Phlex::Shadcn::TestCase
     assert_not_includes options, "forceMount"
   end
 
-  test "modal reaches the controller host and the anchor and header parts merge their class" do
+  test "modal reaches the controller host" do
     html = Class.new(Phlex::HTML) do
       define_method(:view_template) do
         render Popover.new(modal: true) do
+          render(Popover::Trigger.new) { "T" }
+          render(Popover::Content.new) { "C" }
+        end
+      end
+    end.new.call
+
+    assert_equal "true", Nokogiri::HTML5.fragment(html).at_css("[data-controller=shadcn--popover]")["data-shadcn--popover-modal-value"]
+  end
+
+  test "anchor and header parts merge their class" do
+    html = Class.new(Phlex::HTML) do
+      define_method(:view_template) do
+        render Popover.new do
           render(Popover::Anchor.new(class: "x-anchor")) { "A" }
           render(Popover::Trigger.new) { "T" }
           render(Popover::Content.new) { render(Popover::Header.new(class: "x-header")) { "H" } }
@@ -106,7 +119,6 @@ class Phlex::Shadcn::PopoverTest < Phlex::Shadcn::TestCase
     end.new.call
     doc = Nokogiri::HTML5.fragment(html)
 
-    assert_equal "true", doc.at_css("[data-controller=shadcn--popover]")["data-shadcn--popover-modal-value"]
     assert_includes doc.at_css("[data-slot=popover-anchor]")["class"], "x-anchor"
     assert_includes doc.at_css("[data-slot=popover-header]")["class"], "x-header"
   end
