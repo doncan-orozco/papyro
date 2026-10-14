@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn `Input` (new-york-v4). Spec: docs/shadcn-port/specs/input.md
+#
 # A single-line text field, the shadcn `Input`; renders a void `<input data-slot="input">`.
 #
 # @example

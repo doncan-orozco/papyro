@@ -55,8 +55,8 @@ class Phlex::Shadcn::Button < Phlex::Shadcn::Base
     new(variant: variant, size: size).send(:classes, binding.local_variable_get(:class))
   end
 
-  # @param variant [String, Symbol, nil] one of VARIANTS; underscores are normalized (`:icon_sm` is `"icon-sm"`)
-  # @param size [String, Symbol, nil] one of SIZES
+  # @param variant [String, Symbol, nil] one of VARIANTS (nil means "default")
+  # @param size [String, Symbol, nil] one of SIZES (nil means "default"); underscores are normalized (`:icon_sm` is `"icon-sm"`)
   # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render the given tag (`:a`) or component instead of a `<button>`, merging the button props into it
   # @param attrs [Hash] HTML attributes (`type:`, `disabled:`, `class:`, `data:`, `aria:`...)
   # @raise [ArgumentError] when the variant or size is unknown

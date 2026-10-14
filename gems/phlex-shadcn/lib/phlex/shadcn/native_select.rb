@@ -28,9 +28,9 @@ class Phlex::Shadcn::NativeSelect < Phlex::Shadcn::Base
   # Classes of the chevron icon.
   ICON = "pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-muted-foreground opacity-50 select-none"
 
-  # value: wins over default_value:. Both render the selected attribute (spec Deviations).
+  # Builds the select. `value:` wins over `default_value:`; both render the `selected` attribute (spec Deviations).
   #
-  # @param size [String, Symbol] `"default"` or `"sm"`, rendered as `data-size`
+  # @param size [String, Symbol] `"default"` or `"sm"`, rendered as `data-size`; other values are rendered as-is in `data-size`
   # @param default_value [String, Array<String>, nil] value(s) whose options render `selected`
   # @param value [String, Array<String>, nil] same as `default_value`, takes precedence when not nil
   # @param attrs [Hash] HTML attributes for the `<select>` (`name:`, `multiple:`, `class:` merged last, `aria:`, `data:`)
@@ -42,7 +42,7 @@ class Phlex::Shadcn::NativeSelect < Phlex::Shadcn::Base
     super()
   end
 
-  # @yield [select] the block that renders the options
+  # @yield [select] (required) the block that renders the options
   # @yieldparam select [NativeSelect] this component, exposing the `option` and `opt_group` helpers
   # @return [void]
   def view_template

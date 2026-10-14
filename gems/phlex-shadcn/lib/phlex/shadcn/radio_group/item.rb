@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# shadcn RadioGroupItem: Radix Item button (+ Indicator while checked) followed by the form bubble input.
 using Phlex::Shadcn::Values::Refinements
 
+# shadcn RadioGroupItem: Radix Item button (+ Indicator while checked) followed by the form bubble input.
 #
 # Must be rendered inside a {RadioGroup} (raises ArgumentError otherwise).
 #
@@ -12,6 +12,8 @@ class Phlex::Shadcn::RadioGroup::Item < Phlex::Shadcn::Base
   # Classes of the item button.
   CLASSES = "aspect-square size-4 shrink-0 rounded-full border border-input text-primary shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
   # Inline style hiding the form bubble input.
+  #
+  # @api private
   BUBBLE_STYLE = "position: absolute; pointer-events: none; opacity: 0; margin: 0px; transform: translateX(-100%);"
   # Stimulus actions wired on the item button.
   #
@@ -27,8 +29,9 @@ class Phlex::Shadcn::RadioGroup::Item < Phlex::Shadcn::Base
     # Classes of the indicator icon.
     ICON_CLASSES = "absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 fill-primary"
 
-    # @param state [String] `"checked"` or `"unchecked"`
-    # @param disabled [Boolean]
+    # @param state [String] `"checked"` or `"unchecked"`; emitted as `data-state` (only `"checked"` is meaningful, the
+    #   controller mounts this markup when an item becomes checked)
+    # @param disabled [Boolean] when true the indicator carries an empty `data-disabled` attribute
     def initialize(state:, disabled: false)
       @state = state
       @disabled = disabled

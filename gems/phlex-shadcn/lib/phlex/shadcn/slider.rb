@@ -4,9 +4,13 @@
 # Behavior: controllers/shadcn/slider_controller.js (one controller on the root span).
 using Phlex::Shadcn::Values::Refinements
 
-#
 # Single component with no nested parts: the track, range, thumbs and hidden inputs (one per value) are rendered internally.
-# One thumb per element of the initial value array (two when none is given).
+# One thumb per element of the initial value array. With no array value, two thumbs and two hidden inputs are rendered:
+# the first at `min`, the second hidden (no `aria-valuenow`, no input value).
+#
+# Controlled mode: `value:` is controlled only when it is an Array (`value.is_a?(Array)`); any other value is ignored
+# and the slider is uncontrolled. A controlled slider only dispatches events on user input and the caller re-renders.
+# Events: `shadcn--slider:value-change` and `shadcn--slider:value-commit` (both with `detail: { value }`).
 #
 # @example
 #   render Phlex::Shadcn::Slider.new(default_value: [ 25, 75 ], max: 100, step: 5, name: "price", class: "w-64")
@@ -28,21 +32,20 @@ class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
   # Per-orientation transform exposed as `--radix-slider-thumb-transform`.
   THUMB_TRANSFORM = { "horizontal" => "translateX(-50%)", "vertical" => "translateY(50%)" }.freeze
 
-  # value: non-nil is controlled (user input only dispatches shadcn--slider:value-change, the caller re-renders).
-  #
-  # @param default_value [Array<Numeric>, nil] initial thumb values (uncontrolled); defaults to `[ min ]` values on two thumbs
-  # @param value [Array<Numeric>, nil] controlled thumb values; ignored unless an Array
-  # @param min [Numeric]
-  # @param max [Numeric]
-  # @param step [Numeric]
-  # @param orientation [String, Symbol] one of {ORIENTATIONS}
-  # @param disabled [Boolean]
+  # @param default_value [Array<Numeric>, nil] initial thumb values (uncontrolled); without it the slider renders two
+  #   thumbs and two hidden inputs, the first at `min` and the second hidden (no `aria-valuenow`, no input value)
+  # @param value [Array<Numeric>, nil] controlled thumb values; ignored unless an Array (then the slider is uncontrolled)
+  # @param min [Numeric] lowest value (default 0)
+  # @param max [Numeric] highest value (default 100)
+  # @param step [Numeric] value increment (default 1)
+  # @param orientation [String, Symbol] one of {ORIENTATIONS} (default "horizontal")
+  # @param disabled [Boolean] disables the slider (default false)
   # @param inverted [Boolean] reverses the direction of the range
   # @param min_steps_between_thumbs [Integer] minimum distance between thumbs, in steps
   # @param preserve_thumb_order [Boolean] keep thumb values sorted while dragging
   # @param name [String, nil] form field name of the hidden inputs (`name[]` with several thumbs)
   # @param form [String, nil] id of the associated `<form>`
-  # @param dir [String, Symbol, nil] one of {DIRECTIONS}; defaults to the surrounding direction provider
+  # @param dir [String, Symbol, nil] one of {DIRECTIONS}; the surrounding direction provider's direction is the default for horizontal sliders only
   # @param attrs [Hash] HTML attributes for the root span (`class:` merged last, `aria:`, `data:`, `style:`)
   # @raise [ArgumentError] when `orientation:` or `dir:` is not an allowed value
   def initialize(default_value: nil, value: nil, min: 0, max: 100, step: 1, orientation: "horizontal", disabled: false,

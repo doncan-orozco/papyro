@@ -3,8 +3,9 @@
 # shadcn/ui Switch over Radix Switch. Spec: docs/shadcn-port/specs/switch.md
 using Phlex::Shadcn::Values::Refinements
 
-#
 # A toggle button with `role=switch`, plus a hidden checkbox so it submits with a form.
+#
+# User input dispatches the `shadcn--switch:checked-change` event (`detail: { checked }`).
 #
 # @example
 #   render Phlex::Shadcn::Switch.new(name: "notifications", default_checked: true, id: "notifications")
@@ -14,12 +15,15 @@ class Phlex::Shadcn::Switch < Phlex::Shadcn::Base
   # Classes of the thumb span.
   THUMB_CLASS = "pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0 dark:data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground"
   # Inline style hiding the form bubble input.
+  #
+  # @api private
   BUBBLE_STYLE = "position: absolute; pointer-events: none; opacity: 0; margin: 0px; transform: translateX(-100%);"
 
-  # @param size [String, Symbol] `"default"` or `"sm"`
+  # @param size [String, Symbol] `"default"` or `"sm"`; other values are not supported: they are rendered as-is in
+  #   `data-size` without sizing classes
   # @param checked [Boolean, nil] controlled state (non-nil: user input only dispatches an event, the caller re-renders)
   # @param default_checked [Boolean] initial state (uncontrolled)
-  # @param disabled [Boolean]
+  # @param disabled [Boolean] disables the button and the hidden checkbox, and adds `data-disabled`
   # @param required [Boolean, nil] sets `aria-required` and the bubble input's `required`
   # @param name [String, nil] form field name of the bubble input
   # @param value [String] value submitted when on

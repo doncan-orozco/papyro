@@ -3,7 +3,6 @@
 # shadcn Toggle over Radix Toggle. Spec: docs/shadcn-port/specs/toggle.md
 using Phlex::Shadcn::Values::Refinements
 
-#
 # A two-state button (`aria-pressed`). Use `Toggle.variants` to get its classes for another element.
 #
 # @example
@@ -38,11 +37,11 @@ class Phlex::Shadcn::Toggle < Phlex::Shadcn::Base
     new(variant:, size:).send(:classes, binding.local_variable_get(:class))
   end
 
-  # @param variant [String, Symbol] a key of {VARIANTS}
+  # @param variant [String, Symbol] a key of {VARIANTS}; underscores are normalized to dashes
   # @param size [String, Symbol] a key of {SIZES}; underscores are normalized to dashes
   # @param pressed [Boolean, nil] controlled state (non-nil: user input only dispatches an event, the caller re-renders)
   # @param default_pressed [Boolean] initial state (uncontrolled)
-  # @param disabled [Boolean]
+  # @param disabled [Boolean] disables the button (`disabled` attribute and `data-disabled`)
   # @param as_child [Boolean, Class, Proc] render onto the child element instead of a `<button>`
   # @param attrs [Hash] HTML attributes for the root (`class:` merged last, `aria:`, `data:`)
   # @raise [ArgumentError] on an unknown variant or size

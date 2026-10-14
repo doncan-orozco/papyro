@@ -32,8 +32,10 @@ class Phlex::Shadcn::ToggleGroup < Phlex::Shadcn::Base
   # @param type [String, Symbol] one of {TYPES}: `single` (radio-like) or `multiple` (toolbar)
   # @param value [String, Array<String>, nil] controlled pressed value (Array for `multiple`)
   # @param default_value [String, Array<String>, nil] initially pressed value(s) (uncontrolled)
-  # @param variant [String, Symbol, nil] `"default"` or `"outline"`, applied to every item
-  # @param size [String, Symbol, nil] `"default"`, `"sm"` or `"lg"`, applied to every item
+  # @param variant [String, Symbol, nil] `"default"` or `"outline"`, applied to every item; not validated here, it
+  #   passes through to the items
+  # @param size [String, Symbol, nil] `"default"`, `"sm"` or `"lg"`, applied to every item; not validated here, it
+  #   passes through to the items
   # @param spacing [Numeric] gap between items in spacing units; 0 joins the items
   # @param disabled [Boolean] disables every item
   # @param roving_focus [Boolean] arrow-key navigation with a single tab stop
@@ -42,6 +44,7 @@ class Phlex::Shadcn::ToggleGroup < Phlex::Shadcn::Base
   # @param loop [Boolean] whether arrow-key focus wraps around
   # @param as_child [Boolean, Class, Proc] render onto the child element instead of a `<div>`
   # @param attrs [Hash] HTML attributes for the root (`class:` merged last)
+  # @see Phlex::Shadcn::ToggleGroup::Item
   # @raise [ArgumentError] when `type:` is missing/unknown, `spacing:` is not Numeric, `value:` does not fit `type:`,
   #   or `orientation:`/`dir:` is not an allowed value
   def initialize(type:, value: nil, default_value: nil, variant: nil, size: nil, spacing: 0, disabled: false,

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# shadcn ToggleGroupItem: Radix Toggle inside a RovingFocusGroup item.
 using Phlex::Shadcn::Values::Refinements
 
+# shadcn ToggleGroupItem: Radix Toggle inside a RovingFocusGroup item.
 #
 # Must be rendered inside a {ToggleGroup} (raises ArgumentError otherwise). The group's `variant`, `size` and
 # `disabled` win over the item's own.
@@ -19,7 +19,7 @@ class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
   # @api private
   ACTION = "click->shadcn--toggle-group#toggle"
 
-  # @param value [String] identifier of the item inside the group value
+  # @param value [String] identifier of the item inside the group value (coerced with `to_s`)
   # @param variant [String, Symbol, nil] used when the group sets none
   # @param size [String, Symbol, nil] used when the group sets none
   # @param disabled [Boolean] disables this item (the group's `disabled:` also applies)

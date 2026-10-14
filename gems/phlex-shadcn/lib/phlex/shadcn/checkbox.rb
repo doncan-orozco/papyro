@@ -6,7 +6,8 @@ using Phlex::Shadcn::Values::Refinements
 # A checkbox: a `<button role="checkbox">` plus the hidden form input Radix renders.
 #
 # Driven by the `shadcn--checkbox` Stimulus controller. Pass `checked:` for a controlled checkbox (the
-# controller will not toggle the state itself) or `default_checked:` for an uncontrolled one.
+# controller will not toggle the state itself) or `default_checked:` for an uncontrolled one. User input dispatches
+# the `shadcn--checkbox:checked-change` event (`detail: { checked }`).
 #
 # @example
 #   render Phlex::Shadcn::Checkbox.new(name: "terms", id: "terms", default_checked: true)
@@ -23,11 +24,13 @@ class Phlex::Shadcn::Checkbox < Phlex::Shadcn::Base
   BUBBLE_STYLE = "position: absolute; pointer-events: none; opacity: 0; margin: 0px; transform: translateX(-100%);"
   # Accepted values of `checked:` => `data-state`.
   #
-  # @return [Hash{true, false, String => String}]
+  # @return [Hash{Boolean, String => String}]
+  # @api private
   STATES = { true => "checked", false => "unchecked", "indeterminate" => "indeterminate" }.freeze
   # `data-state` => `aria-checked`.
   #
   # @return [Hash{String => String}]
+  # @api private
   ARIA_CHECKED = { "checked" => "true", "unchecked" => "false", "indeterminate" => "mixed" }.freeze
 
   # @param checked [Boolean, String, Symbol, nil] controlled state: true, false or "indeterminate"; nil makes it uncontrolled

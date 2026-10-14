@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-# shadcn/ui Label over Radix Label. Spec: docs/shadcn-port/specs/label.md
 using Phlex::Shadcn::Values::Refinements
 
+# shadcn/ui Label over Radix Label. Spec: docs/shadcn-port/specs/label.md
+#
 # A form label, the shadcn `Label` over Radix Label (its `shadcn--label` controller blocks text selection on double click).
 #
 # @example
@@ -20,7 +21,7 @@ class Phlex::Shadcn::Label < Phlex::Shadcn::Base
   ACTION = "mousedown->shadcn--label#mousedown"
 
   # @param html_for [String, nil] id of the labelled control, rendered as `for`; wins over an explicit `for:`
-  # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this tag or component instead of a `<label>`
+  # @param as_child [Boolean, Symbol, String, Phlex::Shadcn::Base] render this tag or component instead of a `<label>`
   # @param attrs [Hash] HTML attributes (`class:`, `data:`, `aria:`...)
   def initialize(html_for: nil, as_child: false, **attrs)
     @as_child = as_child
@@ -28,7 +29,7 @@ class Phlex::Shadcn::Label < Phlex::Shadcn::Base
     super()
   end
 
-  # @yield the label content
+  # @yield the label content (optional; a label without a block renders empty)
   # @return [void]
   def view_template(&)
     attrs = merge_attrs({ data: { slot: "label" }, class: BASE }, @attrs)

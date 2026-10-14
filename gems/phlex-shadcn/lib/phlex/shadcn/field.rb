@@ -17,6 +17,9 @@ using Phlex::Shadcn::Values::Refinements
 #   end
 class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   # Root classes shared by every orientation.
+  #
+  # @return [String]
+  # @api private
   BASE = "group/field flex w-full gap-3 data-[invalid=true]:text-destructive"
   # Orientation => Tailwind classes; the keys are the accepted values of `orientation:`.
   #
@@ -29,14 +32,16 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
 
   # Class string of a field root, mirroring the (unexported) `fieldVariants` cva of the tsx.
   #
-  # @param orientation [String, Symbol, nil] "vertical", "horizontal" or "responsive" (nil means "vertical")
+  # @param orientation [String, Symbol, nil] "vertical", "horizontal" or "responsive" (nil means "vertical"); other
+  #   values are not validated and yield no orientation classes
   # @param class [String, nil] extra classes, merged last
   # @return [String]
   def self.variants(orientation: "vertical", class: nil)
     new(orientation:).send(:cn, BASE, ORIENTATIONS[(orientation || "vertical").to_s], binding.local_variable_get(:class))
   end
 
-  # @param orientation [String, Symbol, nil] "vertical", "horizontal" or "responsive" (nil means "vertical")
+  # @param orientation [String, Symbol, nil] "vertical", "horizontal" or "responsive" (nil means "vertical"); other
+  #   values are not validated: an unknown orientation renders no orientation classes
   # @param attrs [Hash] HTML attributes merged onto the root `<div>` (`class:`, `data:`, `aria:`...)
   def initialize(orientation: "vertical", **attrs)
     @orientation = (orientation || "vertical").to_s
@@ -56,8 +61,14 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   end
 
   # Groups related fields in a `<fieldset>` (helper: `field.set`).
+  #
+  # @example
+  #   field.set { field.legend { "Address" } }
   class Set < Phlex::Shadcn::Base
     # Default classes.
+    #
+    # @return [String]
+    # @api private
     CLASS_NAME = "flex flex-col gap-6 has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3"
 
     # @param attrs [Hash] HTML attributes merged onto the `<fieldset>`
@@ -76,9 +87,13 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   # Caption of a Set, a `<legend>` (helper: `field.legend`).
   class Legend < Phlex::Shadcn::Base
     # Default classes.
+    #
+    # @return [String]
+    # @api private
     CLASS_NAME = "mb-3 font-medium data-[variant=legend]:text-base data-[variant=label]:text-sm"
 
-    # @param variant [String, Symbol, nil] "legend" or "label" (smaller text); nil means "legend"
+    # @param variant [String, Symbol, nil] "legend" or "label" (smaller text); nil means "legend". Other values are not
+    #   validated: they are only emitted as `data-variant`, with no matching text size class
     # @param attrs [Hash] HTML attributes merged onto the `<legend>`
     def initialize(variant: "legend", **attrs)
       @variant = (variant || "legend").to_s
@@ -94,8 +109,14 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   end
 
   # Stacks fields and acts as the container-query scope of responsive fields (helper: `field.group`).
+  #
+  # @example
+  #   field.group { field.render Phlex::Shadcn::Field.new }
   class Group < Phlex::Shadcn::Base
     # Default classes.
+    #
+    # @return [String]
+    # @api private
     CLASS_NAME = "group/field-group @container/field-group flex w-full flex-col gap-7 data-[slot=checkbox-group]:gap-3 [&>[data-slot=field-group]]:gap-4"
 
     # @param attrs [Hash] HTML attributes merged onto the `<div>`
@@ -112,8 +133,14 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   end
 
   # Column holding a label and a description beside a control (helper: `field.content`).
+  #
+  # @example
+  #   field.content { field.description { "Shown beside the control" } }
   class Content < Phlex::Shadcn::Base
     # Default classes.
+    #
+    # @return [String]
+    # @api private
     CLASS_NAME = "group/field-content flex flex-1 flex-col gap-1.5 leading-snug"
 
     # @param attrs [Hash] HTML attributes merged onto the `<div>`
@@ -135,6 +162,9 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   #   field.label(html_for: "email") { "Email" }
   class Label < Phlex::Shadcn::Base
     # Default classes.
+    #
+    # @return [String]
+    # @api private
     CLASS_NAME = "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border [&>*]:data-[slot=field]:p-4 has-data-[state=checked]:border-primary has-data-[state=checked]:bg-primary/5 dark:has-data-[state=checked]:bg-primary/10"
 
     # @param attrs [Hash] attributes forwarded to `Phlex::Shadcn::Label` (`html_for:`, `as_child:`, `class:`...)
@@ -152,8 +182,14 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   end
 
   # Label-looking text that is not a `<label>`, a `<div>` (helper: `field.title`).
+  #
+  # @example
+  #   field.title { "Notifications" }
   class Title < Phlex::Shadcn::Base
     # Default classes.
+    #
+    # @return [String]
+    # @api private
     CLASS_NAME = "flex w-fit items-center gap-2 text-sm leading-snug font-medium group-data-[disabled=true]/field:opacity-50"
 
     # @param attrs [Hash] HTML attributes merged onto the `<div>`
@@ -172,8 +208,14 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   end
 
   # Helper text under a control, a `<p>` (helper: `field.description`).
+  #
+  # @example
+  #   field.description { "We never share it." }
   class Description < Phlex::Shadcn::Base
     # Default classes.
+    #
+    # @return [String]
+    # @api private
     CLASS_NAME = "text-sm leading-normal font-normal text-muted-foreground group-has-[[data-orientation=horizontal]]/field:text-balance last:mt-0 nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5 [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary"
 
     # @param attrs [Hash] HTML attributes merged onto the `<p>`
@@ -195,8 +237,14 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   #   field.separator { "Or continue with" }
   class Separator < Phlex::Shadcn::Base
     # Default separator classes.
+    #
+    # @return [String]
+    # @api private
     CLASS_NAME = "relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2"
     # Classes of the centered text span.
+    #
+    # @return [String]
+    # @api private
     CONTENT_CLASS_NAME = "relative mx-auto block w-fit bg-background px-2 text-muted-foreground"
 
     # @param attrs [Hash] HTML attributes merged onto the `<div>`
@@ -226,6 +274,9 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
   #   field.error(errors: [ { message: "can't be blank" } ])
   class Error < Phlex::Shadcn::Base
     # Default classes.
+    #
+    # @return [String]
+    # @api private
     CLASS_NAME = "text-sm font-normal text-destructive"
 
     # @param errors [Array<Hash, #message>, nil] error entries with a `:message` / `"message"` key or a `#message` method
@@ -236,6 +287,8 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
       super()
     end
 
+    # Blank messages are dropped from a list, and a lone blank message renders nothing.
+    #
     # @yield optional custom content that replaces `errors:`
     # @return [void]
     def view_template(&block)
