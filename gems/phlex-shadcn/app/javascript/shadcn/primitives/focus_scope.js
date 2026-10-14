@@ -15,6 +15,18 @@ const AUTOFOCUS_ON_MOUNT = "focusScope.autoFocusOnMount"
 const AUTOFOCUS_ON_UNMOUNT = "focusScope.autoFocusOnUnmount"
 const EVENT_OPTIONS = { bubbles: false, cancelable: true }
 
+/**
+ * Traps and/or loops focus inside a container and restores focus on release.
+ * @param {HTMLElement} container
+ * @param {object} [options]
+ * @param {boolean} [options.trapped=false] Focus cannot leave the container (modal).
+ * @param {boolean} [options.loop=false] Tab at the edges wraps.
+ * @param {(event: CustomEvent) => void} [options.onMountAutoFocus] Cancelable; `preventDefault()` keeps focus where it is.
+ * @param {(event: CustomEvent) => void} [options.onUnmountAutoFocus] Cancelable; runs on the next task after release.
+ * @returns {() => void} release
+ * @example
+ * const release = focusScope(contentEl, { trapped: true, loop: true })
+ */
 export function focusScope(container, { trapped = false, loop = false, onMountAutoFocus, onUnmountAutoFocus } = {}) {
   const scope = {
     paused: false,

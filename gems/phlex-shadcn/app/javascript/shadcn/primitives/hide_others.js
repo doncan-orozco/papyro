@@ -5,6 +5,14 @@ const counters = new WeakMap()
 const markers = new WeakMap()
 const uncontrolled = new WeakMap()
 
+/**
+ * Marks every sibling along the path from the targets up to `parent` as `aria-hidden` (ref-counted, nesting-safe).
+ * @param {Element | Element[]} targets Elements that stay exposed.
+ * @param {Element} [parent=document.body]
+ * @returns {() => void} release: undoes only what this call hid.
+ * @example
+ * const release = hideOthers(dialogEl)
+ */
 export function hideOthers(targets, parent = document.body) {
   const list = (Array.isArray(targets) ? targets : [targets]).filter(Boolean)
   list.push(...parent.querySelectorAll("[aria-live], script"))

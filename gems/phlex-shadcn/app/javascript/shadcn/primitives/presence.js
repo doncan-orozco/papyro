@@ -9,6 +9,16 @@
 //   el.dataset.state = "closed"; p.exit()      // starts the exit
 //   p.enter()                                   // re-opened: cancels a pending exit
 //   p.release()                                 // disconnect cleanup
+/**
+ * Keeps an element mounted until its exit animation ends (Radix Presence).
+ * @param {HTMLElement} el
+ * @param {object} [options]
+ * @param {() => void} [options.onExited] Runs when the exit finished (immediately when there is no exit animation).
+ * @returns {{ enter: () => void, exit: () => void, release: () => void }}
+ * @example
+ * const p = presence(el, { onExited: () => mount.unmount() })
+ * el.dataset.state = "closed"; p.exit()
+ */
 export function presence(el, { onExited } = {}) {
   let animationName = getComputedStyle(el).animationName
   let exiting = false

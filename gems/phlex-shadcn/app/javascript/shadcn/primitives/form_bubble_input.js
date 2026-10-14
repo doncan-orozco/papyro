@@ -27,13 +27,39 @@ const VISUALLY_HIDDEN = {
   overflow: "hidden", clip: "rect(0px, 0px, 0px, 0px)", whiteSpace: "nowrap", wordWrap: "normal"
 }
 
+/**
+ * Hidden native input/select kept in sync with a custom checkbox, switch, radio or select so forms submit and native events bubble.
+ * @example
+ * const bubble = new FormBubbleInput(buttonEl, { type: "checkbox", name: "terms", value: "on", checked: false })
+ * bubble.sync({ checked: true }, { userInteraction: true, propagationStopped: event.cancelBubble })
+ * bubble.release()
+ */
 export class FormBubbleInput {
+  /**
+   * Whether a control needs a bubble input: it is inside a <form> or has a `form` attribute.
+   * @param {Element} control
+   * @param {string} [form] The control's `form` attribute.
+   * @returns {boolean}
+   */
   static isFormControl(control, form) {
     return !!form || !!control.closest("form")
   }
 
-  // options: type ("checkbox"|"radio"|"select"), name, value, checked, indeterminate, required, disabled, form,
-  //          autocomplete, options ([{ value, label, disabled }] for select), onReset (function)
+  /**
+   * @param {HTMLElement} control The custom control; the bubble input is placed right after it.
+   * @param {object} [options]
+   * @param {"checkbox" | "radio" | "select"} [options.type="checkbox"]
+   * @param {string} [options.name]
+   * @param {string} [options.value]
+   * @param {boolean} [options.checked]
+   * @param {boolean} [options.indeterminate]
+   * @param {boolean} [options.required]
+   * @param {boolean} [options.disabled]
+   * @param {string} [options.form] Id of the owning form.
+   * @param {string} [options.autocomplete]
+   * @param {{ value: string, label?: string, disabled?: boolean }[]} [options.options] Select options.
+   * @param {() => void} [options.onReset] Runs when the form is reset.
+   */
   constructor(control, options = {}) {
     this.control = control
     this.type = options.type || "checkbox"
@@ -46,9 +72,16 @@ export class FormBubbleInput {
     if (FormBubbleInput.isFormControl(control, this.state.form)) this.#mount()
   }
 
+  /** Whether a bubble input is mounted. @type {boolean} */
   get present() { return !!this.input }
 
-  // changes: any subset of the constructor options. context: { userInteraction, propagationStopped }.
+  /**
+   * Applies changed options to the native input; dispatches a bubbling `click` (checkbox/radio) or `change` (select) when the value changed.
+   * @param {object} [changes] Any subset of the constructor options.
+   * @param {object} [context]
+   * @param {boolean} [context.userInteraction=false] The change comes from the user.
+   * @param {boolean} [context.propagationStopped=false] A consumer stopped the control click (the click then does not bubble).
+   */
   sync(changes = {}, { userInteraction = false, propagationStopped = false } = {}) {
     Object.assign(this.state, changes)
     if (!this.input) return
@@ -64,6 +97,7 @@ export class FormBubbleInput {
     if (changed) this.input.dispatchEvent(new Event("click", { bubbles: !(userInteraction && propagationStopped) }))
   }
 
+  /** Removes the input, the resize observer and the form reset listener; safe to call twice. */
   release() {
     this.#resizeObserver?.disconnect()
     this.#form()?.removeEventListener("reset", this.#resetListener)

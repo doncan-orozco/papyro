@@ -6,6 +6,12 @@ const ATTRIBUTE = "data-scroll-locked"
 let count = 0
 let styleEl = null
 
+/**
+ * Locks body scrolling (ref-counted), compensating the scrollbar width.
+ * @returns {() => void} release: idempotent; the last release restores the page.
+ * @example
+ * const unlock = scrollLock()
+ */
 export function scrollLock() {
   count++
   apply()

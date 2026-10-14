@@ -3,6 +3,13 @@
 // Known divergences: none.
 let count = 0
 
+/**
+ * Inserts two focusable sentinels at both edges of <body> (ref-counted) so Tab stays inside the document while a modal is open.
+ * @returns {() => void} release: removes the guards when the last holder releases. Call it once per `focusGuards()`.
+ * @example
+ * const release = focusGuards()
+ * release()
+ */
 export function focusGuards() {
   const edges = document.querySelectorAll("[data-radix-focus-guard]")
   document.body.insertAdjacentElement("afterbegin", edges[0] ?? createGuard())

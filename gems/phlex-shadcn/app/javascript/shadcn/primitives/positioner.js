@@ -34,12 +34,22 @@ const DEFAULTS = {
   updatePositionStrategy: "optimized"
 }
 
+/**
+ * Splits a floating-ui placement.
+ * @param {string} placement e.g. "bottom-start"
+ * @returns {[string, string]} `[side, align]`; align defaults to "center".
+ */
 export function sideAndAlign(placement) {
   const [side, align = "center"] = placement.split("-")
   return [side, align]
 }
 
 // Wraps `content` in the Radix wrapper unless it already sits in one.
+/**
+ * Wraps `content` in the Radix popper wrapper unless it already sits in one.
+ * @param {HTMLElement} content
+ * @returns {HTMLElement} The `div[data-radix-popper-content-wrapper]`.
+ */
 export function ensureWrapper(content) {
   const parent = content.parentElement
   if (parent?.hasAttribute("data-radix-popper-content-wrapper")) return parent
@@ -93,6 +103,30 @@ const roundByDPR = (element, value) => {
 // options: side sideOffset align alignOffset arrow(span element) arrowPadding avoidCollisions collisionBoundary(Element|Element[])
 //          collisionPadding(number|{top,right,bottom,left}) sticky("partial"|"always") hideWhenDetached
 //          updatePositionStrategy("optimized"|"always") dir onPlaced
+/**
+ * Positions `content` against `anchor` with Radix's middleware stack (offset, shift, flip, size, arrow, hide).
+ * @param {Element} anchor
+ * @param {HTMLElement} content
+ * @param {object} [initial]
+ * @param {"top" | "right" | "bottom" | "left"} [initial.side="bottom"]
+ * @param {number} [initial.sideOffset=0]
+ * @param {"start" | "center" | "end"} [initial.align="center"]
+ * @param {number} [initial.alignOffset=0]
+ * @param {HTMLElement} [initial.arrow] The span PopperArrow renders.
+ * @param {number} [initial.arrowPadding=0]
+ * @param {boolean} [initial.avoidCollisions=true]
+ * @param {Element | Element[]} [initial.collisionBoundary]
+ * @param {number | { top?: number, right?: number, bottom?: number, left?: number }} [initial.collisionPadding=0]
+ * @param {"partial" | "always"} [initial.sticky="partial"]
+ * @param {boolean} [initial.hideWhenDetached=false]
+ * @param {"optimized" | "always"} [initial.updatePositionStrategy="optimized"]
+ * @param {"ltr" | "rtl"} [initial.dir]
+ * @param {() => void} [initial.onPlaced] Runs once, after the first placement.
+ * @returns {{ update: (options?: object) => void, release: () => void }}
+ * @example
+ * const placement = positioner(triggerEl, contentEl, { side: "bottom", sideOffset: 4 })
+ * placement.release()
+ */
 export function positioner(anchor, content, initial = {}) {
   let options = { ...DEFAULTS, ...defined(initial) }
   const wrapper = ensureWrapper(content)
