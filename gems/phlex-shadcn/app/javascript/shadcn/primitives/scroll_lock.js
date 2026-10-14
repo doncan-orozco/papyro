@@ -34,7 +34,7 @@ function apply() {
     styleEl = document.createElement("style")
     document.head.append(styleEl)
   }
-  // Measured before the first lock hides the scrollbar; later locks reuse the stylesheet.
+  // Measured when the first lock is taken, before overflow:hidden hides the scrollbar; nested locks reuse the stylesheet.
   if (count === 1) styleEl.textContent = css(scrollbarWidth())
 }
 

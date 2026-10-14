@@ -53,10 +53,11 @@ const wrapArray = (array, start) => array.map((_, index) => array[(start + index
  * @param {"ltr" | "rtl"} [options.dir]
  * @param {string | null} [options.currentTabStopId]
  * @param {boolean} [options.preventScrollOnEntryFocus=false]
- * @param {(item: HTMLElement) => boolean} [options.isActive] The item that takes entry focus first (checked radio, selected tab).
+ * @param {(item: HTMLElement) => boolean} [options.isActive] Predicate called per item; the first enabled item it accepts takes entry focus first (checked radio, selected tab).
  * @param {(id: string | null) => void} [options.onCurrentTabStopIdChange]
  * @param {(event: CustomEvent) => void} [options.onEntryFocus] Cancelable; `preventDefault()` takes over entry focus.
  * @returns {{ currentTabStop: () => string | null, setCurrentTabStop: (id: string | null) => void, release: () => void }}
+ *   `release()` disconnects the observer and removes every listener; tabindex values stay as last rendered.
  * @example
  * const group = rovingFocus(listEl, { orientation: "vertical", loop: true })
  */

@@ -48,7 +48,7 @@ export class FormBubbleInput {
   /**
    * @param {HTMLElement} control The custom control; the bubble input is placed right after it.
    * @param {object} [options]
-   * @param {"checkbox" | "radio" | "select"} [options.type="checkbox"]
+   * @param {"checkbox" | "radio" | "select"} [options.type="checkbox"] A switch uses type "checkbox".
    * @param {string} [options.name]
    * @param {string} [options.value]
    * @param {boolean} [options.checked]
@@ -80,7 +80,8 @@ export class FormBubbleInput {
    * @param {object} [changes] Any subset of the constructor options.
    * @param {object} [context]
    * @param {boolean} [context.userInteraction=false] The change comes from the user.
-   * @param {boolean} [context.propagationStopped=false] A consumer stopped the control click (the click then does not bubble).
+   * @param {boolean} [context.propagationStopped=false] A consumer stopped the control click. The dispatched click does not
+   *   bubble only when `userInteraction && propagationStopped`; otherwise it always bubbles.
    */
   sync(changes = {}, { userInteraction = false, propagationStopped = false } = {}) {
     Object.assign(this.state, changes)

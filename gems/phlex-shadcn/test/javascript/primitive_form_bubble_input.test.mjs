@@ -30,7 +30,7 @@ primitiveTest("form_bubble_input: renders a hidden sibling input after the contr
   });
 }, { html });
 
-primitiveTest("form_bubble_input: sync() updates the native value and dispatches one bubbling click only when checked changes", async (page) => {
+primitiveTest("form_bubble_input: sync() updates the native value and dispatches one click per change", async (page) => {
   const result = await run(page, `${make('{ type: "checkbox", name: "t" }')}
     const clicks = [];
     document.getElementById("form").addEventListener("click", (event) => clicks.push({ target: event.target.tagName, bubbles: event.bubbles }));
@@ -109,4 +109,25 @@ primitiveTest("form_bubble_input: the input follows the control size after a res
   await frames(page);
   await frames(page);
   assert.equal(await page.evaluate(() => window.__input.style.width), "1px");
+}, { html });
+
+primitiveTest("form_bubble_input: a radio mirrors checked and dispatches a click on change", async (page) => {
+  const result = await run(page, `${make('{ type: "radio", name: "r", value: "x" }')}
+    const clicks = [];
+    document.getElementById("form").addEventListener("click", (event) => clicks.push(event.target.type));
+    const input = control.nextElementSibling;
+    bubble.sync({ checked: true });
+    return { type: input.type, value: input.value, checked: input.checked, clicks };`);
+  assert.deepEqual(result, { type: "radio", value: "x", checked: true, clicks: ["radio"] });
+}, { html });
+
+primitiveTest("form_bubble_input: sync() applies disabled and required to the native input", async (page) => {
+  const result = await run(page, `${make('{ type: "checkbox" }')}
+    const input = control.nextElementSibling;
+    const before = [input.disabled, input.required];
+    bubble.sync({ disabled: true, required: true });
+    const during = [input.disabled, input.required];
+    bubble.sync({ disabled: false, required: false });
+    return { before, during, after: [input.disabled, input.required] };`);
+  assert.deepEqual(result, { before: [false, false], during: [true, true], after: [false, false] });
 }, { html });

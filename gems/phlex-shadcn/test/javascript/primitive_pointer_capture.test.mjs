@@ -77,3 +77,14 @@ primitiveTest("pointer_capture: release() removes every listener", async (page) 
   await page.mouse.up();
   assert.deepEqual(await log(page), []);
 }, { html });
+
+primitiveTest("pointer_capture: release() mid-drag stops onMove and onEnd", async (page) => {
+  await start(page);
+  await page.mouse.move(120, 120);
+  await page.mouse.down();
+  await page.mouse.move(150, 150);
+  await page.evaluate(() => window.__drag.release());
+  await page.mouse.move(520, 420);
+  await page.mouse.up();
+  assert.deepEqual((await log(page)).map(([name]) => name), ["start", "move"]);
+}, { html });

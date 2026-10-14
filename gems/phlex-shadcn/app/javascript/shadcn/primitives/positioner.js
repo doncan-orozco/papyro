@@ -44,7 +44,6 @@ export function sideAndAlign(placement) {
   return [side, align]
 }
 
-// Wraps `content` in the Radix wrapper unless it already sits in one.
 /**
  * Wraps `content` in the Radix popper wrapper unless it already sits in one.
  * @param {HTMLElement} content
@@ -122,7 +121,9 @@ const roundByDPR = (element, value) => {
  * @param {"optimized" | "always"} [initial.updatePositionStrategy="optimized"]
  * @param {"ltr" | "rtl"} [initial.dir]
  * @param {() => void} [initial.onPlaced] Runs once, after the first placement.
- * @returns {{ update: (options?: object) => void, release: () => void }}
+ * @returns {{ update: (options?: object) => void, release: () => void }} `release()` stops autoUpdate and the arrow
+ *   ResizeObserver and removes `data-radix-popper-side` / `data-radix-popper-align` from the anchor. The wrapper,
+ *   content and arrow inline styles and `data-side` / `data-align` stay as last placed. It is idempotent.
  * @example
  * const placement = positioner(triggerEl, contentEl, { side: "bottom", sideOffset: 4 })
  * placement.release()

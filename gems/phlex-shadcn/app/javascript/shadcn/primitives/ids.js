@@ -11,7 +11,7 @@ let count = 0
  * @param {string} [prefix="radix-shadcn"]
  * @returns {string}
  * @example
- * generateId("menu") // "menu-0"
+ * generateId("menu") // "menu-<n>"
  */
 export function generateId(prefix = "radix-shadcn") {
   let id

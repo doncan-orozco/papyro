@@ -99,7 +99,7 @@ primitiveTest("dismissable_layer: disableOutsidePointerEvents blocks the body, k
   assert.deepEqual(result.after, { body: "auto", layer: "", child: "" });
 }, { html });
 
-primitiveTest("dismissable_layer: release() removes every listener and style, and is safe to repeat", async (page) => {
+primitiveTest("dismissable_layer: release() removes every listener and style", async (page) => {
   await page.evaluate(async () => {
     const { dismissable } = await import("shadcn/primitives/dismissable_layer");
     window.__log = [];
@@ -109,10 +109,51 @@ primitiveTest("dismissable_layer: release() removes every listener and style, an
     });
   });
   await tick(page);
-  await page.evaluate(() => { window.__release(); window.__release() });
+  await page.evaluate(() => window.__release());
   await page.keyboard.press("Escape");
   await page.focus("#outside");
   await page.click("#other");
   const state = await page.evaluate(() => ({ log: window.__log, body: document.body.style.pointerEvents, layer: document.getElementById("layer").style.pointerEvents }));
   assert.deepEqual(state, { log: [], body: "", layer: "" });
+}, { html });
+
+primitiveTest("dismissable_layer: release() before the next tick cancels the deferred pointerdown listener", async (page) => {
+  await page.evaluate(async () => {
+    const { dismissable } = await import("shadcn/primitives/dismissable_layer");
+    window.__log = [];
+    dismissable(document.getElementById("layer"), { onDismiss: () => window.__log.push("dismiss") })();
+  });
+  await tick(page);
+  await page.click("#other");
+  assert.deepEqual(await page.evaluate(() => window.__log), []);
+}, { html });
+
+primitiveTest("dismissable_layer: a touch pointerdown followed by release() does not dismiss on the later click", async (page) => {
+  await page.evaluate(async () => {
+    const { dismissable } = await import("shadcn/primitives/dismissable_layer");
+    window.__log = [];
+    window.__release = dismissable(document.getElementById("layer"), { onDismiss: () => window.__log.push("dismiss") });
+  });
+  await tick(page);
+  const result = await page.evaluate(() => {
+    const outside = document.getElementById("outside");
+    outside.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }));
+    window.__release();
+    outside.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    return window.__log;
+  });
+  assert.deepEqual(result, []);
+}, { html });
+
+primitiveTest("dismissable_layer: positive control, Escape before release() dismisses", async (page) => {
+  const log = await page.evaluate(async () => {
+    const { dismissable } = await import("shadcn/primitives/dismissable_layer");
+    const log = [];
+    const release = dismissable(document.getElementById("layer"), { onDismiss: () => log.push("dismiss") });
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+    release();
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+    return log;
+  });
+  assert.deepEqual(log, ["dismiss"]);
 }, { html });

@@ -68,14 +68,15 @@ function serve(css) {
   };
 }
 
-let browserPromise;
-const browser = () => (browserPromise ??= chromium.launch());
-after(async () => { await (await browserPromise)?.close(); });
+// Playwright launches Chromium with --hide-scrollbars; `scrollbars: true` uses a second browser that keeps classic scrollbars.
+const browsers = {};
+const browser = (scrollbars = false) => (browsers[scrollbars] ??= chromium.launch(scrollbars ? { ignoreDefaultArgs: ["--hide-scrollbars"] } : {}));
+after(async () => { for (const promise of Object.values(browsers)) await (await promise)?.close(); });
 
 // A fresh page per test (module state such as layer stacks starts clean). `motion: true` keeps CSS animations/transitions
 // (presence tests define their own); `css` adds page styles; `html` seeds <body>.
-export async function openPage({ motion = false, css = "", html = "", viewport = { width: 800, height: 600 } } = {}) {
-  const context = await (await browser()).newContext({ viewport });
+export async function openPage({ motion = false, css = "", html = "", scrollbars = false, viewport = { width: 800, height: 600 } } = {}) {
+  const context = await (await browser(scrollbars)).newContext({ viewport });
   const page = await context.newPage();
   page.jsErrors = [];
   page.on("pageerror", (error) => page.jsErrors.push(String(error)));

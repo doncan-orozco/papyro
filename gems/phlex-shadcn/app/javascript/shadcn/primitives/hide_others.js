@@ -1,6 +1,7 @@
 // Port of the `aria-hidden` package (hideOthers) used by Radix modal content: every sibling along the path from the
 // targets up to <body> gets aria-hidden="true" (and the data-aria-hidden marker); ref-counted so nested modals compose
-// and a node that was already aria-hidden is left alone on release. Known divergences: none.
+// and a node that was already aria-hidden is left alone on release.
+// Known divergences: none (release is single-use, like upstream).
 const counters = new WeakMap()
 const markers = new WeakMap()
 const uncontrolled = new WeakMap()
@@ -9,7 +10,8 @@ const uncontrolled = new WeakMap()
  * Marks every sibling along the path from the targets up to `parent` as `aria-hidden` (ref-counted, nesting-safe).
  * @param {Element | Element[]} targets Elements that stay exposed.
  * @param {Element} [parent=document.body]
- * @returns {() => void} release: undoes only what this call hid.
+ * @returns {() => void} release: undoes only what this call hid. Single-use: a second call decrements the shared
+ *   counters again and can un-hide nodes another modal still needs.
  * @example
  * const release = hideOthers(dialogEl)
  */

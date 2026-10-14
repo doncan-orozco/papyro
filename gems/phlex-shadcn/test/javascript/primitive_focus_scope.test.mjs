@@ -92,9 +92,12 @@ primitiveTest("focus_scope: nested scopes pause the outer one and resume it on r
   await start(page, "{ trapped: true }");
   await page.evaluate(async () => {
     const { focusScope } = await import("shadcn/primitives/focus_scope");
+    window.__focusins = [];
+    document.addEventListener("focusin", (event) => window.__focusins.push(event.target.id));
     window.__releases.inner = focusScope(document.getElementById("inner"), { trapped: true });
   });
   assert.equal(await active(page), "innerOne");
+  assert.deepEqual(await page.evaluate(() => window.__focusins), ["innerOne"], "the paused outer trap did not fight the inner scope's focus");
   // Only the inner trap acts: it pulls focus back into the inner scope.
   await page.evaluate(() => document.getElementById("one").focus());
   assert.equal(await active(page), "innerOne");
@@ -103,4 +106,26 @@ primitiveTest("focus_scope: nested scopes pause the outer one and resume it on r
   assert.equal(await active(page), "one", "focus returns to where it was before the inner scope");
   await page.evaluate(() => document.getElementById("after").focus());
   assert.equal(await active(page), "one", "the outer trap is active again");
+}, { html });
+
+primitiveTest("focus_scope: the MutationObserver is disconnected on release (a removed focused element does not pull focus back)", async (page) => {
+  await page.evaluate(() => document.getElementById("scope").setAttribute("tabindex", "0"));
+  await start(page, "{ trapped: true }");
+  await release(page);
+  await tick(page);
+  await page.focus("#one");
+  await page.evaluate(() => document.getElementById("one").remove());
+  await tick(page);
+  assert.notEqual(await active(page), "scope");
+}, { html });
+
+primitiveTest("focus_scope: releasing nested scopes outer-first leaves the inner trap active", async (page) => {
+  await start(page, "{ trapped: true }");
+  await page.evaluate(async () => {
+    const { focusScope } = await import("shadcn/primitives/focus_scope");
+    window.__releases.inner = focusScope(document.getElementById("inner"), { trapped: true });
+  });
+  await release(page, "scope");
+  await page.evaluate(() => document.getElementById("after").focus());
+  assert.equal(await active(page), "innerOne", "the inner trap still pulls focus back");
 }, { html });

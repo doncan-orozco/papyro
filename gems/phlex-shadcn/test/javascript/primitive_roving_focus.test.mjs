@@ -121,3 +121,23 @@ primitiveTest("roving_focus: release() removes the listeners and the observer", 
   await tick(page);
   assert.equal(await page.evaluate(() => document.getElementById("group").tabIndex), 0, "no re-render after release");
 }, { html });
+
+primitiveTest("roving_focus: after release() focusing the group fires no onEntryFocus and does not forward focus", async (page) => {
+  await start(page, '{ orientation: "horizontal", currentTabStopId: "a", onEntryFocus: () => log.push("entry") }');
+  await page.evaluate(() => window.__roving.release());
+  await page.focus("#group");
+  assert.equal(await active(page), "group");
+  assert.deepEqual(await page.evaluate(() => window.__log), []);
+}, { html });
+
+primitiveTest("roving_focus: after release() the focusout and keydown listeners are gone", async (page) => {
+  await start(page, '{ orientation: "horizontal", currentTabStopId: "a" }');
+  await page.evaluate(() => window.__roving.release());
+  await page.evaluate(() => { document.getElementById("group").tabIndex = -1 });
+  await page.focus("#a");
+  await page.focus("#before");
+  assert.equal(await page.evaluate(() => document.getElementById("group").tabIndex), -1, "focusout no longer re-renders");
+  await page.focus("#a");
+  await press(page, "ArrowRight");
+  assert.equal(await active(page), "a", "keydown no longer moves focus");
+}, { html });

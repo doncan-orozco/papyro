@@ -215,7 +215,8 @@ export function submenuGrace(content, { timeout = GRACE_TIMEOUT } = {}) {
  * @param {(inTransit: boolean) => void} [options.onInTransitChange]
  * @param {() => void} [options.onClose] The pointer left the hull.
  * @param {number} [options.padding=GRACE_PADDING]
- * @returns {{ release: () => void }}
+ * @returns {{ release: () => void }} `release()` removes the listeners and the document tracking, and also emits
+ *   `onInTransitChange(false)` (even when nothing was in transit).
  */
 export function hoverGrace(trigger, content, { onInTransitChange, onClose, padding = GRACE_PADDING } = {}) {
   let area = null

@@ -83,6 +83,6 @@ primitiveTest("collapsible_content: release() before the first frame cancels the
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     content.setOpen(true);
     return { transition: el.style.transitionDuration, animation: el.style.animationName };`);
-  // The guard frame never ran, so the content is still treated as "mounted open" and keeps its animations suspended.
+  // Documents incidental state (not a contract): the guard frame never ran, so the content is still treated as "mounted open" and keeps its animations suspended.
   assert.deepEqual(result, { transition: "0s", animation: "none" });
 }, { html, css, motion: true });

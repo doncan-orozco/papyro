@@ -11,7 +11,8 @@
  * @param {HTMLTemplateElement} templateEl
  * @param {object} [options]
  * @param {"after" | Element} [options.into="after"] "after" inserts right after the template; an element appends to it (portal).
- * @returns {{ nodes: Element[], unmount: () => void }}
+ * @returns {{ nodes: Element[], unmount: () => void }} `unmount()` is idempotent. Calling `mountTemplate` twice without
+ *   unmounting inserts another copy.
  * @example
  * const mount = mountTemplate(tpl, { into: document.body })
  * mount.unmount()

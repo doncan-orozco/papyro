@@ -1,14 +1,4 @@
 // Port of @radix-ui/react-focus-scope. Known divergences: none.
-//
-//   const release = focusScope(contentEl, {
-//     trapped,                 // focus cannot leave the container (modal)
-//     loop,                    // Tab at the edges wraps
-//     onMountAutoFocus,        // (CustomEvent) cancelable: preventDefault keeps the focus where it is
-//     onUnmountAutoFocus,      // (CustomEvent) cancelable; runs on the next task after release()
-//   })
-//
-// On mount focus moves to the first tabbable descendant (or the container); on release it returns to the element that
-// was focused before. Nested scopes pause the previous one (stack).
 const stack = []
 
 const AUTOFOCUS_ON_MOUNT = "focusScope.autoFocusOnMount"
@@ -17,13 +7,20 @@ const EVENT_OPTIONS = { bubbles: false, cancelable: true }
 
 /**
  * Traps and/or loops focus inside a container and restores focus on release.
+ *
+ * On mount focus moves to the first tabbable descendant (or the container); on release it returns to the element that
+ * was focused before. Nested scopes pause the previous one (stack). The container gets a temporary `tabindex="-1"`
+ * unless it already has a tabindex; it is removed on release.
  * @param {HTMLElement} container
  * @param {object} [options]
- * @param {boolean} [options.trapped=false] Focus cannot leave the container (modal).
+ * @param {boolean} [options.trapped=false] Focus cannot leave the container (modal). Tab is also blocked at the edges
+ *   even without `loop` (focus does not wrap, it stays put).
  * @param {boolean} [options.loop=false] Tab at the edges wraps.
- * @param {(event: CustomEvent) => void} [options.onMountAutoFocus] Cancelable; `preventDefault()` keeps focus where it is.
+ * @param {(event: CustomEvent) => void} [options.onMountAutoFocus] Cancelable; `preventDefault()` keeps focus where it
+ *   is. Not dispatched when focus is already inside the container at mount.
  * @param {(event: CustomEvent) => void} [options.onUnmountAutoFocus] Cancelable; runs on the next task after release.
- * @returns {() => void} release
+ * @returns {() => void} release: removes the listeners and the observer, restores the tabindex and schedules the return
+ *   focus. Call it once (not idempotent: a second call schedules the return focus again).
  * @example
  * const release = focusScope(contentEl, { trapped: true, loop: true })
  */

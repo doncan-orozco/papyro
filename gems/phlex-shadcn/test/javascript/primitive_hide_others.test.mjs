@@ -44,6 +44,8 @@ primitiveTest("hide_others: release() restores every attribute, leaves pre-hidde
   // The outer lock still hides the header after the inner one is gone.
   assert.deepEqual(result.afterInner.header, ["true", "true"]);
   assert.deepEqual(result.afterInner.nav, ["true", "true"]);
+  // The pre-hidden node keeps its own aria-hidden through the inner release (the outer lock still marks it).
+  assert.deepEqual(result.afterInner.already, ["true", "true"]);
   // A node that was already aria-hidden keeps its own value; "false" is restored by removal like Radix's aria-hidden package.
   assert.deepEqual(result.after.already, ["true", null]);
   assert.deepEqual(result.after.header, [null, null]);

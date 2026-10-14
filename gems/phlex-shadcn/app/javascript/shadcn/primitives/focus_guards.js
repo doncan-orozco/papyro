@@ -1,11 +1,12 @@
 // Port of @radix-ui/react-focus-guards: two focusable, invisible sentinels at both edges of <body> keep Tab events
 // inside the document while a modal focus scope is open. Ref-counted: the guards are removed with the last release.
-// Known divergences: none.
+// Known divergences: none (release is single-use, like upstream).
 let count = 0
 
 /**
  * Inserts two focusable sentinels at both edges of <body> (ref-counted) so Tab stays inside the document while a modal is open.
- * @returns {() => void} release: removes the guards when the last holder releases. Call it once per `focusGuards()`.
+ * @returns {() => void} release: removes the guards when the last holder releases. Single-use: call it once per `focusGuards()`;
+ *   a second call decrements the shared counter again and can remove guards another modal still needs.
  * @example
  * const release = focusGuards()
  * release()

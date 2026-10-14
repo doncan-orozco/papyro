@@ -80,11 +80,12 @@ primitiveTest("submenu_grace: pointer direction is tracked for mouse moves over 
     const rightAgain = grace.isPointerMovingToSubmenu({ clientX: 300, clientY: 150 });
     grace.release();
     const pending = window.__clock.pending();
+    const immediately = grace.isPointerMovingToSubmenu({ clientX: 300, clientY: 150 });
     move(40);
     grace.subTriggerLeave({ clientX: 190, clientY: 150 }, sub);
-    return { leftSide, rightAgain, pending, afterRelease: grace.isPointerMovingToSubmenu({ clientX: 300, clientY: 150 }) };
+    return { leftSide, rightAgain, pending, immediately, afterRelease: grace.isPointerMovingToSubmenu({ clientX: 300, clientY: 150 }) };
   });
-  assert.deepEqual(result, { leftSide: false, rightAgain: true, pending: 0, afterRelease: true });
+  assert.deepEqual(result, { leftSide: false, rightAgain: true, pending: 0, immediately: false, afterRelease: true });
 }, { html });
 
 primitiveTest("submenu_grace: hoverGrace keeps the pointer in transit inside the hull and closes when it leaves it", async (page) => {
@@ -98,12 +99,10 @@ primitiveTest("submenu_grace: hoverGrace keeps the pointer in transit inside the
     const leave = (x, y) => document.getElementById("trigger").dispatchEvent(new PointerEvent("pointerleave", { clientX: x, clientY: y }));
     const move = (x, y) => document.body.dispatchEvent(new PointerEvent("pointermove", { bubbles: true, clientX: x, clientY: y }));
     leave(140, 129);
-    move(140, 165); // before the zero timeout: the document listener is not attached yet
-    window.__clock.advance(0);
-    move(140, 165); // inside the hull
+    move(700, 50); // outside the hull, but before the zero timeout: the document listener is not attached yet
     const stillTransit = [...log];
-    move(700, 50); // outside
     window.__clock.advance(0);
+    move(700, 50); // now tracked: outside the hull closes
     const result = { stillTransit, log: [...log] };
     grace.release();
     return result;

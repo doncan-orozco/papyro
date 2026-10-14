@@ -4,7 +4,8 @@
  * Moves an element into `container` and leaves a placeholder where it was.
  * @param {HTMLElement} el
  * @param {Element} [container=document.body]
- * @returns {() => void} release: puts the element back at its original position.
+ * @returns {() => void} release: puts the element back at its original position if that position is still in the
+ *   document (if the placeholder was removed, it is a no-op and the element stays in the container).
  * @example
  * const release = portal(contentEl)
  */

@@ -14,9 +14,9 @@ primitiveTest("ids: generateId never collides with an id already in the document
   const result = await page.evaluate(async () => {
     const { generateId } = await import("shadcn/primitives/ids");
     const first = generateId("p");
-    const [prefix, n] = [first.slice(0, 2), Number(first.slice(2))];
+    const n = Number(/^p-(\d+)$/.exec(first)[1]);
     const taken = document.createElement("div");
-    taken.id = `${prefix}${n + 1}`;
+    taken.id = `p-${n + 1}`;
     document.body.append(taken);
     return { taken: taken.id, next: generateId("p") };
   });

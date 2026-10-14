@@ -4,6 +4,7 @@
 // Parity: docs/shadcn-port/scenarios/_primitives-hover-intent.json.
 //
 // Known divergences: none.
+// `hoverIntent.release()` does not release its provider: the owner releases both.
 //
 //   const provider = hoverProvider({ skipDelayDuration: 300 })          // shared by every tooltip under one Provider
 //   const intent = hoverIntent({ provider, openDelay: 700, closeDelay: 0, onOpen({ delayed }) {}, onClose() {} })
@@ -19,7 +20,7 @@
  * Shared skip-delay state of a Tooltip provider.
  * @param {object} [options]
  * @param {number} [options.skipDelayDuration=300] Window (ms) after a close in which the next open skips its delay; <= 0 disables it.
- * @returns {{ isOpenDelayed: boolean, isPointerInTransit: boolean, onOpen: () => void, onClose: () => void, release: () => void }}
+ * @returns {{ readonly isOpenDelayed: boolean, isPointerInTransit: boolean (read/write accessor), onOpen: () => void, onClose: () => void, release: () => void }}
  * @example
  * const provider = hoverProvider({ skipDelayDuration: 300 })
  */
@@ -64,7 +65,8 @@ export function hoverProvider({ skipDelayDuration = 300 } = {}) {
  * @param {(info: { delayed: boolean }) => void} [options.onOpen] Fires on the closed -> open transition only.
  * @param {() => void} [options.onClose] Fires on the open -> closed transition only.
  * @param {boolean} [options.open=false] Initial state.
- * @returns {{ isOpen: boolean, enter: () => void, leave: () => void, cancelOpen: () => void, open: () => void, close: () => void, sync: (value: boolean) => void, release: () => void }}
+ * @returns {{ readonly isOpen: boolean, enter: () => void, leave: () => void, cancelOpen: () => void, open: () => void, close: () => void, sync: (value: boolean) => void, release: () => void }}
+ *   `sync(value)` is controlled mode: the owner changed the state itself; it sets `isOpen` without firing callbacks.
  * @example
  * const intent = hoverIntent({ provider, openDelay: 700, onOpen: ({ delayed }) => show(delayed) })
  * intent.enter()

@@ -62,7 +62,8 @@ export const isCharacterKey = (event) => !(event.ctrlKey || event.altKey || even
  * @param {object} options
  * @param {(search: string) => void} options.onSearch Runs with the next buffer BEFORE it is stored, like Radix.
  * @param {number} [options.timeout=RESET_MS]
- * @returns {{ search: string, push: (key: string) => void, reset: () => void, release: () => void }}
+ * @returns {{ search: string, push: (key: string) => void, reset: () => void, release: () => void }} `release()` cancels the
+ *   pending reset timer; it does not clear the buffer.
  * @example
  * const buffer = typeahead({ onSearch: (search) => focusMatch(search) })
  * buffer.push(event.key)

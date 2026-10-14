@@ -83,3 +83,17 @@ primitiveTest("typeahead: reset() clears the buffer and release() cancels the pe
   });
   assert.deepEqual(result, { afterReset: { search: "", timers: 0 }, armed: 1, afterRelease: 0 });
 });
+
+primitiveTest("typeahead: after release() no reset fires past the timeout and the buffer is kept", async (page) => {
+  await useFakeTimers(page);
+  const result = await page.evaluate(async () => {
+    const { typeahead } = await import("shadcn/primitives/typeahead");
+    const seen = [];
+    const t = typeahead({ onSearch: (search) => seen.push(search), timeout: 50 });
+    t.push("x");
+    t.release();
+    window.__clock.advance(500);
+    return { search: t.search, seen, pending: window.__clock.pending() };
+  });
+  assert.deepEqual(result, { search: "x", seen: ["x"], pending: 0 });
+});

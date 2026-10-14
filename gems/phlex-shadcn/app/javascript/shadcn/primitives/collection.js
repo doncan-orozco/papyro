@@ -31,7 +31,6 @@ export function items(container, { includeDisabled = false } = {}) {
   return includeDisabled ? all : all.filter((el) => !isDisabled(el))
 }
 
-// Text used for typeahead: the `data-text-value` override (Radix `textValue`), else the trimmed text content.
 /**
  * Text used for typeahead: the `data-text-value` override, else the trimmed text content.
  * @param {HTMLElement} el
