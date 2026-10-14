@@ -231,6 +231,11 @@ class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
     assert_equal "-1", native["tabindex"]
   end
 
+  test "required false renders aria-required false on the trigger and nil omits it" do
+    assert_equal "false", fragment(select(root: { required: false })).at_css("[data-slot=select-trigger]")["aria-required"]
+    refute fragment(select(root: { required: nil })).at_css("[data-slot=select-trigger]").key?("aria-required")
+  end
+
   test "no native select is rendered without name or form and the selected option is marked" do
     assert_nil fragment(select).at_css("select")
     options = fragment(select(root: { name: "fruit", default_value: "banana" })).css("select option")

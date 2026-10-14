@@ -3,7 +3,10 @@
 # A plain +span+ in the oracle (no Radix primitive, so no as_child): the keyboard shortcut hint at the end of an item.
 #
 # @example
-#   menu.item { "Save" + render(Phlex::Shadcn::DropdownMenu::Shortcut.new { "Ctrl+S" }) }
+#   menu.item do
+#     plain "Save"
+#     menu.shortcut { "Ctrl+S" }
+#   end
 class Phlex::Shadcn::DropdownMenu::Shortcut < Phlex::Shadcn::Base
   # Default Tailwind classes of the shortcut (merged with +class:+).
   #

@@ -4,6 +4,8 @@
 # renders two children, indicator and text. In the first pass of the root the item only registers itself.
 #
 # Renders a +div role="option"+ with a check indicator when its value is the selected one, and the block as its text.
+# The hidden native +<option>+ text is also the block text, never +text_value:+ (which only feeds typeahead through
+# +data-shadcn--select-text-value+).
 #
 # @example
 #   select.item(value: "apple", text_value: "Apple") { "Apple" }

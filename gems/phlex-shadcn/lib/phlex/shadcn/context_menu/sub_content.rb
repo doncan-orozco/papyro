@@ -31,7 +31,7 @@ class Phlex::Shadcn::ContextMenu::SubContent < Phlex::Shadcn::Base
   #   or a component instance renders that element/component instead, with this part's attributes merged into it
   #   (Radix Slot)
   # @param attrs [Hash] HTML attributes for the menu element; +class+ is merged with the defaults, +data+ and +aria+ are
-  #   deep-merged and a +style+ is appended after the default outline and popper variables
+  #   deep-merged and a +style+ is inserted after the default outline and before the popper variables
   def initialize(side_offset: 0, align: "start", align_offset: 0, avoid_collisions: true, collision_padding: 0,
                  collision_boundary: nil, sticky: "partial", hide_when_detached: false, update_position_strategy: "optimized",
                  arrow_padding: 0, loop: false, force_mount: false, as_child: false, **attrs)

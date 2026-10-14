@@ -4,8 +4,8 @@ using Phlex::Shadcn::Values::Refinements
 
 # shadcn ContextMenuRadioItem: a +div+ with +role="menuitemradio"+ and a circle indicator. It is checked when the enclosing
 # {RadioGroup}'s +value:+ equals its +value:+ (compared as strings); outside a RadioGroup it is never checked. Selecting it
-# dispatches +shadcn--context-menu:value-change+ (with +detail.value+, the item's +value:+ as a string)
-# and the cancelable +select+, and closes the menu unless +select+ was prevented.
+# dispatches the cancelable +select+ and then +shadcn--context-menu:value-change+ (with +detail.value+, the item's +value:+ as a
+# string), and closes the menu unless +select+ was prevented.
 #
 # @example
 #   menu.radio_item(value: "pedro") { "Pedro Duarte" }

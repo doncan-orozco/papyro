@@ -17,8 +17,10 @@
 # +escape-key-down+, +pointer-down-outside+, +focus-outside+ and +interact-outside+ (each with +detail.originalEvent+; preventing
 # one keeps the menu from dismissing) and the cancelable +open-auto-focus+; +close-auto-focus+ is cancelable and is dispatched
 # on the {Trigger}. A {Sub} dispatches its own +open-change+ (+detail.open+) on its {SubTrigger}. When the menu closes, focus
-# returns to the element that had it when the menu mounted, unless +close-auto-focus+ was prevented, the user interacted outside
-# the menu, or the page is disconnecting.
+# returns to the element that had it when the menu mounted, unless +close-auto-focus+ was prevented, the page is disconnecting,
+# that element is no longer connected or already has focus, or the close followed an outside interaction that suppresses the
+# return: any outside interaction when the root is non-modal, or (on a modal root, the default) a right click or ctrl+click
+# outside; a plain outside click on a modal menu still returns focus.
 #
 # The parts are available as helpers on the yielded root (and on any subclass of it); see the +@!method+ entries below.
 #
