@@ -41,7 +41,7 @@ module ShadcnStaticGate
       @m = manifest
       @src = files.map { |f| File.read(f) }.join("\n").gsub(/\\\n/, "") # Ruby line continuation inside strings
       @dev = deviations
-      @literals = ShadcnOracle::Scan.string_literals(@src)
+      @literals = literals_of(@src)
       @port_tokens = ShadcnOracle::Scan.tokens(@literals).uniq
     end
 
@@ -58,6 +58,13 @@ module ShadcnStaticGate
     end
 
     private
+
+    # The scanner is a regexp over the source text, so it must see what the Ruby parser sees: full-line comments never emit markup (and an
+    # apostrophe in prose would pair with a later quote and swallow code), and `%w[a b]` words are string literals just like ["a", "b"].
+    def literals_of(source)
+      code = source.lines.reject { |line| line.lstrip.start_with?("#") }.join
+      ShadcnOracle::Scan.string_literals(code) + code.scan(/%w\[([^\]]*)\]/).flat_map { |(words)| words.split }
+    end
 
     def root
       @root ||= ShadcnLayout.root_class_name(@m["name"])
