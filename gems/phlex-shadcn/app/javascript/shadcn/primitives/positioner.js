@@ -100,6 +100,7 @@ const roundByDPR = (element, value) => {
 
 /**
  * Positions `content` against `anchor` with Radix's middleware stack (offset, shift, flip, size, arrow, hide).
+ * Do not call update() after release() (known bug: it can restart tracking).
  * @param {Element} anchor
  * @param {HTMLElement} content
  * @param {object} [initial]

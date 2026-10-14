@@ -1,7 +1,10 @@
 // Port of the `aria-hidden` package (hideOthers) used by Radix modal content: every sibling along the path from the
 // targets up to <body> gets aria-hidden="true" (and the data-aria-hidden marker); ref-counted so nested modals compose
 // and a node that was already aria-hidden is left alone on release.
-// Known divergences: none (release is single-use, like upstream).
+// Known divergences: no target correction. Upstream aria-hidden unwraps a target inside a shadow root to its host and
+// drops (with console.error) targets outside `parent`; here targets are used as given (the gem renders no shadow DOM).
+// The shared counters are not reset when the last lock is released (upstream resets them; only differs after a double
+// release). Release is single-use, like upstream.
 const counters = new WeakMap()
 const markers = new WeakMap()
 const uncontrolled = new WeakMap()

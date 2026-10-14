@@ -1,4 +1,7 @@
-// Port of @radix-ui/react-focus-scope. Known divergences: none.
+// Port of @radix-ui/react-focus-scope.
+// Known divergences: release() removes this scope from the stack and resumes the previous one synchronously; Radix does
+// both inside the deferred (setTimeout 0) return-focus task, so a parent trap resumes one task earlier. No observable
+// effect when the released content is removed or focus returns into the parent.
 const stack = []
 
 const AUTOFOCUS_ON_MOUNT = "focusScope.autoFocusOnMount"

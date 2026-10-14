@@ -29,6 +29,9 @@ const VISUALLY_HIDDEN = {
 
 /**
  * Hidden native input/select kept in sync with a custom checkbox, switch, radio or select so forms submit and native events bubble.
+ *
+ * Public surface: the constructor, isFormControl, present, input, sync(), release(). The instance fields control, type,
+ * state, checked, initial, selectValue and optionsSignature are internal (@api private).
  * @example
  * const bubble = new FormBubbleInput(buttonEl, { type: "checkbox", name: "terms", value: "on", checked: false })
  * bubble.sync({ checked: true }, { userInteraction: true, propagationStopped: event.cancelBubble })
@@ -61,11 +64,21 @@ export class FormBubbleInput {
    * @param {() => void} [options.onReset] Runs when the form is reset.
    */
   constructor(control, options = {}) {
+    /** @api private */
     this.control = control
+    /** @api private */
     this.type = options.type || "checkbox"
+    /** @api private */
     this.state = { value: this.type === "checkbox" ? "on" : "", checked: false, indeterminate: false, ...options }
+    /** @api private */
     this.checked = this.#boolean(this.state.checked, this.state.indeterminate)
+    /** @api private */
     this.initial = this.state.checked
+    /**
+     * The mounted native <input>/<select> (null outside a form and after release()). Read-only for consumers
+     * (e.g. select_controller.js listens to its change).
+     * @type {HTMLInputElement | HTMLSelectElement | null}
+     */
     this.input = null
     this.#resizeObserver = null
     this.#onReset = options.onReset
@@ -183,6 +196,7 @@ export class FormBubbleInput {
     const value = this.state.value ?? ""
     this.#renderOptions()
     if (this.selectValue === value) return
+    /** @api private */
     this.selectValue = value
     this.#setNative("value", value, HTMLSelectElement.prototype)
     this.input.dispatchEvent(new Event("change", { bubbles: true }))
@@ -195,6 +209,7 @@ export class FormBubbleInput {
     const items = (current === "" && !hasEmpty ? [{ value: "" }] : []).concat(options)
     const signature = JSON.stringify(items)
     if (this.optionsSignature === signature) return
+    /** @api private */
     this.optionsSignature = signature
     this.input.replaceChildren(...items.map(({ value: v, label, disabled }) => {
       const option = new Option(label ?? "", v ?? "")
