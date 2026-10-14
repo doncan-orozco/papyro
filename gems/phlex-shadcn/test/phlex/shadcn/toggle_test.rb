@@ -46,4 +46,23 @@ class Phlex::Shadcn::ToggleTest < Phlex::Shadcn::TestCase
   test "variants helper" do
     assert_includes Phlex::Shadcn::Toggle.variants(variant: :outline, size: :sm, class: "x"), "h-8"
   end
+
+  test "constant tables" do
+    assert_equal %w[default outline], Phlex::Shadcn::Toggle::VARIANTS.keys
+    assert_equal %w[default sm lg], Phlex::Shadcn::Toggle::SIZES.keys
+  end
+
+  test "unknown variant or size raises" do
+    assert_raises(ArgumentError) { html(variant: :ghost) }
+    assert_raises(ArgumentError) { html(size: :huge) }
+    assert_raises(ArgumentError) { Phlex::Shadcn::Toggle.variants(variant: :ghost) }
+  end
+
+  test "as_child renders the given tag with the toggle attributes" do
+    out = html(as_child: :a, href: "/x")
+
+    assert_includes out, "<a "
+    assert_includes out, 'href="/x"'
+    assert_includes out, 'data-slot="toggle"'
+  end
 end

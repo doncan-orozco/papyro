@@ -3,55 +3,94 @@
 # shadcn `ButtonGroup` (new-york-v4). Spec: docs/shadcn-port/specs/button-group.md. Static: no controller.
 using Phlex::Shadcn::Values::Refinements
 
+# Groups related buttons into one joined control (shadcn `ButtonGroup`).
+#
+# Renders `<div role="group">`; the block receives the group, so parts are available as helpers
+# (`group.separator`, `group.text`).
+#
+# @example
+#   render Phlex::Shadcn::ButtonGroup.new do |group|
+#     group.render Phlex::Shadcn::Button.new(variant: "outline") { "Archive" }
+#     group.separator
+#     group.render Phlex::Shadcn::Button.new(variant: "outline") { "Report" }
+#   end
 class Phlex::Shadcn::ButtonGroup < Phlex::Shadcn::Base
+  # Classes shared by every orientation.
   BASE = "flex w-fit items-stretch has-[>[data-slot=button-group]]:gap-2 [&>*]:focus-visible:relative [&>*]:focus-visible:z-10 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1"
 
+  # Orientation => Tailwind classes; the keys are the accepted values of `orientation:`.
+  #
+  # @return [Hash{String => String}]
   ORIENTATIONS = {
     "horizontal" => "[&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none",
     "vertical" => "flex-col [&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none"
   }.freeze
 
-  # React `buttonGroupVariants`: nil uses the default, an unknown value yields no orientation classes (cva semantics).
+  # Class string of a button group (React `buttonGroupVariants`). Nil uses the default orientation and an
+  # unknown value yields no orientation classes (cva semantics).
+  #
+  # @param orientation [String, Symbol, nil] "horizontal" or "vertical"
+  # @param class [String, nil] extra classes, merged last
+  # @return [String]
   def self.variants(orientation: "horizontal", class: nil)
     new.send(:cn, BASE, ORIENTATIONS[(orientation || "horizontal").to_s], binding.local_variable_get(:class))
   end
 
+  # @param orientation [String, Symbol, nil] "horizontal" or "vertical"; nil renders no `data-orientation`
+  # @param attrs [Hash] HTML attributes merged onto the root `<div>`
   def initialize(orientation: nil, **attrs)
     @orientation = orientation
     @attrs = attrs
     super()
   end
 
+  # @yield [group] the group itself, to use the part helpers
+  # @yieldparam group [Phlex::Shadcn::ButtonGroup]
+  # @return [void]
   def view_template(&block)
     defaults = { role: "group", data: { slot: "button-group", orientation: @orientation&.to_s }.compact,
                  class: self.class.variants(orientation: @orientation) }
     div(**merge_attrs(defaults, @attrs)) { yield self if block }
   end
 
+  # Divider between the buttons of a group; renders a `Phlex::Shadcn::Separator` (helper: `group.separator`).
   class Separator < Phlex::Shadcn::Base
+    # Default separator classes.
     CLASS_NAME = "relative m-0! self-stretch bg-input data-[orientation=vertical]:h-auto"
 
+    # @param orientation [String, Symbol] separator orientation, "vertical" or "horizontal"
+    # @param attrs [Hash] HTML attributes merged onto the separator
     def initialize(orientation: "vertical", **attrs)
       @orientation = orientation
       @attrs = attrs
       super()
     end
 
+    # @return [void]
     def view_template(&)
       attrs = merge_attrs({ data: { slot: "button-group-separator" }, class: CLASS_NAME }, @attrs)
       render Phlex::Shadcn::Separator.new(orientation: @orientation, **attrs), &
     end
   end
 
+  # Static text or label shown inside a group (helper: `group.text`).
+  #
+  # @example
+  #   group.text { "https://" }
   class Text < Phlex::Shadcn::Base
+    # Default text classes.
     CLASS_NAME = "flex items-center gap-2 rounded-md border bg-muted px-4 text-sm font-medium shadow-xs [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4"
 
+    # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this tag or component instead of a `<div>`
+    # @param attrs [Hash] HTML attributes merged onto the element
     def initialize(as_child: false, **attrs)
       @as_child = as_child
       @attrs = attrs
       super()
     end
 
+    # @yield the text content
+    # @return [void]
     def view_template(&)
       attrs = merge_attrs({}, @attrs.except(:class))
       attrs = attrs.merge(class: [ @slot_class, cn(CLASS_NAME, @attrs[:class]) ].reject_blank.join(" "))

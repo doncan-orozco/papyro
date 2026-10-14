@@ -3,25 +3,49 @@
 # shadcn Toggle over Radix Toggle. Spec: docs/shadcn-port/specs/toggle.md
 using Phlex::Shadcn::Values::Refinements
 
+#
+# A two-state button (`aria-pressed`). Use `Toggle.variants` to get its classes for another element.
+#
+# @example
+#   render Phlex::Shadcn::Toggle.new(variant: :outline, size: :sm, aria: { label: "Bold" }) { "B" }
 class Phlex::Shadcn::Toggle < Phlex::Shadcn::Base
+  # Base classes shared by every variant and size.
   BASE = "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-[color,box-shadow] outline-none hover:bg-muted hover:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
 
+  # Classes per `variant:` name.
   VARIANTS = {
     "default" => "bg-transparent",
     "outline" => "border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground"
   }.freeze
 
+  # Classes per `size:` name.
   SIZES = {
     "default" => "h-9 min-w-9 px-2",
     "sm" => "h-8 min-w-8 px-1.5",
     "lg" => "h-10 min-w-10 px-2.5"
   }.freeze
 
-  # React `toggleVariants`.
+  # React `toggleVariants`: the class string of a toggle without rendering it.
+  #
+  # @param variant [String, Symbol] a key of {VARIANTS}
+  # @param size [String, Symbol] a key of {SIZES}
+  # @param class [String, nil] extra classes merged last
+  # @return [String]
+  # @raise [ArgumentError] on an unknown variant or size
+  # @example
+  #   Phlex::Shadcn::Toggle.variants(variant: :outline, size: :lg)
   def self.variants(variant: "default", size: "default", class: nil)
     new(variant:, size:).send(:classes, binding.local_variable_get(:class))
   end
 
+  # @param variant [String, Symbol] a key of {VARIANTS}
+  # @param size [String, Symbol] a key of {SIZES}; underscores are normalized to dashes
+  # @param pressed [Boolean, nil] controlled state (non-nil: user input only dispatches an event, the caller re-renders)
+  # @param default_pressed [Boolean] initial state (uncontrolled)
+  # @param disabled [Boolean]
+  # @param as_child [Boolean, Class, Proc] render onto the child element instead of a `<button>`
+  # @param attrs [Hash] HTML attributes for the root (`class:` merged last, `aria:`, `data:`)
+  # @raise [ArgumentError] on an unknown variant or size
   def initialize(variant: "default", size: "default", pressed: nil, default_pressed: false, disabled: false, as_child: false, **attrs)
     @variant = normalize_option(variant) || "default"
     @size = normalize_option(size) || "default"
@@ -36,6 +60,8 @@ class Phlex::Shadcn::Toggle < Phlex::Shadcn::Base
     super()
   end
 
+  # @yield the toggle content
+  # @return [void]
   def view_template(&)
     attrs = merge_attrs(root_attrs, @attrs.except(:class))
     attrs = attrs.merge(class: [ @slot_class, classes(@attrs[:class]) ].reject_blank.join(" "))

@@ -2,15 +2,42 @@
 
 # shadcn RadioGroup over Radix RadioGroup. Spec: docs/shadcn-port/specs/radio-group.md.
 # Behavior: controllers/shadcn/radio_group_controller.js (one controller per group, items are not controllers).
+#
+# Yields itself, so items are available as `group.item(value: "a")` (see {RadioGroup::Item}).
+#
+# @example
+#   render Phlex::Shadcn::RadioGroup.new(name: "plan", default_value: "pro") do |group|
+#     group.item(value: "free", id: "plan-free")
+#     group.item(value: "pro", id: "plan-pro")
+#   end
 class Phlex::Shadcn::RadioGroup < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
+  # Key under which the root shares its state with its items through the Phlex context.
+  #
+  # @api private
   ROOT_KEY = :shadcn_radio_group_root
+  # Classes of the root element.
   CLASSES = "grid gap-3"
+  # Allowed values of `orientation:`.
   ORIENTATIONS = %w[horizontal vertical].freeze
+  # Allowed values of `dir:`.
   DIRECTIONS = %w[ltr rtl].freeze
 
   # value: non-nil is controlled (user actions only dispatch value-change, the caller re-renders with the new value).
+  #
+  # @param value [String, nil] controlled checked value
+  # @param default_value [String, nil] initially checked value (uncontrolled)
+  # @param disabled [Boolean] disables every item
+  # @param required [Boolean] marks the group required (aria and bubble inputs)
+  # @param name [String, nil] form field name of the bubble inputs
+  # @param form [String, nil] id of the associated `<form>`
+  # @param orientation [String, Symbol, nil] one of {ORIENTATIONS}
+  # @param dir [String, Symbol, nil] one of {DIRECTIONS}; defaults to the surrounding direction provider
+  # @param loop [Boolean] whether arrow-key focus wraps around
+  # @param as_child [Boolean, Class, Proc] render onto the child element instead of a `<div>`
+  # @param attrs [Hash] HTML attributes for the root (`class:` merged last)
+  # @raise [ArgumentError] when `orientation:` or `dir:` is not an allowed value
   def initialize(value: nil, default_value: nil, disabled: false, required: false, name: nil, form: nil,
                  orientation: nil, dir: nil, loop: true, as_child: false, **attrs)
     @controlled = !value.nil?
@@ -27,6 +54,9 @@ class Phlex::Shadcn::RadioGroup < Phlex::Shadcn::Base
     super()
   end
 
+  # @yield [group] the block that renders the items
+  # @yieldparam group [RadioGroup] this component, exposing the `item` helper
+  # @return [void]
   def view_template
     previous = context[ROOT_KEY]
     @dir = use_direction(@dir)

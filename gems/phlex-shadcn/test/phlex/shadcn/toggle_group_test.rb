@@ -133,4 +133,21 @@ class Phlex::Shadcn::ToggleGroupTest < Phlex::Shadcn::TestCase
     assert_equal explicit, helper
     assert_respond_to ToggleGroup.new(type: "single"), :item
   end
+
+  test "constant tables and unknown options" do
+    assert_equal %w[single multiple], ToggleGroup::TYPES
+    assert_equal %w[horizontal vertical], ToggleGroup::ORIENTATIONS
+    assert_equal %w[ltr rtl], ToggleGroup::DIRECTIONS
+    assert_raises(ArgumentError) { group(root: { type: "single", orientation: "diagonal" }) }
+    assert_raises(ArgumentError) { group(root: { type: "single", dir: "up" }) }
+    assert_raises(ArgumentError) { group(root: { type: "single", spacing: "2" }) }
+  end
+
+  test "item as_child renders the given tag" do
+    html = render_view do
+      render(ToggleGroup.new(type: "single")) { render(ToggleGroup::Item.new(value: "a", as_child: :a, href: "/x")) { "A" } }
+    end
+
+    assert fragment(html).at_css("a[data-slot=toggle-group-item][href='/x']")
+  end
 end

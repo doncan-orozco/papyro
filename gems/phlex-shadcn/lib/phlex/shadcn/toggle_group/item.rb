@@ -3,11 +3,28 @@
 # shadcn ToggleGroupItem: Radix Toggle inside a RovingFocusGroup item.
 using Phlex::Shadcn::Values::Refinements
 
+#
+# Must be rendered inside a {ToggleGroup} (raises ArgumentError otherwise). The group's `variant`, `size` and
+# `disabled` win over the item's own.
+#
+# @example
+#   group.item(value: "bold", aria: { label: "Bold" }) { "B" }
 class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
+  # Classes added on top of {Toggle} classes.
   EXTRA_CLASSES = "w-auto min-w-0 shrink-0 px-3 focus:z-10 focus-visible:z-10"
+  # Classes that join adjacent items when the group spacing is 0.
   SPACING_CLASSES = "data-[spacing=0]:rounded-none data-[spacing=0]:shadow-none data-[spacing=0]:first:rounded-l-md data-[spacing=0]:last:rounded-r-md data-[spacing=0]:data-[variant=outline]:border-l-0 data-[spacing=0]:data-[variant=outline]:first:border-l"
+  # Stimulus action wired on the item.
+  #
+  # @api private
   ACTION = "click->shadcn--toggle-group#toggle"
 
+  # @param value [String] identifier of the item inside the group value
+  # @param variant [String, Symbol, nil] used when the group sets none
+  # @param size [String, Symbol, nil] used when the group sets none
+  # @param disabled [Boolean] disables this item (the group's `disabled:` also applies)
+  # @param as_child [Boolean, Class, Proc] render onto the child element instead of a `<button>`
+  # @param attrs [Hash] HTML attributes for the item (`class:` merged last, `aria:`, `data:`)
   def initialize(value:, variant: nil, size: nil, disabled: false, as_child: false, **attrs)
     @value = value.to_s
     @variant = normalize_option(variant)
@@ -18,6 +35,9 @@ class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
     super()
   end
 
+  # @yield the item content
+  # @return [void]
+  # @raise [ArgumentError] when rendered outside a {ToggleGroup}
   def view_template(&)
     root = context[Phlex::Shadcn::ToggleGroup::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within ToggleGroup"
     variant = root[:variant] || @variant

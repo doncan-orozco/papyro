@@ -72,4 +72,21 @@ class Phlex::Shadcn::SliderTest < Phlex::Shadcn::TestCase
     assert_equal "ltr", fragment(local).at_css("[data-slot=slider]")["dir"]
     assert_includes fragment(provided).at_css("[data-slot=slider-range]")["style"], "right: 0%; left: 90%;"
   end
+
+  test "unknown dir raises and controlled value is flagged" do
+    assert_raises(ArgumentError) { slider(dir: "up") }
+    assert_equal "true", slider(value: [ 10 ]).at_css("[data-slot=slider]")["data-shadcn--slider-controlled-value"]
+    assert_equal "false", slider(default_value: [ 10 ]).at_css("[data-slot=slider]")["data-shadcn--slider-controlled-value"]
+  end
+
+  test "constant tables" do
+    assert_equal %w[horizontal vertical], Slider::ORIENTATIONS
+    assert_equal %w[ltr rtl], Slider::DIRECTIONS
+  end
+
+  test "more than two thumbs get numbered labels and a single name" do
+    thumbs = slider(default_value: [ 1, 2, 3 ], name: "n").css("[role=slider]")
+
+    assert_equal([ "Value 1 of 3", "Value 2 of 3", "Value 3 of 3" ], thumbs.map { |t| t["aria-label"] })
+  end
 end

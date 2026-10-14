@@ -38,4 +38,25 @@ class Phlex::Shadcn::NativeSelectTest < Phlex::Shadcn::TestCase
     assert_equal explicit, helper
     assert_includes grouped, '<optgroup class="bg-[Canvas] text-[CanvasText]" data-slot="native-select-optgroup" label="G">'
   end
+
+  test "explicit selected on an option wins and the first match only is selected in single mode" do
+    out = NS.new(default_value: "a").call do |s|
+      s.option(value: "a", selected: false) { "A" }
+      s.option(value: "a") { "A2" }
+      s.option(value: "a") { "A3" }
+    end
+
+    assert_equal 1, out.scan(" selected").size
+    assert_includes out, ">A2</option>"
+  end
+
+  test "multiple marks every matching option and size defaults to default" do
+    out = NS.new(default_value: %w[a b], multiple: true).call do |s|
+      s.option(value: "a") { "A" }
+      s.option(value: "b") { "B" }
+    end
+
+    assert_equal 2, out.scan(" selected").size
+    assert_includes out, 'data-size="default"'
+  end
 end

@@ -3,22 +3,39 @@
 # shadcn RadioGroupItem: Radix Item button (+ Indicator while checked) followed by the form bubble input.
 using Phlex::Shadcn::Values::Refinements
 
+#
+# Must be rendered inside a {RadioGroup} (raises ArgumentError otherwise).
+#
+# @example
+#   group.item(value: "pro", id: "plan-pro", aria: { label: "Pro plan" })
 class Phlex::Shadcn::RadioGroup::Item < Phlex::Shadcn::Base
+  # Classes of the item button.
   CLASSES = "aspect-square size-4 shrink-0 rounded-full border border-input text-primary shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
+  # Inline style hiding the form bubble input.
   BUBBLE_STYLE = "position: absolute; pointer-events: none; opacity: 0; margin: 0px; transform: translateX(-100%);"
+  # Stimulus actions wired on the item button.
+  #
+  # @api private
   ACTIONS = "click->shadcn--radio-group#select keydown->shadcn--radio-group#keydown focus->shadcn--radio-group#focus"
 
-  # Radix Indicator: rendered only while checked.
+  # Radix Indicator: rendered only while checked. Rendered by {Item}; also used for the controller's indicator template.
+  #
+  # @api private
   class Indicator < Phlex::Shadcn::Base
+    # Classes of the indicator span.
     CLASSES = "relative flex items-center justify-center"
+    # Classes of the indicator icon.
     ICON_CLASSES = "absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 fill-primary"
 
+    # @param state [String] `"checked"` or `"unchecked"`
+    # @param disabled [Boolean]
     def initialize(state:, disabled: false)
       @state = state
       @disabled = disabled
       super()
     end
 
+    # @return [void]
     def view_template
       span(data: { state: @state, disabled: (@disabled ? "" : nil), slot: "radio-group-indicator" }, class: CLASSES) do
         render Phlex::Shadcn::Icon.new("circle", class: ICON_CLASSES)
@@ -26,6 +43,9 @@ class Phlex::Shadcn::RadioGroup::Item < Phlex::Shadcn::Base
     end
   end
 
+  # @param value [String] value submitted when this item is checked
+  # @param disabled [Boolean] disables this item (the group's `disabled:` also applies)
+  # @param attrs [Hash] HTML attributes for the item `<button>` (`id:`, `class:` merged last, `aria:`, `data:`)
   def initialize(value:, disabled: false, **attrs)
     @value = value.to_s
     @disabled = disabled
@@ -33,6 +53,8 @@ class Phlex::Shadcn::RadioGroup::Item < Phlex::Shadcn::Base
     super()
   end
 
+  # @return [void]
+  # @raise [ArgumentError] when rendered outside a {RadioGroup}
   def view_template
     root = context[Phlex::Shadcn::RadioGroup::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within RadioGroup"
     checked = root[:value] == @value

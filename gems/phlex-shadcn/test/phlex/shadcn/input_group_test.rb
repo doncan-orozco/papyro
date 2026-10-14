@@ -64,4 +64,38 @@ class Phlex::Shadcn::InputGroupTest < Phlex::Shadcn::TestCase
       assert_equal explicit, via_helper, helper.to_s
     end
   end
+
+  test "every addon alignment renders its classes" do
+    IG::Addon::ALIGNS.each do |align, classes|
+      out = render_part(IG::Addon, align:)
+
+      assert_includes out, %(data-align="#{align}")
+      assert_includes out, classes.split.first
+    end
+  end
+
+  test "every button size renders its classes" do
+    IG::Button::SIZES.each do |size, classes|
+      out = render_part(IG::Button, size:)
+
+      assert_includes out, %(data-size="#{size}")
+      assert_includes out, classes.split.first
+    end
+  end
+
+  test "button as_child renders the given tag" do
+    out = render_part(IG::Button, as_child: :a, href: "/x")
+
+    assert_includes out, "<a "
+    assert_includes out, 'href="/x"'
+  end
+
+  test "input and textarea forward their attributes" do
+    assert_includes render_part(IG::Input, type: "email", placeholder: "p"), 'type="email"'
+    assert_includes render_part(IG::Textarea, rows: 3) { "t" }, 'rows="3"'
+  end
+
+  test "text merges the caller class" do
+    assert_includes render_part(IG::Text, class: "font-mono"), "font-mono"
+  end
 end

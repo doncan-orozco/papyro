@@ -59,4 +59,21 @@ class ButtonGroupTest < Phlex::Shadcn::TestCase
 
     assert_includes render_group { |g| g.text(class: "y") { "t" } }, text
   end
+
+  test "every orientation renders its classes" do
+    Phlex::Shadcn::ButtonGroup::ORIENTATIONS.each do |name, classes|
+      assert_includes render_group(orientation: name), classes.split.first
+    end
+  end
+
+  test "variants class helper merges extra classes and tolerates unknown orientations" do
+    assert_includes Phlex::Shadcn::ButtonGroup.variants(orientation: :vertical, class: "w-full"), "w-full"
+    assert_not_includes Phlex::Shadcn::ButtonGroup.variants(orientation: "x"), "rounded-l-none"
+  end
+
+  test "separator accepts a horizontal orientation" do
+    html = Phlex::Shadcn::ButtonGroup::Separator.new(orientation: "horizontal").call
+
+    assert_includes html, 'data-orientation="horizontal"'
+  end
 end

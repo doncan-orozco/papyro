@@ -103,4 +103,20 @@ class Phlex::Shadcn::RadioGroupTest < Phlex::Shadcn::TestCase
     assert_equal explicit, helpers
     assert_includes RadioGroup.public_instance_methods(false), :item
   end
+
+  test "constant tables and unknown options" do
+    assert_equal %w[horizontal vertical], RadioGroup::ORIENTATIONS
+    assert_equal %w[ltr rtl], RadioGroup::DIRECTIONS
+    assert_raises(ArgumentError) { group(root: { orientation: "diagonal" }) }
+    assert_raises(ArgumentError) { group(root: { dir: "up" }) }
+  end
+
+  test "controlled value, name and form reach the bubble inputs" do
+    doc = fragment(group(root: { value: "b", name: "plan", form: "f1", required: true }))
+
+    assert_equal "true", doc.at_css("[data-slot=radio-group]")["data-shadcn--radio-group-controlled-value"]
+    assert_equal "checked", doc.at_css("button[value=b]")["data-state"]
+    assert_equal(%w[plan plan], doc.css("input").map { |i| i["name"] })
+    assert_equal(%w[f1 f1], doc.css("input").map { |i| i["form"] })
+  end
 end

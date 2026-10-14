@@ -4,18 +4,47 @@
 # Behavior: controllers/shadcn/slider_controller.js (one controller on the root span).
 using Phlex::Shadcn::Values::Refinements
 
+#
+# Single component with no nested parts: the track, range, thumbs and hidden inputs (one per value) are rendered internally.
+# One thumb per element of the initial value array (two when none is given).
+#
+# @example
+#   render Phlex::Shadcn::Slider.new(default_value: [ 25, 75 ], max: 100, step: 5, name: "price", class: "w-64")
 class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
+  # Allowed values of `orientation:`.
   ORIENTATIONS = %w[horizontal vertical].freeze
+  # Allowed values of `dir:`.
   DIRECTIONS = %w[ltr rtl].freeze
+  # Classes of the root span.
   ROOT_CLASS = "relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col"
+  # Classes of the track span.
   TRACK_CLASS = "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5"
+  # Classes of the filled range span.
   RANGE_CLASS = "absolute bg-primary data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
+  # Classes of each thumb.
   THUMB_CLASS = "block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+  # Per-orientation transform exposed as `--radix-slider-thumb-transform`.
   THUMB_TRANSFORM = { "horizontal" => "translateX(-50%)", "vertical" => "translateY(50%)" }.freeze
 
   # value: non-nil is controlled (user input only dispatches shadcn--slider:value-change, the caller re-renders).
+  #
+  # @param default_value [Array<Numeric>, nil] initial thumb values (uncontrolled); defaults to `[ min ]` values on two thumbs
+  # @param value [Array<Numeric>, nil] controlled thumb values; ignored unless an Array
+  # @param min [Numeric]
+  # @param max [Numeric]
+  # @param step [Numeric]
+  # @param orientation [String, Symbol] one of {ORIENTATIONS}
+  # @param disabled [Boolean]
+  # @param inverted [Boolean] reverses the direction of the range
+  # @param min_steps_between_thumbs [Integer] minimum distance between thumbs, in steps
+  # @param preserve_thumb_order [Boolean] keep thumb values sorted while dragging
+  # @param name [String, nil] form field name of the hidden inputs (`name[]` with several thumbs)
+  # @param form [String, nil] id of the associated `<form>`
+  # @param dir [String, Symbol, nil] one of {DIRECTIONS}; defaults to the surrounding direction provider
+  # @param attrs [Hash] HTML attributes for the root span (`class:` merged last, `aria:`, `data:`, `style:`)
+  # @raise [ArgumentError] when `orientation:` or `dir:` is not an allowed value
   def initialize(default_value: nil, value: nil, min: 0, max: 100, step: 1, orientation: "horizontal", disabled: false,
                  inverted: false, min_steps_between_thumbs: 0, preserve_thumb_order: false, name: nil, form: nil,
                  dir: nil, **attrs)
@@ -38,6 +67,7 @@ class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
     super()
   end
 
+  # @return [void]
   def view_template
     @horizontal = @orientation == "horizontal"
     @direction = use_direction(@dir) if @horizontal
