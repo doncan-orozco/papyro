@@ -6,23 +6,23 @@
 #   Phlex::Shadcn::Empty.new { |empty| empty.header { empty.media(variant: :icon) { "i" }; empty.title { "No projects" } } }
 #
 # @!method header(**attrs, &block)
-#   Renders a {Empty::Header}; same as +render Empty::Header.new(**attrs), &block+.
+#   Renders {Empty::Header}; same as +render Empty::Header.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method media(**attrs, &block)
-#   Renders a {Empty::Media}; same as +render Empty::Media.new(**attrs), &block+.
+#   Renders {Empty::Media}; same as +render Empty::Media.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method title(**attrs, &block)
-#   Renders a {Empty::Title}; same as +render Empty::Title.new(**attrs), &block+.
+#   Renders {Empty::Title}; same as +render Empty::Title.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method description(**attrs, &block)
-#   Renders a {Empty::Description}; same as +render Empty::Description.new(**attrs), &block+.
+#   Renders {Empty::Description}; same as +render Empty::Description.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method content(**attrs, &block)
-#   Renders a {Empty::Content}; same as +render Empty::Content.new(**attrs), &block+.
+#   Renders {Empty::Content}; same as +render Empty::Content.new(**attrs), &block+.
 #   @return [void]
 class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.

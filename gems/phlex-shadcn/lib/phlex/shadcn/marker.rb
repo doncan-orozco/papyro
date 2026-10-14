@@ -8,11 +8,11 @@ using Phlex::Shadcn::Values::Refinements
 #   Phlex::Shadcn::Marker.new(variant: :separator) { |marker| marker.content { "Today" } }
 #
 # @!method icon(**attrs, &block)
-#   Renders a {Marker::Icon}; same as +render Marker::Icon.new(**attrs), &block+.
+#   Renders {Marker::Icon}; same as +render Marker::Icon.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method content(**attrs, &block)
-#   Renders a {Marker::Content}; same as +render Marker::Content.new(**attrs), &block+.
+#   Renders {Marker::Content}; same as +render Marker::Content.new(**attrs), &block+.
 #   @return [void]
 class Phlex::Shadcn::Marker < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.

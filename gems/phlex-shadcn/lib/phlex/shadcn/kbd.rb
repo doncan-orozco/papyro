@@ -6,7 +6,7 @@
 #   Phlex::Shadcn::Kbd.new { "Esc" }
 #
 # @!method group(**attrs, &block)
-#   Renders a {Kbd::Group}; same as +render Kbd::Group.new(**attrs), &block+.
+#   Renders {Kbd::Group}; same as +render Kbd::Group.new(**attrs), &block+.
 #   @return [void]
 class Phlex::Shadcn::Kbd < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.

@@ -9,35 +9,35 @@ using Phlex::Shadcn::Values::Refinements
 #   Phlex::Shadcn::Attachment.new(state: :uploading) { |a| a.media { "i" }; a.content { a.title { "report.pdf" } } }
 #
 # @!method group(**attrs, &block)
-#   Renders a {Attachment::Group}; same as +render Attachment::Group.new(**attrs), &block+.
+#   Renders {Attachment::Group}; same as +render Attachment::Group.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method media(**attrs, &block)
-#   Renders a {Attachment::Media}; same as +render Attachment::Media.new(**attrs), &block+.
+#   Renders {Attachment::Media}; same as +render Attachment::Media.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method content(**attrs, &block)
-#   Renders a {Attachment::Content}; same as +render Attachment::Content.new(**attrs), &block+.
+#   Renders {Attachment::Content}; same as +render Attachment::Content.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method title(**attrs, &block)
-#   Renders a {Attachment::Title}; same as +render Attachment::Title.new(**attrs), &block+.
+#   Renders {Attachment::Title}; same as +render Attachment::Title.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method description(**attrs, &block)
-#   Renders a {Attachment::Description}; same as +render Attachment::Description.new(**attrs), &block+.
+#   Renders {Attachment::Description}; same as +render Attachment::Description.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method actions(**attrs, &block)
-#   Renders a {Attachment::Actions}; same as +render Attachment::Actions.new(**attrs), &block+.
+#   Renders {Attachment::Actions}; same as +render Attachment::Actions.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method action(**attrs, &block)
-#   Renders a {Attachment::Action}; same as +render Attachment::Action.new(**attrs), &block+.
+#   Renders {Attachment::Action}; same as +render Attachment::Action.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method trigger(**attrs, &block)
-#   Renders a {Attachment::Trigger}; same as +render Attachment::Trigger.new(**attrs), &block+.
+#   Renders {Attachment::Trigger}; same as +render Attachment::Trigger.new(**attrs), &block+.
 #   @return [void]
 class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.

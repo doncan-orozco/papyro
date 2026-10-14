@@ -8,39 +8,39 @@ using Phlex::Shadcn::Values::Refinements
 #   Phlex::Shadcn::Item.new(variant: :outline) { |item| item.content { item.title { "Invoice" }; item.description { "Due Friday" } } }
 #
 # @!method media(**attrs, &block)
-#   Renders a {Item::Media}; same as +render Item::Media.new(**attrs), &block+.
+#   Renders {Item::Media}; same as +render Item::Media.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method content(**attrs, &block)
-#   Renders a {Item::Content}; same as +render Item::Content.new(**attrs), &block+.
+#   Renders {Item::Content}; same as +render Item::Content.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method actions(**attrs, &block)
-#   Renders a {Item::Actions}; same as +render Item::Actions.new(**attrs), &block+.
+#   Renders {Item::Actions}; same as +render Item::Actions.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method group(**attrs, &block)
-#   Renders a {Item::Group}; same as +render Item::Group.new(**attrs), &block+.
+#   Renders {Item::Group}; same as +render Item::Group.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method title(**attrs, &block)
-#   Renders a {Item::Title}; same as +render Item::Title.new(**attrs), &block+.
+#   Renders {Item::Title}; same as +render Item::Title.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method description(**attrs, &block)
-#   Renders a {Item::Description}; same as +render Item::Description.new(**attrs), &block+.
+#   Renders {Item::Description}; same as +render Item::Description.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method header(**attrs, &block)
-#   Renders a {Item::Header}; same as +render Item::Header.new(**attrs), &block+.
+#   Renders {Item::Header}; same as +render Item::Header.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method footer(**attrs, &block)
-#   Renders a {Item::Footer}; same as +render Item::Footer.new(**attrs), &block+.
+#   Renders {Item::Footer}; same as +render Item::Footer.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method separator(**attrs, &block)
-#   Renders a {Item::Separator}; same as +render Item::Separator.new(**attrs), &block+.
+#   Renders {Item::Separator}; same as +render Item::Separator.new(**attrs), &block+.
 #   @return [void]
 class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.

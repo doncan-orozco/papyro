@@ -6,11 +6,11 @@
 #   Phlex::Shadcn::Alert.new(variant: :destructive) { |alert| alert.title { "Heads up" }; alert.description { "Something broke." } }
 #
 # @!method title(**attrs, &block)
-#   Renders a {Alert::Title}; same as +render Alert::Title.new(**attrs), &block+.
+#   Renders {Alert::Title}; same as +render Alert::Title.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method description(**attrs, &block)
-#   Renders a {Alert::Description}; same as +render Alert::Description.new(**attrs), &block+.
+#   Renders {Alert::Description}; same as +render Alert::Description.new(**attrs), &block+.
 #   @return [void]
 class Phlex::Shadcn::Alert < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.

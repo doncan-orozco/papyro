@@ -7,31 +7,31 @@
 #   Phlex::Shadcn::Table.new { |t| t.header { t.row { t.head { "Name" } } }; t.body { t.row { t.cell { "Ada" } } } }
 #
 # @!method header(**attrs, &block)
-#   Renders a {Table::Header}; same as +render Table::Header.new(**attrs), &block+.
+#   Renders {Table::Header}; same as +render Table::Header.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method body(**attrs, &block)
-#   Renders a {Table::Body}; same as +render Table::Body.new(**attrs), &block+.
+#   Renders {Table::Body}; same as +render Table::Body.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method footer(**attrs, &block)
-#   Renders a {Table::Footer}; same as +render Table::Footer.new(**attrs), &block+.
+#   Renders {Table::Footer}; same as +render Table::Footer.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method row(**attrs, &block)
-#   Renders a {Table::Row}; same as +render Table::Row.new(**attrs), &block+.
+#   Renders {Table::Row}; same as +render Table::Row.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method head(**attrs, &block)
-#   Renders a {Table::Head}; same as +render Table::Head.new(**attrs), &block+.
+#   Renders {Table::Head}; same as +render Table::Head.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method cell(**attrs, &block)
-#   Renders a {Table::Cell}; same as +render Table::Cell.new(**attrs), &block+.
+#   Renders {Table::Cell}; same as +render Table::Cell.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method caption(**attrs, &block)
-#   Renders a {Table::Caption}; same as +render Table::Caption.new(**attrs), &block+.
+#   Renders {Table::Caption}; same as +render Table::Caption.new(**attrs), &block+.
 #   @return [void]
 class Phlex::Shadcn::Table < Phlex::Shadcn::Base
   # Tailwind classes of the wrapper +div+; they are the DOM contract, not part of the Ruby API.

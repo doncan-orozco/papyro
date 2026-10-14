@@ -7,23 +7,23 @@
 #   Phlex::Shadcn::Avatar.new(size: :lg) { |avatar| avatar.image(src: "/me.png", alt: "Me"); avatar.fallback { "ME" } }
 #
 # @!method image(**attrs, &block)
-#   Renders a {Avatar::Image}; same as +render Avatar::Image.new(**attrs), &block+.
+#   Renders {Avatar::Image}; same as +render Avatar::Image.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method fallback(**attrs, &block)
-#   Renders a {Avatar::Fallback}; same as +render Avatar::Fallback.new(**attrs), &block+.
+#   Renders {Avatar::Fallback}; same as +render Avatar::Fallback.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method badge(**attrs, &block)
-#   Renders a {Avatar::Badge}; same as +render Avatar::Badge.new(**attrs), &block+.
+#   Renders {Avatar::Badge}; same as +render Avatar::Badge.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method group(**attrs, &block)
-#   Renders a {Avatar::Group}; same as +render Avatar::Group.new(**attrs), &block+.
+#   Renders {Avatar::Group}; same as +render Avatar::Group.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method group_count(**attrs, &block)
-#   Renders a {Avatar::GroupCount}; same as +render Avatar::GroupCount.new(**attrs), &block+.
+#   Renders {Avatar::GroupCount}; same as +render Avatar::GroupCount.new(**attrs), &block+.
 #   @return [void]
 class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
   # Accepted +size+ values.

@@ -7,23 +7,23 @@
 #   Phlex::Shadcn::Message.new(align: :end) { |message| message.content { message.header { "You" } } }
 #
 # @!method group(**attrs, &block)
-#   Renders a {Message::Group}; same as +render Message::Group.new(**attrs), &block+.
+#   Renders {Message::Group}; same as +render Message::Group.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method avatar(**attrs, &block)
-#   Renders a {Message::Avatar}; same as +render Message::Avatar.new(**attrs), &block+.
+#   Renders {Message::Avatar}; same as +render Message::Avatar.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method content(**attrs, &block)
-#   Renders a {Message::Content}; same as +render Message::Content.new(**attrs), &block+.
+#   Renders {Message::Content}; same as +render Message::Content.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method header(**attrs, &block)
-#   Renders a {Message::Header}; same as +render Message::Header.new(**attrs), &block+.
+#   Renders {Message::Header}; same as +render Message::Header.new(**attrs), &block+.
 #   @return [void]
 #
 # @!method footer(**attrs, &block)
-#   Renders a {Message::Footer}; same as +render Message::Footer.new(**attrs), &block+.
+#   Renders {Message::Footer}; same as +render Message::Footer.new(**attrs), &block+.
 #   @return [void]
 class Phlex::Shadcn::Message < Phlex::Shadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
