@@ -1,11 +1,18 @@
 # frozen_string_literal: true
 
-# shadcn `Spinner` (new-york-v4). Spec: docs/shadcn-port/specs/spinner.md. Static: no controller, no data-slot.
+# shadcn Spinner: a spinning +loader-circle+ icon (+role="status"+, label "Loading"). It sets no +data-slot+; attributes go to the icon.
+#
+# @example
+#   Phlex::Shadcn::Spinner.new(class: "size-6")
 class Phlex::Shadcn::Spinner < Phlex::Shadcn::Base
+  # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
   def initialize(**attrs)
     @attrs = attrs
   end
 
+  # Renders the element with the block as its content.
+  #
+  # @return [void]
   def view_template(&)
     attrs = @attrs.dup
     # lucide Icon consumes `color` as the stroke attribute instead of forwarding it.

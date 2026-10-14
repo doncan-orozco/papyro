@@ -1,16 +1,26 @@
 # frozen_string_literal: true
 
-# shadcn `Progress` (Radix Progress). Spec: docs/shadcn-port/specs/progress.md. Static: no controller.
-# shadcn does not forward `value` to Radix, so the DOM is always indeterminate; `value` only drives the transform.
+# shadcn Progress over Radix Progress.
+# Like shadcn, the DOM is always +data-state="indeterminate"+: +value+ only moves the indicator.
+#
+# @example
+#   Phlex::Shadcn::Progress.new(value: 40)
 class Phlex::Shadcn::Progress < Phlex::Shadcn::Base
+  # The +max+ used when none (or an invalid one) is given.
   DEFAULT_MAX = 100
 
+  # @param value [Numeric, nil] progress, 0 up to +max+; positions the indicator
+  # @param max [Numeric, nil] upper bound; ignored unless a positive number (default 100)
+  # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
   def initialize(value: nil, max: nil, **attrs)
     @value = value || 0
     @max = valid_max?(max) ? js_number(max) : DEFAULT_MAX
     @attrs = attrs
   end
 
+  # Renders the element with the block as its content.
+  #
+  # @return [void]
   def view_template
     attrs = merge_attrs(
       {
