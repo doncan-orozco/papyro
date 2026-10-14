@@ -67,11 +67,11 @@ class Phlex::Shadcn::ToggleGroupTest < Phlex::Shadcn::TestCase
   end
 
   test "group variant and size win over the item" do
-    item = fragment(group(root: { type: "single", variant: "outline" },
+    item = fragment(group(root: { type: "single", variant: "outline", size: :lg },
                           item: { variant: "default", size: :sm })).at_css("[data-slot=toggle-group-item]")
 
     assert_equal "outline", item["data-variant"]
-    assert_equal "sm", item["data-size"]
+    assert_equal "lg", item["data-size"]
     assert_includes item["class"], "border-input"
   end
 
