@@ -4,6 +4,10 @@
 # directly in the body (or in `container`, a CSS selector) while the dialog is open.
 using Phlex::Shadcn::Values::Refinements
 
+# Mounts its children (an inert template) into the body, or into `container`, while the alert dialog is open.
+#
+# @example
+#   alert_dialog.portal(container: "#modals") { alert_dialog.overlay }
 class Phlex::Shadcn::AlertDialog::Portal < Phlex::Shadcn::Base
   include Phlex::Shadcn::AlertDialog::Support
 
