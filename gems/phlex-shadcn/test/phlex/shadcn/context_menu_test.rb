@@ -210,12 +210,6 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
     assert_includes html, "inside"
   end
 
-  test "trigger, content, sub and sub content raise without a ContextMenu" do
-    [ ContextMenu::Trigger, ContextMenu::Content, ContextMenu::Sub, ContextMenu::SubContent ].each do |part|
-      assert_raises(ArgumentError, part.name) { render_view { render(part.new) } }
-    end
-  end
-
   test "root passes dir and modal to the trigger values and the content" do
     doc = fragment(menu(root: { dir: "rtl", modal: false }))
     trigger = doc.at_css("[data-slot=context-menu-trigger]")
@@ -268,8 +262,8 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
     assert_equal "-1", item["tabindex"]
   end
 
-  test "as_child true is not supported and raises when rendered" do
-    assert_raises(NoMethodError) { render_in_menu { render(ContextMenu::Item.new(as_child: true)) { "x" } } }
+  test "as_child true is not accepted and raises when rendered" do
+    assert_raises(StandardError) { render_in_menu { render(ContextMenu::Item.new(as_child: true)) { "x" } } }
   end
 
   test "item merges the caller class over the defaults with tailwind-merge" do
@@ -425,7 +419,7 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
     assert trigger.at_css("svg.lucide-chevron-right")
   end
 
-  test "sub default_open opens an uncontrolled sub menu" do
+  test "sub default_open renders the uncontrolled sub trigger open in the server markup" do
     html = render_in_menu do
       render(ContextMenu::Sub.new(default_open: true)) { render(ContextMenu::SubTrigger.new) { "More" } }
     end

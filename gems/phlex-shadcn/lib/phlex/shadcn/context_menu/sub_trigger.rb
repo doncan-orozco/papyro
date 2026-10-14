@@ -33,7 +33,7 @@ class Phlex::Shadcn::ContextMenu::SubTrigger < Phlex::Shadcn::Base
 
   # @yield the label of the trigger (the chevron is appended after it)
   # @return [void]
-  # @raise [ArgumentError] when not rendered within a {Phlex::Shadcn::ContextMenu} and a {Sub}
+  # @raise [ArgumentError] when there is no surrounding {Sub}
   def view_template
     sub = context[Phlex::Shadcn::ContextMenu::SUB_KEY] or raise ArgumentError, "#{self.class.name} must be used within ContextMenu::Sub"
     open = sub[:open]

@@ -32,6 +32,13 @@ class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
     end
   end
 
+  test "root renders its block twice" do
+    calls = 0
+    render_view { render(Select.new) { calls += 1 } }
+
+    assert_equal 2, calls
+  end
+
   test "closed select shows the placeholder and ships the content in an inert template" do
     doc = fragment(select)
     trigger = doc.at_css("[data-slot=select-trigger]")

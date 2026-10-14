@@ -242,8 +242,8 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
     provided = render_view { render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(DropdownMenu.new) { render(DropdownMenu::Trigger.new) { "x" } } } }
     local = render_view { render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(DropdownMenu.new(dir: "ltr")) { render(DropdownMenu::Trigger.new) { "x" } } } }
 
-    assert_includes provided, "rtl"
-    assert_not_includes local, "rtl"
+    assert_equal "rtl", fragment(provided).at_css("[data-slot=dropdown-menu-trigger]")["data-shadcn--dropdown-menu-dir-value"]
+    assert_equal "ltr", fragment(local).at_css("[data-slot=dropdown-menu-trigger]")["data-shadcn--dropdown-menu-dir-value"]
   end
 
   test "content serializes the positioning options into the template with the documented defaults" do
@@ -292,7 +292,7 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
     end
   end
 
-  test "radio item without value raises at construction and an unknown keyword on any part becomes an attribute" do
+  test "radio item without value raises at construction and an unknown keyword on Item becomes an attribute while the root raises" do
     assert_raises(ArgumentError) { DropdownMenu::RadioItem.new }
     assert_raises(ArgumentError) { DropdownMenu.new(unknown: 1) }
 
@@ -451,11 +451,13 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
     assert_equal [ "start", 0 ], options.values_at("align", "sideOffset")
   end
 
-  test "shortcut passes attrs and has no as_child option" do
-    html = menu { render(DropdownMenu::Item.new) { render(DropdownMenu::Shortcut.new(title: "t")) { "K" } } }
+  test "shortcut passes attrs and as_child is just a plain attribute" do
+    html = menu { render(DropdownMenu::Item.new) { render(DropdownMenu::Shortcut.new(title: "t", as_child: :a)) { "K" } } }
     shortcut = fragment(html).at_css("[data-slot=dropdown-menu-shortcut]")
 
     assert_equal "t", shortcut["title"]
     assert_equal "K", shortcut.text
+    assert_equal "a", shortcut["as-child"]
+    assert_nil shortcut.at_css("a")
   end
 end

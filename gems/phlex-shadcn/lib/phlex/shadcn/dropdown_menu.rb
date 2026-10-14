@@ -147,6 +147,7 @@ class Phlex::Shadcn::DropdownMenu < Phlex::Shadcn::Base
   #   are blocked while open)
   # @param dir [String, Symbol, nil] +"ltr"+ or +"rtl"+. Any other value (and +nil+) is ignored without error and the
   #   direction comes from the nearest Direction::Provider, then +"ltr"+.
+  # @return [void]
   def initialize(open: nil, default_open: false, modal: true, dir: nil)
     @controlled = !open.nil?
     @open = @controlled ? open : default_open

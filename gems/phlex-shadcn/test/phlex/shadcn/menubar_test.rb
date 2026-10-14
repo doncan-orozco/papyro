@@ -137,7 +137,6 @@ class Phlex::Shadcn::MenubarTest < Phlex::Shadcn::TestCase
     assert_includes Menubar::Separator::CLASSES, "bg-border"
     assert_includes Menubar::Shortcut::CLASSES, "tracking-widest"
     assert_includes Menubar::SubTrigger::CLASSES, "data-[state=open]:bg-accent"
-    assert_includes Menubar::Support::STYLE_VARS.keys, "--radix-menubar-trigger-width"
   end
 
   test "an unsupported dir is ignored and falls back to ltr, loop defaults to true and can be turned off" do

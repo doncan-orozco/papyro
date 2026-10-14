@@ -12,7 +12,8 @@ class Phlex::Shadcn::ContextMenu::Sub < Phlex::Shadcn::Base
   include Phlex::Shadcn::ContextMenu::Support
 
   # @param open [Boolean, nil] non-nil makes the sub menu controlled and rendered open or closed accordingly (default +nil+)
-  # @param default_open [Boolean] initial state when +open+ is +nil+ (default +false+)
+  # @param default_open [Boolean] default +false+; only affects the server markup: the controller closes every sub when
+  #   its menu mounts (reporting +open-change+), so only a controlled +open: true+ keeps a sub open
   def initialize(open: nil, default_open: false)
     @controlled = !open.nil?
     @open = @controlled ? open : default_open
