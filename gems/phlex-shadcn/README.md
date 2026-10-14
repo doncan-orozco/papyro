@@ -31,7 +31,9 @@ config.phlex_shadcn.theme_dir = "app/assets/tailwind/theme"  # relative to the a
 config.phlex_shadcn.theme_task_aliases = true                 # false if the app defines its own theme:* tasks
 ```
 
-Precedence: `config.phlex_shadcn.theme_dir`, then `Phlex::Shadcn.configure { |c| c.theme_dir = ... }`, then the default.
+Precedence at boot: `config.phlex_shadcn.theme_dir`, then a value set with `Phlex::Shadcn.configure` before the app initializes, then the default.
+In Rails apps use `config.phlex_shadcn.theme_dir`: a `configure` call in `config/initializers` runs later and overrides it (a relative path
+there is not rooted at the app).
 
 ### Theme tasks
 
