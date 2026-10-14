@@ -8,21 +8,62 @@
 # inert <template> (deviation: docs/shadcn-port/deviations/navigation-menu.json) that the controller clones.
 using Phlex::Shadcn::Values::Refinements
 
+#
+# The block receives the menu, which has one helper per part (`menu.list`, `menu.item`, `menu.trigger`, `menu.content`,
+# `menu.link`, `menu.indicator`, `menu.viewport`) equal to `render NavigationMenu::Part.new(...)`. The viewport is
+# appended automatically unless `viewport: false`.
+#
+# @example
+#   render Phlex::Shadcn::NavigationMenu.new do |menu|
+#     menu.list do
+#       menu.item(value: "docs") do
+#         menu.trigger { plain "Docs" }
+#         menu.content { menu.link(href: "/docs") { plain "Introduction" } }
+#       end
+#       menu.item { menu.link(href: "/about", class: Phlex::Shadcn::NavigationMenu.trigger_style) { plain "About" } }
+#     end
+#   end
+# @see https://ui.shadcn.com/docs/components/navigation-menu
 class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
+  # Render-context key holding the root state.
+  #
+  # @api private
   ROOT_KEY = :shadcn_navigation_menu_root
+  # Render-context key holding the current item state.
+  #
+  # @api private
   ITEM_KEY = :shadcn_navigation_menu_item
+  # Render-context key of the per-render id counter.
+  #
+  # @api private
   SEQUENCE_KEY = :shadcn_navigation_menu_sequence
+  # Accepted `orientation:` values.
   ORIENTATIONS = %w[horizontal vertical].freeze
 
+  # Classes of the root `nav`.
   CLASSES = "group/navigation-menu relative flex max-w-max flex-1 items-center justify-center"
   # React `navigationMenuTriggerStyle()` (cva without variants).
   TRIGGER_STYLE = "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-[color,box-shadow] outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent/50 data-[state=open]:text-accent-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-accent"
 
+  # `navigationMenuTriggerStyle()` for the caller: the class string that styles a link like a trigger.
+  #
+  # @param options [Hash] `class:` is tailwind-merged over the base style
+  # @return [String] the class string, for styling a link like a trigger
   def self.trigger_style(**options) = new.send(:cn, TRIGGER_STYLE, options[:class])
 
-  # value: non-nil is controlled (the server decides the open item, user actions only dispatch value-change).
+  # `value:` non-nil is controlled (the server decides the open item, user actions only dispatch value-change).
+  #
+  # @param viewport [Boolean] render the shared viewport that hosts the open content (default: true)
+  # @param value [String, nil] open item value; non-nil makes the menu controlled (default: nil)
+  # @param default_value [String] initially open item value when uncontrolled (default: "")
+  # @param delay_duration [Integer] milliseconds before hovering opens an item (default: 200)
+  # @param skip_delay_duration [Integer] milliseconds after closing during which hovering opens instantly (default: 300)
+  # @param orientation [String, Symbol] `horizontal` or `vertical` (default: "horizontal")
+  # @param dir [String, Symbol, nil] `ltr` or `rtl`; defaults to the nearest {Phlex::Shadcn::Direction::Provider} (default: nil)
+  # @param activation_mode [String, Symbol] `automatic` (hover or focus opens) or `manual` (default: "automatic")
+  # @param attrs [Hash] HTML attributes for the root `nav`; `class:` is tailwind-merged, `data:` and `aria:` are deep-merged
   def initialize(viewport: true, value: nil, default_value: "", delay_duration: 200, skip_delay_duration: 300,
                  orientation: "horizontal", dir: nil, activation_mode: "automatic", **attrs)
     @viewport = viewport
@@ -37,6 +78,7 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     super()
   end
 
+  # Renders the `nav`, yields the menu and appends the viewport when enabled.
   def view_template(&)
     previous = context[ROOT_KEY]
     dir = use_direction(@dir)
@@ -61,9 +103,13 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
   end
 
   # Per render counter (no SecureRandom): ids are only compared through their relations.
+  #
+  # @api private
   def self.next_sequence(context) = context[SEQUENCE_KEY] = context.fetch(SEQUENCE_KEY, 0) + 1
 
   # Shared by the parts: the root and item state of the current render.
+  #
+  # @api private
   module Support
     private
 
@@ -76,17 +122,26 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     end
   end
 
+  # shadcn NavigationMenuList: the `ul` that holds the items, inside the indicator track.
+  #
+  # Also available as `menu.list` on the yielded menu.
   class List < Phlex::Shadcn::Base
     include Support
 
+    # Classes of the list.
     CLASSES = "group flex flex-1 list-none items-center justify-center gap-1"
 
+    # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this child (or tag symbol) instead of the default element, merging the
+    #   part attributes onto it like Radix Slot (default: false)
+    # @param attrs [Hash] HTML attributes for the element; `class:` is tailwind-merged over the defaults, `data:` and `aria:`
+    #   are deep-merged (caller wins)
     def initialize(as_child: false, **attrs)
       @as_child = as_child
       @attrs = attrs
       super()
     end
 
+    # Renders the track `div` and the `ul` (or the `as_child` child) with the block as content.
     def view_template(&)
       root = root_context
       attrs = merge_attrs({ dir: root[:dir], class: CLASSES, data: { orientation: root[:orientation], slot: "navigation-menu-list" } },
@@ -98,9 +153,17 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     end
   end
 
+  # shadcn NavigationMenuItem: the `li` that groups a trigger and its content under one value.
+  #
+  # Also available as `menu.item` on the yielded menu.
   class Item < Phlex::Shadcn::Base
     include Support
 
+    # @param value [String, nil] value identifying the item (default: nil, a per-render id is generated)
+    # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this child (or tag symbol) instead of the default element, merging the
+    #   part attributes onto it like Radix Slot (default: false)
+    # @param attrs [Hash] HTML attributes for the element; `class:` is tailwind-merged over the defaults, `data:` and `aria:`
+    #   are deep-merged (caller wins)
     def initialize(value: nil, as_child: false, **attrs)
       @value = value&.to_s&.unless_blank
       @as_child = as_child
@@ -108,6 +171,7 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
       super()
     end
 
+    # Publishes the item state to the context and renders the `li` (or the `as_child` child) with the block as content.
     def view_template(&)
       root = root_context
       previous = context[ITEM_KEY]
@@ -121,18 +185,28 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
       context[ITEM_KEY] = previous
     end
 
+    # @api private
     def self.next_sequence(context) = Phlex::Shadcn::NavigationMenu.next_sequence(context)
   end
 
+  # shadcn NavigationMenuTrigger: the `button` that opens its item's content. Must be inside an {Item}.
+  #
+  # Also available as `menu.trigger` on the yielded menu.
   class Trigger < Phlex::Shadcn::Base
     include Support
 
+    # @param disabled [Boolean] disable the trigger (default: false)
+    # @param attrs [Hash] HTML attributes for the element; `class:` is tailwind-merged over the defaults, `data:` and `aria:`
+    #   are deep-merged (caller wins)
     def initialize(disabled: false, **attrs)
       @disabled = disabled
       @attrs = attrs
       super()
     end
 
+    # Renders the `button` with the block as label followed by the chevron icon.
+    #
+    # @raise [ArgumentError] when rendered outside a {NavigationMenu::Item}
     def view_template
       item = item_context
       open = item[:open]
@@ -154,14 +228,23 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     end
   end
 
+  # shadcn NavigationMenuContent: the panel of an item, shipped in an inert `template` that the controller clones.
+  #
+  # Also available as `menu.content` on the yielded menu.
   class Content < Phlex::Shadcn::Base
     include Support
 
+    # Classes of the content panel.
     CLASSES = [
       "top-0 left-0 w-full p-2 pr-2.5 data-[motion=from-end]:slide-in-from-right-52 data-[motion=from-start]:slide-in-from-left-52 data-[motion=to-end]:slide-out-to-right-52 data-[motion=to-start]:slide-out-to-left-52 data-[motion^=from-]:animate-in data-[motion^=from-]:fade-in data-[motion^=to-]:animate-out data-[motion^=to-]:fade-out md:absolute md:w-auto",
       "group-data-[viewport=false]/navigation-menu:top-full group-data-[viewport=false]/navigation-menu:mt-1.5 group-data-[viewport=false]/navigation-menu:overflow-hidden group-data-[viewport=false]/navigation-menu:rounded-md group-data-[viewport=false]/navigation-menu:border group-data-[viewport=false]/navigation-menu:bg-popover group-data-[viewport=false]/navigation-menu:text-popover-foreground group-data-[viewport=false]/navigation-menu:shadow group-data-[viewport=false]/navigation-menu:duration-200 **:data-[slot=navigation-menu-link]:focus:ring-0 **:data-[slot=navigation-menu-link]:focus:outline-none group-data-[viewport=false]/navigation-menu:data-[state=closed]:animate-out group-data-[viewport=false]/navigation-menu:data-[state=closed]:fade-out-0 group-data-[viewport=false]/navigation-menu:data-[state=closed]:zoom-out-95 group-data-[viewport=false]/navigation-menu:data-[state=open]:animate-in group-data-[viewport=false]/navigation-menu:data-[state=open]:fade-in-0 group-data-[viewport=false]/navigation-menu:data-[state=open]:zoom-in-95"
     ].freeze
 
+    # @param force_mount [Boolean] keep the part mounted while closed (`data-force-mount`) (default: false)
+    # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this child (or tag symbol) instead of the default element, merging the
+    #   part attributes onto it like Radix Slot (default: false)
+    # @param attrs [Hash] HTML attributes for the element; `class:` is tailwind-merged over the defaults, `data:` and `aria:`
+    #   are deep-merged (caller wins)
     def initialize(force_mount: false, as_child: false, **attrs)
       @force_mount = force_mount
       @as_child = as_child
@@ -170,6 +253,8 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     end
 
     # Markup of the mounted content; the controller adds data-motion, and data-state / pointer-events without a viewport.
+    #
+    # @raise [ArgumentError] when rendered outside a {NavigationMenu::Item}
     def view_template(&)
       root = root_context
       item = item_context
@@ -183,17 +268,27 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     end
   end
 
+  # shadcn NavigationMenuViewport: the shared container that hosts the open content (inert `template`).
+  #
+  # Rendered automatically by the root unless `viewport: false`; also available as `menu.viewport`.
   class Viewport < Phlex::Shadcn::Base
     include Support
 
+    # Classes of the viewport.
     CLASSES = "origin-top-center relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)]"
 
+    # @param force_mount [Boolean] keep the part mounted while closed (`data-force-mount`) (default: false)
+    # @param attrs [Hash] HTML attributes for the element; `class:` is tailwind-merged over the defaults, `data:` and `aria:`
+    #   are deep-merged (caller wins)
     def initialize(force_mount: false, **attrs)
       @force_mount = force_mount
       @attrs = attrs
       super()
     end
 
+    # Renders the positioning `div` with the viewport clone source inside a `template`.
+    #
+    # @raise [ArgumentError] when rendered outside a {NavigationMenu}
     def view_template
       root = root_context
       div(class: "absolute top-full left-0 isolate z-50 flex justify-center") do
@@ -204,9 +299,18 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     end
   end
 
+  # shadcn NavigationMenuLink: the `a` of a menu entry.
+  #
+  # Also available as `menu.link` on the yielded menu.
   class Link < Phlex::Shadcn::Base
+    # Classes of the link.
     CLASSES = "flex flex-col gap-1 rounded-sm p-2 text-sm transition-all outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 data-[active=true]:bg-accent/50 data-[active=true]:text-accent-foreground data-[active=true]:hover:bg-accent data-[active=true]:focus:bg-accent [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground"
 
+    # @param active [Boolean] mark the link as the current page (`aria-current`, `data-active`) (default: false)
+    # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this child (or tag symbol) instead of the default element, merging the
+    #   part attributes onto it like Radix Slot (default: false)
+    # @param attrs [Hash] HTML attributes for the element; `class:` is tailwind-merged over the defaults, `data:` and `aria:`
+    #   are deep-merged (caller wins)
     def initialize(active: false, as_child: false, **attrs)
       @active = active
       @as_child = as_child
@@ -214,6 +318,7 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
       super()
     end
 
+    # Renders the `a` (or the `as_child` child) with the block as content.
     def view_template(&)
       attrs = merge_attrs({
                             class: CLASSES, aria: { current: (@active ? "page" : nil) },
@@ -223,18 +328,28 @@ class Phlex::Shadcn::NavigationMenu < Phlex::Shadcn::Base
     end
   end
 
+  # shadcn NavigationMenuIndicator: the arrow under the active trigger (inert `template`, mounted by the controller).
+  #
+  # Also available as `menu.indicator` on the yielded menu.
   class Indicator < Phlex::Shadcn::Base
     include Support
 
+    # Classes of the indicator.
     CLASSES = "top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:animate-in data-[state=visible]:fade-in"
 
+    # @param force_mount [Boolean] keep the part mounted while closed (`data-force-mount`) (default: false)
+    # @param attrs [Hash] HTML attributes for the element; `class:` is tailwind-merged over the defaults, `data:` and `aria:`
+    #   are deep-merged (caller wins)
     def initialize(force_mount: false, **attrs)
       @force_mount = force_mount
       @attrs = attrs
       super()
     end
 
+    # Renders the indicator clone source inside a `template`.
     # The controller sets data-state and the position style when it mounts the clone into the List track.
+    #
+    # @raise [ArgumentError] when rendered outside a {NavigationMenu}
     def view_template
       root = root_context
       template(data: { shadcn__navigation_menu_target: "indicatorTemplate", force_mount: (@force_mount ? "true" : nil) }) do

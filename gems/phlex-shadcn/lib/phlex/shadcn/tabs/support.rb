@@ -3,6 +3,8 @@
 # What the tabs parts share: the render context pushed by Tabs.
 using Phlex::Shadcn::Values::Refinements
 
+#
+# @api private
 module Phlex::Shadcn::Tabs::Support
   private
 

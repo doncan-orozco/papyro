@@ -57,4 +57,16 @@ class Phlex::Shadcn::BreadcrumbTest < Phlex::Shadcn::TestCase
       assert_equal explicit, helper_html
     end
   end
+
+  test "ellipsis label and separator custom content" do
+    out = B::Ellipsis.new(label: "Hidden").call
+
+    assert_includes out, "Hidden"
+    assert_not_includes out, "More"
+    sep = B::Separator.new(class: "mx-1").call { "/" }
+
+    assert_includes sep, "/"
+    assert_includes sep, "mx-1"
+    assert_includes sep, 'role="presentation"'
+  end
 end

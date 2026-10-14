@@ -136,4 +136,111 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
 
     assert_equal explicit, helpers
   end
+
+  def render_block(&block)
+    Class.new(Phlex::HTML) { define_method(:view_template, &block) }.new.call
+  end
+
+  test "value makes the menu controlled and opens the matching item" do
+    out = render_menu(root: { value: "docs" })
+
+    assert_includes out, 'data-shadcn--navigation-menu-controlled-value="true"'
+    assert_includes out, 'data-shadcn--navigation-menu-value-value="docs"'
+    assert_includes out, 'aria-expanded="true"'
+
+    closed = render_menu(root: { value: "", default_value: "docs" })
+
+    assert_includes closed, 'data-shadcn--navigation-menu-controlled-value="true"'
+    assert_includes closed, 'aria-expanded="false"'
+  end
+
+  test "default_value is uncontrolled" do
+    out = render_menu(root: { default_value: "docs" })
+
+    assert_includes out, 'data-shadcn--navigation-menu-controlled-value="false"'
+    assert_includes out, 'data-shadcn--navigation-menu-value-value="docs"'
+  end
+
+  test "delays, activation mode and orientation reach the controller values" do
+    out = render_menu(root: { delay_duration: 10, skip_delay_duration: 20, activation_mode: :manual, orientation: "vertical" })
+
+    assert_includes out, 'data-shadcn--navigation-menu-delay-duration-value="10"'
+    assert_includes out, 'data-shadcn--navigation-menu-skip-delay-duration-value="20"'
+    assert_includes out, 'data-shadcn--navigation-menu-activation-mode-value="manual"'
+    assert_includes out, 'data-shadcn--navigation-menu-orientation-value="vertical"'
+    assert_includes render_menu, 'data-shadcn--navigation-menu-activation-mode-value="automatic"'
+    assert_includes render_menu(root: { orientation: "diagonal" }), 'data-orientation="horizontal"'
+  end
+
+  test "dir comes from the direction provider unless set" do
+    inherited = render_block do
+      render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(NavigationMenu.new(viewport: false)) }
+    end
+
+    assert_includes inherited, 'dir="rtl"'
+    assert_includes inherited, 'data-shadcn--navigation-menu-dir-value="rtl"'
+  end
+
+  test "list and item render ul and li, or the as_child element, with caller attrs" do
+    out = render_block do
+      render NavigationMenu.new(viewport: false) do
+        render(NavigationMenu::List.new(class: "gap-4", id: "l")) { render(NavigationMenu::Item.new(class: "x", id: "i")) { plain "a" } }
+        render(NavigationMenu::List.new(as_child: :ol)) { render(NavigationMenu::Item.new(as_child: :div)) { plain "b" } }
+      end
+    end
+    doc = Nokogiri::HTML5.fragment(out)
+
+    assert_includes doc.at_css("ul#l")["class"], "gap-4"
+    assert_includes doc.at_css("li#i")["class"], "relative x"
+    assert_equal "navigation-menu-list", doc.at_css("ol")["data-slot"]
+    assert_equal "navigation-menu-item", doc.at_css("div[data-slot=navigation-menu-item]")["data-slot"]
+  end
+
+  test "an item without value gets a generated one that links trigger and content" do
+    out = render_block do
+      render NavigationMenu.new(viewport: false) do
+        render(NavigationMenu::Item.new) do
+          render(NavigationMenu::Trigger.new) { plain "A" }
+          render(NavigationMenu::Content.new) { plain "c" }
+        end
+      end
+    end
+
+    assert_match(/data-value="navigation-menu-\d+-item-\d+"/, out)
+    assert_match(/id="navigation-menu-\d+-trigger-navigation-menu-\d+-item-\d+"/, out)
+  end
+
+  test "content as_child merges onto the child and is a template" do
+    out = render_menu(content: { as_child: :section, class: "p-9" })
+    section = Nokogiri::HTML5.fragment(out).at_css("template[data-shadcn--navigation-menu-target=contentTemplate]").at_css("section")
+
+    assert_equal "navigation-menu-content", section["data-slot"]
+    assert_includes section["class"], "p-9"
+  end
+
+  test "viewport and indicator take force_mount and caller attrs" do
+    out = render_block do
+      render NavigationMenu.new(viewport: false) do
+        render NavigationMenu::List.new
+        render NavigationMenu::Indicator.new(force_mount: true, class: "bg-red-500", id: "ind")
+        render NavigationMenu::Viewport.new(force_mount: true, class: "mt-9", id: "vp")
+      end
+    end
+    doc = Nokogiri::HTML5.fragment(out)
+    indicator = doc.at_css("template[data-shadcn--navigation-menu-target=indicatorTemplate]")
+    viewport = doc.at_css("template[data-shadcn--navigation-menu-target=viewportTemplate]")
+
+    assert_equal "true", indicator["data-force-mount"]
+    assert_equal "true", viewport["data-force-mount"]
+    assert_equal "ind", indicator.at_css("[data-slot=navigation-menu-indicator]")["id"]
+    assert_includes indicator.at_css("[data-slot=navigation-menu-indicator]")["class"], "bg-red-500"
+    assert_includes viewport.at_css("[data-slot=navigation-menu-viewport]")["class"], "mt-9"
+    assert_raises(ArgumentError) { NavigationMenu::Indicator.new.call }
+    assert_raises(ArgumentError) { NavigationMenu::Viewport.new.call }
+  end
+
+  test "content outside an item raises and a standalone link renders" do
+    assert_raises(ArgumentError) { render_block { render(NavigationMenu.new) { render NavigationMenu::Content.new } } }
+    assert_includes NavigationMenu::Link.new(href: "/x").call { "x" }, 'href="/x"'
+  end
 end

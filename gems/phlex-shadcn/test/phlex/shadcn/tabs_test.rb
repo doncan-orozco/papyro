@@ -124,4 +124,37 @@ class Phlex::Shadcn::TabsTest < Phlex::Shadcn::TestCase
 
     assert_equal explicit, helpers
   end
+
+  test "controlled value, manual activation and vertical orientation reach the controller values" do
+    root = fragment(tabs(root: { value: "b", activation_mode: "manual", orientation: "vertical" })).at_css("[data-slot=tabs]")
+
+    assert_equal "b", root["data-shadcn--tabs-value-value"]
+    assert_equal "true", root["data-shadcn--tabs-controlled-value"]
+    assert_equal "manual", root["data-shadcn--tabs-activation-mode-value"]
+    assert_equal "vertical", root["data-orientation"]
+    assert_equal "automatic", fragment(tabs(root: { activation_mode: "bogus" })).at_css("[data-slot=tabs]")["data-shadcn--tabs-activation-mode-value"]
+  end
+
+  test "list loop, line variant and style" do
+    list = fragment(tabs(list: { variant: :line, loop: false, style: "color: red" })).at_css("[data-slot=tabs-list]")
+
+    assert_equal "line", list["data-variant"]
+    assert_equal "false", list["data-shadcn--tabs-loop-value"]
+    assert_includes list["style"], "color: red"
+    assert_equal Tabs.list_variants(variant: "default"), Tabs.list_variants(variant: "unknown")
+  end
+
+  test "content force_mount keeps an inactive panel rendered" do
+    html = render_view do
+      render(Tabs.new(default_value: "a")) { render(Tabs::Content.new(value: "b", force_mount: true)) { "Body two" } }
+    end
+    panel = fragment(html).at_css("[data-slot=tabs-content]")
+
+    assert_equal "inactive", panel["data-state"]
+    assert_equal "true", panel["data-shadcn--tabs-force-mount"]
+    assert_nil panel["hidden"]
+    assert_nil panel.at_css("template")
+
+    assert_includes panel.text, "Body two"
+  end
 end

@@ -42,4 +42,23 @@ class Phlex::Shadcn::PaginationTest < Phlex::Shadcn::TestCase
 
     assert_equal explicit, helper
   end
+
+  test "link size and active states" do
+    sized = P::Link.new(size: "default", href: "#").call { "x" }
+    active = P::Link.new(is_active: true, href: "#").call { "2" }
+
+    assert_includes sized, "px-4"
+    assert_includes active, 'aria-current="page"'
+    assert_includes active, 'data-active="true"'
+    assert_includes P::Link.new(href: "#").call { "x" }, "data-slot=\"pagination-link\""
+  end
+
+  test "every helper renders the same HTML as the explicit part" do
+    { link: P::Link, next: P::Next, ellipsis: P::Ellipsis, item: P::Item, content: P::Content }.each do |name, klass|
+      helper = P.new.call { |p| p.public_send(name, class: "z") { "x" } }
+      explicit = P.new.call { |p| p.render(klass.new(class: "z")) { "x" } }
+
+      assert_equal explicit, helper, name.to_s
+    end
+  end
 end

@@ -3,13 +3,21 @@
 # shadcn TabsContent: Radix Content over Presence. React mounts the children only while the panel is present: inactive
 # bodies ship in an inert template that the controller takes over on connect (an inactive as_child panel is only that
 # template, since React renders nothing for it).
+#
+# @example
+#   tabs.content(value: "account", force_mount: false) { "Account settings" }
 using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Tabs::Content < Phlex::Shadcn::Base
   include Phlex::Shadcn::Tabs::Support
 
+  # Default Tailwind classes of the panel.
   CLASSES = "flex-1 outline-none"
 
+  # @param value [String, Symbol] the tab value this panel belongs to
+  # @param force_mount [Boolean] keep the panel mounted while inactive
+  # @param as_child [Boolean, Phlex::Shadcn::Base, Symbol] render onto the given child instead of a `div`
+  # @param attrs [Hash] HTML attributes merged onto the panel (`style:` is joined with the mount-animation guard)
   def initialize(value:, force_mount: false, as_child: false, **attrs)
     @value = value.to_s
     @force_mount = force_mount
@@ -19,6 +27,7 @@ class Phlex::Shadcn::Tabs::Content < Phlex::Shadcn::Base
     super()
   end
 
+  # @return [void]
   def view_template(&block)
     root = root_context
     selected = root[:value] == @value

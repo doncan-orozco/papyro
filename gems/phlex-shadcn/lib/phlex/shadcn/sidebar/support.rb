@@ -3,7 +3,13 @@
 # What the sidebar parts share: the as_child switch and the default/caller attribute merge.
 using Phlex::Shadcn::Values::Refinements
 
+# Mixin of the sidebar parts.
+#
+# @api private
 module Phlex::Shadcn::Sidebar::Support
+  # Stimulus action descriptor that toggles the sidebar.
+  #
+  # @api private
   TOGGLE = "click->shadcn--sidebar#toggle"
 
   private

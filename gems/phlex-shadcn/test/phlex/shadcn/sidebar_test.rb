@@ -180,4 +180,147 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     end
     assert_respond_to Sidebar.new, :provider
   end
+
+  test "provider open is controlled, default_open is not" do
+    controlled = fragment(provider(open: false)).at_css("[data-slot=sidebar-wrapper]")
+
+    assert_equal "false", controlled["data-shadcn--sidebar-open-value"]
+    assert_equal "true", controlled["data-shadcn--sidebar-controlled-value"]
+    assert_equal "false", fragment(provider(default_open: false)).at_css("[data-slot=sidebar-wrapper]")["data-shadcn--sidebar-controlled-value"]
+    assert_equal "collapsed", fragment(provider(open: false) { render(Sidebar.new) }).at_css("[data-slot=sidebar]")["data-state"]
+  end
+
+  test "use_sidebar returns the state of the nearest provider" do
+    captured = nil
+    probe = Class.new(Phlex::Shadcn::Base) do
+      define_method(:view_template) { captured = Sidebar.use_sidebar(self) }
+    end
+    provider(default_open: false) { render probe.new }
+
+    assert_equal "collapsed", captured.state
+    assert_not captured.open
+    assert_not captured.is_mobile
+    assert_match(/\Asidebar-\d+\z/, captured.id)
+  end
+
+  test "simple parts render their tag and merge class, data and aria from the caller" do
+    tags = { content: "div", footer: "div", group: "div", group_content: "div", header: "div", menu: "ul", menu_item: "li",
+             menu_sub: "ul", menu_sub_item: "li", menu_badge: "div", inset: "main" }
+    tags.each do |name, tag|
+      html = provider { render(Sidebar.new) { |sidebar| sidebar.public_send(name, class: "zz", id: "p", data: { testid: "t" }, aria: { label: "L" }) { "x" } } }
+      element = fragment(html).at_css("#{tag}#p")
+
+      assert_includes element["class"], "zz", name.to_s
+      assert_equal "t", element["data-testid"], name.to_s
+      assert_equal "L", element["aria-label"], name.to_s
+      assert_equal "x", element.text, name.to_s
+    end
+  end
+
+  test "as_child parts render the child element with the part attributes" do
+    { group_action: %w[button sidebar-group-action], group_label: %w[div sidebar-group-label],
+      menu_action: %w[button sidebar-menu-action], menu_sub_button: %w[a sidebar-menu-sub-button] }.each do |name, (default_tag, slot)|
+      default = fragment(provider { render(Sidebar.new) { |sidebar| sidebar.public_send(name) { "x" } } }).at_css("[data-slot=#{slot}]")
+      html = provider { render(Sidebar.new) { |sidebar| sidebar.public_send(name, as_child: :section, class: "zz") { "x" } } }
+      child = fragment(html).at_css("[data-slot=#{slot}]")
+
+      assert_equal default_tag, default.name, name.to_s
+      assert_equal "section", child.name, name.to_s
+      assert_includes child["class"], "zz", name.to_s
+    end
+  end
+
+  test "group action and menu action carry no type attribute" do
+    html = provider do
+      render(Sidebar.new) do |sidebar|
+        sidebar.group_action
+        sidebar.menu_action
+      end
+    end
+
+    assert_nil fragment(html).at_css("[data-slot=sidebar-group-action]")["type"]
+    assert_nil fragment(html).at_css("[data-slot=sidebar-menu-action]")["type"]
+  end
+
+  test "menu action show_on_hover adds the reveal classes only on request" do
+    shown = fragment(provider { render(Sidebar::MenuAction.new(show_on_hover: true)) }).at_css("[data-slot=sidebar-menu-action]")
+    plain = fragment(provider { render(Sidebar::MenuAction.new) }).at_css("[data-slot=sidebar-menu-action]")
+
+    assert_includes shown["class"], "md:opacity-0"
+    assert_not_includes plain["class"], "md:opacity-0"
+  end
+
+  test "menu sub button size, active state and default tag" do
+    small = fragment(provider { render(Sidebar::MenuSubButton.new(size: :sm, is_active: true, href: "/x")) }).at_css("a")
+
+    assert_equal "sm", small["data-size"]
+    assert_equal "true", small["data-active"]
+    assert_equal "/x", small["href"]
+    assert_includes small["class"], "text-xs"
+
+    default = fragment(provider { render(Sidebar::MenuSubButton.new) }).at_css("a")
+
+    assert_equal "md", default["data-size"]
+    assert_equal "false", default["data-active"]
+    assert_raises(ArgumentError) { Sidebar::MenuSubButton.new(size: "xl") }
+  end
+
+  test "menu button variants class helper validates its options" do
+    assert_includes Sidebar::MenuButton.variants(variant: "outline", size: :lg), "shadow-[0_0_0_1px_var(--sidebar-border)]"
+    assert_raises(KeyError) { Sidebar::MenuButton.variants(variant: "nope") }
+    assert_raises(ArgumentError) { Sidebar::MenuButton.new(variant: "nope") }
+    assert_includes fragment(provider { render(Sidebar::MenuButton.new(variant: "outline")) }).at_css("button")["class"], "bg-background"
+  end
+
+  test "input renders the shared input with the sidebar data and type" do
+    input = fragment(provider { render(Sidebar::Input.new(type: "search", class: "zz", placeholder: "Find", data: { testid: "t" })) }).at_css("input")
+
+    assert_equal "search", input["type"]
+    assert_equal "Find", input["placeholder"]
+    assert_equal "sidebar-input", input["data-slot"]
+    assert_equal "input", input["data-sidebar"]
+    assert_equal "t", input["data-testid"]
+    assert_includes input["class"], "zz"
+    assert_includes input["class"], "h-8"
+  end
+
+  test "separator forwards orientation, decorative and as_child to the shared separator" do
+    default = fragment(provider { render(Sidebar::Separator.new(class: "zz")) }).at_css("[data-sidebar=separator]")
+
+    assert_equal "sidebar-separator", default["data-slot"]
+    assert_equal "horizontal", default["data-orientation"]
+    assert_includes default["class"], "zz"
+    assert_includes default["class"], "mx-2"
+
+    vertical = fragment(provider { render(Sidebar::Separator.new(orientation: "vertical", decorative: false)) }).at_css("[data-sidebar=separator]")
+
+    assert_equal "vertical", vertical["data-orientation"]
+    assert_equal "separator", vertical["role"]
+    assert_equal "hr", fragment(provider { render(Sidebar::Separator.new(as_child: :hr)) }).at_css("[data-sidebar=separator]").name
+  end
+
+  test "menu skeleton without an icon renders only the text bar and takes caller attrs" do
+    skeleton = fragment(provider { render(Sidebar::MenuSkeleton.new(class: "zz", id: "sk")) })
+
+    assert_nil skeleton.at_css("[data-sidebar=menu-skeleton-icon]")
+    assert_includes skeleton.at_css("#sk")["class"], "zz"
+    assert_equal 60, Sidebar::MenuSkeleton.with_pinned_width(60) { Sidebar::MenuSkeleton.width_percent }
+  end
+
+  test "trigger accepts a custom variant and rejects as_child" do
+    button = fragment(provider { render(Sidebar::Trigger.new(variant: "outline")) }).at_css("[data-slot=sidebar-trigger]")
+
+    assert_equal "outline", button["data-variant"]
+    assert_raises(ArgumentError) { Sidebar::Trigger.new(as_child: true) }
+  end
+
+  test "sidebar sides and variants reach the container classes" do
+    left = fragment(provider { render(Sidebar.new) }).at_css("[data-slot=sidebar-container]")
+    right = fragment(provider { render(Sidebar.new(side: :right, variant: :inset)) }).at_css("[data-slot=sidebar-container]")
+
+    assert_includes left["class"], "left-0"
+    assert_includes right["class"], "right-0"
+    assert_includes right["class"], "p-2"
+    assert_includes Sidebar::SIDES, "left"
+  end
 end

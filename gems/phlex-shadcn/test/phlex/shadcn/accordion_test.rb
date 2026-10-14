@@ -135,4 +135,24 @@ class Phlex::Shadcn::AccordionTest < Phlex::Shadcn::TestCase
     assert_equal "rtl", fragment(provided).at_css("[data-slot=accordion]")["data-shadcn--accordion-dir-value"]
     assert_equal "ltr", fragment(local).at_css("[data-slot=accordion]")["data-shadcn--accordion-dir-value"]
   end
+
+  test "content force_mount renders a closed body and root orientation reaches items" do
+    doc = fragment(accordion(root: { orientation: "horizontal" }, content: { force_mount: true }))
+    region = doc.at_css("[data-slot=accordion-content]")
+
+    assert_equal "horizontal", doc.at_css("[data-slot=accordion-item]")["data-orientation"]
+    assert_equal "true", region["data-shadcn--accordion-force-mount"]
+    assert_includes region.text, "Body one"
+    assert_nil region.at_css("template")
+  end
+
+  test "controlled value and type reach the controller values" do
+    root = fragment(accordion(root: { type: "multiple", value: %w[a b] })).at_css("[data-slot=accordion]")
+
+    assert_equal "multiple", root["data-shadcn--accordion-type-value"]
+    assert_equal "true", root["data-shadcn--accordion-controlled-value"]
+    states = fragment(accordion(root: { type: "multiple", value: %w[a b] })).css("[data-slot=accordion-item]").map { |i| i["data-state"] }
+
+    assert_equal %w[open open], states
+  end
 end

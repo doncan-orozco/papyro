@@ -2,22 +2,50 @@
 
 # shadcn Tabs over Radix Tabs. Spec: docs/shadcn-port/specs/tabs.md.
 # Behavior: controllers/shadcn/tabs_controller.js.
+#
+# Root of the tabs. Yields itself, so `list`, `trigger` and `content` are yielded-root helpers equal to rendering
+# `Tabs::List`, `Tabs::Trigger` and `Tabs::Content`.
+#
+# @example
+#   render Phlex::Shadcn::Tabs.new(default_value: "account") do |tabs|
+#     tabs.list do
+#       tabs.trigger(value: "account") { "Account" }
+#       tabs.trigger(value: "password") { "Password" }
+#     end
+#     tabs.content(value: "account") { "Account settings" }
+#     tabs.content(value: "password") { "Password settings" }
+#   end
 using Phlex::Shadcn::Values::Refinements
 
 class Phlex::Shadcn::Tabs < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
+  # @api private
   ROOT_KEY = :shadcn_tabs_root
+  # Default Tailwind classes of the root element.
   CLASSES = "group/tabs flex gap-2 data-[orientation=horizontal]:flex-col"
+  # Base Tailwind classes shared by every tabs list variant.
   LIST_BASE = "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-[orientation=horizontal]/tabs:h-9 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col data-[variant=line]:rounded-none"
+  # Variant-specific list classes, keyed by variant name.
   LIST_VARIANTS = { "default" => "bg-muted", "line" => "gap-1 bg-transparent" }.freeze
 
   # tabsListVariants (cva).
+  #
+  # @param variant [String, Symbol] `"default"` or `"line"` (unknown values fall back to `"default"`)
+  # @return [String] the list classes for the variant
   def self.list_variants(variant: "default")
     [ LIST_BASE, LIST_VARIANTS.fetch(variant.to_s) { LIST_VARIANTS["default"] } ].join(" ")
   end
 
   # value: non-nil is controlled (user actions only dispatch value-change, the caller re-renders with the new value).
+  #
+  # @param value [String, Symbol, nil] active tab value; non-nil makes the tabs controlled
+  # @param default_value [String, Symbol, nil] initially active tab when uncontrolled
+  # @param orientation [String, Symbol] `"horizontal"` or `"vertical"`
+  # @param dir [String, Symbol, nil] reading direction (`"ltr"`/`"rtl"`); falls back to the Direction provider
+  # @param activation_mode [String, Symbol] `"automatic"` or `"manual"` (anything else is `"automatic"`)
+  # @param as_child [Boolean, Phlex::Shadcn::Base, Symbol] render onto the given child instead of a `div`
+  # @param attrs [Hash] HTML attributes merged onto the root element (`id:` is the base of the trigger/panel ids)
   def initialize(value: nil, default_value: nil, orientation: "horizontal", dir: nil, activation_mode: "automatic",
                  as_child: false, **attrs)
     @controlled = !value.nil?
@@ -30,6 +58,7 @@ class Phlex::Shadcn::Tabs < Phlex::Shadcn::Base
     super()
   end
 
+  # @return [void]
   def view_template
     previous = context[ROOT_KEY]
     dir = use_direction(@dir)

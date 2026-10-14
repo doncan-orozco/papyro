@@ -41,4 +41,34 @@ class Phlex::Shadcn::DirectionTest < Phlex::Shadcn::TestCase
   test "rejects invalid values" do
     assert_raises(ArgumentError) { Phlex::Shadcn::Direction::Provider.new(dir: "up") }
   end
+
+  test "use_direction prefers the local value, then the provider value, then ltr" do
+    key = Phlex::Shadcn::Direction::KEY
+
+    assert_equal "rtl", Phlex::Shadcn::Direction.use_direction({}, :rtl)
+    assert_equal "ltr", Phlex::Shadcn::Direction.use_direction({})
+    assert_equal "ltr", Phlex::Shadcn::Direction.use_direction({ key => "" }, "")
+    assert_equal "rtl", Phlex::Shadcn::Direction.use_direction({ key => "rtl" })
+    assert_equal "ltr", Phlex::Shadcn::Direction.use_direction({ key => "rtl" }, "ltr")
+  end
+
+  test "the namespace class renders nothing and lists its values" do
+    assert_equal "", Phlex::Shadcn::Direction.new.call
+    assert_equal %w[ltr rtl], Phlex::Shadcn::Direction::VALUES
+  end
+
+  test "provider yields itself and restores the previous direction when the block raises" do
+    page = Class.new(Phlex::Shadcn::Base) do
+      define_method(:view_template) do
+        render(Phlex::Shadcn::Direction::Provider.new(dir: :rtl)) { |provider| plain provider.class.name.split("::").last }
+        begin
+          render(Phlex::Shadcn::Direction::Provider.new(dir: :rtl)) { raise "boom" }
+        rescue RuntimeError
+          render Probe.new
+        end
+      end
+    end
+
+    assert_equal "Provider<span>ltr</span>", page.new.call
+  end
 end
