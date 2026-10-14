@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 
-# shadcn ScrollArea over Radix ScrollArea (Root, Viewport, Scrollbar, Thumb, Corner). Spec: docs/shadcn-port/specs/scroll-area.md.
-# Behavior: controllers/shadcn/scroll_area_controller.js (one controller on the root div; it mounts the scrollbars kept in templates).
 using Phlex::Shadcn::Values::Refinements
 
+# shadcn ScrollArea over Radix ScrollArea (Root, Viewport, Scrollbar, Thumb, Corner). Spec: docs/shadcn-port/specs/scroll-area.md.
+# Behavior: controllers/shadcn/scroll_area_controller.js (one controller on the root div; it mounts the scrollbars kept in templates).
 #
 # The block receives the scroll area, which has the `scroll_bar` helper (equal to `render ScrollArea::ScrollBar.new`).
 # The vertical scrollbar is always rendered; render a horizontal one inside the block to enable that axis.
 #
 # @example
 #   render Phlex::Shadcn::ScrollArea.new(type: "always", class: "h-72 w-48") do |area|
-#     tags.each { |tag| div { plain tag } }
+#     %w[v1.2.0 v1.1.0 v1.0.0].each { |tag| div { plain tag } }
 #     area.scroll_bar(orientation: "horizontal")
 #   end
+#
 # @see Phlex::Shadcn::ScrollArea::ScrollBar
 # @see https://ui.shadcn.com/docs/components/scroll-area
 class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
@@ -25,12 +26,20 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
   # Accepted `type:` values.
   TYPES = %w[auto always scroll hover].freeze
   # Classes of the root `div`.
+  #
+  # @api private
   ROOT_CLASS = "relative"
   # Classes of the viewport `div`.
+  #
+  # @api private
   VIEWPORT_CLASS = "size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
   # CSS that hides the native scrollbars (react-scroll-area ScrollAreaViewportStyle).
+  #
+  # @api private
   VIEWPORT_CSS = "[data-radix-scroll-area-viewport]{scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;}[data-radix-scroll-area-viewport]::-webkit-scrollbar{display:none}"
   # Inline style of the root (Radix corner variables).
+  #
+  # @api private
   ROOT_STYLE = "position: relative; --radix-scroll-area-corner-width: 0px; --radix-scroll-area-corner-height: 0px;"
 
   # @param type [String, Symbol] when the scrollbars show: `auto`, `always`, `scroll` or `hover` (default: "hover")
@@ -51,7 +60,10 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
     super()
   end
 
-  # Renders the root, the viewport (with the block as content) and the vertical scrollbar. Yields the scroll area.
+  # Renders the root, the viewport (with the block as content) and the vertical scrollbar.
+  #
+  # @yieldparam area [Phlex::Shadcn::ScrollArea] the root, exposing the part helpers
+  # @return [void]
   def view_template
     direction = use_direction(@dir)
     previous = context[KEY]
@@ -96,13 +108,19 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
     # Accepted `orientation:` values.
     ORIENTATIONS = %w[vertical horizontal].freeze
     # Classes shared by both orientations.
+    #
+    # @api private
     CLASS = "flex touch-none p-px transition-colors select-none"
     # Classes per orientation.
+    #
+    # @api private
     ORIENTATION_CLASS = {
       "vertical" => "h-full w-2.5 border-l border-l-transparent",
       "horizontal" => "h-2.5 flex-col border-t border-t-transparent"
     }.freeze
     # Classes of the thumb.
+    #
+    # @api private
     THUMB_CLASS = "relative flex-1 rounded-full bg-border"
 
     # @param orientation [String, Symbol] `vertical` or `horizontal` (default: "vertical")
@@ -125,6 +143,7 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
 
     # Registers the orientation with the scroll area and renders the scrollbar and its thumb inside inert templates.
     #
+    # @return [void]
     # @raise [ArgumentError] when rendered outside a {Phlex::Shadcn::ScrollArea}
     def view_template
       state = context[Phlex::Shadcn::ScrollArea::KEY]

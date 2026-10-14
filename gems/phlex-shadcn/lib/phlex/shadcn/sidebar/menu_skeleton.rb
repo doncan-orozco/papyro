@@ -5,26 +5,33 @@
 #
 # Rendered inside a {Phlex::Shadcn::Sidebar}; also available as `sidebar.menu_skeleton` on the yielded sidebar.
 #
+# @example
+#   sidebar.menu_skeleton(show_icon: true)
+#
 # @see Phlex::Shadcn::Sidebar
 class Phlex::Shadcn::Sidebar::MenuSkeleton < Phlex::Shadcn::Base
   include Phlex::Shadcn::Sidebar::Support
 
   # Tailwind classes of the wrapper `div` (verbatim from shadcn/ui).
+  #
+  # @api private
   CLASSES = "flex h-8 items-center gap-2 rounded-md px-2"
 
-  # Thread-local key holding the pinned width.
+  # Fiber-local key holding the pinned width. The pinned width is fiber-local state (Thread.current[] is per fiber),
+  # so concurrent renders never see each other's pin.
   #
   # @api private
   PIN_KEY = :shadcn_sidebar_menu_skeleton_pinned_width
 
-  # The pinned width is fiber-local state (Thread.current[] is per fiber), so concurrent renders never see each other's pin.
   # Width of the text skeleton in percent: the pinned width, or random between 50 and 89.
   #
+  # @api private
   # @return [Integer]
   def self.width_percent = Thread.current[PIN_KEY] || rand(50..89)
 
-  # Runs the block with a fixed skeleton width (restored afterwards, even on error).
+  # Runs the block with a fixed skeleton width (restored afterwards, even on error). Parity hook.
   #
+  # @api private
   # @param percent [Integer] the width to pin
   # @return [Object] the block result
   def self.with_pinned_width(percent)
@@ -45,6 +52,8 @@ class Phlex::Shadcn::Sidebar::MenuSkeleton < Phlex::Shadcn::Base
   end
 
   # Renders the wrapper `div` with the icon (optional) and text skeletons.
+  #
+  # @return [void]
   def view_template
     div(**part_attrs(CLASSES, data: { slot: "sidebar-menu-skeleton", sidebar: "menu-skeleton" })) do
       render Phlex::Shadcn::Skeleton.new(class: "size-4 rounded-md", data: { sidebar: "menu-skeleton-icon" }) if @show_icon

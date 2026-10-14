@@ -11,11 +11,14 @@ class Phlex::Shadcn::Accordion::Item < Phlex::Shadcn::Base
   include Phlex::Shadcn::Accordion::Support
 
   # Default Tailwind classes of the item element.
+  #
+  # @api private
   CLASSES = "border-b last:border-b-0"
 
   # @param value [String, Symbol] identifies the item; matched against the root `value`/`default_value`
   # @param disabled [Boolean] disables this item
-  # @param as_child [Boolean, Phlex::Shadcn::Base, Symbol] render onto the given child instead of a `div`
+  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  #   the part's attributes are merged onto it. `true` is not supported.
   # @param attrs [Hash] HTML attributes merged onto the item element
   def initialize(value:, disabled: false, as_child: false, **attrs)
     @value = value.to_s
@@ -25,6 +28,7 @@ class Phlex::Shadcn::Accordion::Item < Phlex::Shadcn::Base
     super()
   end
 
+  # @yield the content of the element
   # @return [void]
   def view_template
     root = root_context

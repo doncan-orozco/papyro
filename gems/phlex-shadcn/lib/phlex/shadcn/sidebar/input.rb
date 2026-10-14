@@ -8,6 +8,8 @@
 # @see Phlex::Shadcn::Input
 class Phlex::Shadcn::Sidebar::Input < Phlex::Shadcn::Base
   # Tailwind classes merged onto the shared Input (verbatim from shadcn/ui).
+  #
+  # @api private
   CLASSES = "h-8 w-full bg-background shadow-none"
 
   # @param type [String, Symbol, nil] the `input` type attribute (default: nil)
@@ -19,6 +21,8 @@ class Phlex::Shadcn::Sidebar::Input < Phlex::Shadcn::Base
   end
 
   # Renders the shared {Phlex::Shadcn::Input} with the sidebar slot data attributes.
+  #
+  # @return [void]
   def view_template
     attrs = canonical_attrs(@attrs).except(:class)
     data = { slot: "sidebar-input", sidebar: "input" }.merge(attrs[:data] || {})

@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-# shadcn/ui Direction over Radix Direction. Spec: docs/shadcn-port/specs/direction.md
-# Namespace plus the use_direction helper; the provider part renders no element.
 using Phlex::Shadcn::Values::Refinements
 
+# shadcn/ui Direction over Radix Direction. Spec: docs/shadcn-port/specs/direction.md
+# Namespace plus the use_direction helper; the provider part renders no element.
 #
-# Wrap a subtree in {Provider} to set the direction its parts read through {Consumer}; use {use_direction} from your own
-# components. The default direction is `ltr` (the document `dir` is never read).
+# Wrap a subtree in {Provider} to set the direction its parts read through {Consumer}; use
+# {Phlex::Shadcn::Direction.use_direction} from your own components. The default direction is `ltr` (the document `dir` is never read).
 #
 # @example Set the direction of a subtree
 #   render Phlex::Shadcn::Direction::Provider.new(direction: :rtl) do
@@ -41,5 +41,7 @@ class Phlex::Shadcn::Direction < Phlex::Shadcn::Base
   end
 
   # Renders nothing: Direction is a namespace, the provider part is {Provider}.
+  #
+  # @return [void]
   def view_template; end
 end

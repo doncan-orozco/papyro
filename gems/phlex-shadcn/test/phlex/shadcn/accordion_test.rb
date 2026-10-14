@@ -72,9 +72,13 @@ class Phlex::Shadcn::AccordionTest < Phlex::Shadcn::TestCase
     assert_equal "", from_item["data-disabled"]
     assert_equal "", from_item.at_css("button")["disabled"]
 
-    all = fragment(accordion(root: { disabled: true })).css("button")
+    doc = fragment(accordion(root: { disabled: true }))
+    buttons = doc.css("[data-slot=accordion-trigger]")
 
-    assert(all.all? { |b| b["disabled"] })
+    assert_equal 2, buttons.size
+    assert(buttons.all? { |button| button.key?("disabled") })
+    assert_equal 2, doc.css("[data-slot=accordion-item]").size
+    assert(doc.css("[data-slot=accordion-item]").all? { |item| item["data-disabled"] == "" })
   end
 
   test "class goes to the inner div and passthrough attrs to their parts" do

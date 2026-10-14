@@ -24,6 +24,8 @@ class Phlex::Shadcn::Sidebar::Trigger < Phlex::Shadcn::Base
   end
 
   # Renders the toggle Button with the panel icon and the screen-reader label.
+  #
+  # @return [void]
   def view_template
     Phlex::Shadcn::Sidebar.use_sidebar(self)
     attrs = with_toggle(canonical_attrs(@attrs).except(:class))

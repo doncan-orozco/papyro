@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# What the sidebar parts share: the as_child switch and the default/caller attribute merge.
 using Phlex::Shadcn::Values::Refinements
 
-# Mixin of the sidebar parts.
+# What the sidebar parts share: the as_child switch and the default/caller attribute merge.
 #
 # @api private
 module Phlex::Shadcn::Sidebar::Support

@@ -3,7 +3,7 @@
 # shadcn Sidebar (new-york-v4).
 #
 # Render it inside a {Sidebar::Provider}; the block receives the sidebar, which has one helper per part
-# (`sidebar.header`, `sidebar.menu_button`, ...) equal to `render Sidebar::Part.new(...)`. `Sidebar.use_sidebar` reads the state.
+# (`sidebar.header`, `sidebar.menu_button`, ...) equal to `render Sidebar::Header.new(...)`. `Sidebar.use_sidebar` reads the state.
 #
 # Spec: docs/shadcn-port/specs/sidebar.md. Behavior: controllers/shadcn/sidebar_controller.js.
 #
@@ -60,32 +60,55 @@ class Phlex::Shadcn::Sidebar < Phlex::Shadcn::Base
   COLLAPSIBLES = %w[offcanvas icon none].freeze
 
   # Classes of the single `div` rendered with `collapsible: "none"`.
+  #
+  # @api private
   NONE_CLASSES = "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground"
   # Classes of the outer desktop wrapper.
+  #
+  # @api private
   OUTER_CLASSES = "group peer hidden text-sidebar-foreground md:block"
   # Classes of the gap element that reserves the sidebar width in the layout.
+  #
+  # @api private
   GAP_CLASSES = "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear"
   # Gap width when collapsed to icons.
+  #
+  # @api private
   GAP_ICON = "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
   # Gap width when collapsed to icons with the floating or inset variant.
+  #
+  # @api private
   GAP_ICON_PADDED = "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
   # Classes of the fixed container.
+  #
+  # @api private
   CONTAINER_CLASSES = "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex"
   # Container position classes per side.
+  #
+  # @api private
   CONTAINER_SIDES = {
     "left" => "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]",
     "right" => "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]"
   }.freeze
   # Container classes for the floating and inset variants.
+  #
+  # @api private
   CONTAINER_PADDED = "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
   # Container classes for the plain sidebar variant.
+  #
+  # @api private
   CONTAINER_FLAT = "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l"
   # Classes of the inner panel.
+  #
+  # @api private
   INNER_CLASSES = "flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm"
-  # Split in two literals: the G1 scanner reads a prose literal of four words as class tokens.
   # Words of the mobile sheet screen-reader description.
-  MOBILE_DESCRIPTION = [ "Displays the", "mobile sidebar." ].freeze
+  #
+  # @api private
+  MOBILE_DESCRIPTION = [ "Displays the", "mobile sidebar." ].freeze # two literals: the G1 scanner reads a four-word prose literal as class tokens
   # Classes of the mobile sheet content.
+  #
+  # @api private
   MOBILE_CLASSES = "w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
 
   # React `useSidebar`, read from the render context of the nearest Provider.
@@ -126,7 +149,10 @@ class Phlex::Shadcn::Sidebar < Phlex::Shadcn::Base
   end
 
   # Renders the desktop sidebar plus the inert mobile sheet template, or a single `div` with `collapsible: "none"`.
-  # Yields the sidebar (with the part helpers).
+  #
+  # @yieldparam sidebar [Phlex::Shadcn::Sidebar] the root, exposing the part helpers
+  # @return [void]
+  # @raise [ArgumentError] when there is no {Provider} above
   def view_template(&)
     sidebar = self.class.use_sidebar(self)
     return unmanaged(&) if @collapsible == "none"

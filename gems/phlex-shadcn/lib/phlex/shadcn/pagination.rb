@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+using Phlex::Shadcn::Values::Refinements
+
 # shadcn Pagination (new-york-v4). Spec: docs/shadcn-port/specs/pagination.md. Static: no controller.
 #
 # Root `nav`. Yields itself, so the parts are yielded-root helpers (`content`, `item`, `link`, `previous`, `next`,
@@ -13,8 +15,6 @@
 #       pg.item { pg.next(href: "?page=3") }
 #     end
 #   end
-using Phlex::Shadcn::Values::Refinements
-
 class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
   # @param attrs [Hash] HTML attributes merged onto the `nav`
   def initialize(**attrs)
@@ -22,6 +22,7 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
     super()
   end
 
+  # @yieldparam pagination [Phlex::Shadcn::Pagination] the root, exposing the part helpers
   # @return [void]
   def view_template(&block)
     defaults = { role: "navigation", aria: { label: "pagination" }, data: { slot: "pagination" },
@@ -37,6 +38,7 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
       super()
     end
 
+    # @yield the content of the element
     # @return [void]
     def view_template(&)
       ul(**merge_attrs({ data: { slot: "pagination-content" }, class: "flex flex-row items-center gap-1" }, @attrs), &)
@@ -53,6 +55,7 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
 
     # The React part does not destructure className: the caller class is emitted verbatim, not through cn.
     #
+    # @yield the content of the element
     # @return [void]
     def view_template(&)
       li(**{ data: { slot: "pagination-item" } }.merge_deep(canonical_attrs(@attrs)), &)
@@ -74,6 +77,7 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
       super()
     end
 
+    # @yield the content of the element
     # @return [void]
     def view_template(&)
       # Tri-state like React: nil emits no data-active, false emits "false".
@@ -85,6 +89,9 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
   end
 
   # Link to the previous page (chevron plus "Previous" label).
+  #
+  # @example
+  #   pg.item { pg.previous(href: "?page=1") }
   class Previous < Phlex::Shadcn::Base
     # @param attrs [Hash] HTML attributes merged onto the element
     def initialize(**attrs)
@@ -103,6 +110,9 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
   end
 
   # Link to the next page ("Next" label plus chevron).
+  #
+  # @example
+  #   pg.item { pg.next(href: "?page=3") }
   class Next < Phlex::Shadcn::Base
     # @param attrs [Hash] HTML attributes merged onto the element
     def initialize(**attrs)

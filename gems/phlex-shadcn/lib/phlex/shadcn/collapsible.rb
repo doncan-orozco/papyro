@@ -22,7 +22,8 @@ class Phlex::Shadcn::Collapsible < Phlex::Shadcn::Base
   # @param open [Boolean, nil] non-nil makes the collapsible controlled
   # @param default_open [Boolean] initial state when uncontrolled
   # @param disabled [Boolean] disables the trigger
-  # @param as_child [Boolean, Phlex::Shadcn::Base, Symbol] render onto the given child instead of a `div`
+  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  #   the part's attributes are merged onto it. `true` is not supported.
   # @param attrs [Hash] HTML attributes merged onto the root element
   def initialize(open: nil, default_open: false, disabled: false, as_child: false, **attrs)
     @controlled = !open.nil?
@@ -33,6 +34,7 @@ class Phlex::Shadcn::Collapsible < Phlex::Shadcn::Base
     super()
   end
 
+  # @yieldparam collapsible [Phlex::Shadcn::Collapsible] the root, exposing the part helpers
   # @return [void]
   def view_template
     previous = context[ROOT_KEY]

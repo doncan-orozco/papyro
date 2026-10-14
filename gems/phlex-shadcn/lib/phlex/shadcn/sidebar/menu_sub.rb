@@ -9,6 +9,8 @@ class Phlex::Shadcn::Sidebar::MenuSub < Phlex::Shadcn::Base
   include Phlex::Shadcn::Sidebar::Support
 
   # Tailwind classes of the `ul` (verbatim from shadcn/ui).
+  #
+  # @api private
   CLASSES = [
     "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5",
     "group-data-[collapsible=icon]:hidden"
@@ -22,6 +24,9 @@ class Phlex::Shadcn::Sidebar::MenuSub < Phlex::Shadcn::Base
   end
 
   # Renders the `ul` and yields the block as its content.
+  #
+  # @yield the content of the element
+  # @return [void]
   def view_template(&)
     ul(**part_attrs(cn(CLASSES), data: { slot: "sidebar-menu-sub", sidebar: "menu-sub" }), &)
   end

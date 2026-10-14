@@ -24,6 +24,9 @@ class Phlex::Shadcn::Direction::Provider < Phlex::Shadcn::Base
   end
 
   # Sets the direction in the render context for the block, then restores the previous one. Emits no markup.
+  #
+  # @yieldparam provider [Phlex::Shadcn::Direction::Provider] the provider itself
+  # @return [void]
   def view_template
     previous = context[Phlex::Shadcn::Direction::KEY]
     context[Phlex::Shadcn::Direction::KEY] = @value

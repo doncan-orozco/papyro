@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+using Phlex::Shadcn::Values::Refinements
+
 # shadcn Tabs over Radix Tabs. Spec: docs/shadcn-port/specs/tabs.md.
 # Behavior: controllers/shadcn/tabs_controller.js.
 #
@@ -15,18 +17,22 @@
 #     tabs.content(value: "account") { "Account settings" }
 #     tabs.content(value: "password") { "Password settings" }
 #   end
-using Phlex::Shadcn::Values::Refinements
-
 class Phlex::Shadcn::Tabs < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
   # @api private
   ROOT_KEY = :shadcn_tabs_root
   # Default Tailwind classes of the root element.
+  #
+  # @api private
   CLASSES = "group/tabs flex gap-2 data-[orientation=horizontal]:flex-col"
   # Base Tailwind classes shared by every tabs list variant.
+  #
+  # @api private
   LIST_BASE = "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-[orientation=horizontal]/tabs:h-9 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col data-[variant=line]:rounded-none"
   # Variant-specific list classes, keyed by variant name.
+  #
+  # @api private
   LIST_VARIANTS = { "default" => "bg-muted", "line" => "gap-1 bg-transparent" }.freeze
 
   # tabsListVariants (cva).
@@ -44,7 +50,8 @@ class Phlex::Shadcn::Tabs < Phlex::Shadcn::Base
   # @param orientation [String, Symbol] `"horizontal"` or `"vertical"`
   # @param dir [String, Symbol, nil] reading direction (`"ltr"`/`"rtl"`); falls back to the Direction provider
   # @param activation_mode [String, Symbol] `"automatic"` or `"manual"` (anything else is `"automatic"`)
-  # @param as_child [Boolean, Phlex::Shadcn::Base, Symbol] render onto the given child instead of a `div`
+  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  #   the part's attributes are merged onto it. `true` is not supported.
   # @param attrs [Hash] HTML attributes merged onto the root element (`id:` is the base of the trigger/panel ids)
   def initialize(value: nil, default_value: nil, orientation: "horizontal", dir: nil, activation_mode: "automatic",
                  as_child: false, **attrs)
@@ -58,6 +65,7 @@ class Phlex::Shadcn::Tabs < Phlex::Shadcn::Base
     super()
   end
 
+  # @yieldparam tabs [Phlex::Shadcn::Tabs] the root, exposing the part helpers
   # @return [void]
   def view_template
     previous = context[ROOT_KEY]

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# shadcn SidebarProvider: the wrapper div, the Stimulus host and the state every other part reads (`useSidebar`).
 using Phlex::Shadcn::Values::Refinements
 
+# shadcn SidebarProvider: the wrapper div, the Stimulus host and the state every other part reads (`useSidebar`).
 #
 # Wrap the whole layout (sidebar and inset) in it; it yields itself.
 #
@@ -14,10 +14,16 @@ using Phlex::Shadcn::Values::Refinements
 # @see Phlex::Shadcn::Sidebar
 class Phlex::Shadcn::Sidebar::Provider < Phlex::Shadcn::Base
   # Tailwind classes of the wrapper `div` (verbatim from shadcn/ui).
+  #
+  # @api private
   CLASSES = "group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar"
   # Name of the cookie where the open state is persisted by the controller.
+  #
+  # @api private
   COOKIE_NAME = "sidebar_state"
   # Lifetime in seconds of the open-state cookie.
+  #
+  # @api private
   COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 
   # `open:` non-nil makes the sidebar controlled: the controller only dispatches open-change and the caller updates the value.
@@ -35,6 +41,9 @@ class Phlex::Shadcn::Sidebar::Provider < Phlex::Shadcn::Base
   end
 
   # Publishes the sidebar state to the render context and renders the wrapper `div` inside a tooltip provider.
+  #
+  # @yieldparam provider [Phlex::Shadcn::Sidebar::Provider] the provider itself; it exposes no part helpers (they live on {Phlex::Shadcn::Sidebar})
+  # @return [void]
   def view_template(&block)
     previous = context[Phlex::Shadcn::Sidebar::CONTEXT_KEY]
     context[Phlex::Shadcn::Sidebar::CONTEXT_KEY] = state

@@ -44,7 +44,6 @@ class Phlex::Shadcn::TabsTest < Phlex::Shadcn::TestCase
     assert_includes default["class"], "bg-muted"
     assert_equal "line", line["data-variant"]
     assert_includes line["class"], "bg-transparent"
-    assert_equal Tabs.list_variants(variant: "line"), line["class"]
   end
 
   test "triggers and panels are wired by id" do

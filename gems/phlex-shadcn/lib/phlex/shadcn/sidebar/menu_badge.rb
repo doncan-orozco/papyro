@@ -9,6 +9,8 @@ class Phlex::Shadcn::Sidebar::MenuBadge < Phlex::Shadcn::Base
   include Phlex::Shadcn::Sidebar::Support
 
   # Tailwind classes of the `div` (verbatim from shadcn/ui).
+  #
+  # @api private
   CLASSES = [
     "pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none",
     "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
@@ -26,6 +28,9 @@ class Phlex::Shadcn::Sidebar::MenuBadge < Phlex::Shadcn::Base
   end
 
   # Renders the `div` and yields the block as its content.
+  #
+  # @yield the content of the element
+  # @return [void]
   def view_template(&)
     div(**part_attrs(cn(CLASSES), data: { slot: "sidebar-menu-badge", sidebar: "menu-badge" }), &)
   end

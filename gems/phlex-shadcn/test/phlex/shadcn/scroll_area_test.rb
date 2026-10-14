@@ -79,6 +79,7 @@ class Phlex::Shadcn::ScrollAreaTest < Phlex::Shadcn::TestCase
     assert_equal "250", root["data-shadcn--scroll-area-scroll-hide-delay-value"]
     assert_equal "scroll", root["data-shadcn--scroll-area-type-value"]
     assert_equal "600", area.at_css("[data-slot=scroll-area]")["data-shadcn--scroll-area-scroll-hide-delay-value"]
+    assert_predicate ScrollArea::TYPES, :any?
     ScrollArea::TYPES.each { |type| assert_equal type, area(type:).at_css("[data-slot=scroll-area]")["data-shadcn--scroll-area-type-value"] }
   end
 

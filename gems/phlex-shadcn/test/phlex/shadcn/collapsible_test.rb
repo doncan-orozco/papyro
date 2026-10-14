@@ -84,7 +84,7 @@ class Phlex::Shadcn::CollapsibleTest < Phlex::Shadcn::TestCase
 
     assert_equal 1, doc.css("section").size
     assert_equal "template", doc.at_css("section").parent.name
-    refute_includes doc.at_css("section")["style"].to_s, "animation-name"
+    assert_equal "", doc.at_css("section")["style"]
   end
 
   test "every spec helper renders like the explicit part" do

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+using Phlex::Shadcn::Values::Refinements
+
 # shadcn Accordion over Radix Accordion. Spec: docs/shadcn-port/specs/accordion.md.
 # Behavior: controllers/shadcn/accordion_controller.js.
 #
@@ -13,8 +15,6 @@
 #       acc.content { "Yes." }
 #     end
 #   end
-using Phlex::Shadcn::Values::Refinements
-
 class Phlex::Shadcn::Accordion < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
@@ -35,7 +35,8 @@ class Phlex::Shadcn::Accordion < Phlex::Shadcn::Base
   # @param disabled [Boolean] disables every item
   # @param dir [String, Symbol, nil] reading direction (`"ltr"`/`"rtl"`); falls back to the Direction provider
   # @param orientation [String, Symbol] `"vertical"` or `"horizontal"`
-  # @param as_child [Boolean, Phlex::Shadcn::Base, Symbol] render onto the given child instead of a `div` (Radix Slot)
+  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  #   the part's attributes are merged onto it. `true` is not supported.
   # @param attrs [Hash] HTML attributes merged onto the root element
   def initialize(type: "single", value: nil, default_value: nil, collapsible: false, disabled: false, dir: nil,
                  orientation: "vertical", as_child: false, **attrs)
@@ -51,6 +52,7 @@ class Phlex::Shadcn::Accordion < Phlex::Shadcn::Base
     super()
   end
 
+  # @yieldparam acc [Phlex::Shadcn::Accordion] the root, exposing the part helpers
   # @return [void]
   def view_template
     previous = context[ROOT_KEY]

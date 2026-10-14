@@ -9,6 +9,8 @@ class Phlex::Shadcn::Sidebar::MenuItem < Phlex::Shadcn::Base
   include Phlex::Shadcn::Sidebar::Support
 
   # Tailwind classes of the `li` (verbatim from shadcn/ui).
+  #
+  # @api private
   CLASSES = "group/menu-item relative"
 
   # @param attrs [Hash] HTML attributes for the element; `class:` is tailwind-merged over the defaults, `data:` and `aria:`
@@ -19,6 +21,9 @@ class Phlex::Shadcn::Sidebar::MenuItem < Phlex::Shadcn::Base
   end
 
   # Renders the `li` and yields the block as its content.
+  #
+  # @yield the content of the element
+  # @return [void]
   def view_template(&)
     tag(:li, **part_attrs(CLASSES, data: { slot: "sidebar-menu-item", sidebar: "menu-item" }), &)
   end

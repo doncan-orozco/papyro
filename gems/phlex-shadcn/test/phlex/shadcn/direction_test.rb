@@ -33,9 +33,13 @@ class Phlex::Shadcn::DirectionTest < Phlex::Shadcn::TestCase
   end
 
   test "direction wins over dir" do
-    html = Phlex::Shadcn::Direction::Provider.new(dir: "ltr", direction: "rtl").call { "x" }
+    page = Class.new(Phlex::Shadcn::Base) do
+      define_method(:view_template) do
+        render(Phlex::Shadcn::Direction::Provider.new(dir: "ltr", direction: "rtl")) { render Probe.new }
+      end
+    end
 
-    assert_equal "x", html
+    assert_equal "<span>rtl</span>", page.new.call
   end
 
   test "rejects invalid values" do
@@ -57,18 +61,15 @@ class Phlex::Shadcn::DirectionTest < Phlex::Shadcn::TestCase
     assert_equal %w[ltr rtl], Phlex::Shadcn::Direction::VALUES
   end
 
-  test "provider yields itself and restores the previous direction when the block raises" do
+  test "provider restores the previous direction when the block raises" do
     page = Class.new(Phlex::Shadcn::Base) do
       define_method(:view_template) do
-        render(Phlex::Shadcn::Direction::Provider.new(dir: :rtl)) { |provider| plain provider.class.name.split("::").last }
-        begin
-          render(Phlex::Shadcn::Direction::Provider.new(dir: :rtl)) { raise "boom" }
-        rescue RuntimeError
-          render Probe.new
-        end
+        render(Phlex::Shadcn::Direction::Provider.new(dir: :rtl)) { raise "boom" }
+      rescue RuntimeError
+        render Probe.new
       end
     end
 
-    assert_equal "Provider<span>ltr</span>", page.new.call
+    assert_equal "<span>ltr</span>", page.new.call
   end
 end

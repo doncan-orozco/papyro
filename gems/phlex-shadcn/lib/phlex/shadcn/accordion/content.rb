@@ -1,22 +1,30 @@
 # frozen_string_literal: true
 
+using Phlex::Shadcn::Values::Refinements
+
 # shadcn AccordionContent: the region div has fixed classes, the caller class goes to the inner div. Radix mounts the
 # children only while open: closed bodies ship in an inert template that the controller takes over on connect.
 #
 # @example
 #   acc.content(class: "text-muted-foreground") { "Body" }
-using Phlex::Shadcn::Values::Refinements
-
 class Phlex::Shadcn::Accordion::Content < Phlex::Shadcn::Base
   include Phlex::Shadcn::Accordion::Support
 
   # Tailwind classes of the region div.
+  #
+  # @api private
   CLASSES = "overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
   # Default Tailwind classes of the inner div (the caller `class:` is merged here).
+  #
+  # @api private
   INNER_CLASSES = "pt-0 pb-4"
   # Inline style variables that alias the Radix content size to the collapsible ones.
+  #
+  # @api private
   VARS = "--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width)"
   # Inline style that suspends the mount animation for content present at first paint.
+  #
+  # @api private
   MOUNT_PREVENTION = "transition-duration: 0s; animation-name: none"
 
   # @param force_mount [Boolean] keep the children mounted while closed
@@ -30,6 +38,7 @@ class Phlex::Shadcn::Accordion::Content < Phlex::Shadcn::Base
     super()
   end
 
+  # @yield the content of the element
   # @return [void]
   def view_template(&block)
     item = item_context

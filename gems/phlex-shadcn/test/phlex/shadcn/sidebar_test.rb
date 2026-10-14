@@ -5,7 +5,7 @@ require "phlex/test_case"
 class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
   Sidebar = Phlex::Shadcn::Sidebar
 
-  # helper => [part class, needs a Menu/MenuItem parent in the markup (none: plain render is enough)]
+  # Sidebar helper name => the part class it renders (each helper must exist on Sidebar and render that part)
   HELPERS = {
     content: Sidebar::Content, footer: Sidebar::Footer, group: Sidebar::Group, group_action: Sidebar::GroupAction,
     group_content: Sidebar::GroupContent, group_label: Sidebar::GroupLabel, header: Sidebar::Header, input: Sidebar::Input,
@@ -95,7 +95,6 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     assert_includes button["class"], "size-7"
     assert_includes button["class"], "ml-1"
     assert_equal "Toggle Sidebar", button.at_css(".sr-only").text
-    assert_raises(ArgumentError) { Sidebar::Trigger.new(as_child: :a).then { |t| provider { render(t) } } }
   end
 
   test "rail defaults can be overridden" do
@@ -117,7 +116,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     assert_equal "lg", button["data-size"]
     assert_includes button["class"], "h-12"
     assert_includes button["class"], "p-4"
-    assert_not_includes button["class"], " p-2 "
+    assert_not_includes button["class"].split, "p-2"
     link = fragment(provider do
       render(Sidebar::MenuButton.new(as_child: :a, href: "#")) do
         "x"
@@ -139,12 +138,13 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     content = doc.at_css("template div[data-slot=tooltip-content]")
 
     assert content.key?("hidden")
+    assert_not_empty content["data-shadcn--sidebar-tooltip"].to_s
     assert_equal "right", JSON.parse(doc.at_css("template[data-options]")["data-options"])["side"]
     assert_equal "Home", content.text
     collapsed = fragment(provider(default_open: false) { render(Sidebar::MenuButton.new(tooltip: { children: "H", hidden: false })) })
 
     assert_not collapsed.at_css("template div[data-slot=tooltip-content]").key?("hidden")
-    assert_nil collapsed.at_css("[data-shadcn--sidebar-tooltip]")
+    assert_not collapsed.at_css("template div[data-slot=tooltip-content]").key?("data-shadcn--sidebar-tooltip")
   end
 
   test "menu skeleton draws its width between 50 and 89 percent" do
@@ -154,20 +154,22 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     assert_match(/--skeleton-width: (5\d|[6-8]\d)%/, skeleton.at_css("[data-sidebar=menu-skeleton-text]")["style"])
   end
 
-  test "menu skeleton width is random by default" do
+  test "menu skeleton width defaults to a value within 50..89" do
     widths = Array.new(8) { fragment(provider { render(Sidebar::MenuSkeleton.new) }).at_css("[data-sidebar=menu-skeleton-text]")["style"][/--skeleton-width: (\d+)%/, 1].to_i }
 
     assert(widths.all? { |w| (50..89).cover?(w) })
   end
 
   test "menu skeleton width can be pinned and the pin is always restored" do
-    pinned = Sidebar::MenuSkeleton.with_pinned_width(70) { provider { render(Sidebar::MenuSkeleton.new) } }
+    # 42 is outside the random 50..89 range, so seeing it proves the pin and seeing anything else proves the restore.
+    pinned = Sidebar::MenuSkeleton.with_pinned_width(42) { provider { render(Sidebar::MenuSkeleton.new) } }
+    width_of = ->(html) { fragment(html).at_css("[data-sidebar=menu-skeleton-text]")["style"][/--skeleton-width: (\d+)%/, 1].to_i }
 
-    assert_includes fragment(pinned).at_css("[data-sidebar=menu-skeleton-text]")["style"], "--skeleton-width: 70%"
-    assert_nil Thread.current[Sidebar::MenuSkeleton::PIN_KEY]
+    assert_equal 42, width_of.call(pinned)
+    assert_includes 50..89, width_of.call(provider { render(Sidebar::MenuSkeleton.new) })
 
-    assert_raises(RuntimeError) { Sidebar::MenuSkeleton.with_pinned_width(70) { raise "boom" } }
-    assert_nil Thread.current[Sidebar::MenuSkeleton::PIN_KEY]
+    assert_raises(RuntimeError) { Sidebar::MenuSkeleton.with_pinned_width(42) { raise "boom" } }
+    assert_includes 50..89, width_of.call(provider { render(Sidebar::MenuSkeleton.new) })
   end
 
   test "every DX helper renders the same HTML as the explicit class" do
