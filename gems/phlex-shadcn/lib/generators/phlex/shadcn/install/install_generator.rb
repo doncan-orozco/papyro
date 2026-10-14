@@ -37,6 +37,9 @@ module Phlex
         ENGINE_BUNDLE = "app/assets/builds/tailwind/phlex-shadcn"
         private_constant :BLOCK_START, :BLOCK_END, :TAILWIND_IMPORT, :MANAGED_BLOCK, :ENGINE_BUNDLE
 
+        # Scripted installs (CI, smoke tests) must see a failure: Rails generators exit 0 on Thor::Error unless this is true.
+        def self.exit_on_failure? = true
+
         def check_entry_file
           return if File.file?(css_path)
 
@@ -73,8 +76,9 @@ module Phlex
 
         def relative_to_css(path)
           Pathname.new(File.expand_path(path)).relative_path_from(Pathname.new(css_path).dirname).to_s
-        rescue ArgumentError => e
-          raise Thor::Error, "cannot express #{path} relative to #{options[:css]} (#{e.message}); add the lines by hand:\n#{managed_block(nil)}"
+        rescue ::ArgumentError => e # Phlex::ArgumentError would win the constant lookup here
+          raise Thor::Error, "cannot express #{path} relative to #{options[:css]} (#{e.message}): after @import \"tailwindcss\"; add an @source for " \
+                             "#{File.join(Phlex::Shadcn.root.to_s, 'lib')} and @imports of #{ENGINE_BUNDLE} and #{options[:theme_dir]}/theme.css"
         end
 
         # With `eol` the block uses the file's own line endings (CRLF files stay consistent).
@@ -88,8 +92,10 @@ module Phlex
 
         def with_block(css)
           eol = css.include?("\r\n") ? "\r\n" : "\n"
-          if css.include?(BLOCK_START)
-            raise Thor::Error, "#{options[:css]} has a #{BLOCK_START} marker without its end marker: fix or remove it" unless css.include?(BLOCK_END)
+          if css.include?(BLOCK_START) || css.include?(BLOCK_END)
+            unless css.scan(MANAGED_BLOCK).size == 1 && css.scan(BLOCK_START).size == 1 && css.scan(BLOCK_END).size == 1
+              raise Thor::Error, "#{options[:css]} has missing, repeated or misordered phlex-shadcn markers: fix or remove them"
+            end
 
             return css.sub(MANAGED_BLOCK) { managed_block(eol) }
           end

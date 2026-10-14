@@ -9,7 +9,7 @@ module Phlex
   module Shadcn
     # Developer-facing theme tooling for the shadcn port.
     #
-    # The only file a developer edits is app/assets/tailwind/theme/theme.css. Its color section sits
+    # The only file a developer edits is theme.css in the configured theme directory. Its color section sits
     # between `theme:colors:start/end` markers and holds a plain shadcn theme (`:root {}` + `.dark {}`),
     # so anything copied from ui.shadcn.com/themes pastes in unchanged.
     module Theme
@@ -41,18 +41,14 @@ module Phlex
 
       module_function
 
-      # The directory that holds theme.css and presets/. The engine sets it from `config.phlex_shadcn.theme_dir` (default: the app's
-      # app/assets/tailwind/theme); outside an app it has to be assigned.
+      # The directory that holds theme.css and presets/: `Phlex::Shadcn.config.theme_dir`. The engine sets it from
+      # `config.phlex_shadcn.theme_dir` (default: the app's app/assets/tailwind/theme); outside an app it has to be configured.
       def dir
-        @dir || raise(Error, "Phlex::Shadcn::Theme.dir is not set (host apps: config.phlex_shadcn.theme_dir)")
+        Phlex::Shadcn.config.theme_dir || raise(Error, "Phlex::Shadcn.config.theme_dir is not set (host apps: config.phlex_shadcn.theme_dir)")
       end
 
-      def dir=(path)
-        @dir = path
-      end
-
-      # Whether a directory has been assigned (`dir` raises while it is not).
-      def configured? = !@dir.nil?
+      # Whether a directory has been configured (`dir` raises while it is not).
+      def configured? = !Phlex::Shadcn.config.theme_dir.nil?
 
       def theme_file = File.join(dir, "theme.css")
       def presets_dir = File.join(dir, "presets")

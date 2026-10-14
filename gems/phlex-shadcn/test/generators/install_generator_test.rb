@@ -28,6 +28,15 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     File.write(full, content)
   end
 
+  # The generator has to fail loudly: a non-zero exit (scripted installs, CI) and the reason on stderr.
+  def run_failing_generator(args = [])
+    error = nil
+    stderr = capture(:stderr) { error = assert_raises(SystemExit) { run_generator args } }
+
+    refute_predicate error, :success?
+    stderr
+  end
+
   def snapshot
     Dir.glob("**/*", base: destination_root).select { |path| File.file?(File.join(destination_root, path)) }.sort.to_h do |path|
       [ path, File.read(File.join(destination_root, path)) ]
@@ -133,10 +142,38 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     run_generator
     broken = css.sub("/* phlex-shadcn:end */", "")
     write("app/assets/tailwind/application.css", broken)
-    output = capture(:stderr) { run_generator }
+    output = run_failing_generator
 
-    assert_match(/without its end marker/, output)
+    assert_match(/missing, repeated or misordered/, output)
     assert_equal broken, css
+  end
+
+  test "markers in the wrong order fail instead of reporting identical" do
+    start = "/* phlex-shadcn:start (managed by rails g phlex:shadcn:install) */"
+    write("app/assets/tailwind/application.css", %(@import "tailwindcss";\n/* phlex-shadcn:end */\n#{start}\n))
+    before = css
+    output = run_failing_generator
+
+    assert_match(/missing, repeated or misordered/, output)
+    assert_equal before, css
+  end
+
+  test "a repeated block fails instead of being half-updated" do
+    run_generator
+    write("app/assets/tailwind/application.css", css + css.lines.grep_v(/tailwindcss";/).join)
+
+    assert_match(/missing, repeated or misordered/, run_failing_generator)
+  end
+
+  test "paths that cannot be expressed relative to the css file fail with a message, not a stack overflow" do
+    original = Pathname.instance_method(:relative_path_from)
+    Pathname.define_method(:relative_path_from) { |*| raise ArgumentError, "different prefix" }
+    output = run_failing_generator
+
+    assert_match(%r{cannot express .* relative to app/assets/tailwind/application\.css}, output)
+    assert_match(/add an @source for/, output)
+  ensure
+    Pathname.define_method(:relative_path_from, original)
   end
 
   test "--pretend changes no file" do
@@ -170,7 +207,7 @@ class InstallGeneratorTest < Rails::Generators::TestCase
 
   test "fails with a clear message when the tailwind entry file is missing" do
     FileUtils.rm(File.join(destination_root, "app/assets/tailwind/application.css"))
-    output = capture(:stderr) { run_generator }
+    output = run_failing_generator
 
     assert_match(%r{not found: install tailwindcss-rails first \(bin/rails tailwindcss:install\)}, output)
     assert_no_file "app/assets/tailwind/theme/theme.css"
@@ -178,7 +215,7 @@ class InstallGeneratorTest < Rails::Generators::TestCase
 
   test "fails with a clear message when the entry file does not import tailwind" do
     write("app/assets/tailwind/application.css", "body { color: red; }\n")
-    output = capture(:stderr) { run_generator }
+    output = run_failing_generator
 
     assert_match(/does not contain @import "tailwindcss"/, output)
     assert_match(/phlex-shadcn:start/, output, "the message shows the lines to add by hand")

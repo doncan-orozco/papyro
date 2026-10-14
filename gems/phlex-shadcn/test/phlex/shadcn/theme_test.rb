@@ -23,26 +23,26 @@ class Phlex::Shadcn::ThemeTest < Phlex::Shadcn::TestCase
   CSS
 
   def setup
-    @original_dir = (Theme.dir if Theme.configured?)
+    @original_dir = Phlex::Shadcn.config.theme_dir
     @theme_dir = Dir.mktmpdir
     FileUtils.mkdir_p(File.join(@theme_dir, "presets"))
     FileUtils.cp(ASSETS.join("theme.css"), File.join(@theme_dir, "theme.css"))
     Dir[ASSETS.join("presets/*.css").to_s].each { |preset| FileUtils.cp(preset, File.join(@theme_dir, "presets")) }
-    Theme.dir = @theme_dir
+    Phlex::Shadcn.configure { |config| config.theme_dir = @theme_dir }
   end
 
   def teardown
-    Theme.dir = @original_dir
+    Phlex::Shadcn.configure { |config| config.theme_dir = @original_dir }
     FileUtils.remove_entry(@theme_dir)
   end
 
   test "the directory has to be configured and the error says how" do
-    Theme.dir = nil
+    Phlex::Shadcn.configure { |config| config.theme_dir = nil }
 
     refute_predicate Theme, :configured?
     error = assert_raises(Theme::Error) { Theme.theme_file }
 
-    assert_match(/config\.phlex_shadcn\.theme_dir/, error.message)
+    assert_match(/theme_dir/, error.message)
   end
 
   test "contrast of white on black is 21:1 and of equal colors is 1:1" do

@@ -47,6 +47,12 @@ class EngineTest::Wiring < Minitest::Test
     assert_equal paths.uniq, paths, "an asset directory was added twice"
   end
 
+  def test_the_tailwind_entry_is_excluded_from_propshaft_once
+    excluded = app.config.assets.excluded_paths.map(&:to_s)
+
+    assert_equal 1, excluded.count(GEM_ROOT.join("app/assets/tailwind").to_s)
+  end
+
   def test_importmap_pins_the_controllers_the_primitives_and_floating_ui
     pins = imports
 

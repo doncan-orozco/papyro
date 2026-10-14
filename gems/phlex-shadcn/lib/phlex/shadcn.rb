@@ -17,6 +17,13 @@ module Phlex
     # The engine is required explicitly below, only inside an app, and is never autoloaded or eager loaded.
     Loader.ignore(File.join(__dir__, "shadcn/engine.rb"))
     Loader.setup
+
+    # @return [Phlex::Shadcn::Configuration] the gem's settings
+    def self.config = (@config ||= Configuration.new)
+
+    # Sets the gem's settings, once at boot: `Phlex::Shadcn.configure { |config| config.theme_dir = "/path/to/theme" }`.
+    # @yieldparam config [Phlex::Shadcn::Configuration]
+    def self.configure = yield(config)
   end
 end
 
