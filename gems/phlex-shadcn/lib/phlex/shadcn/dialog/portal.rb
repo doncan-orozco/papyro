@@ -2,8 +2,6 @@
 
 # Radix DialogPortal: renders no element. Its children ship in an inert template that the controller mounts directly in
 # the container (a CSS selector, default body) while the dialog is open, or always with force_mount.
-#
-# Renders no element: ships its children in an inert template mounted in the container while open.
 class Phlex::Shadcn::Dialog::Portal < Phlex::Shadcn::Base
   include Phlex::Shadcn::Dialog::Support
 

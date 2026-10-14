@@ -79,13 +79,19 @@ class Phlex::Shadcn::PopoverTest < Phlex::Shadcn::TestCase
 
   test "content positioning keywords are serialized for the controller" do
     out = render_popover(content: { side: :top, side_offset: 8, align: :start, align_offset: 2, avoid_collisions: false, collision_padding: 4,
-                                    collision_boundary: "#b", arrow_padding: 3, sticky: :always, hide_when_detached: true, update_position_strategy: :always,
-                                    force_mount: true })
+                                    collision_boundary: "#b", arrow_padding: 3, sticky: :always, hide_when_detached: true, update_position_strategy: :always })
     options = JSON.parse(Nokogiri::HTML5.fragment(out).at_css("template[data-shadcn--popover-template]")["data-options"])
 
     assert_equal({ "side" => "top", "sideOffset" => 8, "align" => "start", "alignOffset" => 2, "avoidCollisions" => false, "collisionPadding" => 4,
                    "collisionBoundary" => "#b", "arrowPadding" => 3, "sticky" => "always", "hideWhenDetached" => true,
                    "updatePositionStrategy" => "always" }, options)
+  end
+
+  test "force_mount is accepted and has no effect" do
+    out = render_popover(content: { force_mount: true })
+    options = JSON.parse(Nokogiri::HTML5.fragment(out).at_css("template[data-shadcn--popover-template]")["data-options"])
+
+    assert_not_includes options, "forceMount"
   end
 
   test "modal reaches the controller host and the anchor and header parts merge their class" do

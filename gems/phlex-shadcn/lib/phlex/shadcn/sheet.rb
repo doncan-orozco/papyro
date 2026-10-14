@@ -28,8 +28,8 @@
 #
 # @!method trigger(**attrs, &block)
 #   Same as `render Sheet::Trigger.new(**attrs), &block`.
-# @!method portal(**attrs, &block)
-#   Same as `render Sheet::Portal.new(**attrs), &block`.
+# @!method portal(&block)
+#   Same as `render Sheet::Portal.new, &block`.
 # @!method overlay(**attrs, &block)
 #   Same as `render Sheet::Overlay.new(**attrs), &block`.
 # @!method content(**attrs, &block)

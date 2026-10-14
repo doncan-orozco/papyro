@@ -4,7 +4,6 @@
 # directly in the body (or in `container`, a CSS selector) while the dialog is open.
 using Phlex::Shadcn::Values::Refinements
 
-# Renders no element: ships its children in an inert template mounted in the container while open.
 class Phlex::Shadcn::AlertDialog::Portal < Phlex::Shadcn::Base
   include Phlex::Shadcn::AlertDialog::Support
 

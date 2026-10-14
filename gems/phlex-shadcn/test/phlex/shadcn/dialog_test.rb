@@ -177,7 +177,7 @@ class Phlex::Shadcn::DialogTest < Phlex::Shadcn::TestCase
     assert_equal "Fermer", doc.at_css("[data-slot=dialog-footer] > button").text
   end
 
-  test "force_mount on content and overlay leaves the markup unchanged" do
+  test "force_mount is accepted and ignored on content and overlay" do
     plain = render_view { render(Dialog.new) { render(Dialog::Content.new) { render(Dialog::Overlay.new) } } }
     forced = render_view { render(Dialog.new) { render(Dialog::Content.new(force_mount: true)) { render(Dialog::Overlay.new(force_mount: true)) } } }
 

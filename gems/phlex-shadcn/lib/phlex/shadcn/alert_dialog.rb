@@ -29,8 +29,8 @@
 #
 # @!method trigger(**attrs, &block)
 #   Same as `render AlertDialog::Trigger.new(**attrs), &block`.
-# @!method portal(**attrs, &block)
-#   Same as `render AlertDialog::Portal.new(**attrs), &block`.
+# @!method portal(force_mount: false, container: nil, &block)
+#   Same as `render AlertDialog::Portal.new(force_mount:, container:), &block`.
 # @!method overlay(**attrs, &block)
 #   Same as `render AlertDialog::Overlay.new(**attrs), &block`.
 # @!method content(**attrs, &block)

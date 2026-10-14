@@ -3,7 +3,6 @@
 # shadcn AlertDialogAction: closes (Radix DialogClose, ad:85).
 #
 # Confirms and closes the alert dialog (a Button-styled `button`).
-# Raises ArgumentError when rendered outside AlertDialog.
 #
 # @example Explicit form
 #   render Phlex::Shadcn::AlertDialog::Action.new { "Action" }
@@ -15,7 +14,6 @@
 #   @param size [String, Symbol] Button size (default "default")
 #   @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
 #   @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
-#   @raise [ArgumentError] when rendered outside AlertDialog
 class Phlex::Shadcn::AlertDialog::Action < Phlex::Shadcn::Base
   include Phlex::Shadcn::AlertDialog::ActionButton
 

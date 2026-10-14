@@ -27,8 +27,8 @@
 #
 # @!method trigger(**attrs, &block)
 #   Same as `render Dialog::Trigger.new(**attrs), &block`.
-# @!method portal(**attrs, &block)
-#   Same as `render Dialog::Portal.new(**attrs), &block`.
+# @!method portal(force_mount: false, container: nil, &block)
+#   Same as `render Dialog::Portal.new(force_mount:, container:), &block`.
 # @!method overlay(**attrs, &block)
 #   Same as `render Dialog::Overlay.new(**attrs), &block`.
 # @!method content(**attrs, &block)

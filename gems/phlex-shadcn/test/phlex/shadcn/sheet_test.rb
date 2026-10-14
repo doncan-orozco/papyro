@@ -88,7 +88,7 @@ class Phlex::Shadcn::SheetTest < Phlex::Shadcn::TestCase
     assert_nil fragment(sheet(content: { show_close_button: false })).at_css("[data-slot=sheet-content] button")
   end
 
-  test "force_mount on content and overlay leaves the markup unchanged" do
+  test "force_mount is accepted and ignored on content and overlay" do
     plain = render_view { render(Sheet.new) { render(Sheet::Content.new) { render(Sheet::Overlay.new) } } }
     forced = render_view { render(Sheet.new) { render(Sheet::Content.new(force_mount: true)) { render(Sheet::Overlay.new(force_mount: true)) } } }
 
