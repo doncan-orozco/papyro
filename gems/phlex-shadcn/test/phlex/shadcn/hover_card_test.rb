@@ -72,4 +72,31 @@ class Phlex::Shadcn::HoverCardTest < Phlex::Shadcn::TestCase
 
     assert_equal render_card, helpers
   end
+
+  test "every root and part keyword is accepted" do
+    out = Class.new(Phlex::HTML) do
+      define_method(:view_template) do
+        render HoverCard.new(open: false, default_open: true, open_delay: 10, close_delay: 20) do
+          render HoverCard::Trigger.new(as_child: false, class: "x-trigger") { "T" }
+          render HoverCard::Content.new(side: :top, side_offset: 8, align: :start, align_offset: 2, avoid_collisions: false, collision_padding: 4, collision_boundary: "#b", arrow_padding: 3, sticky: :always, hide_when_detached: true, update_position_strategy: :always, force_mount: true, class: "x-content") { "Card" }
+        end
+      end
+    end.new.call
+
+    assert_includes out, "x-trigger"
+    assert_includes out, "x-content"
+    assert_includes out, 'data-shadcn--hover-card-close-delay-value="20"'
+    assert_includes out, "&quot;sideOffset&quot;:8"
+  end
+
+  test "parts raise a clear ArgumentError outside the root" do
+    assert_match(/`HoverCardTrigger` must be used within `HoverCard`/, assert_raises(ArgumentError) { HoverCard::Trigger.new.call }.message)
+    assert_match(/`HoverCardContent` must be used within `HoverCard`/, assert_raises(ArgumentError) { HoverCard::Content.new.call }.message)
+  end
+
+  test "the root lists its generated helpers" do
+    %i[trigger content].each do |name|
+      assert HoverCard.public_method_defined?(name), "missing helper ##{name}"
+    end
+  end
 end

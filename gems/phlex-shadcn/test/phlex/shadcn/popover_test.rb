@@ -76,4 +76,43 @@ class Phlex::Shadcn::PopoverTest < Phlex::Shadcn::TestCase
 
     assert_equal explicit, helper
   end
+
+  test "every root and part keyword is accepted" do
+    out = Class.new(Phlex::HTML) do
+      define_method(:view_template) do
+        render Popover.new(open: false, default_open: true, modal: true) do
+          render Popover::Anchor.new(as_child: false, class: "x-anchor") { "A" }
+          render Popover::Trigger.new(as_child: false, class: "x-trigger") { "T" }
+          render Popover::Content.new(side: :top, side_offset: 8, align: :start, align_offset: 2, avoid_collisions: false, collision_padding: 4, collision_boundary: "#b", arrow_padding: 3, sticky: :always, hide_when_detached: true, update_position_strategy: :always, force_mount: true, class: "x-content") do
+            render(Popover::Header.new(class: "x-header")) { "H" }
+          end
+        end
+      end
+    end.new.call
+
+    %w[x-anchor x-trigger x-content x-header].each { |token| assert_includes out, token }
+    assert_includes out, "&quot;sideOffset&quot;:8"
+    assert_includes out, "&quot;sticky&quot;:&quot;always&quot;"
+  end
+
+  test "parts that need the root raise a clear ArgumentError outside it" do
+    %i[Trigger Anchor Content].each do |part|
+      error = assert_raises(ArgumentError, part.to_s) { Popover.const_get(part).new.call }
+
+      assert_match(/must be used within Popover/, error.message, part.to_s)
+    end
+  end
+
+  test "the root lists its generated helpers" do
+    %i[trigger anchor content header title description].each do |name|
+      assert Popover.public_method_defined?(name), "missing helper ##{name}"
+    end
+  end
+
+  test "as_child renders the trigger onto the given element" do
+    out = render_popover(trigger: { as_child: :a, href: "/x", class: "t" })
+
+    assert_match(/<a [^>]*data-slot="popover-trigger"/, out)
+    assert_includes out, 'href="/x"'
+  end
 end

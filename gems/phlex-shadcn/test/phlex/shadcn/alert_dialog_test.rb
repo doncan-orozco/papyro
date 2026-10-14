@@ -78,4 +78,74 @@ class Phlex::Shadcn::AlertDialogTest < Phlex::Shadcn::TestCase
       assert_equal explicit, via_helper, name.to_s
     end
   end
+
+  test "every root and part keyword is accepted and rendered" do
+    out = render_view do
+      render(AlertDialog.new(open: false, default_open: true, class: "x-root", data: { foo: "bar" })) do
+        render(AlertDialog::Trigger.new(as_child: false, id: "t")) { "Open" }
+        render(AlertDialog::Portal.new(force_mount: true, container: "#c")) { "" }
+        render(AlertDialog::Content.new(size: :sm, force_mount: true, as_child: false, class: "x-content")) do
+          render(AlertDialog::Header.new(class: "h")) { "H" }
+          render(AlertDialog::Media.new(class: "m")) { "M" }
+          render(AlertDialog::Title.new(as_child: false, class: "ti")) { "T" }
+          render(AlertDialog::Description.new(as_child: false, class: "d")) { "D" }
+          render(AlertDialog::Overlay.new(force_mount: true, as_child: false, class: "o"))
+          render(AlertDialog::Footer.new(class: "f")) do
+            render(AlertDialog::Cancel.new(variant: :ghost, size: "sm", as_child: false, class: "c")) { "C" }
+            render(AlertDialog::Action.new(variant: "destructive", size: "lg", as_child: false, class: "a")) { "A" }
+          end
+        end
+      end
+    end
+
+    assert_includes out, "x-root"
+    assert_includes out, "x-content"
+  end
+
+  test "parts raise a clear ArgumentError outside the root" do
+    %i[Trigger Content Overlay Portal Title Description Cancel].each do |part|
+      error = assert_raises(ArgumentError, part.to_s) { render_view { render(AlertDialog.const_get(part).new) } }
+
+      assert_match(/must be used within AlertDialog/, error.message, part.to_s)
+    end
+  end
+
+  test "the root lists every generated helper" do
+    %i[trigger portal overlay content header footer title description media action cancel].each do |name|
+      assert AlertDialog.public_method_defined?(name), "missing helper ##{name}"
+    end
+  end
+
+  test "as_child renders the trigger onto the given element" do
+    out = render_view do
+      render(AlertDialog.new) do
+        render(AlertDialog::Trigger.new(as_child: :a, href: "/x", class: "t")) { "Open" }
+      end
+    end
+    trigger = Nokogiri::HTML5.fragment(out).at_css("[data-slot*=trigger]")
+
+    assert_equal "a", trigger.name
+    assert_equal "/x", trigger["href"]
+    assert_includes trigger["class"], "t"
+  end
+
+  test "the modal rejection and an unknown size explain themselves" do
+    error = assert_raises(ArgumentError) { AlertDialog.new(modal: true) }
+
+    assert_match(/unknown keyword: :modal/, error.message)
+    error = assert_raises(ArgumentError) { AlertDialog::Content.new(size: "xl") }
+
+    assert_match(/size must be one of default, sm/, error.message)
+    assert_equal %w[default sm], AlertDialog::Content::SIZES
+  end
+
+  test "action and cancel render onto an as_child element" do
+    out = render_view do
+      render(AlertDialog.new) { render(AlertDialog::Action.new(as_child: :a, href: "/ok")) { "Go" } }
+    end
+    action = Nokogiri::HTML5.fragment(out).at_css("[data-slot=alert-dialog-action]")
+
+    assert_equal "a", action.name
+    assert_equal "/ok", action["href"]
+  end
 end

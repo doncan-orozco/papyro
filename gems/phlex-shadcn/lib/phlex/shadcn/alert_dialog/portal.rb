@@ -4,14 +4,20 @@
 # directly in the body (or in `container`, a CSS selector) while the dialog is open.
 using Phlex::Shadcn::Values::Refinements
 
+# Renders no element: ships its children in an inert template mounted in the container while open.
 class Phlex::Shadcn::AlertDialog::Portal < Phlex::Shadcn::Base
   include Phlex::Shadcn::AlertDialog::Support
 
+  # @param force_mount [Boolean] accepted for API parity only, it has no effect (the Portal owns the mount gate)
+  # @param container [String, nil] CSS selector of the element the content is mounted in (default: body)
+  # @raise [ArgumentError] when rendered outside AlertDialog
   def initialize(force_mount: false, container: nil)
     @options = { forceMount: force_mount.unless_blank, container: container }.compact
     super()
   end
 
+  # @yield the part's content
+  # @return [void]
   def view_template
     root = root_context
     previous = context[Phlex::Shadcn::AlertDialog::PORTAL_KEY]

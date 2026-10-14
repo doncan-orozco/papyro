@@ -150,4 +150,51 @@ class Phlex::Shadcn::DialogTest < Phlex::Shadcn::TestCase
       assert_equal part, Dialog.const_get(name.to_s.split("_").map(&:capitalize).join)
     end
   end
+
+  test "every root and part keyword is accepted and rendered" do
+    out = render_view do
+      render(Dialog.new(open: false, default_open: true, modal: false, class: "x-root", data: { foo: "bar" })) do
+        render(Dialog::Trigger.new(as_child: false, id: "t")) { "Open" }
+        render(Dialog::Portal.new(force_mount: true, container: "#c")) { "" }
+        render(Dialog::Content.new(show_close_button: false, close_label: "Fermer", force_mount: true, as_child: false, class: "x-content")) do
+          render(Dialog::Header.new(class: "h")) { "H" }
+          render(Dialog::Title.new(as_child: false, class: "ti")) { "T" }
+          render(Dialog::Description.new(as_child: false, class: "d")) { "D" }
+          render(Dialog::Overlay.new(force_mount: true, as_child: false, class: "o"))
+          render(Dialog::Close.new(as_child: false, class: "c")) { "C" }
+          render(Dialog::Footer.new(show_close_button: true, close_label: "Fermer", class: "f")) { "F" }
+        end
+      end
+    end
+
+    assert_includes out, "x-root"
+    assert_includes out, "x-content"
+  end
+
+  test "parts raise a clear ArgumentError outside the root" do
+    %i[Trigger Content Overlay Portal Title Description].each do |part|
+      error = assert_raises(ArgumentError, part.to_s) { render_view { render(Dialog.const_get(part).new) } }
+
+      assert_match(/must be used within Dialog/, error.message, part.to_s)
+    end
+  end
+
+  test "the root lists every generated helper" do
+    %i[trigger close content overlay portal title description header footer].each do |name|
+      assert Dialog.public_method_defined?(name), "missing helper ##{name}"
+    end
+  end
+
+  test "as_child renders the part onto the given element" do
+    out = render_view do
+      render(Dialog.new) do
+        render(Dialog::Trigger.new(as_child: :a, href: "/x", class: "t")) { "Open" }
+      end
+    end
+    trigger = Nokogiri::HTML5.fragment(out).at_css("[data-slot*=trigger]")
+
+    assert_equal "a", trigger.name
+    assert_equal "/x", trigger["href"]
+    assert_includes trigger["class"], "t"
+  end
 end

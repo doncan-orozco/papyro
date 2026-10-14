@@ -68,4 +68,57 @@ class Phlex::Shadcn::SheetTest < Phlex::Shadcn::TestCase
       assert_equal explicit, helper, name.to_s
     end
   end
+
+  test "every root and part keyword is accepted and rendered" do
+    out = render_view do
+      render(Sheet.new(open: false, default_open: true, modal: false, class: "x-root", data: { foo: "bar" })) do
+        render(Sheet::Trigger.new(as_child: false, id: "t")) { "Open" }
+        render(Sheet::Portal.new) { "" }
+        render(Sheet::Content.new(side: :left, show_close_button: false, close_label: "Fermer", force_mount: true, as_child: false, class: "x-content")) do
+          render(Sheet::Header.new(class: "h")) { "H" }
+          render(Sheet::Title.new(as_child: false, class: "ti")) { "T" }
+          render(Sheet::Description.new(as_child: false, class: "d")) { "D" }
+          render(Sheet::Overlay.new(force_mount: true, as_child: false, class: "o"))
+          render(Sheet::Close.new(as_child: false, class: "c")) { "C" }
+          render(Sheet::Footer.new(class: "f")) { "F" }
+        end
+      end
+    end
+
+    assert_includes out, "x-root"
+    assert_includes out, "x-content"
+  end
+
+  test "parts raise a clear ArgumentError outside the root" do
+    %i[Trigger Content Overlay Portal Title Description].each do |part|
+      error = assert_raises(ArgumentError, part.to_s) { render_view { render(Sheet.const_get(part).new) } }
+
+      assert_match(/must be used within Sheet/, error.message, part.to_s)
+    end
+  end
+
+  test "the root lists every generated helper" do
+    %i[trigger close portal overlay content header footer title description].each do |name|
+      assert Sheet.public_method_defined?(name), "missing helper ##{name}"
+    end
+  end
+
+  test "as_child renders the trigger onto the given element" do
+    out = render_view do
+      render(Sheet.new) do
+        render(Sheet::Trigger.new(as_child: :a, href: "/x", class: "t")) { "Open" }
+      end
+    end
+    trigger = Nokogiri::HTML5.fragment(out).at_css("[data-slot*=trigger]")
+
+    assert_equal "a", trigger.name
+    assert_equal "/x", trigger["href"]
+    assert_includes trigger["class"], "t"
+  end
+
+  test "an unknown side names the accepted ones" do
+    error = assert_raises(ArgumentError) { Sheet::Content.new(side: "middle") }
+
+    assert_match(/side must be one of right, left, top, bottom, got "middle"/, error.message)
+  end
 end

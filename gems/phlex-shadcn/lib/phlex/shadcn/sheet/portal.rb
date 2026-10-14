@@ -2,9 +2,15 @@
 
 # Radix DialogPortal: renders no element. Its children ship in an inert template that the controller mounts directly in
 # the body while the sheet is open.
+#
+# Renders no element: ships its children in an inert template mounted in the body while open.
+# Takes no arguments.
 class Phlex::Shadcn::Sheet::Portal < Phlex::Shadcn::Base
   include Phlex::Shadcn::Sheet::Support
 
+  # @raise [ArgumentError] when rendered outside Sheet
+  # @yield the content to mount
+  # @return [void]
   def view_template
     root = root_context
     previous = context[Phlex::Shadcn::Sheet::PORTAL_KEY]
