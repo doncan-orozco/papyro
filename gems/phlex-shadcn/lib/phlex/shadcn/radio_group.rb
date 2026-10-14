@@ -18,10 +18,13 @@ class Phlex::Shadcn::RadioGroup < Phlex::Shadcn::Base
   # @api private
   ROOT_KEY = :shadcn_radio_group_root
   # Classes of the root element.
+  # @return [String]
   CLASSES = "grid gap-3"
   # Allowed values of `orientation:`.
+  # @return [Array<String>]
   ORIENTATIONS = %w[horizontal vertical].freeze
   # Allowed values of `dir:`.
+  # @return [Array<String>]
   DIRECTIONS = %w[ltr rtl].freeze
 
   # Creates a radio group. A non-nil `value:` makes it controlled: user actions only dispatch value-change and the

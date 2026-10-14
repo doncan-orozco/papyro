@@ -4,7 +4,7 @@
 # Behavior: controllers/shadcn/slider_controller.js (one controller on the root span).
 using Phlex::Shadcn::Values::Refinements
 
-# Single component with no nested parts: the track, range, thumbs and hidden inputs (one per value) are rendered internally.
+# Single component with no nested parts: the track, range, thumbs and hidden inputs (one per thumb) are rendered internally.
 # One thumb per element of the initial value array. With no array value, two thumbs and two hidden inputs are rendered:
 # the first at `min`, the second hidden (no `aria-valuenow`, no input value).
 #
@@ -20,18 +20,25 @@ class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
   include Phlex::Shadcn::Direction::Consumer
 
   # Allowed values of `orientation:`.
+  # @return [Array<String>]
   ORIENTATIONS = %w[horizontal vertical].freeze
   # Allowed values of `dir:`.
+  # @return [Array<String>]
   DIRECTIONS = %w[ltr rtl].freeze
   # Classes of the root span.
+  # @return [String]
   ROOT_CLASS = "relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col"
   # Classes of the track span.
+  # @return [String]
   TRACK_CLASS = "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5"
   # Classes of the filled range span.
+  # @return [String]
   RANGE_CLASS = "absolute bg-primary data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
   # Classes of each thumb.
+  # @return [String]
   THUMB_CLASS = "block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
   # Per-orientation transform exposed as `--radix-slider-thumb-transform`.
+  # @return [Hash{String => String}]
   THUMB_TRANSFORM = { "horizontal" => "translateX(-50%)", "vertical" => "translateY(50%)" }.freeze
 
   # @param default_value [Array<Numeric>, nil] initial thumb values (uncontrolled); without it the slider renders two

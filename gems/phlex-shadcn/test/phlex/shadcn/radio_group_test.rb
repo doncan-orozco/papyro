@@ -102,6 +102,7 @@ class Phlex::Shadcn::RadioGroupTest < Phlex::Shadcn::TestCase
 
     assert_equal explicit, helpers
     assert_includes RadioGroup.public_instance_methods(false), :item
+    assert_includes RadioGroup::Item.public_instance_methods(false), :indicator
   end
 
   test "constant tables and unknown options" do
