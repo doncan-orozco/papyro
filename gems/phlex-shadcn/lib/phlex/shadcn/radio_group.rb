@@ -36,7 +36,7 @@ class Phlex::Shadcn::RadioGroup < Phlex::Shadcn::Base
   # @param orientation [String, Symbol, nil] one of {ORIENTATIONS}
   # @param dir [String, Symbol, nil] one of {DIRECTIONS}; defaults to the surrounding direction provider
   # @param loop [Boolean] whether arrow-key focus wraps around
-  # @param as_child [Boolean, Symbol, String, Phlex::Shadcn::Base] render onto the child element instead of a `<div>`
+  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] a tag or component instance to render instead of the `<div>`; false renders the default element
   # @param attrs [Hash] HTML attributes for the root (`class:` merged last)
   # @raise [ArgumentError] when `orientation:` or `dir:` is not an allowed value
   def initialize(value: nil, default_value: nil, disabled: false, required: false, name: nil, form: nil,

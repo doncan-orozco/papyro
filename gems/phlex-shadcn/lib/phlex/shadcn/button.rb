@@ -14,6 +14,8 @@ using Phlex::Shadcn::Values::Refinements
 #   render Phlex::Shadcn::Button.new(as_child: :a, href: "/docs") { "Docs" }
 class Phlex::Shadcn::Button < Phlex::Shadcn::Base
   # Classes shared by every variant and size.
+  #
+  # @return [String]
   BASE = "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
 
   # Variant name => Tailwind classes; the keys are the accepted values of `variant:`.
@@ -44,8 +46,8 @@ class Phlex::Shadcn::Button < Phlex::Shadcn::Base
 
   # Class string of a button, to style non-button elements the same way (React `buttonVariants`).
   #
-  # @param variant [String, Symbol, nil] one of VARIANTS (nil means "default")
-  # @param size [String, Symbol, nil] one of SIZES (nil means "default")
+  # @param variant [String, Symbol, nil] one of VARIANTS (nil means "default"); underscores are normalized
+  # @param size [String, Symbol, nil] one of SIZES (nil means "default"); underscores are normalized (`:icon_sm` is `"icon-sm"`)
   # @param class [String, nil] extra classes, merged last
   # @return [String]
   # @raise [ArgumentError] when the variant or size is unknown
@@ -57,7 +59,9 @@ class Phlex::Shadcn::Button < Phlex::Shadcn::Base
 
   # @param variant [String, Symbol, nil] one of VARIANTS (nil means "default")
   # @param size [String, Symbol, nil] one of SIZES (nil means "default"); underscores are normalized (`:icon_sm` is `"icon-sm"`)
-  # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render the given tag (`:a`) or component instead of a `<button>`, merging the button props into it
+  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base]
+  #   the tag (`:a`) or component instance to render instead of a `<button>`, merging the button props
+  #   into it; false renders the default `<button>`
   # @param attrs [Hash] HTML attributes (`type:`, `disabled:`, `class:`, `data:`, `aria:`...)
   # @raise [ArgumentError] when the variant or size is unknown
   def initialize(variant: "default", size: "default", as_child: false, **attrs)

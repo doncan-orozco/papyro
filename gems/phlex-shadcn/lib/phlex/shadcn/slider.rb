@@ -10,7 +10,9 @@ using Phlex::Shadcn::Values::Refinements
 #
 # Controlled mode: `value:` is controlled only when it is an Array (`value.is_a?(Array)`); any other value is ignored
 # and the slider is uncontrolled. A controlled slider only dispatches events on user input and the caller re-renders.
-# Events: `shadcn--slider:value-change` and `shadcn--slider:value-commit` (both with `detail: { value }`).
+# Events: `shadcn--slider:value-change` (user input, and a form reset that changes the values) and
+# `shadcn--slider:value-commit` (a finished drag and keyboard steps), both with `detail: { value }`.
+# The hidden inputs are removed by the controller when the slider is neither inside a `<form>` nor given `form:`.
 #
 # @example
 #   render Phlex::Shadcn::Slider.new(default_value: [ 25, 75 ], max: 100, step: 5, name: "price", class: "w-64")
@@ -34,7 +36,8 @@ class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
 
   # @param default_value [Array<Numeric>, nil] initial thumb values (uncontrolled); without it the slider renders two
   #   thumbs and two hidden inputs, the first at `min` and the second hidden (no `aria-valuenow`, no input value)
-  # @param value [Array<Numeric>, nil] controlled thumb values; ignored unless an Array (then the slider is uncontrolled)
+  # @param value [Array<Numeric>, nil] controlled thumb values: an Array makes the slider controlled; any other value is
+  #   ignored and the slider is uncontrolled
   # @param min [Numeric] lowest value (default 0)
   # @param max [Numeric] highest value (default 100)
   # @param step [Numeric] value increment (default 1)
@@ -42,8 +45,10 @@ class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
   # @param disabled [Boolean] disables the slider (default false)
   # @param inverted [Boolean] reverses the direction of the range
   # @param min_steps_between_thumbs [Integer] minimum distance between thumbs, in steps
-  # @param preserve_thumb_order [Boolean] keep thumb values sorted while dragging
-  # @param name [String, nil] form field name of the hidden inputs (`name[]` with several thumbs)
+  # @param preserve_thumb_order [Boolean] stops a dragged thumb from passing its neighbours (the controller always
+  #   keeps the values sorted)
+  # @param name [String, nil] form field name of the hidden inputs; `name[]` is used when more than one value is present,
+  #   so without `value:`/`default_value:` (two thumb elements, one value) the name stays `name`
   # @param form [String, nil] id of the associated `<form>`
   # @param dir [String, Symbol, nil] one of {DIRECTIONS}; the surrounding direction provider's direction is the default for horizontal sliders only
   # @param attrs [Hash] HTML attributes for the root span (`class:` merged last, `aria:`, `data:`, `style:`)

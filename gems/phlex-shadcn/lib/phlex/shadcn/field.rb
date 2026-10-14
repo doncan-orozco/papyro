@@ -92,6 +92,9 @@ class Phlex::Shadcn::Field < Phlex::Shadcn::Base
     # @api private
     CLASS_NAME = "mb-3 font-medium data-[variant=legend]:text-base data-[variant=label]:text-sm"
 
+    # @example
+    #   field.legend(variant: :label) { "Address" }
+    #
     # @param variant [String, Symbol, nil] "legend" or "label" (smaller text); nil means "legend". Other values are not
     #   validated: they are only emitted as `data-variant`, with no matching text size class
     # @param attrs [Hash] HTML attributes merged onto the `<legend>`

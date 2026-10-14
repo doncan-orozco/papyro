@@ -128,11 +128,11 @@ class Phlex::Shadcn::InputGroup < Phlex::Shadcn::Base
 
     # @param type [String] the button `type` attribute (defaults to "button")
     # @param variant [String, Symbol] a `Phlex::Shadcn::Button` variant (defaults to "ghost"); an unknown variant raises
-    #   `ArgumentError` in `Phlex::Shadcn::Button`
+    #   `ArgumentError` at render time, from `Phlex::Shadcn::Button`
     # @param size [String, Symbol, nil] one of SIZES (nil means "xs")
-    # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] see `Phlex::Shadcn::Button`
+    # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] see `Phlex::Shadcn::Button`; false renders the default `<button>`
     # @param attrs [Hash] HTML attributes forwarded to the button
-    # @raise [ArgumentError] when the size is unknown
+    # @raise [ArgumentError] when the size is unknown (at construction)
     def initialize(type: "button", variant: "ghost", size: "xs", as_child: false, **attrs)
       @size = normalize_option(size) || "xs"
       raise ArgumentError, "unknown size: #{size.inspect} (expected one of #{SIZES.keys.join(', ')})" unless SIZES.key?(@size)

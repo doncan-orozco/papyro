@@ -19,30 +19,41 @@ class Phlex::Shadcn::ToggleGroup < Phlex::Shadcn::Base
   # @api private
   ROOT_KEY = :shadcn_toggle_group_root
   # Classes of the root element.
+  #
+  # @return [String]
   CLASSES = "group/toggle-group flex w-fit items-center gap-[--spacing(var(--gap))] rounded-md data-[spacing=default]:data-[variant=outline]:shadow-xs"
   # Allowed values of `type:`.
+  #
+  # @return [Array<String>]
   TYPES = %w[single multiple].freeze
   # Allowed values of `orientation:`.
+  #
+  # @return [Array<String>]
   ORIENTATIONS = %w[horizontal vertical].freeze
   # Allowed values of `dir:`.
+  #
+  # @return [Array<String>]
   DIRECTIONS = %w[ltr rtl].freeze
 
-  # value: non-nil is controlled (user actions only dispatch value-change, the caller re-renders with the new value).
+  # A non-nil `value:` makes the group controlled: user actions only dispatch value-change and the caller re-renders
+  # with the new value.
   #
   # @param type [String, Symbol] one of {TYPES}: `single` (radio-like) or `multiple` (toolbar)
   # @param value [String, Array<String>, nil] controlled pressed value (Array for `multiple`)
   # @param default_value [String, Array<String>, nil] initially pressed value(s) (uncontrolled)
-  # @param variant [String, Symbol, nil] `"default"` or `"outline"`, applied to every item; not validated here, it
-  #   passes through to the items
-  # @param size [String, Symbol, nil] `"default"`, `"sm"` or `"lg"`, applied to every item; not validated here, it
-  #   passes through to the items
+  # @param variant [String, Symbol, nil] `"default"` or `"outline"`, applied to every item; not validated here, an
+  #   unknown value raises ArgumentError when an item renders (via `Toggle.variants`)
+  # @param size [String, Symbol, nil] `"default"`, `"sm"` or `"lg"`, applied to every item; not validated here, an
+  #   unknown value raises ArgumentError when an item renders (via `Toggle.variants`)
   # @param spacing [Numeric] gap between items in spacing units; 0 joins the items
   # @param disabled [Boolean] disables every item
   # @param roving_focus [Boolean] arrow-key navigation with a single tab stop
-  # @param orientation [String, Symbol, nil] one of {ORIENTATIONS}
+  # @param orientation [String, Symbol, nil] one of {ORIENTATIONS}; `data-orientation` is emitted on the root and the items
+  #   only when `roving_focus` is true
   # @param dir [String, Symbol, nil] one of {DIRECTIONS}; defaults to the surrounding direction provider
   # @param loop [Boolean] whether arrow-key focus wraps around
-  # @param as_child [Boolean, Class, Proc] render onto the child element instead of a `<div>`
+  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base]
+  #   a tag (`:section`) or component instance to render instead of the `<div>`; false renders the default element
   # @param attrs [Hash] HTML attributes for the root (`class:` merged last)
   # @see Phlex::Shadcn::ToggleGroup::Item
   # @raise [ArgumentError] when `type:` is missing/unknown, `spacing:` is not Numeric, `value:` does not fit `type:`,

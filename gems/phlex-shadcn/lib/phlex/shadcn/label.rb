@@ -21,7 +21,8 @@ class Phlex::Shadcn::Label < Phlex::Shadcn::Base
   ACTION = "mousedown->shadcn--label#mousedown"
 
   # @param html_for [String, nil] id of the labelled control, rendered as `for`; wins over an explicit `for:`
-  # @param as_child [Boolean, Symbol, String, Phlex::Shadcn::Base] render this tag or component instead of a `<label>`
+  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base]
+  #   a tag or component instance to render instead of the `<label>`; false renders the default element
   # @param attrs [Hash] HTML attributes (`class:`, `data:`, `aria:`...)
   def initialize(html_for: nil, as_child: false, **attrs)
     @as_child = as_child

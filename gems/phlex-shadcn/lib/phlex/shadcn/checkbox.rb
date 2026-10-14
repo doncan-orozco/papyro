@@ -7,7 +7,9 @@ using Phlex::Shadcn::Values::Refinements
 #
 # Driven by the `shadcn--checkbox` Stimulus controller. Pass `checked:` for a controlled checkbox (the
 # controller will not toggle the state itself) or `default_checked:` for an uncontrolled one. User input dispatches
-# the `shadcn--checkbox:checked-change` event (`detail: { checked }`).
+# the `shadcn--checkbox:checked-change` event (`detail: { checked }`, where `checked` is true, false or "indeterminate");
+# a form reset that changes the state dispatches it too. The hidden input is removed by the controller when the
+# checkbox is not inside a `<form>` and has no `form:`.
 #
 # @example
 #   render Phlex::Shadcn::Checkbox.new(name: "terms", id: "terms", default_checked: true)

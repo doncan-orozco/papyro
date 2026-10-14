@@ -5,7 +5,9 @@ using Phlex::Shadcn::Values::Refinements
 
 # A toggle button with `role=switch`, plus a hidden checkbox so it submits with a form.
 #
-# User input dispatches the `shadcn--switch:checked-change` event (`detail: { checked }`).
+# User input, or a form reset that changes the state, dispatches the `shadcn--switch:checked-change` event
+# (`detail: { checked }`). The hidden checkbox is removed by the controller when the switch is not inside a `<form>`
+# and has no `form:`.
 #
 # @example
 #   render Phlex::Shadcn::Switch.new(name: "notifications", default_checked: true, id: "notifications")

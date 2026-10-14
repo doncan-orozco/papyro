@@ -38,7 +38,8 @@ class Phlex::Shadcn::ButtonGroup < Phlex::Shadcn::Base
     new.send(:cn, BASE, ORIENTATIONS[(orientation || "horizontal").to_s], binding.local_variable_get(:class))
   end
 
-  # @param orientation [String, Symbol, nil] "horizontal" or "vertical"; nil renders no `data-orientation`
+  # @param orientation [String, Symbol, nil] "horizontal" or "vertical"; nil renders no `data-orientation` (and the
+  #   horizontal classes); an unknown string is emitted verbatim as `data-orientation` with no orientation classes
   # @param attrs [Hash] HTML attributes merged onto the root `<div>`
   def initialize(orientation: nil, **attrs)
     @orientation = orientation
@@ -73,6 +74,7 @@ class Phlex::Shadcn::ButtonGroup < Phlex::Shadcn::Base
       super()
     end
 
+    # @yield optional content passed to the `Phlex::Shadcn::Separator`
     # @return [void]
     def view_template(&)
       attrs = merge_attrs({ data: { slot: "button-group-separator" }, class: CLASS_NAME }, @attrs)
@@ -90,7 +92,8 @@ class Phlex::Shadcn::ButtonGroup < Phlex::Shadcn::Base
     # @return [String]
     CLASS_NAME = "flex items-center gap-2 rounded-md border bg-muted px-4 text-sm font-medium shadow-xs [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4"
 
-    # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this tag or component instead of a `<div>`
+    # @param as_child [false, Symbol, String, Phlex::Shadcn::Base]
+    #   a tag or component instance to render instead of the `<div>`; false renders the default element
     # @param attrs [Hash] HTML attributes merged onto the element
     def initialize(as_child: false, **attrs)
       @as_child = as_child
