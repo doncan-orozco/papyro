@@ -32,7 +32,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     assert_equal "shadcn--sidebar", wrapper["data-controller"]
     assert_equal "true", wrapper["data-shadcn--sidebar-open-value"]
     assert_equal "false", wrapper["data-shadcn--sidebar-controlled-value"]
-    assert_includes wrapper["class"], "extra"
+    assert_includes wrapper["class"].split, "extra"
     assert_equal "x", wrapper["id"]
     assert_equal "--sidebar-width: 20rem; --sidebar-width-icon: 3rem;", wrapper["style"]
     string = fragment(provider(style: "--sidebar-width: 5rem;")).at_css("[data-slot=sidebar-wrapper]")
@@ -54,7 +54,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     assert_equal(%w[collapsed icon floating right], %w[state collapsible variant side].map { |name| outer["data-#{name}"] })
     assert_equal "side", outer.at_css("[data-slot=sidebar-container]")["id"]
     assert_nil outer["id"]
-    assert_includes outer.at_css("[data-slot=sidebar-container]")["class"], "w-9"
+    assert_includes outer.at_css("[data-slot=sidebar-container]")["class"].split, "w-9"
     assert_equal "block", outer.at_css("[data-slot=sidebar-inner]").text
     template = doc.at_css("template[data-shadcn--sidebar-target=mobile]")
 
@@ -92,8 +92,8 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     assert_equal "icon-sm", button["data-size"]
     assert_equal "trigger", button["data-sidebar"]
     assert_equal "click->x#y click->shadcn--sidebar#toggle", button["data-action"]
-    assert_includes button["class"], "size-7"
-    assert_includes button["class"], "ml-1"
+    assert_includes button["class"].split, "size-7"
+    assert_includes button["class"].split, "ml-1"
     assert_equal "Toggle Sidebar", button.at_css(".sr-only").text
   end
 
@@ -114,8 +114,8 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
 
     assert_equal "true", button["data-active"]
     assert_equal "lg", button["data-size"]
-    assert_includes button["class"], "h-12"
-    assert_includes button["class"], "p-4"
+    assert_includes button["class"].split, "h-12"
+    assert_includes button["class"].split, "p-4"
     assert_not_includes button["class"].split, "p-2"
     link = fragment(provider do
       render(Sidebar::MenuButton.new(as_child: :a, href: "#")) do
@@ -212,7 +212,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
       html = provider { render(Sidebar.new) { |sidebar| sidebar.public_send(name, class: "zz", id: "p", data: { testid: "t" }, aria: { label: "L" }) { "x" } } }
       element = fragment(html).at_css("#{tag}#p")
 
-      assert_includes element["class"], "zz", name.to_s
+      assert_includes element["class"].split, "zz", name.to_s
       assert_equal "t", element["data-testid"], name.to_s
       assert_equal "L", element["aria-label"], name.to_s
       assert_equal "x", element.text, name.to_s
@@ -228,7 +228,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
 
       assert_equal default_tag, default.name, name.to_s
       assert_equal "section", child.name, name.to_s
-      assert_includes child["class"], "zz", name.to_s
+      assert_includes child["class"].split, "zz", name.to_s
     end
   end
 
@@ -248,8 +248,8 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     shown = fragment(provider { render(Sidebar::MenuAction.new(show_on_hover: true)) }).at_css("[data-slot=sidebar-menu-action]")
     plain = fragment(provider { render(Sidebar::MenuAction.new) }).at_css("[data-slot=sidebar-menu-action]")
 
-    assert_includes shown["class"], "md:opacity-0"
-    assert_not_includes plain["class"], "md:opacity-0"
+    assert_includes shown["class"].split, "md:opacity-0"
+    assert_not_includes plain["class"].split, "md:opacity-0"
   end
 
   test "menu sub button size, active state and default tag" do
@@ -258,7 +258,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     assert_equal "sm", small["data-size"]
     assert_equal "true", small["data-active"]
     assert_equal "/x", small["href"]
-    assert_includes small["class"], "text-xs"
+    assert_includes small["class"].split, "text-xs"
 
     default = fragment(provider { render(Sidebar::MenuSubButton.new) }).at_css("a")
 
@@ -271,7 +271,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     assert_includes Sidebar::MenuButton.variants(variant: "outline", size: :lg), "shadow-[0_0_0_1px_var(--sidebar-border)]"
     assert_raises(KeyError) { Sidebar::MenuButton.variants(variant: "nope") }
     assert_raises(ArgumentError) { Sidebar::MenuButton.new(variant: "nope") }
-    assert_includes fragment(provider { render(Sidebar::MenuButton.new(variant: "outline")) }).at_css("button")["class"], "bg-background"
+    assert_includes fragment(provider { render(Sidebar::MenuButton.new(variant: "outline")) }).at_css("button")["class"].split, "bg-background"
   end
 
   test "input renders the shared input with the sidebar data and type" do
@@ -282,8 +282,8 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     assert_equal "sidebar-input", input["data-slot"]
     assert_equal "input", input["data-sidebar"]
     assert_equal "t", input["data-testid"]
-    assert_includes input["class"], "zz"
-    assert_includes input["class"], "h-8"
+    assert_includes input["class"].split, "zz"
+    assert_includes input["class"].split, "h-8"
   end
 
   test "separator forwards orientation, decorative and as_child to the shared separator" do
@@ -291,8 +291,8 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
 
     assert_equal "sidebar-separator", default["data-slot"]
     assert_equal "horizontal", default["data-orientation"]
-    assert_includes default["class"], "zz"
-    assert_includes default["class"], "mx-2"
+    assert_includes default["class"].split, "zz"
+    assert_includes default["class"].split, "mx-2"
 
     vertical = fragment(provider { render(Sidebar::Separator.new(orientation: "vertical", decorative: false)) }).at_css("[data-sidebar=separator]")
 
@@ -305,7 +305,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     skeleton = fragment(provider { render(Sidebar::MenuSkeleton.new(class: "zz", id: "sk")) })
 
     assert_nil skeleton.at_css("[data-sidebar=menu-skeleton-icon]")
-    assert_includes skeleton.at_css("#sk")["class"], "zz"
+    assert_includes skeleton.at_css("#sk")["class"].split, "zz"
     assert_equal 60, Sidebar::MenuSkeleton.with_pinned_width(60) { Sidebar::MenuSkeleton.width_percent }
   end
 
@@ -320,9 +320,9 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
     left = fragment(provider { render(Sidebar.new) }).at_css("[data-slot=sidebar-container]")
     right = fragment(provider { render(Sidebar.new(side: :right, variant: :inset)) }).at_css("[data-slot=sidebar-container]")
 
-    assert_includes left["class"], "left-0"
-    assert_includes right["class"], "right-0"
-    assert_includes right["class"], "p-2"
+    assert_includes left["class"].split, "left-0"
+    assert_includes right["class"].split, "right-0"
+    assert_includes right["class"].split, "p-2"
     assert_includes Sidebar::SIDES, "left"
   end
 end

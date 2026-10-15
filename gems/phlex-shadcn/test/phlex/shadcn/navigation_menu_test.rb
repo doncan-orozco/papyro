@@ -56,8 +56,8 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
     assert_equal "rtl", nav["dir"]
     assert_equal "Primary", nav["aria-label"]
     assert_equal "nav", nav["id"]
-    assert_includes nav["class"], "max-w-full"
-    assert_not_includes nav["class"], "max-w-max"
+    assert_includes nav["class"].split, "max-w-full"
+    assert_not_includes nav["class"].split, "max-w-max"
     assert_nil template_target(out, "viewportTemplate")
   end
 
@@ -68,7 +68,7 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
 
     assert_equal "docs", content_template["data-value"]
     assert_equal "true", content_template["data-force-mount"]
-    assert_includes content["class"], "p-4"
+    assert_includes content["class"].split, "p-4"
     assert_not_includes content["class"].split, "p-2"
     assert template_target(out, "viewportTemplate").at_css("[data-slot=navigation-menu-viewport]")
   end
@@ -82,7 +82,7 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
     assert_equal "true", trigger["aria-expanded"]
     assert_match(/\Anavigation-menu-\d+-content-docs\z/, trigger["aria-controls"])
     assert trigger.at_css("svg.lucide-chevron-down")
-    assert_includes trigger["class"], "rounded-full"
+    assert_includes trigger["class"].split, "rounded-full"
     assert_equal "t", trigger["data-testid"]
   end
 
@@ -100,10 +100,10 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
     assert_not part(render_menu, "navigation-menu-link").key?("aria-current")
     assert_equal "page", part(render_menu(link: { active: true }), "navigation-menu-link")["aria-current"]
 
-    span = part(render_menu(link: { as_child: :span, class: "x" }), "navigation-menu-link")
+    span = part(render_menu(link: { as_child: :span, class: "zz-link" }), "navigation-menu-link")
 
     assert_equal "span", span.name
-    assert_includes span["class"], "x"
+    assert_includes span["class"].split, "zz-link"
   end
 
   test "trigger_style is the cva base merged with the caller class" do
@@ -217,7 +217,7 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
     end
     doc = Nokogiri::HTML5.fragment(out)
 
-    assert_includes doc.at_css("ul#l")["class"], "gap-4"
+    assert_includes doc.at_css("ul#l")["class"].split, "gap-4"
     %w[relative x].each { |token| assert_includes doc.at_css("li#i")["class"].split, token }
     assert_equal "navigation-menu-list", doc.at_css("ol")["data-slot"]
     assert_equal "navigation-menu-item", doc.at_css("div[data-slot=navigation-menu-item]")["data-slot"]
@@ -243,7 +243,7 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
     section = Nokogiri::HTML5.fragment(out).at_css("template[data-shadcn--navigation-menu-target=contentTemplate]").at_css("section")
 
     assert_equal "navigation-menu-content", section["data-slot"]
-    assert_includes section["class"], "p-9"
+    assert_includes section["class"].split, "p-9"
   end
 
   test "viewport and indicator take force_mount and caller attrs" do
@@ -261,8 +261,8 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
     assert_equal "true", indicator["data-force-mount"]
     assert_equal "true", viewport["data-force-mount"]
     assert_equal "ind", indicator.at_css("[data-slot=navigation-menu-indicator]")["id"]
-    assert_includes indicator.at_css("[data-slot=navigation-menu-indicator]")["class"], "bg-red-500"
-    assert_includes viewport.at_css("[data-slot=navigation-menu-viewport]")["class"], "mt-9"
+    assert_includes indicator.at_css("[data-slot=navigation-menu-indicator]")["class"].split, "bg-red-500"
+    assert_includes viewport.at_css("[data-slot=navigation-menu-viewport]")["class"].split, "mt-9"
     assert_raises(ArgumentError) { NavigationMenu::Indicator.new.call }
     assert_raises(ArgumentError) { NavigationMenu::Viewport.new.call }
   end
