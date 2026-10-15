@@ -107,9 +107,12 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
   end
 
   test "trigger_style is the cva base merged with the caller class" do
-    assert_includes NavigationMenu.trigger_style, "inline-flex h-9 w-max"
-    assert_includes NavigationMenu.trigger_style(class: "h-10"), "h-10"
-    assert_not_includes NavigationMenu.trigger_style(class: "h-10"), "h-9"
+    %w[inline-flex h-9 w-max].each { |token| assert_includes NavigationMenu.trigger_style.split, token }
+
+    merged = NavigationMenu.trigger_style(class: "h-10").split
+
+    assert_includes merged, "h-10"
+    assert_not_includes merged, "h-9"
   end
 
   test "parts outside the root raise" do

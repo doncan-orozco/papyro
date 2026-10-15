@@ -125,7 +125,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
 
     assert_equal "false", link["data-active"]
     assert_raises(ArgumentError) { Sidebar::MenuButton.new(size: "huge") }
-    assert_includes Sidebar::MenuButton.variants(size: "sm"), "h-7 text-xs"
+    %w[h-7 text-xs].each { |token| assert_includes Sidebar::MenuButton.variants(size: "sm").split, token }
   end
 
   test "menu button tooltip becomes a tooltip trigger and a content hidden while expanded" do
@@ -268,7 +268,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
   end
 
   test "menu button variants class helper validates its options" do
-    assert_includes Sidebar::MenuButton.variants(variant: "outline", size: :lg), "shadow-[0_0_0_1px_var(--sidebar-border)]"
+    assert_includes Sidebar::MenuButton.variants(variant: "outline", size: :lg).split, "shadow-[0_0_0_1px_var(--sidebar-border)]"
     assert_raises(KeyError) { Sidebar::MenuButton.variants(variant: "nope") }
     assert_raises(ArgumentError) { Sidebar::MenuButton.new(variant: "nope") }
     assert_includes fragment(provider { render(Sidebar::MenuButton.new(variant: "outline")) }).at_css("button")["class"].split, "bg-background"
