@@ -72,7 +72,7 @@ group :development, :test do
 
   # Security & Migrations
   gem "bundler-audit", require: false
-  gem "brakeman", "~> 8.0.4", require: false
+  gem "brakeman", "~> 8.1", require: false
 
   # Linting
   gem "rubocop-rails-omakase", require: false
