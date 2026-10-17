@@ -7,7 +7,9 @@
 #
 # Used two ways: in-process (FakeGh.call(argv), fast, most tests) or as an executable (WORK_GH="ruby fake_gh.rb", the real
 # subprocess path, used by the concurrency test).
-# Supported: issue create|list|view|edit|comment|close|reopen, label create.
+# Supported: issue create|list|view|edit|comment|close|reopen, label create, pr list|view|merge, and the two `api` reads the merge
+# policy needs (compare, check-runs on the base branch). Pull requests and base-branch facts are seeded by tests in db["prs"],
+# db["base_checks"], db["base_files"] and db["base_sha"].
 
 require "json"
 require "time"
@@ -23,10 +25,14 @@ class FakeGh
 
   def call(argv)
     group, verb, *args = argv
+    return api(verb) if group == "api"
+
     case [ group, verb ]
     when %w[issue create] then create(args)
     when %w[issue list] then list(args)
     when %w[pr list] then pr_list(args)
+    when %w[pr view] then JSON.generate(pr_defaults(find_pr(args.first)))
+    when %w[pr merge] then pr_merge(args)
     when %w[issue view] then JSON.generate(view(find(args.first)))
     when %w[issue edit] then edit(args)
     when %w[issue comment] then comment(args)
@@ -99,6 +105,49 @@ class FakeGh
     rows = locked { |db| Array(db["prs"]).dup }
     rows = rows.select { |pr| state == "all" || pr["state"].downcase == state }
     JSON.generate(rows)
+  end
+
+  def find_pr(number)
+    locked { |db| Array(db["prs"]).find { |pr| pr["number"] == number.to_i } } || raise(Error, "no pull requests found for #{number}")
+  end
+
+  # Fields `gh pr view --json` returns that tests may leave out.
+  def pr_defaults(pr)
+    { "isDraft" => false, "mergeable" => "MERGEABLE", "mergeStateStatus" => "CLEAN", "headRefOid" => "head#{pr['number']}",
+      "baseRefName" => "main", "statusCheckRollup" => [], "mergeCommit" => nil }.merge(pr)
+  end
+
+  # Real gh refuses --match-head-commit when the head moved, and merging a PR that is not open.
+  def pr_merge(args)
+    locked do |db|
+      pr = Array(db["prs"]).find { |p| p["number"] == args.first.to_i } or raise Error, "no pull requests found for #{args.first}"
+      raise Error, "pull request ##{pr['number']} is not open" unless pr["state"] == "OPEN"
+      expected = flag(args, "--match-head-commit")
+      raise Error, "head commit #{pr_defaults(pr)['headRefOid']} does not match #{expected}" if expected && expected != pr_defaults(pr)["headRefOid"]
+
+      pr["state"] = "MERGED"
+      pr["mergedAt"] = Time.now.utc.iso8601
+      pr["mergeCommit"] = { "oid" => "merge#{pr['number']}#{'0' * 30}" }
+      pr["method"] = args.find { |a| %w[--squash --merge --rebase].include?(a) }
+    end
+    ""
+  end
+
+  # repos/{owner}/{repo}/compare/BASE...HEAD and repos/{owner}/{repo}/commits/BASE/check-runs, the two reads work_board.rb makes.
+  def api(path)
+    db = locked { |d| d }
+    base = ENV.fetch("WORK_BASE", "main")
+    case path
+    when %r{/commits/#{Regexp.escape(base)}/check-runs}
+      JSON.generate({ "check_runs" => Array(db["base_checks"]).map { |c| { "head_sha" => db["base_sha"] || "base0000" }.merge(c) } })
+    when %r{/compare/#{Regexp.escape(base)}\.\.\.(\S+)\z}
+      pr = Array(db["prs"]).find { |p| pr_defaults(p)["headRefOid"] == Regexp.last_match(1) } or raise Error, "HTTP 404: No commit found for SHA: #{Regexp.last_match(1)}"
+      JSON.generate({ "behind_by" => pr["behind_by"].to_i, "ahead_by" => 1, "base_commit" => { "sha" => db["base_sha"] || "base0000" },
+                      "merge_base_commit" => { "sha" => "mergebase" }, "files" => Array(pr["files"]).map { |f| { "filename" => f } } })
+    when %r{/compare/\S+\.\.\.#{Regexp.escape(base)}\z}
+      JSON.generate({ "files" => Array(db["base_files"]).map { |f| { "filename" => f } } })
+    else raise Error, "fake gh: unsupported api #{path}"
+    end
   end
 
   def edit(args)

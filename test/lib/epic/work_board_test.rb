@@ -733,4 +733,190 @@ class WorkBoardTest < ActiveSupport::TestCase
 
     assert_empty wb("reviews", "--epic", "demo")[0]["reviews"]
   end
+
+  test "show and reviews list the Gate commands parsed from the issue body" do
+    make_epic
+    body = "## Goal\nprove it\n\n## Gates (a stage advances only when these are green, run by the worker)\n- `bin/rails test`\n- `ruby .claude/scripts/x.rb --all`\n- plain command\n\n## Acceptance\n- [ ] ok\n"
+    a = wb("item", "create", "--epic", "demo", "--title", "A", "--body", body, "--wave", "1", "--owns", "lib/a/**")[0]["number"]
+    move_to_review(a)
+
+    assert_equal [ "bin/rails test", "ruby .claude/scripts/x.rb --all", "plain command" ], wb("show", a.to_s, "--epic", "demo")[0]["gates"]
+    assert_equal [ "bin/rails test", "ruby .claude/scripts/x.rb --all", "plain command" ], wb("reviews", "--epic", "demo")[0]["reviews"].first["gates"]
+    assert_empty wb("show", make_item("B", wave: 1, owns: "lib/b/**").to_s, "--epic", "demo")[0]["gates"]
+  end
+
+  # ---- merge policy: a script decides whether a review PR may be merged (epic-flow R15) ------------------------------------
+  def check(name, conclusion = "SUCCESS", status: "COMPLETED")
+    { "name" => name, "status" => status, "conclusion" => conclusion, "detailsUrl" => "https://ci.test/#{name}", "html_url" => "https://ci.test/#{name}" }
+  end
+
+  def seed_base(checks: [ check("test"), check("lint") ], files: [], sha: "base1234")
+    db = fake_db
+    db["base_checks"] = checks
+    db["base_files"] = files
+    db["base_sha"] = sha
+    File.write(@db, JSON.generate(db))
+  end
+
+  def add_open_pr(item, number:, checks: [ check("test"), check("lint") ], draft: false, mergeable: "MERGEABLE", behind_by: 0, files: [ "lib/a/x.rb" ])
+    db = fake_db
+    db["prs"] = Array(db["prs"]) << { "number" => number, "state" => "OPEN", "headRefName" => "epic/demo/#{item}-item", "mergedAt" => nil,
+                                      "url" => "https://github.test/o/r/pull/#{number}", "isDraft" => draft, "mergeable" => mergeable, "headRefOid" => "head#{number}",
+                                      "statusCheckRollup" => checks, "behind_by" => behind_by, "files" => files }
+    File.write(@db, JSON.generate(db))
+  end
+
+  def judged(number) = wb("mergeable", "--epic", "demo")[0]["items"].find { |r| r["number"] == number }
+
+  test "mergeable: an audited, conflict-free PR whose checks all pass is ready" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    move_to_review(a)
+    seed_base
+    add_open_pr(a, number: 50)
+    result, code = wb("mergeable", "--epic", "demo")
+    row = result["items"].first
+
+    assert_equal 0, code, result.inspect
+    assert_equal "ready", row["verdict"]
+    assert row["audited"]
+    assert_equal %w[test lint], row["checks"]["passing"].map { |c| c["name"] }
+    assert_equal({ "number" => 50, "state" => "OPEN", "url" => "https://github.test/o/r/pull/50", "head" => "head50", "branch" => "epic/demo/#{a}-item",
+                   "base" => "main", "draft" => false, "mergeable" => "MERGEABLE", "merge_state" => "CLEAN" }, row["pr"])
+    assert_equal [ a ], result["ready"]
+    assert_equal({ "branch" => "main", "sha" => "base1234", "failing" => [], "checks" => [
+      { "name" => "test", "status" => "COMPLETED", "conclusion" => "SUCCESS", "url" => "https://ci.test/test" },
+      { "name" => "lint", "status" => "COMPLETED", "conclusion" => "SUCCESS", "url" => "https://ci.test/lint" } ] }, result["base"])
+  end
+
+  test "mergeable: a check that fails on the base branch too is pre-existing and reported, not held against the PR" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    move_to_review(a)
+    seed_base(checks: [ check("test"), check("scan_ruby", "FAILURE") ])
+    add_open_pr(a, number: 50, checks: [ check("test"), check("scan_ruby", "FAILURE") ])
+    result = wb("mergeable", "--epic", "demo")[0]
+    row = result["items"].first
+
+    assert_equal "ready", row["verdict"]
+    assert_equal [ "scan_ruby" ], row["checks"]["preexisting"].map { |c| c["name"] }
+    assert_empty row["checks"]["failing"]
+    assert_equal [ { "name" => "scan_ruby", "conclusion" => "FAILURE", "url" => "https://ci.test/scan_ruby" } ], result["base"]["failing"]
+  end
+
+  test "mergeable: a check failing only on the PR blocks it, a running check makes it wait" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    b = make_item("B", wave: 1, owns: "lib/b/**")
+    move_to_review(a)
+    move_to_review(b)
+    seed_base
+    add_open_pr(a, number: 50, checks: [ check("test", "FAILURE"), check("lint") ])
+    add_open_pr(b, number: 51, checks: [ check("test", nil, status: "IN_PROGRESS"), check("lint") ])
+    result = wb("mergeable", "--epic", "demo")[0]
+
+    assert_equal "ci_failed", judged(a)["verdict"]
+    assert_equal [ { "name" => "test", "conclusion" => "FAILURE", "url" => "https://ci.test/test" } ], judged(a)["checks"]["failing"]
+    assert_equal "ci_pending", judged(b)["verdict"]
+    assert_equal [ "test" ], judged(b)["checks"]["pending"].map { |c| c["name"] }
+    assert_empty result["ready"]
+  end
+
+  test "mergeable: drafts, conflicts and an item put in review without the audit receipt are never ready" do
+    make_epic
+    draft = make_item("D", wave: 1, owns: "lib/d/**")
+    conflicting = make_item("C", wave: 1, owns: "lib/c/**")
+    by_hand = make_item("H", wave: 1, owns: "lib/h/**", stage: "review") # label set by hand: no `-> review: audit ... PASS` note
+    move_to_review(draft)
+    move_to_review(conflicting)
+    seed_base
+    add_open_pr(draft, number: 50, draft: true)
+    add_open_pr(conflicting, number: 51, mergeable: "CONFLICTING")
+    add_open_pr(by_hand, number: 52)
+
+    assert_equal "draft", judged(draft)["verdict"]
+    assert_equal "conflicts", judged(conflicting)["verdict"]
+    assert_equal "not_audited", judged(by_hand)["verdict"]
+    refute judged(by_hand)["audited"]
+  end
+
+  test "mergeable: behind the base is fine while the PR's files are disjoint from what landed there, otherwise it must update" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    b = make_item("B", wave: 1, owns: "lib/b/**")
+    move_to_review(a)
+    move_to_review(b)
+    seed_base(files: [ "lib/b/shared.rb", "README.md" ])
+    add_open_pr(a, number: 50, behind_by: 2, files: [ "lib/a/x.rb" ])
+    add_open_pr(b, number: 51, behind_by: 2, files: [ "lib/b/shared.rb", "lib/b/y.rb" ])
+
+    assert_equal "ready", judged(a)["verdict"]
+    assert_equal 2, judged(a)["behind_by"]
+    assert_equal "behind", judged(b)["verdict"]
+    assert_equal [ "lib/b/shared.rb" ], judged(b)["overlap"]
+  end
+
+  test "mergeable: merged, closed and missing PRs keep their reviews verdict and cost no extra call" do
+    make_epic
+    merged = make_item("M", wave: 1, owns: "lib/m/**")
+    none = make_item("N", wave: 1, owns: "lib/n/**")
+    move_to_review(merged)
+    move_to_review(none)
+    seed_base
+    add_pr(number: 50, head: "epic/demo/#{merged}-m", state: "MERGED")
+
+    assert_equal "merged", judged(merged)["verdict"]
+    assert_equal "no_pr", judged(none)["verdict"]
+    assert_nil judged(none)["pr"]
+  end
+
+  test "merge refuses anything that is not ready and never touches the PR" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    move_to_review(a)
+    seed_base
+    add_open_pr(a, number: 50, checks: [ check("test", "FAILURE") ])
+    result, code = wb("merge", a.to_s, "--epic", "demo", "--session", "release")
+
+    assert_equal 1, code
+    assert_equal "ci_failed", result["reason"]
+    assert_equal "OPEN", fake_db["prs"].first["state"]
+    assert_equal 2, wb("merge", a.to_s, "--epic", "demo", "--session", "release", "--method", "fast-forward")[1]
+  end
+
+  test "merge squashes a ready PR with its judged head pinned, deletes the remote branch, logs it, and reviews then reports merged" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    move_to_review(a)
+    seed_base
+    add_open_pr(a, number: 50)
+    system("git", "-C", @work, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "work", exception: true)
+    system("git", "-C", @work, "push", "-q", "origin", "HEAD:refs/heads/epic/demo/#{a}-item", exception: true)
+    result, code = wb("merge", a.to_s, "--epic", "demo", "--session", "release")
+    pr = fake_db["prs"].first
+
+    assert_equal 0, code, result.inspect
+    assert_equal({ "ok" => true, "number" => a, "pr" => 50, "method" => "squash", "state" => "MERGED", "merge_commit" => pr["mergeCommit"]["oid"],
+                   "branch" => "epic/demo/#{a}-item", "branch_deleted" => true }, result)
+    assert_equal "--squash", pr["method"]
+    assert_empty `git -C #{@work} ls-remote origin refs/heads/epic/demo/#{a}-item`.strip
+    note = wb("show", a.to_s, "--epic", "demo")[0]["notes"].last
+
+    assert_equal "merge-log", note["type"]
+    assert_match(/PR #50 merged into main \(squash, merge50/, note["body"])
+    assert_equal [ a ], wb("reviews", "--epic", "demo")[0]["merged"]
+    assert_equal "review", state_of(a)["stage"], "merging does not advance the item: the sweep does, after the Gates pass on main"
+  end
+
+  test "merge keeps the branch on request and refuses a head that moved since it was judged" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    move_to_review(a)
+    seed_base
+    add_open_pr(a, number: 50)
+    result, code = wb("merge", a.to_s, "--epic", "demo", "--session", "release", "--keep-branch")
+
+    assert_equal 0, code, result.inspect
+    refute result["branch_deleted"]
+  end
 end

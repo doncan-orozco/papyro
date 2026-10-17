@@ -15,6 +15,12 @@
 #   work_board.rb status --epic S
 #   work_board.rb next --epic S [--session ID] [--stage a,b]   # best claimable item, or why none
 #   work_board.rb reviews --epic S [--item N]               # items in stage review with their PR verdict: merged | open | closed_unmerged | no_pr
+#   work_board.rb mergeable --epic S [--item N]             # reviews + the merge policy on every open PR (CI vs main, audit receipt, conflicts,
+#                                                           # files behind main); verdict ready | ci_pending | ci_failed | behind | conflicts | draft |
+#                                                           # not_audited | unknown_mergeability. Also reports the checks failing on main itself.
+#   work_board.rb merge N --epic S --session ID [--method squash|merge|rebase] [--keep-branch]
+#       merges the item's PR only when `mergeable` says ready (head pinned with --match-head-commit), deletes the remote branch, logs a note.
+#       The only merge door; /work never calls it, /work-merge (run by a human) does (epic-flow R13).
 #   work_board.rb claim N --epic S --session ID [--lease 45]   # atomic; exit 1 when someone else holds it
 #   work_board.rb heartbeat N --epic S --session ID [--lease 45]
 #   work_board.rb release N --epic S --session ID [--force]   # --force: a human frees an abandoned claim of any session
@@ -27,7 +33,8 @@
 #   work_board.rb digest --epic S [--item N] [--format json|md]
 #   work_board.rb reap --epic S                            # free claims whose lease expired
 #
-# Env: WORK_GH (default `gh`), WORK_REMOTE (default `origin`), WORK_NOW (ISO time, tests), WORK_SESSION (else CLAUDE_CODE_SESSION_ID, else tmp/epic/session).
+# Env: WORK_GH (default `gh`), WORK_REMOTE (default `origin`), WORK_BASE (default `main`), WORK_NOW (ISO time, tests),
+# WORK_SESSION (else CLAUDE_CODE_SESSION_ID, else tmp/epic/session).
 # `next` never offers items in stage `review` unless --stage includes it: a review item waits for a human merge; `reviews` tells which
 # of them were merged, so a worker can verify the gates on main and advance them to done (which unblocks their dependents).
 # Output is always one JSON object on stdout (digest --format md prints markdown). Exit 0 ok, 1 negative answer
@@ -49,6 +56,7 @@ module WorkBoard
 
   STAGES = %w[plan test-plan build gates audit fix review done].freeze
   AUDIT_MIN = 8 # every scorecard dimension (epic-flow R10)
+  MERGE_METHODS = %w[squash merge rebase].freeze
   NOTE_TYPES = %w[shared lesson handoff blocker announce].freeze
   BLOCKING_LABELS = %w[blocked needs-human].freeze
   CLAIM_NS = "refs/claims"
@@ -59,6 +67,7 @@ module WorkBoard
   EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d6a5c65b3dd3d"
 
   def self.now = ENV["WORK_NOW"] ? Time.parse(ENV["WORK_NOW"]).utc : Time.now.utc
+  def self.base = ENV.fetch("WORK_BASE", "main")
 
   # ---- process helpers ----------------------------------------------------------------------------------------
   module Shell
@@ -96,7 +105,16 @@ module WorkBoard
       @title = raw["title"].to_s
       @closed = raw["state"].to_s.upcase == "CLOSED"
       @labels = Array(raw["labels"]).map { |l| l.is_a?(Hash) ? l["name"] : l.to_s }
-      @meta = (m = raw["body"].to_s[META, 1]) ? JSON.parse(m) : {}
+      @body = raw["body"].to_s
+      @meta = (m = @body[META, 1]) ? JSON.parse(m) : {}
+    end
+
+    # The Gate commands of the issue body (`## Gates` section, one `- \`cmd\`` per line): what the merge sweep runs on main.
+    def gates
+      section = @body.split(/^##\s+/).find { |s| s.start_with?("Gates") }
+      return [] unless section
+
+      section.lines.drop(1).filter_map { |l| l[/\A-\s+`([^`]+)`/, 1] || l[/\A-\s+(\S.*)/, 1]&.strip }
     end
 
     def root? = labels.include?("epic-root")
@@ -111,6 +129,53 @@ module WorkBoard
 
     def summary
       { number: number, title: title, stage: stage, wave: wave, owns: owns, blocked_by: blocked_by, labels: labels }
+    end
+  end
+
+  # Whether the PR of an item in review may be merged. A pure judgement on facts the Board fetched, so a script and not the
+  # agent's reading of a checks page decides (epic-flow R15). A check that fails on the PR AND on the base branch is
+  # pre-existing: it is reported, not held against the PR; the merge sweep re-runs the item's Gates on main anyway (R14).
+  module MergePolicy
+    FAILED = %w[FAILURE TIMED_OUT CANCELLED ACTION_REQUIRED STARTUP_FAILURE ERROR].freeze
+    PENDING = %w[PENDING EXPECTED QUEUED IN_PROGRESS WAITING REQUESTED].freeze
+
+    # pr: `gh pr view` JSON; base_checks: check runs on the base branch head; pr_files / base_files: paths changed by the PR /
+    # on the base since the merge base (only when behind_by > 0).
+    def self.judge(pr:, audited:, base_checks:, behind_by:, pr_files:, base_files:)
+      checks = classify(pr["statusCheckRollup"], base_checks)
+      overlap = behind_by.positive? ? (pr_files & base_files) : []
+      verdict = if pr["isDraft"] then "draft"
+      elsif !audited then "not_audited"
+      elsif pr["mergeable"] == "CONFLICTING" then "conflicts"
+      elsif pr["mergeable"] != "MERGEABLE" then "unknown_mergeability"
+      elsif checks[:pending].any? then "ci_pending"
+      elsif checks[:failing].any? then "ci_failed"
+      elsif overlap.any? then "behind"
+      else "ready"
+      end
+      { verdict: verdict, checks: checks, behind_by: behind_by, overlap: overlap }
+    end
+
+    # `statusCheckRollup` mixes CheckRun (status/conclusion/name/detailsUrl) and StatusContext (state/context/targetUrl) shapes.
+    def self.classify(rollup, base_checks)
+      base = Array(base_checks).to_h { |c| [ c["name"], c["conclusion"].to_s.upcase ] }
+      result = { passing: [], failing: [], preexisting: [], pending: [] }
+      Array(rollup).each do |c|
+        name = c["name"] || c["context"]
+        status = (c["status"] || "COMPLETED").to_s.upcase
+        conclusion = (c["conclusion"] || c["state"]).to_s.upcase
+        entry = { name: name, conclusion: conclusion, url: c["detailsUrl"] || c["targetUrl"] }
+        if status != "COMPLETED" || PENDING.include?(conclusion) then result[:pending] << entry
+        elsif FAILED.include?(conclusion) then (FAILED.include?(base[name]) ? result[:preexisting] : result[:failing]) << entry
+        else result[:passing] << entry
+        end
+      end
+      result
+    end
+
+    def self.failing(base_checks)
+      Array(base_checks).select { |c| FAILED.include?(c["conclusion"].to_s.upcase) }
+                        .map { |c| { name: c["name"], conclusion: c["conclusion"].to_s.upcase, url: c["html_url"] || c["detailsUrl"] } }
     end
   end
 
@@ -244,6 +309,32 @@ module WorkBoard
       gh_json("pr", "list", "--state", "all", "--limit", "200", "--json", "number,state,headRefName,mergedAt,url")
     end
 
+    # -- merge policy facts ------------------------------------------------------------------------------------
+    def pull_request(number)
+      gh_json("pr", "view", number.to_s, "--json", "number,url,state,isDraft,mergeable,mergeStateStatus,headRefOid,headRefName,baseRefName,statusCheckRollup,mergeCommit")
+    end
+
+    # GitHub's three-dot compare: files are the changes on `head` since the merge base; base_commit is the tip of `base`.
+    def compare(base, head) = gh_json("api", "repos/{owner}/{repo}/compare/#{base}...#{head}")
+
+    def base_check_runs
+      gh_json("api", "repos/{owner}/{repo}/commits/#{WorkBoard.base}/check-runs?per_page=100").fetch("check_runs", [])
+    end
+
+    # `advance --stage review` only succeeds with a passing audit receipt and logs it; an item labelled review by hand has no such note.
+    def audited?(number)
+      comments(number).any? { |c| c[:note] && c[:type] == "stage-log" && c[:body].match?(/-> review: audit min=\d+ verdict=PASS/) }
+    end
+
+    def merge_pull_request(number, method:, head:)
+      gh("pr", "merge", number.to_s, "--#{method}", "--match-head-commit", head)
+    end
+
+    def delete_remote_branch(name)
+      ok, = git("push", "-q", WorkBoard.remote, "--delete", name, ok: true)
+      ok
+    end
+
     # -- claims (git refs) -----------------------------------------------------------------------------------
     def claims
       # A failed fetch must raise: swallowing it would read as "nobody holds anything".
@@ -370,6 +461,8 @@ module WorkBoard
       when "status" then status
       when "next" then next_item
       when "reviews" then reviews
+      when "mergeable" then mergeable
+      when "merge" then merge
       when "claim" then claim
       when "heartbeat" then heartbeat
       when "release" then release
@@ -386,7 +479,7 @@ module WorkBoard
       out({ error: e.message }, 2)
     end
 
-    def usage = out({ error: "usage: work_board.rb <session|epic create|item create|validate|status|next|claim|heartbeat|release|advance|block|unblock|comment|digest|reap> ..." }, 2)
+    def usage = out({ error: "usage: work_board.rb <session|epic create|item create|validate|status|next|reviews|mergeable|merge|claim|heartbeat|release|advance|block|unblock|comment|digest|reap> ..." }, 2)
 
     def need(opts, *keys)
       missing = keys.reject { |k| opts[k] }
@@ -506,7 +599,7 @@ module WorkBoard
       raw = b.gh_json("issue", "view", item.number.to_s, "--json", "body,comments")
       notes = b.comments(item.number).select { |c| c[:note] }.map { |c| c.slice(:type, :session, :at, :body) }
       claim = b.claims[item.number]
-      out(item.summary.merge(body: raw["body"].to_s.sub(META, "").strip, notes: notes, holder: claim && !claim[:expired] ? claim[:session] : nil))
+      out(item.summary.merge(gates: item.gates, body: raw["body"].to_s.sub(META, "").strip, notes: notes, holder: claim && !claim[:expired] ? claim[:session] : nil))
     end
 
     def status
@@ -557,10 +650,15 @@ module WorkBoard
       opts, = parse("--epic" => :v, "--item" => :v)
       need(opts, :epic)
       b = board(opts)
+      rows = review_rows(b, opts[:item])
+      out({ epic: opts[:epic], reviews: rows, merged: rows.select { |r| r[:verdict] == "merged" }.map { |r| r[:number] } })
+    end
+
+    def review_rows(b, only = nil)
       claims = b.claims
-      pool = opts[:item] ? [ b.item(opts[:item].to_i) ] : b.items.select { |i| i.stage == "review" && !i.done? }
+      pool = only ? [ b.item(only.to_i) ] : b.items.select { |i| i.stage == "review" && !i.done? }
       prs = pool.empty? ? [] : b.pull_requests
-      rows = pool.map do |i|
+      pool.map do |i|
         pr = b.pull_request_for(i.number, prs)
         verdict = if pr.nil? then "no_pr"
         elsif pr["state"] == "MERGED" then "merged"
@@ -568,10 +666,63 @@ module WorkBoard
         else "closed_unmerged"
         end
         holder = claims[i.number]
-        { number: i.number, title: i.title, stage: i.stage, verdict: verdict, pr: pr && { number: pr["number"], state: pr["state"], url: pr["url"] },
-          holder: holder && !holder[:expired] ? holder[:session] : nil }
+        { number: i.number, title: i.title, stage: i.stage, wave: i.wave, verdict: verdict, gates: i.gates,
+          pr: pr && { number: pr["number"], state: pr["state"], url: pr["url"] }, holder: holder && !holder[:expired] ? holder[:session] : nil }
       end
-      out({ epic: opts[:epic], reviews: rows, merged: rows.select { |r| r[:verdict] == "merged" }.map { |r| r[:number] } })
+    end
+
+    # `reviews` plus the merge policy on every open PR. Cheap calls only for the base branch (one check-runs read); per open PR
+    # one `pr view`, one compare, and a second compare only when the PR is behind the base.
+    def mergeable
+      opts, = parse("--epic" => :v, "--item" => :v)
+      need(opts, :epic)
+      b = board(opts)
+      rows, base = judge_rows(b, opts[:item])
+      out({ epic: opts[:epic], base: base, items: rows, ready: rows.select { |r| r[:verdict] == "ready" }.map { |r| r[:number] } })
+    end
+
+    def judge_rows(b, only = nil)
+      rows = review_rows(b, only)
+      base_checks = b.base_check_runs
+      base_sha = base_checks.first&.dig("head_sha")
+      rows.each do |row|
+        next unless row[:verdict] == "open"
+
+        pr = b.pull_request(row[:pr][:number])
+        cmp = b.compare(pr["baseRefName"] || WorkBoard.base, pr["headRefOid"])
+        base_sha ||= cmp.dig("base_commit", "sha")
+        behind = cmp.fetch("behind_by", 0).to_i
+        pr_files = Array(cmp["files"]).map { |f| f["filename"] }
+        base_files = behind.positive? ? Array(b.compare(cmp.dig("merge_base_commit", "sha"), pr["baseRefName"] || WorkBoard.base)["files"]).map { |f| f["filename"] } : []
+        row[:audited] = b.audited?(row[:number])
+        row[:pr].merge!(head: pr["headRefOid"], branch: pr["headRefName"], base: pr["baseRefName"], draft: pr["isDraft"], mergeable: pr["mergeable"], merge_state: pr["mergeStateStatus"])
+        row.merge!(MergePolicy.judge(pr: pr, audited: row[:audited], base_checks: base_checks, behind_by: behind, pr_files: pr_files, base_files: base_files))
+      end
+      base = { branch: WorkBoard.base, sha: base_sha, failing: MergePolicy.failing(base_checks),
+               checks: base_checks.map { |c| { name: c["name"], status: c["status"], conclusion: c["conclusion"], url: c["html_url"] } } }
+      [ rows, base ]
+    end
+
+    # The one place a PR of the board is merged. Re-judges right before merging and pins the head it judged.
+    def merge
+      opts, rest = parse("--epic" => :v, "--session" => :v, "--method" => :v, "--keep-branch" => :flag)
+      need(opts, :epic, :session)
+      method = opts[:method] || "squash"
+      out({ error: "method must be one of #{MERGE_METHODS.join(', ')}" }, 2) unless MERGE_METHODS.include?(method)
+      b = board(opts)
+      number = rest.first.to_i
+      row, = judge_rows(b, number)
+      row = row.first
+      out({ ok: false, reason: "held", holder: row[:holder], item: row }, 1) if row[:holder]
+      out({ ok: false, reason: row[:verdict], item: row }, 1) unless row[:verdict] == "ready"
+
+      b.merge_pull_request(row[:pr][:number], method: method, head: row[:pr][:head])
+      merged = b.pull_request(row[:pr][:number])
+      sha = merged.dig("mergeCommit", "oid")
+      branch_deleted = opts[:keep_branch] ? false : b.delete_remote_branch(row[:pr][:branch])
+      b.post_note(number, type: "merge-log", session: opts[:session], stage: row[:stage],
+                  text: "PR ##{row[:pr][:number]} merged into #{WorkBoard.base} (#{method}#{sha ? ", #{sha[0, 10]}" : ''}); the merge sweep verifies the Gates on #{WorkBoard.base} and advances to done")
+      out({ ok: true, number: number, pr: row[:pr][:number], method: method, state: merged["state"], merge_commit: sha, branch: row[:pr][:branch], branch_deleted: branch_deleted })
     end
 
     def claim
