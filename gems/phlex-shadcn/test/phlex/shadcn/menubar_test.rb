@@ -122,8 +122,16 @@ class Phlex::Shadcn::MenubarTest < Phlex::Shadcn::TestCase
     assert_equal "/x", trigger["href"]
   end
 
-  test "constants expose the default class tables and accepted directions" do
-    assert_equal %w[ltr rtl], Menubar::DIRECTIONS
+  test "dir resolves from the direction provider and a local dir wins" do
+    provider = Phlex::Shadcn::Direction::Provider
+    provided = render_view { render(provider.new(dir: "rtl")) { render(Menubar.new) { "x" } } }
+    local = render_view { render(provider.new(dir: "rtl")) { render(Menubar.new(dir: "ltr")) { "x" } } }
+
+    assert_equal "rtl", fragment(provided).at_css("[data-slot=menubar]")["data-shadcn--menubar-dir-value"]
+    assert_equal "ltr", fragment(local).at_css("[data-slot=menubar]")["data-shadcn--menubar-dir-value"]
+  end
+
+  test "constants expose the default class tables" do
     assert_includes Menubar::CLASSES, "h-9"
     assert_includes Menubar::Trigger::CLASSES, "data-[state=open]:bg-accent"
     assert_includes Menubar::Content::CLASSES, "min-w-[12rem]"

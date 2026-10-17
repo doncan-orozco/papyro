@@ -4,8 +4,8 @@ using Phlex::Shadcn::Values::Refinements
 
 # The popup: a +div role="listbox"+ inside an inert +template+ (with the viewport, the scroll buttons and a +data-options+ JSON
 # for the controller; the controller clones it into +body+ when opening and creates the positioning wrapper). Radix mounts it only
-# while open, hence the inert template. Renders only the block during the root's collect pass. +as_child:+ is not offered and is
-# rendered as a literal HTML attribute. The +side+, +align+ and collision options are
+# while open, hence the inert template. Renders only the block during the root's collect pass. +as_child:+ is not supported (Radix SelectContent has none).
+# The +side+, +align+ and collision options are
 # only applied by the controller in the +"popper"+ position.
 #
 # @example

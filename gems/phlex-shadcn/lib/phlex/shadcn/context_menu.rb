@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# shadcn ContextMenu (Radix ContextMenu over the Menu code shared with DropdownMenu). Spec: docs/shadcn-port/specs/context-menu.md.
+# shadcn ContextMenu (Radix ContextMenu over the Menu code shared with DropdownMenu). Spec: port spec (dev kit).
 # Behavior lives in controllers/shadcn/context_menu_controller.js (hosted by the {Trigger}).
 #
 # The root renders no element: it pushes its state into the Phlex render context for the parts inside. Only {Trigger},

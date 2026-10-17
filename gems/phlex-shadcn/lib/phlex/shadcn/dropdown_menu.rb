@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# shadcn DropdownMenu (Radix DropdownMenu + Menu). Spec: docs/shadcn-port/specs/dropdown-menu.md.
+# shadcn DropdownMenu (Radix DropdownMenu + Menu). Spec: port spec (dev kit).
 # Behavior lives in controllers/shadcn/dropdown_menu_controller.js (hosted by the Trigger).
 #
 # Root, Sub and Portal render no element: they push their state into the Phlex render context for the parts inside.
@@ -135,6 +135,7 @@ class Phlex::Shadcn::DropdownMenu < Phlex::Shadcn::Base
   SEQUENCE_KEY = :shadcn_dropdown_menu_sequence
   # Accepted values of +dir:+.
   #
+  # @api private
   # @return [Array<String>]
   DIRECTIONS = %w[ltr rtl].freeze
 

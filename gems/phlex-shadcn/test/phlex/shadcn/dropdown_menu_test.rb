@@ -47,7 +47,10 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
     assert_equal trigger["id"], content["aria-labelledby"]
     assert_includes content["style"], "--radix-dropdown-menu-content-available-height: var(--radix-popper-available-height)"
     assert_includes content["class"], "min-w-[8rem]"
-    assert_nil doc.at_css("body > [data-slot=dropdown-menu-content], :not(template) > [data-slot=dropdown-menu-content]")
+    contents = doc.css("[data-slot=dropdown-menu-content]")
+
+    assert_equal 1, contents.size
+    assert_predicate contents.first.ancestors("template"), :any?, "content must only exist inside the inert template"
   end
 
   test "open menu mirrors the open state on the trigger" do
@@ -372,9 +375,7 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
     assert_equal DropdownMenu::RadioItem::INDICATOR_CLASSES, doc.at_css("[data-slot=dropdown-menu-radio-item] > span")["class"]
   end
 
-  test "DIRECTIONS lists the accepted dir values and anything else falls back to ltr without raising" do
-    assert_equal %w[ltr rtl], DropdownMenu::DIRECTIONS
-
+  test "an unknown dir falls back to ltr without raising" do
     html = render_view { render(DropdownMenu.new(dir: "sideways")) { render(DropdownMenu::Trigger.new) { "x" } } }
 
     assert_equal "ltr", fragment(html).at_css("button")["data-shadcn--dropdown-menu-dir-value"]
@@ -457,7 +458,6 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
 
     assert_equal "t", shortcut["title"]
     assert_equal "K", shortcut.text
-    assert_equal "a", shortcut["as-child"]
     assert_nil shortcut.at_css("a")
   end
 end

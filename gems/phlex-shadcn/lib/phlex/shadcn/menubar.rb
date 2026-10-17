@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn Menubar over Radix Menubar + Menu: a horizontal bar of menus, each opened from a {Trigger}.
-# Spec: docs/shadcn-port/specs/menubar.md. Behavior lives in controllers/shadcn/menubar_controller.js (hosted by the
+# Spec: port spec (dev kit). Behavior lives in controllers/shadcn/menubar_controller.js (hosted by the
 # root, one controller for every menu and sub).
 #
 # Menu, Sub and Portal render no element: they push their state into the Phlex render context for the parts inside.
@@ -24,6 +24,8 @@
 #   | select           | the chosen item (cancelable)     | none                                                |
 #   | checked-change   | the {CheckboxItem}               | +checked+: the new state                            |
 #   | value-change     | the chosen {RadioItem}           | +value+: the item's value                           |
+#
+# +select+ is cancelable; +checked-change+ and the radio +value-change+ are not.
 #
 # The cancelable events the primitives raise are re-emitted too, on the content element (the Content, or the SubContent
 # for sub menus): +escape-key-down+, +pointer-down-outside+, +focus-outside+ and +interact-outside+ (each with
@@ -118,6 +120,7 @@ class Phlex::Shadcn::Menubar < Phlex::Shadcn::Base
   # @api private
   # @return [Symbol] render-context key of the per render id counter
   SEQUENCE_KEY = :shadcn_menubar_sequence
+  # @api private
   # @return [Array<String>] the accepted +dir:+ values; anything else is ignored (the Direction provider, else +ltr+, applies)
   DIRECTIONS = %w[ltr rtl].freeze
   # @return [String] default Tailwind classes of the bar; the +class:+ you pass is merged on top (conflicts resolve to yours)

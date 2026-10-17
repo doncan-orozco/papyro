@@ -2,8 +2,8 @@
 
 # Radix DropdownMenuTrigger: a +button+ that hosts the +shadcn--dropdown-menu+ controller for the root menu and all its
 # subs. It carries the open/controlled/modal/dir values for the controller and +aria-haspopup+, +aria-expanded+ and
-# +aria-controls+ (only while open). It opens on primary-button pointerdown (no ctrl) and on Enter, Space or ArrowDown,
-# and ignores all of them when +disabled+.
+# +aria-controls+ (only while open). A primary-button pointerdown (no ctrl), Enter or Space
+# toggles the menu; ArrowDown only opens it. All of them are ignored when +disabled+.
 #
 # @example
 #   menu.trigger(class: "w-full") { "Open" }

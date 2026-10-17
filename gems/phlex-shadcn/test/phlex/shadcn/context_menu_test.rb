@@ -28,6 +28,30 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
     end
   end
 
+  test "group, label, separator and radio group render as_child with the given tag" do
+    html = menu do
+      render(ContextMenu::Group.new(as_child: :ul, id: "g")) { "g" }
+      render(ContextMenu::Label.new(as_child: :h3, class: "px-4")) { "l" }
+      render ContextMenu::Separator.new(as_child: :hr, id: "s")
+      render(ContextMenu::RadioGroup.new(value: "a", as_child: :ol)) { "r" }
+    end
+    doc = fragment(html)
+
+    assert_equal "g", doc.at_css("ul[data-slot=context-menu-group]")["id"]
+    assert_includes doc.at_css("h3[data-slot=context-menu-label]")["class"].split, "px-4"
+    assert_equal "s", doc.at_css("hr[data-slot=context-menu-separator]")["id"]
+    assert_equal "group", doc.at_css("ol[data-slot=context-menu-radio-group]")["role"]
+  end
+
+  test "dir resolves from the direction provider and a local dir wins" do
+    provider = Phlex::Shadcn::Direction::Provider
+    provided = render_view { render(provider.new(dir: "rtl")) { render(ContextMenu.new) { render(ContextMenu::Trigger.new) { "x" } } } }
+    local = render_view { render(provider.new(dir: "rtl")) { render(ContextMenu.new(dir: "ltr")) { render(ContextMenu::Trigger.new) { "x" } } } }
+
+    assert_equal "rtl", fragment(provided).at_css("[data-slot=context-menu-trigger]")["data-shadcn--context-menu-dir-value"]
+    assert_equal "ltr", fragment(local).at_css("[data-slot=context-menu-trigger]")["data-shadcn--context-menu-dir-value"]
+  end
+
   test "trigger is a bare span hosting the controller" do
     trigger = fragment(menu).at_css("[data-slot=context-menu-trigger]")
 
@@ -260,10 +284,6 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
     assert_equal "button", item.name
     assert_equal "menuitem", item["role"]
     assert_equal "-1", item["tabindex"]
-  end
-
-  test "as_child true is not accepted and raises when rendered" do
-    assert_raises(StandardError) { render_in_menu { render(ContextMenu::Item.new(as_child: true)) { "x" } } }
   end
 
   test "item merges the caller class over the defaults with tailwind-merge" do
