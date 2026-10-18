@@ -11,10 +11,10 @@ module Smoke
   # Clean-app smoke (ruby-gem-conventions R10, R14): `rails new`, then the README's Rails quick start replayed verbatim (Gemfile
   # lines, `bundle install`, `bin/rails g phlex:shadcn:install`, `bin/rails tailwindcss:build`, the Views::Demo::Index view and its
   # controller), a running server answering with the Button and the Dialog, the built CSS carrying the gem's classes, and one browser
-  # scenario (docs/shadcn-port/scenarios/dialog.json `open__via-trigger-click`, then Escape) driven by Playwright.
+  # scenario (dev/port/scenarios/dialog.json `open__via-trigger-click`, then Escape) driven by Playwright.
   #
   # Needs network (rails new, bundle install), a `rails` executable (SMOKE_RAILS) and node with Playwright (PHLEX_SHADCN_PLAYWRIGHT,
-  # or the monorepo's react-shadcn-catalog/node_modules). Never run by `rake test`.
+  # or the dev kit's dev/react-shadcn-catalog/node_modules). Never run by `rake test`.
   class CleanApp
     RAILS_NEW_OPTIONS = %w[
       --css tailwind --javascript importmap --skip-git --skip-docker --skip-kamal --skip-ci --skip-solid --skip-active-record

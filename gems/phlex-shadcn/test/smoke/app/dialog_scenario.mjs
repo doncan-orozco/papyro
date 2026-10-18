@@ -1,32 +1,46 @@
-// One browser parity scenario against the clean app, adapted from docs/shadcn-port/scenarios/dialog.json `open__via-trigger-click`:
+// One browser parity scenario against the clean app, adapted from dev/port/scenarios/dialog.json `open__via-trigger-click`:
 // the same step (click the trigger by role) on the README's Dialog (trigger "Edit profile"), asserted by behavior (Radix DOM, focus
 // moves in), then Escape closes it and focus returns to the trigger. The oracle compare stays in the dev kit's parity gates.
 // Usage: node test/smoke/app/dialog_scenario.mjs http://127.0.0.1:PORT/demo
-// Playwright comes from PHLEX_SHADCN_PLAYWRIGHT (a directory with node_modules/playwright), else the monorepo dev kit
-// (react-shadcn-catalog/node_modules of this checkout or of the main checkout), else a plain `playwright` require.
+// Playwright comes from PHLEX_SHADCN_PLAYWRIGHT (a directory with node_modules/playwright), else the gem's dev kit
+// (dev/react-shadcn-catalog/node_modules of this checkout, or of the main checkout: worktrees carry no node_modules).
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 
 const GEM_ROOT = path.resolve(import.meta.dirname, "../../..");
+const CATALOG = path.join("dev", "react-shadcn-catalog");
 const url = process.argv[2];
 if (!url) { console.error("usage: dialog_scenario.mjs URL"); process.exit(2); }
 
+function git(...args) {
+  return execFileSync("git", ["-C", GEM_ROOT, ...args], { encoding: "utf8" }).trim();
+}
+
+// The same gem directory inside the main checkout, when this one is a git worktree.
+function mainCheckoutGemRoot() {
+  try {
+    const mainRoot = path.dirname(path.resolve(GEM_ROOT, git("rev-parse", "--git-common-dir")));
+    return path.join(mainRoot, path.relative(git("rev-parse", "--show-toplevel"), GEM_ROOT));
+  } catch {
+    return null; // not a git checkout
+  }
+}
+
 function loadPlaywright() {
-  const roots = [];
-  if (process.env.PHLEX_SHADCN_PLAYWRIGHT) roots.push([process.env.PHLEX_SHADCN_PLAYWRIGHT, "package.json"]);
-  for (const root of [process.env.PHLEX_SHADCN_DEV_ROOT, path.resolve(GEM_ROOT, "../..")]) {
-    if (root) roots.push([path.join(root, "react-shadcn-catalog"), "package.json"]);
+  const dirs = [process.env.PHLEX_SHADCN_PLAYWRIGHT];
+  for (const gemRoot of [GEM_ROOT, mainCheckoutGemRoot()]) {
+    if (gemRoot) dirs.push(path.join(gemRoot, CATALOG));
+  }
+  for (const dir of dirs.filter(Boolean)) {
+    if (fs.existsSync(path.join(dir, "node_modules/playwright"))) return createRequire(path.join(dir, "package.json"))("playwright");
   }
   try {
-    const common = execFileSync("git", ["-C", GEM_ROOT, "rev-parse", "--git-common-dir"], { encoding: "utf8" }).trim();
-    roots.push([path.join(path.dirname(path.resolve(GEM_ROOT, common)), "react-shadcn-catalog"), "package.json"]);
-  } catch { /* not a git checkout */ }
-  for (const [dir, manifest] of roots) {
-    if (fs.existsSync(path.join(dir, "node_modules/playwright"))) return createRequire(path.join(dir, manifest))("playwright");
+    return createRequire(import.meta.url)("playwright");
+  } catch {
+    throw new Error(`playwright not found; set PHLEX_SHADCN_PLAYWRIGHT or run npm install in ${path.join(GEM_ROOT, CATALOG)}`);
   }
-  return createRequire(import.meta.url)("playwright");
 }
 
 // Rails' `stylesheet_link_tag :app` links every file under app/assets/builds, including the stub tailwindcss-rails writes to
