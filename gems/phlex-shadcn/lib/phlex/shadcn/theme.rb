@@ -13,7 +13,8 @@ module Phlex
     # between `theme:colors:start/end` markers and holds a plain shadcn theme (`:root {}` + `.dark {}`),
     # so anything copied from ui.shadcn.com/themes pastes in unchanged.
     module Theme
-      # Raised for an unusable theme: unknown preset, missing markers, a palette with errors, no `:root`/`.dark` block.
+      # Raised for an unusable theme: unknown preset, missing markers, a palette with errors, no `:root`/`.dark` block, or no theme
+      # directory configured.
       class Error < StandardError; end
 
       # Marker that opens the colors section of theme.css (rewritten by {.use} and {.import}).
@@ -69,16 +70,19 @@ module Phlex
       # Path of the theme file the tasks edit.
       #
       # @return [String] `<dir>/theme.css`
+      # @raise [Phlex::Shadcn::Theme::Error] when no theme directory is configured
       def theme_file = File.join(dir, "theme.css")
 
       # Directory of the preset palettes.
       #
       # @return [String] `<dir>/presets`
+      # @raise [Phlex::Shadcn::Theme::Error] when no theme directory is configured
       def presets_dir = File.join(dir, "presets")
 
       # Names of the available presets (`neutral`, `slate`...), from the `.css` files in {.presets_dir}.
       #
       # @return [Array<String>] sorted names, without the extension
+      # @raise [Phlex::Shadcn::Theme::Error] when no theme directory is configured
       def presets
         Dir[File.join(presets_dir, "*.css")].map { |f| File.basename(f, ".css") }.sort
       end
@@ -299,7 +303,8 @@ module Phlex
       #
       # @param strict [Boolean] when true a contrast below {MIN_CONTRAST} is an error instead of a warning
       # @return [Hash{Symbol => Array<String>}] `{ errors: [...], warnings: [...] }`
-      # @raise [Error] when no theme directory is configured
+      # @raise [Phlex::Shadcn::Theme::Error] when no theme directory is configured
+      # @raise [Errno::ENOENT] when theme.css does not exist
       def check(strict: false)
         validate(parse(File.read(theme_file)), strict: strict)
       end

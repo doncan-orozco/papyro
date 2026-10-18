@@ -47,8 +47,8 @@ point at another entry file):
 ```
 
 - `@source` points Tailwind at the gem's Ruby files: Tailwind 4 only generates the classes it finds in scanned files, so without this
-  line the components render unstyled. The path is relative to your entry file and is rewritten on every run (a `bundle update`
-  that moves the gem is a re-run of the generator).
+  line the components render unstyled. The path is relative to your entry file; the engine bundle carries its own self-relative
+  `@source`, so a moved gem keeps working. Re-run the generator to refresh this line.
 - `../builds/tailwind/phlex-shadcn` is the engine bundle `tailwindcss-rails` builds from the gem's `engine.css` (Tailwind variant
   plugins, the token mapping from theme variables to utilities, the vendored animations).
 - `theme/theme.css` and `theme/presets/` are copied into `app/assets/tailwind/theme/` (or `--theme-dir`) once and never
@@ -136,10 +136,44 @@ gem's Ruby files (relative to itself, so it follows the gem), the token mapping 
 Copy `app/assets/tailwind/phlex-shadcn/theme.css` (and `presets/`) out of the gem into your project; that copy is the file you edit.
 `ruby -e 'require "phlex/shadcn"; puts Phlex::Shadcn.root'` prints the gem root.
 
-Stimulus: the controllers are ES modules under `<gem root>/app/javascript/controllers/shadcn/<name>_controller.js`. They import
-`@hotwired/stimulus`, the shared primitives as `shadcn/primitives/<name>` (`<gem root>/app/javascript/shadcn/primitives/`) and, for the
-positioned overlays, `@floating-ui/dom` (vendored in `<gem root>/vendor/javascript/` or taken from npm). Map those specifiers in your
-import map or bundler and register each controller under its `shadcn--<name>` identifier:
+Stimulus: the controllers are ES modules under `<gem root>/app/javascript/controllers/shadcn/<name>_controller.js` and the shared
+primitives live under `<gem root>/app/javascript/shadcn/primitives/<name>.js`. They import each other by bare, extensionless
+specifiers: `controllers/shadcn/<name>_controller` (`alert_dialog_controller` and `sheet_controller` import the dialog controller,
+`context_menu_controller` imports the dropdown menu controller), `shadcn/primitives/<name>` (`typeahead` imports `collection`; `roving_focus` imports
+`direction`, `ids` and `collection`; `collapsible_content` imports `presence`), `@hotwired/stimulus` and, for the positioned overlays and menus, `@floating-ui/dom` (imported by `positioner`). The vendored copy in
+`<gem root>/vendor/javascript/@floating-ui--*.js` imports `@floating-ui/core`, `@floating-ui/utils` and `@floating-ui/utils/dom`
+in turn (or take `@floating-ui/dom` from npm). You have to resolve all of those specifiers yourself, in one of two ways.
+
+1. A browser import map with one entry per file. A prefix entry such as `"shadcn/"` does not work: the specifiers carry no `.js`, so
+   the browser would request a URL without an extension. For the Dialog the controller and the primitives it imports (it needs
+   no Floating UI) are:
+
+   ```html
+   <script type="importmap">
+   {
+     "imports": {
+       "@hotwired/stimulus": "/vendor/stimulus.js",
+       "controllers/shadcn/dialog_controller": "/shadcn/controllers/shadcn/dialog_controller.js",
+       "shadcn/primitives/dismissable_layer": "/shadcn/primitives/dismissable_layer.js",
+       "shadcn/primitives/focus_guards": "/shadcn/primitives/focus_guards.js",
+       "shadcn/primitives/focus_scope": "/shadcn/primitives/focus_scope.js",
+       "shadcn/primitives/hide_others": "/shadcn/primitives/hide_others.js",
+       "shadcn/primitives/presence": "/shadcn/primitives/presence.js",
+       "shadcn/primitives/scroll_lock": "/shadcn/primitives/scroll_lock.js",
+       "shadcn/primitives/template_mount": "/shadcn/primitives/template_mount.js"
+     }
+   }
+   </script>
+   ```
+
+   Serve the two gem directories at those URLs. For other controllers add one line per file in both directories (and the four
+   `@floating-ui--*.js` files for the positioned ones).
+
+2. A bundler alias: map `controllers/shadcn` to `<gem root>/app/javascript/controllers/shadcn` and `shadcn` to
+   `<gem root>/app/javascript/shadcn`, and install `@floating-ui/dom` from npm.
+
+Rails users need none of this: the gem's engine pins everything through importmap-rails (`config/importmap.rb`). Then register each
+controller under its `shadcn--<name>` identifier:
 
 ```js
 import { Application } from "@hotwired/stimulus"

@@ -36,10 +36,16 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
 
 ### Changed
 
+Relative to the in-app port (`Components::V2`):
+
 - Stimulus identifiers use the `shadcn--` prefix (`shadcn--dialog`, `data-shadcn--dialog-part`, ...); the controllers live under
   `app/javascript/controllers/shadcn/` and are pinned `under: "controllers/shadcn"`, the shared primitives are imported as
   `shadcn/primitives/<name>`.
 
 ### Removed
 
+Relative to the in-app port (`Components::V2`):
+
 - The `activesupport` runtime dependency: the core needs only `phlex`, `tailwind_merge` and `zeitwerk`.
+
+[Unreleased]: https://github.com/doncan-orozco/papyro/commits/main/gems/phlex-shadcn

@@ -7,15 +7,10 @@ using Phlex::Shadcn::Values::Refinements
 
 # Parent of every Phlex::Shadcn component and part. Provides attribute merging (`**attrs`, `class:` through tailwind-merge,
 # deep-merged `data:`/`aria:`), the Radix Slot merge behind `as_child:` and the generated yielded-root helpers
-# (`root.header { ... }`, one per nested part, see {.const_added}).
+# (`root.header { ... }`, one per nested part; the README and docs/api-conventions.md describe them).
 #
-# Subclass it to write your own part; everything else on this class is plumbing for the components and is `@api private`.
-#
-# @example A custom part that reuses the merging rules
-#   class Tag < Phlex::Shadcn::Base
-#     def initialize(**attrs) = (@attrs = attrs; super())
-#     def view_template(&) = span(**merge_attrs({ class: "rounded-md border px-2", data: { slot: "tag" } }, @attrs), &)
-#   end
+# Use its subclasses (the components) through their own API. Subclassing Base itself from application code is not a supported
+# API before 1.0: every method on this class is plumbing for the components and is `@api private`.
 class Phlex::Shadcn::Base < Phlex::HTML
   # @api private
   ELEMENT_METHODS = (Phlex::HTML::StandardElements.public_instance_methods +

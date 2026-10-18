@@ -9,7 +9,7 @@ The three menus share the same part set; the root and the trigger differ.
 | Root | Root kwargs | Trigger | Events |
 |---|---|---|---|
 | `DropdownMenu` | `open:`, `default_open:`, `modal:` (true), `dir:`; renders no element | `Trigger` (`as_child:`), opened by click or keyboard | `open-change`, `select`, `checked-change`, `value-change`, `open-auto-focus`, `close-auto-focus` |
-| `ContextMenu` | `open:`, `dir:`, `modal:`; renders no element | `Trigger` (`disabled:`, `as_child:`), opened by right click or long press at the pointer | `open-change` |
+| `ContextMenu` | `open:`, `dir:`, `modal:`; renders no element | `Trigger` (`disabled:`, `as_child:`), opened by right click or long press at the pointer | `open-change`, `select`, `checked-change`, `value-change`, `open-auto-focus`, `close-auto-focus` |
 | `Menubar` | `value:`, `default_value:`, `loop:` (true), `dir:`, `as_child:`, `**attrs` on the bar | `Menu` (`value:`) wraps one `Trigger` + `Content`; moving between triggers switches menus | `open-change`, `select`, `checked-change`, `value-change`, `open-auto-focus`, `close-auto-focus` |
 
 Shared parts (helpers on the yielded root, `menu.<helper>`): `Portal` (`force_mount:`, `container:`) `portal`, `Content` (`side:`,
