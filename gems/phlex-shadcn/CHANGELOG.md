@@ -31,8 +31,8 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   menus and select), with an example per root and the generated helpers listed on their owner class; implementation details are
   `@api private`.
 - README covering install, Rails and non-Rails setup, Tailwind `@source`, the theme file and presets, Stimulus registration,
-  `as_child` and the generated helpers, and upgrade notes; `.yardopts` publishing only the documented promise (`--hide-api private`)
-  and failing on warnings; one guide per family under `docs/` plus `docs/api-conventions.md`.
+  `as_child` and the generated helpers, and upgrade notes; `.yardopts` publishing only the documented promise (`--hide-api private`,
+  `--no-private`); one guide per family under `docs/` plus `docs/api-conventions.md`.
 
 ### Changed
 

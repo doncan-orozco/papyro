@@ -4,7 +4,6 @@
 --no-private
 --hide-api private
 --exclude lib/phlex/shadcn/icons/catalog.rb
---fail-on-warning
 lib/**/*.rb
 -
 CHANGELOG.md

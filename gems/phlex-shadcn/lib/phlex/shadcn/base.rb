@@ -1,14 +1,21 @@
 # frozen_string_literal: true
 
-# Parent of every Phlex::Shadcn part. Provides attribute merging, the Radix Slot merge used by `as_child:`
-# and the generated yielded-root DX helpers (`root.header { ... }`).
-#
-# Everything on this class except subclassing it is plumbing for the components and is marked `@api private`.
 require "date" # Phlex::SGML::Attributes references Date without requiring it
 require "securerandom"
 
 using Phlex::Shadcn::Values::Refinements
 
+# Parent of every Phlex::Shadcn component and part. Provides attribute merging (`**attrs`, `class:` through tailwind-merge,
+# deep-merged `data:`/`aria:`), the Radix Slot merge behind `as_child:` and the generated yielded-root helpers
+# (`root.header { ... }`, one per nested part, see {.const_added}).
+#
+# Subclass it to write your own part; everything else on this class is plumbing for the components and is `@api private`.
+#
+# @example A custom part that reuses the merging rules
+#   class Tag < Phlex::Shadcn::Base
+#     def initialize(**attrs) = (@attrs = attrs; super())
+#     def view_template(&) = span(**merge_attrs({ class: "rounded-md border px-2", data: { slot: "tag" } }, @attrs), &)
+#   end
 class Phlex::Shadcn::Base < Phlex::HTML
   # @api private
   ELEMENT_METHODS = (Phlex::HTML::StandardElements.public_instance_methods +
