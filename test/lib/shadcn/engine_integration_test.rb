@@ -17,4 +17,23 @@ class PhlexShadcnEngineIntegrationTest < ActiveSupport::TestCase
     assert_not_includes css, "./vendor/"
     assert_not_includes css, "./theme/tokens.css"
   end
+
+  test "importmap packages come from the engine pins" do
+    imports = JSON.parse(Rails.application.importmap.to_json(resolver: ActionController::Base.helpers))["imports"]
+
+    assert imports.key?("@floating-ui/dom")
+    assert imports.key?("controllers/shadcn/dialog_controller")
+    assert imports.key?("shadcn/primitives/portal")
+  end
+
+  test "the engine vendored floating-ui is served by the asset pipeline" do
+    assert_not_nil Rails.application.assets.load_path.find("@floating-ui--dom.js")
+  end
+
+  test "the engine javascript directory is on the asset paths exactly once" do
+    gem_js = Phlex::Shadcn::Engine.root.join("app/javascript").to_s
+    paths = Rails.application.config.assets.paths.map(&:to_s)
+
+    assert_equal 1, paths.count(gem_js)
+  end
 end
