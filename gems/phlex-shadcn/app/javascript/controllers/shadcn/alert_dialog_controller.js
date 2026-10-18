@@ -10,6 +10,7 @@ import DialogController from "controllers/shadcn/dialog_controller"
 export default class extends DialogController {
   // The listeners go first: super.connect() mounts an open alert and its auto focus fires while it runs.
   connect() {
+    this.abortAlert?.abort()
     this.abortAlert = new AbortController()
     const { signal } = this.abortAlert
     const own = (event) => event.target === this.element

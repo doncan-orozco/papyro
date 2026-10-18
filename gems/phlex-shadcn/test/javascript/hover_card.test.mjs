@@ -70,7 +70,7 @@ positioningTests(browserTest, {
 
 browserTest("hover-card: a controlled open value is reconciled when it changes", async ({ open: openPage }) => {
   const page = await openPage("controlled-open-false__stays-closed");
-  const set = (value) => page.evaluate(({ selector, value }) => document.querySelector(selector).setAttribute("data-shadcn--hover-card-open-value", value), { selector: trigger, value: String(value) });
+  const set = (value) => page.evaluate(({ selector, value }) => document.querySelector(selector).setAttribute("data-shadcn--hover-card-open-value", value), { selector: '[data-controller~="shadcn--hover-card"]', value: String(value) });
   assert.equal(await isOpen(page), false);
   await set(true);
   await page.waitForSelector(content);

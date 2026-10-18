@@ -12,46 +12,54 @@ const CASES = [
 const trigger = (c) => `[data-controller~="${c.controller}"] [data-shadcn--dialog-part=trigger], [data-controller~="${c.controller}"] [data-slot$=-trigger]`;
 
 // What Turbo's snapshot would contain one timer tick after the event (the controller restores a staying page after that).
-const snapshotAfterBeforeCache = (page, controller, content, overlay) => page.evaluate(async ({ controller, content, overlay }) => {
+const snapshotAfterBeforeCache = (page, c) => page.evaluate(async ({ controller, content, overlay }) => {
   document.dispatchEvent(new Event("turbo:before-cache"))
   await new Promise((resolve) => setTimeout(resolve))
   const host = document.querySelector(`[data-controller~="${controller}"]`)
   return {
     contents: document.querySelectorAll(content).length,
     overlays: document.querySelectorAll(overlay).length,
-    overflow: document.body.style.overflow,
+    scrollLocked: document.body.hasAttribute("data-scroll-locked"),
     pointerEvents: document.body.style.pointerEvents,
     hidden: document.querySelectorAll("[aria-hidden=true]").length,
     open: host.getAttribute(`data-${controller}-open-value`),
     expanded: [...host.querySelectorAll("[aria-expanded]")].map((el) => el.getAttribute("aria-expanded")),
     html: host.outerHTML
   }
-}, { controller, content, overlay })
+}, c)
+
+const hiddenCount = (page) => page.evaluate(() => document.querySelectorAll("[aria-hidden=true]").length)
+const scrollLocked = (page) => page.evaluate(() => document.body.hasAttribute("data-scroll-locked"))
 
 for (const c of CASES) {
   browserTest(`${c.component}: the Turbo snapshot has no overlay, scroll lock or aria-hidden and the dialog is closed`, async ({ open }) => {
     const page = await open(c.scenario, c.component)
+    const hiddenBefore = await hiddenCount(page)
     await page.locator(trigger(c)).first().click()
     await page.waitForSelector(c.content)
     await settle(page)
-    assert.ok(await page.evaluate(() => document.body.style.overflow === "hidden" || document.body.hasAttribute("data-scroll-locked") || document.body.style.pointerEvents === "none"), "precondition: the modal locked the page")
+    assert.equal(await scrollLocked(page), true, "precondition: body is scroll locked")
+    assert.equal(await page.evaluate(() => document.body.style.pointerEvents), "none", "precondition: outside pointer events are disabled")
+    assert.ok((await hiddenCount(page)) > hiddenBefore, "precondition: siblings are aria-hidden")
 
-    const snapshot = await snapshotAfterBeforeCache(page, c.controller, c.content, c.overlay)
+    const snapshot = await snapshotAfterBeforeCache(page, c)
 
     assert.equal(snapshot.contents, 0)
     assert.equal(snapshot.overlays, 0)
-    assert.notEqual(snapshot.overflow, "hidden")
+    assert.equal(snapshot.scrollLocked, false)
     assert.notEqual(snapshot.pointerEvents, "none")
-    assert.equal(snapshot.hidden, 0)
+    assert.equal(snapshot.hidden, hiddenBefore)
     assert.notEqual(snapshot.open, "true")
+    assert.ok(snapshot.expanded.length > 0)
     assert.ok(snapshot.expanded.every((value) => value === "false"))
   })
 
-  browserTest(`${c.component}: the restored snapshot has at most one overlay and can be opened again`, async ({ open }) => {
+  browserTest(`${c.component}: the restored snapshot has no overlay and can be opened again`, async ({ open }) => {
     const page = await open(c.scenario, c.component)
     await page.locator(trigger(c)).first().click()
     await page.waitForSelector(c.content)
-    const { html } = await snapshotAfterBeforeCache(page, c.controller, c.content, c.overlay)
+    await settle(page)
+    const { html } = await snapshotAfterBeforeCache(page, c)
     // Restore: the snapshot's host replaces the live one (which disconnects), so a new controller connects to it.
     await page.evaluate(({ controller, html }) => {
       const host = document.querySelector(`[data-controller~="${controller}"]`)
@@ -60,23 +68,45 @@ for (const c of CASES) {
     }, { controller: c.controller, html })
     await settle(page)
     assert.equal(await page.locator(c.content).count(), 0)
-    assert.ok((await page.locator(c.overlay).count()) <= 1)
+    assert.equal(await page.locator(c.overlay).count(), 0)
     await page.locator(trigger(c)).first().click()
     await page.waitForSelector(c.content)
     assert.equal(await page.locator(c.content).count(), 1)
     assert.equal(await page.locator(c.overlay).count(), 1)
   })
 
-  browserTest(`${c.component}: a visit that keeps the page (link to #hash) leaves the dialog open`, async ({ open }) => {
+  browserTest(`${c.component}: before-cache without a navigation (Turbo keeps the page, e.g. a #hash link) re-opens the dialog after the snapshot`, async ({ open }) => {
     const page = await open(c.scenario, c.component)
     await page.locator(trigger(c)).first().click()
     await page.waitForSelector(c.content)
-    await snapshotAfterBeforeCache(page, c.controller, c.content, c.overlay)
+    await snapshotAfterBeforeCache(page, c)
     await page.waitForSelector(c.content)
     await settle(page)
     assert.equal(await page.locator(c.content).count(), 1)
     assert.equal(await page.locator(c.overlay).count(), 1)
+    assert.equal(await scrollLocked(page), true)
     assert.equal(await page.locator(trigger(c)).first().getAttribute("aria-expanded"), "true")
+  })
+
+  browserTest(`${c.component}: a reconnect inside the restore window does not re-open the dialog`, async ({ open }) => {
+    const page = await open(c.scenario, c.component)
+    await page.locator(trigger(c)).first().click()
+    await page.waitForSelector(c.content)
+    await settle(page)
+    await page.evaluate(async (controller) => {
+      const host = document.querySelector(`[data-controller~="${controller}"]`)
+      const parent = host.parentNode
+      const next = host.nextSibling
+      document.dispatchEvent(new Event("turbo:before-cache"))
+      host.remove()
+      await new Promise((resolve) => setTimeout(resolve)) // Stimulus disconnects on the mutation observer microtask
+      parent.insertBefore(host, next)
+      for (let tick = 0; tick < 3; tick++) await new Promise((resolve) => setTimeout(resolve))
+    }, c.controller)
+    await settle(page)
+    assert.equal(await page.locator(c.content).count(), 0)
+    assert.equal(await page.locator(c.overlay).count(), 0)
+    assert.equal(await scrollLocked(page), false)
   })
 }
 

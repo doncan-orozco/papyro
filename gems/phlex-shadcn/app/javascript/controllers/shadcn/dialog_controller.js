@@ -27,6 +27,8 @@ export default class extends Controller {
     this.hasInteractedOutside = false
     this.hasPointerDownOutside = false
     this.caching = false
+    this.restoreTimer = null
+    this.restorePending = false
     this.abortCache = new AbortController()
     document.addEventListener("turbo:before-cache", () => this.#resetForCache(), { signal: this.abortCache.signal })
     this.#syncTriggers()
@@ -38,6 +40,7 @@ export default class extends Controller {
   disconnect() {
     this.disconnected = true
     this.abortCache?.abort()
+    this.#cancelRestore()
     this.#cancelPending()
     ;[...this.parts].forEach((part) => this.#unmount(part))
   }
@@ -47,11 +50,13 @@ export default class extends Controller {
   // Unmounts at once (no exit animation, no focus return) and closes an uncontrolled dialog; a controlled one keeps the
   // value the server rendered and mounts again from it on connect.
   //
-  // Turbo takes the snapshot one timer tick after this event, and also takes it for visits that keep the page (a link to
-  // #hash). So an open dialog is opened again once the snapshot is taken, if this controller is still connected: a real
-  // navigation replaces the page later and disconnects it.
+  // Turbo takes the snapshot one timer tick after this event (PageView#cacheSnapshot -> nextEventLoopTick, hence the two
+  // ticks below), and also takes it for visits that keep the page (a link to #hash). So an open dialog is opened again
+  // once the snapshot is taken, if this controller is still connected: a real navigation replaces the page later and
+  // disconnects it, which cancels the pending restore.
   #resetForCache() {
-    const wasOpen = this.openValue
+    const wasOpen = this.openValue || this.restorePending // a second before-cache inside the window carries the pending restore forward
+    this.#cancelRestore()
     this.caching = true
     this.#cancelPending()
     ;[...this.parts].forEach((part) => this.#unmount(part))
@@ -60,13 +65,24 @@ export default class extends Controller {
     this.shown = false
     this.#syncTriggers()
     if (!wasOpen) return
-    setTimeout(() => setTimeout(() => this.#restoreAfterCache(wasOpen)))
+    this.restorePending = true
+    this.restoreTimer = setTimeout(() => {
+      this.restoreTimer = setTimeout(() => this.#restoreAfterCache())
+    })
   }
 
-  #restoreAfterCache(wasOpen) {
+  #restoreAfterCache() {
+    this.restoreTimer = null
+    this.restorePending = false
     if (this.disconnected) return
-    if (!this.controlledValue) this.openValue = wasOpen
+    if (!this.controlledValue) this.openValue = true
     this.#sync()
+  }
+
+  #cancelRestore() {
+    clearTimeout(this.restoreTimer)
+    this.restoreTimer = null
+    this.restorePending = false
   }
 
   toggle(event) {
