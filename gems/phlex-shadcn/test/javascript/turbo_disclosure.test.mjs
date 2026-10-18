@@ -244,3 +244,55 @@ browserTest("scroll-area: a hovered root keeps its scrollbar through a snapshot 
   await settle(page)
   assert.equal(await page.locator(SCROLLBAR).count(), 1)
 })
+
+// NO_MOTION is `*{animation:none!important}` (specificity 0,0,0): a more specific !important rule on the exit state wins, so the
+// exit animation really runs and the controller is snapshotted mid-exit.
+const holdExit = (page, selector) =>
+  page.addStyleTag({ content: `@keyframes shadcn-test-hold{to{opacity:.5}} ${selector}{animation:shadcn-test-hold 60s!important}` })
+
+// Every matching element in the snapshot is hidden and holds nothing but its body template.
+const allRestored = (page, html, selector) => page.evaluate(({ html, selector }) => {
+  const root = document.createElement("div")
+  root.innerHTML = html
+  const found = [...root.querySelectorAll(selector)]
+  return found.length > 0 && found.every((el) => el.hidden && el.children.length === 1 && el.firstElementChild.tagName === "TEMPLATE")
+}, { html, selector })
+
+browserTest("accordion: an item snapshotted mid exit animation is closed, hidden and keeps its body", async ({ open }) => {
+  const page = await open("single__collapsible__default-value-open", "accordion")
+  const closed = "[data-shadcn--accordion-target~=content][data-state=closed]"
+  await holdExit(page, closed)
+  const handle = await page.locator("[data-shadcn--accordion-target~=item][data-state=open] [data-shadcn--accordion-target~=content]").first().elementHandle()
+  await page.locator("[data-shadcn--accordion-target~=item][data-state=open] [data-shadcn--accordion-target~=trigger]").first().click()
+  assert.ok(await handle.evaluate((el) => el.dataset.state === "closed" && !el.hidden && el.childElementCount > 0), "precondition: exit running")
+  const html = await snapshot(page, "shadcn--accordion")
+  assert.ok(await allRestored(page, html, closed))
+  await afterSnapshotTicks(page)
+  assert.equal(await handle.evaluate((el) => el.hidden), true, "the live page does not keep the exiting content visible")
+})
+
+browserTest("collapsible: a content snapshotted mid exit animation is closed, hidden and keeps its body", async ({ open }) => {
+  const page = await open("default-open__rest", "collapsible")
+  const closed = "[data-shadcn--collapsible-target~=content][data-state=closed]"
+  await holdExit(page, closed)
+  const content = page.locator("[data-shadcn--collapsible-target~=content]").first()
+  await page.locator("[data-shadcn--collapsible-target~=trigger]").first().click()
+  assert.ok(await content.evaluate((el) => !el.hidden && el.childElementCount > 0), "precondition: exit running")
+  const html = await snapshot(page, "shadcn--collapsible")
+  assert.ok(await allRestored(page, html, closed))
+  await afterSnapshotTicks(page)
+  assert.equal(await content.evaluate((el) => el.hidden), true)
+})
+
+browserTest("tabs: a panel snapshotted mid exit animation is inactive, hidden and keeps its body", async ({ open }) => {
+  const page = await open("default", "tabs")
+  const inactive = "[role=tabpanel][data-state=inactive]"
+  await holdExit(page, inactive)
+  const leaving = await page.locator("[role=tabpanel][data-state=active]").first().elementHandle()
+  await page.locator("[role=tab]").nth(1).click()
+  assert.ok(await leaving.evaluate((el) => el.dataset.state === "inactive" && !el.hidden), "precondition: exit running")
+  const html = await snapshot(page, "shadcn--tabs")
+  assert.ok(await allRestored(page, html, inactive))
+  await afterSnapshotTicks(page)
+  assert.equal(await leaving.evaluate((el) => el.hidden), true)
+})

@@ -72,6 +72,8 @@ export default class extends Controller {
     if (record.forceMount || !closed) return
     // An exit animation still running is finished here: release() cancels the onExited that would hide the content.
     record.el.hidden = true
+    record.el.style.removeProperty("--radix-collapsible-content-height")
+    record.el.style.removeProperty("--radix-collapsible-content-width")
     record.body.setAttribute("data-shadcn--collapsible-target", "body")
     record.el.replaceChildren(record.body)
     record.mounted = false
