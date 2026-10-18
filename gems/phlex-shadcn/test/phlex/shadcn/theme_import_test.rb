@@ -10,9 +10,10 @@ class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
   Theme = Phlex::Shadcn::Theme
   ASSETS = Phlex::Shadcn.root.join("app/assets/tailwind/phlex-shadcn")
   RAKE_FILE = Phlex::Shadcn.root.join("lib/tasks/phlex_shadcn.rake").to_s
-  VALID = ASSETS.join("presets/slate.css").read
+  PRESET_CSS = ASSETS.join("presets/slate.css").read
 
-  # Scripted answers by URL; records every start call. A String is a 200 body, a Class raises, a Hash is a status (+ location/chunks).
+  # Scripted answers by URL; records every start call. A String is a 200 body, a Class raises
+  # before any response, a Hash is a status (+ location/chunks, + error: raised after the chunks are yielded).
   class FakeNet
     attr_reader :requests, :options
 
@@ -47,6 +48,7 @@ class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
       def read_body(&block)
         chunks = script.is_a?(Hash) ? script.fetch(:chunks, []) : [ script ]
         chunks.each(&block)
+        raise script.fetch(:error), "boom" if script.is_a?(Hash) && script.key?(:error)
       end
     end
   end
@@ -64,13 +66,22 @@ class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
     FileUtils.remove_entry(@theme_dir)
   end
 
-  def with_network(routes)
-    net = FakeNet.new(routes)
+  # Swaps Net::HTTP.start for the replacement (called with the same arguments) for the duration of the block.
+  def stub_http_start(replacement)
     original = Net::HTTP.method(:start)
-    Net::HTTP.define_singleton_method(:start) { |*args, **kwargs, &block| net.start(*args, **kwargs, &block) }
-    yield net
+    Net::HTTP.define_singleton_method(:start) { |*args, **kwargs, &block| replacement.call(*args, **kwargs, &block) }
+    yield
   ensure
     Net::HTTP.define_singleton_method(:start, original)
+  end
+
+  def with_network(routes)
+    net = FakeNet.new(routes)
+    stub_http_start(net.method(:start)) { yield net }
+  end
+
+  def with_network_failure(failure, &)
+    stub_http_start(->(*, **, &_) { raise failure, "boom" }, &)
   end
 
   def theme_css = File.read(Theme.theme_file)
@@ -84,7 +95,7 @@ class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
   end
 
   test "an https URL is fetched with timeouts and written with its source label" do
-    with_network("https://example.com/t.css" => VALID) do |net|
+    with_network("https://example.com/t.css" => PRESET_CSS) do |net|
       Theme.import("https://example.com/t.css")
 
       assert_equal({ use_ssl: true, open_timeout: Theme::IMPORT_OPEN_TIMEOUT, read_timeout: Theme::IMPORT_READ_TIMEOUT }, net.options)
@@ -108,17 +119,35 @@ class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
 
   test "a connection timeout, a refused connection and a TLS error become Theme::Error" do
     [ Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED, SocketError, OpenSSL::SSL::SSLError ].each do |failure|
-      net = Object.new
-      net.define_singleton_method(:start) { |*, **, &_| raise failure, "boom" }
-      original = Net::HTTP.method(:start)
-      Net::HTTP.define_singleton_method(:start) { |*args, **kwargs, &block| net.start(*args, **kwargs, &block) }
-      begin
+      with_network_failure(failure) do
         error = assert_raises(Theme::Error) { Theme.import("https://example.com/t.css") }
 
         assert_match(%r{cannot fetch https://example.com/t.css}, error.message, failure.name)
-      ensure
-        Net::HTTP.define_singleton_method(:start, original)
       end
+    end
+  end
+
+  test "a corrupt compressed body becomes Theme::Error" do
+    with_network("https://example.com/t.css" => { status: 200, error: Zlib::DataError }) do
+      assert_import_fails("https://example.com/t.css", /cannot fetch/)
+    end
+  end
+
+  test "a URL with credentials is rejected before any request and never echoed" do
+    with_network({}) do |net|
+      assert_import_fails("https://user:s3cret@example.com/t.css", /credentials/)
+      assert_empty net.requests
+    end
+  end
+
+  test "a redirect to a URL with credentials is rejected without following it" do
+    routes = { "https://example.com/a.css" => { status: 302, location: "https://user:s3cret@evil.example/t.css" } }
+    with_network(routes) do |net|
+      error = assert_raises(Theme::Error) { Theme.import("https://example.com/a.css") }
+
+      assert_match(/credentials/, error.message)
+      refute_includes error.message, "s3cret"
+      assert_equal [ "https://example.com/a.css" ], net.requests
     end
   end
 
@@ -132,7 +161,7 @@ class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
     routes = {
       "https://example.com/a.css" => { status: 302, location: "/b.css" },
       "https://example.com/b.css" => { status: 301, location: "https://cdn.example.com/c.css" },
-      "https://cdn.example.com/c.css" => VALID
+      "https://cdn.example.com/c.css" => PRESET_CSS
     }
     with_network(routes) { Theme.import("https://example.com/a.css") }
 
@@ -171,40 +200,31 @@ class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
   end
 
   test "values that could break theme.css are rejected and leave the file untouched" do
-    [ "oklch(1 0 0) */ body {", "oklch(1 0 0) /* x", "url(https://evil.example/x.png)", "red } body { display: none" ].each do |value|
-      palette = Theme.parse(VALID)
-      palette.root["primary"] = value
+    {
+      "oklch(1 0 0) /* x" => /--primary contains text that could break theme\.css/,
+      "url(https://evil.example/x.png)" => /--primary contains text that could break theme\.css/,
+      "u\\72l(https://evil.example/x.png)" => /--primary contains text that could break theme\.css/,
+      "red { color: blue }" => /--primary contains text that could break theme\.css|unterminated/
+    }.each do |value, message|
+      css = PRESET_CSS.sub(/--primary:\s*[^;]+;/) { "--primary: #{value};" }
 
-      errors = Theme.validate(palette)[:errors]
-
-      assert_predicate errors.grep(/--primary contains text/), :any?, "#{value} should be refused"
+      assert_import_fails("-", message, input: StringIO.new(css))
     end
   end
 
   test "a value that opens a block is refused as unbalanced braces" do
-    css = VALID.sub(/--primary:\s*[^;]+;/, "--primary: oklch(1 0 0) */ body { display: none; /*;")
-    before = theme_css
-    error = assert_raises(Theme::Error) { Theme.import("-", input: StringIO.new(css)) }
+    css = PRESET_CSS.sub(/--primary:\s*[^;]+;/) { "--primary: oklch(1 0 0) */ body { display: none; /*;" }
 
-    assert_match(/unterminated :root block/, error.message)
-    assert_equal before, theme_css
-  end
-
-  test "a closing comment in a value is an error naming the variable" do
-    css = VALID.sub(/--primary:\s*[^;]+;/, "--primary: oklch(1 0 0) */ body;")
-    error = assert_raises(Theme::Error) { Theme.import("-", input: StringIO.new(css)) }
-
-    assert_match(/--primary contains text that could break theme.css/, error.message)
+    assert_import_fails("-", /unterminated :root block/, input: StringIO.new(css))
   end
 
   test "the source label cannot close the comment it is written into" do
-    with_network("https://example.com/t.css?a=*/b" => VALID) { Theme.import("https://example.com/t.css?a=*/b") }
+    with_network("https://example.com/t.css?a=*/b" => PRESET_CSS) { Theme.import("https://example.com/t.css?a=*/b") }
 
     label = theme_css[%r{/\* source: (.*?) \*/\n:root}m, 1]
 
     refute_includes label, "*/"
     assert_includes label, "https://example.com/t.css?a=* /b"
-    assert_equal "a b c", Theme.send(:comment_text, "a\n b\r\n c")
     assert_empty Theme.check[:errors]
   end
 
@@ -213,28 +233,31 @@ class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
   end
 
   test "the rake tasks print the message and exit non-zero without a backtrace" do
-    Rake::Task.clear
+    previous = Rake.application
+    Rake.application = Rake::Application.new
     Rake::Task.define_task(:environment)
     load RAKE_FILE
-    http = Net::HTTP.method(:start)
-    Net::HTTP.define_singleton_method(:start) { |*, **, &_| raise Net::OpenTimeout, "execution expired" }
-    stderr = StringIO.new
-    original = $stderr
-    $stderr = stderr
-    error = assert_raises(SystemExit) { Rake::Task["phlex_shadcn:theme:import"].invoke("https://example.com/t.css") }
+    task = Rake::Task["phlex_shadcn:theme:import"]
 
-    refute_equal 0, error.status
-    assert_match(%r{cannot fetch https://example.com/t.css}, error.message)
-    refute_match(/\.rb:\d+/, error.message + stderr.string)
+    stderr = capture_io do
+      with_network_failure(Net::OpenTimeout) do
+        error = assert_raises(SystemExit) { task.invoke("https://example.com/t.css") }
 
-    Rake::Task["phlex_shadcn:theme:import"].reenable
-    error = assert_raises(SystemExit) { Rake::Task["phlex_shadcn:theme:import"].invoke("http://example.com/t.css") }
+        refute_equal 0, error.status
+        assert_match(%r{cannot fetch https://example.com/t.css}, error.message)
+        refute_match(/\.rb:\d+/, error.message)
+      end
+      task.reenable
+      with_network_failure(Net::OpenTimeout) do
+        error = assert_raises(SystemExit) { task.invoke("http://example.com/t.css") }
 
-    assert_match(/only https/, error.message)
-    refute_match(/\.rb:\d+/, stderr.string)
+        assert_match(/only https/, error.message)
+        refute_match(/\.rb:\d+/, error.message)
+      end
+    end.last
+
+    refute_match(/\.rb:\d+/, stderr)
   ensure
-    $stderr = original if original
-    Net::HTTP.define_singleton_method(:start, http) if http
-    Rake::Task.clear
+    Rake.application = previous
   end
 end

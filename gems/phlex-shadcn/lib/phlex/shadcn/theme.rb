@@ -6,6 +6,7 @@ require "uri"
 require "fileutils"
 require "openssl"
 require "timeout"
+require "zlib"
 
 module Phlex
   module Shadcn
@@ -85,11 +86,12 @@ module Phlex
       # @api private
       # @return [Integer]
       IMPORT_READ_TIMEOUT = 10
-      # Text that can break out of a CSS declaration or comment: a comment delimiter, braces, a semicolon or `url(`.
+      # Text that can break out of a CSS declaration or comment: a comment delimiter, braces, a semicolon, a backslash (CSS escapes
+      # such as `u\72l(` spell `url(`) or `url(`.
       #
       # @api private
       # @return [Regexp]
-      UNSAFE_VALUE = %r{/\*|\*/|[{};]|url\(}i
+      UNSAFE_VALUE = %r{/\*|\*/|[{};\\]|url\(}i
 
       # Parsed palette: variables for :root and for .dark.
       #
@@ -357,12 +359,13 @@ module Phlex
       # the result is invalid.
       #
       # A URL has to be `https`: it is fetched with a 5 s open and 10 s read timeout, at most 3 redirects (each `https`) and a
-      # 256 KiB body. Values that could break theme.css (comment delimiters, braces, semicolons, `url(`) are rejected.
+      # 256 KiB body. Values that could break theme.css (comment delimiters, braces, semicolons, backslashes, `url(`) are rejected.
+      # A URL with credentials (`https://user:pass@host`) is refused, also as a redirect target.
       #
       # @param source [String] path to a CSS file, an `https://` URL, or `"-"` for the `input` stream
       # @param input [IO] where `"-"` is read from
       # @return [Hash{Symbol => Array<String>}] `{ errors: [], warnings: [...], filled: [...] }`
-      # @raise [Phlex::Shadcn::Theme::Error] for an unreadable or unreachable source, a non-https URL, a non-200 answer, too many
+      # @raise [Phlex::Shadcn::Theme::Error] for an unreadable or unreachable source, a non-https URL, a URL with credentials, a non-200 answer, too many
       #   redirects, an oversize or non-UTF-8 body, a theme without `:root`/`.dark` blocks, an invalid palette, a theme.css without
       #   the color markers, or no configured theme directory
       # @example
@@ -444,12 +447,15 @@ module Phlex
       # @api private
       def https_uri(url)
         uri = URI.parse(url)
+        if uri.userinfo
+          raise Error, "URLs with credentials cannot be imported (host #{uri.host}); download the file and import its path"
+        end
         raise Error, "only https:// URLs can be imported (got #{url})" unless uri.is_a?(URI::HTTPS)
         raise Error, "#{url} has no host" if uri.host.to_s.empty?
 
         uri
-      rescue URI::InvalidURIError
-        raise Error, "#{url} is not a valid URL"
+      rescue URI::Error
+        raise Error, "#{comment_text(url)} is not a valid URL"
       end
 
       # One request. Returns [status, Location header, body]; the body is read only for a 200 and capped at {IMPORT_MAX_BYTES}.
@@ -459,22 +465,25 @@ module Phlex
         options = { use_ssl: true, open_timeout: IMPORT_OPEN_TIMEOUT, read_timeout: IMPORT_READ_TIMEOUT }
         answer = nil
         Net::HTTP.start(uri.hostname, uri.port, **options) do |http|
-          http.request(Net::HTTP::Get.new(uri)) do |response|
+          request = Net::HTTP::Get.new(uri)
+          request["Accept-Encoding"] = "identity"
+          http.request(request) do |response|
             status = response.code.to_i
             answer = [ status, response["location"], (capped_body(response, uri) if status == 200) ]
           end
         end
         answer
-      rescue Timeout::Error, SocketError, SystemCallError, IOError, OpenSSL::SSL::SSLError, Net::HTTPBadResponse, Net::ProtocolError => e
+      rescue Timeout::Error, SocketError, SystemCallError, IOError, OpenSSL::SSL::SSLError, Net::HTTPBadResponse, Net::ProtocolError, Zlib::Error => e
         raise Error, "cannot fetch #{uri}: #{e.message}"
       end
 
       # @api private
       def capped_body(response, uri)
-        body = +""
+        body = +"".b
         response.read_body do |chunk|
+          raise Error, "#{uri} is larger than #{IMPORT_MAX_BYTES / 1024} KiB" if body.bytesize + chunk.bytesize > IMPORT_MAX_BYTES
+
           body << chunk
-          raise Error, "#{uri} is larger than #{IMPORT_MAX_BYTES / 1024} KiB" if body.bytesize > IMPORT_MAX_BYTES
         end
         body
       end
