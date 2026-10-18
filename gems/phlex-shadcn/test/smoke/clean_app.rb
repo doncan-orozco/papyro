@@ -24,8 +24,12 @@ module Smoke
     ].freeze
     MARKUP = [ 'data-slot="button"', 'data-variant="outline"', 'data-controller="shadcn--dialog"', 'data-slot="dialog-trigger"',
                'data-slot="dialog-content"', '"controllers/shadcn/dialog_controller"' ].freeze
-    # Utilities only the gem's Ruby files use: present in the app's build only if the generator's @source line works.
-    BUILT_CSS_MARKERS = [ 'ring-\\[3px\\]', "--primary", 'translate-x-\\[-50\\%\\]', "var(--primary)", "animate-in" ].freeze
+    GEM_LINE = 'gem "phlex-shadcn"'
+    DEMO_PATH = "/demo"
+    # Arbitrary-value utilities that only the gem's Ruby files use: generated only if an @source line reaches the gem.
+    SOURCE_UTILITIES = [ 'ring-\\[3px\\]', 'translate-x-\\[-50\\%\\]' ].freeze
+    # Theme variables, token mapping and vendored animations: present only if the generator's theme and engine-bundle imports resolve.
+    BUNDLE_MARKERS = [ "--primary", "var(--primary)", "animate-in" ].freeze
 
     def initialize(gem_root, app_dir: ENV.fetch("SMOKE_APP_DIR", nil), keep: ENV["SMOKE_KEEP"] == "1")
       @gem_root = Pathname.new(gem_root)
@@ -59,18 +63,30 @@ module Smoke
 
     # The Gemfile lines of the README, with the gem taken from this checkout until it is released; then every README command.
     def follow_the_readme
-      gemfile = @app_dir.join("Gemfile")
-      lines = @readme.gemfile_lines.map { |line| line == 'gem "phlex-shadcn"' ? %(gem "phlex-shadcn", path: #{@gem_root.to_s.inspect}) : line }
-      File.write(gemfile, "#{File.read(gemfile).chomp}\n\n# From README.md\n#{lines.join("\n")}\n")
+      append_gemfile_lines
       @readme.install_commands.each do |command|
         say command
         run(*command.split, chdir: @app_dir)
-        run("bin/rails", "g", "phlex:install", chdir: @app_dir) if command == "bundle install" # phlex-rails: Views::Base, as the README says
+        next unless command == "bundle install"
+
+        # README: "`bin/rails g phlex:install` sets up app/views and app/components if you have not done it yet" (needs phlex-rails).
+        phlex_rails = @readme.phlex_rails_install_command
+        say phlex_rails
+        run(*phlex_rails.split, chdir: @app_dir)
       end
       write(@app_dir.join("app/views/demo/index.rb"), @readme.view_source)
       write(@app_dir.join("app/controllers/demo_controller.rb"), @readme.controller_source)
       routes = @app_dir.join("config/routes.rb")
-      File.write(routes, File.read(routes).sub(/^end\s*\z/, "  get \"/demo\", to: \"demo#index\"\nend\n"))
+      File.write(routes, File.read(routes).sub(/^end\s*\z/, "  get \"#{DEMO_PATH}\", to: \"demo#index\"\nend\n"))
+    end
+
+    def append_gemfile_lines
+      lines = @readme.gemfile_lines
+      raise "README.md has no #{GEM_LINE} line to point at this checkout; update test/smoke" unless lines.include?(GEM_LINE)
+
+      lines = lines.map { |line| line == GEM_LINE ? %(#{GEM_LINE}, path: #{@gem_root.to_s.inspect}) : line }
+      gemfile = @app_dir.join("Gemfile")
+      File.write(gemfile, "#{File.read(gemfile).chomp}\n\n# From README.md\n#{lines.join("\n")}\n")
     end
 
     def serve
@@ -86,32 +102,46 @@ module Smoke
       wait_for_server(port, log)
       yield port
     ensure
-      if pid
-        Process.kill("TERM", pid)
-        Process.wait(pid)
+      stop(pid) if pid
+    end
+
+    # TERM, then KILL after 5 s; a server that already died must not replace the error that stopped the smoke.
+    def stop(pid)
+      Process.kill("TERM", pid)
+      20.times do
+        return if Process.wait(pid, Process::WNOHANG)
+
+        sleep 0.25
       end
+      Process.kill("KILL", pid)
+      Process.wait(pid)
+    rescue Errno::ESRCH, Errno::ECHILD
+      nil
     end
 
     def check_http(port)
       body = get(port).body
       missing = MARKUP.reject { |marker| body.include?(marker) }
-      raise "GET /demo lacks #{missing.join(', ')}:\n#{body}" if missing.any?
+      raise "GET #{DEMO_PATH} lacks #{missing.join(', ')}:\n#{body}" if missing.any?
 
       css = File.read(@app_dir.join("app/assets/builds/tailwind.css"))
-      missing_css = BUILT_CSS_MARKERS.reject { |marker| css.include?(marker) }
-      raise "the Tailwind build lacks #{missing_css.join(', ')}: the @source line did not reach the gem" if missing_css.any?
+      unscanned = SOURCE_UTILITIES.reject { |marker| css.include?(marker) }
+      raise "the Tailwind build lacks #{unscanned.join(', ')}: no @source line reached the gem's Ruby files" if unscanned.any?
 
-      say "GET /demo renders the Button and the Dialog; the Tailwind build contains the gem's classes"
+      unimported = BUNDLE_MARKERS.reject { |marker| css.include?(marker) }
+      raise "the Tailwind build lacks #{unimported.join(', ')}: the theme or engine-bundle import did not resolve" if unimported.any?
+
+      say "GET #{DEMO_PATH} renders the Button and the Dialog; the Tailwind build contains the gem's classes"
     end
 
     def browser_scenario(port)
       say "browser scenario open__via-trigger-click + Escape"
-      run("node", @gem_root.join("test/smoke/app/dialog_scenario.mjs").to_s, "http://127.0.0.1:#{port}/demo", chdir: @gem_root)
+      run("node", @gem_root.join("test/smoke/app/dialog_scenario.mjs").to_s, "http://127.0.0.1:#{port}#{DEMO_PATH}", chdir: @gem_root)
     end
 
     def get(port)
-      response = Net::HTTP.get_response(URI("http://127.0.0.1:#{port}/demo"))
-      raise "GET /demo answered #{response.code}:\n#{response.body}" unless response.code == "200"
+      response = Net::HTTP.get_response(URI("http://127.0.0.1:#{port}#{DEMO_PATH}"))
+      raise "GET #{DEMO_PATH} answered #{response.code}:\n#{response.body}" unless response.code == "200"
 
       response
     end

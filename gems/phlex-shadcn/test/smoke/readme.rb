@@ -35,12 +35,19 @@ module Smoke
     # The plain-Ruby usage (no Rails).
     def without_rails_source = fence(:ruby) { |code| code.start_with?('require "phlex/shadcn"') }
 
+    # The phlex-rails setup step the quick start names inline ("`bin/rails g phlex:install` sets up app/views ...").
+    def phlex_rails_install_command
+      @text[%r{`(bin/rails g phlex:install)`}, 1] or
+        raise "#{@path}: the quick start no longer names `bin/rails g phlex:install`; update test/smoke"
+    end
+
     private
 
     def fence(lang)
-      match = fences.find { |candidate| candidate[:lang] == lang.to_s && yield(candidate[:code]) }
-      match or raise "#{@path}: no #{lang} fence matched; the README changed shape, update test/smoke"
-      match[:code]
+      matches = fences.select { |candidate| candidate[:lang] == lang.to_s && yield(candidate[:code]) }
+      raise "#{@path}: #{matches.size} #{lang} fences matched, expected exactly 1; the README changed shape, update test/smoke" unless matches.size == 1
+
+      matches.first[:code]
     end
   end
 end

@@ -5,7 +5,8 @@
 #            gem_check, and the plain-Phlex smoke (Rails not loaded).
 # clean-app: a new Rails app installs the gem by following the README, renders a Button and a Dialog, and runs one browser
 #            parity scenario (bin/smoke --app).
-# docs:      every Ruby fence of README.md and docs/*.md renders in a plain process (bin/smoke --docs).
+# docs:      every Ruby fence of README.md and docs/*.md renders in a plain process (bin/smoke --docs; known gem defects are
+#            explicit XFAILs).
 name: phlex-shadcn
 
 on:
@@ -27,6 +28,7 @@ jobs:
   gem:
     name: gem (ruby ${{ matrix.ruby }}, ${{ matrix.gemfile }})
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -83,6 +85,7 @@ jobs:
   clean-app:
     name: clean Rails app from the README
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -123,9 +126,8 @@ jobs:
   docs:
     name: README and guide examples (plain Phlex)
     runs-on: ubuntu-latest
-    # Known red until lib/phlex/shadcn/select/item.rb stops needing Nokogiri at render time (nokogiri is a development dependency;
-    # lesson on epic issue #88): the Select example of docs/menus-and-select.md cannot render without Rails. Flip to false then.
-    continue-on-error: true
+    timeout-minutes: 10
+    # Known failures are explicit XFAILs in test/smoke/docs.rb (Smoke::Docs::KNOWN_RED); any other failure, or a known one that starts passing, turns this job red.
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gems/phlex-shadcn/Gemfile
     steps:

@@ -1,5 +1,6 @@
-// One browser parity scenario against the clean app: docs/shadcn-port/scenarios/dialog.json `open__via-trigger-click`
-// (click the trigger, the dialog opens with the Radix DOM and takes focus), then Escape closes it and focus returns to the trigger.
+// One browser parity scenario against the clean app, adapted from docs/shadcn-port/scenarios/dialog.json `open__via-trigger-click`:
+// the same step (click the trigger by role) on the README's Dialog (trigger "Edit profile"), asserted by behavior (Radix DOM, focus
+// moves in), then Escape closes it and focus returns to the trigger. The oracle compare stays in the dev kit's parity gates.
 // Usage: node test/smoke/app/dialog_scenario.mjs http://127.0.0.1:PORT/demo
 // Playwright comes from PHLEX_SHADCN_PLAYWRIGHT (a directory with node_modules/playwright), else the monorepo dev kit
 // (react-shadcn-catalog/node_modules of this checkout or of the main checkout), else a plain `playwright` require.
@@ -29,9 +30,20 @@ function loadPlaywright() {
 }
 
 // Rails' `stylesheet_link_tag :app` links every file under app/assets/builds, including the stub tailwindcss-rails writes to
-// app/assets/builds/tailwind/phlex-shadcn.css; its absolute `@import` of the gem's engine.css is unresolvable from a browser and
-// 404s harmlessly (the real styles are compiled into tailwind.css). Upstream tailwindcss-rails behaviour, deferred by the engine item.
-const knownUpstream = (text) => /app\/assets\/tailwind\/phlex-shadcn\/engine\.css|Failed to load resource/.test(text);
+// app/assets/builds/tailwind/phlex-shadcn.css; its absolute `@import` of the gem's engine.css 404s in a browser (the real styles are
+// compiled into tailwind.css). Upstream tailwindcss-rails behaviour, deferred by the engine item (#95). Only that URL is tolerated.
+const KNOWN_UPSTREAM_404 = /\/app\/assets\/tailwind\/phlex-shadcn\/engine\.css(\?|$)/;
+const knownUpstream = (url) => KNOWN_UPSTREAM_404.test(url ?? "");
+const TIMEOUT = { connect: 15_000, state: 5_000 };
+const TRIGGER = '[data-slot="dialog-trigger"]';
+
+async function eventually(page, description, predicate, arg) {
+  try {
+    await page.waitForFunction(predicate, arg, { timeout: TIMEOUT.state });
+  } catch {
+    throw new Error(description);
+  }
+}
 
 const { chromium } = loadPlaywright();
 const browser = await chromium.launch();
@@ -39,43 +51,51 @@ const errors = [];
 try {
   const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error" && !knownUpstream(message.text())) errors.push(`console: ${message.text()}`); });
+  page.on("console", (message) => {
+    if (message.type() !== "error") return;
+    const source = message.location().url;
+    if (/^Failed to load resource/.test(message.text()) && knownUpstream(source)) return;
+    errors.push(`console: ${message.text()} (${source})`);
+  });
   page.on("response", (response) => { if (response.status() >= 400 && !knownUpstream(response.url())) errors.push(`${response.status()} ${response.url()}`); });
+  page.on("requestfailed", (request) => { if (!knownUpstream(request.url())) errors.push(`requestfailed: ${request.url()} ${request.failure()?.errorText}`); });
 
   await page.goto(url, { waitUntil: "load" });
-  const host = page.locator('[data-controller~="shadcn--dialog"]');
-  await host.waitFor({ state: "attached" });
+  await page.locator('[data-controller~="shadcn--dialog"]').waitFor({ state: "attached" });
   // Rails loads controllers with dynamic imports after the page's load event; click only once shadcn--dialog is connected.
   await page.waitForFunction(() => {
     const element = document.querySelector('[data-controller~="shadcn--dialog"]');
     return window.Stimulus && element && window.Stimulus.getControllerForElementAndIdentifier(element, "shadcn--dialog");
-  }, null, { timeout: 15000 });
-  // The scenario targets the trigger by role, as the parity harness does; once the modal is open Radix hides everything else from
-  // assistive technology (aria-hidden on the trigger's ancestors), so the later attribute reads use the data-slot selector.
+  }, null, { timeout: TIMEOUT.connect });
+  // The step targets the trigger by role, as the parity harness does; once the modal is open Radix hides everything else from
+  // assistive technology (aria-hidden on the trigger's ancestors), so the later reads use the data-slot selector.
   const trigger = page.getByRole("button", { name: "Edit profile" });
-  const triggerElement = page.locator('[data-slot="dialog-trigger"]');
   await trigger.waitFor();
-  if ((await trigger.getAttribute("aria-expanded")) !== "false") throw new Error("the trigger does not start with aria-expanded=false");
-  if ((await trigger.getAttribute("aria-haspopup")) !== "dialog") throw new Error("the trigger has no aria-haspopup=dialog");
+  await eventually(page, "the trigger does not start with aria-expanded=false",
+    (selector) => document.querySelector(selector)?.getAttribute("aria-expanded") === "false", TRIGGER);
+  await eventually(page, "the trigger has no aria-haspopup=dialog",
+    (selector) => document.querySelector(selector)?.getAttribute("aria-haspopup") === "dialog", TRIGGER);
 
   // open__via-trigger-click
   await trigger.click();
   const dialog = page.locator('[role="dialog"][data-state="open"]');
-  await dialog.waitFor({ state: "visible", timeout: 5000 });
-  const title = await dialog.getByText("Edit profile", { exact: true }).count();
-  if (title < 1) throw new Error("the open dialog does not show its title");
-  if ((await triggerElement.getAttribute("aria-expanded")) !== "true") throw new Error("aria-expanded did not flip to true");
-  const hiddenFromAT = await triggerElement.evaluate((node) => Boolean(node.closest('[aria-hidden="true"]')));
-  if (!hiddenFromAT) throw new Error("the page behind the modal is not aria-hidden (Radix hideOthers)");
-  const focusInside = await dialog.evaluate((node) => node.contains(document.activeElement));
-  if (!focusInside) throw new Error("focus did not move into the dialog");
+  await dialog.waitFor({ state: "visible", timeout: TIMEOUT.state });
+  await dialog.getByText("Edit profile", { exact: true }).waitFor({ state: "visible", timeout: TIMEOUT.state })
+    .catch(() => { throw new Error("the open dialog does not show its title"); });
+  await eventually(page, "aria-expanded did not flip to true",
+    (selector) => document.querySelector(selector)?.getAttribute("aria-expanded") === "true", TRIGGER);
+  await eventually(page, "the page behind the modal is not aria-hidden (Radix hideOthers)",
+    (selector) => Boolean(document.querySelector(selector)?.closest('[aria-hidden="true"]')), TRIGGER);
+  await eventually(page, "focus did not move into the dialog",
+    () => Boolean(document.querySelector('[role="dialog"][data-state="open"]')?.contains(document.activeElement)));
 
-  // Escape closes and returns focus to the trigger
+  // Escape closes and returns focus to the trigger (Radix FocusScope restores focus in a task after unmount)
   await page.keyboard.press("Escape");
-  await page.locator('[role="dialog"]').waitFor({ state: "detached", timeout: 5000 });
-  if ((await triggerElement.getAttribute("aria-expanded")) !== "false") throw new Error("aria-expanded did not return to false");
-  const focusBack = await triggerElement.evaluate((node) => node === document.activeElement);
-  if (!focusBack) throw new Error("focus did not return to the trigger");
+  await page.locator('[role="dialog"]').waitFor({ state: "detached", timeout: TIMEOUT.state });
+  await eventually(page, "aria-expanded did not return to false",
+    (selector) => document.querySelector(selector)?.getAttribute("aria-expanded") === "false", TRIGGER);
+  await eventually(page, "focus did not return to the trigger",
+    (selector) => document.activeElement === document.querySelector(selector), TRIGGER);
 
   if (errors.length) throw new Error(`browser errors: ${errors.join("; ")}`);
   console.log("dialog scenario ok: open__via-trigger-click, Escape closes, focus returns");
