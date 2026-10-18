@@ -12,6 +12,7 @@
 #   ruby .claude/scripts/shadcn/port_state.rb retry-blocked [NAME...]     # acknowledge a stop: blocked -> pending, dispatch counter -> 0
 #   ruby .claude/scripts/shadcn/port_state.rb summary [--json]
 #   ruby .claude/scripts/shadcn/port_state.rb reset NAME|all
+#   ruby .claude/scripts/shadcn/port_state.rb --check                     # every path the infra entries own exists (run from the repo root); exit 1 lists the stale ones
 #
 # Statuses: pending -> planned -> done | blocked.  `built` = built but not browser-verified (--no-browser): never returned by `next`
 # again, and it satisfies dependents.
@@ -272,5 +273,5 @@ when "reset"
   targets.each { |n| state["components"][n]&.merge!("status" => "pending", "iteration" => 0, "note" => nil) }
   save_state(state)
 else
-  abort("usage: init | next | checkpoint | bump N | retry-blocked [NAME...] | set NAME STATUS | summary | reset NAME|all")
+  abort("usage: --check | init | next | checkpoint | bump N | retry-blocked [NAME...] | set NAME STATUS | summary | reset NAME|all")
 end

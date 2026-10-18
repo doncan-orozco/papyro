@@ -16,10 +16,14 @@ on:
     paths:
       - "gems/phlex-shadcn/**"
       - ".github/workflows/phlex-shadcn.yml"
+      - ".claude/scripts/shadcn/servers.rb"
+      - ".claude/scripts/shadcn/layout.rb"
   pull_request:
     paths:
       - "gems/phlex-shadcn/**"
       - ".github/workflows/phlex-shadcn.yml"
+      - ".claude/scripts/shadcn/servers.rb"
+      - ".claude/scripts/shadcn/layout.rb"
 
 defaults:
   run:
@@ -170,7 +174,10 @@ jobs:
         if: failure()
         with:
           name: js-tests-logs
-          path: gems/phlex-shadcn/dev/tmp/shadcn-port
+          # servers.rb writes rails.log / vite.log to the repository-root tmp/shadcn-port (layout.rb TMP_DIR).
+          path: |
+            tmp/shadcn-port
+            gems/phlex-shadcn/dev/dummy/log
           if-no-files-found: ignore
 
   docs:

@@ -25,7 +25,7 @@ namespace :test do
     abort("Playwright is not usable here: run ruby .claude/scripts/shadcn/playwright_ensure.rb") unless system("ruby .claude/scripts/shadcn/playwright_ensure.rb --check > /dev/null")
 
     started = JSON.parse(`ruby .claude/scripts/shadcn/servers.rb start`.then { |out| out[/\{.*\}/m] || "{}" })
-    abort("Could not start the dev servers (see gems/phlex-shadcn/dev/tmp/shadcn-port/rails.log)") unless started["rails_ok"]
+    abort("Could not start the dev servers (see tmp/shadcn-port/rails.log and vite.log)") unless started["rails_ok"]
 
     begin
       success = system("node --test --test-timeout=60000 --test-reporter=spec gems/phlex-shadcn/test/javascript/*.test.mjs")

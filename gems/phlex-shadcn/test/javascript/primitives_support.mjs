@@ -7,36 +7,15 @@
 // checkout, else the one of the main checkout when this is a git worktree (worktrees do not carry node_modules).
 import fs from "node:fs";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
-import { createRequire } from "node:module";
 import test, { after } from "node:test";
+import { GEM_ROOT, loadPlaywright } from "./dev_kit.mjs";
 import assert from "node:assert/strict";
 
 export { assert };
 
-const GEM_ROOT = path.resolve(import.meta.dirname, "../..");
 const PRIMITIVES_DIR = path.join(GEM_ROOT, "app/javascript/shadcn/primitives");
 const VENDOR_DIR = path.join(GEM_ROOT, "vendor/javascript");
 const ORIGIN = "http://primitives.test";
-
-function devRoots() {
-  const roots = [process.env.PHLEX_SHADCN_DEV_ROOT && path.resolve(process.env.PHLEX_SHADCN_DEV_ROOT), path.join(GEM_ROOT, "dev")];
-  try {
-    const git = (...args) => execFileSync("git", ["-C", GEM_ROOT, ...args], { encoding: "utf8" }).trim();
-    const mainRoot = path.dirname(path.resolve(GEM_ROOT, git("rev-parse", "--git-common-dir")));
-    roots.push(path.join(mainRoot, path.relative(git("rev-parse", "--show-toplevel"), GEM_ROOT), "dev"));
-  } catch { /* not a git checkout */ }
-  return roots.filter(Boolean);
-}
-
-function loadPlaywright() {
-  const catalogs = [process.env.PHLEX_SHADCN_PLAYWRIGHT && path.resolve(process.env.PHLEX_SHADCN_PLAYWRIGHT),
-    ...devRoots().map((root) => path.join(root, "react-shadcn-catalog"))].filter(Boolean);
-  for (const dir of catalogs) {
-    if (fs.existsSync(path.join(dir, "node_modules/playwright"))) return createRequire(path.join(dir, "package.json"))("playwright");
-  }
-  throw new Error(`playwright not found in ${catalogs.join(", ")}: npm ci in gems/phlex-shadcn/dev/react-shadcn-catalog, or set PHLEX_SHADCN_PLAYWRIGHT / PHLEX_SHADCN_DEV_ROOT`);
-}
 
 const { chromium } = loadPlaywright();
 
