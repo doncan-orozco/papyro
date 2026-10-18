@@ -1,4 +1,5 @@
 require "test_helper"
+require "rake"
 
 class PhlexShadcnEngineIntegrationTest < ActiveSupport::TestCase
   test "application.css imports the phlex-shadcn engine bundle" do
@@ -35,5 +36,34 @@ class PhlexShadcnEngineIntegrationTest < ActiveSupport::TestCase
     paths = Rails.application.config.assets.paths.map(&:to_s)
 
     assert_equal 1, paths.count(gem_js)
+  end
+
+  test "the theme directory is the app's app/assets/tailwind/theme" do
+    assert_equal Rails.root.join("app/assets/tailwind/theme").to_s, Phlex::Shadcn::Theme.dir.to_s
+  end
+
+  test "the app theme is valid and ships the zinc and slate presets" do
+    result = Phlex::Shadcn::Theme.check
+
+    assert_empty result[:errors]
+    assert_includes Phlex::Shadcn::Theme.presets, "zinc"
+    assert_includes Phlex::Shadcn::Theme.presets, "slate"
+  end
+
+  test "theme tasks come from the gem only" do
+    Rails.application.load_tasks unless Rake::Task.task_defined?("theme:check")
+
+    %w[list use import check].each do |name|
+      assert Rake::Task.task_defined?("theme:#{name}"), "theme:#{name}"
+      assert Rake::Task.task_defined?("phlex_shadcn:theme:#{name}"), "phlex_shadcn:theme:#{name}"
+    end
+    assert_equal 1, Rake::Task["theme:check"].actions.size
+  end
+
+  test "host Ruby does not reach into the gem's internals or paths" do
+    pattern = %r{Phlex::Shadcn::(Engine|Loader|Generators)|gems/phlex-shadcn/(app|lib|vendor|config)}
+    offenders = Dir[Rails.root.join("{app,lib,config}/**/*.rb")].select { |file| File.read(file).match?(pattern) }
+
+    assert_empty offenders
   end
 end
