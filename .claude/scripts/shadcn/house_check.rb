@@ -54,7 +54,8 @@ Dir[File.join(ShadcnLayout::CONTROLLER_DIR, "*_controller.js")].each do |f|
   base = File.basename(f, "_controller.js")
   next if known.include?(base) || %w[base theme].include?(base)
 
-  add.call(base.start_with?("_probe_") || base == "theme_panel" ? "G5_DEV_CONTROLLER_PACKAGED" : "G5_ORPHAN_CONTROLLER", f)
+  dev_only = base.start_with?("_probe_") || base == "theme_panel"
+  add.call(dev_only ? "G5_DEV_CONTROLLER_PACKAGED" : "G5_ORPHAN_CONTROLLER", f)
 end
 # Dev-only controllers live in the dummy app: theme_panel (harness) and _probe_<name> test controllers that have a react twin whose
 # `probe.controller` is shadcn---probe-<name>.

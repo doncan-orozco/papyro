@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "fileutils"
 require "json"
 require "open3"
 require "rbconfig"
@@ -40,20 +41,9 @@ class GemCheckRulesTest < Minitest::Test
     write("THIRD_PARTY_NOTICES.md", "none\n")
   end
 
-  def teardown = (FileUtils.remove_entry(@dir) if @dir)
-
-  def write(path, content)
-    full = File.join(@gem, path)
-    FileUtils.mkdir_p(File.dirname(full))
-    File.write(full, content)
+  def teardown
+    FileUtils.remove_entry(@dir) if @dir
   end
-
-  def findings
-    out, = Open3.capture2(RbConfig.ruby, SCRIPT, "--gem-dir", @gem, "--host-dir", @dir)
-    JSON.parse(out)["findings"]
-  end
-
-  def codes = findings.map { |f| f["code"] }
 
   def test_a_gem_that_packages_its_docs_is_clean
     assert_equal [], findings
@@ -85,10 +75,44 @@ class GemCheckRulesTest < Minitest::Test
     assert_includes codes, "GEMSPEC_METADATA"
   end
 
+  def test_an_adjacent_double_ref_changelog_uri_is_reported
+    write("phlex-x.gemspec", GEMSPEC.sub("https://github.com/owner/repo/blob/main/gems/phlex-x/CHANGELOG.md", "https://github.com/owner/repo/tree/main/blob/main/CHANGELOG.md"))
+
+    assert_includes codes, "GEMSPEC_METADATA"
+  end
+
+  def test_a_bare_repo_source_code_uri_is_well_formed
+    write("phlex-x.gemspec", GEMSPEC.sub('"source_code_uri" => s.homepage', '"source_code_uri" => "https://github.com/owner/repo"'))
+
+    assert_equal [], findings
+  end
+
+  def test_a_nested_docs_markdown_file_is_development_material
+    write("docs/guides/deep.md", "# deep\n")
+    write("phlex-x.gemspec", GEMSPEC.sub('"docs/*.md"', '"docs/**/*.md"'))
+
+    assert_includes codes, "GEMSPEC_FILES"
+  end
+
   def test_a_packaged_docs_app_is_still_development_material
     write("docs/app/index.html", "<html></html>\n")
     write("phlex-x.gemspec", GEMSPEC.sub('"docs/*.md"', '"docs/**/*"'))
 
     assert_includes codes, "GEMSPEC_FILES"
   end
+
+  private
+
+  def write(path, content)
+    full = File.join(@gem, path)
+    FileUtils.mkdir_p(File.dirname(full))
+    File.write(full, content)
+  end
+
+  def findings
+    out, = Open3.capture2(RbConfig.ruby, SCRIPT, "--gem-dir", @gem, "--host-dir", @dir)
+    JSON.parse(out)["findings"]
+  end
+
+  def codes = findings.map { |f| f["code"] }
 end

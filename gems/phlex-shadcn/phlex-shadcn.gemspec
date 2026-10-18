@@ -4,7 +4,8 @@ require_relative "lib/phlex/shadcn/version"
 
 # The one place the repository location is written: a split into its own repository changes these two lines (the metadata URIs derive from them).
 repository = "https://github.com/doncan-orozco/papyro"
-gem_path = "gems/phlex-shadcn"
+gem_path = "gems/phlex-shadcn" # "" once the gem has its own repository
+at = ->(kind, *rest) { [ repository, kind, "main", gem_path, *rest ].reject(&:empty?).join("/") }
 
 Gem::Specification.new do |spec|
   spec.name = "phlex-shadcn"
@@ -15,12 +16,12 @@ Gem::Specification.new do |spec|
   spec.summary = "shadcn/ui components for Phlex."
   spec.description = "A 1:1 port of the shadcn/ui component library to Phlex views with Stimulus behavior, " \
                      "Tailwind classes taken verbatim from shadcn/ui and shadcn-format theme variables."
-  spec.homepage = "#{repository}/tree/main/#{gem_path}"
+  spec.homepage = at.call("tree")
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2"
 
   spec.metadata["source_code_uri"] = spec.homepage
-  spec.metadata["changelog_uri"] = "#{repository}/blob/main/#{gem_path}/CHANGELOG.md"
+  spec.metadata["changelog_uri"] = at.call("blob", "CHANGELOG.md")
   spec.metadata["rubygems_mfa_required"] = "true"
 
   # docs/ and .yardopts ship because the README links the docs and `yard` reads .yardopts; the dev kit (dev/), tests and the dummy app do not.

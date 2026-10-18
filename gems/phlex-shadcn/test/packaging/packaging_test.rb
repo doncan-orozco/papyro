@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "fileutils"
 require "open3"
 require "rbconfig"
 require "rubygems/package"
@@ -36,8 +37,7 @@ class PackagingTest < Minitest::Test
     targets = links.uniq.select { |target| target.start_with?("docs/") }
 
     refute_empty targets, "README.md links no docs/ page: the check proves nothing"
-    # A link to the directory ("docs/") is satisfied by any packaged file below it.
-    missing = targets.reject { |target| target.end_with?("/") ? built[:files].any? { |f| f.start_with?(target) } : built[:files].include?(target) }
+    missing = targets.reject { |target| packaged?(target) }
 
     assert_empty missing, "linked from README.md/CHANGELOG.md but not packaged: #{missing.join(', ')}"
   end
@@ -66,13 +66,24 @@ class PackagingTest < Minitest::Test
     assert_path_exists File.join(controllers, "theme_panel_controller.js")
   end
 
-  def test_metadata_uris_parse_and_have_the_github_shape
-    metadata = built[:spec].metadata
-    shape = %r{\Ahttps://github\.com/[\w.-]+/[\w.-]+/blob/[\w.-]+/gems/phlex-shadcn/CHANGELOG\.md\z}
+  def test_changelog_uri_has_the_github_blob_shape
+    shape = %r{\Ahttps://github\.com/[\w.-]+/[\w.-]+/blob/[\w.-]+/(?:[\w.-]+/)*CHANGELOG\.md\z}
 
-    assert_match shape, metadata["changelog_uri"]
-    [ built[:spec].homepage, metadata["source_code_uri"], metadata["changelog_uri"] ].each do |uri|
+    assert_match shape, built[:spec].metadata["changelog_uri"]
+  end
+
+  def test_homepage_and_metadata_uris_parse_as_https
+    [ built[:spec].homepage, built[:spec].metadata["source_code_uri"], built[:spec].metadata["changelog_uri"] ].each do |uri|
       assert_instance_of URI::HTTPS, URI.parse(uri), uri
     end
+  end
+
+  private
+
+  # A link to a directory ("docs/") is satisfied by any packaged file below it.
+  def packaged?(target)
+    return built[:files].include?(target) unless target.end_with?("/")
+
+    built[:files].any? { |packaged_file| packaged_file.start_with?(target) }
   end
 end

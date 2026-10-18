@@ -17,6 +17,7 @@
 #   GEMSPEC_DEV_MATERIAL     spec.files packages a dev-only Stimulus controller (`_probe_*` parity probes, `theme_panel`): every consumer would pin and register it
 #   GEMSPEC_METADATA         a metadata URI (homepage, source_code_uri, changelog_uri, ...) is not a well-formed http(s) URI, or a GitHub changelog_uri/source_code_uri
 #                            does not have the shape https://github.com/<owner>/<repo>/(blob|tree)/<ref>/<path>
+#                            (a bare https://github.com/<owner>/<repo> is accepted for source_code_uri)
 #   GEMSPEC_LICENSE          LICENSE file missing
 #   GEM_NOTICES              third-party notices missing for code derived from shadcn/ui, Radix or Lucide (THIRD_PARTY_NOTICES*)
 #   GEM_NO_TESTS             no test/ or spec/ directory in the gem
@@ -72,6 +73,10 @@ REQUIRED_METADATA = %w[source_code_uri changelog_uri].freeze
 # Stimulus controllers that exist only for the dev kit's parity harness and demo pages.
 DEV_CONTROLLER = %r{(?:\A|/)(?:_probe_[^/]*|theme_panel_controller\.js)\z}
 GITHUB_URI = %r{\Ahttps://github\.com/[\w.-]+/[\w.-]+/(?:blob|tree)/[\w.-]+/\S+\z}
+# A bare repository URI is a valid source_code_uri for a gem that sits at the root of its own repository.
+GITHUB_REPO = %r{\Ahttps://github\.com/[\w.-]+/[\w.-]+/?\z}
+# A second /tree|blob/<ref>/ after the first, adjacent or not (`#{homepage}/blob/main/...` appended to a tree/ homepage).
+DOUBLE_REF = %r{/(?:tree|blob)/[^/]+/(?:.*/)?(?:tree|blob)/}
 
 if spec
   { "name" => spec.name, "version" => spec.version.to_s, "summary" => spec.summary, "description" => spec.description, "authors" => spec.authors,
@@ -85,12 +90,17 @@ if spec
   dev_controllers = spec.files.select { |f| f.match?(DEV_CONTROLLER) }
   add.call("GEMSPEC_DEV_MATERIAL", specs.first, nil, "packages dev-only controllers: #{dev_controllers.first(4).join(', ')}#{dev_controllers.size > 4 ? ' ...' : ''}") if dev_controllers.any?
   { "homepage" => spec.homepage }.merge(spec.metadata.select { |key, _| key.end_with?("_uri") }).each do |field, value|
-    uri = (URI.parse(value.to_s) rescue nil)
+    uri = begin
+      URI.parse(value.to_s)
+    rescue URI::InvalidURIError
+      nil
+    end
     well_formed = uri.is_a?(URI::HTTP) && uri.host && !uri.host.empty?
     add.call("GEMSPEC_METADATA", specs.first, nil, "#{field} is not a well-formed http(s) URI: #{value.inspect}") unless well_formed || value.to_s.empty?
     next unless well_formed && uri.host == "github.com" && %w[source_code_uri changelog_uri].include?(field)
 
-    add.call("GEMSPEC_METADATA", specs.first, nil, "#{field} #{value} does not have the shape https://github.com/<owner>/<repo>/(blob|tree)/<ref>/<path>") unless value.match?(GITHUB_URI) && !value.match?(%r{/(?:tree|blob)/[^/]+/.*/(?:tree|blob)/})
+    shaped = (value.match?(GITHUB_URI) && !value.match?(DOUBLE_REF)) || (field == "source_code_uri" && value.match?(GITHUB_REPO))
+    add.call("GEMSPEC_METADATA", specs.first, nil, "#{field} #{value} does not have the shape https://github.com/<owner>/<repo>/(blob|tree)/<ref>/<path>") unless shaped
   end
 end
 add.call("GEMSPEC_LICENSE", nil, nil, "no LICENSE / LICENSE.txt / MIT-LICENSE") if Dir[File.join(gem_dir, "{LICENSE,LICENSE.*,MIT-LICENSE,COPYING}")].empty?
