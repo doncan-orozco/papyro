@@ -33,13 +33,18 @@ module Phlex
       JAVASCRIPT_DIRECTORIES = %w[app/javascript vendor/javascript].freeze
       private_constant :JAVASCRIPT_DIRECTORIES
 
-      # Prepended to Propshaft::LoadPath: drops the Tailwind engine stubs (app/assets/builds/tailwind/ of the app) from the served assets.
-      # Overrides the private file filter of Propshaft 1.x; test/engine/stub_css_test.rb fails if a Propshaft release stops calling it.
+      # Prepended to Propshaft::LoadPath: drops the stubs tailwindcss-rails writes to <app>/app/assets/builds/tailwind/ (one per engine, each an
+      # absolute `@import` only the Tailwind CLI resolves) from the served assets. Deliberate exception to ruby-gem-conventions R4: Propshaft
+      # only excludes load-path roots (railtie `paths.without(excluded_paths)`) and tailwindcss-rails hardcodes the stub location
+      # (Tailwindcss::Engines.bundle), so there is no public seam. Hooks the private file filter of Propshaft 1.2-1.3; when a release drops
+      # it the initializer logs a warning instead of failing silently. Remove once upstream stops writing stubs inside an asset root.
       module TailwindStubFilter
+        STUB_DIR = "app/assets/builds/tailwind"
+
         private
 
         def without_dotfiles(files)
-          stubs = "#{::Rails.root.join('app/assets/builds/tailwind')}/"
+          stubs = "#{::Rails.root.join(STUB_DIR)}/"
           super.reject { |file| file.to_s.start_with?(stubs) }
         end
       end
@@ -76,12 +81,17 @@ module Phlex
         end
       end
 
-      # The stub tailwindcss-rails writes to app/assets/builds/tailwind/<engine>.css holds an absolute `@import` that only the Tailwind CLI
-      # resolves. Propshaft can exclude load-path roots but not a directory inside one, and `stylesheet_link_tag :app` links every css under
-      # app/assets, so without this a fresh app links the stub and the browser 404s on the import (and the stub's path is disclosed).
       initializer "phlex_shadcn.hide_tailwind_stubs" do |app|
-        if defined?(::Propshaft::LoadPath) && app.config.respond_to?(:assets) && !(::Propshaft::LoadPath < TailwindStubFilter)
+        next unless defined?(::Propshaft::LoadPath) && app.config.respond_to?(:assets)
+        next if ::Propshaft::LoadPath.include?(TailwindStubFilter)
+
+        if ::Propshaft::LoadPath.private_method_defined?(:without_dotfiles)
           ::Propshaft::LoadPath.prepend(TailwindStubFilter)
+        else
+          ::Rails.logger.warn(
+            "[phlex-shadcn] Propshaft #{Gem.loaded_specs['propshaft']&.version} has no LoadPath#without_dotfiles: the tailwindcss-rails " \
+            "stubs in #{TailwindStubFilter::STUB_DIR}/ stay linked by `stylesheet_link_tag :app` (browser 404). Link \"tailwind\" explicitly."
+          )
         end
       end
 

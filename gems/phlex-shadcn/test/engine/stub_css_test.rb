@@ -23,6 +23,18 @@ class EngineTest::StubCss < Minitest::Test
     Propshaft::LoadPath.new([ BUILDS ], compilers: EngineTest::Application.assets.load_path.compilers)
   end
 
+  def test_the_filter_hooks_a_method_this_propshaft_still_defines
+    assert Propshaft::LoadPath.private_method_defined?(:without_dotfiles),
+           "Propshaft renamed LoadPath#without_dotfiles: move TailwindStubFilter to the new hook"
+    assert(Propshaft::LoadPath.ancestors.any? { |mod| mod.name == "Phlex::Shadcn::Engine::TailwindStubFilter" })
+  end
+
+  def test_propshafts_own_dotfile_filter_still_runs
+    File.write(BUILDS.join(".keep"), "")
+
+    assert_nil load_path.find(".keep")
+  end
+
   def test_the_compiled_application_css_is_still_served
     assert load_path.find("tailwind.css")
     assert load_path.find("application.css")
