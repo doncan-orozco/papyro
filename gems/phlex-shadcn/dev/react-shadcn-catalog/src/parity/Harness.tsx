@@ -1,6 +1,6 @@
 // Oracle side of the parity contract (.ai/skills/shadcn-port/references/parity-gates.md, "Harness contract").
 // Route: /#/parity/<component>/<scenarioId>. Renders the scenario `tree` with the real catalog components, no chrome.
-// Tree rules (identical in Components::Parity::TreeRenderer):
+// Tree rules (identical in ShadcnParity::TreeRenderer):
 //   - c = "_a" / "_div" ... (underscore + lowercase): raw HTML element, props become attributes
 //   - c = "_Probe" ... (underscore + capital): harness stub component from ./probes
 //   - children strings are text; a string starting with "<icon:name>" renders that lucide icon (rest of the string is text)

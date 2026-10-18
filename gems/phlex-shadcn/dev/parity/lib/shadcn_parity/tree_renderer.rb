@@ -85,6 +85,7 @@ class ShadcnParity::TreeRenderer < Phlex::HTML
   def render_children(children, roots)
     Array(children).each do |child|
       next render_node(child, roots) if child.is_a?(Hash)
+      raise Error, "a child must be a String or a Hash, got #{child.class}" unless child.is_a?(String)
 
       icon = child.match(ICON)
       render Phlex::Shadcn::Icon.new(icon[1]) if icon
@@ -136,6 +137,8 @@ class ShadcnParity::TreeRenderer < Phlex::HTML
   end
 
   def resolve(name)
+    raise Error, "malformed component name #{name.inspect}" unless name.to_s.match?(/\A_?[A-Z][A-Za-z0-9]*\z|\A_[a-z]/)
+
     namespace, bare, roots = name.start_with?("_") ? [ ShadcnParity, name.delete_prefix("_"), PARITY_ROOTS ] : [ Phlex::Shadcn, name, v2_roots ]
     # An exact root match wins over a same-named nested part of a longer root (Button vs InputGroup::Button).
     return Target.new(namespace.const_get(bare), nil, nil) if roots.include?(bare)

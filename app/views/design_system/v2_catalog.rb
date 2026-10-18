@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Explicit require so this view does not depend on Components::Parity::Catalog having loaded the parity harness first.
+require Rails.root.join("gems/phlex-shadcn/dev/parity/lib/shadcn_parity").to_s
+
 include Phlex::Rails::Helpers::ContentFor
 
 module Views
@@ -67,7 +70,7 @@ module Views
       end
 
       def preview(entry)
-        render Components::Parity::TreeRenderer.new(tree: entry.tree, component: entry.component)
+        render ShadcnParity::TreeRenderer.new(tree: entry.tree, component: entry.component)
       rescue StandardError => e
         Rails.logger.error("[design-system v2] #{entry.component}: #{e.class}: #{e.message}")
         p(class: "text-sm text-destructive") { t("design_system.catalog_v2.unavailable", error: e.class.name) }

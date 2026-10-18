@@ -1,7 +1,7 @@
 // _harness self-test: proves both sides of the parity harness before any component uses them.
 //   cd <catalog dir> && node src/parity/selftest.mjs      -> <TMP_DIR>/_harness/selftest.json, exit 1 on any failed check
 // Checks: servers.rb status; identical probes -> parity_run exit 0; deliberately broken Phlex probe (extra class, via the
-// tmp/shadcn-port/_harness/break-probe flag file read by Components::Parity::Probe) -> exit 1 with a CLASS diff; the compound
+// tmp/shadcn-port/_harness/break-probe flag file read by ShadcnParity::Probe) -> exit 1 with a CLASS diff; the compound
 // probe through ?dx=helpers -> exit 0; animation determinism (5 clean runs, a duration mismatch still fails); unknown scenarios on both sides -> HTTP_STATUS / PARITY_ERROR / EMPTY_RENDER.
 import { execFileSync, spawnSync } from "node:child_process"
 import fs from "node:fs"

@@ -15,6 +15,11 @@ class ShadcnParity::Scenario
     file = DIRECTORY.join("#{component}.json")
     raise NotFound, "no scenarios for #{component}" unless file.exist?
 
-    JSON.parse(file.read).fetch("scenarios").find { |s| s["id"] == id } || raise(NotFound, "unknown scenario #{id}")
+    scenarios = begin
+      JSON.parse(file.read).fetch("scenarios")
+    rescue JSON::ParserError, KeyError => e
+      raise NotFound, "malformed scenario file #{component}.json: #{e.message}"
+    end
+    scenarios.find { |s| s["id"] == id } || raise(NotFound, "unknown scenario #{id}")
   end
 end

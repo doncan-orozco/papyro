@@ -92,4 +92,12 @@ class ShadcnParity::TreeRendererTest < ActiveSupport::TestCase
     assert_includes html, "min-width: 200"
     assert_includes html, "width: 74px"
   end
+
+  test "a malformed component name raises TreeRenderer::Error" do
+    assert_raises(ShadcnParity::TreeRenderer::Error) { render_tree({ "c" => "Bad::Name" }) }
+  end
+
+  test "a child that is neither String nor Hash raises TreeRenderer::Error" do
+    assert_raises(ShadcnParity::TreeRenderer::Error) { render_tree({ "c" => "_div", "children" => [ 1 ] }) }
+  end
 end

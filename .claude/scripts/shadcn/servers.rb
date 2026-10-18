@@ -120,13 +120,22 @@ def start(opts)
   rails_port = opts[:rails_port] || pick_port(DEFAULTS[:rails])
   vite_port = opts[:vite_port] || pick_port(DEFAULTS[:vite], [rails_port])
 
-  rails_pid = spawn_dummy(rails_port)
-  vite_pid = Process.spawn("npm", "run", "dev", "--", "--port", vite_port.to_s, "--strictPort", "--host", "127.0.0.1",
-                           chdir: ShadcnLayout::CATALOG_DIR, out: File.expand_path("#{TMP_DIR}/vite.log"), err: [:child, :out], pgroup: true)
-  [rails_pid, vite_pid].each { |pid| Process.detach(pid) }
-
   rails_url = "http://localhost:#{rails_port}"
   vite_url = "http://localhost:#{vite_port}"
+  rails_pid = spawn_dummy(rails_port)
+  vite_pid = begin
+    Process.spawn("npm", "run", "dev", "--", "--port", vite_port.to_s, "--strictPort", "--host", "127.0.0.1",
+                  chdir: ShadcnLayout::CATALOG_DIR, out: File.expand_path("#{TMP_DIR}/vite.log"), err: [:child, :out], pgroup: true)
+  rescue SystemCallError
+    begin
+      Process.kill("TERM", -Process.getpgid(rails_pid)) # a failed Vite spawn must not orphan the dummy's Rails
+    rescue SystemCallError
+      nil
+    end
+    raise
+  end
+  [rails_pid, vite_pid].each { |pid| Process.detach(pid) }
+
   File.write(STATE, JSON.pretty_generate(rails: { port: rails_port, url: rails_url, pid: rails_pid }, vite: { port: vite_port, url: vite_url, pid: vite_pid }, started_at: Time.now.utc.iso8601))
 
   rails_ok = wait_for("#{rails_url}/up", 120)
