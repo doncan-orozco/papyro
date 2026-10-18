@@ -35,7 +35,7 @@
       "owns": [
         "app/assets/tailwind/application.css",
         "app/assets/tailwind/foundation/**",
-        "app/assets/tailwind/theme/** (bug fixes only)",
+        "gems/phlex-shadcn/app/assets/tailwind/phlex-shadcn/** (bug fixes only)",
         "app/assets/tailwind/vendor/**",
         "gems/phlex-shadcn/app/javascript/controllers/shadcn/theme_controller.js",
         "gems/phlex-shadcn/dev/react-shadcn-catalog/src/index.css",
@@ -56,9 +56,8 @@
       "last_green_sha": "46e82c5",
       "updated_at": "2026-10-10T07:43:57Z",
       "owns": [
-        "app/components/parity/**",
-        "app/views/design_system/parity/**",
-        "config/routes.rb (parity route only)",
+        "gems/phlex-shadcn/dev/parity/**",
+        "gems/phlex-shadcn/dev/dummy/**",
         "gems/phlex-shadcn/dev/react-shadcn-catalog/src/parity/**",
         "gems/phlex-shadcn/dev/react-shadcn-catalog/vite.config.ts",
         "gems/phlex-shadcn/dev/react-shadcn-catalog/package.json"

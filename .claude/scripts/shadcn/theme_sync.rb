@@ -13,7 +13,7 @@
 #        text-sidebar-foreground...) against tokens.css with the real Tailwind binary and fails when a class
 #        produces no CSS. This is the actual contract of tokens.css, independent of any CLI-generated file.
 #
-# Source of truth for COLORS is the host file app/assets/tailwind/theme/theme.css (the React catalog
+# Source of truth for COLORS is the gem's default theme gems/phlex-shadcn/app/assets/tailwind/phlex-shadcn/theme.css (the React catalog
 # imports it through a Vite alias, so there is nothing to sync).
 
 require_relative "layout"

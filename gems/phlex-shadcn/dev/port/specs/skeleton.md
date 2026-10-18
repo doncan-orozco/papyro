@@ -1,6 +1,6 @@
 # Skeleton (`Components::V2::Skeleton`)
 
-Oracle: `docs/shadcn-port/oracle/src/skeleton.tsx` (style `new-york-v4`, source_sha `f51ce0fcd31e5c31`), manifest `docs/shadcn-port/oracle/manifest/skeleton.json`. Tier `static`: no Stimulus controller, no primitive, no Radix import (`radix_primitives: []`, `use_client: false`). Single export `Skeleton`; single data-slot `skeleton`.
+Oracle: `gems/phlex-shadcn/dev/port/oracle/src/skeleton.tsx` (style `new-york-v4`, source_sha `f51ce0fcd31e5c31`), manifest `gems/phlex-shadcn/dev/port/oracle/manifest/skeleton.json`. Tier `static`: no Stimulus controller, no primitive, no Radix import (`radix_primitives: []`, `use_client: false`). Single export `Skeleton`; single data-slot `skeleton`.
 
 ## API
 

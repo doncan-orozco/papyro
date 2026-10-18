@@ -1,6 +1,6 @@
 # API mapping: React shadcn -> Phlex
 
-One table, applied mechanically by the builder AND by the harness (`Components::Parity::TreeRenderer` converts the JSON scenario tree with exactly these rules, so a wrong rule fails the gate).
+One table, applied mechanically by the builder AND by the harness (`ShadcnParity::TreeRenderer` converts the JSON scenario tree with exactly these rules, so a wrong rule fails the gate).
 
 | React | Phlex | Notes |
 |---|---|---|

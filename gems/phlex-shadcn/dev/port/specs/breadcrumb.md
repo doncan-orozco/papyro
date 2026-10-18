@@ -1,6 +1,6 @@
 # Breadcrumb (`Components::V2::Breadcrumb`)
 
-Oracle: `docs/shadcn-port/oracle/src/breadcrumb.tsx` (style `new-york-v4`, source_sha `c75fcd3d9e847018`), manifest `docs/shadcn-port/oracle/manifest/breadcrumb.json`. Tier `static`: no Stimulus controller, no primitive. Seven exports, each one element with its own data-slot; no cva, no `data-[state=*]` tokens, no `non_rendered_slots`. The only Radix primitive is `Slot` (BreadcrumbLink `asChild`).
+Oracle: `gems/phlex-shadcn/dev/port/oracle/src/breadcrumb.tsx` (style `new-york-v4`, source_sha `c75fcd3d9e847018`), manifest `gems/phlex-shadcn/dev/port/oracle/manifest/breadcrumb.json`. Tier `static`: no Stimulus controller, no primitive. Seven exports, each one element with its own data-slot; no cva, no `data-[state=*]` tokens, no `non_rendered_slots`. The only Radix primitive is `Slot` (BreadcrumbLink `asChild`).
 
 ## API
 

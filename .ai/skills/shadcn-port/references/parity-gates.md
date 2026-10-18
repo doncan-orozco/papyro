@@ -27,7 +27,7 @@ For each failing diff the auditor assigns exactly one `cause` and a `fix_target`
 ## Harness contract
 
 - React: `gems/phlex-shadcn/dev/react-shadcn-catalog` serves `/#/parity/<component>/<scenarioId>` which renders `tree` through `import.meta.glob("/src/components/ui/*.tsx")`; no chrome except the tree. Body has `class="bg-background text-foreground"`.
-- Phlex: dev/test-only route `GET /design-system/parity/:component/:scenario` -> `Views::DesignSystem::Parity::Show` -> `Components::Parity::TreeRenderer` reading the same JSON and applying `api-mapping.md`. Same body classes, same fonts, same CSS variables source (generated from one file; see theme-contract.md).
+- Phlex: route of the dummy app (`gems/phlex-shadcn/dev/dummy`) `GET /design-system/parity/:component/:scenario` -> `ParityScenariosController` -> `ShadcnParity::Page` -> `ShadcnParity::TreeRenderer` reading the same JSON and applying `api-mapping.md`. Same body classes, same fonts, same CSS variables source (generated from one file; see theme-contract.md).
 - The Phlex page sets `data-turbo="false"` on `<body>` (React has no Turbo; a `#hash` link click must not cause a Turbo visit that re-renders the body and loses open layers/focus).
 - Both pages load the same font files and set `html { font-size: 16px }`.
 - Runner ignores: `id`, `for`, Stimulus/Turbo/React attributes (regex in `parity_run.mjs`); ids are compared structurally through `A11Y_REL`.

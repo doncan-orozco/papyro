@@ -88,7 +88,7 @@ export default function Harness() {
     font.href = FONT_URL
     document.head.appendChild(font)
     // The catalog's Tailwind release ships another default font stack than the host's compiler; pin one stack on both sides
-    // (Views::DesignSystem::Parity::Show sets the same value) so font drift never masquerades as a component diff.
+    // (ShadcnParity::Page sets the same value) so font drift never masquerades as a component diff.
     const stack = document.createElement("style")
     stack.textContent = `:root{--font-sans:${FONT_STACK}}`
     document.head.appendChild(stack)

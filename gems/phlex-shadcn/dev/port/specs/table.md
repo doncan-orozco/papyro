@@ -1,6 +1,6 @@
 # Table (`Components::V2::Table`)
 
-Oracle: `docs/shadcn-port/oracle/src/table.tsx` (style `new-york-v4`, manifest `source_sha` `bd1a9fc83a5a2149`), manifest `docs/shadcn-port/oracle/manifest/table.json`. Tier `static`: the file starts with `"use client"` but uses no hook, no Radix primitive, no cva, no icon, no text literal (manifest `radix_primitives: []`, `hooks: []`, `icons: []`, `cva: {}`). No Stimulus controller. Exports `Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableHead`, `TableRow`, `TableCell`, `TableCaption`. Data-slots `table-container`, `table`, `table-header`, `table-body`, `table-footer`, `table-row`, `table-head`, `table-cell`, `table-caption`. Registry example: `table-demo` (`https://ui.shadcn.com/r/styles/new-york-v4/table-demo.json`).
+Oracle: `gems/phlex-shadcn/dev/port/oracle/src/table.tsx` (style `new-york-v4`, manifest `source_sha` `bd1a9fc83a5a2149`), manifest `gems/phlex-shadcn/dev/port/oracle/manifest/table.json`. Tier `static`: the file starts with `"use client"` but uses no hook, no Radix primitive, no cva, no icon, no text literal (manifest `radix_primitives: []`, `hooks: []`, `icons: []`, `cva: {}`). No Stimulus controller. Exports `Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableHead`, `TableRow`, `TableCell`, `TableCaption`. Data-slots `table-container`, `table`, `table-header`, `table-body`, `table-footer`, `table-row`, `table-head`, `table-cell`, `table-caption`. Registry example: `table-demo` (`https://ui.shadcn.com/r/styles/new-york-v4/table-demo.json`).
 
 ## API
 

@@ -1,6 +1,6 @@
 # Card (`Components::V2::Card`)
 
-Oracle: `docs/shadcn-port/oracle/src/card.tsx` (style `new-york-v4`, manifest `source_sha` `ef8305b12c3112da`), manifest `docs/shadcn-port/oracle/manifest/card.json`. Tier `static`: no `"use client"`, no Radix primitive, no Stimulus controller, no hooks, no icons, no cva. Exports `Card`, `CardHeader`, `CardFooter`, `CardTitle`, `CardAction`, `CardDescription`, `CardContent`. Seven parts, data-slots `card`, `card-header`, `card-title`, `card-description`, `card-action`, `card-content`, `card-footer`. Registry examples: `card-demo`, `card-with-form` (`https://ui.shadcn.com/r/styles/new-york-v4/<name>.json`).
+Oracle: `gems/phlex-shadcn/dev/port/oracle/src/card.tsx` (style `new-york-v4`, manifest `source_sha` `ef8305b12c3112da`), manifest `gems/phlex-shadcn/dev/port/oracle/manifest/card.json`. Tier `static`: no `"use client"`, no Radix primitive, no Stimulus controller, no hooks, no icons, no cva. Exports `Card`, `CardHeader`, `CardFooter`, `CardTitle`, `CardAction`, `CardDescription`, `CardContent`. Seven parts, data-slots `card`, `card-header`, `card-title`, `card-description`, `card-action`, `card-content`, `card-footer`. Registry examples: `card-demo`, `card-with-form` (`https://ui.shadcn.com/r/styles/new-york-v4/<name>.json`).
 
 ## API
 

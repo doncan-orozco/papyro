@@ -1,6 +1,6 @@
 # Kbd (`Components::V2::Kbd`, `Components::V2::Kbd::Group`)
 
-Oracle: `docs/shadcn-port/oracle/src/kbd.tsx` (style `new-york-v4`, source_sha `c0c0ae6a7d1adb77`), manifest `docs/shadcn-port/oracle/manifest/kbd.json`. Tier `static`: no Stimulus controller, no primitive, no Radix import (`radix_primitives: []`, `use_client: false`). Exports `Kbd` and `KbdGroup`; data-slots `kbd` and `kbd-group`.
+Oracle: `gems/phlex-shadcn/dev/port/oracle/src/kbd.tsx` (style `new-york-v4`, source_sha `c0c0ae6a7d1adb77`), manifest `gems/phlex-shadcn/dev/port/oracle/manifest/kbd.json`. Tier `static`: no Stimulus controller, no primitive, no Radix import (`radix_primitives: []`, `use_client: false`). Exports `Kbd` and `KbdGroup`; data-slots `kbd` and `kbd-group`.
 
 ## API
 

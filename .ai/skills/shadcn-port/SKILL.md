@@ -42,6 +42,8 @@ R16. **DX helpers are generated, never written.** Every compound root `yield sel
 | Phlex port | `gems/phlex-shadcn/lib/phlex/shadcn/<name>.rb` (+ `gems/phlex-shadcn/lib/phlex/shadcn/<name>/` for large parts); nested parts like `Dialog::Content` live in the same file |
 | Stimulus | `gems/phlex-shadcn/app/javascript/controllers/shadcn/<name>_controller.js`, primitives in `gems/phlex-shadcn/app/javascript/shadcn/primitives/` |
 
+Path authority: `.claude/scripts/shadcn/layout.rb` (`ShadcnLayout`) is the single place that resolves every location above; scripts and agents never hard-code them. `ruby .claude/scripts/shadcn/layout.rb --json` prints the resolved paths, and the `SHADCN_*` environment variables (`SHADCN_GEM_DIR`, `SHADCN_DEV_DIR`, `SHADCN_PORT_DIR`, ...) override them. The Phlex side of the parity runs is served by the dummy app (`ParityScenariosController` -> `ShadcnParity::Page` -> `ShadcnParity::TreeRenderer`, same `/design-system/parity/<component>/<scenario>` URL); boot both servers with `ruby .claude/scripts/shadcn/servers.rb start`.
+
 ## References (load on demand)
 
 - `references/api-mapping.md`: React -> Ruby mapping table and examples (Button, Dialog, controlled/uncontrolled).
