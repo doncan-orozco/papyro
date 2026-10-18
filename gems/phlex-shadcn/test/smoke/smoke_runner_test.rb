@@ -14,12 +14,12 @@ class SmokeRunnerTest < Minitest::Test
   def readme = Smoke::Readme.new(GEM_ROOT.join("README.md"))
 
   def test_the_readme_install_steps_are_the_ones_the_smoke_replays
-    assert_equal %w[bundle\ install bin/rails\ g\ phlex:shadcn:install bin/rails\ tailwindcss:build], readme.install_commands
+    assert_equal [ "bundle install", "bin/rails g phlex:shadcn:install", "bin/rails tailwindcss:build" ], readme.install_commands
     assert_includes readme.gemfile_lines, 'gem "phlex-shadcn"'
     assert_includes readme.gemfile_lines, 'gem "phlex-rails"'
     assert_match(/class Views::Demo::Index < Views::Base/, readme.view_source)
     assert_match(/class DemoController < ApplicationController/, readme.controller_source)
-    assert_match(/\Arequire "phlex\/shadcn"/, readme.without_rails_source)
+    assert_match(%r{\Arequire "phlex/shadcn"}, readme.without_rails_source)
   end
 
   def test_the_docs_fences_include_the_readme_and_every_guide
@@ -54,6 +54,7 @@ class SmokeRunnerTest < Minitest::Test
     assert_includes matrix.fetch("ruby").map(&:to_s), "3.2", "the lowest Ruby the gemspec allows is tested"
     matrix.fetch("gemfile").each do |gemfile|
       path = GEM_ROOT.join(gemfile)
+
       assert_predicate path, :file?, gemfile
       pinned = File.read(path)[/gem "phlex", "([^"]+)"/, 1]
       next unless pinned
