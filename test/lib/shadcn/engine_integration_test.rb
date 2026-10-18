@@ -60,10 +60,11 @@ class PhlexShadcnEngineIntegrationTest < ActiveSupport::TestCase
     assert_equal 1, Rake::Task["theme:check"].actions.size
   end
 
-  test "host Ruby does not reach into the gem's internals or paths" do
-    pattern = %r{Phlex::Shadcn::(Engine|Loader|Generators)|gems/phlex-shadcn/(app|lib|vendor|config)}
-    offenders = Dir[Rails.root.join("{app,lib,config}/**/*.rb")].select { |file| File.read(file).match?(pattern) }
+  test "host Ruby does not reach into the gem's internals or repo paths" do
+    internals = /Phlex::Shadcn::(Engine|Loader|Generators)|gems\/phlex-shadcn\/(app|lib|vendor|config)/
+    offenders = Dir[Rails.root.join("{app,lib,config}/**/*.rb")].select { |file| File.read(file).match?(internals) }
+    offenders += Dir[Rails.root.join("app/**/*.rb")].select { |file| File.read(file).include?("gems/phlex-shadcn/") }
 
-    assert_empty offenders
+    assert_empty offenders.uniq
   end
 end
