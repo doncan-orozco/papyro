@@ -18,9 +18,22 @@ export default class extends Controller {
   static targets = ["list", "trigger", "content", "deferred"]
 
   connect() {
-    this.current = this.valueValue
-    this.animationGuard = true
+    this.#setup()
+    document.addEventListener("turbo:before-cache", this.onBeforeCache)
+  }
+
+  disconnect() {
+    document.removeEventListener("turbo:before-cache", this.onBeforeCache)
+    clearTimeout(this.restoreTimer)
+    this.#teardown()
+  }
+
+  #setup() {
     this.triggers = this.triggerTargets.map((el) => ({ el, value: el.getAttribute("data-shadcn--tabs-item-value") }))
+    // The selection lives in the DOM: a snapshot (or a set-up after before-cache) keeps the tab the user chose.
+    const active = this.triggers.find(({ el }) => el.dataset.state === "active")
+    this.current = !this.controlledValue && active ? active.value : this.valueValue
+    this.animationGuard = true
     this.panels = this.#buildPanels()
     const list = this.hasListTarget ? this.listTarget : null
     this.roving = list && rovingFocus(list, {
@@ -32,11 +45,27 @@ export default class extends Controller {
     this.ready = true
   }
 
-  disconnect() {
+  #teardown() {
     this.ready = false
     this.roving?.release()
+    this.#restorePanels()
+  }
+
+  #restorePanels() {
     this.panels?.forEach((panel) => this.#restore(panel))
     this.panels = []
+  }
+
+  // A page snapshot must hold the server markup (an inactive panel with its body template). Only the panels are put back: the
+  // triggers and their roving tab stop are what the user sees on a visit that keeps the page (a link to #hash), and Turbo takes
+  // the snapshot one timer tick after this event (hence the two ticks below). The panels are built again from the snapshot-shaped
+  // markup once it is taken; a real navigation disconnects the controller first, which cancels that.
+  onBeforeCache = () => {
+    clearTimeout(this.restoreTimer)
+    this.#restorePanels()
+    this.restoreTimer = setTimeout(() => {
+      this.restoreTimer = setTimeout(() => { this.panels = this.#buildPanels() })
+    })
   }
 
   valueValueChanged() {

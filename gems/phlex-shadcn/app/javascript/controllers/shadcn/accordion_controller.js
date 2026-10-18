@@ -24,14 +24,44 @@ export default class extends Controller {
   static targets = ["item", "trigger", "content"]
 
   connect() {
+    this.#setup()
+    document.addEventListener("turbo:before-cache", this.onBeforeCache)
+  }
+
+  disconnect() {
+    document.removeEventListener("turbo:before-cache", this.onBeforeCache)
+    clearTimeout(this.restoreTimer)
+    this.#teardown()
+  }
+
+  #setup() {
     this.records = this.itemTargets.map((el) => this.#record(el))
     this.element.addEventListener("keydown", this.onKeydown)
   }
 
-  disconnect() {
+  #teardown() {
     this.element.removeEventListener("keydown", this.onKeydown)
     this.records?.forEach((record) => record.collapsible?.release())
     this.records = []
+  }
+
+  // A page snapshot must hold the server markup: a closed content with its body template (connect() removed it, so a restored
+  // page could never open the item). Turbo takes the snapshot one timer tick after this event (hence the two ticks below) and
+  // also for visits that keep the page (a link to #hash), so the controller is set up again once the snapshot is taken; a real
+  // navigation disconnects it first, which cancels that.
+  onBeforeCache = () => {
+    clearTimeout(this.restoreTimer)
+    this.records?.forEach((record) => this.#restoreBody(record))
+    this.#teardown()
+    this.restoreTimer = setTimeout(() => {
+      this.restoreTimer = setTimeout(() => this.#setup())
+    })
+  }
+
+  #restoreBody(record) {
+    if (record.mounted) return
+    record.body.setAttribute("data-shadcn--accordion-target", "body")
+    record.contentEl.replaceChildren(record.body)
   }
 
   toggle(event) {
