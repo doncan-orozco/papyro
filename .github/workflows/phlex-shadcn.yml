@@ -16,14 +16,10 @@ on:
     paths:
       - "gems/phlex-shadcn/**"
       - ".github/workflows/phlex-shadcn.yml"
-      - ".claude/scripts/shadcn/servers.rb"
-      - ".claude/scripts/shadcn/layout.rb"
   pull_request:
     paths:
       - "gems/phlex-shadcn/**"
       - ".github/workflows/phlex-shadcn.yml"
-      - ".claude/scripts/shadcn/servers.rb"
-      - ".claude/scripts/shadcn/layout.rb"
 
 defaults:
   run:
