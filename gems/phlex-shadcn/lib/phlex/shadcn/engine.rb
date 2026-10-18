@@ -33,6 +33,18 @@ module Phlex
       JAVASCRIPT_DIRECTORIES = %w[app/javascript vendor/javascript].freeze
       private_constant :JAVASCRIPT_DIRECTORIES
 
+      # Prepended to Propshaft::LoadPath: drops the Tailwind engine stubs (app/assets/builds/tailwind/ of the app) from the served assets.
+      # Overrides the private file filter of Propshaft 1.x; test/engine/stub_css_test.rb fails if a Propshaft release stops calling it.
+      module TailwindStubFilter
+        private
+
+        def without_dotfiles(files)
+          stubs = "#{::Rails.root.join('app/assets/builds/tailwind')}/"
+          super.reject { |file| file.to_s.start_with?(stubs) }
+        end
+      end
+      private_constant :TailwindStubFilter
+
       config.phlex_shadcn = ActiveSupport::OrderedOptions.new
       config.phlex_shadcn.theme_dir = nil
       # Short `theme:list|use|import|check` aliases of the phlex_shadcn:theme:* tasks. Turn them off while the app defines its own
@@ -61,6 +73,15 @@ module Phlex
         if app.config.respond_to?(:assets) && app.config.assets.respond_to?(:excluded_paths)
           path = root.join("app/assets/tailwind")
           app.config.assets.excluded_paths << path unless app.config.assets.excluded_paths.map(&:to_s).include?(path.to_s)
+        end
+      end
+
+      # The stub tailwindcss-rails writes to app/assets/builds/tailwind/<engine>.css holds an absolute `@import` that only the Tailwind CLI
+      # resolves. Propshaft can exclude load-path roots but not a directory inside one, and `stylesheet_link_tag :app` links every css under
+      # app/assets, so without this a fresh app links the stub and the browser 404s on the import (and the stub's path is disclosed).
+      initializer "phlex_shadcn.hide_tailwind_stubs" do |app|
+        if defined?(::Propshaft::LoadPath) && app.config.respond_to?(:assets) && !(::Propshaft::LoadPath < TailwindStubFilter)
+          ::Propshaft::LoadPath.prepend(TailwindStubFilter)
         end
       end
 
