@@ -3,7 +3,9 @@ import { Controller } from "@hotwired/stimulus"
 // Light / Dark / System. shadcn themes need only `.dark` on <html> (light is its absence), so this
 // controller toggles that single class and mirrors the OS preference into it when the choice is "system".
 // The choice persists in localStorage under `storageKey` (default "shadcn-theme"); a pre-paint script that avoids the flash of the
-// wrong theme has to read the same key. Storage that throws (private windows, blocked site data) degrades to the system preference.
+// wrong theme has to read the same key and apply `.dark` and `data-theme` on <html> the way #apply does. The key is read once at connect and
+// must stay static while the controller is connected. Storage that throws (private windows, blocked site data) degrades to the system
+// preference. disconnect leaves `.dark` and `data-theme` in place on purpose (a persisted page-wide choice; it keeps Turbo snapshots right).
 //
 //   <div data-controller="shadcn--theme" data-shadcn--theme-storage-key-value="my-app-theme">
 //     <button data-action="shadcn--theme#setLight">...</button>  setDark / setSystem / toggle
@@ -12,6 +14,9 @@ export default class extends Controller {
     current: { type: String, default: "system" },
     storageKey: { type: String, default: "shadcn-theme" }
   }
+
+  // An empty attribute must not turn into the "" key shared by everything.
+  get #key() { return this.storageKeyValue || "shadcn-theme" }
 
   #mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
   #systemListener = () => this.#apply()
@@ -46,7 +51,7 @@ export default class extends Controller {
   // The stored choice when it is "light" or "dark"; anything else (nothing stored, a stale value, blocked storage) is "system".
   #read() {
     try {
-      const stored = localStorage.getItem(this.storageKeyValue)
+      const stored = localStorage.getItem(this.#key)
       return stored === "light" || stored === "dark" ? stored : "system"
     } catch {
       return "system"
@@ -55,8 +60,8 @@ export default class extends Controller {
 
   #write(theme) {
     try {
-      if (theme === "system") localStorage.removeItem(this.storageKeyValue)
-      else localStorage.setItem(this.storageKeyValue, theme)
+      if (theme === "system") localStorage.removeItem(this.#key)
+      else localStorage.setItem(this.#key, theme)
     } catch {
       // storage unavailable: the choice applies to this page only
     }

@@ -19,12 +19,12 @@ const act = (page, action) => page.evaluate((name) => window.Stimulus.getControl
 browserTest("theme: the default storage key is neutral and a stored choice is applied on connect", async ({ open }) => {
   const page = await open("defaults");
   await page.emulateMedia({ colorScheme: "light" });
-  await page.evaluate((key) => localStorage.setItem(key, "dark"), KEY);
+  await page.evaluate((key) => { localStorage.clear(); localStorage.setItem(key, "dark"); localStorage.setItem("papyro-theme", "dark"); }, KEY);
   await mount(page);
   assert.deepEqual(await html(page), { dark: true, theme: "dark" });
   await act(page, "setLight");
   assert.equal(await page.evaluate((key) => localStorage.getItem(key), KEY), "light");
-  assert.equal(await page.evaluate(() => localStorage.getItem("papyro-theme")), null, "the old project-specific key is never read or written");
+  assert.equal(await page.evaluate(() => localStorage.getItem("papyro-theme")), "dark", "the old project-specific key is never written");
   assert.deepEqual(await html(page), { dark: false, theme: "light" });
   await act(page, "setSystem");
   assert.equal(await page.evaluate((key) => localStorage.getItem(key), KEY), null, "system removes the stored choice");
@@ -33,13 +33,12 @@ browserTest("theme: the default storage key is neutral and a stored choice is ap
 browserTest("theme: data-shadcn--theme-storage-key-value overrides the key", async ({ open }) => {
   const page = await open("defaults");
   await page.emulateMedia({ colorScheme: "light" });
-  await page.evaluate(() => { localStorage.setItem("my-app-theme", "dark"); localStorage.setItem("shadcn-theme", "light"); });
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem("my-app-theme", "dark"); localStorage.setItem("shadcn-theme", "sentinel"); });
   await mount(page, 'data-shadcn--theme-storage-key-value="my-app-theme"');
   assert.deepEqual(await html(page), { dark: true, theme: "dark" }, "reads the custom key, not the default one");
   await act(page, "setLight");
-  assert.deepEqual(await page.evaluate(() => [localStorage.getItem("my-app-theme"), localStorage.getItem("shadcn-theme")]), ["light", "light"]);
   await act(page, "toggle");
-  assert.equal(await page.evaluate(() => localStorage.getItem("my-app-theme")), "dark");
+  assert.deepEqual(await page.evaluate(() => [localStorage.getItem("my-app-theme"), localStorage.getItem("shadcn-theme")]), ["dark", "sentinel"], "only the configured key is written");
 });
 
 browserTest("theme: an unknown stored value falls back to the system preference", async ({ open }) => {
@@ -73,4 +72,33 @@ browserTest("theme: the system preference is mirrored live while the choice is s
   assert.equal((await html(page)).dark, false);
   await page.emulateMedia({ colorScheme: "dark" });
   await page.waitForFunction(() => document.documentElement.classList.contains("dark"));
+});
+
+browserTest("theme: toggle cycles system, light, dark and dispatches shadcn--theme:changed with the choice", async ({ open }) => {
+  const page = await open("defaults");
+  await page.emulateMedia({ colorScheme: "light" });
+  await mount(page);
+  await page.evaluate(() => { window.__themes = []; document.addEventListener("shadcn--theme:changed", (event) => window.__themes.push(event.detail.theme)); });
+  for (let i = 0; i < 3; i++) await act(page, "toggle");
+  assert.deepEqual(await page.evaluate(() => window.__themes), ["light", "dark", "system"]);
+});
+
+browserTest("theme: an empty storage key value falls back to the default key", async ({ open }) => {
+  const page = await open("defaults");
+  await page.emulateMedia({ colorScheme: "light" });
+  await mount(page, 'data-shadcn--theme-storage-key-value=""');
+  await act(page, "setDark");
+  assert.equal(await page.evaluate((key) => localStorage.getItem(key), KEY), "dark");
+  assert.equal(await page.evaluate(() => localStorage.getItem("")), null);
+});
+
+browserTest("theme: after disconnect the system preference is no longer followed", async ({ open }) => {
+  const page = await open("defaults");
+  await page.emulateMedia({ colorScheme: "light" });
+  await mount(page);
+  await page.evaluate(() => document.querySelector("#theme-host").remove());
+  await settle(page);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await settle(page);
+  assert.equal((await html(page)).dark, false, "the media listener was released");
 });
