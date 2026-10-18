@@ -211,3 +211,36 @@ browserTest("checkbox: disconnecting and reconnecting keeps the bubble input's n
   await settle(page)
   assert.deepEqual(await read(), before)
 })
+
+browserTest("checkbox: a checked checkbox can be unchecked after a reconnect", async ({ open }) => {
+  const page = await open("form__bubble-input", "checkbox")
+  const errors = consoleErrors(page)
+  const box = page.locator(host("shadcn--checkbox")).first()
+  await box.click()
+  await settle(page)
+  assert.equal(await box.getAttribute("data-state"), "checked")
+  await page.evaluate(async () => {
+    const control = document.querySelector('[data-controller~="shadcn--checkbox"]')
+    const parent = control.parentNode
+    const next = control.nextSibling
+    control.remove()
+    await new Promise((resolve) => setTimeout(resolve))
+    parent.insertBefore(control, next)
+    await new Promise((resolve) => setTimeout(resolve))
+  })
+  await box.click()
+  await settle(page)
+  assert.equal(await box.getAttribute("data-state"), "unchecked")
+  assert.deepEqual(errors, [])
+})
+
+browserTest("scroll-area: a hovered root keeps its scrollbar through a snapshot that is not followed by a navigation", async ({ open }) => {
+  const page = await open("default__hover", "scroll-area")
+  await page.locator(host("shadcn--scroll-area")).first().hover()
+  await page.waitForSelector(SCROLLBAR)
+  await snapshot(page, "shadcn--scroll-area")
+  await afterSnapshotTicks(page)
+  await page.waitForSelector(SCROLLBAR) // no pointer move: the new controller learns about the pointer that is already inside
+  await settle(page)
+  assert.equal(await page.locator(SCROLLBAR).count(), 1)
+})

@@ -256,13 +256,18 @@ export default class extends Controller {
   // Back to the server shape so a Turbo cache snapshot reconnects to equivalent markup.
   #restore(panel) {
     panel.presence?.release()
+    const inactive = !panel.forceMount && panel.el?.dataset.state !== "active"
     if (panel.asChild) {
-      if (!panel.el) {
-        panel.body.setAttribute("data-shadcn--tabs-item-value", panel.value)
-        panel.body.setAttribute("data-shadcn--tabs-as-child", "true")
-        panel.anchor.replaceWith(panel.body)
-      } else panel.anchor.remove()
-      return
+      if (panel.el && !inactive) return panel.anchor.remove()
+      panel.el?.remove() // an exit animation still running
+      panel.el = null
+      panel.body.setAttribute("data-shadcn--tabs-item-value", panel.value)
+      panel.body.setAttribute("data-shadcn--tabs-as-child", "true")
+      return panel.anchor.replaceWith(panel.body)
+    }
+    if (inactive && panel.mounted) {
+      panel.el.hidden = true // release() cancels the onExited that would hide the panel
+      panel.mounted = false
     }
     if (!panel.mounted) panel.el.replaceChildren(panel.body)
   }

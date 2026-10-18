@@ -68,9 +68,14 @@ export default class extends Controller {
   // navigation disconnects it first, which cancels that.
   onBeforeCache = () => {
     clearTimeout(this.restoreTimer)
+    const hovered = this.records?.some((record) => record.hover) ?? false
     this.#teardown()
     this.restoreTimer = setTimeout(() => {
-      this.restoreTimer = setTimeout(() => this.#setup())
+      this.restoreTimer = setTimeout(() => {
+        this.#setup()
+        // The pointer may still be inside the root: no pointerenter will tell the new records.
+        if (hovered && this.typeValue === "hover" && this.element.matches(":hover")) this.onRootEnter()
+      })
     })
   }
 

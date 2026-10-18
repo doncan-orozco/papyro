@@ -60,15 +60,21 @@ export default class extends Controller {
   }
 
   #restoreMarkup(record) {
+    const closed = this.element.dataset.state !== "open"
     if (record.child) {
-      if (record.el) return record.anchor.remove()
+      if (record.el && (!closed || record.forceMount)) return record.anchor.remove()
+      record.el?.remove() // an exit animation still running
+      record.el = null
       record.template.setAttribute("data-shadcn--collapsible-target", "body")
       record.template.setAttribute("data-shadcn--collapsible-slot", "child")
       return record.anchor.replaceWith(record.template)
     }
-    if (record.mounted) return
+    if (record.forceMount || !closed) return
+    // An exit animation still running is finished here: release() cancels the onExited that would hide the content.
+    record.el.hidden = true
     record.body.setAttribute("data-shadcn--collapsible-target", "body")
     record.el.replaceChildren(record.body)
+    record.mounted = false
   }
 
   toggle(event) {

@@ -61,9 +61,15 @@ export default class extends Controller {
   }
 
   #restoreBody(record) {
-    if (record.mounted) return
+    if (record.forceMount || record.el.dataset.state === "open") return
+    // An exit animation still running is finished here: release() cancels the onExited that would hide the content.
+    const content = record.contentEl
+    content.hidden = true
+    content.style.removeProperty("--radix-collapsible-content-height")
+    content.style.removeProperty("--radix-collapsible-content-width")
     record.body.setAttribute("data-shadcn--accordion-target", "body")
-    record.contentEl.replaceChildren(record.body)
+    content.replaceChildren(record.body)
+    record.mounted = false
   }
 
   toggle(event) {
