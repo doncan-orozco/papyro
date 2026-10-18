@@ -118,15 +118,20 @@ export class FormBubbleInput {
    */
   release() {
     this.#resizeObserver?.disconnect()
+    this.#resizeObserver = null
     cancelAnimationFrame(this.#frame)
-    this.#form()?.removeEventListener("reset", this.#resetListener)
+    this.#frame = 0
+    this.#boundForm?.removeEventListener("reset", this.#resetListener)
+    this.#boundForm = null
     if (!this.#adopted) this.input?.remove()
+    this.#adopted = false
     this.input = null
   }
 
   #resizeObserver
   #frame = 0
   #adopted = false
+  #boundForm = null
   #onReset
   #resetListener = () => this.#onReset?.()
 
@@ -143,7 +148,8 @@ export class FormBubbleInput {
     if (this.type === "checkbox") this.input.indeterminate = this.state.indeterminate === true
     if (this.type !== "select") this.input.defaultChecked = this.checked
     this.#observeSize()
-    this.#form()?.addEventListener("reset", this.#resetListener)
+    this.#boundForm = this.#form()
+    this.#boundForm?.addEventListener("reset", this.#resetListener)
   }
 
   #create(tagName) {

@@ -17,6 +17,8 @@ export default class extends Controller {
   static targets = ["scrollbar"]
   static values = { type: { type: String, default: "hover" }, scrollHideDelay: { type: Number, default: 600 } }
 
+  restoreTimer = null
+
   connect() {
     this.#setup()
     document.addEventListener("turbo:before-cache", this.onBeforeCache)
@@ -47,7 +49,9 @@ export default class extends Controller {
   #teardown() {
     this.element.removeEventListener("pointerenter", this.onRootEnter)
     this.element.removeEventListener("pointerleave", this.onRootLeave)
-    this.records?.forEach((record) => {
+    if (!this.records) return
+
+    this.records.forEach((record) => {
       clearTimeout(record.hideTimer)
       record.scrollEnd.cancel()
       record.stopScroll?.()

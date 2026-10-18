@@ -15,6 +15,8 @@ export default class extends Controller {
   static values = { controlled: Boolean, disabled: Boolean, contentId: String }
   static targets = ["trigger", "content", "body"]
 
+  restoreTimer = null
+
   connect() {
     this.#setup()
     document.addEventListener("turbo:before-cache", this.onBeforeCache)
@@ -23,6 +25,7 @@ export default class extends Controller {
   disconnect() {
     document.removeEventListener("turbo:before-cache", this.onBeforeCache)
     clearTimeout(this.restoreTimer)
+    this.restoring = false
     this.#teardown()
   }
 
@@ -47,8 +50,12 @@ export default class extends Controller {
     clearTimeout(this.restoreTimer)
     this.records?.forEach((record) => this.#restoreMarkup(record))
     this.#teardown()
+    this.restoring = true
     this.restoreTimer = setTimeout(() => {
-      this.restoreTimer = setTimeout(() => this.#setup())
+      this.restoreTimer = setTimeout(() => {
+        this.#setup()
+        this.restoring = false
+      })
     })
   }
 
@@ -65,7 +72,7 @@ export default class extends Controller {
   }
 
   toggle(event) {
-    if (event.defaultPrevented) return
+    if (event.defaultPrevented || this.restoring) return
     const next = this.element.dataset.state !== "open"
     if (!this.controlledValue) this.#set(next)
     this.dispatch("open-change", { detail: { open: next }, cancelable: false })

@@ -162,3 +162,15 @@ primitiveTest("form_bubble_input: release() leaves an adopted server-rendered in
     return { afterRelease, adoptedAgain: control.nextElementSibling === kept && again.present, inputs: document.querySelectorAll("input").length };`);
   assert.deepEqual(result, { afterRelease: { inDom: true, name: "terms", required: true, form: "form", present: false }, adoptedAgain: true, inputs: 1 });
 }, { html });
+
+primitiveTest("form_bubble_input: release() after the control left the form still stops the reset callback", async (page) => {
+  const result = await run(page, `
+    let resets = 0;
+    ${make("{ type: \"checkbox\", onReset: () => resets++ }")}
+    const form = document.getElementById("form");
+    control.remove();
+    bubble.release();
+    form.reset();
+    return resets;`);
+  assert.equal(result, 0);
+}, { html });

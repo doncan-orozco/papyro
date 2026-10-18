@@ -17,6 +17,8 @@ export default class extends Controller {
   }
   static targets = ["list", "trigger", "content", "deferred"]
 
+  restoreTimer = null
+
   connect() {
     this.#setup()
     document.addEventListener("turbo:before-cache", this.onBeforeCache)
@@ -25,6 +27,7 @@ export default class extends Controller {
   disconnect() {
     document.removeEventListener("turbo:before-cache", this.onBeforeCache)
     clearTimeout(this.restoreTimer)
+    this.restoring = false
     this.#teardown()
   }
 
@@ -63,8 +66,13 @@ export default class extends Controller {
   onBeforeCache = () => {
     clearTimeout(this.restoreTimer)
     this.#restorePanels()
+    this.restoring = true
     this.restoreTimer = setTimeout(() => {
-      this.restoreTimer = setTimeout(() => { this.panels = this.#buildPanels() })
+      this.restoreTimer = setTimeout(() => {
+        this.panels = this.#buildPanels()
+        this.restoring = false
+        this.#apply(this.current)
+      })
     })
   }
 
@@ -114,6 +122,7 @@ export default class extends Controller {
 
   // Controlled: dispatch only. Uncontrolled: update the DOM, then dispatch once per actual change.
   #request(value) {
+    if (this.restoring) return // the panels are put back for the snapshot; they are built again two ticks later
     if (this.controlledValue) {
       if (value !== this.current) this.dispatch("value-change", { detail: { value }, cancelable: false })
       return

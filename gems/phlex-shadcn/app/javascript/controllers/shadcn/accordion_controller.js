@@ -23,6 +23,8 @@ export default class extends Controller {
   }
   static targets = ["item", "trigger", "content"]
 
+  restoreTimer = null
+
   connect() {
     this.#setup()
     document.addEventListener("turbo:before-cache", this.onBeforeCache)

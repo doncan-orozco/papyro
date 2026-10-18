@@ -5,6 +5,8 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["image", "fallback"]
 
+  restoreTimer = null
+
   connect() {
     this.#setup()
     document.addEventListener("turbo:before-cache", this.onBeforeCache)
@@ -89,6 +91,7 @@ export default class extends Controller {
     this.stopLoading = () => {
       image.removeEventListener("load", onLoad)
       image.removeEventListener("error", onError)
+      image.src = "" // the detached image stops loading
     }
     this.#setStatus(this.#statusOf(image))
   }
