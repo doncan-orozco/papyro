@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-# Page shell of the parity harness. Same body classes, padding and fonts as react-shadcn-catalog/src/parity/Harness.tsx,
+# Page shell of the parity harness. Same body classes, padding and fonts as gems/phlex-shadcn/dev/react-shadcn-catalog/src/parity/Harness.tsx,
 # nothing else. A failed render shows an element with `data-parity-error` (the runner reports PARITY_ERROR).
 class Views::DesignSystem::Parity::Show < Views::Base
   FONT_URL = "https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@400;500;600;700&display=swap"
 
-  # Same value as FONT_STACK in react-shadcn-catalog/src/parity/Harness.tsx (the catalog's Tailwind release has another default).
+  # Same value as FONT_STACK in gems/phlex-shadcn/dev/react-shadcn-catalog/src/parity/Harness.tsx (the catalog's Tailwind release has another default).
   FONT_STACK = 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'
 
   def initialize(html: nil, error: nil)

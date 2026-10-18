@@ -17,14 +17,14 @@ The old audit judged code quality bottom-up. Here the oracle exists, so truth is
 
 ## Phase 0: Prepare
 1. Resolve scope; `ruby .claude/scripts/shadcn/port_state.rb summary --json` to map names, ignore `_infra` unless named.
-2. Browser gates need the dev servers: `ruby .claude/scripts/shadcn/servers.rb status` must exit 0 (they are started by `servers.rb start`, on free ports recorded in `tmp/shadcn-port/servers.json`, which the runner reads by itself). If it does not and you are not `--no-browser`, run `playwright_ensure.rb` then `servers.rb start`, and stop it again when the audit ends if YOU started it.
+2. Browser gates need the dev servers: `ruby .claude/scripts/shadcn/servers.rb status` must exit 0 (they are started by `servers.rb start`, on free ports recorded in `gems/phlex-shadcn/dev/tmp/shadcn-port/servers.json`, which the runner reads by itself). If it does not and you are not `--no-browser`, run `playwright_ensure.rb` then `servers.rb start`, and stop it again when the audit ends if YOU started it.
 3. `mkdir -p tmp/shadcn-port/<c>` per component. TodoWrite one item per component.
 
 ## Phase 1: Map (scripts, no agents)
 For each component, in parallel Bash calls (up to 6 at a time), write outputs under `tmp/shadcn-port/<c>/`:
 1. G1: `ruby .claude/scripts/shadcn/static_gate.rb --component <c> > g1.json`
 2. Scenario coverage: `ruby .claude/scripts/shadcn/scenario_coverage.rb --component <c> > coverage.json` (a gap is a `Q_SCENARIO_GAP`, MANDATORY)
-3. G2+G3 (browser): `cd react-shadcn-catalog && node ../.claude/scripts/shadcn/parity_run.mjs --component <c> > ../tmp/shadcn-port/<c>/g2.json`; then G2b for components with DX helpers: the same with `--dx helpers --only <ids starting default, variant- or example__, cap 25>` > `g2b.json`
+3. G2+G3 (browser): `cd gems/phlex-shadcn/dev/react-shadcn-catalog && node ../../../../.claude/scripts/shadcn/parity_run.mjs --component <c> > ../../../../tmp/shadcn-port/<c>/g2.json`; then G2b for components with DX helpers: the same with `--dx helpers --only <ids starting default, variant- or example__, cap 25>` > `g2b.json`
 4. G4 (browser, `--themes` or always for `--house`): `--theme slate|stone|zinc-radius0` with `--only` = scenario ids starting `default` or `variant-` (cap 12), plus `--dark`.
 Collect `{ component, g1, coverage, g2, g4 }` pass/fail and diff counts. A script crash is `HARNESS_ERROR`: re-run once, report it separately, never count it as a component failure.
 

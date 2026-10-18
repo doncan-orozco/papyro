@@ -15,7 +15,7 @@ app/assets/tailwind/vendor/   ← tw-animate.css, shadcn-tailwind.css (vendored 
 
 `application.css` imports, in order: `tailwindcss`, `vendor/tw-animate.css`, `vendor/shadcn-tailwind.css`, `theme/theme.css`, `theme/tokens.css`, `theme/legacy-compat.css`, then the existing imports. (`tw-animate-css` and `shadcn/tailwind.css` are what the shadcn `index` registry item depends on; re-vendor with `theme_sync.rb --vendor` when the catalog's `shadcn` package changes.)
 
-The React catalog does NOT own a copy: its `src/index.css` is `@import "tailwindcss"; @import "tw-animate-css"; @import "@host-theme/theme.css"; @import "@host-theme/tokens.css";` where Vite alias `@host-theme` -> `../app/assets/tailwind/theme`. Both apps read the same files, so there is no sync step and no drift check.
+The React catalog does NOT own a copy: its `src/index.css` is `@import "tailwindcss"; @import "tw-animate-css"; @import "@host-theme/theme.css"; @import "@host-theme/tokens.css";` where Vite alias `@host-theme` -> `../../../../app/assets/tailwind/theme`. Both apps read the same files, so there is no sync step and no drift check.
 
 ## Developer workflow (this is the product)
 

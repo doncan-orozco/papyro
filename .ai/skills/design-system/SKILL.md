@@ -60,7 +60,7 @@ Components that are not compound parts (`Button`, `Input`...) are always rendere
 
 ## Legacy
 
-`app/components/ui/*`, `controllers/ui/*` and the references below describe the **frozen first attempt**. They stay for existing pages until each caller is migrated to V2 (`docs/shadcn-port/CALLERS.md`). Do not extend them, do not copy from them.
+`app/components/ui/*`, `controllers/ui/*` and the references below describe the **frozen first attempt**. They stay for existing pages until each caller is migrated to V2 (`gems/phlex-shadcn/dev/port/CALLERS.md`). Do not extend them, do not copy from them.
 
 Legacy references (read only when touching a legacy file): `references/compound-components.md` (current: nested parts), `references/design-system.md`, `references/stimulus-interactive-components.md`, `references/shadcn-conversion-guide.md`, `references/css-variables-guide.md`, `references/toast-notifications.md`, `examples/interactive-components-examples.md`.
 

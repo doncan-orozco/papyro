@@ -26,7 +26,7 @@ For each failing diff the auditor assigns exactly one `cause` and a `fix_target`
 
 ## Harness contract
 
-- React: `react-shadcn-catalog` serves `/#/parity/<component>/<scenarioId>` which renders `tree` through `import.meta.glob("/src/components/ui/*.tsx")`; no chrome except the tree. Body has `class="bg-background text-foreground"`.
+- React: `gems/phlex-shadcn/dev/react-shadcn-catalog` serves `/#/parity/<component>/<scenarioId>` which renders `tree` through `import.meta.glob("/src/components/ui/*.tsx")`; no chrome except the tree. Body has `class="bg-background text-foreground"`.
 - Phlex: dev/test-only route `GET /design-system/parity/:component/:scenario` -> `Views::DesignSystem::Parity::Show` -> `Components::Parity::TreeRenderer` reading the same JSON and applying `api-mapping.md`. Same body classes, same fonts, same CSS variables source (generated from one file; see theme-contract.md).
 - The Phlex page sets `data-turbo="false"` on `<body>` (React has no Turbo; a `#hash` link click must not cause a Turbo visit that re-renders the body and loses open layers/focus).
 - Both pages load the same font files and set `html { font-size: 16px }`.
@@ -37,7 +37,7 @@ For each failing diff the auditor assigns exactly one `cause` and a `fix_target`
 
 ## Reports
 
-`tmp/shadcn-port/<component>/{g1.json,g2.json,g4-<theme>.json,triage.json}` and `shots/` (optional PNG pairs). `docs/shadcn-port/state.json` stores per component: `status` (`pending|planned|built|fixing|done|blocked`), `iteration`, `last_green_sha`, `oracle_sha`, `blocked_reason`.
+`tmp/shadcn-port/<component>/{g1.json,g2.json,g4-<theme>.json,triage.json}` and `shots/` (optional PNG pairs). `gems/phlex-shadcn/dev/port/state.json` stores per component: `status` (`pending|planned|built|fixing|done|blocked`), `iteration`, `last_green_sha`, `oracle_sha`, `blocked_reason`.
 
 The runner applies `--dark` and the theme CSS (as an adopted stylesheet) in an init script before any page script, so no colour transition starts after load.
 

@@ -38,7 +38,7 @@
         "app/assets/tailwind/theme/** (bug fixes only)",
         "app/assets/tailwind/vendor/**",
         "gems/phlex-shadcn/app/javascript/controllers/shadcn/theme_controller.js",
-        "react-shadcn-catalog/src/index.css",
+        "gems/phlex-shadcn/dev/react-shadcn-catalog/src/index.css",
         "lib/shadcn/**",
         "lib/tasks/theme.rake",
         "test/lib/shadcn/**"
@@ -59,9 +59,9 @@
         "app/components/parity/**",
         "app/views/design_system/parity/**",
         "config/routes.rb (parity route only)",
-        "react-shadcn-catalog/src/parity/**",
-        "react-shadcn-catalog/vite.config.ts",
-        "react-shadcn-catalog/package.json"
+        "gems/phlex-shadcn/dev/react-shadcn-catalog/src/parity/**",
+        "gems/phlex-shadcn/dev/react-shadcn-catalog/vite.config.ts",
+        "gems/phlex-shadcn/dev/react-shadcn-catalog/package.json"
       ],
       "kind": "infra",
       "deps": [
@@ -82,8 +82,8 @@
       "owns": [
         "app/javascript/v2/primitives/**",
         "config/importmap.rb (primitives and controllers pins)",
-        "react-shadcn-catalog/src/parity/primitives/**",
-        "docs/shadcn-port/scenarios/_primitives-*.json"
+        "gems/phlex-shadcn/dev/react-shadcn-catalog/src/parity/primitives/**",
+        "gems/phlex-shadcn/dev/port/scenarios/_primitives-*.json"
       ],
       "kind": "infra",
       "deps": [

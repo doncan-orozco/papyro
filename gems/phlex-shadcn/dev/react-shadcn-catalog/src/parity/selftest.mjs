@@ -1,17 +1,19 @@
 // _harness self-test: proves both sides of the parity harness before any component uses them.
-//   cd react-shadcn-catalog && node src/parity/selftest.mjs      -> tmp/shadcn-port/_harness/selftest.json, exit 1 on any failed check
+//   cd <catalog dir> && node src/parity/selftest.mjs      -> <TMP_DIR>/_harness/selftest.json, exit 1 on any failed check
 // Checks: servers.rb status; identical probes -> parity_run exit 0; deliberately broken Phlex probe (extra class, via the
 // tmp/shadcn-port/_harness/break-probe flag file read by Components::Parity::Probe) -> exit 1 with a CLASS diff; the compound
 // probe through ?dx=helpers -> exit 0; animation determinism (5 clean runs, a duration mismatch still fails); unknown scenarios on both sides -> HTTP_STATUS / PARITY_ERROR / EMPTY_RENDER.
-import { spawnSync } from "node:child_process"
+import { execFileSync, spawnSync } from "node:child_process"
 import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
 
-const ROOT = path.resolve(process.cwd(), "..")
+// Repo root = the git checkout; every other path comes from layout.rb (the one place that knows the dev-kit layout).
+const ROOT = execFileSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" }).trim()
+const LAYOUT = JSON.parse(execFileSync("ruby", [path.join(ROOT, ".claude/scripts/shadcn/layout.rb"), "--json"], { encoding: "utf8", cwd: ROOT }))
 const RUNNER = path.join(ROOT, ".claude/scripts/shadcn/parity_run.mjs")
-const FLAG = path.join(ROOT, "tmp/shadcn-port/_harness/break-probe")
-const recorded = JSON.parse(fs.readFileSync(path.join(ROOT, "tmp/shadcn-port/servers.json"), "utf8"))
+const FLAG = path.join(ROOT, LAYOUT.TMP_DIR, "_harness/break-probe")
+const recorded = JSON.parse(fs.readFileSync(path.join(ROOT, LAYOUT.SERVERS_FILE), "utf8"))
 const out = { checks: {}, at: new Date().toISOString() }
 
 const run = (extra, opts = {}) => {
@@ -54,14 +56,14 @@ const skipped = run(skipArgs)
 // (the duration-* class differs on purpose, so the checks look at the step names of the diffs, not at the exit code)
 const atStep = (r, step) => (r.report?.diffs ?? []).filter((d) => d.step?.startsWith(step))
 record("snapshot_false_skips_transient_diff", skipped.report && atStep(skipped, "1:wait").length === 0 && atStep(skipped, "2:wait").length > 0, { steps: [...new Set((skipped.report?.diffs ?? []).map((d) => d.step))] })
-const harnessSpec = JSON.parse(fs.readFileSync(path.join(ROOT, "docs/shadcn-port/scenarios/_harness.json"), "utf8"))
+const harnessSpec = JSON.parse(fs.readFileSync(path.join(ROOT, LAYOUT.SCENARIOS_DIR, "_harness.json"), "utf8"))
 const withRoot = (mutate, runArgs = skipArgs) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "harness-selftest-"))
-  fs.mkdirSync(path.join(dir, "docs/shadcn-port/scenarios"), { recursive: true })
+  fs.mkdirSync(path.join(dir, "scenarios"), { recursive: true })
   const copy = structuredClone(harnessSpec)
   copy.scenarios.forEach((sc) => mutate(sc))
-  fs.writeFileSync(path.join(dir, "docs/shadcn-port/scenarios/_harness.json"), JSON.stringify(copy))
-  try { return run([...runArgs, "--root", dir, "--react", recorded.vite.url, "--phlex", recorded.rails.url]) } finally { fs.rmSync(dir, { recursive: true, force: true }) }
+  fs.writeFileSync(path.join(dir, "scenarios/_harness.json"), JSON.stringify(copy))
+  try { return run([...runArgs, "--scenarios", path.join(dir, "scenarios"), "--react", recorded.vite.url, "--phlex", recorded.rails.url]) } finally { fs.rmSync(dir, { recursive: true, force: true }) }
 }
 const stripped = withRoot((sc) => (sc.steps ?? []).forEach((st) => { delete st.snapshot }))
 record("snapshot_default_still_compares", stripped.report && atStep(stripped, "1:wait").some((d) => d.kind === "STYLE"), { steps: [...new Set((stripped.report?.diffs ?? []).map((d) => d.step))] })
@@ -86,14 +88,15 @@ const noMotion = run(["--only", "no-motion-at-load"])
 record("no_motion_installed_before_load", noMotion.status === 0 && /addInitScript\(installNoMotion/.test(runnerSrc) && !/reducedMotion: sc\.animations/.test(runnerSrc) && /reducedMotion: "no-preference"/.test(runnerSrc), { exit: noMotion.status, diffs: noMotion.report?.total_diffs })
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "harness-selftest-"))
-fs.mkdirSync(path.join(tmp, "docs/shadcn-port/scenarios"), { recursive: true })
-fs.writeFileSync(path.join(tmp, "docs/shadcn-port/scenarios/_harness.json"), JSON.stringify({ component: "_harness", scenarios: [{ id: "ghost-scenario", tree: { c: "_div" }, steps: [] }] }))
-const ghost = run(["--root", tmp, "--react", recorded.vite.url, "--phlex", recorded.rails.url])
+fs.mkdirSync(path.join(tmp, "scenarios"), { recursive: true })
+fs.writeFileSync(path.join(tmp, "scenarios/_harness.json"), JSON.stringify({ component: "_harness", scenarios: [{ id: "ghost-scenario", tree: { c: "_div" }, steps: [] }] }))
+const ghost = run(["--scenarios", path.join(tmp, "scenarios"), "--react", recorded.vite.url, "--phlex", recorded.rails.url])
 fs.rmSync(tmp, { recursive: true, force: true })
 const want = ["HTTP_STATUS", "PARITY_ERROR", "EMPTY_RENDER"]
 record("broken_pages_reported", ghost.status === 1 && want.every((k) => kinds(ghost).includes(k)), { exit: ghost.status, kinds: kinds(ghost) })
 
 out.pass = Object.values(out.checks).every((c) => c.pass)
-fs.writeFileSync(path.join(ROOT, "tmp/shadcn-port/_harness/selftest.json"), JSON.stringify(out, null, 2))
+fs.mkdirSync(path.dirname(path.join(ROOT, LAYOUT.TMP_DIR, "_harness/selftest.json")), { recursive: true })
+fs.writeFileSync(path.join(ROOT, LAYOUT.TMP_DIR, "_harness/selftest.json"), JSON.stringify(out, null, 2))
 console.log(JSON.stringify(out, null, 2))
 process.exit(out.pass ? 0 : 1)

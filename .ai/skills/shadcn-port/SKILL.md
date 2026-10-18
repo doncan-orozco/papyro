@@ -1,6 +1,6 @@
 ---
 name: shadcn-port
-description: "Contract for the 1:1 shadcn/ui -> Phlex port: oracle-first, identical API, verbatim Tailwind classes, data-slot, variants and states, and theme compatibility. Use when creating, editing or auditing `gems/phlex-shadcn/lib/phlex/shadcn/*` as part of the shadcn port, `docs/shadcn-port/**`, or running /shadcn-plan, /shadcn-run, /shadcn-audit."
+description: "Contract for the 1:1 shadcn/ui -> Phlex port: oracle-first, identical API, verbatim Tailwind classes, data-slot, variants and states, and theme compatibility. Use when creating, editing or auditing `gems/phlex-shadcn/lib/phlex/shadcn/*` as part of the shadcn port, `gems/phlex-shadcn/dev/port/**`, or running /shadcn-plan, /shadcn-run, /shadcn-audit."
 ---
 
 # shadcn -> Phlex port contract
@@ -11,8 +11,8 @@ The React shadcn component (registry style `new-york-v4`, Radix base) is the **o
 
 Cite as `shadcn-port R<n>`.
 
-R1. **Oracle first.** Never write a class string, variant, default or prop from memory, and never from the legacy `app/components/ui/*`. Read `docs/shadcn-port/oracle/src/<name>.tsx` and `manifest/<name>.json`. → references/api-mapping.md
-R2. **Verbatim classes.** Every Tailwind token of the React source appears unchanged in the port and no other token is added. Variant tables are copied key for key (`"icon-sm"` stays `"icon-sm"`). Deviations are only allowed through `docs/shadcn-port/deviations/<name>.json` with a reason. → references/parity-gates.md (G1)
+R1. **Oracle first.** Never write a class string, variant, default or prop from memory, and never from the legacy `app/components/ui/*`. Read `gems/phlex-shadcn/dev/port/oracle/src/<name>.tsx` and `manifest/<name>.json`. → references/api-mapping.md
+R2. **Verbatim classes.** Every Tailwind token of the React source appears unchanged in the port and no other token is added. Variant tables are copied key for key (`"icon-sm"` stays `"icon-sm"`). Deviations are only allowed through `gems/phlex-shadcn/dev/port/deviations/<name>.json` with a reason. → references/parity-gates.md (G1)
 R3. **Same API, mechanically mapped.** `className`->`class:`, camelCase props->snake_case kwargs, `children`->block, `asChild`->`as_child:` (false | tag symbol | component instance, Radix Slot merge in `Phlex::Shadcn::Base`), `defaultX`->`default_x:`, `onXChange`->dispatched `x-change` event, compound exports `DialogContent`->`Dialog::Content` (the name rule lives in one place). → references/api-mapping.md
 R4. **Accept both string and symbol options.** `variant: :outline` and `variant: "outline"`, `size: "icon-sm"` and `size: :icon_sm` behave identically; defaults equal `defaultVariants`.
 R5. **`data-slot` on every part,** with the exact value of the React source, on the same element.
@@ -21,7 +21,7 @@ R7. **Same DOM, not same look.** Tag, role, aria-*, `data-state/side/align/orien
 R8. **Every state in the matrix.** Each cva variant x size, each Radix state (`open/closed`, `checked/unchecked/indeterminate`, `active/inactive`, `on/off`, `disabled`, `aria-invalid`, orientation, side/align), with/without icon, dark mode. The scenario file lists them; none may be skipped. → references/state-matrix.md
 R9. **Theme-neutral.** Only semantic tokens/CSS variables from the shadcn v4 contract (`--background`, `--primary`, `--radius`, `--chart-*`, `--sidebar-*`...) via `@theme inline`. Pasting any theme from ui.shadcn.com/themes into the host stylesheet must restyle the port with no code change. → references/theme-contract.md
 R10. **Behavior lives in Stimulus, shared logic in primitives.** One controller per interactive component under `gems/phlex-shadcn/app/javascript/controllers/shadcn/`, built on the shared primitives (`gems/phlex-shadcn/app/javascript/shadcn/primitives/*`). No inline JS, no per-component copies of focus-trap/positioning/dismiss logic. Rules for the controller itself: see `stimulus`; Radix behavior map: see `radix-stimulus`.
-R11. **Scenario file is the shared truth.** `docs/shadcn-port/scenarios/<name>.json` is rendered by BOTH the React harness and the Phlex harness. A component without a complete scenario file is not done.
+R11. **Scenario file is the shared truth.** `gems/phlex-shadcn/dev/port/scenarios/<name>.json` is rendered by BOTH the React harness and the Phlex harness. A component without a complete scenario file is not done.
 R12. **Gates decide, not opinion.** A component is DONE only when G1 static, G2 DOM/style, G3 behavior and G4 theme gates pass (G5 house gate per wave). Reviewers triage gate output; they do not overrule it. → references/parity-gates.md
 R13. **Ownership.** A builder touches only its component's files (`gems/phlex-shadcn/lib/phlex/shadcn/<name>*.rb`, `gems/phlex-shadcn/app/javascript/controllers/shadcn/<name>_controller.js`, its scenario file, its deviations file, tests). Shared files (importmap, catalog index, locales, stylesheets, primitives) are changed only by the orchestrator or the infra wave.
 R14. **Third-party parts are wrapped, not rewritten.** Where shadcn wraps a library (cmdk, sonner, embla, react-day-picker, vaul, input-otp, react-resizable-panels, recharts), use a pinned JS equivalent behind a Stimulus controller and document the mapping in the spec.
@@ -32,13 +32,13 @@ R16. **DX helpers are generated, never written.** Every compound root `yield sel
 
 | Thing | Path |
 |---|---|
-| Oracle (generated, committed) | `docs/shadcn-port/oracle/{registry,src,manifest}/`, `graph.json` |
-| Spec per component | `docs/shadcn-port/specs/<name>.md` |
-| Scenarios (shared) | `docs/shadcn-port/scenarios/<name>.json` |
-| Deviations | `docs/shadcn-port/deviations/<name>.json` + register in `docs/shadcn-port/DEVIATIONS.md` |
+| Oracle (generated, committed) | `gems/phlex-shadcn/dev/port/oracle/{registry,src,manifest}/`, `graph.json` |
+| Spec per component | `gems/phlex-shadcn/dev/port/specs/<name>.md` |
+| Scenarios (shared) | `gems/phlex-shadcn/dev/port/scenarios/<name>.json` |
+| Deviations | `gems/phlex-shadcn/dev/port/deviations/<name>.json` + register in `gems/phlex-shadcn/dev/port/DEVIATIONS.md` |
 | Theme (developer-edited) / tokens / presets | `app/assets/tailwind/theme/{theme.css,tokens.css,presets/*.css}` |
-| Run state | `docs/shadcn-port/state.json`, reports in `tmp/shadcn-port/<component>/` |
-| React catalog (oracle renderer) | `react-shadcn-catalog/` |
+| Run state | `gems/phlex-shadcn/dev/port/state.json`, reports in `tmp/shadcn-port/<component>/` |
+| React catalog (oracle renderer) | `gems/phlex-shadcn/dev/react-shadcn-catalog/` |
 | Phlex port | `gems/phlex-shadcn/lib/phlex/shadcn/<name>.rb` (+ `gems/phlex-shadcn/lib/phlex/shadcn/<name>/` for large parts); nested parts like `Dialog::Content` live in the same file |
 | Stimulus | `gems/phlex-shadcn/app/javascript/controllers/shadcn/<name>_controller.js`, primitives in `gems/phlex-shadcn/app/javascript/shadcn/primitives/` |
 

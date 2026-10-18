@@ -11,7 +11,7 @@ Complements `stimulus` (lifecycle, targets, Turbo) and `shadcn-port` (API/style/
 
 Cite as `radix-stimulus R<n>`.
 
-R1. **Behavior spec before code.** Each interactive component has a "Behavior" section in `docs/shadcn-port/specs/<name>.md` (states, transitions, keys, focus rules, timers) written from the Radix source and the live catalog, not from memory.
+R1. **Behavior spec before code.** Each interactive component has a "Behavior" section in `gems/phlex-shadcn/dev/port/specs/<name>.md` (states, transitions, keys, focus rules, timers) written from the Radix source and the live catalog, not from memory.
 R2. **Compose primitives, never copy.** Focus trapping, outside-dismiss, Esc handling, scroll lock, `aria-hidden` siblings, roving focus, typeahead, positioning and presence live once in `gems/phlex-shadcn/app/javascript/shadcn/primitives/`. A controller importing floating-ui or adding `keydown` Esc logic directly is wrong. → references/primitives.md
 R3. **State is `data-state` (and friends) on the DOM.** Controllers mutate `data-state/data-highlighted/data-disabled/data-side/data-align/aria-*` exactly as Radix; Tailwind `data-[state=open]:` classes then work unchanged. No class toggling for state.
 R4. **Server renders the initial state,** controller reconciles in `connect()` and on `*ValueChanged`. The first paint and the post-connect DOM are identical.

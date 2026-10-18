@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-# Reads docs/shadcn-port/scenarios/<component>.json, the single source of truth shared with the React harness.
+# Reads gems/phlex-shadcn/dev/port/scenarios/<component>.json, the single source of truth shared with the React harness.
 class Components::Parity::Scenario
   class NotFound < StandardError; end
 
   NAME = /\A_?[a-z0-9][a-z0-9-]*\z/
   ID = /\A[\w.-]+\z/
-  DIRECTORY = Rails.root.join("docs/shadcn-port/scenarios")
+  DIRECTORY = Rails.root.join("gems/phlex-shadcn/dev/port/scenarios")
 
   def self.find(component, id)
     raise NotFound, "invalid component name #{component.inspect}" unless component.to_s.match?(NAME)

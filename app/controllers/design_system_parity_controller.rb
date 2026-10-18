@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Phlex side of the shadcn port parity harness (development and test only, see config/routes.rb).
-# React twin: react-shadcn-catalog/src/parity/Harness.tsx. Contract: .ai/skills/shadcn-port/references/parity-gates.md.
+# React twin: gems/phlex-shadcn/dev/react-shadcn-catalog/src/parity/Harness.tsx. Contract: .ai/skills/shadcn-port/references/parity-gates.md.
 class DesignSystemParityController < ApplicationController
   allow_unauthenticated_access
   before_action { head :not_found unless Rails.env.development? || Rails.env.test? }
