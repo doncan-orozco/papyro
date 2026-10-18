@@ -2,6 +2,10 @@
 
 require_relative "lib/phlex/shadcn/version"
 
+# The one place the repository location is written: a split into its own repository changes these two lines (the metadata URIs derive from them).
+repository = "https://github.com/doncan-orozco/papyro"
+gem_path = "gems/phlex-shadcn"
+
 Gem::Specification.new do |spec|
   spec.name = "phlex-shadcn"
   spec.version = Phlex::Shadcn::VERSION
@@ -11,16 +15,17 @@ Gem::Specification.new do |spec|
   spec.summary = "shadcn/ui components for Phlex."
   spec.description = "A 1:1 port of the shadcn/ui component library to Phlex views with Stimulus behavior, " \
                      "Tailwind classes taken verbatim from shadcn/ui and shadcn-format theme variables."
-  spec.homepage = "https://github.com/doncan-orozco/papyro/tree/main/gems/phlex-shadcn"
+  spec.homepage = "#{repository}/tree/main/#{gem_path}"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2"
 
   spec.metadata["source_code_uri"] = spec.homepage
-  spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG.md"
+  spec.metadata["changelog_uri"] = "#{repository}/blob/main/#{gem_path}/CHANGELOG.md"
   spec.metadata["rubygems_mfa_required"] = "true"
 
-  spec.files = Dir["lib/**/*", "app/**/*", "config/**/*", "vendor/**/*", "LICENSE", "README.md", "CHANGELOG.md", "THIRD_PARTY_NOTICES.md"]
-               .select { |f| File.file?(f) }
+  # docs/ and .yardopts ship because the README links the docs and `yard` reads .yardopts; the dev kit (dev/), tests and the dummy app do not.
+  packaged = %w[lib/**/* app/**/* config/**/* vendor/**/* docs/*.md .yardopts LICENSE README.md CHANGELOG.md THIRD_PARTY_NOTICES.md]
+  spec.files = Dir[*packaged].select { |f| File.file?(f) }
   spec.require_paths = [ "lib" ]
 
   spec.add_dependency "phlex", "~> 2.3"

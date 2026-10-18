@@ -48,12 +48,22 @@ end
 
 # Orphan controllers: a ui controller without a component in the manifest set (base/theme helpers excepted).
 known = Dir["#{ShadcnLayout::ORACLE_DIR}/manifest/*.json"].map { |f| ShadcnLayout.ruby_name(File.basename(f, ".json")) }
-# Infra: theme_panel (harness) and _probe_<name> test controllers that have a react twin whose `probe.controller` is shadcn---probe-<name>.
-probe_ids = Dir["#{ShadcnLayout::CATALOG_DIR}/src/parity/primitives/*.tsx"].filter_map { |f| File.read(f)[/controller:\s*"(#{Regexp.escape(ShadcnLayout::STIMULUS_PREFIX)}---probe-[^"]+)"/, 1] }
+# The packaged controller tree holds components only: a controller without a component in the manifest set is an orphan (base/theme helpers
+# excepted); a probe or the theme panel there would ship to every consumer (G5_DEV_CONTROLLER_PACKAGED).
 Dir[File.join(ShadcnLayout::CONTROLLER_DIR, "*_controller.js")].each do |f|
   base = File.basename(f, "_controller.js")
-  next if known.include?(base) || %w[base theme theme_panel].include?(base)
+  next if known.include?(base) || %w[base theme].include?(base)
+
+  add.call(base.start_with?("_probe_") || base == "theme_panel" ? "G5_DEV_CONTROLLER_PACKAGED" : "G5_ORPHAN_CONTROLLER", f)
+end
+# Dev-only controllers live in the dummy app: theme_panel (harness) and _probe_<name> test controllers that have a react twin whose
+# `probe.controller` is shadcn---probe-<name>.
+probe_ids = Dir["#{ShadcnLayout::CATALOG_DIR}/src/parity/primitives/*.tsx"].filter_map { |f| File.read(f)[/controller:\s*"(#{Regexp.escape(ShadcnLayout::STIMULUS_PREFIX)}---probe-[^"]+)"/, 1] }
+Dir[File.join(ShadcnLayout::PROBE_DIR, "*_controller.js")].each do |f|
+  base = File.basename(f, "_controller.js")
+  next if base == "theme_panel"
   next if base.start_with?("_probe_") && probe_ids.include?("#{ShadcnLayout::STIMULUS_PREFIX}---probe-#{base.delete_prefix('_probe_').tr('_', '-')}")
+
   add.call("G5_ORPHAN_CONTROLLER", f)
 end
 
