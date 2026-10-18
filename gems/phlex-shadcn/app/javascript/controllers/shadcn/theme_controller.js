@@ -2,18 +2,22 @@ import { Controller } from "@hotwired/stimulus"
 
 // Light / Dark / System. shadcn themes need only `.dark` on <html> (light is its absence), so this
 // controller toggles that single class and mirrors the OS preference into it when the choice is "system".
-// The choice persists in localStorage ("papyro-theme", same key as the legacy controller).
+// The choice persists in localStorage under `storageKey` (default "shadcn-theme"); a pre-paint script that avoids the flash of the
+// wrong theme has to read the same key. Storage that throws (private windows, blocked site data) degrades to the system preference.
 //
-//   <div data-controller="shadcn--theme">
+//   <div data-controller="shadcn--theme" data-shadcn--theme-storage-key-value="my-app-theme">
 //     <button data-action="shadcn--theme#setLight">...</button>  setDark / setSystem / toggle
 export default class extends Controller {
-  static values = { current: { type: String, default: "system" } }
+  static values = {
+    current: { type: String, default: "system" },
+    storageKey: { type: String, default: "shadcn-theme" }
+  }
 
   #mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
   #systemListener = () => this.#apply()
 
   connect() {
-    this.currentValue = localStorage.getItem("papyro-theme") || "system"
+    this.currentValue = this.#read()
     this.#apply()
     this.#mediaQuery.addEventListener("change", this.#systemListener)
   }
@@ -34,10 +38,28 @@ export default class extends Controller {
 
   #set(theme) {
     this.currentValue = theme
-    if (theme === "system") localStorage.removeItem("papyro-theme")
-    else localStorage.setItem("papyro-theme", theme)
+    this.#write(theme)
     this.#apply()
     this.dispatch("changed", { detail: { theme } })
+  }
+
+  // The stored choice when it is "light" or "dark"; anything else (nothing stored, a stale value, blocked storage) is "system".
+  #read() {
+    try {
+      const stored = localStorage.getItem(this.storageKeyValue)
+      return stored === "light" || stored === "dark" ? stored : "system"
+    } catch {
+      return "system"
+    }
+  }
+
+  #write(theme) {
+    try {
+      if (theme === "system") localStorage.removeItem(this.storageKeyValue)
+      else localStorage.setItem(this.storageKeyValue, theme)
+    } catch {
+      // storage unavailable: the choice applies to this page only
+    }
   }
 
   #apply() {
