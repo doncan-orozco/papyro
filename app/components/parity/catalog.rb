@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 # The V2 catalog index (/design-system/v2), generated from the scenario files so a demo can never drift from the ported
-# component: one entry per `gems/phlex-shadcn/dev/port/scenarios/<component>.json` whose V2 class exists, previewing its first
+# component: one entry per `dev/port/scenarios/<component>.json` of the gem whose V2 class exists, previewing its first
 # plain (light) default scenario. Harness-only nodes of a scenario (`data-testid` outside/next/neutral probes) are pruned.
-require Rails.root.join("gems/phlex-shadcn/dev/parity/lib/shadcn_parity").to_s
+# Dev-kit coupling: the gem's dev/ is not packaged, so this works with the path gem only.
+require Phlex::Shadcn.root.join("dev/parity/lib/shadcn_parity").to_s
 
 class Components::Parity::Catalog
   Entry = Struct.new(:component, :title, :scenario_id, :scenario_count, :tree, keyword_init: true) do

@@ -5,15 +5,19 @@ shadcn theming = CSS variables in `:root` and `.dark` + Tailwind v4 `@theme inli
 ## Layout
 
 ```
-gems/phlex-shadcn/app/assets/tailwind/phlex-shadcn/   (the gem's shipped theme; the dummy app and the React catalog read it)
+app/assets/tailwind/theme/   (the HOST's; created by rails g phlex:shadcn:install, the dir theme:* acts on)
   theme.css          ← the ONLY file developers edit (colors between markers, optional brand extras)
+  presets/           ← zinc slate stone neutral gray zinc-radius0 (copied from the gem by the install generator)
+  legacy-compat.css  ← host-only shims for the frozen Ui components; delete entries as legacy disappears
+gems/phlex-shadcn/app/assets/tailwind/phlex-shadcn/   (the gem's shipped default; the dummy app and the React catalog read it)
+  engine.css         ← Tailwind entry of the engine: @source of the gem's Ruby + vendor + tokens, bundled as builds/tailwind/phlex-shadcn
+  theme.css          ← default the generator copies into the host
+  presets/           ← defaults the generator copies into the host (generated from the shadcn colors API)
   tokens.css         ← @theme inline mapping + shadcn base layer. Never edited by hand
-  legacy-compat.css  ← shims for the frozen Ui components; delete entries as legacy disappears
-  presets/           ← zinc slate stone neutral gray zinc-radius0 (generated from the shadcn colors API)
-app/assets/tailwind/vendor/   ← tw-animate.css, shadcn-tailwind.css (vendored from the catalog's node_modules)
+  vendor/            ← tw-animate.css, shadcn-tailwind.css (vendored from the catalog's node_modules)
 ```
 
-`application.css` imports, in order: `tailwindcss`, `vendor/tw-animate.css`, `vendor/shadcn-tailwind.css`, `theme/theme.css`, `theme/tokens.css`, `theme/legacy-compat.css`, then the existing imports. (`tw-animate-css` and `shadcn/tailwind.css` are what the shadcn `index` registry item depends on; re-vendor with `theme_sync.rb --vendor` when the catalog's `shadcn` package changes.)
+`application.css` imports, in order: `tailwindcss`, the engine bundle (the `phlex-shadcn` block managed by `rails g phlex:shadcn:install`: vendor CSS, tokens and the host's `theme/theme.css`), `theme/legacy-compat.css`, then the existing imports. (`tw-animate-css` and `shadcn/tailwind.css` are what the shadcn `index` registry item depends on; re-vendor with `theme_sync.rb --vendor` when the catalog's `shadcn` package changes.)
 
 The React catalog does NOT own a copy: its `src/index.css` is `@import "tailwindcss"; @import "tw-animate-css"; @import "@host-theme/theme.css"; @import "@host-theme/tokens.css";` where Vite alias `@host-theme` -> `../../app/assets/tailwind/phlex-shadcn` (relative to the catalog). The dummy app (`gems/phlex-shadcn/dev/dummy`) points `config.phlex_shadcn.theme_dir` at the same directory, so both apps read the same files, so there is no sync step and no drift check.
 
@@ -29,11 +33,11 @@ The React catalog does NOT own a copy: its `src/index.css` is `@import "tailwind
 | Live preview | design-system catalog theme panel (below) |
 | Brand fonts | `theme:brand` section of `theme.css` (`@theme { --font-sans: ... }`) |
 
-Logic lives in `lib/shadcn/theme.rb` (`Shadcn::Theme`, unit-tested in `test/lib/shadcn/theme_test.rb`); the rake tasks are thin.
+Logic lives in the gem (`gems/phlex-shadcn/lib/phlex/shadcn/theme.rb`, `Phlex::Shadcn::Theme`, unit-tested in the gem's tests); the host's `theme:*` tasks are aliases of the gem's `phlex_shadcn:theme:*` tasks (`gems/phlex-shadcn/lib/tasks/`) and act on `app/assets/tailwind/theme`.
 
 ## Variable set (shadcn v4, OKLCH)
 
-`background foreground card card-foreground popover popover-foreground primary primary-foreground secondary secondary-foreground muted muted-foreground accent accent-foreground destructive border input ring chart-1..5 sidebar sidebar-foreground sidebar-primary sidebar-primary-foreground sidebar-accent sidebar-accent-foreground sidebar-border sidebar-ring` in both `:root` and `.dark`, plus `--radius` in `:root`. The list in `Shadcn::Theme::REQUIRED` is authoritative; `theme_sync.rb --emit-presets` builds presets from `ui.shadcn.com/r/colors/<base>.json` (`cssVarsV4`), so the list matches what shadcn ships. `--check-tokens` compiles every semantic Tailwind class the oracle uses (e.g. `bg-primary/90`, `dark:ring-ring/50`, `text-sidebar-foreground`, `rounded-md`) against `tokens.css` with the real Tailwind binary and fails when one generates no CSS, or when a radius utility does not derive from `--radius` (Tailwind's own `rounded-md` would otherwise silently win).
+`background foreground card card-foreground popover popover-foreground primary primary-foreground secondary secondary-foreground muted muted-foreground accent accent-foreground destructive border input ring chart-1..5 sidebar sidebar-foreground sidebar-primary sidebar-primary-foreground sidebar-accent sidebar-accent-foreground sidebar-border sidebar-ring` in both `:root` and `.dark`, plus `--radius` in `:root`. The list in `Phlex::Shadcn::Theme::REQUIRED` is authoritative; `theme_sync.rb --emit-presets` builds presets from `ui.shadcn.com/r/colors/<base>.json` (`cssVarsV4`), so the list matches what shadcn ships. `--check-tokens` compiles every semantic Tailwind class the oracle uses (e.g. `bg-primary/90`, `dark:ring-ring/50`, `text-sidebar-foreground`, `rounded-md`) against `tokens.css` with the real Tailwind binary and fails when one generates no CSS, or when a radius utility does not derive from `--radius` (Tailwind's own `rounded-md` would otherwise silently win).
 
 Format rule: `--primary: oklch(0.21 0.006 285.885);` (a full color). The previous host theme stored bare channel triplets wrapped later by `oklch(var(--primary))`, which turned every pasted shadcn theme into `oklch(oklch(...))`. That format is gone. Opacity modifiers (`bg-primary/90`) work through Tailwind's `color-mix`.
 
@@ -65,7 +69,7 @@ Rehearsed on the real app, 7 pages x light/dark: no element moves or resizes (0 
 
 ## Theme panel (design-system catalog)
 
-`ShadcnParity::ThemePanel` (gems/phlex-shadcn/dev/parity, served by the dummy app at `/design-system/theme-panel`) + Stimulus `shadcn--theme-panel`: preset select (CSS embedded as JSON from the presets directory, applied by writing the variables onto `document.documentElement.style`), radius slider, light/dark toggle, per-pair contrast badges (same math as `Shadcn::Theme`, ported to JS), and a "Copy CSS" button producing a block `theme:import` accepts. Nothing is persisted; reload restores `theme.css`. Built in the `_harness` task because the parity runner reuses the same preset-injection mechanism.
+`ShadcnParity::ThemePanel` (gems/phlex-shadcn/dev/parity, served by the dummy app at `/design-system/theme-panel`) + Stimulus `shadcn--theme-panel`: preset select (CSS embedded as JSON from the presets directory, applied by writing the variables onto `document.documentElement.style`), radius slider, light/dark toggle, per-pair contrast badges (same math as `Phlex::Shadcn::Theme`, ported to JS), and a "Copy CSS" button producing a block `theme:import` accepts. Nothing is persisted; reload restores `theme.css`. Built in the `_harness` task because the parity runner reuses the same preset-injection mechanism.
 
 ## Theme gate (G4)
 

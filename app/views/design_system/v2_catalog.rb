@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 # Explicit require so this view does not depend on Components::Parity::Catalog having loaded the parity harness first.
-require Rails.root.join("gems/phlex-shadcn/dev/parity/lib/shadcn_parity").to_s
+# Dev-kit coupling: the gem's dev/ is not packaged, so this works with the path gem only.
+require Phlex::Shadcn.root.join("dev/parity/lib/shadcn_parity").to_s
 
 include Phlex::Rails::Helpers::ContentFor
 

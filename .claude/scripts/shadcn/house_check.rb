@@ -81,7 +81,8 @@ if File.exist?(catalog_css) && File.read(catalog_css).match?(/^\s*(:root|\.dark)
   add.call("G5_CATALOG_CSS", "#{catalog_css} must only import tailwindcss, tw-animate-css and the host theme (the shadcn CLI appends HSL variables)")
 end
 
-importmap = File.exist?("config/importmap.rb") ? File.read("config/importmap.rb") : ""
+importmap_file = "#{ShadcnLayout::GEM_DIR}/config/importmap.rb"
+importmap = File.exist?(importmap_file) ? File.read(importmap_file) : ""
 catalog_fui = "#{ShadcnLayout::CATALOG_DIR}/node_modules/@floating-ui/dom/package.json"
 if File.exist?(catalog_fui) && (pinned = importmap[/pin "@floating-ui\/dom".*?# @([\d.]+)/, 1])
   catalog_version = JSON.parse(File.read(catalog_fui))["version"]
@@ -89,14 +90,16 @@ if File.exist?(catalog_fui) && (pinned = importmap[/pin "@floating-ui\/dom".*?# 
 end
 [File.dirname(ShadcnLayout::PRIMITIVES_DIR), ShadcnLayout::CONTROLLER_DIR].each do |dir|
   next unless Dir.exist?(dir)
-  next if importmap.match?(/^\s*pin_all_from\s+["']#{Regexp.escape(dir)}["']/)
+  relative = dir.delete_prefix("#{ShadcnLayout::GEM_DIR}/")
+  next if importmap.match?(/^\s*pin_all_from\s+File\.expand_path\(["']\.\.\/#{Regexp.escape(relative)}["'],\s*__dir__\)/)
 
-  add.call("G5_IMPORTMAP", "config/importmap.rb lacks pin_all_from \"#{dir}\"")
+  add.call("G5_IMPORTMAP", "#{importmap_file} lacks pin_all_from File.expand_path(\"../#{relative}\", __dir__)")
 end
 
-require_relative "../../../lib/shadcn/theme"
+# G5 validates the gem's default theme; the host's theme.css is validated by `bin/rails theme:check` and the engine integration test.
+require File.expand_path("lib/phlex/shadcn/theme", ShadcnLayout::GEM_DIR)
 if File.exist?("#{ShadcnLayout::THEME_DIR}/theme.css")
-  theme = Shadcn::Theme.check
+  theme = Phlex::Shadcn::Theme.validate(Phlex::Shadcn::Theme.parse(File.read("#{ShadcnLayout::THEME_DIR}/theme.css")))
   theme[:errors].each { |e| add.call("G5_THEME_INVALID", e) }
   if File.exist?("#{ShadcnLayout::THEME_DIR}/tokens.css") && Dir.exist?("#{ShadcnLayout::ORACLE_DIR}/manifest")
     out, status = Open3.capture2("ruby", ".claude/scripts/shadcn/theme_sync.rb", "--check-tokens")

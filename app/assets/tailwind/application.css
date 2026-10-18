@@ -1,11 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
+/* phlex-shadcn:start (managed by rails g phlex:shadcn:install) */
 @source "../../../gems/phlex-shadcn/lib";
-
-@import "./vendor/tw-animate.css";
-@import "./vendor/shadcn-tailwind.css";
+@import "../builds/tailwind/phlex-shadcn";
 @import "./theme/theme.css";
-@import "./theme/tokens.css";
+/* phlex-shadcn:end */
 @import "./theme/legacy-compat.css";
 @import "./foundation/base.css";
 @import "./components/ui-scroll-area.css";
