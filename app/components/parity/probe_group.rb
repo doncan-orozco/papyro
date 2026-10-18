@@ -1,26 +1,5 @@
 # frozen_string_literal: true
 
-# Compound-root stub: exercises the DX helper mode (`group.item { ... }`) of the parity harness.
-class Components::Parity::ProbeGroup < Phlex::Shadcn::Base
-  def initialize(**attrs)
-    @attrs = attrs
-    super()
-  end
-
-  def view_template(&)
-    div(**merge_attrs({ class: "flex flex-col gap-2 rounded-lg border p-4", data: { slot: "probe-group" } }, @attrs)) do
-      yield self if block_given?
-    end
-  end
-
-  class Item < Phlex::Shadcn::Base
-    def initialize(**attrs)
-      @attrs = attrs
-      super()
-    end
-
-    def view_template(&)
-      div(**merge_attrs({ class: "text-sm text-muted-foreground", data: { slot: "probe-group-item" } }, @attrs), &)
-    end
-  end
-end
+# Alias shim: the class lives in gems/phlex-shadcn/dev/parity (shared with the dummy app); removed with the host harness.
+require Rails.root.join("gems/phlex-shadcn/dev/parity/lib/shadcn_parity").to_s
+Components::Parity::ProbeGroup = ShadcnParity::ProbeGroup

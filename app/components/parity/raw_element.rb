@@ -1,22 +1,5 @@
 # frozen_string_literal: true
 
-# A raw HTML element of a scenario tree (`_div`, `_a`...). Also usable as the `as_child:` instance of a part, so
-# `{ "asChild": true }` over a raw `_a` child goes through the same Radix Slot merge as a component child.
-class Components::Parity::RawElement < Phlex::Shadcn::Base
-  VOID = %w[area base br col embed hr img input link meta source track wbr].freeze
-
-  def initialize(name, **attrs)
-    @name = name.to_s
-    @attrs = attrs
-    super()
-  end
-
-  def view_template(&block)
-    attrs = merge_attrs({}, @attrs)
-    if VOID.include?(@name)
-      tag(@name.to_sym, **attrs)
-    else
-      tag(@name.to_sym, **attrs, &block)
-    end
-  end
-end
+# Alias shim: the class lives in gems/phlex-shadcn/dev/parity (shared with the dummy app); removed with the host harness.
+require Rails.root.join("gems/phlex-shadcn/dev/parity/lib/shadcn_parity").to_s
+Components::Parity::RawElement = ShadcnParity::RawElement
