@@ -12,7 +12,10 @@ class PlainSelect < Phlex::HTML
     render(Select.new(default_value: "b", name: "fruit", form: "f")) do
       render(Select::Trigger.new) { render(Select::Value.new(placeholder: "Pick")) }
       render(Select::Content.new) do
-        render(Select::Item.new(value: "a")) { span { "Apple & <Pear> " }; b { "ripe" } }
+        render(Select::Item.new(value: "a")) do
+          span { "Apple & <Pear> " }
+          b { "ripe" }
+        end
         render(Select::Item.new(value: "b", disabled: true)) { plain "  Banana &#233; " }
         render(Select::Item.new(value: "c", text_value: "Cherry")) do
           svg(data: { x: "a>b" }, aria_hidden: "true") { |s| s.path(d: "M0 0") }
