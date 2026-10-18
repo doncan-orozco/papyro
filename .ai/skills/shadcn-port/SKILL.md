@@ -36,7 +36,7 @@ R16. **DX helpers are generated, never written.** Every compound root `yield sel
 | Spec per component | `gems/phlex-shadcn/dev/port/specs/<name>.md` |
 | Scenarios (shared) | `gems/phlex-shadcn/dev/port/scenarios/<name>.json` |
 | Deviations | `gems/phlex-shadcn/dev/port/deviations/<name>.json` + register in `gems/phlex-shadcn/dev/port/DEVIATIONS.md` |
-| Theme (developer-edited) / tokens / presets | `app/assets/tailwind/theme/{theme.css,tokens.css,presets/*.css}` |
+| Theme (developer-edited) / tokens / presets | `gems/phlex-shadcn/app/assets/tailwind/phlex-shadcn/{theme.css,tokens.css,presets/*.css}` |
 | Run state | `gems/phlex-shadcn/dev/port/state.json`, reports in `tmp/shadcn-port/<component>/` |
 | React catalog (oracle renderer) | `gems/phlex-shadcn/dev/react-shadcn-catalog/` |
 | Phlex port | `gems/phlex-shadcn/lib/phlex/shadcn/<name>.rb` (+ `gems/phlex-shadcn/lib/phlex/shadcn/<name>/` for large parts); nested parts like `Dialog::Content` live in the same file |

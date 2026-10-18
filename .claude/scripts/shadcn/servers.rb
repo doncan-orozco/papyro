@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Starts/stops the two dev servers the parity runs need (Rails = the Phlex port, Vite = the React oracle) on FREE ports.
+# Starts/stops the two dev servers the parity runs need (Rails = the dummy app of the gem, which serves the Phlex port; Vite = the React
+# oracle) on FREE ports.
 # Fixed ports are fragile on a developer machine (another project's puma on :3000 is common), so this picks free ones,
 # records them in layout.rb SERVERS_FILE (which parity_run.mjs reads by default) and only ever reuses servers it started.
 #
@@ -11,6 +12,8 @@
 #   ruby .claude/scripts/shadcn/servers.rb ports [--rails-port N] [--vite-port N]   # only print the ports it would pick
 #
 # Rails answers on http://localhost:PORT/up, Vite on http://localhost:PORT/ . Logs: <TMP_DIR>/{rails,vite}.log.
+# The dummy app (layout.rb DUMMY_DIR) is DB-less and mounts the gem through its engine only; it runs under its own Gemfile
+# (BUNDLE_GEMFILE), so nothing of the host application is booted.
 
 require_relative "layout"
 require "json"
@@ -18,6 +21,7 @@ require "net/http"
 require "optparse"
 require "socket"
 require "fileutils"
+require "bundler"
 
 STATE = ShadcnLayout::SERVERS_FILE
 TMP_DIR = ShadcnLayout::TMP_DIR
@@ -88,6 +92,24 @@ def wait_for(url, seconds)
   healthy?(url)
 end
 
+# The dummy app runs under its own bundle: the host's environment (BUNDLE_GEMFILE, RUBYOPT, RAILS_ENV...) must not leak into it.
+def dummy_env
+  dummy = File.expand_path(ShadcnLayout::DUMMY_DIR)
+  { "BUNDLE_GEMFILE" => File.join(dummy, "Gemfile"), "RAILS_ENV" => "development", "OBJC_DISABLE_INITIALIZE_FORK_SAFETY" => "YES",
+    "SHADCN_PARITY_BREAK_FLAG" => File.expand_path("#{TMP_DIR}/_harness/break-probe") }
+end
+
+def spawn_dummy(port)
+  log = File.expand_path("#{TMP_DIR}/rails.log")
+  Bundler.with_unbundled_env do
+    # One-shot Tailwind build (the engine bundle + the scenarios/renderer @source), then the server.
+    built = system(dummy_env, "bin/rails", "tailwindcss:build", chdir: ShadcnLayout::DUMMY_DIR, out: log, err: [:child, :out])
+    abort("tailwindcss:build failed in #{ShadcnLayout::DUMMY_DIR} (see #{log})") unless built
+    Process.spawn(dummy_env, "bin/rails", "server", "-p", port.to_s, "-b", "127.0.0.1", "-P", File.expand_path("#{TMP_DIR}/shadcn-parity.pid"),
+                  chdir: ShadcnLayout::DUMMY_DIR, out: [log, "a"], err: [:child, :out], pgroup: true)
+  end
+end
+
 def start(opts)
   stop if opts[:restart]
   cur = status
@@ -98,8 +120,7 @@ def start(opts)
   rails_port = opts[:rails_port] || pick_port(DEFAULTS[:rails])
   vite_port = opts[:vite_port] || pick_port(DEFAULTS[:vite], [rails_port])
 
-  rails_pid = Process.spawn({ "RAILS_ENV" => "development" }, "bin/rails", "server", "-p", rails_port.to_s, "-b", "127.0.0.1", "-P", "tmp/pids/shadcn-parity.pid",
-                            out: "#{TMP_DIR}/rails.log", err: [:child, :out], pgroup: true)
+  rails_pid = spawn_dummy(rails_port)
   vite_pid = Process.spawn("npm", "run", "dev", "--", "--port", vite_port.to_s, "--strictPort", "--host", "127.0.0.1",
                            chdir: ShadcnLayout::CATALOG_DIR, out: File.expand_path("#{TMP_DIR}/vite.log"), err: [:child, :out], pgroup: true)
   [rails_pid, vite_pid].each { |pid| Process.detach(pid) }

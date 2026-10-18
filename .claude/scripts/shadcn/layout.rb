@@ -15,7 +15,7 @@
 #   SHADCN_DEV_DIR           the dev kit (oracle, specs, scenarios, React catalog, golden cases)     (default gems/phlex-shadcn/dev)
 #   SHADCN_PORT_DIR          oracle/specs/scenarios/deviations/state                            (default <dev>/port)
 #   SHADCN_CATALOG_DIR       the React oracle renderer                                          (default <dev>/react-shadcn-catalog)
-#   SHADCN_DUMMY_DIR         the dummy Rails app the Phlex side is served from (not used yet)   (default <dev>/dummy)
+#   SHADCN_DUMMY_DIR         the dummy Rails app the Phlex side is served from                  (default <dev>/dummy)
 #   SHADCN_GOLDEN_DIR        the golden regression cases                                        (default <dev>/golden)
 #   SHADCN_SERVERS_FILE      where servers.rb records the running dev servers                   (default <dev>/tmp/shadcn-port/servers.json)
 #   SHADCN_STIMULUS_PREFIX   Stimulus identifier prefix, `shadcn` => `shadcn--dialog`  (default shadcn). The React twins of
@@ -47,7 +47,9 @@ module ShadcnLayout
   CATALOG_DIR = env_or("SHADCN_CATALOG_DIR", "#{DEV_DIR}/react-shadcn-catalog")
   DUMMY_DIR = env_or("SHADCN_DUMMY_DIR", "#{DEV_DIR}/dummy")
   GOLDEN_DIR = env_or("SHADCN_GOLDEN_DIR", "#{DEV_DIR}/golden")
-  THEME_DIR = "app/assets/tailwind/theme"
+  # The theme both sides read: the gem's shipped default theme (the dummy app's config.phlex_shadcn.theme_dir, the React catalog's
+  # @host-theme alias).
+  THEME_DIR = "#{GEM_DIR}/app/assets/tailwind/phlex-shadcn".freeze
   PRESETS_DIR = "#{THEME_DIR}/presets".freeze
   SERVERS_FILE = env_or("SHADCN_SERVERS_FILE", "#{DEV_DIR}/tmp/shadcn-port/servers.json")
   TMP_DIR = "tmp/shadcn-port"

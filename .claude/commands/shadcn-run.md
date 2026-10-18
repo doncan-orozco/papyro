@@ -42,7 +42,7 @@ Repeat until `port_state.rb next` returns `done: true`, or a stop condition fire
    - Exhausted -> `port_state.rb set X blocked --note "<top cause, scenario ids>"`; write `tmp/shadcn-port/X/BLOCKED.md` with the last triage. `next` stops returning its dependents by itself; do not mark them.
 6. **After every batch:** `ruby .claude/scripts/shadcn/port_state.rb checkpoint`. If `stop` is true, follow "Stop conditions" below; never continue past it.
 7. **When `next` moves to a new wave:**
-   - regression: `ruby .claude/scripts/shadcn/house_check.rb --static-all`; if any file under `gems/phlex-shadcn/app/javascript/shadcn/`, `app/assets/tailwind/theme/` or `app/components/base.rb` changed this wave (`git diff --name-only` against the wave start sha you recorded) re-run G2 default scenarios (`--only` ids starting `default`) for all `done` components, and treat red ones as new work for the fix loop.
+   - regression: `ruby .claude/scripts/shadcn/house_check.rb --static-all`; if any file under `gems/phlex-shadcn/app/javascript/shadcn/`, `gems/phlex-shadcn/app/assets/tailwind/phlex-shadcn/` or `app/components/base.rb` changed this wave (`git diff --name-only` against the wave start sha you recorded) re-run G2 default scenarios (`--only` ids starting `default`) for all `done` components, and treat red ones as new work for the fix loop.
    - `(cd gems/phlex-shadcn && bundle exec rake test)` (the gem suite) and `bin/rails test test/components` (host components, if the dir exists) must stay green.
    - print `port_state.rb summary` (compact).
 

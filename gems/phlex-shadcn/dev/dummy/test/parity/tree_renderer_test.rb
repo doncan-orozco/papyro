@@ -2,13 +2,13 @@
 
 require "test_helper"
 
-class Components::Parity::TreeRendererTest < ActiveSupport::TestCase
+class ShadcnParity::TreeRendererTest < ActiveSupport::TestCase
   def render_tree(tree, **opts)
-    ApplicationController.new.view_context.render(Components::Parity::TreeRenderer.new(tree: tree, component: "_harness", **opts))
+    ApplicationController.new.view_context.render(ShadcnParity::TreeRenderer.new(tree: tree, component: "_harness", **opts))
   end
 
   def nested_tree
-    Components::Parity::Scenario.find("_harness", "nested").fetch("tree")
+    ShadcnParity::Scenario.find("_harness", "nested").fetch("tree")
   end
 
   test "helper mode goes through the yielded root and renders the same HTML" do
@@ -19,7 +19,7 @@ class Components::Parity::TreeRendererTest < ActiveSupport::TestCase
         super(**attrs, &block)
       end
     end
-    Components::Parity::ProbeGroup.prepend(spy)
+    ShadcnParity::ProbeGroup.prepend(spy)
 
     assert_equal render_tree(nested_tree), render_tree(nested_tree, dx: "helpers")
     assert_equal 3, calls
@@ -66,12 +66,12 @@ class Components::Parity::TreeRendererTest < ActiveSupport::TestCase
   end
 
   test "an unknown component raises" do
-    assert_raises(Components::Parity::TreeRenderer::Error) { render_tree({ "c" => "Nope" }) }
+    assert_raises(ShadcnParity::TreeRenderer::Error) { render_tree({ "c" => "Nope" }) }
   end
 
   test "scenario lookup rejects traversal and unknown ids" do
-    assert_raises(Components::Parity::Scenario::NotFound) { Components::Parity::Scenario.find("../x", "a") }
-    assert_raises(Components::Parity::Scenario::NotFound) { Components::Parity::Scenario.find("_harness", "ghost") }
+    assert_raises(ShadcnParity::Scenario::NotFound) { ShadcnParity::Scenario.find("../x", "a") }
+    assert_raises(ShadcnParity::Scenario::NotFound) { ShadcnParity::Scenario.find("_harness", "ghost") }
   end
 
   test "style objects use CSS property names" do
