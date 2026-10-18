@@ -44,12 +44,15 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          # The committed Gemfile.lock is cached; the matrix gemfiles have no lockfile and are installed below.
-          bundler-cache: ${{ matrix.gemfile == 'Gemfile' }}
+          # The committed Gemfile.lock is cached, except on the floor Ruby: it was resolved on a newer Ruby and pins gems that need
+          # it (rbs 4.2 needs >= 3.3), so Ruby 3.2 resolves the Gemfile afresh below, like the matrix gemfiles, which have no lockfile.
+          bundler-cache: ${{ matrix.gemfile == 'Gemfile' && matrix.ruby != '3.2' }}
 
-      - name: Install the bundle of the matrix gemfile
-        if: matrix.gemfile != 'Gemfile'
-        run: bundle install --jobs 4
+      - name: Resolve and install the bundle
+        if: matrix.gemfile != 'Gemfile' || matrix.ruby == '3.2'
+        run: |
+          rm -f "$BUNDLE_GEMFILE.lock"
+          bundle install --jobs 4
 
       - name: Tests (plain Phlex)
         working-directory: gems/phlex-shadcn
