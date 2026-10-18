@@ -15,7 +15,7 @@ ruby .claude/scripts/shadcn/servers.rb start
 node --test --test-reporter=spec gems/phlex-shadcn/test/javascript/popover.test.mjs
 ```
 
-It uses the Playwright of `react-shadcn-catalog` (`playwright_ensure.rb` makes sure a browser launches) and Node's built-in `node:test`; nothing new is installed. It is not part of `bin/ci` (it needs a browser and two dev servers).
+It uses the Playwright of `gems/phlex-shadcn/dev/react-shadcn-catalog` (`playwright_ensure.rb` makes sure a browser launches) and Node's built-in `node:test`; nothing new is installed. It is not part of `bin/ci` (it needs a browser and two dev servers).
 
 ## What belongs here
 

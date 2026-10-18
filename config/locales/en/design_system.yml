@@ -672,5 +672,4 @@ en:
       back: "Back to the catalog"
       nav: "V2 components"
       scenario: "Scenario %{id} of %{count}"
-      parity: "Open parity page"
       unavailable: "Preview unavailable (%{error})"

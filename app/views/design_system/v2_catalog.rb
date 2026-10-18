@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Explicit require so this view does not depend on Components::Parity::Catalog having loaded the parity harness first.
+require Rails.root.join("gems/phlex-shadcn/dev/parity/lib/shadcn_parity").to_s
+
 include Phlex::Rails::Helpers::ContentFor
 
 module Views
@@ -59,7 +62,6 @@ module Views
             h2(class: "text-xl font-semibold") { entry.title }
             p(class: "text-xs text-muted-foreground") do
               plain t("design_system.catalog_v2.scenario", id: entry.scenario_id, count: entry.scenario_count)
-              parity_link(entry)
             end
           end
           # contain-layout makes this box the containing block of fixed descendants (sidebar, sheet triggers' layers stay in it).
@@ -67,15 +69,8 @@ module Views
         end
       end
 
-      def parity_link(entry)
-        return unless Rails.env.development? || Rails.env.test?
-
-        plain " · "
-        a(href: design_system_parity_path(entry.component, entry.scenario_id), class: "underline underline-offset-4") { t("design_system.catalog_v2.parity") }
-      end
-
       def preview(entry)
-        render Components::Parity::TreeRenderer.new(tree: entry.tree, component: entry.component)
+        render ShadcnParity::TreeRenderer.new(tree: entry.tree, component: entry.component)
       rescue StandardError => e
         Rails.logger.error("[design-system v2] #{entry.component}: #{e.class}: #{e.message}")
         p(class: "text-sm text-destructive") { t("design_system.catalog_v2.unavailable", error: e.class.name) }

@@ -5,7 +5,7 @@ shadcn theming = CSS variables in `:root` and `.dark` + Tailwind v4 `@theme inli
 ## Layout
 
 ```
-app/assets/tailwind/theme/
+gems/phlex-shadcn/app/assets/tailwind/phlex-shadcn/   (the gem's shipped theme; the dummy app and the React catalog read it)
   theme.css          ← the ONLY file developers edit (colors between markers, optional brand extras)
   tokens.css         ← @theme inline mapping + shadcn base layer. Never edited by hand
   legacy-compat.css  ← shims for the frozen Ui components; delete entries as legacy disappears
@@ -15,7 +15,7 @@ app/assets/tailwind/vendor/   ← tw-animate.css, shadcn-tailwind.css (vendored 
 
 `application.css` imports, in order: `tailwindcss`, `vendor/tw-animate.css`, `vendor/shadcn-tailwind.css`, `theme/theme.css`, `theme/tokens.css`, `theme/legacy-compat.css`, then the existing imports. (`tw-animate-css` and `shadcn/tailwind.css` are what the shadcn `index` registry item depends on; re-vendor with `theme_sync.rb --vendor` when the catalog's `shadcn` package changes.)
 
-The React catalog does NOT own a copy: its `src/index.css` is `@import "tailwindcss"; @import "tw-animate-css"; @import "@host-theme/theme.css"; @import "@host-theme/tokens.css";` where Vite alias `@host-theme` -> `../app/assets/tailwind/theme`. Both apps read the same files, so there is no sync step and no drift check.
+The React catalog does NOT own a copy: its `src/index.css` is `@import "tailwindcss"; @import "tw-animate-css"; @import "@host-theme/theme.css"; @import "@host-theme/tokens.css";` where Vite alias `@host-theme` -> `../../app/assets/tailwind/phlex-shadcn` (relative to the catalog). The dummy app (`gems/phlex-shadcn/dev/dummy`) points `config.phlex_shadcn.theme_dir` at the same directory, so both apps read the same files, so there is no sync step and no drift check.
 
 ## Developer workflow (this is the product)
 
@@ -65,7 +65,7 @@ Rehearsed on the real app, 7 pages x light/dark: no element moves or resizes (0 
 
 ## Theme panel (design-system catalog)
 
-`Views::DesignSystem::ThemePanel` + Stimulus `shadcn--theme-panel`: preset select (CSS embedded as JSON from the presets directory, applied by writing the variables onto `document.documentElement.style`), radius slider, light/dark toggle, per-pair contrast badges (same math as `Shadcn::Theme`, ported to JS), and a "Copy CSS" button producing a block `theme:import` accepts. Nothing is persisted; reload restores `theme.css`. Built in the `_harness` task because the parity runner reuses the same preset-injection mechanism.
+`ShadcnParity::ThemePanel` (gems/phlex-shadcn/dev/parity, served by the dummy app at `/design-system/theme-panel`) + Stimulus `shadcn--theme-panel`: preset select (CSS embedded as JSON from the presets directory, applied by writing the variables onto `document.documentElement.style`), radius slider, light/dark toggle, per-pair contrast badges (same math as `Shadcn::Theme`, ported to JS), and a "Copy CSS" button producing a block `theme:import` accepts. Nothing is persisted; reload restores `theme.css`. Built in the `_harness` task because the parity runner reuses the same preset-injection mechanism.
 
 ## Theme gate (G4)
 

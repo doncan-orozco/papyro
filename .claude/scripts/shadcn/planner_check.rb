@@ -8,7 +8,7 @@
 #   ruby .claude/scripts/shadcn/planner_check.rb --component badge [--root DIR] [--min-scenarios N]
 #        [--require-dark] [--require-steps press,click,tab]
 #
-# --root DIR  repo-like root holding docs/shadcn-port/{oracle,specs,scenarios,deviations} (default ".")
+# --root DIR  repo-like root holding the port dir (layout.rb PORT_DIR) with {oracle,specs,scenarios,deviations} (default ".")
 # Prints JSON { component, pass, findings: [{ code, detail }] }; exit 1 on findings.
 #
 # Codes:
@@ -25,6 +25,7 @@
 #   SC_*                everything scenario_coverage.rb reports
 #   P_DEVIATIONS        deviations file present but invalid or without a reason
 
+require_relative "layout"
 require "json"
 require "open3"
 require "optparse"
@@ -40,7 +41,7 @@ end.parse!
 abort("usage: --component NAME") unless opts[:component]
 
 name = opts[:component]
-base = File.join(opts[:root], "docs/shadcn-port")
+base = ShadcnLayout.under(opts[:root], ShadcnLayout::PORT_DIR)
 manifest = JSON.parse(File.read(File.join(base, "oracle/manifest/#{name}.json")))
 findings = []
 add = ->(code, detail) { findings << { code: code, detail: detail } }

@@ -147,19 +147,21 @@ const servers = [
 await Promise.all(servers.map((s) => new Promise((r) => s.listen(0, "127.0.0.1", r))));
 const [reactUrl, phlexUrl] = servers.map((s) => `http://127.0.0.1:${s.address().port}`);
 
-// Temp "repo root" with the scenario file and a theme preset, as parity_run.mjs expects.
+// Temp dir with the scenario file and a theme preset, passed to parity_run.mjs through --scenarios / --presets.
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "parity-selftest-"));
-fs.mkdirSync(path.join(root, "docs/shadcn-port/scenarios"), { recursive: true });
-fs.mkdirSync(path.join(root, "app/assets/tailwind/theme/presets"), { recursive: true });
-fs.writeFileSync(path.join(root, "app/assets/tailwind/theme/presets/probe.css"), ":root{--c:#ff0000}");
+const scenariosDir = path.join(root, "scenarios");
+const presetsDir = path.join(root, "presets");
+fs.mkdirSync(scenariosDir, { recursive: true });
+fs.mkdirSync(presetsDir, { recursive: true });
+fs.writeFileSync(path.join(presetsDir, "probe.css"), ":root{--c:#ff0000}");
 fs.writeFileSync(
-  path.join(root, "docs/shadcn-port/scenarios/probe.json"),
+  path.join(scenariosDir, "probe.json"),
   JSON.stringify({ component: "probe", scenarios: S.map(({ id, steps, dark, allowEmpty }) => ({ id, steps, dark, allowEmpty })) }),
 );
 
 const results = [];
 for (const sc of S) {
-  const args = [path.join(here, "parity_run.mjs"), "--component", "probe", "--react", reactUrl, "--phlex", phlexUrl, "--root", root, "--only", sc.id];
+  const args = [path.join(here, "parity_run.mjs"), "--component", "probe", "--react", reactUrl, "--phlex", phlexUrl, "--scenarios", scenariosDir, "--presets", presetsDir, "--servers", path.join(root, "servers.json"), "--only", sc.id];
   if (sc.theme) args.push("--theme", sc.theme);
   if (sc.runnerArgs) args.push(...sc.runnerArgs);
   // Async on purpose: the fixture servers live in THIS process, so a blocking spawn would deadlock the browser's requests.
@@ -191,7 +193,7 @@ for (const sc of S) {
 
 // The worker pool must not change the report: run the whole scenario file with 1 and with 4 workers and compare.
 const full = (workers) => new Promise((resolve) => {
-  const child = spawn("node", [path.join(here, "parity_run.mjs"), "--component", "probe", "--react", reactUrl, "--phlex", phlexUrl, "--root", root, "--workers", String(workers), "--max", "10000"], { cwd: process.cwd(), env: process.env });
+  const child = spawn("node", [path.join(here, "parity_run.mjs"), "--component", "probe", "--react", reactUrl, "--phlex", phlexUrl, "--scenarios", scenariosDir, "--presets", presetsDir, "--servers", path.join(root, "servers.json"), "--workers", String(workers), "--max", "10000"], { cwd: process.cwd(), env: process.env });
   let out = "";
   child.stdout.on("data", (d) => (out += d));
   child.on("close", () => { try { resolve(JSON.parse(out)); } catch { resolve(null); } });

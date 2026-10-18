@@ -4,19 +4,20 @@
 # Differential test of the class merger: the oracle's `cn` is clsx + JS `twMerge`, the port's `cn` is the Ruby
 # `tailwind_merge` gem. The DOM class sets compared by G2 come out of these mergers, so they must agree on real shadcn vocabulary.
 #
-#   ruby .claude/scripts/shadcn/cn_differential.rb [--oracle DIR] [--js-dir react-shadcn-catalog] [--max-pairs-per-component 3000]
+#   ruby .claude/scripts/shadcn/cn_differential.rb [--oracle DIR] [--js-dir <catalog dir>] [--max-pairs-per-component 3000]
 #
 # Corpus: every multi-token string literal in the oracle sources (cva bases, variants, cn(...) arguments, className props),
 # per component. For each component all ordered pairs `"a b"` are merged on both sides (plus each string alone).
 # Prints JSON { pass, js_version, ruby_version, strings, merges, mismatches: [...] }; exit 1 on any mismatch.
 
+require_relative "layout"
 require "json"
 require "open3"
 require "optparse"
 require "tmpdir"
 require "tailwind_merge"
 
-opts = { oracle: "docs/shadcn-port/oracle", js_dir: "react-shadcn-catalog", cap: 3000, show: 15 }
+opts = { oracle: ShadcnLayout::ORACLE_DIR, js_dir: ShadcnLayout::CATALOG_DIR, cap: 3000, show: 15 }
 OptionParser.new do |o|
   o.on("--oracle DIR") { |v| opts[:oracle] = v }
   o.on("--js-dir DIR") { |v| opts[:js_dir] = v }

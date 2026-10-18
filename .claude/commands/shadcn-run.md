@@ -18,9 +18,9 @@ You coordinate; you do NOT write app code, edit components or edit scenarios. Ev
 - **Scripts judge, agents fix.** The auditor is called only when a gate fails twice or for the final deep review.
 
 ## Phase 0: State and servers
-1. If `docs/shadcn-port/state.json` or the oracle is missing: run the `/shadcn-plan --lazy` procedure first (Phases 0-4), then continue. Always run `ruby .claude/scripts/shadcn/command_lint.rb` first; on findings STOP (the docs name something that does not exist).
+1. If `gems/phlex-shadcn/dev/port/state.json` or the oracle is missing: run the `/shadcn-plan --lazy` procedure first (Phases 0-4), then continue. Always run `ruby .claude/scripts/shadcn/command_lint.rb` first; on findings STOP (the docs name something that does not exist).
 2. `ruby .claude/scripts/shadcn/port_state.rb init` (reuses the plan's `--skip-tier` stored in `state.json`; idempotent: keeps progress, resets only components whose oracle `source_sha` changed and says which), then with `--retry-blocked` `ruby .claude/scripts/shadcn/port_state.rb retry-blocked`, then `port_state.rb summary`. Print it.
-3. Unless `--no-browser`: (a) `ruby .claude/scripts/shadcn/playwright_ensure.rb` (installs a Playwright into the catalog that can launch a browser already on this machine, then smoke-tests a real launch; exit 1 => STOP and report, browser gates cannot run); (b) `ruby .claude/scripts/shadcn/servers.rb start` (Rails dev + the Vite catalog on FREE ports, default 3055/5177, recorded in `tmp/shadcn-port/servers.json`; it only ever reuses servers it started and never touches another project's server on :3000 or :5173; the parity route is on the public host `localhost:PORT`). `parity_run.mjs` reads the recorded URLs by itself, so never pass fixed ports to it. Exit 1 from `start` => read `tmp/shadcn-port/{rails,vite}.log`, STOP and report. Set `SERVERS_UP=true`. At the very end (Phase 3, also after any stop condition) run `ruby .claude/scripts/shadcn/servers.rb stop`. Wave 0 is allowed to start before `_harness` exists; set `SERVERS_UP=false` for wave 0 builders except `_harness` self-test.
+3. Unless `--no-browser`: (a) `ruby .claude/scripts/shadcn/playwright_ensure.rb` (installs a Playwright into the catalog that can launch a browser already on this machine, then smoke-tests a real launch; exit 1 => STOP and report, browser gates cannot run); (b) `ruby .claude/scripts/shadcn/servers.rb start` (Rails dev + the Vite catalog on FREE ports, default 3055/5177, recorded in `gems/phlex-shadcn/dev/tmp/shadcn-port/servers.json`; it only ever reuses servers it started and never touches another project's server on :3000 or :5173; the parity route is on the public host `localhost:PORT`). `parity_run.mjs` reads the recorded URLs by itself, so never pass fixed ports to it. Exit 1 from `start` => read `tmp/shadcn-port/{rails,vite}.log`, STOP and report. Set `SERVERS_UP=true`. At the very end (Phase 3, also after any stop condition) run `ruby .claude/scripts/shadcn/servers.rb stop`. Wave 0 is allowed to start before `_harness` exists; set `SERVERS_UP=false` for wave 0 builders except `_harness` self-test.
 4. `mkdir -p tmp/shadcn-port`; append every step to `tmp/shadcn-port/run.log` (one line: time, wave, component, event). TodoWrite one item per wave.
 
 ## Phase 1: Main loop
@@ -32,7 +32,7 @@ Repeat until `port_state.rb next` returns `done: true`, or a stop condition fire
 4. **Verify yourself (never trust the receipt):** for each returned component run, in this order, and stop at the first red:
    - `ruby .claude/scripts/shadcn/static_gate.rb --component X` (G1)
    - `bin/rubocop gems/phlex-shadcn/lib/phlex/shadcn/<x>.rb gems/phlex-shadcn/app/javascript/controllers/shadcn` is not required for JS; run rubocop on the Ruby files only.
-   - if browser: `cd react-shadcn-catalog && node ../.claude/scripts/shadcn/parity_run.mjs --component X > ../tmp/shadcn-port/X/g2.json` (G2+G3), then G2b for components with helpers (`--dx helpers --only <ids starting default, variant- or example__, cap 25>`), then G4: for each `--theme slate|stone|zinc-radius0` with `--only` = the scenarios whose id starts with `variant-` or equals `default*` (cap 12), and once with `--dark`.
+   - if browser: `cd gems/phlex-shadcn/dev/react-shadcn-catalog && node ../../../../.claude/scripts/shadcn/parity_run.mjs --component X > ../../../../tmp/shadcn-port/X/g2.json` (G2+G3), then G2b for components with helpers (`--dx helpers --only <ids starting default, variant- or example__, cap 25>`), then G4: for each `--theme slate|stone|zinc-radius0` with `--only` = the scenarios whose id starts with `variant-` or equals `default*` (cap 12), and once with `--dark`.
    - infra items: the acceptance checks in `references/infra-tasks.md`.
    Green -> `port_state.rb set X done --sha $(git rev-parse --short HEAD) --iteration n`. No browser -> `built`.
 5. **Fix loop (Actor-Critic), per red component, max `--max-iter`:**
@@ -42,7 +42,7 @@ Repeat until `port_state.rb next` returns `done: true`, or a stop condition fire
    - Exhausted -> `port_state.rb set X blocked --note "<top cause, scenario ids>"`; write `tmp/shadcn-port/X/BLOCKED.md` with the last triage. `next` stops returning its dependents by itself; do not mark them.
 6. **After every batch:** `ruby .claude/scripts/shadcn/port_state.rb checkpoint`. If `stop` is true, follow "Stop conditions" below; never continue past it.
 7. **When `next` moves to a new wave:**
-   - regression: `ruby .claude/scripts/shadcn/house_check.rb --static-all`; if any file under `gems/phlex-shadcn/app/javascript/shadcn/`, `app/assets/tailwind/theme/` or `app/components/base.rb` changed this wave (`git diff --name-only` against the wave start sha you recorded) re-run G2 default scenarios (`--only` ids starting `default`) for all `done` components, and treat red ones as new work for the fix loop.
+   - regression: `ruby .claude/scripts/shadcn/house_check.rb --static-all`; if any file under `gems/phlex-shadcn/app/javascript/shadcn/`, `gems/phlex-shadcn/app/assets/tailwind/phlex-shadcn/` or `app/components/base.rb` changed this wave (`git diff --name-only` against the wave start sha you recorded) re-run G2 default scenarios (`--only` ids starting `default`) for all `done` components, and treat red ones as new work for the fix loop.
    - `(cd gems/phlex-shadcn && bundle exec rake test)` (the gem suite) and `bin/rails test test/components` (host components, if the dir exists) must stay green.
    - print `port_state.rb summary` (compact).
 
@@ -50,7 +50,7 @@ Repeat until `port_state.rb next` returns `done: true`, or a stop condition fire
 The rules live in `port_state.rb checkpoint` (tested by the golden suite); you only act on its answer. Reasons:
 - `infra_blocked`: an infra task is blocked, nothing can work. Write `tmp/shadcn-port/<task>/BLOCKED.md`, stop.
 - `dispatch_cap`: more than 3 x components dispatches were counted (runaway fix loops). Stop and report.
-- `pilot_blocked`: STOP before any further pilot mini-wave or fan-out. Write `docs/shadcn-port/PILOT_FAILURE.md` with the causes grouped by shared layer (primitive, harness, theme, contract) and the proposed fix to infra/contract. Do not fan out.
+- `pilot_blocked`: STOP before any further pilot mini-wave or fan-out. Write `gems/phlex-shadcn/dev/port/PILOT_FAILURE.md` with the causes grouped by shared layer (primitive, harness, theme, contract) and the proposed fix to infra/contract. Do not fan out.
 - `wave_blocked_ratio`: more than 25% of a fan-out wave (of at least 4) is blocked. Stop that wave's remainder, report the common causes.
 - Servers die twice: stop with the log.
 After any stop, finish with Phase 3 (report) so nothing is lost. The user fixes the cause and re-runs with `--retry-blocked`.
@@ -63,10 +63,10 @@ After any stop, finish with Phase 3 (report) so nothing is lost. The user fixes 
 5. Catalog: confirm `app/views/design_system/index.rb` lists every `done` component (generated from state by the `_harness` task's catalog generator if present; otherwise report it as a gap, do not hand-edit).
 
 ## Phase 3: Report
-Write `docs/shadcn-port/REPORT.md`: totals by status; per component: status, iterations, scenarios, deviations; blocked list with the top cause and the exact file to look at; `waiting` components and the blocker each waits on; visual-regression notes from `_theme` (see theme-contract.md, "Coexistence"); theme gate result per theme; advisories; time and dispatch counts; the command to resume (`/shadcn-run all --resume`). Final chat message: 10 lines max: counts, blocked components, where the report is.
+Write `gems/phlex-shadcn/dev/port/REPORT.md`: totals by status; per component: status, iterations, scenarios, deviations; blocked list with the top cause and the exact file to look at; `waiting` components and the blocker each waits on; visual-regression notes from `_theme` (see theme-contract.md, "Coexistence"); theme gate result per theme; advisories; time and dispatch counts; the command to resume (`/shadcn-run all --resume`). Final chat message: 10 lines max: counts, blocked components, where the report is.
 
 ## Rules
-- You never edit app/component/scenario/oracle files. Only `docs/shadcn-port/{state.json,REPORT.md,PILOT_FAILURE.md}` (state only through `port_state.rb`) and `tmp/shadcn-port/**`.
+- You never edit app/component/scenario/oracle files. Only `gems/phlex-shadcn/dev/port/{state.json,REPORT.md,PILOT_FAILURE.md}` (state only through `port_state.rb`) and `tmp/shadcn-port/**`.
 - Every agent prompt is self-contained: paths, component, constraints, expected JSON. Agents do not see this conversation.
 - Parallel means ONE message with several Agent calls. Never more than `--concurrency` builders at once.
 - A gate result you ran yourself overrides any agent claim. If a script crashes (not a diff), that is `HARNESS_ERROR`: re-run once, then stop the wave and report; do not mark components done or blocked on harness crashes.

@@ -17,7 +17,7 @@ You are the **Critic**. You never fix code and never edit files. You run read-on
 ### Inputs
 `COMPONENT`, `MODE` = `full | triage | static` , optional `GATE_REPORTS` (paths) and `SERVERS_UP`.
 - `static` (used by `/shadcn-golden` and when no browser is available): run G1 only, then do the code review below on the given files.
-  In `static` mode, before issuing ANY `Q_API_SURFACE` or `Q_SPEC_DRIFT` finding you MUST first `Read` `.ai/skills/shadcn-port/references/api-mapping.md` (event names, `detail` shape, `as_child`) and, if it exists, `docs/shadcn-port/specs/<name>.md`; golden cases have no spec, so then compare against the oracle source and Radix behavior only.
+  In `static` mode, before issuing ANY `Q_API_SURFACE` or `Q_SPEC_DRIFT` finding you MUST first `Read` `.ai/skills/shadcn-port/references/api-mapping.md` (event names, `detail` shape, `as_child`) and, if it exists, `gems/phlex-shadcn/dev/port/specs/<name>.md`; golden cases have no spec, so then compare against the oracle source and Radix behavior only.
 - `triage`: take existing gate reports and the Builder's `stuck` note, return causes and fixes.
 - `full`: run G1, G2/G3 and G4 yourself (never trust the Builder's numbers), then triage + review.
 

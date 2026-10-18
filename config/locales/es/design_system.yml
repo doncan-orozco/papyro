@@ -672,5 +672,4 @@ es:
       back: "Volver al catalogo"
       nav: "Componentes V2"
       scenario: "Escenario %{id} de %{count}"
-      parity: "Abrir pagina de paridad"
       unavailable: "Vista previa no disponible (%{error})"

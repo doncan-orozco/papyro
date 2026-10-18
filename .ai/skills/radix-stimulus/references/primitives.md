@@ -1,6 +1,6 @@
 # Shared primitives (`gems/phlex-shadcn/app/javascript/shadcn/primitives/`)
 
-Built in **wave 0** (before any overlay), pinned in `config/importmap.rb` with `pin_all_from "gems/phlex-shadcn/app/javascript/shadcn", under: "shadcn"`. Each primitive is a plain ES module (no Stimulus dependency), exports small functions that return a `release()` cleanup, and is covered by a harness page `/design-system/parity/_primitives/<name>` + scenario file `docs/shadcn-port/scenarios/_primitives-<name>.json` compared against the same primitive in React (Radix package used raw in `react-shadcn-catalog/src/parity/primitives/`).
+Built in **wave 0** (before any overlay), pinned in `config/importmap.rb` with `pin_all_from "gems/phlex-shadcn/app/javascript/shadcn", under: "shadcn"`. Each primitive is a plain ES module (no Stimulus dependency), exports small functions that return a `release()` cleanup, and is covered by a harness page `/design-system/parity/_primitives/<name>` + scenario file `gems/phlex-shadcn/dev/port/scenarios/_primitives-<name>.json` compared against the same primitive in React (Radix package used raw in `gems/phlex-shadcn/dev/react-shadcn-catalog/src/parity/primitives/`).
 
 | Module | API sketch | Replaces (Radix) |
 |---|---|---|
