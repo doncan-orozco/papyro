@@ -18,14 +18,14 @@ namespace :test do
     puts "\nAll core and studio tests passed."
   end
 
-  desc "Run the browser-driven Stimulus controller tests (gems/phlex-shadcn/test/javascript; needs the Playwright of react-shadcn-catalog)"
+  desc "Run the browser-driven Stimulus controller tests (gems/phlex-shadcn/test/javascript; needs the Playwright of gems/phlex-shadcn/dev/react-shadcn-catalog)"
   task :javascript do
     require "json"
 
     abort("Playwright is not usable here: run ruby .claude/scripts/shadcn/playwright_ensure.rb") unless system("ruby .claude/scripts/shadcn/playwright_ensure.rb --check > /dev/null")
 
     started = JSON.parse(`ruby .claude/scripts/shadcn/servers.rb start`.then { |out| out[/\{.*\}/m] || "{}" })
-    abort("Could not start the dev servers (see tmp/shadcn-port/rails.log)") unless started["rails_ok"]
+    abort("Could not start the dev servers (see gems/phlex-shadcn/dev/tmp/shadcn-port/rails.log)") unless started["rails_ok"]
 
     begin
       success = system("node --test --test-timeout=60000 --test-reporter=spec gems/phlex-shadcn/test/javascript/*.test.mjs")

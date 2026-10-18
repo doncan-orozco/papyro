@@ -5,6 +5,7 @@
 #            gem_check, and the plain-Phlex smoke (Rails not loaded).
 # clean-app: a new Rails app installs the gem by following the README, renders a Button and a Dialog, and runs one browser
 #            parity scenario (bin/smoke --app).
+# js-tests:  the gem's browser tests of the Stimulus controllers and primitives (test/javascript/*.test.mjs) against the dummy app.
 # docs:      every Ruby fence of README.md and docs/*.md renders in a plain process (bin/smoke --docs; known gem defects are
 #            explicit XFAILs).
 name: phlex-shadcn
@@ -124,6 +125,52 @@ jobs:
         with:
           name: smoke-app-logs
           path: ${{ runner.temp }}/smoke_app/log
+          if-no-files-found: ignore
+
+  js-tests:
+    name: Stimulus controller and primitive browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: gems/phlex-shadcn/dev/react-shadcn-catalog/package-lock.json
+
+      - name: Install the React catalog (the oracle server and the Playwright the tests use)
+        working-directory: gems/phlex-shadcn/dev/react-shadcn-catalog
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Install the dummy app's bundle (the Phlex side of the parity harness)
+        working-directory: gems/phlex-shadcn/dev/dummy
+        run: bundle install --jobs 4
+
+      - name: Start the dev servers and run the browser tests
+        run: |
+          ruby .claude/scripts/shadcn/servers.rb start > /dev/null
+          status=0
+          node --test --test-timeout=60000 --test-reporter=spec gems/phlex-shadcn/test/javascript/*.test.mjs || status=$?
+          ruby .claude/scripts/shadcn/servers.rb stop > /dev/null
+          exit $status
+
+      - name: Keep the dev server logs
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: js-tests-logs
+          path: gems/phlex-shadcn/dev/tmp/shadcn-port
           if-no-files-found: ignore
 
   docs:

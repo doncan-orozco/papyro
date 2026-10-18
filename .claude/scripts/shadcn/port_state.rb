@@ -30,7 +30,7 @@ GRAPH = "#{ShadcnLayout::ORACLE_DIR}/graph.json"
 STATUSES = %w[pending planned built done blocked].freeze
 DEFAULT_PILOT = %w[button switch dialog tooltip dropdown-menu select].freeze
 INFRA = [
-  { "name" => "_theme", "owns" => ["app/assets/tailwind/application.css", "app/assets/tailwind/foundation/**", "#{ShadcnLayout::THEME_DIR}/** (bug fixes only)", "app/assets/tailwind/vendor/**", "#{ShadcnLayout::CONTROLLER_DIR}/theme_controller.js", "#{ShadcnLayout::CATALOG_DIR}/src/index.css", "lib/shadcn/**", "lib/tasks/theme.rake", "test/lib/shadcn/**"] },
+  { "name" => "_theme", "owns" => ["#{ShadcnLayout::THEME_DIR}/** (bug fixes only)", "#{ShadcnLayout::CONTROLLER_DIR}/theme_controller.js", "#{ShadcnLayout::CATALOG_DIR}/src/index.css", "#{ShadcnLayout::RUBY_DIR}/theme.rb", "#{ShadcnLayout::GEM_DIR}/lib/tasks/phlex_shadcn*.rake", "#{ShadcnLayout::RUBY_TEST_DIR}/theme_test.rb"] },
   { "name" => "_harness", "owns" => ["#{ShadcnLayout::DEV_DIR}/parity/**", "#{ShadcnLayout::DUMMY_DIR}/**", "#{ShadcnLayout::CATALOG_DIR}/src/parity/**", "#{ShadcnLayout::CATALOG_DIR}/vite.config.ts", "#{ShadcnLayout::CATALOG_DIR}/package.json"] },
   { "name" => "_primitives", "owns" => ["#{ShadcnLayout::PRIMITIVES_DIR}/**", "config/importmap.rb (primitives and controllers pins)", "#{ShadcnLayout::CATALOG_DIR}/src/parity/primitives/**", "#{ShadcnLayout::SCENARIOS_DIR}/_primitives-*.json"] },
   { "name" => "_base", "owns" => ["#{ShadcnLayout::RUBY_DIR}/base.rb", "#{ShadcnLayout::RUBY_TEST_DIR}/base_test.rb"] },
@@ -213,6 +213,16 @@ def summary(state, json)
   puts "skipped by --skip-tier #{state['skip_tiers'].join(',')}: #{state['skipped'].join(', ')}" if state["skipped"].to_a.any?
 end
 
+# `--check`: every path the infra entries own exists (a trailing "(note)" is ignored); exits 1 and lists the stale ones, so a removed or
+# moved file is noticed here instead of misleading the next /shadcn-run.
+def check_infra_owns
+  stale = INFRA.flat_map { |entry| entry["owns"].map { |owns| [entry["name"], owns.sub(/\s+\(.*\)\z/, "")] } }
+               .reject { |_, pattern| Dir.glob(pattern).any? }
+  stale.each { |name, pattern| warn "#{name}: #{pattern} matches nothing" }
+  puts(stale.empty? ? "infra owns ok (#{INFRA.size} entries)" : "#{stale.size} stale infra owns")
+  exit(stale.empty? ? 0 : 1)
+end
+
 cmd = ARGV.shift
 opts = {}
 parser = OptionParser.new do |o|
@@ -228,6 +238,7 @@ end
 parser.parse!
 
 case cmd
+when "--check", "check" then check_infra_owns
 when "init" then init(opts)
 when "next" then puts JSON.pretty_generate(next_batch(load_state, opts[:concurrency] || 4))
 when "checkpoint" then puts JSON.pretty_generate(checkpoint(load_state))

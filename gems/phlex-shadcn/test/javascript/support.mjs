@@ -3,17 +3,47 @@
 // and use the Playwright of react-shadcn-catalog. Run with `bin/rails test:javascript` (starts the dev servers).
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import assert from "node:assert/strict";
 
-// Dev-kit coupling (temporary, ruby-gem-conventions R1/R10): the Playwright install and the running Phlex server come from the
-// monorepo dev kit. PHLEX_SHADCN_DEV_ROOT and PARITY_PHLEX_URL let the suite run from any checkout.
-const ROOT = process.env.PHLEX_SHADCN_DEV_ROOT || path.resolve(import.meta.dirname, "../../../..");
-const require = createRequire(path.join(ROOT, "react-shadcn-catalog/package.json"));
-const { chromium } = require("playwright");
+// Dev-kit coupling (ruby-gem-conventions R1/R10): the Playwright install and the running Phlex server come from the gem's dev kit
+// (gems/phlex-shadcn/dev: react-shadcn-catalog/node_modules, tmp/shadcn-port/servers.json written by servers.rb). The dev root is
+// PHLEX_SHADCN_DEV_ROOT (relative paths are resolved from the working directory), else the dev kit of this checkout, else the one of
+// the main checkout when this is a git worktree (worktrees carry no node_modules). PHLEX_SHADCN_PLAYWRIGHT names a directory with
+// node_modules/playwright (CI), PARITY_PHLEX_URL a running server, SHADCN_SERVERS_FILE another servers.json.
+const GEM_ROOT = path.resolve(import.meta.dirname, "../..");
 
-export const PHLEX = process.env.PARITY_PHLEX_URL
-  || JSON.parse(fs.readFileSync(path.join(ROOT, "tmp/shadcn-port/servers.json"), "utf8")).rails.url;
+function devRoots() {
+  const roots = [process.env.PHLEX_SHADCN_DEV_ROOT && path.resolve(process.env.PHLEX_SHADCN_DEV_ROOT), path.join(GEM_ROOT, "dev")];
+  try {
+    const git = (...args) => execFileSync("git", ["-C", GEM_ROOT, ...args], { encoding: "utf8" }).trim();
+    const mainRoot = path.dirname(path.resolve(GEM_ROOT, git("rev-parse", "--git-common-dir")));
+    roots.push(path.join(mainRoot, path.relative(git("rev-parse", "--show-toplevel"), GEM_ROOT), "dev"));
+  } catch { /* not a git checkout */ }
+  return roots.filter(Boolean);
+}
+
+function loadPlaywright() {
+  const catalogs = [process.env.PHLEX_SHADCN_PLAYWRIGHT && path.resolve(process.env.PHLEX_SHADCN_PLAYWRIGHT),
+    ...devRoots().map((root) => path.join(root, "react-shadcn-catalog"))].filter(Boolean);
+  for (const dir of catalogs) {
+    if (fs.existsSync(path.join(dir, "node_modules/playwright"))) return createRequire(path.join(dir, "package.json"))("playwright");
+  }
+  throw new Error(`playwright not found in ${catalogs.join(", ")}: install the catalog (npm ci in gems/phlex-shadcn/dev/react-shadcn-catalog), or set PHLEX_SHADCN_PLAYWRIGHT / PHLEX_SHADCN_DEV_ROOT`);
+}
+
+const { chromium } = loadPlaywright();
+
+function serversFile() {
+  const candidates = [process.env.SHADCN_SERVERS_FILE && path.resolve(process.env.SHADCN_SERVERS_FILE),
+    ...devRoots().map((root) => path.join(root, "tmp/shadcn-port/servers.json"))].filter(Boolean);
+  const found = candidates.find((file) => fs.existsSync(file));
+  if (!found) throw new Error(`no servers.json in ${candidates.join(", ")}: start the dev servers (ruby .claude/scripts/shadcn/servers.rb start) or set PARITY_PHLEX_URL`);
+  return found;
+}
+
+export const PHLEX = process.env.PARITY_PHLEX_URL || JSON.parse(fs.readFileSync(serversFile(), "utf8")).rails.url;
 
 const NO_MOTION = "*,*::before,*::after{animation:none!important;transition:none!important}";
 
