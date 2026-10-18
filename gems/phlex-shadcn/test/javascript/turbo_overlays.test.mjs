@@ -56,6 +56,7 @@ for (const c of CASES) {
 
   browserTest(`${c.component}: the restored snapshot has no overlay and can be opened again`, async ({ open }) => {
     const page = await open(c.scenario, c.component)
+    assert.equal(await scrollLocked(page), false, "precondition: body starts unlocked")
     await page.locator(trigger(c)).first().click()
     await page.waitForSelector(c.content)
     await settle(page)
@@ -73,6 +74,7 @@ for (const c of CASES) {
     await page.waitForSelector(c.content)
     assert.equal(await page.locator(c.content).count(), 1)
     assert.equal(await page.locator(c.overlay).count(), 1)
+    assert.equal(await scrollLocked(page), true)
   })
 
   browserTest(`${c.component}: before-cache without a navigation (Turbo keeps the page, e.g. a #hash link) re-opens the dialog after the snapshot`, async ({ open }) => {
@@ -109,6 +111,30 @@ for (const c of CASES) {
     assert.equal(await scrollLocked(page), false)
   })
 }
+
+// Turbo keeps the page for a #hash visit: a closed dialog must not lose its forceMount parts (nothing mounts them again).
+// The Ruby Dialog does not emit forceMount (the api__content-force-mount scenario renders none), so it is set on the template.
+browserTest("dialog: a closed dialog keeps its forceMount parts through before-cache on a staying page", async ({ open }) => {
+  const page = await open("closed__rest", "dialog");
+  await page.evaluate(() => new Promise((resolve) => {
+    const host = document.querySelector('[data-controller~="shadcn--dialog"]');
+    host.querySelectorAll("template[data-shadcn--dialog-template]").forEach((t) => t.setAttribute("data-shadcn--dialog-options", JSON.stringify({ forceMount: true })));
+    host.setAttribute("data-controller", "");
+    requestAnimationFrame(() => { host.setAttribute("data-controller", "shadcn--dialog"); resolve(); });
+  }));
+  await settle(page);
+  const mounted = () => page.locator("[data-slot=dialog-content], [data-slot=dialog-overlay]").count();
+  const before = await mounted();
+  const lockedBefore = await scrollLocked(page);
+  assert.ok(before >= 1, "precondition: a forceMount part is mounted while closed");
+  await page.evaluate(async () => {
+    document.dispatchEvent(new Event("turbo:before-cache"));
+    for (let tick = 0; tick < 3; tick++) await new Promise((resolve) => setTimeout(resolve));
+  });
+  await settle(page);
+  assert.equal(await mounted(), before);
+  assert.equal(await scrollLocked(page), lockedBefore);
+});
 
 // The destructive Action comes before Cancel in the DOM, so only the redirect to Cancel (not the first tabbable) passes.
 browserTest("alert-dialog: open on first paint focuses the Cancel button, not the first tabbable", async ({ open }) => {

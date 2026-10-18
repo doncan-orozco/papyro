@@ -29,6 +29,7 @@ export default class extends Controller {
     this.caching = false
     this.restoreTimer = null
     this.restorePending = false
+    this.restoreOpen = false
     this.abortCache = new AbortController()
     document.addEventListener("turbo:before-cache", () => this.#resetForCache(), { signal: this.abortCache.signal })
     this.#syncTriggers()
@@ -55,7 +56,7 @@ export default class extends Controller {
   // once the snapshot is taken, if this controller is still connected: a real navigation replaces the page later and
   // disconnects it, which cancels the pending restore.
   #resetForCache() {
-    const wasOpen = this.openValue || this.restorePending // a second before-cache inside the window carries the pending restore forward
+    const wasOpen = this.openValue || this.restoreOpen // a second before-cache inside the window carries the pending restore forward
     this.#cancelRestore()
     this.caching = true
     this.#cancelPending()
@@ -64,25 +65,34 @@ export default class extends Controller {
     if (!this.controlledValue) this.openValue = false
     this.shown = false
     this.#syncTriggers()
-    if (!wasOpen) return
     this.restorePending = true
+    this.restoreOpen = wasOpen
     this.restoreTimer = setTimeout(() => {
-      this.restoreTimer = setTimeout(() => this.#restoreAfterCache())
+      this.restoreTimer = setTimeout(() => this.#restoreAfterCache(wasOpen))
     })
   }
 
-  #restoreAfterCache() {
+  #restoreAfterCache(wasOpen) {
     this.restoreTimer = null
     this.restorePending = false
+    this.restoreOpen = false
     if (this.disconnected) return
-    if (!this.controlledValue) this.openValue = true
-    this.#sync()
+    if (wasOpen) {
+      if (!this.controlledValue) this.openValue = true
+      this.#sync()
+      return
+    }
+    // A closed dialog keeps its forceMount parts: the page stayed, so nothing else would mount them again.
+    this.templates().forEach((template) => {
+      if (this.#options(template).forceMount && !this.parts.some((part) => part.template === template)) this.#mount(template)
+    })
   }
 
   #cancelRestore() {
     clearTimeout(this.restoreTimer)
     this.restoreTimer = null
     this.restorePending = false
+    this.restoreOpen = false
   }
 
   toggle(event) {
