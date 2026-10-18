@@ -1,0 +1,147 @@
+# CI of the phlex-shadcn gem (gems/phlex-shadcn). Runs only when the gem or this file changes.
+#
+# gem:       the gem's own checks on every Ruby and Phlex the gemspec claims (Ruby >= 3.2, phlex ~> 2.3) with Rails ~> 8.1 for the
+#            engine tests: rake test, rake test:engine, rubocop, bundler-audit, 100% YARD coverage, gem build without warnings,
+#            gem_check, and the plain-Phlex smoke (Rails not loaded).
+# clean-app: a new Rails app installs the gem by following the README, renders a Button and a Dialog, and runs one browser
+#            parity scenario (bin/smoke --app).
+# docs:      every Ruby fence of README.md and docs/*.md renders in a plain process (bin/smoke --docs; known gem defects are
+#            explicit XFAILs).
+name: phlex-shadcn
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "gems/phlex-shadcn/**"
+      - ".github/workflows/phlex-shadcn.yml"
+  pull_request:
+    paths:
+      - "gems/phlex-shadcn/**"
+      - ".github/workflows/phlex-shadcn.yml"
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  gem:
+    name: gem (ruby ${{ matrix.ruby }}, ${{ matrix.gemfile }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [ "3.2", "3.3", "3.4", "4.0" ]
+        gemfile: [ "Gemfile", "test/smoke/gemfiles/phlex_2.3.gemfile" ]
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gems/phlex-shadcn/${{ matrix.gemfile }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          # The committed Gemfile.lock is cached, except on the floor Ruby: it was resolved on a newer Ruby and pins gems that need
+          # it (rbs 4.2 needs >= 3.3), so Ruby 3.2 resolves the Gemfile afresh below, like the matrix gemfiles, which have no lockfile.
+          bundler-cache: ${{ matrix.gemfile == 'Gemfile' && matrix.ruby != '3.2' }}
+
+      - name: Resolve and install the bundle
+        if: matrix.gemfile != 'Gemfile' || matrix.ruby == '3.2'
+        run: |
+          rm -f "$BUNDLE_GEMFILE.lock"
+          bundle install --jobs 4
+
+      - name: Tests (plain Phlex)
+        working-directory: gems/phlex-shadcn
+        run: bundle exec rake test
+
+      - name: Tests (Rails engine and install generator)
+        working-directory: gems/phlex-shadcn
+        run: bundle exec rake test:engine
+
+      - name: RuboCop
+        working-directory: gems/phlex-shadcn
+        run: bundle exec rubocop
+
+      - name: Dependency audit
+        working-directory: gems/phlex-shadcn
+        run: bundle exec bundler-audit check --update
+
+      - name: Public API fully documented
+        working-directory: gems/phlex-shadcn
+        run: bundle exec yard stats --list-undoc | tee yard-stats.log && grep -q '100.00% documented' yard-stats.log
+
+      - name: Gem builds without warnings
+        working-directory: gems/phlex-shadcn
+        run: gem build phlex-shadcn.gemspec 2>&1 | tee gem-build.log && ! grep -i warning gem-build.log
+
+      - name: Gem gate
+        run: ruby .claude/scripts/gem/gem_check.rb --gem-dir gems/phlex-shadcn --host-dir .
+
+      - name: Plain-Phlex smoke (Rails not loaded)
+        working-directory: gems/phlex-shadcn
+        run: bundle exec bin/smoke --plain
+
+  clean-app:
+    name: clean Rails app from the README
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Install Rails
+        run: gem install rails --no-document --version "~> 8.1"
+
+      - name: Install Playwright
+        run: |
+          mkdir -p "$RUNNER_TEMP/playwright" && cd "$RUNNER_TEMP/playwright"
+          npm init -y > /dev/null && npm install --no-audit --no-fund playwright@1.61.0
+          npx playwright install --with-deps chromium
+
+      - name: Clean-app smoke (rails new, README quick start, HTTP checks, browser scenario)
+        env:
+          PHLEX_SHADCN_PLAYWRIGHT: ${{ runner.temp }}/playwright
+          SMOKE_APP_DIR: ${{ runner.temp }}/smoke_app
+        run: gems/phlex-shadcn/bin/smoke --app
+
+      - name: Keep the generated app's logs
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: smoke-app-logs
+          path: ${{ runner.temp }}/smoke_app/log
+          if-no-files-found: ignore
+
+  docs:
+    name: README and guide examples (plain Phlex)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Known failures are explicit XFAILs in test/smoke/docs.rb (Smoke::Docs::KNOWN_RED); any other failure, or a known one that starts passing, turns this job red.
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gems/phlex-shadcn/Gemfile
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Documentation examples render
+        working-directory: gems/phlex-shadcn
+        run: bundle exec bin/smoke --docs
