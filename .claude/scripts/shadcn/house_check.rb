@@ -96,6 +96,7 @@ end
   add.call("G5_IMPORTMAP", "#{importmap_file} lacks pin_all_from File.expand_path(\"../#{relative}\", __dir__)")
 end
 
+# G5 validates the gem's default theme; the host's theme.css is validated by `bin/rails theme:check` and the engine integration test.
 require File.expand_path("lib/phlex/shadcn/theme", ShadcnLayout::GEM_DIR)
 if File.exist?("#{ShadcnLayout::THEME_DIR}/theme.css")
   theme = Phlex::Shadcn::Theme.validate(Phlex::Shadcn::Theme.parse(File.read("#{ShadcnLayout::THEME_DIR}/theme.css")))

@@ -5,12 +5,16 @@ shadcn theming = CSS variables in `:root` and `.dark` + Tailwind v4 `@theme inli
 ## Layout
 
 ```
-gems/phlex-shadcn/app/assets/tailwind/phlex-shadcn/   (the gem's shipped theme; the dummy app and the React catalog read it)
+app/assets/tailwind/theme/   (the HOST's; created by rails g phlex:shadcn:install, the dir theme:* acts on)
   theme.css          ← the ONLY file developers edit (colors between markers, optional brand extras)
+  presets/           ← zinc slate stone neutral gray zinc-radius0 (copied from the gem by the install generator)
+  legacy-compat.css  ← host-only shims for the frozen Ui components; delete entries as legacy disappears
+gems/phlex-shadcn/app/assets/tailwind/phlex-shadcn/   (the gem's shipped default; the dummy app and the React catalog read it)
+  engine.css         ← Tailwind entry of the engine: @source of the gem's Ruby + vendor + tokens, bundled as builds/tailwind/phlex-shadcn
+  theme.css          ← default the generator copies into the host
+  presets/           ← defaults the generator copies into the host (generated from the shadcn colors API)
   tokens.css         ← @theme inline mapping + shadcn base layer. Never edited by hand
-  legacy-compat.css  ← shims for the frozen Ui components; delete entries as legacy disappears
-  presets/           ← zinc slate stone neutral gray zinc-radius0 (generated from the shadcn colors API)
-gems/phlex-shadcn/app/assets/tailwind/phlex-shadcn/vendor/   ← tw-animate.css, shadcn-tailwind.css (vendored from the catalog's node_modules; the host imports them through the engine bundle)
+  vendor/            ← tw-animate.css, shadcn-tailwind.css (vendored from the catalog's node_modules)
 ```
 
 `application.css` imports, in order: `tailwindcss`, the engine bundle (the `phlex-shadcn` block managed by `rails g phlex:shadcn:install`: vendor CSS, tokens and the host's `theme/theme.css`), `theme/legacy-compat.css`, then the existing imports. (`tw-animate-css` and `shadcn/tailwind.css` are what the shadcn `index` registry item depends on; re-vendor with `theme_sync.rb --vendor` when the catalog's `shadcn` package changes.)
