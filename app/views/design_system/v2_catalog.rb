@@ -59,19 +59,11 @@ module Views
             h2(class: "text-xl font-semibold") { entry.title }
             p(class: "text-xs text-muted-foreground") do
               plain t("design_system.catalog_v2.scenario", id: entry.scenario_id, count: entry.scenario_count)
-              parity_link(entry)
             end
           end
           # contain-layout makes this box the containing block of fixed descendants (sidebar, sheet triggers' layers stay in it).
           div(class: "p-6 overflow-auto max-h-[32rem] contain-layout") { preview(entry) }
         end
-      end
-
-      def parity_link(entry)
-        return unless Rails.env.development? || Rails.env.test?
-
-        plain " · "
-        a(href: design_system_parity_path(entry.component, entry.scenario_id), class: "underline underline-offset-4") { t("design_system.catalog_v2.parity") }
       end
 
       def preview(entry)
