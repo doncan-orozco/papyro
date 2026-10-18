@@ -1,19 +1,20 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Keeps docs/shadcn-port/DEVIATIONS.md in sync with docs/shadcn-port/deviations/*.json so the G5 house check
+# Keeps the deviations register (layout.rb DEVIATIONS_REGISTER) in sync with the deviations/*.json files so the G5 house check
 # (every deviations file must be registered) holds. Idempotent; preserves a human-entered `approved-by` value.
 #
 #   ruby .claude/scripts/shadcn/deviations_register.rb [--root DIR]
 # Prints JSON { registered: [...], removed: [...] }.
 
+require_relative "layout"
 require "json"
 require "optparse"
 
 root = "."
 OptionParser.new { |o| o.on("--root DIR") { |v| root = v } }.parse!
-base = File.join(root, "docs/shadcn-port")
-register = File.join(base, "DEVIATIONS.md")
+base = ShadcnLayout.under(root, ShadcnLayout::PORT_DIR)
+register = ShadcnLayout.under(root, ShadcnLayout::DEVIATIONS_REGISTER)
 
 approved = {}
 if File.exist?(register)

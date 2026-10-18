@@ -15,8 +15,10 @@ require "json"
 require "open3"
 require "fileutils"
 
-GOLDEN = ".claude/shadcn-golden"
-WORK = "tmp/shadcn-port/golden"
+GOLDEN = ShadcnLayout::GOLDEN_DIR
+WORK = File.join(ShadcnLayout::TMP_DIR, "golden")
+PORT = ShadcnLayout::PORT_DIR
+FIXTURE_PORT = "files/port" # inside a golden case: the case's port dir (oracle, scenarios, state, deviations), whatever PORT_DIR is
 ORACLE = File.join(WORK, "oracle")
 SCRIPTS = ".claude/scripts/shadcn"
 want = ARGV.first || "all"
@@ -80,12 +82,12 @@ end
 
 def check_state(exp)
   work = File.join(WORK, "state-work")
-  FileUtils.mkdir_p(File.join(work, "docs/shadcn-port"))
-  FileUtils.cp_r(ORACLE, File.join(work, "docs/shadcn-port/oracle"))
+  FileUtils.mkdir_p(File.join(work, PORT))
+  FileUtils.cp_r(ORACLE, File.join(work, ShadcnLayout::ORACLE_DIR))
   _, err, st = port_state(work, "init")
   return ["init failed: #{err.lines.first}"] unless st.success?
 
-  state = -> { JSON.parse(File.read(File.join(work, "docs/shadcn-port/state.json")))["components"] }
+  state = -> { JSON.parse(File.read(File.join(work, ShadcnLayout::STATE_FILE)))["components"] }
   problems = []
   exp.fetch("assertions", []).each do |a|
     c = state.call[a["component"]]
@@ -130,7 +132,7 @@ def check_state(exp)
       after = state.call[op["reinit_preserves"]]["status"]
       problems << "#{label}: #{op['reinit_preserves']} #{before} -> #{after}" unless before == after
     when "mutate_sha_then_reinit"
-      f = File.join(work, "docs/shadcn-port/oracle/manifest/#{op['mutate_sha_then_reinit']}.json")
+      f = File.join(work, ShadcnLayout::ORACLE_DIR, "manifest/#{op['mutate_sha_then_reinit']}.json")
       m = JSON.parse(File.read(f))
       m["source_sha"] = "mutated"
       File.write(f, JSON.generate(m))
@@ -152,9 +154,9 @@ class SimError < StandardError; end
 def run_sim(exp, case_dir)
   work = File.join(WORK, "run-work", exp["case"])
   FileUtils.rm_rf(work)
-  FileUtils.mkdir_p(File.join(work, "docs/shadcn-port"))
+  FileUtils.mkdir_p(File.join(work, PORT))
   oracle_src = exp["oracle"] == "case" ? File.join(case_dir, "files/oracle") : ORACLE
-  FileUtils.cp_r(oracle_src, File.join(work, "docs/shadcn-port/oracle"))
+  FileUtils.cp_r(oracle_src, File.join(work, ShadcnLayout::ORACLE_DIR))
   ps = ->(*args) { port_state(work, *args) }
   json = lambda do |*args|
     out, err, = ps.call(*args)
@@ -206,7 +208,7 @@ def run_sim(exp, case_dir)
     ps.call("init", *Array(exp["init_args"])) # a restart re-initialises; progress must survive
     step.call
   end
-  status = JSON.parse(File.read(File.join(work, "docs/shadcn-port/state.json")))["components"].transform_values { |c| c["status"] }
+  status = JSON.parse(File.read(File.join(work, ShadcnLayout::STATE_FILE)))["components"].transform_values { |c| c["status"] }
   { trace: trace, stop: stop, completed: completed, status: status, waiting: waiting, halted: halted }
 end
 
@@ -292,17 +294,17 @@ results = cases.map do |dir|
     end
   when "scenario"
     report = run_json("ruby", File.join(SCRIPTS, "scenario_coverage.rb"), "--component", exp["component"], "--oracle", ORACLE,
-                      "--scenarios", File.join(dir, "files/docs/shadcn-port/scenarios"),
-                      "--state", File.join(dir, "files/docs/shadcn-port/state.json"))
+                      "--scenarios", File.join(dir, FIXTURE_PORT, "scenarios"),
+                      "--state", File.join(dir, FIXTURE_PORT, "state.json"))
     codes = report["gaps"].map { |g| g["code"] }.uniq
     r[:detected] = codes
   when "deviations"
     work = File.join(WORK, "deviations-work", exp["case"])
     FileUtils.rm_rf(work)
-    FileUtils.mkdir_p(File.join(work, "docs/shadcn-port"))
-    FileUtils.cp_r(File.join(dir, "files/docs/shadcn-port/deviations"), File.join(work, "docs/shadcn-port/deviations"))
+    FileUtils.mkdir_p(File.join(work, PORT))
+    FileUtils.cp_r(File.join(dir, FIXTURE_PORT, "deviations"), File.join(work, ShadcnLayout::DEVIATIONS_DIR))
     reg = ->(*a) { Open3.capture2("ruby", File.expand_path(File.join(SCRIPTS, "deviations_register.rb")), "--root", work, *a)[0] }
-    file = File.join(work, "docs/shadcn-port/DEVIATIONS.md")
+    file = File.join(work, ShadcnLayout::DEVIATIONS_REGISTER)
     problems = []
     reg.call
     first = File.read(file)
@@ -313,7 +315,7 @@ results = cases.map do |dir|
     File.write(file, first.sub("| pending |", "| alice |"))
     reg.call
     problems << "human approved-by was overwritten" unless File.read(file).include?("| alice |")
-    File.delete(File.join(work, "docs/shadcn-port/deviations/card.json"))
+    File.delete(File.join(work, ShadcnLayout::DEVIATIONS_DIR, "card.json"))
     out = JSON.parse(reg.call)
     problems << "removed row not reported (#{out['removed']})" unless out["removed"] == ["card"]
     problems << "row of a deleted file still listed" if File.read(file).include?("| `card` |")
@@ -321,9 +323,9 @@ results = cases.map do |dir|
     r[:status] = problems.empty? ? "PASS" : "FAIL"
     next r
   when "cn"
-    unless File.exist?("react-shadcn-catalog/node_modules/tailwind-merge/package.json")
+    unless File.exist?(File.join(ShadcnLayout::CATALOG_DIR, "node_modules/tailwind-merge/package.json"))
       r[:status] = "SKIPPED"
-      r[:notes] << "catalog has no node_modules (npm install in react-shadcn-catalog)"
+      r[:notes] << "catalog has no node_modules (npm install in #{ShadcnLayout::CATALOG_DIR})"
       next r
     end
     out, = Open3.capture2("ruby", File.join(SCRIPTS, "cn_differential.rb"), "--oracle", ORACLE, "--show", "3")
@@ -380,7 +382,7 @@ results = cases.map do |dir|
     r[:status] = problems.empty? ? "PASS" : "FAIL"
     next r
   when "tokens"
-    tokens = File.read("app/assets/tailwind/theme/tokens.css")
+    tokens = File.read(File.join(ShadcnLayout::THEME_DIR, "tokens.css"))
     Array(exp["remove_lines_matching"]).each { |needle| tokens = tokens.lines.reject { |l| l.include?(needle) }.join }
     tf = File.join(WORK, "tokens-work", "#{exp['case']}.css")
     FileUtils.mkdir_p(File.dirname(tf))
@@ -395,7 +397,7 @@ results = cases.map do |dir|
     r[:notes] << "missing=#{report['missing_utilities'].size}"
     next r
   when "browser"
-    pw_dir = ENV["PARITY_PLAYWRIGHT_DIR"] || (File.directory?("react-shadcn-catalog/node_modules/playwright") ? "react-shadcn-catalog" : nil)
+    pw_dir = ENV["PARITY_PLAYWRIGHT_DIR"] || (File.directory?(File.join(ShadcnLayout::CATALOG_DIR, "node_modules/playwright")) ? ShadcnLayout::CATALOG_DIR : nil)
     if pw_dir.nil?
       r[:status] = "SKIPPED"
       r[:notes] << "set PARITY_PLAYWRIGHT_DIR to a directory containing node_modules/playwright"
@@ -441,7 +443,7 @@ results = cases.map do |dir|
     r[:status] = problems.empty? ? "PASS" : "FAIL"
     next r
   when "planner"
-    out = File.join(WORK, "planner-out", exp["case"], "docs/shadcn-port")
+    out = File.join(WORK, "planner-out", exp["case"], PORT)
     %w[specs scenarios deviations].each { |d| FileUtils.mkdir_p(File.join(out, d)) }
     FileUtils.cp_r(ORACLE, File.join(out, "oracle"))
     r[:status] = "PLANNER_PENDING"

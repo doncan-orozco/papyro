@@ -12,6 +12,12 @@
 #   SHADCN_PRIMITIVES_DIR    directory of the shared JS primitives             (default gems/phlex-shadcn/app/javascript/shadcn/primitives)
 #   SHADCN_RUBY_TEST_DIR     directory of the Ruby component tests             (default gems/phlex-shadcn/test/phlex/shadcn)
 #   SHADCN_JS_TEST_DIR       directory of the browser controller tests         (default gems/phlex-shadcn/test/javascript)
+#   SHADCN_DEV_DIR           the dev kit (oracle, specs, scenarios, React catalog, golden cases)     (default gems/phlex-shadcn/dev)
+#   SHADCN_PORT_DIR          oracle/specs/scenarios/deviations/state                            (default docs/shadcn-port)
+#   SHADCN_CATALOG_DIR       the React oracle renderer                                          (default react-shadcn-catalog)
+#   SHADCN_DUMMY_DIR         the dummy Rails app the Phlex side is served from (not used yet)   (default <dev>/dummy)
+#   SHADCN_GOLDEN_DIR        the golden regression cases                                        (default .claude/shadcn-golden)
+#   SHADCN_SERVERS_FILE      where servers.rb records the running dev servers                   (default tmp/shadcn-port/servers.json)
 #   SHADCN_STIMULUS_PREFIX   Stimulus identifier prefix, `shadcn` => `shadcn--dialog`  (default shadcn). The React twins of
 #                            the parity probes carry the same prefix (`shadcn---probe-*`): change both together.
 module ShadcnLayout
@@ -28,6 +34,23 @@ module ShadcnLayout
   RUBY_TEST_DIR = env_or("SHADCN_RUBY_TEST_DIR", "#{GEM_DIR}/test/phlex/shadcn")
   JS_TEST_DIR = env_or("SHADCN_JS_TEST_DIR", "#{GEM_DIR}/test/javascript")
   STIMULUS_PREFIX = env_or("SHADCN_STIMULUS_PREFIX", "shadcn")
+
+  # The dev kit (not packaged). Every path is relative to the repository root, like the ones above.
+  DEV_DIR = env_or("SHADCN_DEV_DIR", "#{GEM_DIR}/dev")
+  PORT_DIR = env_or("SHADCN_PORT_DIR", "docs/shadcn-port")
+  ORACLE_DIR = "#{PORT_DIR}/oracle".freeze
+  SPECS_DIR = "#{PORT_DIR}/specs".freeze
+  SCENARIOS_DIR = "#{PORT_DIR}/scenarios".freeze
+  DEVIATIONS_DIR = "#{PORT_DIR}/deviations".freeze
+  STATE_FILE = "#{PORT_DIR}/state.json".freeze
+  DEVIATIONS_REGISTER = "#{PORT_DIR}/DEVIATIONS.md".freeze
+  CATALOG_DIR = env_or("SHADCN_CATALOG_DIR", "react-shadcn-catalog")
+  DUMMY_DIR = env_or("SHADCN_DUMMY_DIR", "#{DEV_DIR}/dummy")
+  GOLDEN_DIR = env_or("SHADCN_GOLDEN_DIR", ".claude/shadcn-golden")
+  THEME_DIR = "app/assets/tailwind/theme"
+  PRESETS_DIR = "#{THEME_DIR}/presets".freeze
+  SERVERS_FILE = env_or("SHADCN_SERVERS_FILE", "tmp/shadcn-port/servers.json")
+  TMP_DIR = "tmp/shadcn-port"
 
   # Components whose Ruby constant is not the PascalCase of the kebab-case name (acronyms); empty today.
   CONSTANT_OVERRIDES = {}.freeze
@@ -50,4 +73,17 @@ module ShadcnLayout
 
   # `dialog` => `shadcn--dialog`
   def self.identifier(component) = "#{STIMULUS_PREFIX}--#{component}"
+
+  # `under("/tmp/work", PORT_DIR)` => `/tmp/work/<port dir>`: the same layout inside another root (a golden work dir, a rehearsal repo).
+  def self.under(root, path) = File.join(root, path)
+
+  # Every path above as a hash, for the scripts that are not Ruby (`ruby layout.rb --json`).
+  def self.to_h
+    constants.grep(/_(DIR|FILE|REGISTER)\z/).to_h { |name| [name.to_s, const_get(name)] }
+  end
+end
+
+if $PROGRAM_NAME == __FILE__ && ARGV == ["--json"]
+  require "json"
+  puts JSON.generate(ShadcnLayout.to_h)
 end

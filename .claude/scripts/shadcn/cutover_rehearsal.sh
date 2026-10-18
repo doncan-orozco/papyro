@@ -11,8 +11,10 @@
 # Prints the scratch edits it applied, the CSS selector diff, and VISUAL: PASS|FAIL. Exit 1 on FAIL.
 set -u
 REPO="$(cd "$(dirname "$0")/../../.." && pwd)"
+# Every dev-kit path comes from layout.rb (L_PORT_DIR, L_CATALOG_DIR, ...).
+eval "$(ruby "$REPO/.claude/scripts/shadcn/layout.rb" --json | ruby -rjson -e 'JSON.parse($stdin.read).each { |k, v| puts "L_#{k}=#{v.inspect}" }')"
 BASE="http://localhost:3000"; KEEP=0; SAMPLES=""
-[ -f "$REPO/tmp/shadcn-port/servers.json" ] && BASE="$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0]))["rails"]["url"]' "$REPO/tmp/shadcn-port/servers.json")" # servers.rb start
+[ -f "$REPO/$L_SERVERS_FILE" ] && BASE="$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0]))["rails"]["url"]' "$REPO/$L_SERVERS_FILE")" # servers.rb start
 while [ $# -gt 0 ]; do case "$1" in --base) BASE="$2"; shift;; --keep) KEEP=1;; --samples) SAMPLES="--samples";; esac; shift; done
 PW="${PARITY_PLAYWRIGHT_DIR:-}"
 [ -n "$PW" ] && [ -d "$PW/node_modules/pixelmatch" ] || { echo "set PARITY_PLAYWRIGHT_DIR to a dir with node_modules/{playwright,pngjs,pixelmatch}"; exit 2; }
@@ -20,8 +22,8 @@ curl -s -o /dev/null "$BASE/up" || { echo "no app answering at $BASE (start bin/
 
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/cutover.XXXXXX")"
 trap '[ $KEEP -eq 1 ] || rm -rf "$WORK"' EXIT
-OUT="$REPO/tmp/shadcn-port/_theme"; mkdir -p "$OUT"
-rsync -a --exclude .git --exclude log --exclude tmp --exclude node_modules --exclude storage --exclude react-shadcn-catalog --exclude public/react-catalog "$REPO/" "$WORK/repo/"
+OUT="$REPO/$L_TMP_DIR/_theme"; mkdir -p "$OUT"
+rsync -a --exclude .git --exclude log --exclude tmp --exclude node_modules --exclude storage --exclude "$(basename "$L_CATALOG_DIR")" --exclude public/react-catalog "$REPO/" "$WORK/repo/"
 cd "$WORK/repo" || exit 2
 
 echo "== old-format usages that would break (must be none):"

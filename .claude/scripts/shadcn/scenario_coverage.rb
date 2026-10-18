@@ -5,10 +5,11 @@
 #   ruby .claude/scripts/shadcn/scenario_coverage.rb --component button [--oracle DIR] [--scenarios DIR]
 # Exit 0 = covered, 1 = gaps. Prints JSON { component, pass, gaps: [{ code, detail }] }.
 
+require_relative "layout"
 require "json"
 require "optparse"
 
-opts = { oracle: "docs/shadcn-port/oracle", scenarios: "docs/shadcn-port/scenarios", state: "docs/shadcn-port/state.json" }
+opts = { oracle: ShadcnLayout::ORACLE_DIR, scenarios: ShadcnLayout::SCENARIOS_DIR, state: ShadcnLayout::STATE_FILE }
 OptionParser.new do |o|
   o.on("--component NAME") { |v| opts[:component] = v }
   o.on("--oracle DIR") { |v| opts[:oracle] = v }

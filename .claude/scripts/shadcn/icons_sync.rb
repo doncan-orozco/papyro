@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Regenerates the component library's icons/catalog.rb (see layout.rb) from the REAL lucide-react exports of react-shadcn-catalog.
+# Regenerates the component library's icons/catalog.rb (see layout.rb) from the REAL lucide-react exports of the React catalog (layout.rb CATALOG_DIR).
 # Names = union of: manifest `icons`, every `<icon:name>` in scenarios, and the lucide imports of the oracle sources.
-# Resolution is the one of react-shadcn-catalog/src/parity/Harness.tsx (`<Pascal>Icon` first, then `<Pascal>`);
+# Resolution is the one of <catalog>/src/parity/Harness.tsx (`<Pascal>Icon` first, then `<Pascal>`);
 # PascalCase export names (manifests/sources) resolve directly.
 #   ruby .claude/scripts/shadcn/icons_sync.rb           # rewrite catalog.rb
 #   ruby .claude/scripts/shadcn/icons_sync.rb --check   # exit 1 when the catalog lacks a required name (writes nothing)
@@ -14,11 +14,11 @@ require "pathname"
 
 ROOT = Pathname.new(__dir__).join("../../..").expand_path
 CATALOG = ROOT.join(ShadcnLayout::RUBY_DIR, "icons/catalog.rb")
-REACT = ROOT.join("react-shadcn-catalog")
+REACT = ROOT.join(ShadcnLayout::CATALOG_DIR)
 
 def required_names
-  names = Dir[ROOT.join("docs/shadcn-port/oracle/manifest/*.json")].flat_map { |f| JSON.parse(File.read(f))["icons"] || [] }
-  names += Dir[ROOT.join("docs/shadcn-port/scenarios/*.json")].flat_map { |f| File.read(f).scan(/<icon:([a-z0-9-]+)>/).flatten }
+  names = Dir[ROOT.join(ShadcnLayout::ORACLE_DIR, "manifest/*.json")].flat_map { |f| JSON.parse(File.read(f))["icons"] || [] }
+  names += Dir[ROOT.join(ShadcnLayout::SCENARIOS_DIR, "*.json")].flat_map { |f| File.read(f).scan(/<icon:([a-z0-9-]+)>/).flatten }
   Dir[REACT.join("src/components/ui/*.tsx")].each do |f|
     File.read(f).scan(/import\s*\{([^}]*)\}\s*from\s*"lucide-react"/m).flatten.each do |list|
       names += list.split(",").map { |n| n.strip.split(/\s+as\s+/).first }.reject { |n| n.nil? || n.empty? }

@@ -25,14 +25,14 @@ require "optparse"
 require "time"
 require "fileutils"
 
-STATE = "docs/shadcn-port/state.json"
-GRAPH = "docs/shadcn-port/oracle/graph.json"
+STATE = ShadcnLayout::STATE_FILE
+GRAPH = "#{ShadcnLayout::ORACLE_DIR}/graph.json"
 STATUSES = %w[pending planned built done blocked].freeze
 DEFAULT_PILOT = %w[button switch dialog tooltip dropdown-menu select].freeze
 INFRA = [
-  { "name" => "_theme", "owns" => ["app/assets/tailwind/application.css", "app/assets/tailwind/foundation/**", "app/assets/tailwind/theme/** (bug fixes only)", "app/assets/tailwind/vendor/**", "#{ShadcnLayout::CONTROLLER_DIR}/theme_controller.js", "react-shadcn-catalog/src/index.css", "lib/shadcn/**", "lib/tasks/theme.rake", "test/lib/shadcn/**"] },
-  { "name" => "_harness", "owns" => ["app/components/parity/**", "app/views/design_system/parity/**", "config/routes.rb (parity route only)", "react-shadcn-catalog/src/parity/**", "react-shadcn-catalog/vite.config.ts", "react-shadcn-catalog/package.json"] },
-  { "name" => "_primitives", "owns" => ["#{ShadcnLayout::PRIMITIVES_DIR}/**", "config/importmap.rb (primitives and controllers pins)", "react-shadcn-catalog/src/parity/primitives/**", "docs/shadcn-port/scenarios/_primitives-*.json"] },
+  { "name" => "_theme", "owns" => ["app/assets/tailwind/application.css", "app/assets/tailwind/foundation/**", "app/assets/tailwind/theme/** (bug fixes only)", "app/assets/tailwind/vendor/**", "#{ShadcnLayout::CONTROLLER_DIR}/theme_controller.js", "#{ShadcnLayout::CATALOG_DIR}/src/index.css", "lib/shadcn/**", "lib/tasks/theme.rake", "test/lib/shadcn/**"] },
+  { "name" => "_harness", "owns" => ["app/components/parity/**", "app/views/design_system/parity/**", "config/routes.rb (parity route only)", "#{ShadcnLayout::CATALOG_DIR}/src/parity/**", "#{ShadcnLayout::CATALOG_DIR}/vite.config.ts", "#{ShadcnLayout::CATALOG_DIR}/package.json"] },
+  { "name" => "_primitives", "owns" => ["#{ShadcnLayout::PRIMITIVES_DIR}/**", "config/importmap.rb (primitives and controllers pins)", "#{ShadcnLayout::CATALOG_DIR}/src/parity/primitives/**", "#{ShadcnLayout::SCENARIOS_DIR}/_primitives-*.json"] },
   { "name" => "_base", "owns" => ["#{ShadcnLayout::RUBY_DIR}/base.rb", "#{ShadcnLayout::RUBY_TEST_DIR}/base_test.rb"] },
   { "name" => "_icons", "owns" => ["#{ShadcnLayout::RUBY_DIR}/icon.rb", "#{ShadcnLayout::RUBY_DIR}/icons/**"] },
 ].freeze

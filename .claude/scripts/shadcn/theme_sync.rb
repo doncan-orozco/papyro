@@ -4,7 +4,7 @@
 # Port-side theme plumbing. Developers use `bin/rails theme:use|import|check`; this script is the
 # tooling around it (presets, vendored CSS, token verification).
 #
-#   ruby .claude/scripts/shadcn/theme_sync.rb --emit-preset slate        # app/assets/tailwind/theme/presets/slate.css
+#   ruby .claude/scripts/shadcn/theme_sync.rb --emit-preset slate        # <presets dir>/slate.css
 #   ruby .claude/scripts/shadcn/theme_sync.rb --emit-preset zinc-radius0 # zinc with --radius: 0
 #   ruby .claude/scripts/shadcn/theme_sync.rb --emit-presets             # zinc slate stone neutral gray zinc-radius0
 #   ruby .claude/scripts/shadcn/theme_sync.rb --vendor                   # tw-animate-css + shadcn/tailwind.css -> app/assets/tailwind/vendor
@@ -16,6 +16,7 @@
 # Source of truth for COLORS is the host file app/assets/tailwind/theme/theme.css (the React catalog
 # imports it through a Vite alias, so there is nothing to sync).
 
+require_relative "layout"
 require "json"
 require "net/http"
 require "optparse"
@@ -24,8 +25,8 @@ require "open3"
 require "tmpdir"
 require_relative "../../../lib/shadcn/theme"
 
-THEME_DIR = "app/assets/tailwind/theme"
-PRESETS_DIR = File.join(THEME_DIR, "presets")
+THEME_DIR = ShadcnLayout::THEME_DIR
+PRESETS_DIR = ShadcnLayout::PRESETS_DIR
 TOKENS_CSS = File.join(THEME_DIR, "tokens.css")
 VENDOR_DIR = "app/assets/tailwind/vendor"
 BASE_COLORS = %w[zinc slate stone neutral gray].freeze
@@ -103,7 +104,7 @@ def check_tokens(oracle_dir, tokens_file)
 end
 
 def vendor
-  nm = "react-shadcn-catalog/node_modules"
+  nm = "#{ShadcnLayout::CATALOG_DIR}/node_modules"
   FileUtils.mkdir_p(VENDOR_DIR)
   { "#{nm}/tw-animate-css/dist/tw-animate.css" => "tw-animate.css", "#{nm}/shadcn/dist/tailwind.css" => "shadcn-tailwind.css" }.each do |src, dest|
     abort("missing #{src} (run npm install in the catalog)") unless File.exist?(src)
@@ -114,7 +115,7 @@ end
 
 mode = nil
 arg = nil
-oracle_dir = "docs/shadcn-port/oracle"
+oracle_dir = ShadcnLayout::ORACLE_DIR
 tokens_file = TOKENS_CSS
 OptionParser.new do |o|
   o.on("--emit-preset NAME") { |v| mode = :emit; arg = v }

@@ -11,6 +11,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 const require = createRequire(path.join(process.cwd(), "package.json"));
 const { chromium } = require("playwright");
 const { PNG } = require("pngjs");
@@ -19,7 +21,8 @@ const pixelmatch = (await import(require.resolve("pixelmatch"))).default;
 const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) => { if (a.startsWith("--")) acc.push([a.slice(2), all[i + 1]?.startsWith("--") || all[i + 1] === undefined ? true : all[i + 1]]); return acc; }, []));
 if (!args.before || !args.after) { console.error("usage: --before before.css --after after.css"); process.exit(2); }
 const BASE = args.base || "http://localhost:3000";
-const DIR = path.resolve(args.out || "tmp/shadcn-port/_theme");
+const layout = JSON.parse(execFileSync("ruby", [path.join(path.dirname(fileURLToPath(import.meta.url)), "layout.rb"), "--json"], { encoding: "utf8" }));
+const DIR = path.resolve(args.out || path.join(layout.TMP_DIR, "_theme"));
 const MAX_PIXELS = Number(args["max-pixels"] ?? 2);
 const CSS = { before: fs.readFileSync(args.before, "utf8"), after: fs.readFileSync(args.after, "utf8") };
 const PAGES = (args.pages ? String(args.pages).split(",") : ["/en", "/es", "/en/articles/art-of-slow-thinking", "/en/session/new", "/en/sign_up", "/en/about", "/design-system"]);

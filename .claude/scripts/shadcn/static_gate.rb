@@ -6,7 +6,7 @@
 #
 #   ruby .claude/scripts/shadcn/static_gate.rb --component button
 #   ruby .claude/scripts/shadcn/static_gate.rb --component button --files path/a.rb,path/b.rb \
-#        --oracle docs/shadcn-port/oracle --deviations docs/shadcn-port/deviations
+#        --oracle <oracle dir> --deviations <deviations dir>
 #
 # Exit status 0 = pass, 1 = findings with severity MANDATORY, 2 = usage error.
 # Always prints one JSON object on stdout: { component:, pass:, findings: [...] }.
@@ -184,7 +184,7 @@ module ShadcnStaticGate
 end
 
 if $PROGRAM_NAME == __FILE__
-  opts = { oracle: "docs/shadcn-port/oracle", deviations: "docs/shadcn-port/deviations" }
+  opts = { oracle: ShadcnLayout::ORACLE_DIR, deviations: ShadcnLayout::DEVIATIONS_DIR }
   OptionParser.new do |o|
     o.on("--component NAME") { |v| opts[:component] = v }
     o.on("--files LIST") { |v| opts[:files] = v.split(",") }

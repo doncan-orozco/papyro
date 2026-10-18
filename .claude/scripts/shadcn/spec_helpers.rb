@@ -25,7 +25,7 @@ require "json"
 require "optparse"
 require "phlex"
 
-opts = { oracle: "docs/shadcn-port/oracle", specs: "docs/shadcn-port/specs" }
+opts = { oracle: ShadcnLayout::ORACLE_DIR, specs: ShadcnLayout::SPECS_DIR }
 OptionParser.new do |o|
   o.on("--oracle DIR") { |v| opts[:oracle] = v }
   o.on("--specs DIR") { |v| opts[:specs] = v }

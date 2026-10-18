@@ -17,7 +17,7 @@ OptionParser.new { |o| o.on("--static-all") { opts[:static_all] = true } }.parse
 findings = []
 add = ->(code, detail) { findings << { code: code, detail: detail } }
 
-state_file = "docs/shadcn-port/state.json"
+state_file = ShadcnLayout::STATE_FILE
 state = File.exist?(state_file) ? JSON.parse(File.read(state_file)) : abort("no #{state_file}")
 done = state["components"].select { |n, c| c["status"] == "done" && !n.start_with?("_") }.keys
 
@@ -28,16 +28,16 @@ js_layout_missing = done.any? && js_dirs.none? { |dir| Dir.exist?(dir) }
 add.call("G5_LAYOUT_MISSING", "#{js_dirs.join(', ')} missing (check SHADCN_CONTROLLER_DIR / SHADCN_PRIMITIVES_DIR)") if js_layout_missing
 
 done.each do |name|
-  manifest = JSON.parse(File.read("docs/shadcn-port/oracle/manifest/#{name}.json"))
+  manifest = JSON.parse(File.read("#{ShadcnLayout::ORACLE_DIR}/manifest/#{name}.json"))
   ruby_name = ShadcnLayout.ruby_name(name)
   ruby_file = File.join(ShadcnLayout::RUBY_DIR, "#{ruby_name}.rb")
   add.call("G5_FILE_MISSING", ruby_file) unless File.exist?(ruby_file)
-  add.call("G5_SPEC_MISSING", "docs/shadcn-port/specs/#{name}.md") unless File.exist?("docs/shadcn-port/specs/#{name}.md")
-  add.call("G5_SCENARIOS_MISSING", "docs/shadcn-port/scenarios/#{name}.json") unless File.exist?("docs/shadcn-port/scenarios/#{name}.json")
+  add.call("G5_SPEC_MISSING", "#{ShadcnLayout::SPECS_DIR}/#{name}.md") unless File.exist?("#{ShadcnLayout::SPECS_DIR}/#{name}.md")
+  add.call("G5_SCENARIOS_MISSING", "#{ShadcnLayout::SCENARIOS_DIR}/#{name}.json") unless File.exist?("#{ShadcnLayout::SCENARIOS_DIR}/#{name}.json")
   interactive = manifest["tier"] != "static"
   controller = ShadcnLayout.controller_file(name)
   # A spec may state that no controller is written on purpose (radix-stimulus R11: attaching one adds DOM the oracle lacks).
-  spec = File.exist?("docs/shadcn-port/specs/#{name}.md") ? File.read("docs/shadcn-port/specs/#{name}.md") : ""
+  spec = File.exist?("#{ShadcnLayout::SPECS_DIR}/#{name}.md") ? File.read("#{ShadcnLayout::SPECS_DIR}/#{name}.md") : ""
   no_controller = spec.match?(/No Stimulus controller|no `#{Regexp.escape(ShadcnLayout.identifier(name))}` controller|There is no `#{Regexp.escape(ShadcnLayout.identifier(name))}` controller/i)
   add.call("G5_CONTROLLER_MISSING", controller) if !js_layout_missing && interactive && !File.exist?(controller) && manifest["tier"] != "client" && !no_controller
   if opts[:static_all]
@@ -47,9 +47,9 @@ done.each do |name|
 end
 
 # Orphan controllers: a ui controller without a component in the manifest set (base/theme helpers excepted).
-known = Dir["docs/shadcn-port/oracle/manifest/*.json"].map { |f| ShadcnLayout.ruby_name(File.basename(f, ".json")) }
+known = Dir["#{ShadcnLayout::ORACLE_DIR}/manifest/*.json"].map { |f| ShadcnLayout.ruby_name(File.basename(f, ".json")) }
 # Infra: theme_panel (harness) and _probe_<name> test controllers that have a react twin whose `probe.controller` is shadcn---probe-<name>.
-probe_ids = Dir["react-shadcn-catalog/src/parity/primitives/*.tsx"].filter_map { |f| File.read(f)[/controller:\s*"(#{Regexp.escape(ShadcnLayout::STIMULUS_PREFIX)}---probe-[^"]+)"/, 1] }
+probe_ids = Dir["#{ShadcnLayout::CATALOG_DIR}/src/parity/primitives/*.tsx"].filter_map { |f| File.read(f)[/controller:\s*"(#{Regexp.escape(ShadcnLayout::STIMULUS_PREFIX)}---probe-[^"]+)"/, 1] }
 Dir[File.join(ShadcnLayout::CONTROLLER_DIR, "*_controller.js")].each do |f|
   base = File.basename(f, "_controller.js")
   next if known.include?(base) || %w[base theme theme_panel].include?(base)
@@ -58,31 +58,31 @@ Dir[File.join(ShadcnLayout::CONTROLLER_DIR, "*_controller.js")].each do |f|
 end
 
 # Deviations register must list every deviations file, and vice versa.
-register = File.exist?("docs/shadcn-port/DEVIATIONS.md") ? File.read("docs/shadcn-port/DEVIATIONS.md") : ""
-Dir["docs/shadcn-port/deviations/*.json"].each do |f|
+register = File.exist?(ShadcnLayout::DEVIATIONS_REGISTER) ? File.read(ShadcnLayout::DEVIATIONS_REGISTER) : ""
+Dir["#{ShadcnLayout::DEVIATIONS_DIR}/*.json"].each do |f|
   name = File.basename(f, ".json")
   add.call("G5_DEVIATION_UNREGISTERED", name) unless register.include?("`#{name}`")
 end
 
-if File.exist?("react-shadcn-catalog/node_modules/tailwind-merge/package.json") && Dir.exist?("docs/shadcn-port/oracle/src")
+if File.exist?("#{ShadcnLayout::CATALOG_DIR}/node_modules/tailwind-merge/package.json") && Dir.exist?("#{ShadcnLayout::ORACLE_DIR}/src")
   out, status = Open3.capture2("ruby", ".claude/scripts/shadcn/cn_differential.rb", "--show", "3")
   summary = (JSON.parse(out) rescue {}).slice("js_version", "ruby_version", "mismatch_count", "classes_that_differ")
   add.call("G5_CN_DIFFERENTIAL", "oracle cn (JS twMerge) and port cn (Ruby tailwind_merge) disagree: #{summary}") unless status.success?
 end
 
-if Dir.exist?("docs/shadcn-port/specs") && Dir.exist?("docs/shadcn-port/oracle/manifest")
+if Dir.exist?(ShadcnLayout::SPECS_DIR) && Dir.exist?("#{ShadcnLayout::ORACLE_DIR}/manifest")
   out, = Open3.capture2("ruby", ".claude/scripts/shadcn/spec_helpers.rb", "--all", "--check")
   stale = (JSON.parse(out)["stale"] rescue [])
   add.call("G5_SPEC_HELPERS", "specs without a current DX helpers section (run spec_helpers.rb --all): #{stale.first(8).join(', ')}") if stale.any?
 end
 
-catalog_css = "react-shadcn-catalog/src/index.css"
+catalog_css = "#{ShadcnLayout::CATALOG_DIR}/src/index.css"
 if File.exist?(catalog_css) && File.read(catalog_css).match?(/^\s*(:root|\.dark)\b|@theme/)
   add.call("G5_CATALOG_CSS", "#{catalog_css} must only import tailwindcss, tw-animate-css and the host theme (the shadcn CLI appends HSL variables)")
 end
 
 importmap = File.exist?("config/importmap.rb") ? File.read("config/importmap.rb") : ""
-catalog_fui = "react-shadcn-catalog/node_modules/@floating-ui/dom/package.json"
+catalog_fui = "#{ShadcnLayout::CATALOG_DIR}/node_modules/@floating-ui/dom/package.json"
 if File.exist?(catalog_fui) && (pinned = importmap[/pin "@floating-ui\/dom".*?# @([\d.]+)/, 1])
   catalog_version = JSON.parse(File.read(catalog_fui))["version"]
   add.call("G5_FLOATING_UI_VERSION", "importmap pins @floating-ui/dom #{pinned} but the catalog (oracle) runs #{catalog_version}: re-pin") unless pinned == catalog_version
@@ -95,15 +95,15 @@ end
 end
 
 require_relative "../../../lib/shadcn/theme"
-if File.exist?("app/assets/tailwind/theme/theme.css")
+if File.exist?("#{ShadcnLayout::THEME_DIR}/theme.css")
   theme = Shadcn::Theme.check
   theme[:errors].each { |e| add.call("G5_THEME_INVALID", e) }
-  if File.exist?("app/assets/tailwind/theme/tokens.css") && Dir.exist?("docs/shadcn-port/oracle/manifest")
+  if File.exist?("#{ShadcnLayout::THEME_DIR}/tokens.css") && Dir.exist?("#{ShadcnLayout::ORACLE_DIR}/manifest")
     out, status = Open3.capture2("ruby", ".claude/scripts/shadcn/theme_sync.rb", "--check-tokens")
     add.call("G5_TOKENS_DRIFT", out.strip[0, 400]) unless status.success?
   end
 else
-  add.call("G5_THEME_MISSING", "app/assets/tailwind/theme/theme.css")
+  add.call("G5_THEME_MISSING", "#{ShadcnLayout::THEME_DIR}/theme.css")
 end
 
 puts JSON.pretty_generate(pass: findings.empty?, components_checked: done.size, findings: findings)

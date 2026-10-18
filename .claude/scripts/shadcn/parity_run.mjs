@@ -4,24 +4,27 @@
 // Renders every scenario of a component on BOTH catalogs (React = oracle, Phlex = port),
 // replays the same interaction steps, snapshots after each step and diffs the snapshots.
 //
-//   cd react-shadcn-catalog && node ../.claude/scripts/shadcn/parity_run.mjs --component button
-//   ... --theme slate       inject app/assets/tailwind/theme/presets/slate.css into both pages (theme gate G4)
+//   cd <catalog dir> && node <repo>/.claude/scripts/shadcn/parity_run.mjs --component button
+//   ... --theme slate       inject <presets dir>/slate.css into both pages (theme gate G4)
 //   ... --dark              force .dark on <html> for every scenario
 //   ... --shots DIR         also save side by side PNGs (artifact for humans, not a gate)
 //   ... --only id1,id2      subset of scenario ids
+//   ... --scenarios DIR / --presets DIR / --servers FILE   override the layout.rb defaults (SCENARIOS_DIR, PRESETS_DIR, SERVERS_FILE)
 //   ... --dx helpers        ask the Phlex harness to render the same scenario tree through the yielded-root DX helpers
 //                           (`table.header { ... }`) instead of the explicit nested classes; must match React just the same
 //
 // Contract (see .ai/skills/shadcn-port/references/parity-gates.md):
 //   React  : {REACT}/#/parity/<component>/<scenarioId>
 //   Phlex  : {PHLEX}/design-system/parity/<component>/<scenarioId>
-//   Scenarios: docs/shadcn-port/scenarios/<component>.json  (single source of truth for both sides)
+//   Scenarios: <scenarios dir>/<component>.json  (single source of truth for both sides)
 // Failed renders never match: HTTP >= 400, [data-parity-error] and zero [data-slot] nodes (or, with a scenario `observe` list, zero observed nodes) are reported (PARITY_ERROR / HTTP_STATUS / EMPTY_RENDER).
 // Output: JSON on stdout { component, pass, scenarios, diffs[] }; exit 1 when diffs exist.
 
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 const require = createRequire(path.join(process.cwd(), "package.json"));
 const { chromium } = require("playwright");
@@ -33,15 +36,20 @@ const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) =>
 const component = args.component;
 if (!component) { console.error("usage: --component NAME"); process.exit(2); }
 
-const ROOT = path.resolve(process.cwd(), args.root || "..");
+const here = path.dirname(fileURLToPath(import.meta.url));
+// Repo root: --root, else the root this script lives in. Every default path comes from layout.rb (the one place that knows them).
+const ROOT = args.root ? path.resolve(process.cwd(), String(args.root)) : path.resolve(here, "../../..");
+let layoutCache;
+const layout = (key) => (layoutCache ??= JSON.parse(execFileSync("ruby", [path.join(here, "layout.rb"), "--json"], { encoding: "utf8" })))[key];
+const resolveFlag = (flag, key) => (args[flag] && args[flag] !== true ? path.resolve(process.cwd(), String(args[flag])) : path.join(ROOT, layout(key)));
 // Server URLs: --react/--phlex, then env, then the free ports servers.rb recorded, then the classic defaults.
-const recorded = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "tmp/shadcn-port/servers.json"), "utf8")); } catch { return {}; } })();
+const recorded = (() => { try { return JSON.parse(fs.readFileSync(resolveFlag("servers", "SERVERS_FILE"), "utf8")); } catch { return {}; } })();
 const REACT = args.react || process.env.PARITY_REACT_URL || recorded.vite?.url || "http://localhost:5173";
 const PHLEX = args.phlex || process.env.PARITY_PHLEX_URL || recorded.rails?.url || "http://localhost:3000";
-const scenariosFile = path.join(ROOT, "docs/shadcn-port/scenarios", `${component}.json`);
+const scenariosFile = path.join(resolveFlag("scenarios", "SCENARIOS_DIR"), `${component}.json`);
 const spec = JSON.parse(fs.readFileSync(scenariosFile, "utf8"));
 const only = args.only ? String(args.only).split(",") : null;
-const themeCss = args.theme ? fs.readFileSync(path.join(ROOT, "app/assets/tailwind/theme/presets", `${args.theme}.css`), "utf8") : null;
+const themeCss = args.theme ? fs.readFileSync(path.join(resolveFlag("presets", "PRESETS_DIR"), `${args.theme}.css`), "utf8") : null;
 
 const NO_MOTION = "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}";
 const STYLE_PROPS = [

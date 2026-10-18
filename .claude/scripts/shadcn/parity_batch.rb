@@ -15,12 +15,13 @@
 # --themes [LIST]        also G4: each theme preset on the scenarios starting variant- or default (cap 12), plus one --dark run;
 #                        without a list: slate,stone,zinc-radius0
 # --no-servers           neither ensure Playwright nor start/stop servers (they must already be running)
-# --out DIR              reports go to DIR/<component>/{g2,g2b,g4-<theme>,g4-dark}.json (default tmp/shadcn-port)
+# --out DIR              reports go to DIR/<component>/{g2,g2b,g4-<theme>,g4-dark}.json (default: layout.rb TMP_DIR, tmp/shadcn-port)
 #
 # Prints JSON { pass, servers_started, components: { name => { pass, gates => { gate => { pass, diffs } | { skipped } } } } }.
 # Exit 0 every gate passed, 1 a gate found diffs, 2 the environment or the arguments are unusable (no browser, servers down,
 # a gate crashed without a report, unknown component). Servers this run started are always stopped, also on a failed start.
 
+require_relative "layout"
 require "fileutils"
 require "json"
 require "open3"
@@ -30,8 +31,8 @@ ROOT = File.expand_path("../../..", __dir__)
 Dir.chdir(ROOT)
 
 SCRIPTS = ".claude/scripts/shadcn"
-SCENARIOS = "docs/shadcn-port/scenarios"
-CATALOG = "react-shadcn-catalog"
+SCENARIOS = ShadcnLayout::SCENARIOS_DIR
+CATALOG = ShadcnLayout::CATALOG_DIR
 NAME_PATTERN = /\A[a-z0-9][a-z0-9-]*\z/
 DEFAULT_THEMES = %w[slate stone zinc-radius0].freeze
 DX_PREFIXES = %w[default variant- example__].freeze
@@ -45,7 +46,7 @@ def environment_failure(message, servers_started: false)
 end
 
 def parse_options(argv)
-  options = { components: nil, dx: false, themes: [], servers: true, out: "tmp/shadcn-port" }
+  options = { components: nil, dx: false, themes: [], servers: true, out: ShadcnLayout::TMP_DIR }
   OptionParser.new do |parser|
     parser.banner = "usage: parity_batch.rb --components a,b|all [--dx] [--themes [LIST]] [--no-servers] [--out DIR]"
     parser.on("--components LIST", "comma list of components, or all (scenario files not starting with _)") { |value| options[:components] = value }
@@ -54,7 +55,7 @@ def parse_options(argv)
       options[:themes] = value ? value.split(",").map(&:strip).reject(&:empty?).uniq : DEFAULT_THEMES.dup
     end
     parser.on("--no-servers", "servers already running; do not ensure Playwright or start/stop servers") { options[:servers] = false }
-    parser.on("--out DIR", "report directory (default tmp/shadcn-port)") { |value| options[:out] = value }
+    parser.on("--out DIR", "report directory (default #{ShadcnLayout::TMP_DIR})") { |value| options[:out] = value }
   end.parse!(argv)
   options
 rescue OptionParser::ParseError => error
@@ -105,7 +106,8 @@ def helpers?(component)
 end
 
 def run_parity(component, report_path, *flags)
-  stdout, stderr, = run_tool("node", File.expand_path(File.join(SCRIPTS, "parity_run.mjs")), "--component", component, *flags, chdir: CATALOG)
+  stdout, stderr, = run_tool("node", File.expand_path(File.join(SCRIPTS, "parity_run.mjs")), "--component", component, "--scenarios", File.expand_path(SCENARIOS),
+                                "--presets", File.expand_path(ShadcnLayout::PRESETS_DIR), "--servers", File.expand_path(ShadcnLayout::SERVERS_FILE), *flags, chdir: CATALOG)
   FileUtils.mkdir_p(File.dirname(report_path))
   File.write(report_path, stdout)
   report = parse_report(stdout)
@@ -150,7 +152,7 @@ def start_servers
   unless status.success?
     # servers.rb reuses only healthy servers and then exits 0, so a failed start is always this run's: stop the half that came up.
     stop_servers
-    raise EnvironmentFailure, "dev servers did not start (see tmp/shadcn-port/{rails,vite}.log)"
+    raise EnvironmentFailure, "dev servers did not start (see #{ShadcnLayout::TMP_DIR}/{rails,vite}.log)"
   end
 
   report = parse_report(stdout)

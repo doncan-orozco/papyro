@@ -5,15 +5,16 @@
 # independent count taken straight from the TSX source. Catches extractor blind spots before every
 # downstream gate inherits them (e.g. components declared as arrow functions).
 #
-#   ruby .claude/scripts/shadcn/oracle_audit.rb [--oracle docs/shadcn-port/oracle]
+#   ruby .claude/scripts/shadcn/oracle_audit.rb [--oracle <oracle dir>]
 # Prints JSON { pass, scanned, findings: [{ code, component, detail }] }; exit 1 on findings.
 #
 # Codes: AUDIT_TIER_LIBRARY, AUDIT_CVA_COUNT, AUDIT_CVA_EMPTY, AUDIT_SLOT_MISMATCH, AUDIT_PART_COUNT, AUDIT_NO_TOKENS, AUDIT_TIER, AUDIT_NO_EXPORTS
 
+require_relative "layout"
 require "json"
 require "optparse"
 
-oracle = "docs/shadcn-port/oracle"
+oracle = ShadcnLayout::ORACLE_DIR
 OptionParser.new { |o| o.on("--oracle DIR") { |v| oracle = v } }.parse!
 
 findings = []

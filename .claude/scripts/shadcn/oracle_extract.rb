@@ -11,16 +11,17 @@
 #   ruby .claude/scripts/shadcn/oracle_extract.rb --only button,dialog  # subset
 #   ruby .claude/scripts/shadcn/oracle_extract.rb --offline             # use cached registry/*.json only
 #   ruby .claude/scripts/shadcn/oracle_extract.rb --list                # print names and exit
-#   ruby .claude/scripts/shadcn/oracle_extract.rb --verify-catalog react-shadcn-catalog/src/components/ui
+#   ruby .claude/scripts/shadcn/oracle_extract.rb --verify-catalog <catalog dir>/src/components/ui
 #                                                                       # G0: catalog files must equal the oracle (tokens, slots, cva, parts)
 #
-# Output (default docs/shadcn-port/oracle/):
+# Output (default <port dir>/oracle/):
 #   registry/<name>.json   raw registry item (cache; also the golden fixtures)
 #   src/<name>.tsx         primary React source, verbatim
 #   manifest/<name>.json   parts, data-slots, cva variants, class tokens, props, deps, tier
 #   graph.json             nodes + dependency waves
 #   VERSION.json           style, fetched_at, source digest
 
+require_relative "layout"
 require "json"
 require "net/http"
 require "uri"
@@ -420,7 +421,7 @@ module ShadcnOracle
 end
 
 if $PROGRAM_NAME == __FILE__
-  opts = { style: "new-york-v4", out: "docs/shadcn-port/oracle" }
+  opts = { style: "new-york-v4", out: ShadcnLayout::ORACLE_DIR }
   OptionParser.new do |o|
     o.on("--style S") { |v| opts[:style] = v }
     o.on("--out DIR") { |v| opts[:out] = v }
