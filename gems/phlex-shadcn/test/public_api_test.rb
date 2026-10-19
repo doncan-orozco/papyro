@@ -17,7 +17,8 @@
 require "test_helper"
 require "yard"
 
-# Builds the snapshot text from the YARD registry (tags and signatures) and from reflection (generated helpers).
+# Builds the snapshot text from the YARD registry (tags, signatures and the generated yielded-root helpers, which are derived from the registry
+# and checked against the real classes).
 module PublicApiSnapshot
   GEM_DIR = File.expand_path("..", __dir__)
   FIXTURE = File.join(GEM_DIR, "test/fixtures/public_api.txt")
@@ -29,11 +30,14 @@ module PublicApiSnapshot
 
   CLASS_STRING_NAME = /(\ACLASSES|_CLASSES?|_STYLE|_STYLE_VARS|\AVISUALLY_HIDDEN|_TRANSFORM)\z/
 
+  ENUM_NAME = /\A[a-z0-9_-]+\z/i
+
   module_function
 
   def build
-    registry_lines = public_objects.flat_map { |object| describe(object) }.sort
-    helper_lines = helpers.sort
+    objects = public_objects
+    registry_lines = objects.flat_map { |object| describe(object) }.sort
+    helper_lines = helpers(objects).sort
     [ HEADER, "## constants and methods", *registry_lines, "", "## generated yielded-root helpers", *helper_lines, "" ].join("\n")
   end
 
@@ -57,14 +61,30 @@ module PublicApiSnapshot
     case object.type
     when :class then [ "class #{object.path}#{superclass_suffix(object)}" ]
     when :module then [ "module #{object.path}" ]
-    when :constant then class_string_constant?(object) ? [] : [ "const #{object.path}" ]
-    else [ "#{object.scope == :class ? 'class_method' : 'method'} #{object.path} #{signature(object)}".strip ]
+    when :constant then class_string_constant?(object) ? [] : [ "const #{object.path}#{enum_suffix(object)}" ]
+    when :method then [ "#{object.scope == :class ? 'class_method' : 'method'} #{object.path} #{signature(object)}".strip ]
+    else raise ArgumentError, "unknown YARD object type #{object.type.inspect} for #{object.path}"
     end
   end
 
   # Tailwind class strings and inline style fragments are implementation details of the DOM, not API (ruby-gem-conventions R5):
   # they are `@api private` where tagged; this filter keeps the ones not tagged yet out of the baseline.
   def class_string_constant?(constant) = constant.name.to_s.match?(CLASS_STRING_NAME)
+
+  # Pins the member names of an enum-like constant (Hash keys or Array elements) so adding or removing a value is a reviewed decision.
+  # Only plain identifier names are pinned, which keeps Tailwind class strings out of the baseline; scalar constants stay name-only.
+  def enum_suffix(constant)
+    value = Object.const_get(constant.path)
+    names =
+      case value
+      when Hash then value.keys
+      when Array then value
+      else []
+      end
+    return "" if names.empty? || !names.all? { |name| (name.is_a?(String) || name.is_a?(Symbol)) && name.to_s.match?(ENUM_NAME) }
+
+    " [#{names.join(', ')}]"
+  end
 
   def superclass_suffix(object)
     superclass = object.superclass&.path
@@ -84,8 +104,8 @@ module PublicApiSnapshot
 
   # `root#helper`: `Base.const_added` defines one helper per nested part class of a root, so each public nested component
   # class of the registry is one helper of its parent (checked against the real class, so a missing helper fails loudly).
-  def helpers
-    parts = public_objects.select { |object| object.type == :class && object.namespace.type == :class }
+  def helpers(objects = public_objects)
+    parts = objects.select { |object| object.type == :class && object.namespace.type == :class }
     parts = parts.select { |part| Object.const_get(part.path) < Phlex::Shadcn::Base }
     parts.map do |part|
       root = Object.const_get(part.namespace.path)
@@ -101,6 +121,7 @@ class PublicApiTest < Minitest::Test
   def test_public_surface_matches_the_fixture
     actual = PublicApiSnapshot.build
     if ENV["PUBLIC_API_UPDATE"]
+      flunk "PUBLIC_API_UPDATE is set under CI: the snapshot would be rewritten instead of checked" if ENV["CI"]
       File.write(PublicApiSnapshot::FIXTURE, actual)
       skip "fixture regenerated (PUBLIC_API_UPDATE)"
     end
@@ -110,11 +131,26 @@ class PublicApiTest < Minitest::Test
     assert_equal expected, actual, failure_message(expected, actual)
   end
 
-  def test_fixture_has_no_class_string_constant_and_no_private_names
-    lines = File.readlines(PublicApiSnapshot::FIXTURE, chomp: true)
-    offenders = lines.grep(/\Aconst .*::#{PublicApiSnapshot::CLASS_STRING_NAME.source}/)
+  def test_pinned_names_exist_in_a_fresh_registry_and_none_is_private_or_a_class_string
+    PublicApiSnapshot.public_objects # parses lib/ into a fresh YARD registry
+    entries = File.readlines(PublicApiSnapshot::FIXTURE, chomp: true).filter_map do |line|
+      match = line.match(/\A(const|method|class_method|class|module) (\S+)/)
+      match && [ match[1], match[2] ]
+    end
 
-    assert_empty offenders, "class-string constants are not public API and must not be pinned"
+    refute_empty entries
+    entries.each do |type, path|
+      object = YARD::Registry.at(path)
+
+      refute_nil object, "#{path} is pinned but missing from the registry"
+      refute PublicApiSnapshot.class_string_constant?(object), "#{path} is a class-string constant and must not be pinned" if type == "const"
+      cursor = object
+      until cursor.nil? || cursor.root?
+        refute_equal "private", cursor.tag(:api)&.text, "#{path} is pinned but #{cursor.path} is tagged @api private"
+        assert_equal :public, cursor.visibility, "#{path} is pinned but #{cursor.path} is #{cursor.visibility}"
+        cursor = cursor.parent
+      end
+    end
   end
 
   private

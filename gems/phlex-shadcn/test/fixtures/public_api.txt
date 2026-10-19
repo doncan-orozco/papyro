@@ -299,59 +299,59 @@ class_method Phlex::Shadcn::Theme.presets_dir ()
 class_method Phlex::Shadcn::Theme.theme_file ()
 class_method Phlex::Shadcn::Theme.use (name)
 class_method Phlex::Shadcn::Toggle.variants (variant: "default", size: "default", class: nil)
-const Phlex::Shadcn::Alert::VARIANTS
-const Phlex::Shadcn::AlertDialog::Content::SIZES
-const Phlex::Shadcn::Attachment::Media::VARIANTS
-const Phlex::Shadcn::Attachment::ORIENTATIONS
-const Phlex::Shadcn::Attachment::SIZES
-const Phlex::Shadcn::Attachment::STATES
-const Phlex::Shadcn::Avatar::SIZES
-const Phlex::Shadcn::Badge::VARIANTS
-const Phlex::Shadcn::Bubble::ALIGNS
-const Phlex::Shadcn::Bubble::Reactions::ALIGNS
-const Phlex::Shadcn::Bubble::Reactions::SIDES
-const Phlex::Shadcn::Bubble::VARIANTS
-const Phlex::Shadcn::Button::SIZES
-const Phlex::Shadcn::Button::VARIANTS
-const Phlex::Shadcn::ButtonGroup::ORIENTATIONS
-const Phlex::Shadcn::Direction::VALUES
-const Phlex::Shadcn::Empty::Media::VARIANTS
-const Phlex::Shadcn::Field::ORIENTATIONS
-const Phlex::Shadcn::InputGroup::Addon::ALIGNS
-const Phlex::Shadcn::InputGroup::Button::SIZES
-const Phlex::Shadcn::Item::Media::VARIANTS
-const Phlex::Shadcn::Item::SIZES
-const Phlex::Shadcn::Item::VARIANTS
-const Phlex::Shadcn::Marker::VARIANTS
-const Phlex::Shadcn::Message::ALIGNS
-const Phlex::Shadcn::NavigationMenu::ORIENTATIONS
+const Phlex::Shadcn::Alert::VARIANTS [default, destructive]
+const Phlex::Shadcn::AlertDialog::Content::SIZES [default, sm]
+const Phlex::Shadcn::Attachment::Media::VARIANTS [icon, image]
+const Phlex::Shadcn::Attachment::ORIENTATIONS [horizontal, vertical]
+const Phlex::Shadcn::Attachment::SIZES [default, sm, xs]
+const Phlex::Shadcn::Attachment::STATES [idle, uploading, processing, error, done]
+const Phlex::Shadcn::Avatar::SIZES [default, sm, lg]
+const Phlex::Shadcn::Badge::VARIANTS [default, secondary, destructive, outline, ghost, link]
+const Phlex::Shadcn::Bubble::ALIGNS [start, end]
+const Phlex::Shadcn::Bubble::Reactions::ALIGNS [start, end]
+const Phlex::Shadcn::Bubble::Reactions::SIDES [top, bottom]
+const Phlex::Shadcn::Bubble::VARIANTS [default, secondary, muted, tinted, outline, ghost, destructive]
+const Phlex::Shadcn::Button::SIZES [default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg]
+const Phlex::Shadcn::Button::VARIANTS [default, destructive, outline, secondary, ghost, link]
+const Phlex::Shadcn::ButtonGroup::ORIENTATIONS [horizontal, vertical]
+const Phlex::Shadcn::Direction::VALUES [ltr, rtl]
+const Phlex::Shadcn::Empty::Media::VARIANTS [default, icon]
+const Phlex::Shadcn::Field::ORIENTATIONS [vertical, horizontal, responsive]
+const Phlex::Shadcn::InputGroup::Addon::ALIGNS [inline-start, inline-end, block-start, block-end]
+const Phlex::Shadcn::InputGroup::Button::SIZES [xs, sm, icon-xs, icon-sm]
+const Phlex::Shadcn::Item::Media::VARIANTS [default, icon, image]
+const Phlex::Shadcn::Item::SIZES [default, sm]
+const Phlex::Shadcn::Item::VARIANTS [default, outline, muted]
+const Phlex::Shadcn::Marker::VARIANTS [default, separator, border]
+const Phlex::Shadcn::Message::ALIGNS [start, end]
+const Phlex::Shadcn::NavigationMenu::ORIENTATIONS [horizontal, vertical]
 const Phlex::Shadcn::Progress::DEFAULT_MAX
 const Phlex::Shadcn::ROOT
-const Phlex::Shadcn::RadioGroup::DIRECTIONS
-const Phlex::Shadcn::RadioGroup::ORIENTATIONS
-const Phlex::Shadcn::ScrollArea::ScrollBar::ORIENTATIONS
-const Phlex::Shadcn::ScrollArea::TYPES
-const Phlex::Shadcn::Select::Content::POSITIONS
-const Phlex::Shadcn::Separator::ORIENTATIONS
-const Phlex::Shadcn::Sidebar::COLLAPSIBLES
-const Phlex::Shadcn::Sidebar::MenuSubButton::SIZES
+const Phlex::Shadcn::RadioGroup::DIRECTIONS [ltr, rtl]
+const Phlex::Shadcn::RadioGroup::ORIENTATIONS [horizontal, vertical]
+const Phlex::Shadcn::ScrollArea::ScrollBar::ORIENTATIONS [vertical, horizontal]
+const Phlex::Shadcn::ScrollArea::TYPES [auto, always, scroll, hover]
+const Phlex::Shadcn::Select::Content::POSITIONS [item-aligned, popper]
+const Phlex::Shadcn::Separator::ORIENTATIONS [horizontal, vertical]
+const Phlex::Shadcn::Sidebar::COLLAPSIBLES [offcanvas, icon, none]
+const Phlex::Shadcn::Sidebar::MenuSubButton::SIZES [sm, md]
 const Phlex::Shadcn::Sidebar::SIDEBAR_WIDTH
 const Phlex::Shadcn::Sidebar::SIDEBAR_WIDTH_ICON
 const Phlex::Shadcn::Sidebar::SIDEBAR_WIDTH_MOBILE
-const Phlex::Shadcn::Sidebar::SIDES
-const Phlex::Shadcn::Sidebar::VARIANTS
-const Phlex::Shadcn::Slider::DIRECTIONS
-const Phlex::Shadcn::Slider::ORIENTATIONS
+const Phlex::Shadcn::Sidebar::SIDES [left, right]
+const Phlex::Shadcn::Sidebar::VARIANTS [sidebar, floating, inset]
+const Phlex::Shadcn::Slider::DIRECTIONS [ltr, rtl]
+const Phlex::Shadcn::Slider::ORIENTATIONS [horizontal, vertical]
 const Phlex::Shadcn::Theme::COLORS_END
 const Phlex::Shadcn::Theme::COLORS_START
 const Phlex::Shadcn::Theme::MIN_CONTRAST
-const Phlex::Shadcn::Theme::REQUIRED
-const Phlex::Shadcn::Theme::ROOT_ONLY
-const Phlex::Shadcn::Toggle::SIZES
-const Phlex::Shadcn::Toggle::VARIANTS
-const Phlex::Shadcn::ToggleGroup::DIRECTIONS
-const Phlex::Shadcn::ToggleGroup::ORIENTATIONS
-const Phlex::Shadcn::ToggleGroup::TYPES
+const Phlex::Shadcn::Theme::REQUIRED [background, foreground, card, card-foreground, popover, popover-foreground, primary, primary-foreground, secondary, secondary-foreground, muted, muted-foreground, accent, accent-foreground, destructive, border, input, ring, chart-1, chart-2, chart-3, chart-4, chart-5, sidebar, sidebar-foreground, sidebar-primary, sidebar-primary-foreground, sidebar-accent, sidebar-accent-foreground, sidebar-border, sidebar-ring]
+const Phlex::Shadcn::Theme::ROOT_ONLY [radius]
+const Phlex::Shadcn::Toggle::SIZES [default, sm, lg]
+const Phlex::Shadcn::Toggle::VARIANTS [default, outline]
+const Phlex::Shadcn::ToggleGroup::DIRECTIONS [ltr, rtl]
+const Phlex::Shadcn::ToggleGroup::ORIENTATIONS [horizontal, vertical]
+const Phlex::Shadcn::ToggleGroup::TYPES [single, multiple]
 const Phlex::Shadcn::VERSION
 method Phlex::Shadcn::Accordion#initialize (type: "single", value: nil, default_value: nil, collapsible: false, disabled: false, dir: nil, orientation: "vertical", as_child: false, **attrs)
 method Phlex::Shadcn::Accordion#view_template ()
