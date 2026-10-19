@@ -80,9 +80,12 @@ export default class extends Controller {
     })
   }
 
+  // Pointer presence counts only where hovering exists: on touch devices `:hover` sticks to the tapped element, and touch must
+  // never open the card (pointerenter is ignored for it too).
   #restoreAfterCache() {
     this.restoreTimer = null
-    if (this.element.matches(":hover") || this.element.contains(document.activeElement)) this.intent.enter()
+    const hovered = window.matchMedia("(hover: hover)").matches && this.element.matches(":hover")
+    if (hovered || this.element.contains(document.activeElement)) this.intent.enter()
   }
 
   #cancelRestore() {
