@@ -95,6 +95,14 @@ A trigger part renders its own `<button>`; never nest a `Button` inside it as co
   (cancelable, like Radix). Listen with Stimulus (`data: { action: "shadcn--dialog:open-change->form#changed" }`) or
   `addEventListener`.
 
+- Turbo: controllers that leave state in the DOM (overlays, accordion, collapsible, tabs, avatar, scroll area) listen to
+  `turbo:before-cache` on `document`. The snapshot holds the closed state; a modal that was open is unmounted from it and, on a
+  visit that keeps the page, re-opens afterwards (`open-auto-focus` fires again).
+- Default texts: strings a component renders for assistive technology or as labels are keyword arguments whose defaults are the
+  React strings (`label:`, `aria_label:`, `mobile_title:`, `min_label:`...), so a localized app passes its own.
+- Theme controller: `data-controller="shadcn--theme"` stores `light` or `dark` in `localStorage` under `shadcn-theme`
+  (`data-shadcn--theme-storage-key-value` overrides it) and dispatches `shadcn--theme:changed` (`{ theme }`).
+
 ## DOM contract
 
 Every part carries `data-slot="<shadcn slot>"` (and `data-variant`, `data-size`, `data-state`, `data-side`, `data-orientation`...
