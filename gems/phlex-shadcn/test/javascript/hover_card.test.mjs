@@ -79,3 +79,25 @@ browserTest("hover-card: a controlled open value is reconciled when it changes",
   await page.waitForSelector(content, { state: "detached" });
   assert.equal(await page.locator(trigger).getAttribute("data-state"), "closed");
 });
+
+// turbo:before-cache while the open delay is pending (the pointer entered, the card is not open yet): the pending open must never
+// mount a card into the live page, and the next hover opens it normally (re-audit R106-3). The delay is shortened by reconnecting
+// the controller with a 100 ms open delay, so the negative wait stays short.
+browserTest("hover-card: an open timer pending at turbo:before-cache never mounts the card afterwards", async ({ open: openPage }) => {
+  const page = await openPage("default__closed");
+  await page.evaluate(() => new Promise((resolve) => {
+    const host = document.querySelector('[data-controller~="shadcn--hover-card"]');
+    host.setAttribute("data-shadcn--hover-card-open-delay-value", "100");
+    host.setAttribute("data-controller", "");
+    requestAnimationFrame(() => { host.setAttribute("data-controller", "shadcn--hover-card"); resolve(); });
+  }));
+  await settle(page);
+  await page.mouse.move(2, 2);
+  await page.hover(trigger);
+  await page.evaluate(() => document.dispatchEvent(new Event("turbo:before-cache")));
+  await page.waitForTimeout(400);
+  assert.equal(await isOpen(page), false, "the pending open was dropped by the cache reset");
+  await page.mouse.move(2, 2);
+  await open(page);
+  assert.equal(await page.locator(trigger).getAttribute("data-state"), "open");
+});

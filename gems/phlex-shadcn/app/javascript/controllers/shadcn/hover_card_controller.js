@@ -62,8 +62,11 @@ export default class extends Controller {
     return (this.element.parentElement || document).querySelector(selector) || document.querySelector(selector)
   }
 
-  // A cached page must not restore an open card.
+  // A cached page must not restore a hover-opened card (a server-rendered open value is honoured again on connect). The hover
+  // intent is reset too, so a pending open timer never mounts a card after the snapshot and a stale open flag never swallows
+  // the next hover.
   reset() {
+    this.intent?.sync(false)
     this.teardown()
     this.isOpen = false
     this.syncTrigger()
