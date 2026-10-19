@@ -74,31 +74,40 @@ class EngineTest::StubCss < Minitest::Test
   # Installing on a fake target touches no shared state: the real Propshaft::LoadPath keeps the filter the engine installed.
   def test_install_is_a_no_op_when_disabled
     target = fake_target
-    io = StringIO.new
+    warnings = StringIO.new
 
-    assert_equal :disabled, install_on(target, enabled: false, logger: Logger.new(io))
+    assert_equal :disabled, install_on(target, enabled: false, logger: Logger.new(warnings))
     refute_includes target.ancestors, tailwind_stub_filter
-    assert_empty io.string
+    assert_empty warnings.string
   end
 
   def test_install_warns_once_naming_the_switch_and_the_fallback_for_a_target_without_the_hook
-    target = fake_target(hook: :none)
-    io = StringIO.new
+    target = fake_target(:none)
+    warnings = StringIO.new
 
-    assert_equal :unsupported, install_on(target, logger: Logger.new(io))
+    assert_equal :unsupported, install_on(target, logger: Logger.new(warnings))
     refute_includes target.ancestors, tailwind_stub_filter
-    assert_equal 1, io.string.lines.size
-    assert_match "hide_tailwind_stubs = false", io.string
-    assert_match 'Link "tailwind"', io.string
+    assert_equal 1, warnings.string.lines.size
+    assert_match "hide_tailwind_stubs = false", warnings.string
+    assert_match 'Link "tailwind"', warnings.string
   end
 
   def test_install_warns_and_skips_a_hook_with_another_arity
-    target = fake_target(hook: :two_arguments)
-    io = StringIO.new
+    target = fake_target(:two_arguments)
+    warnings = StringIO.new
 
-    assert_equal :unsupported, install_on(target, logger: Logger.new(io))
+    assert_equal :unsupported, install_on(target, logger: Logger.new(warnings))
     refute_includes target.ancestors, tailwind_stub_filter
-    assert_match "hide_tailwind_stubs = false", io.string
+    assert_match "hide_tailwind_stubs = false", warnings.string
+  end
+
+  def test_install_warns_and_skips_a_public_hook
+    target = fake_target(:public_one_argument)
+    warnings = StringIO.new
+
+    assert_equal :unsupported, install_on(target, logger: Logger.new(warnings))
+    refute_includes target.ancestors, tailwind_stub_filter
+    assert_match "hide_tailwind_stubs = false", warnings.string
   end
 
   def test_install_prepends_once
@@ -135,15 +144,18 @@ class EngineTest::StubCss < Minitest::Test
     tailwind_stub_filter.install(target, stubs_dir: BUILDS.join("tailwind"), enabled: enabled, logger: logger)
   end
 
-  # A stand-in for Propshaft::LoadPath: `hook: true` has the private one-argument filter (which, like Propshaft's, drops dotfiles),
-  # `:two_arguments` a filter with another signature, `:none` no filter at all.
-  def fake_target(hook: true)
+  # A stand-in for Propshaft::LoadPath. `:one_argument` has the private one-argument filter (which, like Propshaft's, drops
+  # dotfiles), `:public_one_argument` the same filter but public, `:two_arguments` a filter with another signature, `:none` no
+  # filter at all.
+  def fake_target(hook = :one_argument)
     Class.new.tap do |target|
       case hook
-      when true then target.define_method(:without_dotfiles) { |files| files.reject { |file| File.basename(file).start_with?(".") } }
-      when :two_arguments then target.define_method(:without_dotfiles) { |files, more| files + more }
+      when :one_argument, :public_one_argument
+        target.define_method(:without_dotfiles) { |files| files.reject { |file| File.basename(file).start_with?(".") } }
+      when :two_arguments
+        target.define_method(:without_dotfiles) { |files, more| files + more }
       end
-      target.class_eval { private :without_dotfiles } unless hook == :none
+      target.class_eval { private :without_dotfiles } if %i[one_argument two_arguments].include?(hook)
     end
   end
 end
