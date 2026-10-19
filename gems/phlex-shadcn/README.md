@@ -13,11 +13,12 @@ each one checked against the React original in a browser.
 
 ## Requirements
 
-- Ruby 3.2 or newer and [Phlex](https://www.phlex.fun) 2.x from 2.3 (`~> 2.3`; Phlex 3 is not supported). CI runs the gem suite on Ruby 3.2, 3.3, 3.4 and 4.0, each against the
-  current Phlex 2.x and against Phlex 2.3.
+- Ruby 3.2 or newer and [Phlex](https://www.phlex.fun) 2.x from 2.3 (`~> 2.3`; Phlex 3 is not supported). CI runs the gem suite
+  on Ruby 3.2, 3.3, 3.4 and 4.0, each against the current Phlex 2.x and against Phlex 2.3.
 - Tailwind CSS 4 (the components use Tailwind utility classes; with Rails, `tailwindcss-rails`).
 - For the interactive components: Stimulus 3 (`@hotwired/stimulus`). With Rails, `importmap-rails` (the gem's engine adds its pins).
-- With Rails, `phlex-rails` renders Phlex views from controllers; the gem itself depends only on `phlex`, `tailwind_merge` and `zeitwerk` (no Nokogiri, no Active Support).
+- With Rails, `phlex-rails` renders Phlex views from controllers; the gem itself depends only on `phlex`, `tailwind_merge` and
+  `zeitwerk` (no Nokogiri, no Active Support).
 
 ## Rails: from zero to a Button and a Dialog
 
@@ -250,9 +251,10 @@ bin/rails phlex_shadcn:theme:import[path-or-url]        # paste a theme (file, h
 STRICT=1 bin/rails phlex_shadcn:theme:check             # variables complete in light and dark, valid format, text contrast
 ```
 
-`import` accepts only `https` URLs (timeouts, three redirects at most, 256 KiB at most) and rejects values that could break out of
-the CSS block; a failure prints its message (the list of errors for an invalid theme), without a backtrace. `theme:list|use|import|check` are short aliases (`config.phlex_shadcn.theme_task_aliases = false` turns them off). Older themes with
-bare HSL triplets (`240 10% 3.9%`) are wrapped on import. Run `bin/rails tailwindcss:build` after a change.
+A URL source of `import` must be `https` (timeouts, three redirects at most, 256 KiB at most), and values that could break out of
+the CSS block are rejected; a failure prints its message (the list of errors for an invalid theme), without a backtrace.
+`theme:list|use|import|check` are short aliases (`config.phlex_shadcn.theme_task_aliases = false` turns them off). Older themes
+with bare HSL triplets (`240 10% 3.9%`) are wrapped on import. Run `bin/rails tailwindcss:build` after a change.
 
 ## Upgrade notes
 
