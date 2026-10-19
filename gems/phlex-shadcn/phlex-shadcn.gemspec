@@ -2,10 +2,11 @@
 
 require_relative "lib/phlex/shadcn/version"
 
-# The one place the repository location is written: a split into its own repository changes these two lines (the metadata URIs derive from them).
+# The one place the repository location is written: a split into its own repository changes these lines (the metadata URIs derive from them).
 repository = "https://github.com/doncan-orozco/papyro"
 gem_path = "gems/phlex-shadcn" # "" once the gem has its own repository
-at = ->(kind, *rest) { [ repository, kind, "main", gem_path, *rest ].reject(&:empty?).join("/") }
+ref = "main"
+at = ->(kind, *rest) { [ repository, kind, ref, gem_path, *rest ].reject(&:empty?).join("/") }
 
 Gem::Specification.new do |spec|
   spec.name = "phlex-shadcn"
