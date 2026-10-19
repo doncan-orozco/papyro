@@ -9,6 +9,7 @@
 #   SHADCN_RUBY_DIR          directory of the Ruby components                 (default gems/phlex-shadcn/lib/phlex/shadcn)
 #   SHADCN_NAMESPACE         Ruby namespace of the components                  (default Phlex::Shadcn)
 #   SHADCN_CONTROLLER_DIR    directory of the Stimulus controllers             (default gems/phlex-shadcn/app/javascript/controllers/shadcn)
+#   SHADCN_PROBE_DIR         directory of the dev-only controllers (parity probes, theme panel)  (default <dummy>/app/javascript/controllers/shadcn)
 #   SHADCN_PRIMITIVES_DIR    directory of the shared JS primitives             (default gems/phlex-shadcn/app/javascript/shadcn/primitives)
 #   SHADCN_RUBY_TEST_DIR     directory of the Ruby component tests             (default gems/phlex-shadcn/test/phlex/shadcn)
 #   SHADCN_JS_TEST_DIR       directory of the browser controller tests         (default gems/phlex-shadcn/test/javascript)
@@ -47,6 +48,9 @@ module ShadcnLayout
   CATALOG_DIR = env_or("SHADCN_CATALOG_DIR", "#{DEV_DIR}/react-shadcn-catalog")
   DUMMY_DIR = env_or("SHADCN_DUMMY_DIR", "#{DEV_DIR}/dummy")
   GOLDEN_DIR = env_or("SHADCN_GOLDEN_DIR", "#{DEV_DIR}/golden")
+  # Dev-only Stimulus controllers (the `_probe_*` parity probes and the theme panel). They are served by the dummy app and must never sit in
+  # CONTROLLER_DIR: that tree is packaged and pinned by every consumer.
+  PROBE_DIR = env_or("SHADCN_PROBE_DIR", "#{DUMMY_DIR}/app/javascript/controllers/shadcn")
   # The theme both sides read: the gem's shipped default theme (the dummy app's config.phlex_shadcn.theme_dir, the React catalog's
   # @host-theme alias).
   THEME_DIR = "#{GEM_DIR}/app/assets/tailwind/phlex-shadcn".freeze
