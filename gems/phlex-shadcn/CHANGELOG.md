@@ -35,7 +35,7 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   `--no-private`); one guide per family under `docs/` plus `docs/api-conventions.md`.
 - Localizable default strings, as keyword arguments whose defaults are the exact React strings (the DOM does not change):
   `Pagination::Previous` (`label:`, `aria_label:`), `Pagination::Next` (`label:`, `aria_label:`), `Pagination::Ellipsis` (`label:`),
-  `Sidebar::Trigger` (`label:`), `Sidebar` (`mobile_title:`, `mobile_description:`) and `Slider` (`min_label:`, `max_label:`,
+  `Breadcrumb::Ellipsis` (`label:`), `Dialog::Content`, `Dialog::Footer` and `Sheet::Content` (`close_label:`), `Sidebar::Trigger` (`label:`), `Sidebar` (`mobile_title:`, `mobile_description:`) and `Slider` (`min_label:`, `max_label:`,
   `value_label:`, a `Kernel.format` template with `%<index>d` and `%<count>d` for three or more thumbs).
 - The `shadcn--theme` controller reads its `localStorage` key from `data-shadcn--theme-storage-key-value` (default `shadcn-theme`).
 - The built gem includes `docs/*.md` and `.yardopts`; `gem_check` gained the rules `GEMSPEC_DEV_MATERIAL` and `GEMSPEC_METADATA`.
@@ -56,7 +56,7 @@ Since the first extraction of the gem:
 - `Phlex::Shadcn::Theme`: only `use`, `import`, `check`, `presets`, `dir`, `configured?`, `theme_file` and `presets_dir` are public
   (a snapshot test pins them); `parse`, `validate`, `contrast`, `render_colors` and `Palette` are `@api private`. A failure to fetch, read or parse the
   imported source is a `Theme::Error` (a missing `theme.css` stays `Errno::ENOENT`); the `phlex_shadcn:theme:*` tasks print either as
-  one line without a backtrace.
+  its message (for an invalid theme, the list of errors), without a backtrace, and exit non-zero.
 - `Theme.import` is hardened: only `https` URLs (credentials refused), 5 s open and 10 s read timeouts, at most 3 redirects and a
   256 KiB body cap. Values containing `/* */`, `{`, `}`, `;`, a backslash or `url(` are rejected (also by `theme:check` on a
   hand-edited `theme.css`), an unbalanced `:root` or `.dark` block raises `unterminated ... block`, and the `source:` comment written
@@ -84,8 +84,9 @@ Since the first extraction of the gem:
 - Accordion, collapsible, tabs, avatar and scroll-area keep closed bodies, the avatar fallback and no scrollbar in the Turbo
   snapshot and set the live page up again afterwards; `FormBubbleInput` no longer removes a server-rendered input.
 - Fresh Rails apps no longer link the Tailwind engine stub (`app/assets/builds/tailwind/*.css`) with `stylesheet_link_tag :app`
-  (a browser 404 that also disclosed a filesystem path): the engine hides it from Propshaft 1.2 and 1.3. With another
-  Propshaft it logs a warning at boot; link `"tailwind"` explicitly there.
+  (a browser 404 that also disclosed a filesystem path): the engine hides it through Propshaft's private
+  `LoadPath#without_dotfiles` (present in 1.2 and 1.3). With a Propshaft that lacks that method it logs a warning at boot; link
+  `"tailwind"` explicitly there.
 
 ### Removed
 

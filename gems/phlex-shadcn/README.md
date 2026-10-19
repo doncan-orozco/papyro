@@ -227,8 +227,10 @@ end
   sets the class before first paint has to read the same key.
 - Turbo: the overlay, disclosure, avatar and scroll-area controllers handle `turbo:before-cache`, so a cached page has no open
   modal, scroll lock or `aria-hidden` siblings.
-- Default texts (`Previous`, `Next`, `More pages`, `Toggle Sidebar`, the slider thumb labels...) are keyword arguments; pass
-  translated strings, for example `Phlex::Shadcn::Pagination::Previous.new(label: t(".previous"))`.
+- Default texts (`Previous`, `Next`, `More pages`, `More`, `Close`, the sidebar trigger and mobile sheet, the slider thumb labels...)
+  are keyword arguments: pass translated strings, for example `Phlex::Shadcn::Pagination::Previous.new(label: t(".previous"))`.
+  Fixed landmark labels (`Spinner`, `NavigationMenu`, `Sidebar::Rail`...) take `aria: { label: ... }`; see
+  [docs/api-conventions.md](docs/api-conventions.md).
 
 The API of every component is in the YARD documentation (`bundle exec yard server` in the gem, or rubydoc.info once released) and,
 per family, in [`docs/`](docs/): [conventions](docs/api-conventions.md), [display](docs/display.md), [form controls](docs/form-controls.md),
@@ -249,7 +251,7 @@ STRICT=1 bin/rails phlex_shadcn:theme:check             # variables complete in 
 ```
 
 `import` accepts only `https` URLs (timeouts, three redirects at most, 256 KiB at most) and rejects values that could break out of
-the CSS block; a failure prints one line, without a backtrace. `theme:list|use|import|check` are short aliases (`config.phlex_shadcn.theme_task_aliases = false` turns them off). Older themes with
+the CSS block; a failure prints its message (the list of errors for an invalid theme), without a backtrace. `theme:list|use|import|check` are short aliases (`config.phlex_shadcn.theme_task_aliases = false` turns them off). Older themes with
 bare HSL triplets (`240 10% 3.9%`) are wrapped on import. Run `bin/rails tailwindcss:build` after a change.
 
 ## Upgrade notes
