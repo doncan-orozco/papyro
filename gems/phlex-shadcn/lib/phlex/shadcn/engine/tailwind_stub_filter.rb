@@ -10,9 +10,12 @@ module Phlex
       #
       # Recorded exception to ruby-gem-conventions R4 (no monkey patches of framework classes): Propshaft only excludes whole load-path
       # roots and the stubs sit in the host's own app/assets/builds next to the compiled CSS, so there is no public seam. {.install}
-      # prepends this module to Propshaft::LoadPath over its private file filter (`without_dotfiles`, Propshaft 1.2 and 1.3), only
+      # prepends a filter to Propshaft::LoadPath over its private file filter (`without_dotfiles`, Propshaft 1.2 and 1.3), only
       # when that hook exists with the expected arity, and `config.phlex_shadcn.hide_tailwind_stubs = false` turns it off. Remove
       # once tailwindcss-rails stops writing stubs inside an asset root.
+      #
+      # The module itself holds no state: each installed target gets its own filter module (the stubs prefix lives in a closure),
+      # which includes this module so the target's ancestors name the exception.
       #
       # @api private
       module TailwindStubFilter
@@ -41,24 +44,25 @@ module Phlex
               return :unsupported
             end
 
-            @stubs = "#{stubs_dir}/"
-            target.prepend(self)
+            target.prepend(filter_for("#{stubs_dir}/"))
             :installed
           end
-
-          # @return [String, nil] the path prefix of the hidden files, set by {.install}
-          attr_reader :stubs
 
           private
 
           def hook?(target) = target.private_method_defined?(HOOK) && target.instance_method(HOOK).arity == 1
-        end
 
-        private
+          # One module per target: the prefix is captured here, so two targets (or a test double) never share state.
+          def filter_for(stubs)
+            marker = self
+            Module.new do
+              include marker
 
-        def without_dotfiles(files)
-          stubs = TailwindStubFilter.stubs
-          super.reject { |file| file.to_s.start_with?(stubs) }
+              private
+
+              define_method(HOOK) { |files| super(files).reject { |file| file.to_s.start_with?(stubs) } }
+            end
+          end
         end
       end
     end

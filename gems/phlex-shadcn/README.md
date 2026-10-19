@@ -115,7 +115,7 @@ config.phlex_shadcn.hide_tailwind_stubs = true                # false to leave t
 `hide_tailwind_stubs` keeps the stubs tailwindcss-rails writes to `app/assets/builds/tailwind/` (Tailwind input, not browser
 stylesheets) out of `stylesheet_link_tag :app` through a guarded hook into Propshaft's private file filter. When a Propshaft release
 drops that hook the engine logs a warning at boot and serves the stubs again: link `"tailwind"` explicitly instead of `:app`, or set
-the option to `false` to silence the warning.
+the option to `false` to silence the warning. Like `theme_task_aliases`, set it in `config/application.rb`.
 
 `theme_dir` precedence at boot: `config.phlex_shadcn.theme_dir`, then a value set with `Phlex::Shadcn.configure` before the app
 initializes, then the default. In a Rails app set it in `config/application.rb`, not in an initializer: a `configure` call in

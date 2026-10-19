@@ -47,6 +47,7 @@ module Phlex
       config.phlex_shadcn.theme_task_aliases = true
       # Hide the stubs tailwindcss-rails writes to app/assets/builds/tailwind/ from the served assets (TailwindStubFilter). Set it
       # to false to serve them yourself or to keep Propshaft untouched; the stubs then stay linked by `stylesheet_link_tag :app`.
+      # Read by an engine initializer, so set it in config/application.rb (like theme_task_aliases).
       config.phlex_shadcn.hide_tailwind_stubs = true
 
       initializer "phlex_shadcn.assets" do |app|
@@ -66,7 +67,7 @@ module Phlex
 
       # The engine's Tailwind entry (app/assets/tailwind/phlex-shadcn) is input of the Tailwind CLI, not a browser stylesheet, so
       # Propshaft must not serve it. tailwindcss-rails excludes the app's own app/assets/tailwind for the same reason. (Propshaft only
-      # excludes load-path roots: the stub tailwindcss-rails writes to app/assets/builds/tailwind/ is served like for any engine.)
+      # excludes load-path roots; the stub tailwindcss-rails writes to app/assets/builds/tailwind/ is hidden by TailwindStubFilter below.)
       initializer "phlex_shadcn.exclude_tailwind_inputs", before: "propshaft.append_assets_path" do |app|
         if app.config.respond_to?(:assets) && app.config.assets.respond_to?(:excluded_paths)
           path = root.join("app/assets/tailwind")
@@ -74,8 +75,9 @@ module Phlex
         end
       end
 
+      # Only where tailwindcss-rails writes stubs; a host without it (or without Propshaft) gets neither the hook nor a warning.
       initializer "phlex_shadcn.hide_tailwind_stubs" do |app|
-        next unless defined?(::Propshaft::LoadPath) && app.config.respond_to?(:assets)
+        next unless defined?(::Tailwindcss) && defined?(::Propshaft::LoadPath) && app.config.respond_to?(:assets)
 
         TailwindStubFilter.install(
           ::Propshaft::LoadPath,
