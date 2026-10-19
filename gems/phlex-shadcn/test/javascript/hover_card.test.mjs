@@ -80,24 +80,41 @@ browserTest("hover-card: a controlled open value is reconciled when it changes",
   assert.equal(await page.locator(trigger).getAttribute("data-state"), "closed");
 });
 
-// turbo:before-cache while the open delay is pending (the pointer entered, the card is not open yet): the pending open must never
-// mount a card into the live page, and the next hover opens it normally (re-audit R106-3). The delay is shortened by reconnecting
-// the controller with a 100 ms open delay, so the negative wait stays short.
-browserTest("hover-card: an open timer pending at turbo:before-cache never mounts the card afterwards", async ({ open: openPage }) => {
+// turbo:before-cache resets the hover intent (re-audit R106-3). The controller is reconnected with short delays so the waits
+// stay short: open 100 ms, close 5 s (a re-hover inside the close delay is what a stale open flag used to swallow).
+const reconnectWithDelays = (page) => page.evaluate(() => new Promise((resolve) => {
+  const host = document.querySelector('[data-controller~="shadcn--hover-card"]');
+  host.setAttribute("data-shadcn--hover-card-open-delay-value", "100");
+  host.setAttribute("data-shadcn--hover-card-close-delay-value", "5000");
+  host.setAttribute("data-controller", "");
+  requestAnimationFrame(() => { host.setAttribute("data-controller", "shadcn--hover-card"); resolve(); });
+}));
+const beforeCache = (page) => page.evaluate(async () => {
+  document.dispatchEvent(new Event("turbo:before-cache"));
+  for (let tick = 0; tick < 3; tick++) await new Promise((resolve) => setTimeout(resolve));
+});
+
+browserTest("hover-card: a hover-opened card torn down by before-cache opens again on the next hover (no stale open flag)", async ({ open: openPage }) => {
   const page = await openPage("default__closed");
-  await page.evaluate(() => new Promise((resolve) => {
-    const host = document.querySelector('[data-controller~="shadcn--hover-card"]');
-    host.setAttribute("data-shadcn--hover-card-open-delay-value", "100");
-    host.setAttribute("data-controller", "");
-    requestAnimationFrame(() => { host.setAttribute("data-controller", "shadcn--hover-card"); resolve(); });
-  }));
+  await reconnectWithDelays(page);
+  await settle(page);
+  await open(page);
+  await page.mouse.move(2, 2); // the close delay (5 s) is pending: the intent still says open
+  await beforeCache(page);
+  assert.equal(await isOpen(page), false, "the snapshot holds no card");
+  await page.hover(trigger);
+  await page.waitForSelector(content, { timeout: 2000 });
+  assert.equal(await page.locator(trigger).getAttribute("data-state"), "open");
+});
+
+browserTest("hover-card: an open timer pending at before-cache is dropped, then re-armed from the pointer still on the trigger", async ({ open: openPage }) => {
+  const page = await openPage("default__closed");
+  await reconnectWithDelays(page);
   await settle(page);
   await page.mouse.move(2, 2);
   await page.hover(trigger);
-  await page.evaluate(() => document.dispatchEvent(new Event("turbo:before-cache")));
-  await page.waitForTimeout(400);
-  assert.equal(await isOpen(page), false, "the pending open was dropped by the cache reset");
-  await page.mouse.move(2, 2);
-  await open(page);
+  await beforeCache(page);
+  assert.equal(await isOpen(page), false, "nothing is mounted inside the snapshot window");
+  await page.waitForSelector(content, { timeout: 2000 }); // the pointer stayed: the card comes back after the open delay
   assert.equal(await page.locator(trigger).getAttribute("data-state"), "open");
 });

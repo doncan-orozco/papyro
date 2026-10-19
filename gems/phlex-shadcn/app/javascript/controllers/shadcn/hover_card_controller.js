@@ -11,6 +11,8 @@ import { mountTemplate } from "shadcn/primitives/template_mount"
 export default class extends Controller {
   static values = { open: Boolean, controlled: Boolean, openDelay: Number, closeDelay: Number, templateKey: String }
 
+  restoreTimer = null
+
   connect() {
     this.template = this.findTemplate()
     if (!this.template) return
@@ -53,6 +55,7 @@ export default class extends Controller {
   disconnect() {
     if (!this.template) return
     this.reset()
+    this.#cancelRestore()
     this.abort.abort()
     this.intent.release()
   }
@@ -62,14 +65,29 @@ export default class extends Controller {
     return (this.element.parentElement || document).querySelector(selector) || document.querySelector(selector)
   }
 
-  // A cached page must not restore a hover-opened card (a server-rendered open value is honoured again on connect). The hover
-  // intent is reset too, so a pending open timer never mounts a card after the snapshot and a stale open flag never swallows
-  // the next hover.
+  // A cached page must not hold a hover-opened card (a server-rendered open value is honoured again on connect): the card is torn
+  // down and the hover intent is reset, so no stale open flag or pending timer survives the snapshot. Turbo takes the snapshot one
+  // timer tick after the event, also for visits that keep the page (a link to #hash); once it is taken, a trigger that is still
+  // hovered or focused re-arms the intent, so the card comes back after its delay, like after a fresh pointerenter.
   reset() {
+    this.#cancelRestore()
     this.intent?.sync(false)
     this.teardown()
     this.isOpen = false
     this.syncTrigger()
+    this.restoreTimer = setTimeout(() => {
+      this.restoreTimer = setTimeout(() => this.#restoreAfterCache())
+    })
+  }
+
+  #restoreAfterCache() {
+    this.restoreTimer = null
+    if (this.element.matches(":hover") || this.element.contains(document.activeElement)) this.intent.enter()
+  }
+
+  #cancelRestore() {
+    clearTimeout(this.restoreTimer)
+    this.restoreTimer = null
   }
 
   // Radix onClose: a text selection or a pressed pointer inside the content keeps the card open.
