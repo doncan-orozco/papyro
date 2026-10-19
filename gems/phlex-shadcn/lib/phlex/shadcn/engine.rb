@@ -20,6 +20,7 @@ module Phlex
     # Configuration (config/application.rb):
     #   config.phlex_shadcn.theme_dir = "app/assets/tailwind/theme"   # where theme.css and presets/ live; relative to the app root
     #   config.phlex_shadcn.theme_task_aliases = true                 # false when the app defines its own theme:* tasks
+    #   config.phlex_shadcn.hide_tailwind_stubs = true                # false to leave the tailwindcss-rails stubs to Propshaft
     #
     # `theme_dir` wins over a value already set with Phlex::Shadcn.configure, which wins over the default.
     #
@@ -31,23 +32,12 @@ module Phlex
       # Where theme.css and presets/ live in the app (the default of `config.phlex_shadcn.theme_dir`).
       DEFAULT_THEME_DIR = "app/assets/tailwind/theme"
       JAVASCRIPT_DIRECTORIES = %w[app/javascript vendor/javascript].freeze
-      private_constant :JAVASCRIPT_DIRECTORIES
+      # Where tailwindcss-rails writes one stub per engine, inside the app's own builds root (Tailwindcss::Engines.bundle).
+      TAILWIND_STUBS_DIR = "app/assets/builds/tailwind"
+      private_constant :JAVASCRIPT_DIRECTORIES, :TAILWIND_STUBS_DIR
 
-      # Prepended to Propshaft::LoadPath: drops the stubs tailwindcss-rails writes to <app>/app/assets/builds/tailwind/ (one per engine, each an
-      # absolute `@import` only the Tailwind CLI resolves) from the served assets. Deliberate exception to ruby-gem-conventions R4: Propshaft
-      # only excludes load-path roots (railtie `paths.without(excluded_paths)`) and tailwindcss-rails hardcodes the stub location
-      # (Tailwindcss::Engines.bundle), so there is no public seam. Hooks the private file filter of Propshaft 1.2-1.3; when a release drops
-      # it the initializer logs a warning instead of failing silently. Remove once upstream stops writing stubs inside an asset root.
-      module TailwindStubFilter
-        STUB_DIR = "app/assets/builds/tailwind"
-
-        private
-
-        def without_dotfiles(files)
-          stubs = "#{::Rails.root.join(STUB_DIR)}/"
-          super.reject { |file| file.to_s.start_with?(stubs) }
-        end
-      end
+      # The recorded ruby-gem-conventions R4 exception (see engine/tailwind_stub_filter.rb); required here, never autoloaded.
+      require_relative "engine/tailwind_stub_filter"
       private_constant :TailwindStubFilter
 
       config.phlex_shadcn = ActiveSupport::OrderedOptions.new
@@ -55,6 +45,9 @@ module Phlex
       # Short `theme:list|use|import|check` aliases of the phlex_shadcn:theme:* tasks. Turn them off while the app defines its own
       # `theme:*` tasks (Rake would run both bodies). Read when the tasks load, so set it in config/application.rb.
       config.phlex_shadcn.theme_task_aliases = true
+      # Hide the stubs tailwindcss-rails writes to app/assets/builds/tailwind/ from the served assets (TailwindStubFilter). Set it
+      # to false to serve them yourself or to keep Propshaft untouched; the stubs then stay linked by `stylesheet_link_tag :app`.
+      config.phlex_shadcn.hide_tailwind_stubs = true
 
       initializer "phlex_shadcn.assets" do |app|
         if app.config.respond_to?(:assets)
@@ -83,16 +76,13 @@ module Phlex
 
       initializer "phlex_shadcn.hide_tailwind_stubs" do |app|
         next unless defined?(::Propshaft::LoadPath) && app.config.respond_to?(:assets)
-        next if ::Propshaft::LoadPath.include?(TailwindStubFilter)
 
-        if ::Propshaft::LoadPath.private_method_defined?(:without_dotfiles)
-          ::Propshaft::LoadPath.prepend(TailwindStubFilter)
-        else
-          ::Rails.logger.warn(
-            "[phlex-shadcn] Propshaft #{Gem.loaded_specs['propshaft']&.version} has no LoadPath#without_dotfiles: the tailwindcss-rails " \
-            "stubs in #{TailwindStubFilter::STUB_DIR}/ stay linked by `stylesheet_link_tag :app` (browser 404). Link \"tailwind\" explicitly."
-          )
-        end
+        TailwindStubFilter.install(
+          ::Propshaft::LoadPath,
+          stubs_dir: app.root.join(TAILWIND_STUBS_DIR),
+          enabled: app.config.phlex_shadcn.hide_tailwind_stubs,
+          logger: ::Rails.logger
+        )
       end
 
       # Precedence: config.phlex_shadcn.theme_dir, then a value already set with Phlex::Shadcn.configure, then the default.

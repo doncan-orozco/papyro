@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "stringio"
 require_relative "engine_helper"
 
 # tailwindcss-rails writes `app/assets/builds/tailwind/<engine>.css`, a stub whose absolute `@import` only the Tailwind CLI can resolve.
@@ -65,5 +66,68 @@ class EngineTest::StubCss < Minitest::Test
     assert paths.find("tailwind/keep.css")
   ensure
     FileUtils.rm_rf(elsewhere)
+  end
+
+  # TailwindStubFilter.install is the seam of the recorded ruby-gem-conventions R4 exception: the initializer calls it with
+  # `config.phlex_shadcn.hide_tailwind_stubs`, and it prepends nothing unless the private one-argument hook is really there.
+  def test_install_is_a_no_op_when_disabled
+    target = fake_target
+
+    assert_equal :disabled, install(target, enabled: false)
+    refute_includes target.ancestors, filter
+  end
+
+  def test_install_warns_and_skips_a_target_without_the_hook
+    target = fake_target(hook: :none)
+    io = StringIO.new
+
+    assert_equal :unsupported, install(target, logger: Logger.new(io))
+    refute_includes target.ancestors, filter
+    assert_match "hide_tailwind_stubs", io.string
+    assert_match "tailwind", io.string
+  end
+
+  def test_install_warns_and_skips_a_hook_with_another_arity
+    target = fake_target(hook: :two_arguments)
+    io = StringIO.new
+
+    assert_equal :unsupported, install(target, logger: Logger.new(io))
+    refute_includes target.ancestors, filter
+  end
+
+  def test_install_prepends_once
+    target = fake_target
+
+    2.times { assert_equal :installed, install(target) }
+    assert_equal 1, target.ancestors.count(filter)
+  end
+
+  def test_an_installed_fake_target_hides_only_the_stubs
+    target = fake_target
+    install(target)
+    stub = BUILDS.join("tailwind/phlex-shadcn.css").to_s
+    compiled = BUILDS.join("tailwind.css").to_s
+
+    assert_equal [ compiled ], target.new.send(:without_dotfiles, [ stub, compiled ])
+  end
+
+  private
+
+  def filter = Phlex::Shadcn::Engine.const_get(:TailwindStubFilter)
+
+  def install(target, enabled: true, logger: Logger.new(IO::NULL))
+    filter.install(target, stubs_dir: BUILDS.join("tailwind"), enabled: enabled, logger: logger)
+  end
+
+  # A stand-in for Propshaft::LoadPath: `hook: true` has the private one-argument filter, `:two_arguments` a filter with another
+  # signature, `:none` no filter at all.
+  def fake_target(hook: true)
+    Class.new.tap do |target|
+      case hook
+      when true then target.define_method(:without_dotfiles) { |files| files }
+      when :two_arguments then target.define_method(:without_dotfiles) { |files, more| files + more }
+      end
+      target.class_eval { private :without_dotfiles } unless hook == :none
+    end
   end
 end
