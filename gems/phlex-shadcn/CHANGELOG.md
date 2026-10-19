@@ -39,8 +39,9 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   `value_label:`, a `Kernel.format` template with `%<index>d` and `%<count>d` for three or more thumbs).
 - The `shadcn--theme` controller reads its `localStorage` key from `data-shadcn--theme-storage-key-value` (default `shadcn-theme`).
 - The built gem includes `docs/*.md` and `.yardopts`; `gem_check` gained the rules `GEMSPEC_DEV_MATERIAL` and `GEMSPEC_METADATA`.
-- CI: a Ruby 3.2 to 4.0 matrix against the current Phlex and the Phlex 2.3 lower bound, a plain-Phlex smoke and a clean-app smoke,
-  and a `js-tests` job that runs the browser tests (`bin/rails test:javascript`).
+- CI: a Ruby 3.2 to 4.0 matrix against the current Phlex 2.x and the Phlex 2.3 lower bound, a plain-Phlex smoke, a clean-app
+  smoke, a `js-tests` job running the Stimulus browser suite (`test/javascript`, the suite the host's `bin/rails test:javascript`
+  runs) and a `docs` job that renders every Ruby example of the README and `docs/` (`bin/smoke --docs`).
 
 ### Changed
 
@@ -53,8 +54,9 @@ Relative to the in-app port (`Components::V2`):
 Since the first extraction of the gem:
 
 - `Phlex::Shadcn::Theme`: only `use`, `import`, `check`, `presets`, `dir`, `configured?`, `theme_file` and `presets_dir` are public
-  (a snapshot test pins them); `parse`, `validate`, `contrast`, `render_colors` and `Palette` are `@api private`. Every fetch, read
-  or parse failure is a `Theme::Error`, so `phlex_shadcn:theme:import` prints one line without a backtrace.
+  (a snapshot test pins them); `parse`, `validate`, `contrast`, `render_colors` and `Palette` are `@api private`. A failure to fetch, read or parse the
+  imported source is a `Theme::Error` (a missing `theme.css` stays `Errno::ENOENT`); the `phlex_shadcn:theme:*` tasks print either as
+  one line without a backtrace.
 - `Theme.import` is hardened: only `https` URLs (credentials refused), 5 s open and 10 s read timeouts, at most 3 redirects and a
   256 KiB body cap. Values containing `/* */`, `{`, `}`, `;`, a backslash or `url(` are rejected (also by `theme:check` on a
   hand-edited `theme.css`), an unbalanced `:root` or `.dark` block raises `unterminated ... block`, and the `source:` comment written
@@ -67,7 +69,8 @@ Since the first extraction of the gem:
 - The probe controllers used by the browser tests (`shadcn--_probe-*`) and `shadcn--theme-panel` are no longer packaged, so
   consumer import maps no longer pin them; they live in `dev/dummy`.
 - The class-string constants of the form and button components (`Button`, `ButtonGroup`, `Checkbox`, `Input`, `Label`,
-  `NativeSelect`, `RadioGroup`, `Switch`, `Textarea`, `Toggle`, `ToggleGroup`) and the `Slider` class constants are `@api private`.
+  `NativeSelect`, `RadioGroup`, `Switch`, `Textarea`, `Toggle`, `ToggleGroup`) and `Slider::ROOT_CLASS`, `TRACK_CLASS`, `RANGE_CLASS` and `THUMB_CLASS` are `@api private` (`VARIANTS`, `SIZES`,
+  `Slider::ORIENTATIONS`, `DIRECTIONS` and `THUMB_TRANSFORM` stay public).
 - `gemspec` `homepage`, `source_code_uri` and `changelog_uri` are well-formed and derived from one block at the top of the file.
 
 ### Fixed
@@ -81,7 +84,8 @@ Since the first extraction of the gem:
 - Accordion, collapsible, tabs, avatar and scroll-area keep closed bodies, the avatar fallback and no scrollbar in the Turbo
   snapshot and set the live page up again afterwards; `FormBubbleInput` no longer removes a server-rendered input.
 - Fresh Rails apps no longer link the Tailwind engine stub (`app/assets/builds/tailwind/*.css`) with `stylesheet_link_tag :app`
-  (a browser 404 that also disclosed a filesystem path): the engine hides it from Propshaft.
+  (a browser 404 that also disclosed a filesystem path): the engine hides it from Propshaft 1.2 and 1.3. With another
+  Propshaft it logs a warning at boot; link `"tailwind"` explicitly there.
 
 ### Removed
 

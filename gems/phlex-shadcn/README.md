@@ -13,7 +13,7 @@ each one checked against the React original in a browser.
 
 ## Requirements
 
-- Ruby 3.2 or newer and [Phlex](https://www.phlex.fun) 2.3 or newer. CI runs the gem suite on Ruby 3.2, 3.3, 3.4 and 4.0, each against the
+- Ruby 3.2 or newer and [Phlex](https://www.phlex.fun) 2.x from 2.3 (`~> 2.3`; Phlex 3 is not supported). CI runs the gem suite on Ruby 3.2, 3.3, 3.4 and 4.0, each against the
   current Phlex 2.x and against Phlex 2.3.
 - Tailwind CSS 4 (the components use Tailwind utility classes; with Rails, `tailwindcss-rails`).
 - For the interactive components: Stimulus 3 (`@hotwired/stimulus`). With Rails, `importmap-rails` (the gem's engine adds its pins).
@@ -249,7 +249,7 @@ STRICT=1 bin/rails phlex_shadcn:theme:check             # variables complete in 
 ```
 
 `import` accepts only `https` URLs (timeouts, three redirects at most, 256 KiB at most) and rejects values that could break out of
-the CSS block; every failure is one `Theme::Error` line. `theme:list|use|import|check` are short aliases (`config.phlex_shadcn.theme_task_aliases = false` turns them off). Older themes with
+the CSS block; a failure prints one line, without a backtrace. `theme:list|use|import|check` are short aliases (`config.phlex_shadcn.theme_task_aliases = false` turns them off). Older themes with
 bare HSL triplets (`240 10% 3.9%`) are wrapped on import. Run `bin/rails tailwindcss:build` after a change.
 
 ## Upgrade notes
@@ -264,7 +264,7 @@ and removals are deprecated for one minor version first.
 - The default key of the `shadcn--theme` controller is `shadcn-theme` (it was `papyro-theme`); set
   `data-shadcn--theme-storage-key-value="papyro-theme"` to keep stored choices. The probe controllers and `theme_panel_controller.js`
   are no longer shipped: remove any pin or registration of `shadcn--_probe-*` or `shadcn--theme-panel`.
-- `Direction::Provider` without `dir:` keeps the outer direction instead of resetting to `ltr`.
+- `Direction::Provider` without `dir:` or `direction:` keeps the outer direction instead of resetting to `ltr`.
 - The gem no longer depends on `activesupport`; code that relied on it being loaded by the gem has to require it itself.
 - Replace a host-side bridge (asset paths and importmap pins for the gem's JavaScript) by the engine: remove the bridge and run
   `bin/rails g phlex:shadcn:install`.

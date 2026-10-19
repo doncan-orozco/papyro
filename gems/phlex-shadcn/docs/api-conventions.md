@@ -94,14 +94,16 @@ A trigger part renders its own `<button>`; never nest a `Button` inside it as co
   (menu checkbox items), `select` (menu items), `link-select` (navigation menu), `open-auto-focus` / `close-auto-focus`
   (cancelable, like Radix). Listen with Stimulus (`data: { action: "shadcn--dialog:open-change->form#changed" }`) or
   `addEventListener`.
-
 - Turbo: controllers that leave state in the DOM (overlays, accordion, collapsible, tabs, avatar, scroll area) listen to
   `turbo:before-cache` on `document`. The snapshot holds the closed state; a modal that was open is unmounted from it and, on a
   visit that keeps the page, re-opens afterwards (`open-auto-focus` fires again).
-- Default texts: strings a component renders for assistive technology or as labels are keyword arguments whose defaults are the
-  React strings (`label:`, `aria_label:`, `mobile_title:`, `min_label:`...), so a localized app passes its own.
+- Default texts: the visible and screen-reader texts of `Pagination::Previous`/`Next`/`Ellipsis`, `Sidebar::Trigger`, the mobile
+  `Sidebar` sheet, the `Slider` thumbs and the `Dialog`/`Sheet` close button (`close_label:`) are keyword arguments whose defaults are the React strings (`label:`, `aria_label:`,
+  `mobile_title:`, `min_label:`...). Other fixed labels (the `Pagination`, `Breadcrumb` and `NavigationMenu` landmarks, `Spinner`,
+  `Sidebar::Rail`) are overridden through `aria: { label: ... }` (and `title:` on the rail); the caller's attributes win.
 - Theme controller: `data-controller="shadcn--theme"` stores `light` or `dark` in `localStorage` under `shadcn-theme`
-  (`data-shadcn--theme-storage-key-value` overrides it) and dispatches `shadcn--theme:changed` (`{ theme }`).
+  (`data-shadcn--theme-storage-key-value` overrides it; `system` clears the key) and dispatches `shadcn--theme:changed`
+  (`{ theme }`, one of `light`, `dark`, `system`).
 
 ## DOM contract
 
