@@ -89,13 +89,16 @@ A trigger part renders its own `<button>`; never nest a `Button` inside it as co
   keeps it in the DOM.
 - Controlled: `open:`, `value:`, `checked:`, `pressed:` render that state; user actions only dispatch the change event and the server
   (or your JavaScript) renders the next state, like React's `value` + `onValueChange`.
-- Callbacks are DOM events named `shadcn--<component>:<event>`, bubbling, with the payload in `event.detail`, dispatched on the
-  component's host element (menu `select` and `checked-change` on the item): `open-change` (`{ open }`), `value-change`
-  (`{ value }`), `value-commit` (slider), `checked-change` (`{ checked }`: checkbox, switch, menu checkbox items), `pressed-change`
-  (`{ pressed }`: toggle), `open-mobile-change` (sidebar), `select` (menu items), `link-select` (navigation menu), and the
-  cancelable `open-auto-focus` / `close-auto-focus` / `escape-key-down` / `pointer-down-outside` / `interact-outside` of the
-  overlays and menus (like Radix). Listen with Stimulus (`data: { action: "shadcn--dialog:open-change->form#changed" }`) or
-  `addEventListener`.
+- Callbacks are DOM events named `shadcn--<component>:<event>`, bubbling, with the payload in `event.detail`: `open-change`
+  (`{ open }`), `value-change` (`{ value }`), `value-commit` (slider), `checked-change` (`{ checked }`: checkbox, switch, menu
+  checkbox items), `pressed-change` (`{ pressed }`: toggle), `open-mobile-change` (sidebar), `select` (menu items), `link-select`
+  (navigation menu), and the cancelable `open-auto-focus` / `close-auto-focus` / `escape-key-down` / `pointer-down-outside` /
+  `focus-outside` / `interact-outside` of the overlays and menus (like Radix, with `{ originalEvent }`). Most are dispatched on
+  the component's controller element. The exceptions: menu `select` and `checked-change` fire on the item, and the focus and
+  dismiss events of DropdownMenu, ContextMenu and Menubar (and the dismiss events of NavigationMenu) fire on their content, except
+  DropdownMenu's `close-auto-focus`, which fires on its controller element. Menu content is portaled to `<body>`, so listen on
+  `document` for those, not on the trigger. Listen with Stimulus (`data: { action: "shadcn--dialog:open-change->form#changed" }`)
+  or `addEventListener`.
 - Turbo: controllers that leave state in the DOM (overlays, accordion, collapsible, tabs, avatar, scroll area) listen to
   `turbo:before-cache` on `document`. The snapshot holds the closed state; a modal that was open is unmounted from it and, on a
   visit that keeps the page, re-opens afterwards (`open-auto-focus` fires again).

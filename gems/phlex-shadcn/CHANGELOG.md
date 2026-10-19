@@ -53,8 +53,8 @@ Relative to the in-app port (`Components::V2`):
 
 Since the first extraction of the gem:
 
-- `Phlex::Shadcn::Theme`: only `use`, `import`, `check`, `presets`, `dir`, `configured?`, `theme_file` and `presets_dir` are public
-  (a snapshot test pins them); `parse`, `validate`, `contrast`, `render_colors` and `Palette` are `@api private`. A failure to fetch, read or parse the
+- `Phlex::Shadcn::Theme`: only `use`, `import`, `check`, `presets`, `dir`, `configured?`, `theme_file` and `presets_dir` are the
+  public API (a snapshot test pins them); `parse`, `validate`, `contrast`, `render_colors` and `Palette` are `@api private`. A failure to fetch, read or parse the
   imported source is a `Theme::Error` (a missing `theme.css` stays `Errno::ENOENT`); the `phlex_shadcn:theme:*` tasks print either as
   its message (for an invalid theme, the list of errors), without a backtrace, and exit non-zero.
 - `Theme.import` is hardened: only `https` URLs (credentials refused), 5 s open and 10 s read timeouts, at most 3 redirects and a
