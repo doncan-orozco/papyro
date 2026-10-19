@@ -35,8 +35,9 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   `--no-private`); one guide per family under `docs/` plus `docs/api-conventions.md`.
 - Localizable default strings, as keyword arguments whose defaults are the exact React strings (the DOM does not change):
   `Pagination::Previous` (`label:`, `aria_label:`), `Pagination::Next` (`label:`, `aria_label:`), `Pagination::Ellipsis` (`label:`),
-  `Breadcrumb::Ellipsis` (`label:`), `Dialog::Content`, `Dialog::Footer` and `Sheet::Content` (`close_label:`), `Sidebar::Trigger` (`label:`), `Sidebar` (`mobile_title:`, `mobile_description:`) and `Slider` (`min_label:`, `max_label:`,
-  `value_label:`, a `Kernel.format` template with `%<index>d` and `%<count>d` for three or more thumbs).
+  `Breadcrumb::Ellipsis` (`label:`), `Dialog::Content`, `Dialog::Footer` and `Sheet::Content` (`close_label:`), `Sidebar::Trigger`
+  (`label:`), `Sidebar` (`mobile_title:`, `mobile_description:`) and `Slider` (`min_label:`, `max_label:`, `value_label:`, a
+  `Kernel.format` template with `%<index>d` and `%<count>d` for three or more thumbs).
 - The `shadcn--theme` controller reads its `localStorage` key from `data-shadcn--theme-storage-key-value` (default `shadcn-theme`).
 - The built gem includes `docs/*.md` and `.yardopts`; `gem_check` gained the rules `GEMSPEC_DEV_MATERIAL` and `GEMSPEC_METADATA`.
 - CI: a Ruby 3.2 to 4.0 matrix against the current Phlex 2.x and the Phlex 2.3 lower bound, a plain-Phlex smoke, a clean-app
@@ -53,10 +54,12 @@ Relative to the in-app port (`Components::V2`):
 
 Since the first extraction of the gem:
 
-- `Phlex::Shadcn::Theme`: only `use`, `import`, `check`, `presets`, `dir`, `configured?`, `theme_file` and `presets_dir` are the
-  public API (a snapshot test pins them); `parse`, `validate`, `contrast`, `render_colors` and `Palette` are `@api private`. A failure to fetch, read or parse the
-  imported source is a `Theme::Error` (a missing `theme.css` stays `Errno::ENOENT`); the `phlex_shadcn:theme:*` tasks print either as
-  its message (for an invalid theme, the list of errors), without a backtrace, and exit non-zero.
+- `Phlex::Shadcn::Theme`: the public API is the methods `use`, `import`, `check`, `presets`, `dir`, `configured?`, `theme_file`
+  and `presets_dir` plus `Theme::Error`, the `COLORS_START` / `COLORS_END` markers, the `REQUIRED` / `ROOT_ONLY` variable lists and
+  `MIN_CONTRAST` (a snapshot test pins the whole surface); `parse`, `validate`, `contrast`, `render_colors`, `Palette`, the
+  import limits and the value filter are `@api private`. A failure to fetch, read or parse the imported source is a
+  `Theme::Error` (a missing `theme.css` stays `Errno::ENOENT`); the `phlex_shadcn:theme:*` tasks print either as its message
+  (for an invalid theme, the list of errors), without a backtrace, and exit non-zero.
 - `Theme.import` is hardened: only `https` URLs (credentials refused), 5 s open and 10 s read timeouts, at most 3 redirects and a
   256 KiB body cap. Values containing `/* */`, `{`, `}`, `;`, a backslash or `url(` are rejected (also by `theme:check` on a
   hand-edited `theme.css`), an unbalanced `:root` or `.dark` block raises `unterminated ... block`, and the `source:` comment written
@@ -69,8 +72,9 @@ Since the first extraction of the gem:
 - The probe controllers used by the browser tests (`shadcn--_probe-*`) and `shadcn--theme-panel` are no longer packaged, so
   consumer import maps no longer pin them; they live in `dev/dummy`.
 - The class-string constants of the form and button components (`Button`, `ButtonGroup`, `Checkbox`, `Input`, `Label`,
-  `NativeSelect`, `RadioGroup`, `Switch`, `Textarea`, `Toggle`, `ToggleGroup`) and `Slider::ROOT_CLASS`, `TRACK_CLASS`, `RANGE_CLASS` and `THUMB_CLASS` are `@api private` (`VARIANTS`, `SIZES`,
-  `Slider::ORIENTATIONS`, `DIRECTIONS` and `THUMB_TRANSFORM` stay public).
+  `NativeSelect`, `RadioGroup`, `Switch`, `Textarea`, `Toggle`, `ToggleGroup`) and `Slider::ROOT_CLASS`, `TRACK_CLASS`,
+  `RANGE_CLASS` and `THUMB_CLASS` are `@api private` (`VARIANTS`, `SIZES`, `Slider::ORIENTATIONS`, `DIRECTIONS` and
+  `THUMB_TRANSFORM` stay public).
 - `gemspec` `homepage`, `source_code_uri` and `changelog_uri` are well-formed and derived from one block at the top of the file.
 
 ### Fixed
