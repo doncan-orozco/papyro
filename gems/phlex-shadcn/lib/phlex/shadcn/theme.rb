@@ -331,12 +331,14 @@ module Phlex
         result
       end
 
-      # Writes the new theme.css next to the old one and renames it over, so readers never see a half-written file.
+      # Writes the new theme.css next to the old one (same permissions, a name unique to this process) and renames it over, so
+      # readers never see a half-written file.
       #
       # @api private
       def replace_theme_file(css)
-        temp = "#{theme_file}.tmp"
+        temp = "#{theme_file}.#{Process.pid}.tmp"
         File.write(temp, css)
+        File.chmod(File.stat(theme_file).mode & 0o7777, temp)
         File.rename(temp, theme_file)
       ensure
         File.delete(temp) if temp && File.exist?(temp)

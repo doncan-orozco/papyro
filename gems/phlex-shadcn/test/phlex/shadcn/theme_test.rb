@@ -91,11 +91,25 @@ class Phlex::Shadcn::ThemeTest < Phlex::Shadcn::TestCase
     assert_equal before, File.read(Theme.theme_file)
   end
 
-  test "the write replaces theme.css in one step and leaves no temporary file behind" do
+  test "the write replaces theme.css in one step, keeps its permissions and leaves no temporary file behind" do
+    File.chmod(0o640, Theme.theme_file)
     Theme.use("slate")
 
     assert_includes File.read(Theme.theme_file), "source: preset slate"
+    assert_equal 0o640, File.stat(Theme.theme_file).mode & 0o777
     assert_empty Dir[File.join(@theme_dir, "*.tmp")]
+  end
+
+  test "a failed rename leaves theme.css as it was and removes the temporary file" do
+    before = File.read(Theme.theme_file)
+    original = File.method(:rename)
+    File.define_singleton_method(:rename) { |*| raise Errno::EACCES, "rename" }
+
+    assert_raises(Errno::EACCES) { Theme.use("slate") }
+    assert_equal before, File.read(Theme.theme_file)
+    assert_empty Dir[File.join(@theme_dir, "*.tmp")]
+  ensure
+    File.define_singleton_method(:rename, original)
   end
 
   test "use rejects an unknown preset listing the available ones" do

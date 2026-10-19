@@ -211,17 +211,19 @@ class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
     end
   end
 
-  test "a body of exactly the size cap is accepted from a URL and from stdin" do
-    pad = Theme::IMPORT_MAX_BYTES - PRESET_CSS.bytesize - 4
-    exact = "#{PRESET_CSS}/*#{' ' * pad}*/"
+  def exact_cap_css = "#{PRESET_CSS}/*#{' ' * (Theme::IMPORT_MAX_BYTES - PRESET_CSS.bytesize - 4)}*/"
 
-    assert_equal Theme::IMPORT_MAX_BYTES, exact.bytesize
-    with_network("https://example.com/t.css" => { status: 200, chunks: [ exact ] }) { Theme.import("https://example.com/t.css") }
+  test "a body of exactly the size cap is accepted from a URL" do
+    assert_equal Theme::IMPORT_MAX_BYTES, exact_cap_css.bytesize
+    with_network("https://example.com/t.css" => { status: 200, chunks: [ exact_cap_css ] }) { Theme.import("https://example.com/t.css") }
 
-    assert_empty Theme.check[:errors]
-    Theme.import("-", input: StringIO.new(exact))
+    assert_includes theme_css, "source: imported https://example.com/t.css"
+  end
 
-    assert_empty Theme.check[:errors]
+  test "a stdin source of exactly the size cap is accepted" do
+    Theme.import("-", input: StringIO.new(exact_cap_css))
+
+    assert_includes theme_css, "source: imported -"
   end
 
   test "a file or stdin source over the size cap is refused" do
