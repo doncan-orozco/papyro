@@ -75,6 +75,29 @@ class Phlex::Shadcn::ThemeTest < Phlex::Shadcn::TestCase
     assert_equal Theme.parse(File.read(File.join(@theme_dir, "presets", "slate.css"))).root, Theme.parse(css).root
   end
 
+  test "use and import raise Errno::ENOENT for a missing theme.css, as documented" do
+    File.delete(Theme.theme_file)
+
+    assert_raises(Errno::ENOENT) { Theme.use("slate") }
+    assert_raises(Errno::ENOENT) { Theme.import("-", input: StringIO.new(HSL_THEME)) }
+  end
+
+  test "use takes a preset name, never a path" do
+    FileUtils.cp(File.join(@theme_dir, "presets", "slate.css"), File.join(@theme_dir, "outside.css"))
+    before = File.read(Theme.theme_file)
+    error = assert_raises(Theme::Error) { Theme.use("../outside") }
+
+    assert_match(%r{unknown preset '\.\./outside'}, error.message)
+    assert_equal before, File.read(Theme.theme_file)
+  end
+
+  test "the write replaces theme.css in one step and leaves no temporary file behind" do
+    Theme.use("slate")
+
+    assert_includes File.read(Theme.theme_file), "source: preset slate"
+    assert_empty Dir[File.join(@theme_dir, "*.tmp")]
+  end
+
   test "use rejects an unknown preset listing the available ones" do
     error = assert_raises(Theme::Error) { Theme.use("nope") }
 
