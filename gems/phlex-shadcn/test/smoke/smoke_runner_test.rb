@@ -47,7 +47,7 @@ class SmokeRunnerTest < Minitest::Test
 
     assert_includes files, "README.md"
     Dir[GEM_ROOT.join("docs/*.md").to_s].each do |page|
-      next unless File.read(page).include?("```ruby") # prose-only pages (compatibility.md) have no fence to include
+      next unless File.read(page).include?("```ruby") # a prose-only page has no fence to include
 
       assert_includes files, "docs/#{File.basename(page)}"
     end
