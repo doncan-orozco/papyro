@@ -1,7 +1,7 @@
 # Decision: the esbuild and Sprockets clean-app smokes run in CI as a matrix of a sibling job
 
 Status: decided and implemented by item #204 (phlex-shadcn-adoption-followups). Proof: the `clean-app-variants` job of
-`.github/workflows/phlex-shadcn.yml`, one run per matrix row, on every pull request and push that touches the gem or the workflow.
+`.github/workflows/phlex-shadcn.yml`, one run per matrix row, on every pull request, and on push to `main`, that touches the gem or the workflow.
 
 ## What runs
 
@@ -20,8 +20,8 @@ would be one more moving part for three steps. The rows run in parallel, `fail-f
 
 ## Runtime added
 
-Two more `ubuntu-latest` runners per run, in parallel with the existing jobs, so wall-clock time grows by nothing as long as the
-runners are available. Measured on the PR run (cold caches): importmap smoke 1m32s, esbuild 1m45s, sprockets 1m53s; the whole workflow
+Two more `ubuntu-latest` runners per run, in parallel with the existing jobs, so wall-clock time does not grow while runners are available (the
+longest job of the run, not these rows, set the 2m29s total: the gem matrix, js-tests and docs run alongside). Measured on the PR run (cold caches): importmap smoke 1m32s, esbuild 1m45s, sprockets 1m53s; the whole workflow
 finished in 2m29s. Runner minutes grow by about two importmap smokes (~4 minutes). Timeout is 30 minutes per row, like `clean-app`.
 
 ## Caching
