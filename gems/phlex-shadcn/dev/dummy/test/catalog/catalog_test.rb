@@ -4,7 +4,7 @@ require "test_helper"
 
 class CatalogTest < ActionDispatch::IntegrationTest
   SCENARIO_FILES = Dir[ShadcnParity::Scenario::DIRECTORY.join("*.json").to_s].map { |f| File.basename(f, ".json") }
-    .reject { |name| name.start_with?("_") }.select { |name| Phlex::Shadcn.const_defined?(name.tr("-", "_").camelize, false) }.freeze
+    .select { |name| Catalog::Entries.ported?(name) }.freeze
 
   test "scenario files of ported components are found" do
     assert_operator SCENARIO_FILES.size, :>, 10

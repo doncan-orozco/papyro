@@ -6,8 +6,6 @@ class Catalog::Index < Phlex::HTML
   include Phlex::Rails::Helpers::StylesheetLinkTag
   include Phlex::Rails::Helpers::JavascriptImportmapTags
   include Phlex::Rails::Helpers::T
-  include Phlex::Rails::Helpers::LinkTo
-  include Phlex::Rails::Helpers::CSRFMetaTags
 
   def initialize(entries:)
     @entries = entries
