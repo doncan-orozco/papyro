@@ -722,11 +722,18 @@ export default class extends Controller {
         const dates = parts.map((part) => grid.parseISO(part))
         return this.parsedInput(text, dates.filter(Boolean), dates.every(Boolean))
       }
-      const [from, to] = text.split("/").map((part) => part.trim())
-      const [start, end] = [grid.parseISO(from), grid.parseISO(to)]
-      return this.parsedInput(text, rangeOrNull(start, end), (!from || start) && (!to || end))
+      const parts = text.split("/").map((part) => part.trim())
+      return this.parsedRange(text, parts[0], parts[1], parts.length <= 2)
     }
-    return this.mode === "range" ? rangeOrNull(grid.parseISO(inputs.from?.value), grid.parseISO(inputs.to?.value)) : undefined
+    if (this.mode !== "range") return undefined
+    const [from, to] = [inputs.from.value.trim(), inputs.to.value.trim()]
+    return this.parsedRange(from || to ? `${from}/${to}` : "", from, to)
+  }
+
+  // A range is valid only when each side that is present parses (and, in the one-input form, there are at most two parts).
+  parsedRange(text, from, to, shaped = true) {
+    const [start, end] = [grid.parseISO(from), grid.parseISO(to)]
+    return this.parsedInput(text, rangeOrNull(start, end), Boolean(shaped && (!from || start) && (!to || end)))
   }
 
   // A non-empty value that does not fully parse is read as no selection, loudly, the same in every mode.

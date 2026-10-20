@@ -464,7 +464,7 @@ browserTest("calendar: a label: selector that matches nothing logs an error and 
 });
 
 browserTest("calendar: unparsable multiple and range input values warn and read as no selection", async ({ open }) => {
-  for (const [scenario, value] of [["mode-multiple__rest", "2026-03-03,bogus"], ["mode-range__rest", "2026-03-10/xx"]]) {
+  for (const [scenario, value] of [["mode-multiple__rest", "2026-03-03,bogus"], ["mode-range__rest", "2026-03-10/xx"], ["mode-range__rest", "2026-03-10/2026-03-12/junk"]]) {
     const page = await open(scenario);
     const warnings = [];
     page.on("console", (message) => { if (message.type() === "warning") warnings.push(message.text()); });
@@ -473,4 +473,15 @@ browserTest("calendar: unparsable multiple and range input values warn and read 
     assert.ok(warnings.some((text) => text.includes(`"${value}"`)), warnings.join("|"));
     assert.equal(await page.locator('td[aria-selected="true"]').count(), 0, `${scenario}: a partly valid value is no selection`);
   }
+
+  const page = await open("mode-range__rest");
+  const warnings = [];
+  page.on("console", (message) => { if (message.type() === "warning") warnings.push(message.text()); });
+  await page.evaluate(() => {
+    document.body.append(Object.assign(document.createElement("input"), { type: "hidden", id: "from", value: "2026-03-10" }));
+    document.body.append(Object.assign(document.createElement("input"), { type: "hidden", id: "to", value: "garbage" }));
+  });
+  await configure(page, { input: { from: "#from", to: "#to" } });
+  assert.ok(warnings.some((text) => text.includes('"2026-03-10/garbage"')), warnings.join("|"));
+  assert.equal(await page.locator('td[aria-selected="true"]').count(), 0, "{ from, to }: a partly valid pair is no selection");
 });
