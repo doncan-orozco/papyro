@@ -14,7 +14,7 @@ module Phlex
         # The directory the Tailwind build is written to, relative to the app root.
         BUILDS_DIR = "app/assets/builds"
         # A link of the builds directory (`//= link_tree ../builds`) or of the compiled file (`//= link tailwind.css`).
-        BUILDS_LINK = %r{^//=\s*link(?:_tree|_directory)?\s+(?:\.\./builds\s*$|tailwind\.css\b)}
+        BUILDS_LINK = %r{^//=\s*(?:link_(?:tree|directory)\s+\.\./builds(?:\s+\.css)?|link\s+tailwind\.css)\s*$}
 
         # @param text [String] the manifest's text
         # @return [Boolean] whether it declares the Tailwind build

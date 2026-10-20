@@ -96,6 +96,13 @@ class EngineTest::SprocketsSupport < Minitest::Test
     assert_equal :pass, Check.call(context({ "sprockets-rails" => "3.5.2", "sprockets" => "4.4.1" }, manifest: "//= link tailwind.css\n")).status
   end
 
+  def test_the_doctor_accepts_a_css_filtered_builds_tree_and_rejects_a_link_of_the_directory
+    gems = { "sprockets-rails" => "3.5.2", "sprockets" => "4.4.1" }
+
+    assert_equal :pass, Check.call(context(gems, manifest: "//= link_tree ../builds .css\n")).status
+    assert_equal :warn, Check.call(context(gems, manifest: "//= link ../builds\n")).status
+  end
+
   def test_the_doctor_warns_about_a_sprockets_manifest_without_the_builds
     result = Check.call(context({ "sprockets-rails" => "3.5.2", "sprockets" => "4.4.1" }, manifest: "//= link_tree ../images\n"))
 
@@ -107,7 +114,7 @@ class EngineTest::SprocketsSupport < Minitest::Test
     result = Check.call(context({ "sprockets-rails" => "3.4.2", "sprockets" => "3.7.2" }))
 
     assert_equal :warn, result.status
-    assert_includes result.message, "Sprockets 3 is not supported"
+    assert_includes result.message, "Sprockets below 4 is not supported"
   end
 
   def test_the_doctor_warns_about_a_missing_sprockets_manifest

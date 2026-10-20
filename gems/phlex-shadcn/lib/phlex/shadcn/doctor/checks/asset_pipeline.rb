@@ -45,7 +45,7 @@ module Phlex
             sprockets = context.gem_version("sprockets")
             name = [ "Sprockets", sprockets, "(sprockets-rails #{version})" ].compact.join(" ")
             if sprockets && sprockets < SPROCKETS_MIN
-              return Result.warning(NAME, "#{name}: Sprockets 3 is not supported", fix: "bundle update sprockets (phlex-shadcn needs Sprockets 4)")
+              return Result.warning(NAME, "#{name}: Sprockets below 4 is not supported", fix: "bundle update sprockets (phlex-shadcn needs Sprockets 4)")
             end
 
             manifest = context.read(context.path(Manifest::PATH))

@@ -147,6 +147,10 @@ module Smoke
 
       compiled = Dir[@app_dir.join("public/assets/controllers/shadcn/dialog_controller-*.js").to_s]
       raise "assets:precompile did not compile the gem's dialog controller" if compiled.empty?
+
+      # The development server must serve from Sprockets, not from the built files in public/assets (assets:clobber would also delete
+      # the Tailwind build).
+      FileUtils.rm_rf(@app_dir.join("public/assets"))
     end
 
     def esbuild? = @javascript == "esbuild"
