@@ -11,7 +11,7 @@ Applies to code under `gems/**` and to any repository whose root has a `*.gemspe
 
 Cite as `ruby-gem-conventions R<n>`.
 
-R1. **Standalone.** The gem's own test suite runs without the host app, a database or fixtures, and no gem file references a host-only constant or path. `[GEM_HOST_CONSTANT, GEM_ESCAPES_ROOT]` → detail: Standalone
+R1. **Standalone.** The gem's own test suite runs without the host app, a database or fixtures, and no gem file references a host-only constant, or a host path outside the exceptions R15 lists. `[GEM_HOST_CONSTANT, GEM_ESCAPES_ROOT]` → detail: Standalone
 R2. **Core is plain Ruby/Phlex.** Rails (`Rails`, `ActionView`, `ActionController`, `ActiveRecord`) appears only in the integration files (engine, railtie, generators, rake tasks), loaded conditionally with `if defined?(Rails::Engine)`. `[GEM_RAILS_REFERENCE]` → detail: Layers
 R3. **Declare what you use.** Every library namespace used in the code has its gem as a runtime dependency; ActiveSupport extensions are either avoided in core or `activesupport` is declared (or required explicitly). Runtime dependencies are minimal and have lower bounds. `[GEM_UNDECLARED_DEPENDENCY, GEM_ACTIVESUPPORT_EXT]` → detail: Dependencies
 R4. **One namespace, file = constant.** `phlex-shadcn` is `Phlex::Shadcn` in `lib/phlex/shadcn.rb` and `lib/phlex/shadcn/**`; loaded with `Zeitwerk::Loader.for_gem`; one constant per file. No `V2`/`Ui`/project names in the gem. No monkey patches of Ruby, Phlex or Rails classes (the recorded exceptions under Namespacing are guarded, switchable and carry a removal condition); no global mutable state (the recorded memo-cache exception under Namespacing is the only kind allowed); configuration only through one `Phlex::Shadcn.configure { |config| ... }` object with defaults. → detail: Namespacing
@@ -25,7 +25,7 @@ R11. **Gem style.** Own RuboCop config (rubocop-minitest, -performance, -rake, g
 R12. **Supply chain.** `bundler-audit` clean, no network access at load or render time, no `eval`/`send` on caller input, MFA required for the gem owner. Publishing to RubyGems and pushing tags are human steps (`needs-human`). → detail: Security
 R13. **Do not outrun the declared Ruby.** Use only language features available in `required_ruby_version`; the CI matrix proves it. → detail: Compatibility
 R14. **README is the first test.** Install, Rails and non-Rails setup, Tailwind `@source`, theme file, Stimulus registration, upgrade notes. A reader can render a Button in a fresh app by following only the README (the clean-app smoke test follows the same steps). → detail: Docs
-R15. **Name host paths on purpose, never around the rule.** Only code whose job is to inspect the host may name a host path (`app/assets/...`, `app/javascript/...`): the Rails integration files (engine, railtie, generators, rake tasks) freely, the doctor (`lib/phlex/shadcn/doctor/**`) with a same-line marker `# gem_check:allow GEM_ESCAPES_ROOT -- <reason>`. Core code never names one. Building the path with `File.join("app", "assets", ...)` or string pieces to get past `gem_check` is a violation of this rule, not a sanctioned form. `[GEM_ESCAPES_ROOT]` → detail: Host paths
+R15. **Name host paths on purpose, never around the rule.** Only code whose job is to inspect the host may name a host path (`app/assets/...`, `app/javascript/...`): the Rails integration files (engine, railtie, generators, rake tasks) freely, the doctor (`lib/phlex/shadcn/doctor/**`) with a same-line marker `# gem_check:allow GEM_ESCAPES_ROOT -- <reason>`. Core code never names one. Building the path with `File.join("app", "assets", ...)`, `%w[]` literals, interpolation or string pieces to get past `gem_check` violates this rule (the script cannot see those spellings; reviewers cite R15), it is not a sanctioned form. `[GEM_ESCAPES_ROOT]` → detail: Host paths
 
 ## Standalone
 
@@ -39,6 +39,8 @@ The extraction proof is mechanical: run the gem's tests from its own directory w
 | Rails integration | Rails, importmap, Tailwind build | `lib/phlex/shadcn/engine.rb`, `railtie.rb`, `lib/generators/**`, `lib/tasks/**` |
 | Dev kit (not packaged) | everything | `dev/**`: oracle, parity harness, specs, scenarios, React catalog, scripts |
 
+The doctor (`lib/phlex/shadcn/doctor/**`) is Core but may name host paths under R15.
+
 ## Dependencies
 
 `phlex ">= 2.x"` and `tailwind_merge` are the expected runtime dependencies; `lucide` icons are vendored data, not a dependency. Choose bounds from what CI proves, not from what is installed locally. Dev tooling (rubocop, minitest, bundler-audit, rake) is in the Gemfile, not the gemspec runtime list.
@@ -51,7 +53,7 @@ Recorded exceptions to "no monkey patches" (each one guarded by a method and ari
 
 - `Phlex::Shadcn::Engine::TailwindStubFilter` (`lib/phlex/shadcn/engine/tailwind_stub_filter.rb`) prepends `Propshaft::LoadPath#without_dotfiles` to hide the stubs tailwindcss-rails writes into `app/assets/builds/tailwind/`. Off: `config.phlex_shadcn.hide_tailwind_stubs = false`. Remove when tailwindcss-rails stops writing stubs inside an asset root or Propshaft gains a per-file exclusion.
 
-Recorded exception to "no global mutable state" (R4): a process-wide memo is allowed only when ALL hold: it is a pure function of its arguments (same input, same output, so a hit is indistinguishable from a miss); it is bounded (a hard size limit, cleared or evicted when full, because callers can pass arbitrary strings); every read and write goes through one lock (a `Mutex` created at load time, not lazily with `||=`); it is private (`@api private` or `private_constant`, no reader, no reset hook callers or tests depend on); and it holds no configuration, request or host state. The two instances are `Phlex::Shadcn::Base.tw_merger` (one shared `TailwindMerge::Merger`) and the `Base#cn` result cache (`CN_CACHE_LIMIT`, PR #189). A new memo outside these conditions is a violation of R4; it needs its own entry here with a removal or revisit condition.
+Recorded exception to "no global mutable state" (R4): a process-wide memo is allowed only when ALL hold: it is a pure function of its arguments (same input, same output, so a hit is indistinguishable from a miss); it is bounded (a hard size limit, cleared or evicted when full, because callers can pass arbitrary strings); every read and write in gem code goes through one `Mutex` created at load time (not lazily with `||=`); it is `@api private` and no caller code reads, mutates or resets it (a private reader used only by the gem's own cache test is tolerated); and it holds no configuration, request or host state. The instance is the `Base#cn` result cache (`CN_CACHE_LIMIT`, PR #189). `Phlex::Shadcn::Base.tw_merger` is an older, weaker case: one lazily built `TailwindMerge::Merger` with default configuration and no lock (a first-use race can build two equivalent mergers and keep one). Revisit: build it eagerly at load time the next time `base.rb` is touched. A new memo outside these conditions violates R4 and needs its own entry here with a removal or revisit condition.
 
 ## Host paths
 

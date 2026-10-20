@@ -28,14 +28,15 @@
 #   GEM_ESCAPES_ROOT         require_relative / File path reaching outside the gem directory, or a host path hard-coded
 #
 # Intentional host paths (the one allowlist): a gem file whose job is to INSPECT the host (the doctor) may name a host path
-# (`app/assets/...`) when the SAME line carries the marker below. Nothing else is accepted: not building the path with
-# File.join/split strings to dodge the rule, not a marker elsewhere in the file.
+# (`app/assets/...`) when the SAME line carries the marker below as its trailing comment. Nothing else is accepted: a marker
+# elsewhere in the file or inside a string does not count. Spellings the regex cannot see (File.join pieces, %w[]) are not
+# detected by this script; they violate ruby-gem-conventions R15 and are a review finding.
 #
 #   DEFAULT_CSS = "app/assets/tailwind/application.css" # gem_check:allow GEM_ESCAPES_ROOT -- the doctor reads the host stylesheet
 #
 #   - exact rule id: only GEM_ESCAPES_ROOT's hard-coded host path check can be allowed (never require_relative leaving the gem,
 #     never another code); the id must be written out;
-#   - a reason after `--` is required (a bare marker does not count);
+#   - a reason after `--` is required and holds no quotes (a bare marker does not count);
 #   - scope: only files matching HOST_PATH_ALLOW_GLOBS (lib/phlex/shadcn/doctor/**/*.rb). The Rails integration files
 #     (generators, rake tasks, engine, railtie) are already exempt from this check and need no marker. The same literal in any
 #     other file keeps failing, marker or not.
@@ -48,7 +49,9 @@ require "uri"
 
 # Files that inspect the host on purpose and may carry a `# gem_check:allow GEM_ESCAPES_ROOT -- <reason>` marker (see header).
 HOST_PATH_ALLOW_GLOBS = %w[lib/phlex/shadcn/doctor/**/*.rb].freeze
-HOST_PATH_ALLOW_MARKER = /#\s*gem_check:allow\s+GEM_ESCAPES_ROOT\s+--\s+\S/
+# Matched against the line's TRAILING COMMENT only; the reason holds no quotes, so marker text inside a string literal never counts.
+HOST_PATH_ALLOW_MARKER = /\A#\s*gem_check:allow\s+GEM_ESCAPES_ROOT\s+--\s+[^"'\s][^"']*\z/
+HOST_PATH_TRAILING_COMMENT = /(?<!\S)#(?![{@$]).*\z/
 
 opts = { host_dir: ".", rails_files: %w[lib/**/engine.rb lib/**/railtie.rb lib/generators/**/* lib/tasks/**/*] }
 OptionParser.new do |o|
@@ -133,7 +136,7 @@ host_path_allowed_files = HOST_PATH_ALLOW_GLOBS.flat_map { |g| Dir[File.join(gem
 host_path_marked_lines = lambda do |file|
   next [] unless host_path_allowed_files.include?(file)
 
-  File.readlines(file).each_with_index.filter_map { |l, i| i + 1 if l.match?(HOST_PATH_ALLOW_MARKER) }
+  File.readlines(file, chomp: true).each_with_index.filter_map { |l, i| i + 1 if l[HOST_PATH_TRAILING_COMMENT]&.match?(HOST_PATH_ALLOW_MARKER) }
 end
 all_code = sources.values.flatten(1).map(&:last).join
 

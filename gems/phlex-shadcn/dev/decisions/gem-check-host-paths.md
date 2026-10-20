@@ -30,6 +30,7 @@ DEFAULT_CSS = "app/assets/tailwind/application.css" # gem_check:allow GEM_ESCAPE
 - exact rule id (only the hard-coded host path check of `GEM_ESCAPES_ROOT`; `require_relative` leaving the gem is never allowable);
 - a reason after `--` is required, a bare marker does not count;
 - scope: files matching `HOST_PATH_ALLOW_GLOBS` (`lib/phlex/shadcn/doctor/**/*.rb`); the marker anywhere else is inert and the literal still fails;
+- the marker is the line's trailing comment and its reason holds no quotes, so marker text inside a string literal never counts;
 - same line only, so the exemption cannot drift away from the literal it covers.
 
 Costs: one constant and a few lines in the script, and the doctor files should be switched from `File.join` to the marked literal (follow-up; those files are outside this item).
@@ -38,13 +39,13 @@ Costs: one constant and a few lines in the script, and the doctor files should b
 
 B. The point of the rule is that deliberate host knowledge is visible and bounded. A marker is greppable, carries a reason, is limited to the one directory whose job is to read the host, and is tested both ways (allowed in the doctor; the same literal elsewhere, unmarked, marked without a reason, marked for another rule, marker on another line, or a `require_relative` escape still fail). Option A would keep the rule passing while removing what it protects.
 
-`File.join` string-splitting to evade the rule is no longer sanctioned anywhere. It is not a finding (the script cannot see intent), so reviewers cite `ruby-gem-conventions R15` when they see it.
+`File.join` string-splitting, `%w[]` literals and similar spellings to evade the rule are not sanctioned anywhere. They are not findings (the script cannot see those spellings), so reviewers cite `ruby-gem-conventions R15` when they see it.
 
 ## Rollout
 
 - `gem_check` still passes on main unchanged: the doctor's `File.join` forms never matched the rule, so no existing rule was weakened and no finding appears or disappears.
-- Follow-up (shared note on #206): change `doctor/context.rb` (`DEFAULT_CSS`) and `doctor/checks/engine_bundle.rb` (`BUNDLE`) from `File.join(...)` to a marked literal.
+- Follow-up (shared note on #206): change `doctor/context.rb` (`DEFAULT_CSS`) and `doctor/checks/engine_bundle.rb` (`BUNDLE`) from `File.join(...)` to a marked literal, and `doctor/checks/stimulus.rb` (`FILES`, a `%w[]` host-path list the regex cannot see) to quoted, marked literals.
 
 ## Related: the memoized `Base#cn` cache
 
-The skill's R4 says "no global mutable state". PR #189 added a process-wide memo to `Phlex::Shadcn::Base#cn`, comparable to the older `Base.tw_merger`. It is a recorded exception (skill, section Namespacing) with explicit conditions: pure function of its input, bounded, guarded by a lock created at load time, unobservable to callers, never configuration or request state.
+The skill's R4 says "no global mutable state". PR #189 added a process-wide memo to `Phlex::Shadcn::Base#cn`. It is a recorded exception (skill, section Namespacing) under explicit conditions: pure, bounded, accessed only through a load-time `Mutex`, `@api private` (read only by the gem's own cache test), and holding no configuration or request state. The older `Base.tw_merger` memo is recorded as a weaker case (lazy, unlocked) with a revisit condition (build it eagerly next time `base.rb` is touched).
