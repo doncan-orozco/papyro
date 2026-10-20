@@ -10,7 +10,7 @@ Every release records, in the CHANGELOG header of its section ("Tracks shadcn/ui
 
 - the style;
 - the `shadcn` CLI version and the `@shadcn/react` version the oracle was extracted with;
-- the oracle digest (the 16-character digest printed by the oracle extraction, also in `dev/port/PORT_PLAN.md`) and the number of components;
+- the oracle digest (the 16-character digest the oracle extraction writes to `dev/port/oracle/VERSION.json`, also in `dev/port/PORT_PLAN.md`) and the number of components;
 - the fetch date;
 - the Radix UI (`radix-ui`), Lucide (`lucide-react`) and vendored `@floating-ui/dom` versions.
 
