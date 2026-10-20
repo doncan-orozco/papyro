@@ -154,7 +154,8 @@ class Phlex::Shadcn::Base < Phlex::HTML
   end
 
   # Component defaults + caller attrs: `data:`/`aria:` deep-merged (caller wins), `class` through `cn`
-  # (caller wins on Tailwind conflicts), `data-action` descriptors concatenated (defaults first).
+  # (caller wins on Tailwind conflicts), `data-action` descriptors and `data-controller` names concatenated
+  # (defaults first; controller names de-duplicated, see dev/decisions/data-controller-merge.md).
   #
   # @api private
   def merge_attrs(defaults, attrs)
@@ -167,6 +168,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
       actions = [ default_action, caller_action ].reject_blank
       merged[:data] = (merged[:data] || {}).merge(action: actions.join(" ")) if actions.any?
     end
+    merge_controllers(merged, defaults.dig(:data, :controller), attrs.dig(:data, :controller))
     resolved = cn(defaults[:class], attrs[:class])
     css = @slot_class.nil? ? resolved : flatten_class_inputs([ @slot_class, resolved ]).join(" ")
     css.empty? ? merged.except(:class) : merged.merge(class: css)
@@ -187,6 +189,16 @@ class Phlex::Shadcn::Base < Phlex::HTML
   end
 
   private
+
+  # `data-controller` is a list of identifiers: the caller's names follow the component's own, de-duplicated. Only a caller
+  # controller can collide with a component one (otherwise `merge_deep` already kept the default), and `merged[:data]` is
+  # the fresh hash `merge_deep` built, never one the caller still holds.
+  def merge_controllers(merged, default_controller, caller_controller)
+    return if default_controller.nil? || caller_controller.nil?
+
+    names = [ default_controller, caller_controller ].flat_map { |controller| controller.to_s.split }.uniq
+    merged[:data] = merged[:data].merge(controller: names.join(" "))
+  end
 
   def merge_classes(inputs)
     flattened = flatten_class_inputs(inputs)
