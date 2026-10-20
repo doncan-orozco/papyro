@@ -1363,6 +1363,105 @@
       ]
     },
     {
+      "id": "rich-colors__false",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "data-controller": "shadcn---probe-toast",
+          "className": "flex justify-center gap-2 pt-[300px]"
+        },
+        "children": [
+          {
+            "c": "_button",
+            "props": {
+              "type": "button",
+              "data-parity-toast": "{\"method\":\"error\",\"message\":\"Not rich\"}",
+              "data-testid": "t",
+              "className": "inline-flex h-9 items-center rounded-md border px-3 text-sm"
+            },
+            "children": [
+              "Show"
+            ]
+          },
+          {
+            "c": "Toaster",
+            "props": {
+              "richColors": false
+            }
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "click",
+          "target": "[data-testid=t]"
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "observe": [
+        "section[aria-live]",
+        "[data-sonner-toast]",
+        "[data-icon]",
+        "[data-content]"
+      ]
+    },
+    {
+      "id": "toaster-id__other-toaster-ignored",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "data-controller": "shadcn---probe-toast",
+          "className": "flex justify-center gap-2 pt-[300px]"
+        },
+        "children": [
+          {
+            "c": "_button",
+            "props": {
+              "type": "button",
+              "data-parity-toast": "{\"method\":\"success\",\"message\":\"Elsewhere\",\"data\":{\"toasterId\":\"side\",\"duration\":300}}",
+              "data-testid": "t",
+              "className": "inline-flex h-9 items-center rounded-md border px-3 text-sm"
+            },
+            "children": [
+              "Show"
+            ]
+          },
+          {
+            "c": "Toaster",
+            "props": {}
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "click",
+          "target": "[data-testid=t]"
+        },
+        {
+          "do": "wait",
+          "ms": 600
+        }
+      ],
+      "dark": false,
+      "viewport": {
+        "width": 900,
+        "height": 700
+      },
+      "animations": false,
+      "observe": [
+        "section[aria-live]",
+        "[data-sonner-toaster]",
+        "[data-sonner-toast]",
+        "[data-icon]",
+        "[data-content]"
+      ]
+    },
+    {
       "id": "invert__toaster-prop",
       "tree": {
         "c": "_div",

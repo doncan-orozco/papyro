@@ -146,13 +146,14 @@ browserTest("sonner: a Turbo cache snapshot leaves no toast behind and a reconne
 
 browserTest("sonner: removing the Toaster clears its timers and listeners (no errors afterwards)", async ({ open }) => {
   const page = await open("empty__no-toasts");
-  await page.evaluate(() => window.Toaster.message("Gone soon", { duration: 150 }));
+  await page.evaluate(() => window.Toaster.message("Gone soon", { duration: 150, onAutoClose: () => (window.__closed = true) }));
   await page.waitForSelector(toasts);
   await page.evaluate(() => document.querySelector("section[aria-live]").remove());
   await page.waitForTimeout(600);
-  await page.evaluate(() => window.Toaster.message("Nobody listens"));
-  await page.waitForTimeout(100);
+  await page.evaluate(() => window.Toaster.message("Nobody listens", { duration: 100, onAutoClose: () => (window.__closed = true) }));
+  await page.waitForTimeout(500);
   assert.equal(await count(page), 0);
+  assert.equal(await page.evaluate(() => window.__closed), undefined, "no timer or subscriber is left behind");
 });
 
 browserTest("sonner: a loading toast stays until updated, then closes on its own", async ({ open }) => {
@@ -172,4 +173,56 @@ browserTest("sonner: window.Toaster.promise follows the promise", async ({ open 
   await page.waitForFunction(() => document.querySelector("[data-sonner-toast]")?.getAttribute("data-type") === "loading");
   await page.waitForFunction(() => document.querySelector("[data-sonner-toast]")?.getAttribute("data-type") === "success");
   assert.equal(await page.locator(`${toasts} [data-title]`).textContent(), "Done");
+});
+
+browserTest("sonner: href handling has a positive control: a same-origin http(s) href navigates", async ({ open }) => {
+  const page = await open("empty__no-toasts");
+  await streamAppend(page, toastTemplate('data-id="b" data-duration="100000" data-action-label="Open" data-action-href="/up"', "Go"));
+  await page.waitForSelector("[data-action]");
+  await Promise.all([page.waitForURL(/\/up$/, { timeout: 5000 }), page.click("[data-action]")]);
+});
+
+browserTest("sonner: a type that is not a toast kind never reaches another function", async ({ open }) => {
+  const page = await open("empty__no-toasts");
+  await page.evaluate(() => document.body.dispatchEvent(new CustomEvent("shadcn--sonner:show", { bubbles: true, detail: { message: "Plain", type: "constructor" } })));
+  await page.waitForSelector(toasts);
+  assert.equal(await page.locator(toasts).getAttribute("data-type"), null);
+  assert.deepEqual(await titles(page), ["Plain"]);
+});
+
+browserTest("sonner: toast.custom keeps the listeners of the node it is given", async ({ open }) => {
+  const page = await open("empty__no-toasts");
+  await page.evaluate(() => {
+    const button = document.createElement("button");
+    button.id = "custom-button";
+    button.textContent = "Custom";
+    button.addEventListener("click", () => (window.__clicked = true));
+    window.Toaster.custom(button, { duration: 100000 });
+  });
+  await page.waitForSelector("#custom-button");
+  await page.click("#custom-button");
+  assert.equal(await page.evaluate(() => window.__clicked), true);
+});
+
+browserTest("sonner: a Toaster with a toaster_id ignores other toasts, and another Toaster runs no timer for them", async ({ open }) => {
+  const page = await open("empty__no-toasts");
+  await page.evaluate(() => {
+    const first = document.querySelector("section[aria-live]");
+    const second = first.cloneNode(false);
+    second.id = "side";
+    second.innerHTML = first.innerHTML;
+    second.setAttribute("data-shadcn--sonner-toaster-id-value", "side");
+    document.body.append(second);
+  });
+  await settle(page);
+  await page.evaluate(() => window.Toaster.message("For side", { toasterId: "side", duration: 300, onAutoClose: () => (window.__n = (window.__n || 0) + 1) }));
+  await page.waitForSelector("#side [data-sonner-toast]");
+  assert.equal(await count(page, "#toaster [data-sonner-toast]"), 0);
+  await page.hover("#side [data-sonner-toast]");
+  await page.waitForTimeout(800);
+  assert.equal(await count(page, "#side [data-sonner-toast]"), 1, "hover pauses the only timer that exists");
+  assert.equal(await page.evaluate(() => window.__n), undefined);
+  await page.mouse.move(2, 2);
+  await page.waitForSelector("#side [data-sonner-toast]", { state: "detached", timeout: 3000 });
+  assert.equal(await page.evaluate(() => window.__n), 1);
 });

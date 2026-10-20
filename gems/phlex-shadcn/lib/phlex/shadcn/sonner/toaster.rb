@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
-
 # shadcn Toaster (the `Toaster` of shadcn's `sonner.tsx`): the live region the toasts are shown in. Render it once, in the layout.
 #
 # Renders `<section aria-live="polite">` hosting the `shadcn--sonner` controller, the Lucide icons of each toast type as inert templates
@@ -127,7 +125,7 @@ class Phlex::Shadcn::Sonner::Toaster < Phlex::Shadcn::Base
     {
       shadcn__sonner_position_value: @position,
       shadcn__sonner_theme_value: @theme,
-      shadcn__sonner_rich_colors_value: @rich_colors,
+      shadcn__sonner_rich_colors_value: @rich_colors&.to_s,
       shadcn__sonner_expand_value: @expand,
       shadcn__sonner_close_button_value: @close_button,
       shadcn__sonner_invert_value: @invert,
@@ -184,7 +182,7 @@ class Phlex::Shadcn::Sonner::Toaster < Phlex::Shadcn::Base
     return unless @flash
 
     @flash.to_h.each do |key, message|
-      next if message.to_s.empty?
+      next unless message.is_a?(String) && !message.empty?
 
       render Phlex::Shadcn::Sonner::Toast.new(title: message.to_s, type: FLASH_TYPES[key.to_s])
     end

@@ -89,4 +89,4 @@ The oracle exports only `Toaster`, so `spec_helpers.rb` derives none. The root `
 
 ## Deviations
 
-One register entry (`gems/phlex-shadcn/dev/port/deviations/sonner.json`), no class-token allowance (G1 passes unchanged, the stylesheet carries the toast look): the Rails entry points, `id:`/`class:` handling, the missing React-element surface, callbacks as events, the assertive announcer for errors and the inert icon templates. Everything else (DOM, `data-*` state, stacking variables, computed styles, hover/hotkey/swipe/timer behavior) is compared with sonner in the 79 scenarios of `scenarios/sonner.json`.
+One register entry (`gems/phlex-shadcn/dev/port/deviations/sonner.json`), no class-token allowance (G1 passes unchanged, the stylesheet carries the toast look): the Rails entry points, `id:`/`class:` handling, the missing React-element surface, callbacks as events, the assertive announcer for errors and the inert icon templates. Everything else (DOM, `data-*` state, stacking variables, computed styles, hover/hotkey/swipe/timer behavior) is compared with sonner in the 81 scenarios of `scenarios/sonner.json`.

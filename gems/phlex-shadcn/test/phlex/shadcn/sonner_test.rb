@@ -177,6 +177,22 @@ class Phlex::Shadcn::SonnerTest < Phlex::Shadcn::TestCase
     assert_equal '<template data-shadcn--sonner-toast=""><div data-title="">From block</div></template>', html
   end
 
+  test "rich_colors false is sent as false, not dropped" do
+    assert_equal "false", value_of(render_toaster(rich_colors: false), "rich-colors")
+  end
+
+  test "an unknown toast type is rejected" do
+    error = assert_raises(ArgumentError) { render_toast(title: "T", type: "constructor") }
+
+    assert_includes error.message, "unknown toast type"
+  end
+
+  test "flash values that are not strings are skipped" do
+    html = render_toaster(flash: { "timedout" => true, "notice" => "Saved" })
+
+    assert_equal 1, html.scan("data-shadcn--sonner-toast=").size
+  end
+
   test "numeric duration" do
     assert_includes render_toast(title: "T", duration: 5000), 'data-duration="5000"'
   end

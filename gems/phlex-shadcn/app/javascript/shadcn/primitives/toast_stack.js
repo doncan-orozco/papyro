@@ -387,8 +387,14 @@ export class ToastStack {
     this.#later(() => this.#upsert(message)) // sonner defers one task to prevent batching
   }
 
+  #accepts(toast) {
+    const id = this.config.toasterId
+    return id ? toast.toasterId === id : !toast.toasterId
+  }
+
   #upsert(message) {
     const index = this.toasts.findIndex((t) => t.id === message.id)
+    if (index === -1 && !this.#accepts(message)) return // sonner renders no Toast for it: no entry, no timer, no callbacks
     if (index !== -1) {
       this.toasts[index] = { ...this.toasts[index], ...message }
       const entry = this.entries.get(message.id)
@@ -479,7 +485,7 @@ export class ToastStack {
   #syncTimer(entry) {
     const { data } = entry
     const key = [this.expanded, this.interacting, this.documentHidden, data.type, entry.version, this.#duration(entry)].join("|")
-    if (key === entry.timerKey) return
+    if (entry.removed || key === entry.timerKey) return
     const durationChanged = !entry.timerKey || entry.timerKey.split("|")[5] !== key.split("|")[5]
     entry.timerKey = key
     if (durationChanged) entry.remainingTime = this.#duration(entry)
@@ -530,7 +536,7 @@ export class ToastStack {
       this.#renderGroup(list, position, group, filtered)
     })
     this.lastList = wanted.length ? this.lists.get(wanted[wanted.length - 1]) : null
-    this.entries.forEach((entry) => this.#syncTimer(entry))
+    this.entries.forEach((entry) => entry.el && this.#syncTimer(entry))
   }
 
   #list(position) {
@@ -707,8 +713,8 @@ export class ToastStack {
     const typedIcon = type ? this.config.iconFor?.(type) : null
     if ((type || data.icon || data.promise) && data.icon !== null && (typedIcon !== false || data.icon)) {
       const icon = el("div", { "data-icon": "", class: cn(named.icon, own.icon) })
-      if (data.promise || (type === "loading" && !data.icon)) icon.append(this.#node(data.icon) ?? this.#loadingIcon(entry))
-      if (type !== "loading") icon.append(this.#node(data.icon) ?? (typedIcon || ""))
+      if (data.promise || (type === "loading" && !data.icon)) icon.append(this.#node(data.icon, { clone: true }) ?? this.#loadingIcon(entry))
+      if (type !== "loading") icon.append(this.#node(data.icon, { clone: true }) ?? (typedIcon || ""))
       children.push(icon)
     }
 
@@ -731,9 +737,10 @@ export class ToastStack {
     li.replaceChildren(...children)
   }
 
-  #node(value) {
+  /** Shared icon templates are cloned; the caller's own nodes (custom content, titles) are used as they are, so their listeners survive. */
+  #node(value, { clone = false } = {}) {
     if (value === undefined || value === null || value === false) return null
-    if (value instanceof Node) return value.cloneNode(true)
+    if (value instanceof Node) return clone ? value.cloneNode(true) : value
     return document.createTextNode(String(value))
   }
 

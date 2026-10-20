@@ -27,10 +27,13 @@ class Phlex::Shadcn::Sonner::Toast < Phlex::Shadcn::Base
   # @param attrs [Hash] extra attributes for the template (`data:`)
   def initialize(title: nil, description: nil, type: nil, id: nil, duration: nil, position: nil, dismissible: nil, close_button: nil,
                  rich_colors: nil, invert: nil, icon: nil, action: nil, cancel: nil, toaster_id: nil, test_id: nil, **attrs)
+    type = normalize_option(type)
+    raise ArgumentError, "unknown toast type #{type.inspect} (#{Phlex::Shadcn::Sonner::TYPES.join(', ')})" if type && !Phlex::Shadcn::Sonner::TYPES.include?(type)
+
     @title = title
     @description = description
     @options = {
-      type: normalize_option(type), id:, duration: infinite?(duration) ? "Infinity" : duration, position: normalize_option(position),
+      type:, id:, duration: infinite?(duration) ? "Infinity" : duration, position: normalize_option(position),
       dismissible:, close_button:, rich_colors:, invert:, icon: normalize_option(icon), toaster_id:, test_id:,
       action_label: action&.dig(:label), action_href: action&.dig(:href), action_event: action&.dig(:event),
       cancel_label: cancel&.dig(:label), cancel_href: cancel&.dig(:href), cancel_event: cancel&.dig(:event)

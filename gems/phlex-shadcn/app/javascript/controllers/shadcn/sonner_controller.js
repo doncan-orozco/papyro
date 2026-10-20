@@ -9,6 +9,8 @@ import { ToastStack, toast } from "shadcn/primitives/toast_stack"
 //   3. Any element:  dispatch `shadcn--sonner:show` (bubbles to document) with detail { message, type, ...toast options }.
 // Events out (dispatched on the section, bubbling): `shadcn--sonner:dismiss`, `:auto-close`, `:action`, `:cancel` with detail { id, name }.
 const SHOW = "shadcn--sonner:show"
+const SHOW_TYPES = ["success", "info", "warning", "error", "loading"]
+const showFor = (type) => (SHOW_TYPES.includes(type) ? toast[type] : toast.message)
 
 if (typeof window !== "undefined") {
   window.Toaster ||= toast
@@ -16,8 +18,7 @@ if (typeof window !== "undefined") {
     window.__shadcnSonnerShow = true
     document.addEventListener(SHOW, (event) => {
       const { message, type, ...data } = event.detail || {}
-      const show = type && typeof toast[type] === "function" ? toast[type] : toast.message
-      show(message, data)
+      showFor(type)(message, data)
     })
   }
 }
@@ -66,7 +67,7 @@ export default class extends Controller {
   // `-description-param`) on a button INSIDE the Toaster; use the `shadcn--sonner:show` event for triggers elsewhere.
   show({ params }) {
     const { message, type, ...data } = params
-    toast[type && toast[type] ? type : "message"](message, data)
+    showFor(type)(message, data)
   }
 
   // Stimulus action: dismisses one toast (`id` param) or all of them.
@@ -126,8 +127,7 @@ export default class extends Controller {
       const description = template.content.querySelector("[data-description]")?.textContent
       const type = data.type && data.type !== "default" ? data.type : undefined
       const options = this.options(data, description)
-      const show = type && toast[type] ? toast[type] : toast.message
-      show(title, options)
+      showFor(type)(title, options)
     })
   }
 
@@ -152,6 +152,7 @@ export default class extends Controller {
       label,
       onClick: (event) => {
         this.dispatch(kind, { detail: { id, name } })
+        if (href && !this.safeHref(href)) console.warn(`shadcn--sonner: ignored the non-http(s) href ${href}`)
         if (href && this.safeHref(href)) {
           event.preventDefault() // keeps the toast, the page is leaving
           window.Turbo?.visit ? window.Turbo.visit(href) : (window.location.href = href)
