@@ -22,20 +22,18 @@ module Bench
 
     def call(argv)
       unknown = argv - FLAGS
-      unless unknown.empty?
-        warn "unknown option(s): #{unknown.join(" ")}; usage: bin/bench [--json] [--check | --record]"
+      conflicting = argv.include?("--record") && argv.intersect?(%w[--check --json])
+      if unknown.any? || conflicting
+        warn "invalid option(s): #{(unknown.empty? ? argv : unknown).join(" ")}; usage: bin/bench [--json] [--check] | bin/bench --record"
         return 2
       end
 
       results = measure
       baseline = File.exist?(BASELINE) ? JSON.parse(File.read(BASELINE)) : {}
-      if argv.include?("--record")
-        record(results, baseline)
-      elsif argv.include?("--check")
-        check(results, baseline, json: argv.include?("--json"))
-      else
-        report(results, baseline, json: argv.include?("--json"))
-      end
+      return record(results:, baseline:) if argv.include?("--record")
+      return check(results:, baseline:, json: argv.include?("--json")) if argv.include?("--check")
+
+      report(results:, baseline:, json: argv.include?("--json"))
     end
 
     # @return [Hash{String => Hash}] scenario => {"us" => Float, "allocations" => Integer} per render
@@ -60,7 +58,7 @@ module Bench
     # @return [Hash{String => String}] the versions allocation counts depend on
     def environment = { "ruby" => RUBY_VERSION, "phlex" => Phlex::VERSION }
 
-    def record(results, baseline)
+    def record(results:, baseline:)
       recorded_baseline = { "tolerance" => baseline.fetch("tolerance", DEFAULT_TOLERANCE), **environment,
                             "allocations" => results.transform_values { |measurement| measurement["allocations"] } }
       File.write(BASELINE, "#{JSON.pretty_generate(recorded_baseline)}\n")
@@ -68,24 +66,24 @@ module Bench
       0
     end
 
-    def report(results, baseline, json:)
+    def report(results:, baseline:, json:)
       if json
         puts JSON.pretty_generate(results)
         return 0
       end
 
       recorded = baseline.fetch("allocations", {})
-      floor = results.dig("reference", "allocations").to_f
+      reference_allocations = results.dig("reference", "allocations").to_f
       puts format("%-12s %12s %14s %10s %12s", "scenario", "us/render", "allocs/render", "x ref", "baseline")
       results.each do |name, measurement|
-        puts format("%-12s %12.1f %14d %10.1f %12s", name, measurement["us"], measurement["allocations"],
-                    measurement["allocations"] / floor, recorded.fetch(name, "-"))
+        ratio = reference_allocations.zero? ? "-" : format("%.1f", measurement["allocations"] / reference_allocations)
+        puts format("%-12s %12.1f %14d %10s %12s", name, measurement["us"], measurement["allocations"], ratio, recorded.fetch(name, "-"))
       end
       0
     end
 
     # @return [Array<String>] one message per scenario over baseline + tolerance, or without a baseline
-    def regressions(results, baseline)
+    def regressions(results:, baseline:)
       recorded = baseline.fetch("allocations", {})
       tolerance = baseline.fetch("tolerance", DEFAULT_TOLERANCE)
       results.filter_map do |name, measurement|
@@ -97,17 +95,23 @@ module Bench
       end
     end
 
-    def check(results, baseline, json:)
-      drift = environment.reject { |key, version| baseline[key].nil? || baseline[key] == version }
+    # @return [Hash{String => String}] key => version recorded in the baseline, for each version differing from the running one
+    #   (a baseline without a version stamp counts as drift)
+    def environment_drift(baseline)
+      environment.filter_map { |key, version| [ key, baseline[key] || "unknown" ] unless baseline[key] == version }.to_h
+    end
+
+    def check(results:, baseline:, json:)
+      drift = environment_drift(baseline)
       unless drift.empty?
-        warn "baseline recorded on #{drift.keys.map { |key| "#{key} #{baseline[key]}" }.join(", ")}; " \
-             "running #{drift.map { |key, version| "#{key} #{version}" }.join(", ")}: allocation gate skipped (run bin/bench --record)"
-        report(results, baseline, json: json)
+        warn "baseline recorded on #{drift.map { |key, version| "#{key} #{version}" }.join(", ")}; running " \
+             "#{drift.keys.map { |key| "#{key} #{environment[key]}" }.join(", ")}: allocation gate skipped (run bin/bench --record)"
+        report(results:, baseline:, json:)
         return 0
       end
 
-      failures = regressions(results, baseline)
-      report(results, baseline, json: json)
+      failures = regressions(results:, baseline:)
+      report(results:, baseline:, json:)
       warn failures.join("\n") unless failures.empty?
       failures.empty? ? 0 : 1
     end
