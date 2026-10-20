@@ -84,4 +84,11 @@ class EngineTest::DoctorTask < Minitest::Test
   ensure
     ENV.delete("CSS")
   end
+
+  def test_the_doctor_probe_matches_the_stub_filter_hook
+    filter = Phlex::Shadcn::Engine.const_get(:TailwindStubFilter)
+    context = Phlex::Shadcn::Doctor::Context.new(root: Rails.root)
+
+    assert_equal filter.send(:hook?, ::Propshaft::LoadPath), context.propshaft_hook?
+  end
 end

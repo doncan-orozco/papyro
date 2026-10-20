@@ -30,7 +30,8 @@ module Phlex
         check.call(context)
       rescue StandardError => e
         name = check.const_defined?(:NAME, false) ? check::NAME : check.name.split("::").last
-        Result.failure(name, "the check raised #{e.class}: #{e.message}", fix: "make the files the check reads readable UTF-8, then run it again (#{e.backtrace&.first})")
+        fix = e.is_a?(SystemCallError) || e.is_a?(EncodingError) ? "make the files the check reads readable UTF-8, then run it again" : "report this phlex-shadcn doctor bug"
+        Result.failure(name, "the check raised #{e.class}: #{e.message}", fix: "#{fix} (#{e.backtrace&.first})")
       end
       private_class_method :run_check
 

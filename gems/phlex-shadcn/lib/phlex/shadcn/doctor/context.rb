@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pathname"
+require "shellwords"
 
 module Phlex
   module Shadcn
@@ -70,7 +71,7 @@ module Phlex
         end
 
         # @return [String] the installer command for this app's Tailwind entry file (`--css` when it is not the default)
-        def install_command = @css == DEFAULT_CSS ? INSTALL : "#{INSTALL} --css #{@css}"
+        def install_command = @css == DEFAULT_CSS ? INSTALL : "#{INSTALL} --css #{Shellwords.escape(@css)}"
 
         # @return [Boolean] `config.phlex_shadcn.hide_tailwind_stubs`
         def hide_tailwind_stubs? = @hide_tailwind_stubs

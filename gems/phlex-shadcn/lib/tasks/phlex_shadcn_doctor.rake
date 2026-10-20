@@ -6,7 +6,7 @@ namespace :phlex_shadcn do
   task :doctor, [ :format ] => :environment do |_task, args|
     context = Phlex::Shadcn::Doctor::Context.new(
       root: Rails.root,
-      css: ENV.fetch("CSS", Phlex::Shadcn::Doctor::Context::DEFAULT_CSS),
+      css: ENV.fetch("CSS", "").then { |css| css.empty? ? Phlex::Shadcn::Doctor::Context::DEFAULT_CSS : css },
       theme_dir: Phlex::Shadcn.config.theme_dir,
       hide_tailwind_stubs: Rails.application.config.phlex_shadcn.hide_tailwind_stubs
     )
