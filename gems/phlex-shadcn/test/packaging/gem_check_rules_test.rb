@@ -101,7 +101,64 @@ class GemCheckRulesTest < Minitest::Test
     assert_includes codes, "GEMSPEC_FILES"
   end
 
+  HOST_PATH = 'DEFAULT_CSS = "app/assets/tailwind/application.css"'
+  MARKER = "# gem_check:allow GEM_ESCAPES_ROOT -- the doctor reads the host stylesheet"
+
+  def test_a_hard_coded_host_path_in_core_code_is_reported
+    write("lib/phlex/x/helper.rb", "#{HOST_PATH}\n")
+
+    assert_includes codes, "GEM_ESCAPES_ROOT"
+  end
+
+  def test_a_marked_host_path_in_a_doctor_file_is_allowed
+    write("lib/phlex/shadcn/doctor/context.rb", "#{HOST_PATH} #{MARKER}\n")
+
+    assert_equal [], findings
+  end
+
+  def test_the_same_marked_literal_outside_the_doctor_still_fails
+    write("lib/phlex/x/helper.rb", "#{HOST_PATH} #{MARKER}\n")
+
+    assert_includes codes, "GEM_ESCAPES_ROOT"
+  end
+
+  def test_an_unmarked_host_path_in_a_doctor_file_still_fails
+    write("lib/phlex/shadcn/doctor/context.rb", "#{HOST_PATH}\n")
+
+    assert_includes codes, "GEM_ESCAPES_ROOT"
+  end
+
+  def test_a_marker_without_a_reason_does_not_allow_the_path
+    write("lib/phlex/shadcn/doctor/context.rb", "#{HOST_PATH} # gem_check:allow GEM_ESCAPES_ROOT\n")
+
+    assert_includes codes, "GEM_ESCAPES_ROOT"
+  end
+
+  def test_a_marker_for_another_rule_does_not_allow_the_path
+    write("lib/phlex/shadcn/doctor/context.rb", "#{HOST_PATH} # gem_check:allow GEM_RAILS_REFERENCE -- not this rule\n")
+
+    assert_includes codes, "GEM_ESCAPES_ROOT"
+  end
+
+  def test_a_marker_on_another_line_does_not_allow_the_path
+    write("lib/phlex/shadcn/doctor/context.rb", "#{MARKER}\n#{HOST_PATH}\n")
+
+    assert_includes codes, "GEM_ESCAPES_ROOT"
+  end
+
+  def test_a_marker_never_allows_require_relative_leaving_the_gem
+    write("lib/phlex/shadcn/doctor/context.rb", "require_relative \"../../../../../secret\" #{MARKER}\n")
+
+    assert_includes codes, "GEM_ESCAPES_ROOT"
+  end
+
+  def test_generator_files_need_no_marker
+    write("lib/generators/x/install/manifest.rb", "#{HOST_PATH}\n")
+
+    assert_equal [], findings
+  end
   private
+
 
   def write(path, content)
     full = File.join(@gem, path)
