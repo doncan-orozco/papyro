@@ -760,13 +760,13 @@
       "source_sha": "13ccc9b0fe4248e6"
     },
     "command": {
-      "status": "pending",
+      "status": "done",
       "tier": "third_party",
       "wave": 5,
       "iteration": 0,
-      "note": null,
+      "note": "ported in #178",
       "last_green_sha": null,
-      "updated_at": "2026-10-20T04:03:41Z",
+      "updated_at": "2026-10-20T05:34:24Z",
       "kind": "fanout",
       "deps": [
         "dialog"
@@ -774,13 +774,13 @@
       "source_sha": "319e9264567dd46f"
     },
     "combobox": {
-      "status": "pending",
+      "status": "done",
       "tier": "third_party",
       "wave": 5,
       "iteration": 0,
-      "note": null,
+      "note": "ported in #178",
       "last_green_sha": null,
-      "updated_at": "2026-10-20T04:03:41Z",
+      "updated_at": "2026-10-20T05:34:24Z",
       "kind": "fanout",
       "deps": [
         "button",

@@ -211,6 +211,33 @@ Oracle driving (harness prerequisites, infra): Base UI renders lists through ren
 - `_Each` node: when a node's children contain `{ "c": "_Each", "children": [template...] }`, the node receives a render-function child `(arg) => children'` where the `_Each` node is replaced by its template rendered once per element of `arg` (Array, e.g. `ComboboxValue` in multiple mode) or once with `arg` (e.g. `ComboboxList`/`ComboboxCollection` items, groups). Inside a template, a string prop value or text child equal to `"$item"` or `"$item.<path>"` is replaced by that element (or its property; missing -> undefined/empty). Nested `_Each` nodes bind their own argument. React keys: index + serialized element. Phlex side: the same node becomes a block taking `|item|` / `|values|`.
 - `"$ref:<css selector>"` prop value: React gets a ref-like object whose `current` is `document.querySelector(selector)` read lazily; Phlex passes the selector string (`Content anchor:`).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Phlex::Shadcn::Combobox` MUST `yield self` from `view_template`; `Phlex::Shadcn::Base` generates one helper per nested part (`const_added`), each exactly `render Combobox::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Phlex::Shadcn::Combobox::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `combobox.input` | `Combobox::Input` | `ComboboxInput` |
+| `combobox.content` | `Combobox::Content` | `ComboboxContent` |
+| `combobox.list` | `Combobox::List` | `ComboboxList` |
+| `combobox.item` | `Combobox::Item` | `ComboboxItem` |
+| `combobox.group` | `Combobox::Group` | `ComboboxGroup` |
+| `combobox.label` | `Combobox::Label` | `ComboboxLabel` |
+| `combobox.collection` | `Combobox::Collection` | `ComboboxCollection` |
+| `combobox.empty` | `Combobox::Empty` | `ComboboxEmpty` |
+| `combobox.separator` | `Combobox::Separator` | `ComboboxSeparator` |
+| `combobox.chips` | `Combobox::Chips` | `ComboboxChips` |
+| `combobox.chip` | `Combobox::Chip` | `ComboboxChip` |
+| `combobox.chips_input` | `Combobox::ChipsInput` | `ComboboxChipsInput` |
+| `combobox.trigger` | `Combobox::Trigger` | `ComboboxTrigger` |
+| `combobox.value` | `Combobox::Value` | `ComboboxValue` |
+
+Names that shadow a Phlex HTML element inside `Combobox`'s OWN `view_template` (use `tag(:input)` there, never the bare method): `input`, `label`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Phlex::Shadcn::InputGroup`, `InputGroup::Input`, `InputGroup::Addon(align: "inline-end")`, `InputGroup::Button(size: "icon-xs", variant: "ghost", as_child:)` (Input, Trigger, Clear; src:L9-14, L46, L67-89).

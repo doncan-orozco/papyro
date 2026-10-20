@@ -144,6 +144,27 @@ Mapping cmdk -> port: root `me` (cmdk:8-182) -> `Command` + controller; `Se` inp
 
 Filtering: cmdk's default `command-score` (`chunk-NZJY6EH4.mjs`, value and keywords joined with spaces) is replaced by `scorer.js` `scoreItem(search, value, keywords)` (keywords weighted 0.9). Both return 0 for "no match" and order by score, but the numbers differ and the match set differs for some queries (command-score's skip rules: `"app"` also matches `"Apricot"`; whitespace in the query is ignored by our scorer). This is not a DOM deviation; the scenarios use queries where both rank identically (verified with both scorers for every typed prefix: `cal`, `set`, `bil`, `ing`, `zzz`, `ap`, `agenda`, `math`), and the rest is a known divergence of the scorer primitive. A force-mounted item keeps the score computed when its value was registered (against the then-current search; for an empty search command-score gives 0.99, the scorer `EMPTY_QUERY_SCORE` 1), like cmdk (cmdk:45, 100-103 only rescore registered items).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Phlex::Shadcn::Command` MUST `yield self` from `view_template`; `Phlex::Shadcn::Base` generates one helper per nested part (`const_added`), each exactly `render Command::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Phlex::Shadcn::Command::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `command.dialog` | `Command::Dialog` | `CommandDialog` |
+| `command.input` | `Command::Input` | `CommandInput` |
+| `command.list` | `Command::List` | `CommandList` |
+| `command.empty` | `Command::Empty` | `CommandEmpty` |
+| `command.group` | `Command::Group` | `CommandGroup` |
+| `command.item` | `Command::Item` | `CommandItem` |
+| `command.shortcut` | `Command::Shortcut` | `CommandShortcut` |
+| `command.separator` | `Command::Separator` | `CommandSeparator` |
+
+Names that shadow a Phlex HTML element inside `Command`'s OWN `view_template` (use `tag(:dialog)` there, never the bare method): `dialog`, `input`.
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Phlex::Shadcn::Dialog`, `Dialog::Header`, `Dialog::Title`, `Dialog::Description`, `Dialog::Content` (and through it `Dialog::Overlay`, `Dialog::Portal`, `Dialog::Close`): `Command::Dialog`.

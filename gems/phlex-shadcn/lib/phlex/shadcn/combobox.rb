@@ -69,6 +69,9 @@
 # @!method chips_input(**attrs, &block)
 #   Same as `render Combobox::ChipsInput.new(**attrs), &block`.
 class Phlex::Shadcn::Combobox < Phlex::Shadcn::Base
+  # Default of `limit:`: render every match. A named constant keeps the YARD-rendered signature identical on every Ruby.
+  # @api private
+  NO_LIMIT = -1
   # @api private
   CONTEXT_KEY = :shadcn_combobox_root
   # @api private
@@ -114,7 +117,7 @@ class Phlex::Shadcn::Combobox < Phlex::Shadcn::Base
   def initialize(items: nil, multiple: false, value: nil, default_value: nil, input_value: nil, default_input_value: nil, open: nil,
                  default_open: false, name: nil, form: nil, auto_complete: nil, id: nil, disabled: false, read_only: false,
                  required: false, auto_highlight: false, keep_highlight: false, highlight_item_on_hover: true, loop_focus: true,
-                 open_on_input_click: true, modal: false, limit: -1, submit_on_item_click: false, filter: "fuzzy", locale: nil,
+                 open_on_input_click: true, modal: false, limit: NO_LIMIT, submit_on_item_click: false, filter: "fuzzy", locale: nil,
                  item_to_string_label: nil, item_to_string_value: nil, item_equal_to_value: nil)
     @options = {
       items: items, multiple: multiple, value: value, default_value: default_value, input_value: input_value,
