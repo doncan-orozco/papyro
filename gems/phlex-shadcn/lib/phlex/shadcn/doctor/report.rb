@@ -9,7 +9,9 @@ module Phlex
       #
       # @api private
       class Report
-        LABELS = { pass: "PASS", warn: "WARN", fail: "FAIL" }.freeze
+        # The statuses a check can end with, in report order.
+        STATUSES = %i[pass warn fail].freeze
+        LABELS = STATUSES.to_h { |status| [ status, status.to_s.upcase ] }.freeze
         private_constant :LABELS
 
         # @return [Array<Result>]

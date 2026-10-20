@@ -17,6 +17,11 @@ module Phlex
             tailwind_rails = context.gem_version("tailwindcss-rails")
             return Result.failure(NAME, "tailwindcss-rails is not in the bundle", fix: "bundle add tailwindcss-rails && bin/rails tailwindcss:install") unless tailwind_rails
 
+            if tailwind_rails < MINIMUM
+              return Result.failure(NAME, "tailwindcss-rails #{tailwind_rails} found, the engine bundle needs tailwindcss-rails 4",
+                                    fix: "bundle update tailwindcss-rails (4.x) and move the entry file to @import \"tailwindcss\";")
+            end
+
             version = context.gem_version("tailwindcss-ruby") || tailwind_rails
             if version < MINIMUM
               return Result.failure(NAME, "Tailwind #{version} found, the components need Tailwind 4",

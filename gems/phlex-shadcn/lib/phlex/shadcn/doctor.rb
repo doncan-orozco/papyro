@@ -37,7 +37,7 @@ module Phlex
 
       # The check classes, in file name order (Dir sorts): `doctor/checks/foo_bar.rb` defines `Doctor::Checks::FooBar`.
       #
-      # @return [Array<Class>]
+      # @return [Array<Module>]
       def self.check_classes
         Dir[File.join(CHECKS_DIR, "*.rb")].map do |path|
           Checks.const_get(File.basename(path, ".rb").split("_").map(&:capitalize).join)

@@ -13,7 +13,7 @@ module Phlex
         # @param fix [String, nil] the one-line fix
         # @raise [ArgumentError] when the status is not one of the three
         def initialize(name:, status:, message:, fix: nil)
-          raise ArgumentError, "unknown status #{status.inspect} (expected :pass, :warn or :fail)" unless %i[pass warn fail].include?(status)
+          raise ArgumentError, "unknown status #{status.inspect} (expected :pass, :warn or :fail)" unless Report::STATUSES.include?(status)
 
           super
         end

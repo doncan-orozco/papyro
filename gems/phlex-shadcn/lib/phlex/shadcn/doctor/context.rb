@@ -26,7 +26,7 @@ module Phlex
         SOURCE = /^@source\s+["']([^"']+)["']/
 
         # The block `rails g phlex:shadcn:install` writes, from its start marker to its end marker.
-        MANAGED_BLOCK = %r{/\* phlex-shadcn:start.*?phlex-shadcn:end \*/}m
+        MANAGED_BLOCK = %r{/\* phlex-shadcn:start \(managed by rails g phlex:shadcn:install\) \*/.*?/\* phlex-shadcn:end \*/}m
 
         # @return [Pathname] the app root
         attr_reader :root
@@ -96,7 +96,19 @@ module Phlex
         def css_text
           return @css_text if defined?(@css_text)
 
-          @css_text = css_path.file? ? css_path.read(encoding: "UTF-8") : nil
+          @css_text = read(css_path)
+        end
+
+        # @param file [Pathname]
+        # @return [String, nil] the file's text, nil when it is missing
+        # @raise [Encoding::InvalidByteSequenceError] when the file is not valid UTF-8 (the doctor reports it as unreadable, not as a bug)
+        def read(file)
+          return nil unless file.file?
+
+          text = file.read(encoding: "UTF-8")
+          raise Encoding::InvalidByteSequenceError, "#{file} is not valid UTF-8" unless text.valid_encoding?
+
+          text
         end
 
         # @return [String, nil] the managed `phlex-shadcn:start` ... `phlex-shadcn:end` block of the entry file, nil when it is absent

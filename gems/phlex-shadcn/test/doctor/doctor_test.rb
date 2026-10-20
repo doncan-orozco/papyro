@@ -225,9 +225,26 @@ class DoctorTest < Minitest::Test
     crashed = result(run, "tailwind")
 
     assert_equal :fail, crashed.status
-    assert_includes crashed.message, "ArgumentError"
+    assert_includes crashed.message, "InvalidByteSequenceError"
+    assert_includes crashed.fix, "readable UTF-8"
     assert_equal Doctor.check_classes.size, run.results.size
     assert_check run, "javascript pipeline", :pass
+  end
+
+  def test_a_non_utf8_stimulus_file_asks_for_readable_files_not_a_bug_report
+    build_healthy_app
+    write("app/javascript/controllers/index.js", "\xFF\xFE eagerLoadControllersFrom(\"controllers\", application)".b)
+    crashed = result(report, "stimulus controllers")
+
+    assert_equal :fail, crashed.status
+    assert_includes crashed.fix, "readable UTF-8"
+  end
+
+  def test_tailwindcss_rails_3_with_a_tailwind_4_binary_fails
+    build_healthy_app
+    run = report(gems: GEMS.merge("tailwindcss-rails" => Gem::Version.new("3.3.0"), "tailwindcss-ruby" => Gem::Version.new("4.1.0")))
+
+    assert_check run, "tailwind", :fail, "tailwindcss-rails (4.x)"
   end
 
   def test_the_default_phlex_requirement_is_the_gemspecs

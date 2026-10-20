@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "stringio"
+require "tmpdir"
+require "fileutils"
 require_relative "engine_helper"
 
 # `rake phlex_shadcn:doctor` inside the booted engine test application: exit status and output format.
@@ -90,5 +92,34 @@ class EngineTest::DoctorTask < Minitest::Test
     context = Phlex::Shadcn::Doctor::Context.new(root: Rails.root)
 
     assert_equal filter.send(:hook?, ::Propshaft::LoadPath), context.propshaft_hook?
+  end
+
+  # The contract between the installer and the doctor: what the generator writes is what the doctor accepts.
+  def doctor_statuses_after_install(css)
+    require "generators/phlex/shadcn/install/install_generator"
+    Dir.mktmpdir("phlex-shadcn-doctor-roundtrip") do |dir|
+      FileUtils.mkdir_p(File.join(dir, File.dirname(css)))
+      File.write(File.join(dir, css), "@import \"tailwindcss\";\n")
+      args = css == Phlex::Shadcn::Doctor::Context::DEFAULT_CSS ? [] : [ "--css", css ]
+      capture_io { Phlex::Shadcn::Generators::InstallGenerator.start([ *args, "--theme-dir", "config/theme" ], destination_root: dir) }
+      context = Phlex::Shadcn::Doctor::Context.new(root: dir, css: css, theme_dir: "config/theme")
+      Phlex::Shadcn::Doctor.run(context).results.to_h { |result| [ result.name, result.status ] }
+    end
+  end
+
+  def test_the_doctor_accepts_what_the_generator_writes
+    statuses = doctor_statuses_after_install(Phlex::Shadcn::Doctor::Context::DEFAULT_CSS)
+
+    assert_equal :pass, statuses.fetch("source block")
+    assert_equal :pass, statuses.fetch("theme import")
+    assert_equal :pass, statuses.fetch("theme files")
+    assert_equal :warn, statuses.fetch("engine bundle") # imported, but only built by tailwindcss:build
+  end
+
+  def test_the_doctor_accepts_what_the_generator_writes_for_a_custom_entry_file
+    statuses = doctor_statuses_after_install("app/assets/stylesheets/app.css")
+
+    assert_equal :pass, statuses.fetch("source block")
+    assert_equal :pass, statuses.fetch("theme import")
   end
 end

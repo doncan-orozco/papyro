@@ -20,20 +20,17 @@ module Phlex
               return Result.failure(NAME, "stimulus-rails is not in the bundle", fix: "bundle add stimulus-rails && bin/rails stimulus:install")
             end
 
-            registered = FILES.find { |file| registers?(context.path(file)) }
+            registered = FILES.find { |file| registers?(context.read(context.path(file))) }
             return Result.passed(NAME, "#{registered} registers the controllers namespace, where the gem's shadcn--* controllers are") if registered
 
             Result.failure(NAME, %(no eagerLoadControllersFrom("controllers", application) (or lazyLoadControllersFrom) in #{FILES.join(' or ')}),
                            fix: %(add eagerLoadControllersFrom("controllers", application) to app/javascript/controllers/index.js))
           end
 
-          # @param file [Pathname]
-          # @return [Boolean] whether the file calls eager/lazyLoadControllersFrom("controllers", ...) outside a comment
-          def self.registers?(file)
-            return false unless file.file?
-
-            file.read(encoding: "UTF-8").gsub(COMMENT, "").match?(REGISTRATION)
-          end
+          # @param text [String, nil] the file's text, nil when it is missing
+          # @return [Boolean] whether the text calls eager/lazyLoadControllersFrom("controllers", ...) outside a comment
+          #   (a `//` inside a string literal on the same line also counts as a comment start: a known, rare false failure)
+          def self.registers?(text) = !text.nil? && text.gsub(COMMENT, "").match?(REGISTRATION)
         end
       end
     end
