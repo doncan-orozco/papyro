@@ -44,11 +44,13 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   next to the Radix `positioner`). Compared with Base UI in 151 parity scenarios; no new JavaScript dependency (no cmdk, fuse.js or
   Base UI).
 - Primitives `scorer` (fuzzy match and ranking, with its own unit tests) and `anchor_positioner`.
-- `bin/rails phlex_shadcn:doctor` diagnoses a host app's phlex-shadcn setup with one PASS/WARN/FAIL line and a one-line fix per check
+- `bin/rails phlex_shadcn:doctor` diagnoses a host app's phlex-shadcn setup with one PASS/WARN/FAIL line per check and a one-line fix under each warning or failure
   (asset pipeline, ejected components, engine bundle, JavaScript pipeline, Phlex versions, Propshaft stub filter, `@source` block,
   Stimulus controllers, Tailwind, theme files and theme import). `phlex_shadcn:doctor[json]` or `JSON=1` prints JSON for CI and
   agents, `CSS=path` points it at another Tailwind entry file, and it exits 1 when any check fails (warnings do not fail it).
-- `rails g phlex:shadcn:install --js auto|importmap|esbuild`: the generator detects the JavaScript pipeline (importmap by default). For
+- `rails g phlex:shadcn:install --js auto|importmap|esbuild`: the generator detects the JavaScript pipeline (`auto`, the default: a
+  `config/importmap.rb` means importmap, `package.json` with jsbundling-rails or an esbuild build script means esbuild; with neither it
+  writes no JavaScript). For
   jsbundling-rails/esbuild apps, which have no importmap, it copies the gem's controllers and primitives into `app/javascript` (managed
   copies with relative imports), writes `controllers/shadcn/index.js`, adds the import to `application.js` and adds `@floating-ui/dom`
   with yarn, pnpm, bun or npm; the doctor fails when a copy is stale (`dev/decisions/js-bundlers.md`).
