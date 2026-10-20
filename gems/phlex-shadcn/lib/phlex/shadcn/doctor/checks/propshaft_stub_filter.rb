@@ -14,12 +14,12 @@ module Phlex
           # @return [Result]
           def self.call(context)
             unless context.gem_version("propshaft") && context.gem_version("tailwindcss-rails")
-              return Result.pass(NAME, "not applicable (needs Propshaft and tailwindcss-rails)")
+              return Result.passed(NAME, "not applicable (needs Propshaft and tailwindcss-rails)")
             end
-            return Result.pass(NAME, "the Tailwind stubs are hidden from the served assets") if context.hide_tailwind_stubs?
+            return Result.passed(NAME, "the Tailwind stubs are hidden from the served assets") if context.hide_tailwind_stubs?
 
-            Result.warn(NAME, "config.phlex_shadcn.hide_tailwind_stubs is false: stylesheet_link_tag :app links stubs that 404",
-                        fix: "remove config.phlex_shadcn.hide_tailwind_stubs = false, or exclude app/assets/builds/tailwind yourself")
+            Result.warning(NAME, "config.phlex_shadcn.hide_tailwind_stubs is false: stylesheet_link_tag :app links stubs that 404",
+                           fix: "remove config.phlex_shadcn.hide_tailwind_stubs = false, or exclude app/assets/builds/tailwind yourself")
           end
         end
       end

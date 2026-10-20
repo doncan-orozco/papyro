@@ -14,15 +14,15 @@ module Phlex
           # @return [Result]
           def self.call(context)
             block = context.managed_block
-            return Result.fail(NAME, "no phlex-shadcn block in #{context.css_name}", fix: SourceBlock::INSTALL) unless block
+            return Result.failure(NAME, "no phlex-shadcn block in #{context.css_name}", fix: Context::INSTALL) unless block
             unless context.theme_dir
-              return Result.fail(NAME, "no theme directory configured", fix: "set config.phlex_shadcn.theme_dir in config/application.rb")
+              return Result.failure(NAME, "no theme directory configured", fix: Context::THEME_DIR_FIX)
             end
 
-            imported = block.scan(EngineBundle::IMPORT).flatten.map { |value| context.resolve_from_css(value) }
-            return Result.pass(NAME, "the block imports #{context.theme_dir.join('theme.css')}") if imported.include?(context.theme_dir.join("theme.css"))
+            imported = context.block_imports
+            return Result.passed(NAME, "the block imports #{context.theme_dir.join('theme.css')}") if imported.include?(context.theme_dir.join("theme.css"))
 
-            Result.fail(NAME, "the block does not import #{context.theme_dir.join('theme.css')}", fix: SourceBlock::INSTALL)
+            Result.failure(NAME, "the block does not import #{context.theme_dir.join('theme.css')}", fix: Context::INSTALL)
           end
         end
       end

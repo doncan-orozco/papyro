@@ -15,12 +15,12 @@ module Phlex
           # @return [Result]
           def self.call(context)
             if context.path("config/importmap.rb").file? && context.gem_version("importmap-rails")
-              Result.pass(NAME, "importmap-rails #{context.gem_version('importmap-rails')}: the gem's controllers and primitives are pinned by its engine")
+              Result.passed(NAME, "importmap-rails #{context.gem_version('importmap-rails')}: the gem's controllers and primitives are pinned by its engine")
             elsif context.path("package.json").file?
-              Result.warn(NAME, "package.json without importmap-rails: the gem's JavaScript is not wired automatically",
-                          fix: "use importmap-rails (bin/rails importmap:install) until bundler support lands")
+              Result.warning(NAME, "package.json without importmap-rails: the gem's JavaScript is not wired automatically",
+                             fix: "use importmap-rails (bin/rails importmap:install) until bundler support lands")
             else
-              Result.fail(NAME, "no JavaScript pipeline found (config/importmap.rb)", fix: "bin/rails importmap:install")
+              Result.failure(NAME, "no JavaScript pipeline found (config/importmap.rb)", fix: "bin/rails importmap:install")
             end
           end
         end

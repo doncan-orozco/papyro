@@ -14,18 +14,18 @@ module Phlex
           # @return [Result]
           def self.call(context)
             phlex = context.gem_version("phlex")
-            return Result.fail(NAME, "phlex is not in the bundle", fix: "bundle add phlex") unless phlex
+            return Result.failure(NAME, "phlex is not in the bundle", fix: "bundle add phlex") unless phlex
 
             requirement = context.phlex_requirement
             unless requirement.satisfied_by?(phlex)
-              return Result.fail(NAME, "phlex #{phlex} is outside the supported range (#{requirement})", fix: "bundle update phlex (#{requirement})")
+              return Result.failure(NAME, "phlex #{phlex} is outside the supported range (#{requirement})", fix: "bundle update phlex (#{requirement})")
             end
 
-            rails = context.gem_version("phlex-rails")
-            return Result.pass(NAME, "phlex #{phlex} (#{requirement}), no phlex-rails") unless rails
-            return Result.pass(NAME, "phlex #{phlex} (#{requirement}), phlex-rails #{rails}") if rails.segments.first == phlex.segments.first
+            phlex_rails = context.gem_version("phlex-rails")
+            return Result.passed(NAME, "phlex #{phlex} (#{requirement}), no phlex-rails") unless phlex_rails
+            return Result.passed(NAME, "phlex #{phlex} (#{requirement}), phlex-rails #{phlex_rails}") if phlex_rails.segments.first == phlex.segments.first
 
-            Result.fail(NAME, "phlex-rails #{rails} does not match phlex #{phlex}", fix: "bundle update phlex phlex-rails")
+            Result.failure(NAME, "phlex-rails #{phlex_rails} does not match phlex #{phlex}", fix: "bundle update phlex phlex-rails")
           end
         end
       end

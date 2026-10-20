@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "json"
-
 module Phlex
   module Shadcn
     # Diagnoses a host app's phlex-shadcn setup (`bin/rails phlex_shadcn:doctor`): one pass / warn / fail line, with a one-line fix,
@@ -19,15 +17,29 @@ module Phlex
       # @param context [Context]
       # @return [Report]
       def self.run(context)
-        Report.new(check_classes.map { |check| check.call(context) })
+        Report.new(check_classes.map { |check| run_check(check, context) })
       end
+
+      # One check; a check that raises (an unreadable or non-UTF-8 file, say) is a failed result naming the exception, so the report
+      # still covers every other check.
+      #
+      # @param check [Class]
+      # @param context [Context]
+      # @return [Result]
+      def self.run_check(check, context)
+        check.call(context)
+      rescue StandardError => e
+        name = check.const_defined?(:NAME) ? check::NAME : check.name.split("::").last
+        Result.failure(name, "the check raised #{e.class}: #{e.message}", fix: "fix the file the check reads, then run it again")
+      end
+      private_class_method :run_check
 
       # The check classes, in file name order (Dir sorts): `doctor/checks/foo_bar.rb` defines `Doctor::Checks::FooBar`.
       #
       # @return [Array<Class>]
       def self.check_classes
         Dir[File.join(CHECKS_DIR, "*.rb")].map do |path|
-          Checks.const_get(File.basename(path, ".rb").split("_").map(&:capitalize).join)
+          Checks.const_get(Loader.inflector.camelize(File.basename(path, ".rb"), path))
         end
       end
     end

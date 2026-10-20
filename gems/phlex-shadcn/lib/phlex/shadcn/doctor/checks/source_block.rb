@@ -10,22 +10,20 @@ module Phlex
         # @api private
         module SourceBlock
           NAME = "source block"
-          INSTALL = "bin/rails g phlex:shadcn:install"
-          SOURCE = /^@source\s+["']([^"']+)["']/
 
           # @param context [Context]
           # @return [Result]
           def self.call(context)
-            return Result.fail(NAME, "#{context.css_name} not found", fix: "bin/rails tailwindcss:install, then #{INSTALL}") unless context.css_text
+            return Result.failure(NAME, "#{context.css_name} not found", fix: "bin/rails tailwindcss:install, then #{Context::INSTALL}") unless context.css_text
 
             block = context.managed_block
-            return Result.fail(NAME, "no phlex-shadcn block in #{context.css_name}", fix: INSTALL) unless block
+            return Result.failure(NAME, "no phlex-shadcn block in #{context.css_name}", fix: Context::INSTALL) unless block
 
-            sources = block.scan(SOURCE).flatten.map { |value| context.resolve_from_css(value) }
-            return Result.fail(NAME, "the block has no @source line", fix: INSTALL) if sources.empty?
-            return Result.pass(NAME, "@source points at the gem's lib") if sources.include?(context.gem_root.join("lib"))
+            sources = context.block_sources
+            return Result.failure(NAME, "the block has no @source line", fix: Context::INSTALL) if sources.empty?
+            return Result.passed(NAME, "@source points at the gem's lib") if sources.include?(context.gem_root.join("lib"))
 
-            Result.warn(NAME, "@source does not point at #{context.gem_root.join('lib')} (the gem moved?)", fix: INSTALL)
+            Result.warning(NAME, "@source does not point at #{context.gem_root.join('lib')} (the gem moved?)", fix: Context::INSTALL)
           end
         end
       end

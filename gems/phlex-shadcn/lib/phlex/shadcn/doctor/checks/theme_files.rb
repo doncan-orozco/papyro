@@ -14,11 +14,14 @@ module Phlex
           # @return [Result]
           def self.call(context)
             dir = context.theme_dir
-            return Result.fail(NAME, "no theme directory configured", fix: "set config.phlex_shadcn.theme_dir in config/application.rb") unless dir
-            return Result.fail(NAME, "theme.css not found in #{dir}", fix: SourceBlock::INSTALL) unless dir.join("theme.css").file?
-            return Result.warn(NAME, "#{dir}/presets is missing", fix: "#{SourceBlock::INSTALL} (copies the presets that are not there)") unless dir.join("presets").directory?
+            return Result.failure(NAME, "no theme directory configured", fix: Context::THEME_DIR_FIX) unless dir
+            return Result.failure(NAME, "theme.css not found in #{dir}", fix: Context::INSTALL) unless dir.join("theme.css").file?
+            unless dir.join("presets").directory?
+              return Result.warning(NAME, "#{dir}/presets is missing",
+                                    fix: "#{Context::INSTALL} (copies the presets that are not there)")
+            end
 
-            Result.pass(NAME, "theme.css and presets/ in #{dir}")
+            Result.passed(NAME, "theme.css and presets/ in #{dir}")
           end
         end
       end

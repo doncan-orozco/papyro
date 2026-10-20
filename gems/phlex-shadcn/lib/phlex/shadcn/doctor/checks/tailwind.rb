@@ -14,22 +14,22 @@ module Phlex
           # @param context [Context]
           # @return [Result]
           def self.call(context)
-            rails = context.gem_version("tailwindcss-rails")
-            return Result.fail(NAME, "tailwindcss-rails is not in the bundle", fix: "bundle add tailwindcss-rails && bin/rails tailwindcss:install") unless rails
+            tailwind_rails = context.gem_version("tailwindcss-rails")
+            return Result.failure(NAME, "tailwindcss-rails is not in the bundle", fix: "bundle add tailwindcss-rails && bin/rails tailwindcss:install") unless tailwind_rails
 
-            version = context.gem_version("tailwindcss-ruby") || rails
+            version = context.gem_version("tailwindcss-ruby") || tailwind_rails
             if version < MINIMUM
-              return Result.fail(NAME, "Tailwind #{version} found, the components need Tailwind 4",
-                                 fix: "bundle update tailwindcss-rails (4.x) and move the entry file to @import \"tailwindcss\";")
+              return Result.failure(NAME, "Tailwind #{version} found, the components need Tailwind 4",
+                                    fix: "bundle update tailwindcss-rails (4.x) and move the entry file to @import \"tailwindcss\";")
             end
 
             css = context.css_text
-            return Result.fail(NAME, "#{context.css_name} not found", fix: "bin/rails tailwindcss:install") unless css
+            return Result.failure(NAME, "#{context.css_name} not found", fix: "bin/rails tailwindcss:install") unless css
             unless css.match?(/^@import\s+["']tailwindcss["']/)
-              return Result.fail(NAME, %(#{context.css_name} has no @import "tailwindcss"), fix: %(start #{context.css_name} with @import "tailwindcss";))
+              return Result.failure(NAME, %(#{context.css_name} has no @import "tailwindcss"), fix: %(start #{context.css_name} with @import "tailwindcss";))
             end
 
-            Result.pass(NAME, "tailwindcss-rails #{rails}, Tailwind #{version}")
+            Result.passed(NAME, "tailwindcss-rails #{tailwind_rails}, Tailwind #{version}")
           end
         end
       end

@@ -9,21 +9,31 @@ module Phlex
         # @api private
         module Stimulus
           NAME = "stimulus controllers"
-          REGISTRATION = /eagerLoadControllersFrom\(\s*["']controllers["']/
+          REGISTRATION = /(?:eager|lazy)LoadControllersFrom\(\s*["']controllers["']/
+          BLOCK_COMMENT = %r{/\*.*?\*/}m
+          LINE_COMMENT = %r{(?:^|\s)//.*$}
           FILES = %w[app/javascript/controllers/index.js app/javascript/application.js].freeze
 
           # @param context [Context]
           # @return [Result]
           def self.call(context)
             unless context.gem_version("stimulus-rails")
-              return Result.fail(NAME, "stimulus-rails is not in the bundle", fix: "bundle add stimulus-rails && bin/rails stimulus:install")
+              return Result.failure(NAME, "stimulus-rails is not in the bundle", fix: "bundle add stimulus-rails && bin/rails stimulus:install")
             end
 
-            registered = FILES.any? { |file| context.path(file).file? && context.path(file).read.match?(REGISTRATION) }
-            return Result.pass(NAME, %(eagerLoadControllersFrom("controllers") registers the gem's shadcn--* controllers)) if registered
+            registered = FILES.find { |file| registers?(context.path(file)) }
+            return Result.passed(NAME, "#{registered} registers the controllers namespace, where the gem's shadcn--* controllers are") if registered
 
-            Result.fail(NAME, %(no eagerLoadControllersFrom("controllers", application) in #{FILES.join(' or ')}),
-                        fix: %(add eagerLoadControllersFrom("controllers", application) to app/javascript/controllers/index.js))
+            Result.failure(NAME, %(no eagerLoadControllersFrom("controllers", application) (or lazyLoadControllersFrom) in #{FILES.join(' or ')}),
+                           fix: %(add eagerLoadControllersFrom("controllers", application) to app/javascript/controllers/index.js))
+          end
+
+          # @param file [Pathname]
+          # @return [Boolean] whether the file calls eager/lazyLoadControllersFrom("controllers", ...) outside a comment
+          def self.registers?(file)
+            return false unless file.file?
+
+            file.read.gsub(BLOCK_COMMENT, "").gsub(LINE_COMMENT, "").match?(REGISTRATION)
           end
         end
       end

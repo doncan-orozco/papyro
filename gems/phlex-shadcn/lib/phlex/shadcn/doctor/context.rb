@@ -15,6 +15,15 @@ module Phlex
         # The supported Phlex range when the gem's own specification is not loaded.
         DEFAULT_PHLEX_REQUIREMENT = "~> 2.3"
 
+        # The installer, which writes the managed block and the theme files: the one-line fix of most failures.
+        INSTALL = "bin/rails g phlex:shadcn:install"
+        # The fix when the app has no theme directory configured.
+        THEME_DIR_FIX = "set config.phlex_shadcn.theme_dir in config/application.rb"
+        # An `@import "..."` line of the entry file.
+        IMPORT = /^@import\s+["']([^"']+)["']/
+        # An `@source "..."` line of the entry file.
+        SOURCE = /^@source\s+["']([^"']+)["']/
+
         # The block `rails g phlex:shadcn:install` writes, from its start marker to its end marker.
         MANAGED_BLOCK = %r{/\* phlex-shadcn:start.*?phlex-shadcn:end \*/}m
 
@@ -69,6 +78,12 @@ module Phlex
 
         # @return [String, nil] the managed `phlex-shadcn:start` ... `phlex-shadcn:end` block of the entry file, nil when it is absent
         def managed_block = css_text&.[](MANAGED_BLOCK)
+
+        # @return [Array<Pathname>] the files the managed block imports, relative to the entry file (empty without a block)
+        def block_imports = managed_block.to_s.scan(IMPORT).flatten.map { |value| resolve_from_css(value) }
+
+        # @return [Array<Pathname>] the directories the managed block's `@source` lines name (empty without a block)
+        def block_sources = managed_block.to_s.scan(SOURCE).flatten.map { |value| resolve_from_css(value) }
 
         # @param value [String] a path as written in the entry file's `@source` or `@import`
         # @return [Pathname] the file or directory it names, relative to the entry file

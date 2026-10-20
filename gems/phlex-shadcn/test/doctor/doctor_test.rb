@@ -144,6 +144,109 @@ class DoctorTest < Minitest::Test
     assert_check report, "stimulus controllers", :fail, "eagerLoadControllersFrom"
   end
 
+  def test_lazy_loaded_controllers_pass
+    build_healthy_app
+    write("app/javascript/controllers/index.js",
+          %(import { lazyLoadControllersFrom } from "@hotwired/stimulus-loading"\nlazyLoadControllersFrom("controllers", application)))
+
+    assert_check report, "stimulus controllers", :pass
+  end
+
+  def test_commented_out_registrations_do_not_count
+    build_healthy_app
+    write("app/javascript/controllers/index.js", <<~JS)
+      // eagerLoadControllersFrom("controllers", application)
+      /* lazyLoadControllersFrom("controllers", application) */
+      /*
+        eagerLoadControllersFrom("controllers", application)
+      */
+    JS
+
+    assert_check report, "stimulus controllers", :fail, "eagerLoadControllersFrom"
+  end
+
+  def test_a_registration_after_a_trailing_comment_still_counts
+    build_healthy_app
+    write("app/javascript/controllers/index.js", %(import "x" // setup\neagerLoadControllersFrom("controllers", application)\n))
+
+    assert_check report, "stimulus controllers", :pass
+  end
+
+  def test_missing_stimulus_rails_fails
+    build_healthy_app
+
+    assert_check report(gems: GEMS.except("stimulus-rails")), "stimulus controllers", :fail, "stimulus:install"
+  end
+
+  def test_a_missing_entry_file_fails_the_source_block_and_tailwind
+    build_healthy_app
+    FileUtils.rm_f(@root.join("app/assets/tailwind/application.css"))
+    run = report
+
+    assert_check run, "source block", :fail, "tailwindcss:install"
+    assert_check run, "tailwind", :fail, "tailwindcss:install"
+  end
+
+  def test_a_block_without_a_source_line_fails
+    build_healthy_app
+    write("app/assets/tailwind/application.css",
+          %(@import "tailwindcss";\n/* phlex-shadcn:start */\n@import "../builds/tailwind/phlex-shadcn";\n/* phlex-shadcn:end */\n))
+
+    assert_check report, "source block", :fail, "phlex:shadcn:install"
+  end
+
+  def test_a_block_that_imports_neither_the_bundle_nor_the_theme_fails
+    build_healthy_app
+    write("app/assets/tailwind/application.css", format(CSS, source: GEM_ROOT.join("lib")).gsub(/^@import "\.[^\n]*\n/, ""))
+    run = report
+
+    assert_check run, "engine bundle", :fail, "phlex:shadcn:install"
+    assert_check run, "theme import", :fail, "phlex:shadcn:install"
+  end
+
+  def test_theme_css_missing_from_an_existing_directory_fails
+    build_healthy_app
+    FileUtils.rm_f(@root.join("app/assets/tailwind/theme/theme.css"))
+
+    assert_check report, "theme files", :fail, "phlex:shadcn:install"
+  end
+
+  def test_missing_phlex_fails_and_phlex_without_phlex_rails_passes
+    build_healthy_app
+
+    assert_check report(gems: GEMS.except("phlex")), "phlex versions", :fail, "bundle add phlex"
+    assert_check report(gems: GEMS.except("phlex-rails")), "phlex versions", :pass
+  end
+
+  def test_a_check_that_raises_is_a_failed_result_and_the_others_still_run
+    build_healthy_app
+    write("app/assets/tailwind/application.css", "@import \"tailwindcss\";\n/* phlex-shadcn:start */\n\xFF\xFE\n/* phlex-shadcn:end */\n".b)
+    run = report
+    crashed = result(run, "tailwind")
+
+    assert_equal :fail, crashed.status
+    assert_includes crashed.message, "ArgumentError"
+    assert_equal Doctor.check_classes.size, run.results.size
+    assert_check run, "javascript pipeline", :pass
+  end
+
+  def test_the_default_phlex_requirement_is_the_gemspecs
+    spec = Gem::Specification.load(GEM_ROOT.join("phlex-shadcn.gemspec").to_s)
+    declared = spec.dependencies.find { |dep| dep.name == "phlex" }.requirement
+
+    assert_equal declared, Gem::Requirement.new(Doctor::Context::DEFAULT_PHLEX_REQUIREMENT)
+  end
+
+  def test_the_text_report_lists_a_fix_under_each_failure_and_a_summary
+    build_healthy_app
+    write("app/assets/tailwind/application.css", %(@import "tailwindcss";\n))
+    text = report.to_text
+
+    assert_includes text, "[FAIL] source block"
+    assert_includes text, "       fix: bin/rails g phlex:shadcn:install"
+    assert_match(/\d+ passed, \d+ warnings, \d+ failed\z/, text)
+  end
+
   def test_the_javascript_pipeline_is_checked
     build_healthy_app
     FileUtils.rm_f(@root.join("config/importmap.rb"))

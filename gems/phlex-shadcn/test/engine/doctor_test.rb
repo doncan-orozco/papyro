@@ -52,4 +52,14 @@ class EngineTest::DoctorTask < Minitest::Test
     refute json["ok"]
     assert_includes json["checks"].map { |check| check["name"] }, "tailwind"
   end
+
+  def test_json_output_from_the_environment_variable
+    ENV["JSON"] = "1"
+    status, out = run_task
+
+    assert_equal 1, status
+    refute JSON.parse(out)["ok"]
+  ensure
+    ENV.delete("JSON")
+  end
 end
