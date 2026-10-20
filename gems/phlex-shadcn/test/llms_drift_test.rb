@@ -44,7 +44,7 @@ class LlmsDriftTest < Minitest::Test
     end
   RUBY
   SIGNATURE_EXPECTED = '(neg_int: -4, neg_float: -1.5, array: [ 1, :two ], hash: { a: 1, "b" => 2 }, regexp: /ab+c/i, string: "s", ' \
-                       'symbol: :sym, words: %w[a b], call: Foo.bar(1), last: -4)'
+                       "symbol: :sym, words: %w[a b], call: Foo.bar(1), last: -4)"
 
   def test_signature_renders_every_default_literal_identically_on_every_ruby
     require "yard"
