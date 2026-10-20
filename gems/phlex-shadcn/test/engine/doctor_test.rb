@@ -62,4 +62,26 @@ class EngineTest::DoctorTask < Minitest::Test
   ensure
     ENV.delete("JSON")
   end
+
+  def test_a_report_without_failures_exits_zero
+    report = Phlex::Shadcn::Doctor::Report.new([ Phlex::Shadcn::Doctor::Result.passed("x", "ok") ])
+    original = Phlex::Shadcn::Doctor.method(:run)
+    Phlex::Shadcn::Doctor.define_singleton_method(:run) { |_context| report }
+    status, out = run_task
+
+    assert_equal 0, status
+    assert_includes out, "1 passed"
+  ensure
+    Phlex::Shadcn::Doctor.define_singleton_method(:run, original)
+  end
+
+  def test_the_css_environment_variable_names_the_entry_file
+    ENV["CSS"] = "app/assets/stylesheets/custom.css"
+    _status, out = run_task
+
+    assert_includes out, "app/assets/stylesheets/custom.css not found"
+    assert_includes out, "--css app/assets/stylesheets/custom.css"
+  ensure
+    ENV.delete("CSS")
+  end
 end

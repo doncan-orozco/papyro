@@ -43,16 +43,34 @@ module Phlex
         # @param gem_root [Pathname] the root of the gem
         # @param hide_tailwind_stubs [Boolean] `config.phlex_shadcn.hide_tailwind_stubs`
         # @param phlex_requirement [String, Gem::Requirement, nil] the supported Phlex range; the gem's dependency by default
+        # @param propshaft_hook [Boolean, nil] whether Propshaft has the private hook the stub filter wraps; probed from the loaded
+        #   Propshaft (or, without it, its version) by default
         def initialize(root:, theme_dir: nil, css: DEFAULT_CSS, gems: nil, gem_root: Shadcn.root, hide_tailwind_stubs: true,
-                       phlex_requirement: nil)
+                       phlex_requirement: nil, propshaft_hook: nil)
           @root = Pathname.new(root)
-          @theme_dir = theme_dir && @root.join(theme_dir.to_s)
+          @theme_dir = theme_dir && File.expand_path(theme_dir.to_s, @root).then { |dir| Pathname.new(dir) }
           @css = css
           @gems = gems || Gem.loaded_specs.transform_values(&:version)
           @gem_root = Pathname.new(gem_root)
           @hide_tailwind_stubs = hide_tailwind_stubs
           @phlex_requirement = phlex_requirement
+          @propshaft_hook = propshaft_hook
         end
+
+        # @return [Boolean] whether Propshaft has the private one-argument hook the stub filter wraps (the filter's own probe, read-only:
+        #   the supported Propshaft is 1.2 and 1.3); false when the filter cannot install, so the stubs stay linked
+        def propshaft_hook?
+          return @propshaft_hook unless @propshaft_hook.nil?
+
+          if defined?(::Propshaft::LoadPath)
+            ::Propshaft::LoadPath.private_method_defined?(:without_dotfiles) && ::Propshaft::LoadPath.instance_method(:without_dotfiles).arity == 1
+          else
+            Gem::Requirement.new(">= 1.2", "< 1.4").satisfied_by?(gem_version("propshaft") || Gem::Version.new("0"))
+          end
+        end
+
+        # @return [String] the installer command for this app's Tailwind entry file (`--css` when it is not the default)
+        def install_command = @css == DEFAULT_CSS ? INSTALL : "#{INSTALL} --css #{@css}"
 
         # @return [Boolean] `config.phlex_shadcn.hide_tailwind_stubs`
         def hide_tailwind_stubs? = @hide_tailwind_stubs
@@ -74,20 +92,25 @@ module Phlex
         def css_name = @css
 
         # @return [String, nil] the Tailwind entry file's text, nil when it is missing
-        def css_text = css_path.file? ? css_path.read : nil
+        def css_text
+          return @css_text if defined?(@css_text)
+
+          @css_text = css_path.file? ? css_path.read(encoding: "UTF-8") : nil
+        end
 
         # @return [String, nil] the managed `phlex-shadcn:start` ... `phlex-shadcn:end` block of the entry file, nil when it is absent
         def managed_block = css_text&.[](MANAGED_BLOCK)
 
-        # @return [Array<Pathname>] the files the managed block imports, relative to the entry file (empty without a block)
+        # @return [Array<Pathname>] the files the managed block imports, relative to the entry file, without the `.css` suffix (empty
+        #   without a block)
         def block_imports = managed_block.to_s.scan(IMPORT).flatten.map { |value| resolve_from_css(value) }
 
         # @return [Array<Pathname>] the directories the managed block's `@source` lines name (empty without a block)
         def block_sources = managed_block.to_s.scan(SOURCE).flatten.map { |value| resolve_from_css(value) }
 
         # @param value [String] a path as written in the entry file's `@source` or `@import`
-        # @return [Pathname] the file or directory it names, relative to the entry file
-        def resolve_from_css(value) = Pathname.new(File.expand_path(value, css_path.dirname))
+        # @return [Pathname] the file or directory it names, relative to the entry file, without a `.css` suffix
+        def resolve_from_css(value) = Pathname.new(File.expand_path(value.delete_suffix(".css"), css_path.dirname))
 
         # @param relative [String] a path relative to the app root
         # @return [Pathname]

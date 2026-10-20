@@ -10,8 +10,7 @@ module Phlex
         module Stimulus
           NAME = "stimulus controllers"
           REGISTRATION = /(?:eager|lazy)LoadControllersFrom\(\s*["']controllers["']/
-          BLOCK_COMMENT = %r{/\*.*?\*/}m
-          LINE_COMMENT = %r{(?:^|\s)//.*$}
+          COMMENT = %r{/\*.*?\*/|//[^\n]*}m
           FILES = %w[app/javascript/controllers/index.js app/javascript/application.js].freeze
 
           # @param context [Context]
@@ -33,7 +32,7 @@ module Phlex
           def self.registers?(file)
             return false unless file.file?
 
-            file.read.gsub(BLOCK_COMMENT, "").gsub(LINE_COMMENT, "").match?(REGISTRATION)
+            file.read(encoding: "UTF-8").gsub(COMMENT, "").match?(REGISTRATION)
           end
         end
       end

@@ -14,16 +14,16 @@ module Phlex
           # @param context [Context]
           # @return [Result]
           def self.call(context)
-            return Result.failure(NAME, "#{context.css_name} not found", fix: "bin/rails tailwindcss:install, then #{Context::INSTALL}") unless context.css_text
+            return Result.failure(NAME, "#{context.css_name} not found", fix: "bin/rails tailwindcss:install, then #{context.install_command}") unless context.css_text
 
             block = context.managed_block
-            return Result.failure(NAME, "no phlex-shadcn block in #{context.css_name}", fix: Context::INSTALL) unless block
+            return Result.failure(NAME, "no phlex-shadcn block in #{context.css_name}", fix: context.install_command) unless block
 
             sources = context.block_sources
-            return Result.failure(NAME, "the block has no @source line", fix: Context::INSTALL) if sources.empty?
+            return Result.failure(NAME, "the block has no @source line", fix: context.install_command) if sources.empty?
             return Result.passed(NAME, "@source points at the gem's lib") if sources.include?(context.gem_root.join("lib"))
 
-            Result.warning(NAME, "@source does not point at #{context.gem_root.join('lib')} (the gem moved?)", fix: Context::INSTALL)
+            Result.warning(NAME, "@source does not point at #{context.gem_root.join('lib')} (the gem moved?)", fix: context.install_command)
           end
         end
       end

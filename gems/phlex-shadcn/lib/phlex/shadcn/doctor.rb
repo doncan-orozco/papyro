@@ -3,7 +3,7 @@
 module Phlex
   module Shadcn
     # Diagnoses a host app's phlex-shadcn setup (`bin/rails phlex_shadcn:doctor`): one pass / warn / fail line, with a one-line fix,
-    # for each prerequisite. Every check is one file under `doctor/checks/` (a class with `.call(context)` returning a {Result}),
+    # for each prerequisite. Every check is one file under `doctor/checks/` (a module with `.call(context)` returning a {Result}),
     # discovered by file name, so a new check is a new file and no shared file changes. The doctor reads files and gem versions only
     # and never references Rails, so it loads without it; the rake task builds the {Context} from the running app.
     #
@@ -23,14 +23,14 @@ module Phlex
       # One check; a check that raises (an unreadable or non-UTF-8 file, say) is a failed result naming the exception, so the report
       # still covers every other check.
       #
-      # @param check [Class]
+      # @param check [Module]
       # @param context [Context]
       # @return [Result]
       def self.run_check(check, context)
         check.call(context)
       rescue StandardError => e
-        name = check.const_defined?(:NAME) ? check::NAME : check.name.split("::").last
-        Result.failure(name, "the check raised #{e.class}: #{e.message}", fix: "fix the file the check reads, then run it again")
+        name = check.const_defined?(:NAME, false) ? check::NAME : check.name.split("::").last
+        Result.failure(name, "the check raised #{e.class}: #{e.message}", fix: "make the files the check reads readable UTF-8, then run it again (#{e.backtrace&.first})")
       end
       private_class_method :run_check
 

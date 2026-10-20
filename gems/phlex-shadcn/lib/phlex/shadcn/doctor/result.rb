@@ -11,7 +11,12 @@ module Phlex
         # @param status [Symbol] `:pass`, `:warn` or `:fail`
         # @param message [String] what was found
         # @param fix [String, nil] the one-line fix
-        def initialize(name:, status:, message:, fix: nil) = super
+        # @raise [ArgumentError] when the status is not one of the three
+        def initialize(name:, status:, message:, fix: nil)
+          raise ArgumentError, "unknown status #{status.inspect} (expected :pass, :warn or :fail)" unless %i[pass warn fail].include?(status)
+
+          super
+        end
 
         # @param name [String] the check, e.g. "tailwind"
         # @param message [String] what was found
