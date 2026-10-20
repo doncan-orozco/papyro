@@ -190,9 +190,10 @@ class DoctorTest < Minitest::Test
   def test_a_block_without_a_source_line_fails
     build_healthy_app
     write("app/assets/tailwind/application.css",
-          %(@import "tailwindcss";\n/* phlex-shadcn:start */\n@import "../builds/tailwind/phlex-shadcn";\n/* phlex-shadcn:end */\n))
+          %(@import "tailwindcss";\n/* phlex-shadcn:start (managed by rails g phlex:shadcn:install) */\n@import "../builds/tailwind/phlex-shadcn";\n/* phlex-shadcn:end */\n))
 
     assert_check report, "source block", :fail, "phlex:shadcn:install"
+    assert_includes result(report, "source block").message, "no @source line"
   end
 
   def test_a_block_that_imports_neither_the_bundle_nor_the_theme_fails
@@ -220,7 +221,7 @@ class DoctorTest < Minitest::Test
 
   def test_a_check_that_raises_is_a_failed_result_and_the_others_still_run
     build_healthy_app
-    write("app/assets/tailwind/application.css", "@import \"tailwindcss\";\n/* phlex-shadcn:start */\n\xFF\xFE\n/* phlex-shadcn:end */\n".b)
+    write("app/assets/tailwind/application.css", "@import \"tailwindcss\";\n/* phlex-shadcn:start (managed by rails g phlex:shadcn:install) */\n\xFF\xFE\n/* phlex-shadcn:end */\n".b)
     run = report
     crashed = result(run, "tailwind")
 
