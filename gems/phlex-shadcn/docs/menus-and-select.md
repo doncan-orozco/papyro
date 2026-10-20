@@ -168,7 +168,7 @@ render Phlex::Shadcn::Command.new do |command|
   end
 end
 
-# the same list in a dialog (Cmd+K is yours to bind; the dialog opens with open: true or a Dialog trigger)
+# the same list in a dialog (Cmd+K is yours to bind; the dialog opens through the controlled open: option)
 render Phlex::Shadcn::Command::Dialog.new(open: true) { |command| ... }
 
 # combobox, submitted in a form as framework=next.js

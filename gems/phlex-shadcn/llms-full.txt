@@ -409,7 +409,7 @@ Constructor: `Phlex::Shadcn::Combobox.new(items: nil, multiple: false, value: ni
 - `highlight_item_on_hover` [Boolean] 
 - `loop_focus` [Boolean] wrap the keyboard highlight around the ends
 - `open_on_input_click` [Boolean] open the popup when the input is pressed
-- `modal` [Boolean] backdrop, scroll lock and focus trap while open
+- `modal` [Boolean] backdrop and page scroll lock while open; focus is not trapped (recorded deviation)
 - `limit` [Integer] maximum number of rendered matches (-1: all)
 - `submit_on_item_click` [Boolean] submit the form after an item press
 - `filter` ["fuzzy", "contains", nil] "fuzzy" ranks with the scorer primitive, "contains" is Base UI's collator substring match, nil disables filtering

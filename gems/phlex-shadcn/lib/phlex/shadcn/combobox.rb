@@ -105,7 +105,7 @@ class Phlex::Shadcn::Combobox < Phlex::Shadcn::Base
   # @param highlight_item_on_hover [Boolean]
   # @param loop_focus [Boolean] wrap the keyboard highlight around the ends
   # @param open_on_input_click [Boolean] open the popup when the input is pressed
-  # @param modal [Boolean] backdrop, scroll lock and focus trap while open
+  # @param modal [Boolean] backdrop and page scroll lock while open; focus is not trapped (recorded deviation)
   # @param limit [Integer] maximum number of rendered matches (-1: all)
   # @param submit_on_item_click [Boolean] submit the form after an item press
   # @param filter ["fuzzy", "contains", nil] "fuzzy" ranks with the scorer primitive, "contains" is Base UI's collator substring

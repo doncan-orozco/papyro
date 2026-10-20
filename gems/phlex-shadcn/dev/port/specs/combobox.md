@@ -31,7 +31,7 @@ Phlex::Shadcn::Combobox.new(                 # Base UI Combobox.Root (rootw:L12-
   auto_highlight: false,     # false | true (highlight first match while typing) | "always" (root:L211-216)
   keep_highlight: false,     # Base UI keepHighlight (nav resetOnPointerLeave = !keep_highlight, root:L1079)
   highlight_item_on_hover: true, loop_focus: true, open_on_input_click: true,
-  modal: false,              # true: backdrop, scroll lock, focus trap (pos:L78, L102-105)
+  modal: false,              # true: backdrop and page scroll lock; focus is not trapped (recorded deviation) (pos:L78, L102-105)
   limit: -1,                 # max rendered matches (root:L276-322)
   submit_on_item_click: false,                  # requestSubmit() on the form after an item press (item:L113-116)
   filter: "fuzzy",           # "fuzzy" (primitives/scorer.js) | "contains" (Base UI Intl.Collator contains, filter:L9-33) | nil (no filtering = Base UI filter={null}, root:L224-226). See Third-party
@@ -144,7 +144,7 @@ Server: host, Input/Chips/Trigger with rest attributes, Value text/chips, hidden
 
 ## Behavior
 
-Primitives composed: `portal`, `template_mount`, `presence`, `dismissable_layer`, `focus_guards` (popup-input mode), `focus_scope` (modal only), `scroll_lock` (modal only), `hide_others` (aria-hidden + inert marker, see above), `positioner` (Base UI anchor positioning, below), `collection`, `typeahead` (closed trigger), `ids`, `form_bubble_input`, `scorer` (filter).
+Primitives composed: `template_mount`, `presence`, `dismissable_layer`, `scroll_lock` (modal only), `hide_others` (aria-hidden only: the `data-aria-hidden` marker is not added, Base UI has none), `anchor_positioner` (Base UI anchor positioning, below), `typeahead` (closed trigger), `ids`, `scorer` (filter). The controller itself creates the portal container (`body > div[data-base-ui-portal]`) and the Base UI focus guards.
 
 ### States
 `closed` <-> `open` (mounted while open and during the exit animation: `data-open`/`data-closed`, `data-starting-style` on enter, `data-ending-style` on exit; unmount after `animationend`/`transitionend`, same frame without animation; R6). Selection: none | value | values. Highlight: none | index into the visible list (virtual focus: DOM focus stays on the input, `aria-activedescendant` points at the item, nav:L493-497). Query: the trimmed input text; in single mode the query is ignored while it equals the selected label and was not edited since opening (root:L259-262).
@@ -190,10 +190,10 @@ Query from the input; `items:` filtered by `filter:` (see Third-party) with `lim
 The input keeps DOM focus the whole time (virtual focus). Input outside the popup: focus manager "modal" but untrapped (Tab leaves and closes), no initial focus, no return focus (popup:L95-103, ffm:L139-145). Input inside the popup: on open focus the inner input (touch: the popup), focus guards, on close return focus to the Trigger.
 
 ### Positioning (anchor:L50-330; NOT the Radix popper stack)
-Anchor = `anchor:` element, else the Trigger (input inside the popup), else the input element (shadcn uses its own InputGroup, so the anchor is the `<input>`, pos:L59). Placement from side/align (`inline-start`/`inline-end` resolve by direction, data-side keeps the logical name). Middleware: `offset({ mainAxis: side_offset, crossAxis: align_offset, alignmentAxis: align_offset })` -> for align center: `shift` then `flip`, otherwise `flip` then `shift` -> `size` (writes `--available-width/height` px and the device-pixel-snapped `--anchor-width/height`) -> `arrow` (fake element) -> `transformOrigin` (writes `--transform-origin`: aligned edge `0%`/`100%` or arrow center on the cross axis, `-side_offset px` / `calc(100% + side_offset px)` on the side axis) -> `hide` (`data-anchor-hidden`). collisionPadding 5 (flip padding 5 + 1 + 1 bias toward the preferred side), collisionBoundary clipping ancestors, flip `fallbackAxisSide: "none"` (dropdown collision avoidance: flips top/bottom only, pos:L41), `lazyFlip`: the first placed side is kept while the list resizes during the same open. strategy `absolute` (fixed + opacity 0 until positioned), `autoUpdate` (ancestor scroll, element resize, layout shift). `positioner.js` today implements the Radix stack (`--radix-popper-*`, wrapper div): it needs a Base UI mode (these vars on the positioner element itself, this middleware order, no wrapper) before this component can pass G2/G3 (infra prerequisite).
+Anchor = `anchor:` element, else the Trigger (input inside the popup), else the input element (shadcn uses its own InputGroup, so the anchor is the `<input>`, pos:L59). Placement from side/align (`inline-start`/`inline-end` resolve by direction, data-side keeps the logical name). Middleware: `offset({ mainAxis: side_offset, crossAxis: align_offset, alignmentAxis: align_offset })` -> for align center: `shift` then `flip`, otherwise `flip` then `shift` -> `size` (writes `--available-width/height` px and the device-pixel-snapped `--anchor-width/height`) -> `arrow` (fake element) -> `transformOrigin` (writes `--transform-origin`: aligned edge `0%`/`100%` or arrow center on the cross axis, `-side_offset px` / `calc(100% + side_offset px)` on the side axis) -> `hide` (`data-anchor-hidden`). collisionPadding 5 (flip padding 5 + 1 + 1 bias toward the preferred side), collisionBoundary clipping ancestors, flip `fallbackAxisSide: "none"` (dropdown collision avoidance: flips top/bottom only, pos:L41), `lazyFlip`: the first placed side is kept while the list resizes during the same open. strategy `absolute` (fixed + opacity 0 until positioned), `autoUpdate` (ancestor scroll, element resize, layout shift). `positioner.js` today implements the Radix stack (`--radix-popper-*`, wrapper div): this Base UI behavior (these vars on the positioner element itself, this middleware order, no wrapper) is implemented by the additive primitive `anchor_positioner.js` (recorded exception); `positioner.js` is unchanged.
 
 ### Modal (`modal: true`)
-Backdrop element above, scroll lock (body), focus trapped, outside presses on the backdrop close.
+Backdrop element above, scroll lock (body), focus is not trapped (recorded deviation), outside presses on the backdrop close.
 
 ### Timers
 Live-region marker 200 ms; closed-trigger typeahead reset 750 ms; Clear unmount after its exit transition; Presence on close.
@@ -244,7 +244,7 @@ Acceptance (unit test): every row exists as a public method on the root instance
 - `Phlex::Shadcn::Button(variant: "ghost", size: "icon-xs")` (ChipRemove, src:L264).
 - `Phlex::Shadcn::Icon`: `chevron-down` (Trigger), `x` (Clear, ChipRemove), `check` (ItemIndicator); `search` only in scenarios (input addon example; the base-nova example uses `globe`, replaced to avoid a catalog change).
 - `Phlex::Shadcn::Base` (`cn`, `merge_attrs`, `render_as_child`, ids, `normalize_option`).
-- JavaScript: Stimulus + primitives listed under Behavior, including `scorer.js`; `positioner.js` needs the Base UI mode described above.
+- JavaScript: Stimulus + primitives listed under Behavior, including `scorer.js`; Base UI anchor positioning is implemented by the additive primitive `anchor_positioner.js` (recorded exception); `positioner.js` is unchanged.
 
 ## Deviations
 

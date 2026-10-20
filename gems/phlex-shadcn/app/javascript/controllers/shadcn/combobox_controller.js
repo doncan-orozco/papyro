@@ -4,9 +4,10 @@ import { dismissable } from "shadcn/primitives/dismissable_layer"
 import { hideOthers } from "shadcn/primitives/hide_others"
 import { generateId } from "shadcn/primitives/ids"
 import { presence } from "shadcn/primitives/presence"
-import { scoreItem } from "shadcn/primitives/scorer"
+import { rank } from "shadcn/primitives/scorer"
 import { scrollLock } from "shadcn/primitives/scroll_lock"
 import { mountTemplate } from "shadcn/primitives/template_mount"
+import { typeahead } from "shadcn/primitives/typeahead"
 
 // shadcn Combobox: a hand-written equivalent of Base UI 1.9.0 `Combobox` (no third-party JavaScript). Spec:
 // dev/port/specs/combobox.md (Behavior); the `root:` / `input:` / `nav:` citations of the comments point at the Base UI sources the spec cites.
@@ -79,7 +80,7 @@ export default class extends Controller {
     if (!this.abort) return
     this.unmountPopup({ immediate: true })
     this.abort.abort()
-    clearTimeout(this.typeaheadTimer)
+    this.typeaheadBuffer?.release()
     this.abort = null
   }
 
@@ -173,16 +174,29 @@ export default class extends Controller {
     return false
   }
 
-  // The list items that match, in source order (null: no `items:`, the static children are all shown and nothing is filtered).
+  // The list items that match (null: no `items:`, the static children are all shown and nothing is filtered). The fuzzy filter returns
+  // them best match first and applies `limit` AFTER ranking; the other filters keep source order. Memoized per query: several callers
+  // ask for it on every keystroke. `scores` maps form value to fuzzy score (null for the other filters).
   matches() {
+    return this.matchResult()?.list ?? null
+  }
+
+  matchResult() {
     if (!this.cfg.hasItems) return null
     const query = this.filterQuery()
+    if (this.matchCache?.query === query) return this.matchCache
     const { filter, limit } = this.cfg
     let list = this.cfg.items
-    if (query !== "" && filter !== null) {
-      list = list.filter((item) => (filter === "contains" ? this.contains(item.l, query) : scoreItem(query, item.l) > 0))
+    let scores = null
+    if (query !== "" && filter === "fuzzy") {
+      const ranked = rank(query, list, { text: (item) => item.l })
+      list = ranked.map(({ item }) => item)
+      scores = new Map(ranked.map(({ item, score }) => [item.k, score]))
+    } else if (query !== "" && filter !== null) {
+      list = list.filter((item) => this.contains(item.l, query))
     }
-    return limit > -1 ? list.slice(0, limit) : list
+    this.matchCache = { query, list: limit > -1 ? list.slice(0, limit) : list, scores }
+    return this.matchCache
   }
 
   get listEmpty() {
@@ -685,10 +699,8 @@ export default class extends Controller {
   hideOutside(popupState) {
     const ariaHidden = !this.inPopup || this.cfg.modal
     const keep = [popupState.container, this.control, this.element.querySelector(part("dismiss-start"))].filter(Boolean)
-    const before = new Set(document.querySelectorAll("[data-aria-hidden]"))
-    const release = ariaHidden ? hideOthers(keep) : () => {}
     // Base UI marks with `aria-hidden` only, not with the primitive's own `data-aria-hidden` marker.
-    document.querySelectorAll("[data-aria-hidden]").forEach((el) => { if (!before.has(el)) el.removeAttribute("data-aria-hidden") })
+    const release = ariaHidden ? hideOthers(keep, document.body, { marker: false }) : () => {}
     const marked = [...document.body.children].filter((child) => child !== popupState.container && child.tagName !== "SCRIPT" && !child.hasAttribute("data-base-ui-inert"))
     marked.forEach((el) => el.setAttribute("data-base-ui-inert", ""))
     return () => {
@@ -775,6 +787,10 @@ export default class extends Controller {
     this.isOpen = false
     this.queryEdited = false
     this.closeQuery = null
+    this.matchCache = null
+    this.clearExit = null
+    const leaving = this.element.querySelector(part("clear"))
+    if (leaving?.hasAttribute("data-ending-style") && this.selected.length === 0) leaving.remove()
     if (wasOpen && !this.cfg.openControlled) this.openValue = false
     if (this.single && !this.inPopup && !this.cfg.inputValueControlled) this.applyText(this.selectedLabel())
     this.syncControls()
@@ -805,16 +821,15 @@ export default class extends Controller {
   renderList() {
     const popupState = this.mountedPopup
     if (!popupState?.list) return
-    const matches = this.matches()
-    const visible = matches ? new Set(matches.map(({ k }) => k)) : null
-    const query = this.filterQuery()
-    const rank = this.cfg.filter === "fuzzy" && query !== "" && matches ? new Map(matches.map(({ k, l }) => [k, scoreItem(query, l)])) : null
+    const result = this.matchResult()
+    const visible = result ? new Set(result.list.map(({ k }) => k)) : null
+    const scores = result?.scores
     const present = (el) => this.records.has(el) && (visible === null || visible.has(this.records.get(el).key))
     const hasVisible = new Map()
     for (const [container, source] of this.sources) hasVisible.set(container, source.some(present))
     for (const [container, source] of this.sources) {
       let items = source.filter(present)
-      if (rank) items = items.map((el, index) => ({ el, index })).sort((a, b) => rank.get(this.records.get(b.el).key) - rank.get(this.records.get(a.el).key) || a.index - b.index).map(({ el }) => el)
+      if (scores) items = items.map((el, index) => ({ el, index })).sort((a, b) => scores.get(this.records.get(b.el).key) - scores.get(this.records.get(a.el).key) || a.index - b.index).map(({ el }) => el)
       let next = 0
       const children = source.flatMap((node) => {
         if (this.records.has(node)) return next < items.length ? [items[next++]] : []
@@ -988,29 +1003,33 @@ export default class extends Controller {
   typeahead(event) {
     const items = this.cfg.items
     if (!items.length) return
-    const previous = this.typeaheadBuffer ?? ""
-    const selected = items.findIndex(({ k }) => this.selected.includes(k))
-    if (previous === "") this.typeaheadFrom = selected
-    if (previous === event.key) {
-      this.typeaheadBuffer = ""
+    this.typeaheadBuffer ??= typeahead({ timeout: TYPEAHEAD_RESET_MS, onSearch: (search) => this.typeaheadSearch(search) })
+    const buffer = this.typeaheadBuffer
+    if (buffer.search === "") {
+      this.typeaheadFrom = items.findIndex(({ k }) => this.selected.includes(k))
+    } else if (buffer.search === event.key) {
+      // A repeated key cycles: the buffer restarts from the current match.
+      buffer.reset()
       this.typeaheadFrom = this.typeaheadMatch ?? this.typeaheadFrom
     }
-    this.typeaheadBuffer = `${this.typeaheadBuffer ?? ""}${event.key}`
-    clearTimeout(this.typeaheadTimer)
-    this.typeaheadTimer = setTimeout(() => {
-      this.typeaheadBuffer = ""
-      this.typeaheadFrom = this.typeaheadMatch ?? -1
-    }, TYPEAHEAD_RESET_MS)
+    this.typeaheadFound = false
+    buffer.push(event.key)
+    if (!this.typeaheadFound) buffer.reset()
+  }
+
+  // Next item after the typeahead start whose label starts with `search` (wraps around); selects it.
+  typeaheadSearch(search) {
+    const items = this.cfg.items
     const start = (this.typeaheadFrom ?? -1) + 1
-    const needle = this.typeaheadBuffer.toLowerCase()
+    const needle = search.toLowerCase()
     for (let offset = 0; offset < items.length; offset += 1) {
       const index = (start + offset) % items.length
       if (!items[index].l.toLowerCase().startsWith(needle)) continue
       this.typeaheadMatch = index
+      this.typeaheadFound = true
       this.setSelected([items[index].k], "none")
       return
     }
-    this.typeaheadBuffer = ""
   }
 
   chipKeydown(event) {

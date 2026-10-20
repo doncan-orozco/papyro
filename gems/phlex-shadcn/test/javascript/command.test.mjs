@@ -209,17 +209,57 @@ browserTest("command: the state before the Turbo cache is restored to the server
   assert.equal(await page.locator(input).getAttribute("aria-activedescendant"), null);
 });
 
-browserTest("command: disconnect removes the mounted Empty and stops listening", async ({ open }) => {
+browserTest("command: disconnect restores the server list and stops listening", async ({ open }) => {
   const page = await open("default__rest");
   await search(page, "zzz");
-  const emptyCount = await page.locator("[cmdk-empty]").count();
-  assert.equal(emptyCount, 1);
+  assert.equal(await page.locator("[cmdk-empty]").count(), 1);
   await page.locator(root).evaluate((el) => { el.dataset.controller = ""; });
   await settle(page);
   assert.equal(await page.locator("[cmdk-empty]").count(), 0);
-  const hidden = await page.locator("[cmdk-group][hidden]").count();
-  await page.locator(input).fill("");
-  assert.equal(await page.locator("[cmdk-group][hidden]").count(), hidden, "no controller reacts to the input any more");
+  assert.equal(await page.locator("[cmdk-group][hidden]").count(), 0);
+  assert.equal((await texts(page)).length, 6);
+  await page.locator(input).fill("cal");
+  await settle(page);
+  assert.equal((await texts(page)).length, 6, "no controller reacts to the input any more");
+});
+
+browserTest("command: an item removed like a Turbo Stream stays removed after the cache reset and the query filters again", async ({ open }) => {
+  const page = await open("default__rest");
+  await search(page, "bil");
+  await page.evaluate(() => document.querySelector('[cmdk-item][data-value="Billing⌘B"]').remove());
+  await settle(page);
+  await page.evaluate(() => document.dispatchEvent(new Event("turbo:before-cache")));
+  assert.deepEqual(await texts(page), ["Calendar", "Search Emoji", "Calculator", "Profile⌘P", "Settings⌘S"]);
+  await search(page, "cal");
+  assert.equal((await texts(page)).length, 2);
+  await search(page, "bil");
+  assert.equal((await texts(page)).length, 0);
+});
+
+browserTest("command: the same query filters again after the cache reset", async ({ open }) => {
+  const page = await open("default__rest");
+  await search(page, "bil");
+  await page.evaluate(() => document.dispatchEvent(new Event("turbo:before-cache")));
+  await search(page, "bil");
+  assert.equal((await texts(page)).length, 1);
+});
+
+browserTest("command: a group added after connect keeps its place after the cache reset", async ({ open }) => {
+  const page = await open("default__rest");
+  const before = await page.locator("[cmdk-group]").evaluateAll((els) => els.map((el) => el.dataset.value));
+  await page.evaluate(() => {
+    const groups = document.querySelectorAll("[cmdk-group]");
+    const last = groups[groups.length - 1];
+    const clone = last.cloneNode(true);
+    clone.dataset.value = "Late";
+    clone.querySelectorAll("[cmdk-item]").forEach((el) => { el.removeAttribute("id"); el.dataset.value = `Late ${el.dataset.value}`; });
+    last.after(clone);
+  });
+  await settle(page);
+  await search(page, "zzz");
+  await page.evaluate(() => document.dispatchEvent(new Event("turbo:before-cache")));
+  const after = await page.locator("[cmdk-group]").evaluateAll((els) => els.map((el) => el.dataset.value));
+  assert.deepEqual(after, [...before, "Late"]);
 });
 
 browserTest("command: dialog variant mounts a fresh command on every open", async ({ open }) => {

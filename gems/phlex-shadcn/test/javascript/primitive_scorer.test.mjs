@@ -109,3 +109,27 @@ primitiveTest("scorer: ranking a few thousand items is fast", async (page) => {
   assert.equal(result.hits, 5000);
   assert.ok(result.ms < 1500, `took ${result.ms}ms`);
 });
+
+primitiveTest("scorer: the exact bonus ignores whitespace in the text, like in the query", async (page) => {
+  const result = await page.evaluate(async () => {
+    const { rank } = await import("shadcn/primitives/scorer");
+    return rank("newyork", ["New York City", "New York"]).map((r) => r.item);
+  });
+  assert.deepEqual(result, ["New York", "New York City"]);
+});
+
+primitiveTest("scorer: letters without a decomposition fold to one base letter", async (page) => {
+  const result = await page.evaluate(async () => {
+    const { score, fold } = await import("shadcn/primitives/scorer");
+    return { folded: fold("Øłđðı ßæþ"), found: score("lodz", "Łódź") > 0, oslo: score("osl", "Øsløy") > 0 };
+  });
+  assert.deepEqual(result, { folded: "olddi ßæþ", found: true, oslo: true });
+});
+
+primitiveTest("scorer: a long text does not overflow the call stack", async (page) => {
+  const result = await page.evaluate(async () => {
+    const { score } = await import("shadcn/primitives/scorer");
+    return score("a", "a".repeat(200000)) > 0;
+  });
+  assert.equal(result, true);
+});

@@ -86,6 +86,13 @@ browserTest("combobox: filter nil shows every item and limit caps the rendered m
   assert.deepEqual(await items(limited), ["Next.js", "SvelteKit"]);
 });
 
+browserTest("combobox: with the fuzzy filter limit applies after ranking, so the best matches are kept", async ({ open }) => {
+  const page = await open("filter__limit");
+  await page.click(input);
+  await type(page, "s");
+  assert.deepEqual(await items(page), ["SvelteKit", "Astro"], "source order would cut the better matches: Next.js, SvelteKit");
+});
+
 browserTest("combobox: the contains filter is Base UI's collator substring match, in source order", async ({ open }) => {
   const page = await open("default__open-click");
   await page.evaluate(() => {

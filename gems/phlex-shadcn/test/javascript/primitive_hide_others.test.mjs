@@ -66,3 +66,18 @@ primitiveTest("hide_others: accepts several targets and an explicit parent", asy
   assert.deepEqual(result.hidden, ["sibling"]);
   assert.equal(result.left, 0);
 }, { html });
+
+primitiveTest("hide_others: { marker: false } sets aria-hidden without the data-aria-hidden marker and releases cleanly", async (page) => {
+  const result = await page.evaluate(async (snap) => {
+    const { hideOthers } = await import("shadcn/primitives/hide_others");
+    const take = new Function(`return (${snap})()`);
+    const release = hideOthers(document.getElementById("target"), document.body, { marker: false });
+    const hidden = take();
+    release();
+    return { hidden, released: take() };
+  }, snapshot.toString());
+  assert.deepEqual(result.hidden.header, ["true", null]);
+  assert.deepEqual(result.hidden.sibling, ["true", null]);
+  assert.deepEqual(result.released.header, [null, null]);
+  assert.deepEqual(result.released.already, ["true", null]);
+}, { html });

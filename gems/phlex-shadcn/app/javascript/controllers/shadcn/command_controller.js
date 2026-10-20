@@ -73,11 +73,11 @@ export default class extends Controller {
   disconnect() {
     this.ready = false
     if (!this.abort) return
+    this.reset() // puts back the items this controller detached, so a reconnect registers the full server list
     this.abort.abort()
     this.mutations.disconnect()
     this.resize.disconnect()
     cancelAnimationFrame(this.frame)
-    this.empties.forEach((mount) => mount.unmount())
     this.abort = null
   }
 
@@ -166,7 +166,10 @@ export default class extends Controller {
     const found = [node, ...node.querySelectorAll(`${GROUP}, ${ITEM}, ${SEPARATOR}`)]
     let adopted = false
     for (const el of found) {
-      if (el.matches(GROUP) && !this.groups.has(el)) this.registerGroup(el)
+      if (el.matches(GROUP) && !this.groups.has(el)) {
+        this.registerGroup(el)
+        if (this.sources.has(el.parentElement)) this.rememberSource(el)
+      }
       if (el.matches(`${ITEM}, ${SEPARATOR}`) && !this.nodes.has(el)) {
         this.registerNode(el)
         this.rememberSource(el)
@@ -180,15 +183,34 @@ export default class extends Controller {
   forget(node) {
     let forgotten = false
     for (const el of [node, ...node.querySelectorAll(`${GROUP}, ${ITEM}, ${SEPARATOR}`)]) {
+      if (el.isConnected) continue
       const record = this.nodes.get(el)
-      if (record?.mounted && !el.isConnected) {
+      if (record?.mounted) {
         if (el.getAttribute("aria-selected") === "true") this.lostSelection = true
         this.nodes.delete(el)
+        this.dropSource(el)
         forgotten = true
       }
-      if (this.groups.has(el) && !el.isConnected) this.groups.delete(el)
+      if (this.groups.has(el)) {
+        this.groups.delete(el)
+        this.dropSource(el)
+        // Items the filter had detached from the removed group are gone with it.
+        for (const [child, other] of this.nodes) {
+          if (other.group !== el) continue
+          this.nodes.delete(child)
+          forgotten = true
+        }
+      }
     }
     return forgotten
+  }
+
+  // Removes a node from every source order, and the orders of the containers inside it.
+  dropSource(el) {
+    this.sources.forEach((order, parent) => {
+      if (el.contains(parent)) this.sources.delete(parent)
+      else if (order.includes(el)) order.splice(order.indexOf(el), 1)
+    })
   }
 
   // Keeps the source order of a parent in step with a node added after connect: right after its previous sibling.
@@ -262,11 +284,20 @@ export default class extends Controller {
 
   // React's host-sibling rule: before the next already-mounted node of the SOURCE order in the same parent, else appended.
   insert(records) {
-    const order = (record) => this.sources.get(record.parent).indexOf(record.el)
-    for (const record of [...records].sort((a, b) => order(a) - order(b))) {
+    const positions = new Map() // parent -> Map(child -> index in its source order)
+    const position = (record) => {
+      if (!positions.has(record.parent)) positions.set(record.parent, new Map(this.sources.get(record.parent).map((el, index) => [el, index])))
+      return positions.get(record.parent).get(record.el)
+    }
+    for (const record of [...records].sort((a, b) => position(a) - position(b))) {
       const siblings = this.sources.get(record.parent)
-      const next = siblings.slice(siblings.indexOf(record.el) + 1).find((sibling) => sibling.parentNode === record.parent)
-      record.parent.insertBefore(record.el, next ?? null)
+      let next = null
+      for (let index = position(record) + 1; index < siblings.length; index += 1) {
+        if (siblings[index].parentNode !== record.parent) continue
+        next = siblings[index]
+        break
+      }
+      record.parent.insertBefore(record.el, next)
       record.mounted = true
     }
   }
@@ -460,12 +491,15 @@ export default class extends Controller {
 
   // --- Turbo cache -----------------------------------------------------------------------------------------------------
 
-  // A cached page shows the server state: every node mounted in source order, nothing searched, nothing selected.
+  // A cached page shows the server state: every node mounted in source order, nothing searched, nothing selected. Only nodes
+  // still in the document, or detached by this controller, come back; a node removed by a Turbo Stream stays removed.
   reset() {
     if (!this.abort) return
     this.empties.forEach((mount) => mount.unmount())
     this.empties.clear()
-    this.sources.forEach((siblings, parent) => siblings.forEach((node) => parent.append(node)))
+    this.sources.forEach((siblings, parent) => siblings.forEach((node) => {
+      if (node.isConnected || this.nodes.get(node)?.mounted === false) parent.append(node)
+    }))
     this.nodes.forEach((record) => { record.mounted = true })
     this.groups.forEach(({ el }) => el.removeAttribute("hidden"))
     this.items.forEach((record) => {
@@ -473,7 +507,11 @@ export default class extends Controller {
       record.el.setAttribute("data-selected", "false")
     })
     for (const el of [this.input, this.list]) el?.removeAttribute("aria-activedescendant")
-    this.input?.setAttribute("value", this.input.getAttribute(SEARCH) ?? "")
-    if (this.input) this.input.value = this.input.getAttribute(SEARCH) ?? ""
+    const value = this.input?.getAttribute(SEARCH) ?? ""
+    this.input?.setAttribute("value", value)
+    if (this.input) this.input.value = value
+    this.search = value
+    this.current = undefined
+    this.count = this.registered.length
   }
 }

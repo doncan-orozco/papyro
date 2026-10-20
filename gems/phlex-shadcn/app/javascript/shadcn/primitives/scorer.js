@@ -2,7 +2,8 @@
 // originals, with no dependency: a query matches a text when its characters appear in order (a subsequence); the best alignment
 // wins, with bonuses for a match at the start of the text, at a word boundary (after a space, "-", "_", "/", "." or at a lower ->
 // UPPER camel-case step) and for consecutive characters, and a small penalty for gaps. Case and diacritics are folded
-// ("cafe" finds "Café"), one character at a time so offsets keep pointing into the original string.
+// ("cafe" finds "Café"), one character at a time so offsets keep pointing into the original string. Letters that have no
+// Unicode decomposition fold through a small 1:1 table (ø ł đ ð ı); ß, æ, þ and the like stay as they are.
 //
 // Contract: a score of 0 means "does not match" (hide the item); anything above 0 matches and a higher score ranks first. An
 // empty (or whitespace-only) query matches everything with the same score, so the original order is kept.
@@ -22,6 +23,9 @@ const EXACT_BONUS = 10
 const MIN_SCORE = 0.001
 const SEPARATORS = new Set([" ", "-", "_", "/", ".", ":", ",", "(", ")", "[", "]", "\t", "\n"])
 
+// Letters NFD does not decompose, mapped to one base letter (always one code point, so offsets stay aligned).
+const NO_DECOMPOSITION = new Map([["ø", "o"], ["ł", "l"], ["đ", "d"], ["ð", "d"], ["ı", "i"]])
+
 /**
  * Fold one string to lower case without diacritics, one entry per code point of the input (so `folded[i]` describes
  * `Array.from(text)[i]`).
@@ -32,7 +36,8 @@ function foldChars(text) {
   return Array.from(String(text ?? ""), (char) => {
     const base = char.normalize("NFD").replace(/\p{M}/gu, "")
     const lower = (base || char).toLowerCase()
-    return Array.from(lower)[0] ?? char
+    const first = Array.from(lower)[0] ?? char
+    return NO_DECOMPOSITION.get(first) ?? first
   })
 }
 
@@ -98,10 +103,12 @@ export function score(query, text) {
     previous = current
   }
 
-  const best = Math.max(...previous)
+  let best = -Infinity
+  for (const value of previous) if (value > best) best = value
   if (best === -Infinity) return 0
   // Shorter texts rank above longer ones with the same alignment; an exact match outranks everything.
-  const exact = haystack.length === wanted.length && haystack.every((char, i) => char === wanted[i])
+  const compact = haystack.filter((char) => !/\s/u.test(char))
+  const exact = compact.length === wanted.length && compact.every((char, i) => char === wanted[i])
   return Math.max(best, MIN_SCORE) + (exact ? EXACT_BONUS : 0) + 1 / (1 + haystack.length)
 }
 
