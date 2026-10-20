@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "fileutils"
 require "yard"
 
 module Phlex
@@ -14,7 +15,14 @@ module Phlex
       # Top-level classes that are not shadcn components (rendered Lucide glyphs): listed under "Helpers", not counted as components.
       HELPERS = %w[Icon].freeze
       CONTROLLERS_DIR = "app/javascript/controllers/shadcn"
-      REPOSITORY = "https://github.com/doncan-orozco/papyro/blob/main/gems/phlex-shadcn"
+      GEMSPEC = File.expand_path("../../phlex-shadcn.gemspec", __dir__)
+      DISPATCH = /dispatch\(\s*["']([a-z][a-z-]*)["']/
+      PREFIXED = /CustomEvent\(\s*["`]shadcn--[a-z-]+:([a-z][a-z-]*)["`]/
+      # A method that forwards its first parameter to dispatch (`#forward(name, event) { ... this.dispatch(name, ...) }`).
+      FORWARDER = /^\s+(#?[A-Za-z_]\w*)\((\w+)[^)]*\)\s*\{\n(.*?)^  \}/m
+
+      # The one place the repository location is written is the gemspec; the links in the generated files derive from its homepage.
+      def self.repository = Gem::Specification.load(GEMSPEC).homepage.sub("/tree/", "/blob/")
 
       Component = Struct.new(:object, :name, :parts, :controllers, keyword_init: true)
 
@@ -22,7 +30,7 @@ module Phlex
 
       # @return [Array<String>] the relative paths whose committed content differs from the generated one
       def self.drift(root)
-        outputs(root).reject { |path, content| File.exist?(File.join(root, path)) && File.read(File.join(root, path)) == content }.keys
+        outputs(root).reject { |path, content| File.exist?(File.join(root, path)) && File.read(File.join(root, path), encoding: "UTF-8") == content }.keys
       end
 
       def self.write(root)
@@ -82,7 +90,7 @@ module Phlex
       def controllers_of(object)
         base = File.join(root, "lib/phlex/shadcn", snake(object.name))
         files = [ "#{base}.rb", *Dir[File.join(base, "**/*.rb")] ].select { |f| File.file?(f) }
-        names = files.flat_map { |f| File.read(f).scan(/shadcn--([a-z][a-z-]*)/).flatten }.uniq
+        names = files.flat_map { |f| File.read(f, encoding: "UTF-8").scan(/shadcn--([a-z][a-z-]*)/).flatten }.uniq
         names.select { |n| File.file?(controller_file(n)) }.sort
       end
 
@@ -90,7 +98,14 @@ module Phlex
 
       # ---- YARD readers
 
-      def summary(object) = object.docstring.summary.to_s.gsub(/\s+/, " ").strip
+      def summary(object) = plain(object.docstring.summary)
+
+      # Flattens whitespace and turns YARD/RDoc inline markup (`+code+`, `{Link}`) into Markdown code spans.
+      def plain(text)
+        text.to_s.gsub(/\s+/, " ").strip
+            .gsub(/\{(?:[\w:#.]+\s+)?([^{}]+)\}/) { "`#{Regexp.last_match(1)}`" }
+            .gsub(/(?<![\w+])\+([^+\s][^+]*?)\+(?![\w+])/) { "`#{Regexp.last_match(1)}`" }
+      end
 
       def constructor(object)
         method = YARD::Registry.at("#{object.path}#initialize")
@@ -126,12 +141,44 @@ module Phlex
 
       # ---- Stimulus readers
 
-      def controller_info(name)
-        source = File.read(controller_file(name))
-        values = source[/static values = \{(.*?)^  \}/m, 1].to_s.scan(/^    (\w+):/).flatten
-        events = (source.scan(/dispatch\(\s*["']([a-z][a-z-]*)["']/).flatten +
-                  source.scan(/CustomEvent\(\s*["']shadcn--[a-z-]+:([a-z][a-z-]*)["']/).flatten).uniq.sort
-        { values: values.map { |v| v.gsub(/([A-Z])/) { "-#{Regexp.last_match(1).downcase}" } }.sort, events: events }
+      # Values and events of `shadcn--<name>`, following forwarding helpers and `extends <Parent>Controller` (Stimulus dispatches with the
+      # subclass identifier, so a subclass documents the events and values it inherits).
+      def controller_info(name, seen = [])
+        source = File.read(controller_file(name), encoding: "UTF-8")
+        values = static_values(source)
+        events = source.scan(DISPATCH).flatten + source.scan(PREFIXED).flatten + forwarded_events(source)
+        parent = inherited_controller(source)
+        if parent && !seen.include?(parent) && File.file?(controller_file(parent))
+          inherited = controller_info(parent, seen + [ name ])
+          values += inherited[:values]
+          events += inherited[:events]
+        end
+        { values: values.map { |v| v.gsub(/([A-Z])/) { "-#{Regexp.last_match(1).downcase}" } }.uniq.sort, events: events.uniq.sort }
+      end
+
+      # Keys of the top level of `static values = { ... }` (one-line or multi-line, several keys per line, nested `{ type:, default: }`).
+      def static_values(source)
+        start = source.index(/static values\s*=\s*\{/) or return []
+        depth = 0
+        top = +""
+        source[source.index("{", start)..].each_char do |char|
+          depth += 1 if char == "{"
+          top << (depth == 1 && char != "{" ? char : " ")
+          depth -= 1 if char == "}"
+          break if depth.zero?
+        end
+        top.scan(/(?:\A|,)\s*(\w+)\s*:/).flatten
+      end
+
+      def forwarded_events(source)
+        helpers = source.scan(FORWARDER).select { |_, param, body| body.match?(/dispatch\(\s*#{Regexp.escape(param)}\b/) }.map(&:first)
+        helpers.flat_map { |helper| source.scan(/#{Regexp.escape(helper)}\(\s*["']([a-z][a-z-]*)["']/).flatten }
+      end
+
+      def inherited_controller(source)
+        return unless source.match?(/export default class extends (?!Controller\b)\w+/)
+
+        source[%r{^import \w+ from "controllers/shadcn/(\w+)_controller"}, 1]&.tr("_", "-")
       end
 
       # ---- rendering
@@ -145,12 +192,12 @@ module Phlex
         out = +header("phlex-shadcn", SUMMARY)
         out << "Generated by `rake llms:generate` from the YARD docs and the Stimulus controllers. Do not edit by hand.\n\n"
         out << "## Docs\n\n"
-        out << "- [Full component reference](#{REPOSITORY}/llms-full.txt): every component with constructor keywords, variants, parts, Stimulus controller, events and an example\n"
-        out << "- [Agent skill](#{REPOSITORY}/skills/phlex-shadcn/SKILL.md): short usage rules for AI assistants\n"
-        out << "- [README](#{REPOSITORY}/README.md): installation and setup\n"
-        out << "- [API conventions](#{REPOSITORY}/docs/api-conventions.md): keyword arguments, `as_child`, yielded-root helpers, theming\n\n"
+        out << "- [Full component reference](#{self.class.repository}/llms-full.txt): every component with constructor keywords, variants, parts, Stimulus controller, events and an example\n"
+        out << "- [Agent skill](#{self.class.repository}/skills/phlex-shadcn/SKILL.md): short usage rules for AI assistants\n"
+        out << "- [README](#{self.class.repository}/README.md): installation and setup\n"
+        out << "- [API conventions](#{self.class.repository}/docs/api-conventions.md): keyword arguments, `as_child`, yielded-root helpers, theming\n\n"
         out << "## Components\n\n"
-        components.each { |c| out << "- [#{c.name}](#{REPOSITORY}/llms-full.txt#component-#{snake(c.name).tr('_', '-')}): #{summary(c.object)}\n" }
+        components.each { |c| out << "- [#{c.name}](#{self.class.repository}/llms-full.txt#component-#{snake(c.name).tr('_', '-')}): #{summary(c.object)}\n" }
         out << "\n## Stimulus controllers\n\n"
         controller_names.each { |n| out << "- `shadcn--#{n}`\n" }
         out
@@ -181,7 +228,7 @@ module Phlex
         out = +"<a id=\"component-#{snake(component.name).tr('_', '-')}\"></a>\n## #{component.name}\n\n"
         out << "#{summary(object)}\n\n"
         out << "Constructor: `Phlex::Shadcn::#{component.name}.new(#{sig})`\n\n"
-        params.each { |tag| out << "- `#{tag.name}` [#{Array(tag.types).join(', ')}] #{tag.text.to_s.gsub(/\s+/, ' ').strip}\n" }
+        params.each { |tag| out << "- `#{tag.name}` [#{Array(tag.types).join(', ')}] #{plain(tag.text)}\n" }
         out << "\n" unless params.empty?
         enums(object).each { |name, values| out << "- #{name}: #{values.map { |v| "`#{v}`" }.join(', ')}\n" }
         out << "\n" unless enums(object).empty?

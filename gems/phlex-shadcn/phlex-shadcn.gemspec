@@ -2,7 +2,8 @@
 
 require_relative "lib/phlex/shadcn/version"
 
-# The one place the repository location is written: a split into its own repository changes these lines (the metadata URIs derive from them).
+# The one place the repository location is written: a split into its own repository changes these lines.
+# The metadata URIs and the links of the generated llms files derive from them.
 repository = "https://github.com/doncan-orozco/papyro"
 gem_path = "gems/phlex-shadcn" # "" once the gem has its own repository
 ref = "main"
