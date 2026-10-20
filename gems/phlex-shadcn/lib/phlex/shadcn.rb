@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "monitor"
 require "pathname"
 require "phlex"
 require "tailwind_merge"
@@ -29,7 +30,7 @@ module Phlex
     require_relative "shadcn/configuration"
     require_relative "shadcn/engine/overrides"
     @setup = false
-    SETUP_LOCK = Mutex.new
+    SETUP_LOCK = Monitor.new
     private_constant :SETUP_LOCK
 
     # @return [Phlex::Shadcn::Configuration] the gem's settings
