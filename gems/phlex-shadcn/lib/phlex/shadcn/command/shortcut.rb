@@ -5,6 +5,9 @@
 # @example
 #   render(Phlex::Shadcn::Command::Shortcut.new { "⌘P" })
 class Phlex::Shadcn::Command::Shortcut < Phlex::Shadcn::Base
+  # Tailwind classes of the element, as in the shadcn source.
+  #
+  # @return [String]
   CLASSES = "ml-auto text-xs tracking-widest text-muted-foreground"
 
   # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)

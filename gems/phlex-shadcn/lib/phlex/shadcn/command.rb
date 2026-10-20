@@ -54,6 +54,9 @@ class Phlex::Shadcn::Command < Phlex::Shadcn::Base
   # @api private
   SEQUENCE_KEY = :shadcn_command_sequence
 
+  # Tailwind classes of the element, as in the shadcn source.
+  #
+  # @return [String]
   CLASSES = "flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground"
 
   # Classes the root receives inside Command::Dialog (shadcn's CommandDialog), verbatim.

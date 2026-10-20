@@ -8,6 +8,9 @@
 class Phlex::Shadcn::Command::Separator < Phlex::Shadcn::Base
   include Phlex::Shadcn::Command::Support
 
+  # Tailwind classes of the element, as in the shadcn source.
+  #
+  # @return [String]
   CLASSES = "-mx-1 h-px bg-border"
 
   # @param always_render [Boolean] keep it while a search is active

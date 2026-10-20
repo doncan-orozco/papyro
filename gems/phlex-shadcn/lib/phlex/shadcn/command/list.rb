@@ -7,6 +7,9 @@
 class Phlex::Shadcn::Command::List < Phlex::Shadcn::Base
   include Phlex::Shadcn::Command::Support
 
+  # Tailwind classes of the element, as in the shadcn source.
+  #
+  # @return [String]
   CLASSES = "max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto"
 
   # @param label [String] the list's `aria-label`

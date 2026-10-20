@@ -10,7 +10,13 @@
 class Phlex::Shadcn::Command::Input < Phlex::Shadcn::Base
   include Phlex::Shadcn::Command::Support
 
+  # Tailwind classes of the element, as in the shadcn source.
+  #
+  # @return [String]
   CLASSES = "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+  # Tailwind classes of the wrapper around the input, as in the shadcn source.
+  #
+  # @return [String]
   WRAPPER_CLASSES = "flex h-9 items-center gap-2 border-b px-3"
 
   # @param value [String, nil] controlled search (typing does not change it; listen to `search-change`); nil: uncontrolled

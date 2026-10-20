@@ -170,7 +170,7 @@ end
 
 # the same list in a dialog. It has no trigger slot and is controlled by open: (Cmd+K is yours to bind): re-render it with
 # open: true to show it (or use default_open: true for a dialog that starts open)
-render Phlex::Shadcn::Command::Dialog.new(open: true) { |command| ... }
+render Phlex::Shadcn::Command::Dialog.new(open: true) { |command| command.input(placeholder: "Search...") }
 
 # combobox, submitted in a form as framework=next.js
 render Phlex::Shadcn::Combobox.new(items: %w[next.js sveltekit astro], name: "framework") do |combobox|

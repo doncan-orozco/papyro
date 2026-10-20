@@ -11,6 +11,9 @@
 class Phlex::Shadcn::Command::Empty < Phlex::Shadcn::Base
   include Phlex::Shadcn::Command::Support
 
+  # Tailwind classes of the element, as in the shadcn source.
+  #
+  # @return [String]
   CLASSES = "py-6 text-center text-sm"
 
   # @param attrs [Hash] HTML attributes merged into the element; `class:` replaces the default classes
