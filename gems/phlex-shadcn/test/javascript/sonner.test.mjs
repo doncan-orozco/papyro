@@ -146,10 +146,10 @@ browserTest("sonner: a Turbo cache snapshot leaves no toast behind and a reconne
 
 browserTest("sonner: removing the Toaster clears its timers and listeners (no errors afterwards)", async ({ open }) => {
   const page = await open("empty__no-toasts");
-  await page.evaluate(() => window.Toaster.message("Gone soon", { duration: 150, onAutoClose: () => (window.__closed = true) }));
+  await page.evaluate(() => window.Toaster.message("Gone soon", { duration: 600, onAutoClose: () => (window.__closed = true) }));
   await page.waitForSelector(toasts);
   await page.evaluate(() => document.querySelector("section[aria-live]").remove());
-  await page.waitForTimeout(600);
+  await page.waitForTimeout(1000);
   await page.evaluate(() => window.Toaster.message("Nobody listens", { duration: 100, onAutoClose: () => (window.__closed = true) }));
   await page.waitForTimeout(500);
   assert.equal(await count(page), 0);

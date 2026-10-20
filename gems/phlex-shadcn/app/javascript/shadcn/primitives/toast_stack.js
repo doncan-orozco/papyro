@@ -447,6 +447,7 @@ export class ToastStack {
 
   #deleteToast(entry) {
     if (entry.removed) return
+    clearTimeout(entry.timeoutId) // a toast closed by hand must not also report an auto-close
     entry.removed = true
     entry.offsetBeforeRemove = entry.offset
     this.heights = this.heights.filter((h) => h.toastId !== entry.data.id)
