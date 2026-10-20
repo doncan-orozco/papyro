@@ -17,7 +17,7 @@ class Phlex::Shadcn::BaseCacheTest < Phlex::Shadcn::TestCase
     2.times { assert_equal expected, Probe.new.cn("px-2 py-1", "px-4") }
   end
 
-  test "key includes every input: defaults, caller class and slot class never collide" do
+  test "key covers defaults and caller class; the slot class is joined outside the cache" do
     probe = Probe.new
 
     assert_equal "px-4", probe.cn("px-2", "px-4")
@@ -47,13 +47,25 @@ class Phlex::Shadcn::BaseCacheTest < Phlex::Shadcn::TestCase
     assert_operator Phlex::Shadcn::Base.cn_cache.size, :<=, Phlex::Shadcn::Base.const_get(:CN_CACHE_LIMIT)
   end
 
-  test "mutating the caller's string after the call cannot poison the cache" do
-    probe = Probe.new
+  test "the cache keeps its own frozen copy of a mutable caller string" do
     caller_class = +"px-2"
-    probe.cn("p-1", caller_class)
+    Probe.new.cn("p-1", caller_class)
+    key = Phlex::Shadcn::Base.cn_cache.keys.first
+
+    assert_predicate key, :frozen?
+    assert(key.compact.all?(&:frozen?))
+    refute_same caller_class, key.last
     caller_class << " hidden"
 
-    assert_equal "p-1 px-2", probe.cn("p-1", "px-2")
+    assert_equal %w[p-1 px-2], key
+    assert_equal "p-1 px-2", Probe.new.cn("p-1", "px-2")
+  end
+
+  test "argument order is part of the key" do
+    probe = Probe.new
+
+    assert_equal "px-4", probe.cn("px-2", "px-4")
+    assert_equal "px-2", probe.cn("px-4", "px-2")
   end
 
   test "returned classes are frozen and merge_attrs never shares a hash" do
@@ -71,18 +83,24 @@ class Phlex::Shadcn::BaseCacheTest < Phlex::Shadcn::TestCase
 
   test "safe under concurrent use" do
     results = Array.new(8) do |t|
-      Thread.new { Array.new(300) { |i| Probe.new.cn("px-#{i % 40}", "px-#{(i + t) % 40}") } }
+      Thread.new { Array.new(300) { |i| [ "px-#{(i + t) % 40}", Probe.new.cn("px-#{i % 40}", "px-#{(i + t) % 40}") ] } }
     end.flat_map(&:value)
 
-    assert(results.all? { |css| css.match?(/\Apx-\d+\z/) })
+    results.each { |expected, css| assert_equal expected, css }
   end
 
-  test "normalize_option keeps its results" do
+  test "normalize_option keeps its results, frozen and never the caller's object" do
     probe = Probe.new
+    caller_value = +"outline"
 
     assert_equal "icon-sm", probe.normalize_option(:icon_sm)
     assert_equal "icon-sm", probe.normalize_option("icon_sm")
-    assert_equal "outline", probe.normalize_option(:outline)
+    assert_predicate probe.normalize_option("icon_sm"), :frozen?
+    result = probe.normalize_option(caller_value)
+
+    assert_equal "outline", result
+    assert_predicate result, :frozen?
+    refute_same caller_value, result
     assert_nil probe.normalize_option(nil)
   end
 end

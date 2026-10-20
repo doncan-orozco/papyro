@@ -94,25 +94,28 @@ class Phlex::Shadcn::Base < Phlex::HTML
   CN_CACHE_LIMIT = 2048
   private_constant :CN_CACHE_LIMIT
 
-  # Process-wide memo of `cn` results, keyed by every input of the merge (defaults, variant, size, caller and slot classes).
-  # Values are frozen strings; guarded by a mutex so it is safe on threaded servers and non-MRI runtimes.
+  # Created eagerly at load time: a lazy `||=` could build two locks under true parallelism or a thread switch.
+  @cn_cache = {}
+  @cn_cache_lock = Mutex.new
+
+  # Process-wide memo of `cn` results, keyed by every input of the merge (defaults, variant, size and caller classes; the
+  # slot class is joined outside `cn`). Values are frozen strings; guarded by a mutex for threaded servers and non-MRI runtimes.
   #
   # @api private
-  def self.cn_cache = @cn_cache ||= {}
-
-  # @api private
-  def self.cn_cache_lock = @cn_cache_lock ||= Mutex.new
+  def self.cn_cache = @cn_cache # rubocop:disable Style/TrivialAccessors -- attr_reader would hide the @api private tag from YARD
 
   # @api private
   def self.cn_cached(inputs)
-    lock = cn_cache_lock
-    cache = cn_cache
-    lock.synchronize { cache[inputs] } || yield.tap do |result|
-      lock.synchronize do
-        cache.clear if cache.size >= CN_CACHE_LIMIT
-        cache[inputs.map { |input| input&.dup&.freeze }.freeze] = result.freeze
-      end
+    hit = @cn_cache_lock.synchronize { @cn_cache[inputs] }
+    return hit if hit
+
+    result = yield.freeze
+    key = inputs.map { |input| input.nil? || input.frozen? ? input : input.dup.freeze }.freeze
+    @cn_cache_lock.synchronize do
+      @cn_cache.clear if @cn_cache.size >= CN_CACHE_LIMIT
+      @cn_cache[key] = result
     end
+    result
   end
 
   protected
@@ -139,7 +142,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
     return if value.nil?
 
     string = value.is_a?(Symbol) ? value.name : value.to_s
-    string.include?("_") ? string.tr("_", "-") : string
+    -(string.include?("_") ? string.tr("_", "-") : string)
   end
 
   # Ids for aria wiring: `ids("dialog-1")[:title]` => "dialog-1-title". Without a base a random one is used.
