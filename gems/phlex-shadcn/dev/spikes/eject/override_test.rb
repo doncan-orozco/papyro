@@ -43,7 +43,7 @@ class EjectOverrideTest < Minitest::Test
       result = run_scenario("leaf", mode)
 
       assert result["footer_uses_ejected_button"], "Dialog::Footer must render the ejected Button"
-      assert_equal "Phlex::Shadcn::Card", result["card_loaded"]
+      assert_equal "./lib/phlex/shadcn/card.rb", result["card_source"]
     end
 
     define_method(:"test_compound_root_override_takes_precedence_as_a_unit_#{mode}") do
@@ -55,6 +55,7 @@ class EjectOverrideTest < Minitest::Test
       assert_equal "root_content", result["dialog_content_ejected"]
       assert_includes result["dialog_title_source"], "fixtures/root/dialog/title.rb"
       assert_includes result["button"], "bg-primary", "components that are not ejected still load from the gem"
+      assert_equal "./lib/phlex/shadcn/card.rb", result["card_source"]
     end
 
     define_method(:"test_nested_part_override_keeps_the_rest_of_the_component_in_the_gem_#{mode}") do
@@ -72,6 +73,7 @@ class EjectOverrideTest < Minitest::Test
     # Why the override directory must be known before the gem loader's setup (decision note, "When the loader learns").
     result = run_scenario("leaf", "lazy", "ignore_after_setup")
 
+    assert_nil result["ignore_after_error"], "Zeitwerk accepts ignore after setup and then does nothing with it"
     assert_includes result["button"], 'data-variant="default"', "the gem Button wins: its autoload was registered at setup"
     refute_includes result["button"], "data-ejected"
   end
@@ -92,5 +94,21 @@ class EjectOverrideTest < Minitest::Test
     assert_nil result["error"]
     assert result["after_reload_button"]
     assert result["after_reload_footer"]
+  end
+
+  def test_reloading_only_the_override_loader_keeps_a_leaf_override
+    result = run_scenario("leaf", "lazy", "ignore_before_setup", "reload_override_only")
+
+    assert_nil result["error"]
+    assert result["after_reload_button"]
+    assert result["after_reload_footer"]
+  end
+
+  def test_reloading_only_the_override_loader_keeps_a_nested_part_under_the_gem_namespace
+    result = run_scenario("nested", "eager", "ignore_before_setup", "reload_override_only")
+
+    assert_nil result["error"]
+    assert_equal "nested", result["after_reload_content"]
+    assert_equal "./lib/phlex/shadcn/dialog.rb", result["after_reload_dialog_source"]
   end
 end

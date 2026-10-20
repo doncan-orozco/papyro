@@ -1,7 +1,7 @@
 # Decision: ejected components live in an override directory that shadows the gem
 
 Status: proposed by the spike (item #169), productionized by the eject-generator item (#179).
-Proof: `dev/spikes/eject/override_test.rb` (12 tests, run with the Gate command of #169).
+Proof: `dev/spikes/eject/override_test.rb` (see the test count in the Gate output, run with the Gate command of #169).
 
 ## Decision
 
@@ -12,6 +12,9 @@ the same constant (`class Phlex::Shadcn::Button < Phlex::Shadcn::Base`); the gem
   (so `app/components/phlex_shadcn/button.rb` is `Phlex::Shadcn::Button`, not `PhlexShadcn::Button`).
 - Config key: `Phlex::Shadcn.configure { |c| c.override_dir = "..." }`, forwarded from `config.phlex_shadcn.override_dir`
   by the engine. Default `Rails.root.join("app/components/phlex_shadcn")` in Rails, `nil` (off) in a plain Phlex app.
+- Where it may be set: in Rails only `config.phlex_shadcn.override_dir` in `config/application.rb` or `config/environments/*.rb`.
+  `config/initializers/*.rb` load after `set_autoload_paths`, too late. #179 makes `Configuration#override_dir=` raise once the
+  gem `Loader` is set up, so a late setting fails loudly instead of being ignored.
 - Unit of ejection: a leaf (`button.rb`) is one file. A compound component is ejected **as a unit**: `dialog.rb` plus the
   whole `dialog/` directory. A single nested part (`dialog/content.rb` only) may also be ejected, and then `Dialog` and its
   other parts keep loading from the gem.
@@ -36,7 +39,7 @@ Mechanism that works, in this order:
 
 Without step 2 the first loader to register the autoload wins and the second is skipped silently (no error): the gem
 always wins and the override is dead code (tests `test_without_ignore_...`). With a compound root, the gem also autovivifies
-a module `Dialog` from `dialog/`, which is why the directory is ignored together with the file.
+a module `Dialog` from `dialog/`, which is why the directory is ignored together with the file (Zeitwerk reasoning; no test ignores only the file).
 
 ## When the gem's loader learns about the directory
 
@@ -51,14 +54,16 @@ file. Production change (made by #179, not here):
 - Plain Phlex: `Loader.setup` stays at require time with the directory taken from `ENV["PHLEX_SHADCN_OVERRIDE_DIR"]`
   (documented), or an explicit `Phlex::Shadcn.setup(override_dir:)` for apps that want to control the order (then
   `require "phlex/shadcn/lazy"` skips the automatic setup). The spike's harness is the reference model.
-- Version file: when the gem Loader is built with `Loader.new` instead of `for_gem_extension`, `version.rb` must be ignored explicitly (spike hit
-  `uninitialized constant Phlex::Shadcn::Version` on eager load otherwise).
+- Keep `Zeitwerk::Loader.for_gem_extension(Phlex)` and only move `setup` later. The spike's plain `Loader.new` rooted at
+  `lib/phlex/shadcn` is a harness simplification; the `Version` eager-load error it hit came from that alone.
 
 ## Dev reload
 
 In Rails the override directory belongs to the main (reloadable) autoloader, so editing an ejected file reloads it like any
-app code; the gem loader is not reloadable and `Phlex::Shadcn` itself never reloads. The spike's reload test proves that
-reloading both loaders keeps the override in force. The Rails integration (main autoloader + `bin/dev` edit/reload) is
+app code; the gem loader is not reloadable and `Phlex::Shadcn` itself never reloads. The spike's reload tests prove that
+reloading both loaders, and reloading only the override loader (production layout, gem loader not reloadable), keeps the
+override in force for a leaf and for a nested part under a gem-owned `Dialog`. Adding or removing an ejected file needs a restart:
+otherwise a new file is skipped silently and a removed one raises `NameError` (Zeitwerk reasoning, not exercised by the spike; #179's engine test verifies it); the `Ejected` doctor check also reports override files that shadow no gem file. The Rails integration (main autoloader + `bin/dev` edit/reload) is
 verified in the eject-generator item's engine test, which is not possible here: this item owns only `dev/spikes` and this note.
 Constraint to document: a gem class that holds a reference to an ejected class in a constant survives a reload; the gem does not do this today
 (Pagination, ButtonGroup, Dialog::Footer, AlertDialog::ActionButton look the constant up at render time).
