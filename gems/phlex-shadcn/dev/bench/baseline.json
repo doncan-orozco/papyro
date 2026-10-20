@@ -1,0 +1,12 @@
+{
+  "tolerance": 0.02,
+  "ruby": "4.0.0",
+  "allocations": {
+    "reference": 10,
+    "button": 57,
+    "card": 197,
+    "select": 882,
+    "dialog": 540,
+    "table": 7115
+  }
+}
