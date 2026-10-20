@@ -108,6 +108,7 @@ placeholder in `data-shadcn--calendar-placeholder` (the controller falls back to
 the label's first text becomes the placeholder, which is wrong when the label already shows a date). Format the text like the controller
 does (`March 10th, 2026` for English; other locales use `Intl` `dateStyle: "long"`), or the label changes the first time it is used.
 An `input:` or `label:` selector that matches nothing logs an error and is ignored; `input: { from:, to: }` is only valid for `mode: :range`.
+An `input:` value that does not fully parse (in any mode) logs a warning and is read as no selection.
 
 A range picker takes one selector per input (`input: { from: "#stay_from", to: "#stay_to" }`) or a single input holding
 `YYYY-MM-DD/YYYY-MM-DD`; a multiple picker holds `YYYY-MM-DD,YYYY-MM-DD`. A calendar that is not inside a popover can submit by itself

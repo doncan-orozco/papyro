@@ -729,10 +729,11 @@ export default class extends Controller {
     return this.mode === "range" ? rangeOrNull(grid.parseISO(inputs.from?.value), grid.parseISO(inputs.to?.value)) : undefined
   }
 
-  // A non-empty value that does not parse is read as no selection, loudly.
+  // A non-empty value that does not fully parse is read as no selection, loudly, the same in every mode.
   parsedInput(text, result, valid = Boolean(result)) {
-    if (text && !valid) console.warn(`shadcn--calendar: input value "${text}" is not a valid ${this.mode} date value; it is read as no selection`, this.element)
-    return result
+    if (!text || valid) return result
+    console.warn(`shadcn--calendar: input value "${text}" is not a valid ${this.mode} date value; it is read as no selection`, this.element)
+    return this.mode === "multiple" ? [] : null
   }
 
   // The inline `name:` inputs and the label always follow the selection; `notify` (after a click) also writes the external inputs.

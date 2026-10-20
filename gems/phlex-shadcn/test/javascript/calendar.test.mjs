@@ -471,5 +471,6 @@ browserTest("calendar: unparsable multiple and range input values warn and read 
     await page.evaluate((value) => document.body.append(Object.assign(document.createElement("input"), { type: "hidden", id: "bad", value })), value);
     await configure(page, { input: "#bad" });
     assert.ok(warnings.some((text) => text.includes(`"${value}"`)), warnings.join("|"));
+    assert.equal(await page.locator('td[aria-selected="true"]').count(), 0, `${scenario}: a partly valid value is no selection`);
   }
 });
