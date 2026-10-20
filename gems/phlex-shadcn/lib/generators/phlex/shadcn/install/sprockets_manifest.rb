@@ -3,8 +3,9 @@
 module Phlex
   module Shadcn
     module Generators
-      # Where a Sprockets app declares the assets it serves, see dev/decisions/sprockets.md. Plain Ruby, no Rails: it lives with the
-      # other install-layout knowledge (js_bundle.rb) so the doctor reads the app's layout from one place.
+      # Where a Sprockets app declares the assets it serves, see dev/decisions/sprockets.md. Plain Ruby, no Rails: it lives here, next to
+      # js_bundle.rb, because gem_check (GEM_ESCAPES_ROOT) allows app/... layout paths only in the generators, and the doctor reads them
+      # from here (same precedent as JsBundle).
       #
       # @api private
       module SprocketsManifest
@@ -13,7 +14,7 @@ module Phlex
         # The directory the Tailwind build is written to, relative to the app root.
         BUILDS_DIR = "app/assets/builds"
         # A link of the builds directory (`//= link_tree ../builds`) or of the compiled file (`//= link tailwind.css`).
-        BUILDS_LINK = %r{^//=\s*link(?:_tree|_directory)?\s+(?:\.\./builds\b|tailwind\.css\b)}
+        BUILDS_LINK = %r{^//=\s*link(?:_tree|_directory)?\s+(?:\.\./builds\s*$|tailwind\.css\b)}
 
         # @param text [String] the manifest's text
         # @return [Boolean] whether it declares the Tailwind build

@@ -19,8 +19,7 @@ module Phlex
         # @return [Array<String>] the logical paths of their JavaScript files, relative to each root, sorted
         def self.logical_paths(directories)
           directories.flat_map do |directory|
-            root = directory.to_s
-            Dir.glob(File.join(root, PATTERN)).map { |file| file.delete_prefix("#{root}/") }
+            Dir.glob(PATTERN, base: directory.to_s)
           end.sort.uniq
         end
 

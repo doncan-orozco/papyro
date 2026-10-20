@@ -16,7 +16,7 @@ Trying a real app found two problems, nothing more:
 1. **The engine crashed at boot.** `phlex_shadcn.exclude_tailwind_inputs` read `config.assets.excluded_paths`, a Propshaft option. Under
    Sprockets the options object answers `nil` for it and the initializer raised `NoMethodError` (every `rails` command failed).
    Fixed by running the exclusion only when the option exists.
-2. **Pinned files were refused.** Sprockets 4 raises `AssetNotPrecompiledError` for any asset not declared precompiled, and the app's
+2. **Pinned files were refused.** sprockets-rails raises `AssetNotPrecompiledError` for any asset not declared precompiled, and the app's
    `app/assets/config/manifest.js` cannot link files inside an installed gem. The importmap pins of the gem (`controllers/shadcn/*`,
    `shadcn/primitives/*`, the vendored `@floating-ui--*`) are therefore declared by the engine in `config.assets.precompile`
    (`Engine::SprocketsAssets`, only when `Sprockets::Railtie` is loaded; Propshaft ignores that list).
@@ -31,9 +31,9 @@ Tailwind build (tailwindcss-rails writes `app/assets/builds/tailwind.css`, the a
 |---|---|---|---|---|
 | 8.1 | Propshaft | importmap | tailwindcss-rails | supported, smoke in CI (`bin/smoke --app`) |
 | 8.1 | Propshaft | esbuild (jsbundling) | tailwindcss-rails | supported, smoke (`--js esbuild`), see js-bundlers.md |
-| 8.1 | Sprockets 4 (sprockets-rails 3.5) | importmap | tailwindcss-rails | supported, smoke `bin/smoke --app --assets sprockets` |
+| 8.1 | Sprockets 4 (sprockets-rails 3.5) | importmap | tailwindcss-rails | supported; `bin/smoke --app --assets sprockets` (development server, doctor, `assets:precompile` in production mode, browser dialog) run by hand at #177; not in CI yet |
 | 8.1 | Sprockets | esbuild | tailwindcss-rails | not covered: the copied JavaScript is bundled by esbuild and linked as `application.js`, which does not touch the asset pipeline, but no smoke proves it |
-| any | Sprockets 3 (sprockets-rails 3.4 or older), `.scss` or Sass pipeline for Tailwind | any | any | not supported (Tailwind 4 needs tailwindcss-rails; the gem's CSS is bundled by the Tailwind CLI, never by Sprockets) |
+| any | sprockets < 4 (any sprockets-rails), or Sass/SCSS instead of the Tailwind CLI | any | any | not supported (manifest.js is a Sprockets 4 concept; the doctor says so; the gem's CSS is bundled by the Tailwind CLI, never by Sprockets) |
 
 ## What stays Propshaft-only
 
@@ -46,13 +46,23 @@ machine; an app that cares links `//= link tailwind.css` instead of the whole di
 
 ## Doctor
 
-`asset_pipeline` names the detected pipeline: Propshaft, Sprockets (with the sprockets-rails version), both (warning), or none
+`asset_pipeline` names the detected pipeline: Propshaft, Sprockets (sprockets and sprockets-rails versions; below 4 is a warning), both (warning), or none
 (warning). For Sprockets it also checks that `app/assets/config/manifest.js` exists and links the builds directory or
 `tailwind.css`, because Sprockets refuses `stylesheet_link_tag "tailwind"` otherwise. The existing `propshaft stub filter` check
 already says "not applicable" without Propshaft, so the hook warning appears only where Propshaft is in use.
+
+## Follow-ups (not done here, by Owns)
+
+- CI: `.github/workflows/phlex-shadcn.yml` runs only `bin/smoke --app`; a matrix row `--assets sprockets` (and `--js esbuild`) is a follow-up.
+- CHANGELOG and README belong to docs-sync #181; the user-facing text is posted as a `shared` note on #177. The Sprockets user must have
+  `//= link_tree ../builds` (or `//= link tailwind.css`) in `app/assets/config/manifest.js`.
+- Sprockets also puts the gem's `app/assets/tailwind` folder on its load path (harmless: it is served only if linked).
 
 ## Edits outside this item's Owns
 
 `lib/phlex/shadcn/engine.rb` (the boot guard, the `require_relative` and a `phlex_shadcn.sprockets` initializer),
 `test/smoke/clean_app.rb` and `test/smoke/runner.rb` (`--assets sprockets`, and a check that every linked `/assets` file answers 200
 in all smokes). They belong to js-bundlers (#175, merged); recorded as a blocker note on #177 and in the PR.
+
+The manifest path lives in `lib/generators/phlex/shadcn/install/sprockets_manifest.rb` (new, outside Owns) only because gem_check forbids
+`app/...` literals outside the generators; the audit suggested inlining it, which would turn that gate red.

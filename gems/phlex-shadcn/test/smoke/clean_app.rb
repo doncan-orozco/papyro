@@ -95,6 +95,7 @@ module Smoke
       end
       build_javascript if esbuild?
       run_doctor
+      precompile_assets if sprockets?
       write(@app_dir.join("app/views/demo/index.rb"), @readme.view_source)
       write(@app_dir.join("app/controllers/demo_controller.rb"), @readme.controller_source)
       routes = @app_dir.join("config/routes.rb")
@@ -131,6 +132,21 @@ module Smoke
     def run_doctor
       say "bin/rails phlex_shadcn:doctor"
       run("bin/rails", "phlex_shadcn:doctor", chdir: @app_dir)
+      return unless sprockets?
+
+      # Warnings do not fail the doctor: the Sprockets app has to pass its pipeline check.
+      output = unbundled { IO.popen([ "bin/rails", "phlex_shadcn:doctor" ], chdir: @app_dir.to_s, err: %i[child out], &:read) }
+      raise "the doctor does not pass the asset pipeline check:\n#{output}" unless output.include?("[PASS] asset pipeline: Sprockets")
+    end
+
+    # Production build: every declared asset (the gem's JavaScript included) compiles and gets a digest in public/assets.
+    def precompile_assets
+      say "RAILS_ENV=production bin/rails assets:precompile"
+      success = unbundled { system({ "RAILS_ENV" => "production", "SECRET_KEY_BASE_DUMMY" => "1" }, "bin/rails", "assets:precompile", chdir: @app_dir.to_s) }
+      raise "assets:precompile failed" unless success
+
+      compiled = Dir[@app_dir.join("public/assets/controllers/shadcn/dialog_controller-*.js").to_s]
+      raise "assets:precompile did not compile the gem's dialog controller" if compiled.empty?
     end
 
     def esbuild? = @javascript == "esbuild"

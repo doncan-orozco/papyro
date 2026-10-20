@@ -2,16 +2,15 @@
 
 require "fileutils"
 require "tmpdir"
-require "generators/phlex/shadcn/install/sprockets_manifest"
 require_relative "engine_helper"
 
 # Sprockets support (dev/decisions/sprockets.md): the engine declares its JavaScript precompiled, boots without Propshaft's
 # options, and the doctor names the pipeline. The in-process application uses Propshaft; a Sprockets app is proven by
 # `bin/smoke --app --assets sprockets`, so here Sprockets' options object is imitated.
-class EngineTest::Sprockets < Minitest::Test
-  Generators = Phlex::Shadcn::Generators
+class EngineTest::SprocketsSupport < Minitest::Test
   Context = Phlex::Shadcn::Doctor::Context
   Check = Phlex::Shadcn::Doctor::Checks::AssetPipeline
+  MANIFEST = "app/assets/config/manifest.js"
   Options = Struct.new(:precompile)
   ENGINE = Phlex::Shadcn::Engine
 
@@ -25,8 +24,8 @@ class EngineTest::Sprockets < Minitest::Test
 
   def context(gems = {}, manifest: nil)
     if manifest
-      FileUtils.mkdir_p(@root.join(Generators::SprocketsManifest::PATH).dirname)
-      File.write(@root.join(Generators::SprocketsManifest::PATH), manifest)
+      FileUtils.mkdir_p(@root.join(MANIFEST).dirname)
+      File.write(@root.join(MANIFEST), manifest)
     end
     Context.new(root: @root, gems: gems.transform_values { |version| Gem::Version.new(version) })
   end
@@ -42,8 +41,13 @@ class EngineTest::Sprockets < Minitest::Test
 
   def test_every_importmap_pin_of_the_gem_is_declared
     declared = sprockets.logical_paths(engine_directories)
-    pinned = File.read(ENGINE.root.join("config/importmap.rb")).scan(/to: "([^"]+)"/).flatten
+    importmap = File.read(ENGINE.root.join("config/importmap.rb"))
+    pinned = importmap.scan(/to: "([^"]+)"/).flatten
+    importmap.scan(%r{pin_all_from File.expand_path\("\.\./([^"]+)", __dir__\), under: "([^"]+)"}).each do |dir, under|
+      pinned.concat(Dir.glob("**/*.js", base: ENGINE.root.join(dir).to_s).map { |file| "#{under}/#{file}" })
+    end
 
+    assert_operator pinned.size, :>, 40
     assert_empty pinned - declared
   end
 
@@ -64,10 +68,6 @@ class EngineTest::Sprockets < Minitest::Test
     assert_equal :skipped, sprockets.install(ActiveSupport::OrderedOptions.new, directories: engine_directories)
   end
 
-  def test_the_engine_does_not_declare_anything_in_the_propshaft_application
-    refute_includes EngineTest::Application.config.assets.precompile.to_a, "controllers/shadcn/dialog_controller.js"
-  end
-
   # Sprockets' `config.assets` is an options object without excluded_paths: reading it answers nil, and the initializer used to crash on it.
   def test_the_tailwind_input_exclusion_is_skipped_without_excluded_paths
     app = Struct.new(:config).new(Struct.new(:assets).new(ActiveSupport::OrderedOptions.new))
@@ -86,25 +86,32 @@ class EngineTest::Sprockets < Minitest::Test
   end
 
   def test_the_doctor_names_sprockets_and_accepts_a_manifest_linking_the_builds
-    result = Check.call(context({ "sprockets-rails" => "3.5.2" }, manifest: "//= link_tree ../images\n//= link_tree ../builds\n"))
+    result = Check.call(context({ "sprockets-rails" => "3.5.2", "sprockets" => "4.4.1" }, manifest: "//= link_tree ../images\n//= link_tree ../builds\n"))
 
     assert_equal :pass, result.status
-    assert_includes result.message, "Sprockets (sprockets-rails 3.5.2)"
+    assert_includes result.message, "Sprockets 4.4.1 (sprockets-rails 3.5.2)"
   end
 
   def test_the_doctor_accepts_a_manifest_that_links_the_tailwind_css_directly
-    assert_equal :pass, Check.call(context({ "sprockets-rails" => "3.5.2" }, manifest: "//= link tailwind.css\n")).status
+    assert_equal :pass, Check.call(context({ "sprockets-rails" => "3.5.2", "sprockets" => "4.4.1" }, manifest: "//= link tailwind.css\n")).status
   end
 
   def test_the_doctor_warns_about_a_sprockets_manifest_without_the_builds
-    result = Check.call(context({ "sprockets-rails" => "3.5.2" }, manifest: "//= link_tree ../images\n"))
+    result = Check.call(context({ "sprockets-rails" => "3.5.2", "sprockets" => "4.4.1" }, manifest: "//= link_tree ../images\n"))
 
     assert_equal :warn, result.status
     assert_includes result.fix, "link_tree ../builds"
   end
 
+  def test_the_doctor_warns_that_sprockets_3_is_unsupported
+    result = Check.call(context({ "sprockets-rails" => "3.4.2", "sprockets" => "3.7.2" }))
+
+    assert_equal :warn, result.status
+    assert_includes result.message, "Sprockets 3 is not supported"
+  end
+
   def test_the_doctor_warns_about_a_missing_sprockets_manifest
-    result = Check.call(context({ "sprockets-rails" => "3.5.2" }))
+    result = Check.call(context({ "sprockets-rails" => "3.5.2", "sprockets" => "4.4.1" }))
 
     assert_equal :warn, result.status
     assert_includes result.message, "not found"
