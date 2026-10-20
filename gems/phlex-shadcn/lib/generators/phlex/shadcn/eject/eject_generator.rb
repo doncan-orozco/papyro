@@ -33,7 +33,7 @@ module Phlex
                                  "else #{Phlex::Shadcn::Engine::DEFAULT_OVERRIDE_DIR})"
 
         # Units whose modules the gem's own classes include at load time: they are not reloaded under those classes.
-        RELOAD_COUPLED = %w[direction dropdown_menu].freeze
+        RELOAD_COUPLED = %w[direction direction/consumer dropdown_menu].freeze
         private_constant :RELOAD_COUPLED
 
         # Scripted runs (CI) must see a failure: Rails generators exit 0 on Thor::Error unless this is true.

@@ -151,6 +151,10 @@ class EjectGeneratorTest < Rails::Generators::TestCase
     refute_path_exists File.join(destination_root, DIR, "button.rb")
   end
 
+  test "ejecting a module the gem classes include warns that edits need a restart" do
+    assert_includes eject("direction/consumer"), "only after a restart"
+  end
+
   test "ejecting sonner takes its Toaster alias along" do
     eject "sonner"
 

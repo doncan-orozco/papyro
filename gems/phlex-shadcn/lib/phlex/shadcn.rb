@@ -29,6 +29,8 @@ module Phlex
     require_relative "shadcn/configuration"
     require_relative "shadcn/engine/overrides"
     @setup = false
+    SETUP_LOCK = Mutex.new
+    private_constant :SETUP_LOCK
 
     # @return [Phlex::Shadcn::Configuration] the gem's settings
     def self.config = (@config ||= Configuration.new)
@@ -46,22 +48,29 @@ module Phlex
     # @param override_loader [Zeitwerk::Loader, nil] the loader that owns the override directory; a loader of its own when nil
     # @return [void]
     def self.setup(override_loader: nil)
-      return if @setup
+      SETUP_LOCK.synchronize do
+        next if @setup
 
-      dir = config.override_dir
-      active = dir && File.directory?(dir)
-      Loader.ignore(*Overrides.shadowed(dir)) if active
-      Loader.setup
-      @setup = true
-      return unless active
+        dir = config.override_dir
+        active = dir && File.directory?(dir)
+        Loader.ignore(*Overrides.shadowed(dir)) if active
+        Loader.setup
+        @setup = true
+        mount_overrides(dir, override_loader) if active
+      end
+    end
 
-      # A loader that is given (the app's main autoloader) is set up by its owner, later; its own loader is set up here.
+    # A loader that is given (the app's main autoloader) is set up by its owner, later; its own loader is set up here.
+    def self.mount_overrides(dir, override_loader)
       own = override_loader.nil?
       override_loader ||= Zeitwerk::Loader.new.tap { |loader| loader.tag = "phlex-shadcn-overrides" }
       override_loader.push_dir(dir, namespace: self)
-      override_loader.setup if own
-      @override_loader = override_loader if own
+      return unless own
+
+      override_loader.setup
+      @override_loader = override_loader
     end
+    private_class_method :mount_overrides
 
     # A component looked up before {.setup} ran (the framework is loaded but the app has not initialized yet): sets the loader up with
     # the settings known so far and retries. The engine initializer refuses to start when that would drop an override directory.

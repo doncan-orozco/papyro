@@ -24,7 +24,7 @@ module Phlex
 
       # Gem files that hold a load-time reference into a unit (an alias constant), so they are ejected and shadowed with it: otherwise the
       # gem loader keeps the first-loaded class behind the alias and an edit of the copy never shows through it.
-      COMPANIONS = { "sonner" => %w[toaster.rb] }.freeze
+      COMPANIONS = { "sonner" => %w[toaster.rb], "sonner/toaster" => %w[toaster.rb] }.freeze
 
       # @param text [String] the text of an ejected file
       # @return [String] the text without its header (the gem file's text as it was copied)

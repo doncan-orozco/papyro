@@ -72,7 +72,7 @@ module Phlex
         app.config.phlex_shadcn.resolved_override_dir = override_dir
         if Phlex::Shadcn.setup?
           # A component was referenced before the app initialized (config/application.rb, an environment file): the loader is already up.
-          next unless File.directory?(override_dir) && Phlex::Shadcn.config.override_dir != override_dir
+          next unless File.directory?(override_dir)
 
           raise Phlex::Shadcn::Configuration::LateSettingError,
                 "phlex-shadcn components were loaded before the application initialized, so #{override_dir} is ignored: " \

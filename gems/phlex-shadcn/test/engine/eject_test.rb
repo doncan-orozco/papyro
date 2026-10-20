@@ -30,7 +30,7 @@ class EngineTest::Eject < Minitest::Test
     class ChildApp < Rails::Application
       config.root = ARGV[0]
       config.eager_load = ARGV[2] == "eager"
-      config.enable_reloading = ARGV[1] == "reload"
+      config.enable_reloading = ARGV[1].start_with?("reload")
       config.logger = Logger.new(IO::NULL)
       config.secret_key_base = "test"
     end
@@ -51,6 +51,13 @@ class EngineTest::Eject < Minitest::Test
       result["toaster_same_class"] = defined?(Phlex::Shadcn::Toaster) ? Phlex::Shadcn::Toaster.equal?(Phlex::Shadcn::Sonner::Toaster) : nil
       result["override_dir"] = Phlex::Shadcn.config.override_dir
       result["main_loader_roots"] = Rails.autoloaders.main.dirs.grep(/phlex_shadcn/)
+      if scenario == "reload_sonner"
+        path = File.join(root, "app/components/phlex_shadcn/sonner/toaster.rb")
+        File.write(path, File.read(path) + "\nPhlex::Shadcn::Sonner::Toaster::EDITED = 'yes'\n")
+        Rails.application.reloader.reload!
+        result["toaster_edited"] = Phlex::Shadcn::Toaster.const_defined?(:EDITED, false)
+        result["toaster_same_after"] = Phlex::Shadcn::Toaster.equal?(Phlex::Shadcn::Sonner::Toaster)
+      end
       if scenario == "reload"
         path = File.join(root, "app/components/phlex_shadcn/button.rb")
         File.write(path, File.read(path).sub('ejected: "yes"', 'ejected: "edited"'))
@@ -226,10 +233,18 @@ class EngineTest::Eject < Minitest::Test
 
   def test_an_ejected_sonner_carries_the_toaster_alias_and_the_edit_reloads_through_it
     eject "sonner"
-    result = rails_app("boot")
+    result = rails_app("reload_sonner")
 
     assert_equal "ok", result["boot"], result["error"]
     assert result["toaster_same_class"], "Toaster is the ejected Sonner::Toaster"
+    assert result["toaster_edited"], "an edit of the ejected Sonner::Toaster shows through Toaster after a reload"
+    assert result["toaster_same_after"]
+  end
+
+  def test_a_toaster_part_ejected_alone_takes_the_alias_along
+    eject "sonner/toaster"
+
+    assert_equal %w[sonner/toaster.rb toaster.rb], Dir.glob("**/*.rb", base: @root.join(DIR).to_s).sort
   end
 
   def test_the_override_directory_can_be_configured_in_the_environment_file
