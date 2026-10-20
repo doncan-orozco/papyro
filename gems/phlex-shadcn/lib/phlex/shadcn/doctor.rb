@@ -26,7 +26,7 @@ module Phlex
       #
       # @return [Array<Class>]
       def self.check_classes
-        Dir[File.join(CHECKS_DIR, "*.rb")].sort.map do |path|
+        Dir[File.join(CHECKS_DIR, "*.rb")].map do |path|
           Checks.const_get(File.basename(path, ".rb").split("_").map(&:capitalize).join)
         end
       end
