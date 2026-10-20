@@ -12,7 +12,7 @@ module Phlex
       module JsLayout
         # The JavaScript root, relative to the app root and to the gem's root alike.
         ROOT = "app/javascript"
-        # The Stimulus controllers, relative to {ROOT}'s parent: in the gem and in the app copies.
+        # The Stimulus controllers, relative to the app root (the copies) and to the gem's root (the sources) alike.
         CONTROLLERS_DIR = "app/javascript/controllers/shadcn"
         # The primitives the controllers import, in the gem and in the app copies.
         PRIMITIVES_DIR = "app/javascript/shadcn/primitives"

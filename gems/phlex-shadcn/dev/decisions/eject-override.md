@@ -121,7 +121,7 @@ Proven by `test/engine/eject_test.rb` (a Rails application booted per scenario i
 - **Generator**: `rails g phlex:shadcn:eject NAME...` (`button`, `Button`, `alert-dialog`, `dialog/content`), `--list`, `--diff` (a
   `diff -u` of the gem's file and the copy), `--force`, `--dir` (a path relative to the app root, default the configured override
   directory). Without `--force` nothing at all is written when one target exists. Infrastructure (`base`, `configuration`, `doctor`, `engine`,
-  `icons`, `theme`, `values`, `version`) cannot be ejected.
+  `icons`, `js_bundle`, `overrides`, `theme`, `values`, `version`) cannot be ejected.
 - **Review additions (#179)**: a component used before the app initializes (railties loaded, `initialize!` not run) sets the loader up
   on the spot through `Phlex::Shadcn.const_missing`; the engine then raises `LateSettingError` only if that dropped an existing override directory.
   Files in the override directory named like gem infrastructure (`base.rb`...) shadow nothing. `Overrides` first lived in `engine/overrides.rb`; #205 moved it to `overrides.rb` so path and constant agree. It is
