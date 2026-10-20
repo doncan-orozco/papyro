@@ -69,6 +69,15 @@ module Phlex
       initializer "phlex_shadcn.loader", before: :set_autoload_paths do |app|
         configured = app.config.phlex_shadcn.override_dir
         override_dir = app.root.join(configured || Phlex::Shadcn.config.override_dir || DEFAULT_OVERRIDE_DIR).to_s
+        app.config.phlex_shadcn.resolved_override_dir = override_dir
+        if Phlex::Shadcn.setup?
+          # A component was referenced before the app initialized (config/application.rb, an environment file): the loader is already up.
+          next unless File.directory?(override_dir) && Phlex::Shadcn.config.override_dir != override_dir
+
+          raise Phlex::Shadcn::Configuration::LateSettingError,
+                "phlex-shadcn components were loaded before the application initialized, so #{override_dir} is ignored: " \
+                "do not reference Phlex::Shadcn components in config/application.rb or config/environments/*.rb"
+        end
         Phlex::Shadcn.configure { |config| config.override_dir = override_dir }
         Phlex::Shadcn.setup(override_loader: ::Rails.autoloaders.main)
       end
@@ -76,11 +85,11 @@ module Phlex
       # config/initializers/*.rb load after the loader is set up: a late config.phlex_shadcn.override_dir would be ignored silently.
       initializer "phlex_shadcn.late_override_dir", after: :load_config_initializers do |app|
         configured = app.config.phlex_shadcn.override_dir
-        if configured && app.root.join(configured).to_s != Phlex::Shadcn.config.override_dir
-          raise Phlex::Shadcn::Configuration::LateSettingError,
-                "config.phlex_shadcn.override_dir was changed after phlex-shadcn loaded its components, so it is ignored: " \
-                "set it in config/application.rb or config/environments/*.rb"
-        end
+        next if configured.nil? || app.root.join(configured).to_s == app.config.phlex_shadcn.resolved_override_dir
+
+        raise Phlex::Shadcn::Configuration::LateSettingError,
+              "config.phlex_shadcn.override_dir was changed after phlex-shadcn loaded its components, so it is ignored: " \
+              "set it in config/application.rb or config/environments/*.rb"
       end
 
       initializer "phlex_shadcn.assets" do |app|

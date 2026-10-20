@@ -48,6 +48,7 @@ class EngineTest::Eject < Minitest::Test
       result["dialog_title_source"] = source(Phlex::Shadcn::Dialog::Title)
       result["dialog_content_source"] = source(Phlex::Shadcn::Dialog::Content)
       result["footer_uses_ejected_button"] = Phlex::Shadcn::Dialog::Footer.new(show_close_button: true).call.include?("data-ejected")
+      result["toaster_same_class"] = defined?(Phlex::Shadcn::Toaster) ? Phlex::Shadcn::Toaster.equal?(Phlex::Shadcn::Sonner::Toaster) : nil
       result["override_dir"] = Phlex::Shadcn.config.override_dir
       result["main_loader_roots"] = Rails.autoloaders.main.dirs.grep(/phlex_shadcn/)
       if scenario == "reload"
@@ -78,12 +79,21 @@ class EngineTest::Eject < Minitest::Test
     puts JSON.generate(result)
   RUBY
 
+  # Railties are loaded and a component is used, but no application is initialized.
+  EARLY = <<~RUBY
+    require "json"
+    require "rails"
+    require "phlex/shadcn"
+
+    puts JSON.generate("button" => Phlex::Shadcn::Button.new { "x" }.call)
+  RUBY
+
   PLAIN = <<~RUBY
     require "json"
     require "phlex/shadcn"
 
     result = {}
-    Phlex::Shadcn::Loader.eager_load if ARGV[1] == "eager"
+    Phlex::Shadcn.eager_load if ARGV[1] == "eager"
     result["button"] = Phlex::Shadcn::Button.new { "x" }.call
     result["button_source"] = Phlex::Shadcn::Button.instance_method(:view_template).source_location.first
     result["card_source"] = Phlex::Shadcn::Card.instance_method(:view_template).source_location.first
@@ -192,6 +202,34 @@ class EngineTest::Eject < Minitest::Test
     assert_equal File.join(Overrides::GEM_DIR, "card.rb"), result["after_edit_card_source"]
     assert_equal File.join(Overrides::GEM_DIR, "badge.rb"), result["after_add_badge_source"], "a file added at runtime is not active: restart"
     assert_match(/NameError: uninitialized constant Phlex::Shadcn::Button/, result["after_remove"], "a file removed at runtime leaves no Button: restart")
+  end
+
+  def test_a_component_used_before_the_application_initializes_still_loads
+    assert_includes child(EARLY)["button"], 'data-slot="button"'
+  end
+
+  def test_referencing_a_component_in_an_environment_file_raises_when_an_override_directory_exists
+    eject "button"
+    @root.join("config/environments").mkpath
+    @root.join("config/environments/test.rb").write("Phlex::Shadcn::Card\n")
+    result = rails_app("boot")
+
+    assert_match(/LateSettingError: phlex-shadcn components were loaded before the application initialized/, result["error"])
+  end
+
+  def test_referencing_a_component_in_an_environment_file_is_fine_without_an_override_directory
+    @root.join("config/environments").mkpath
+    @root.join("config/environments/test.rb").write("Phlex::Shadcn::Card\n")
+
+    assert_equal "ok", rails_app("boot")["boot"]
+  end
+
+  def test_an_ejected_sonner_carries_the_toaster_alias_and_the_edit_reloads_through_it
+    eject "sonner"
+    result = rails_app("boot")
+
+    assert_equal "ok", result["boot"], result["error"]
+    assert result["toaster_same_class"], "Toaster is the ejected Sonner::Toaster"
   end
 
   def test_the_override_directory_can_be_configured_in_the_environment_file
@@ -360,7 +398,7 @@ class EngineTest::Eject < Minitest::Test
 
   def test_doctor_warns_about_a_copy_without_a_header
     eject "button"
-    override("button.rb").write(override("button.rb").read.sub(/\A#.*\n#.*\n\n/, ""))
+    override("button.rb").write(Overrides.strip_header(override("button.rb").read))
     result = check
 
     assert_equal :warn, result.status
@@ -369,7 +407,6 @@ class EngineTest::Eject < Minitest::Test
 
   def test_doctor_warns_about_a_copy_whose_gem_file_is_gone
     eject "badge"
-    override("badge.rb").write(override("badge.rb").read.sub("lib/phlex/shadcn/badge.rb", "lib/phlex/shadcn/gone.rb"))
     gem_dir = Pathname.new(Dir.mktmpdir("phlex-shadcn-gem-without-badge"))
     FileUtils.cp_r("#{Overrides::GEM_DIR}/.", gem_dir)
     gem_dir.join("badge.rb").delete
@@ -379,6 +416,28 @@ class EngineTest::Eject < Minitest::Test
     assert_includes result.message, "badge.rb was ejected from phlex-shadcn but the gem no longer has that file"
   ensure
     FileUtils.remove_entry(gem_dir) if gem_dir
+  end
+
+  def test_doctor_leaves_the_apps_own_file_next_to_an_ejected_unit_alone
+    eject "dialog"
+    override("dialog/my_extra.rb").write("class Phlex::Shadcn::Dialog::MyExtra < Phlex::Shadcn::Base; end\n")
+
+    assert_equal :pass, check.status
+  end
+
+  def test_a_file_that_shadows_gem_infrastructure_shadows_nothing
+    override("base.rb").dirname.mkpath
+    override("base.rb").write("raise 'never loaded'\n")
+
+    assert_empty Overrides.shadowed(@root.join(DIR).to_s)
+  end
+
+  def test_ejecting_sonner_includes_its_toaster_alias
+    eject "sonner"
+
+    assert_includes Overrides.unit_files("sonner"), "toaster.rb"
+    assert_includes Overrides.shadowed(@root.join(DIR).to_s), File.join(Overrides::GEM_DIR, "toaster.rb")
+    assert_equal :pass, check.status
   end
 
   def test_doctor_leaves_the_apps_own_components_alone

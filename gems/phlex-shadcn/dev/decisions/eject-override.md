@@ -66,7 +66,7 @@ override in force for a leaf and for a nested part under a gem-owned `Dialog`. A
 otherwise a new file is skipped silently and a removed one raises `NameError` (Zeitwerk reasoning, not exercised by the spike; #179's engine test verifies it); the `Ejected` doctor check also reports override files that shadow no gem file. The Rails integration (main autoloader + `bin/dev` edit/reload) is
 verified in the eject-generator item's engine test, which is not possible here: this item owns only `dev/spikes` and this note.
 Constraint to document: a gem class that holds a reference to an ejected class in a constant survives a reload; the gem does not do this today
-(Pagination, ButtonGroup, Dialog::Footer, AlertDialog::ActionButton look the constant up at render time).
+(Pagination, ButtonGroup, Dialog::Footer, AlertDialog::ActionButton look the constant up at render time). Not true everywhere, found by the #179 review: `Toaster` is an alias constant of `Sonner::Toaster` (ejecting `sonner` therefore also ejects `toaster.rb`, `Overrides::COMPANIONS`), and gem classes `include` `Direction::Consumer`, `DropdownMenu::Support` and `*::Support` parts; an edit of an ejected copy of those reaches the gem classes only after a restart (the generator says so).
 
 ## Gem upgrade and stale copies
 
@@ -122,3 +122,7 @@ Proven by `test/engine/eject_test.rb` (a Rails application booted per scenario i
   `diff -u` of the gem's file and the copy), `--force`, `--dir` (a path relative to the app root, default the configured override
   directory). Without `--force` nothing at all is written when one target exists. Infrastructure (`base`, `configuration`, `doctor`, `engine`,
   `icons`, `theme`, `values`, `version`) cannot be ejected.
+- **Review additions (#179)**: a component used before the app initializes (railties loaded, `initialize!` not run) sets the loader up
+  on the spot through `Phlex::Shadcn.const_missing`; the engine then raises `LateSettingError` only if that dropped an existing override directory.
+  Files in the override directory named like gem infrastructure (`base.rb`...) shadow nothing. `Overrides` stays in `engine/overrides.rb`
+  (the item's Owns) although it is plain Ruby.

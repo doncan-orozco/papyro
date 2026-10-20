@@ -60,7 +60,25 @@ module Phlex
       override_loader ||= Zeitwerk::Loader.new.tap { |loader| loader.tag = "phlex-shadcn-overrides" }
       override_loader.push_dir(dir, namespace: self)
       override_loader.setup if own
+      @override_loader = override_loader if own
     end
+
+    # A component looked up before {.setup} ran (the framework is loaded but the app has not initialized yet): sets the loader up with
+    # the settings known so far and retries. The engine initializer refuses to start when that would drop an override directory.
+    #
+    # @api private
+    def self.const_missing(name)
+      return super if @setup
+
+      setup
+      const_defined?(name, false) ? const_get(name, false) : super
+    end
+
+    # Loads every component, the ejected ones included.
+    #
+    # @api private
+    # @return [void]
+    def self.eager_load = [ Loader, @override_loader ].compact.each(&:eager_load)
 
     # @api private
     # @return [Boolean] whether {.setup} ran (the override directory can no longer change)
@@ -72,6 +90,6 @@ if defined?(Rails::Engine)
   require "phlex/shadcn/engine"
 else
   override_dir = ENV.fetch("PHLEX_SHADCN_OVERRIDE_DIR", "")
-  Phlex::Shadcn.config.override_dir = override_dir unless override_dir.empty?
+  Phlex::Shadcn.config.override_dir = File.expand_path(override_dir) unless override_dir.empty?
   Phlex::Shadcn.setup
 end

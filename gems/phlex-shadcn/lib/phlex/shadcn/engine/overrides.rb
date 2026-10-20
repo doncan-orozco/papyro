@@ -22,6 +22,14 @@ module Phlex
       # The component names `phlex-shadcn:eject` accepts: snake_case, with `/` for a nested part (`dialog/content`).
       NAME = %r{\A[a-z][a-z0-9_]*(?:/[a-z][a-z0-9_]*)*\z}
 
+      # Gem files that hold a load-time reference into a unit (an alias constant), so they are ejected and shadowed with it: otherwise the
+      # gem loader keeps the first-loaded class behind the alias and an edit of the copy never shows through it.
+      COMPANIONS = { "sonner" => %w[toaster.rb] }.freeze
+
+      # @param text [String] the text of an ejected file
+      # @return [String] the text without its header (the gem file's text as it was copied)
+      def self.strip_header(text) = parse_header(text) ? text.sub(/\A(?:#.*\n){2}\n/, "") : text
+
       # @param text [String] the text of a gem file
       # @return [String] hexadecimal SHA-256
       def self.digest(text) = Digest::SHA256.hexdigest(text)
@@ -60,7 +68,8 @@ module Phlex
       def self.unit_files(name, dir: GEM_DIR)
         files = Dir.glob("#{name}/**/*.rb", base: dir)
         files << "#{name}.rb" if File.file?(File.join(dir, "#{name}.rb"))
-        files.sort
+        files.concat(COMPANIONS.fetch(name, []).select { |rel| File.file?(File.join(dir, rel)) })
+        files.uniq.sort
       end
 
       # @param name [String] a component or `component/part`
@@ -97,7 +106,8 @@ module Phlex
       def self.shadowed(override_dir, gem_dir: GEM_DIR)
         return [] unless override_dir && File.directory?(override_dir)
 
-        paths = Dir.glob("**/*.rb", base: override_dir).flat_map { |rel| [ File.join(gem_dir, rel), File.join(gem_dir, rel.delete_suffix(".rb")) ] }
+        files = Dir.glob("**/*.rb", base: override_dir).reject { |rel| INFRASTRUCTURE.include?(rel.split("/").first.delete_suffix(".rb")) }
+        paths = files.flat_map { |rel| [ File.join(gem_dir, rel), File.join(gem_dir, rel.delete_suffix(".rb")) ] }
         paths.uniq.select { |path| File.exist?(path) }
       end
     end

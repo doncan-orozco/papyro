@@ -27,11 +27,11 @@ module Phlex
           def self.call(context, override_dir: Shadcn.config.override_dir, gem_dir: Overrides::GEM_DIR)
             installed = context.gem_version("phlex-shadcn")&.to_s || VERSION
             units = Overrides.ejected_units(override_dir, gem_dir: gem_dir)
-            problems = units.flat_map { |unit| problems(unit, override_dir, gem_dir, installed) }
-            problems += orphans(override_dir, gem_dir)
+            by_unit = units.to_h { |unit| [ unit, problems(unit, override_dir, gem_dir, installed) ] }.reject { |_, found| found.empty? }
+            problems = by_unit.values.flatten + orphans(override_dir, gem_dir)
             return Result.passed(NAME, summary(units, override_dir)) if problems.empty?
 
-            Result.warning(NAME, problems.join("; "), fix: format(FIX, unit: units.first || "<component>"))
+            Result.warning(NAME, problems.join("; "), fix: format(FIX, unit: by_unit.keys.join(" ").then { |names| names.empty? ? "<component>" : names }))
           end
 
           # @return [String]
@@ -46,7 +46,10 @@ module Phlex
           def self.problems(unit, override_dir, gem_dir, installed)
             found = Overrides.unit_files(unit, dir: override_dir).flat_map do |rel|
               header = Overrides.parse_header(File.read(File.join(override_dir, rel), encoding: "UTF-8"))
-              header ? stale(unit, rel, header, gem_dir, installed) : [ "#{unit} (#{rel}) has no ejected header, so nothing says which gem file it was copied from" ]
+              next stale(unit, rel, header, gem_dir, installed) if header
+              next [] unless File.file?(File.join(gem_dir, rel)) # the app's own file next to an ejected unit
+
+              [ "#{unit} (#{rel}) has no ejected header, so nothing says which gem file it was copied from" ]
             end
             missing = Overrides.unit_files(unit, dir: gem_dir) - Overrides.unit_files(unit, dir: override_dir)
             found << "the gem has parts #{unit} lacks (#{missing.join(', ')}); eject them too or the component cannot load them" if missing.any? && unit_root?(unit, override_dir)
@@ -55,12 +58,12 @@ module Phlex
           private_class_method :problems
 
           # A component ejected through its root file takes the whole gem directory with it; a part ejected alone does not.
-          def self.unit_root?(unit, override_dir) = !unit.include?("/") && File.file?(File.join(override_dir, "#{unit}.rb"))
+          def self.unit_root?(unit, override_dir) = File.file?(File.join(override_dir, "#{unit}.rb"))
           private_class_method :unit_root?
 
           # @return [Array<String>]
           def self.stale(unit, rel, header, gem_dir, installed)
-            gem_file = File.join(gem_dir, rel)
+            gem_file = File.join(gem_dir, header[:source].delete_prefix("lib/phlex/shadcn/"))
             return [ "#{unit} (#{rel}) was copied from phlex-shadcn #{header[:version]}, but the gem has no such file any more" ] unless File.file?(gem_file)
             return [] if Overrides.digest(File.read(gem_file, encoding: "UTF-8")) == header[:digest]
 

@@ -32,6 +32,10 @@ module Phlex
                            desc: "The override directory, relative to the app root (default: config.phlex_shadcn.override_dir, " \
                                  "else #{Phlex::Shadcn::Engine::DEFAULT_OVERRIDE_DIR})"
 
+        # Units whose modules the gem's own classes include at load time: they are not reloaded under those classes.
+        RELOAD_COUPLED = %w[direction dropdown_menu].freeze
+        private_constant :RELOAD_COUPLED
+
         # Scripted runs (CI) must see a failure: Rails generators exit 0 on Thor::Error unless this is true.
         def self.exit_on_failure? = true
 
@@ -47,7 +51,7 @@ module Phlex
 
         private
 
-        def normalize(name) = name.to_s.gsub(/([a-z\d])([A-Z])/, '\1_\2').tr("-", "_").downcase
+        def normalize(name) = name.to_s.gsub("::", "/").gsub(/([a-z\d])([A-Z])/, '\1_\2').tr("-", "_").downcase
 
         def validate(name)
           return if Overrides.ejectable?(name)
@@ -71,8 +75,13 @@ module Phlex
         end
 
         def copy(names)
-          files = names.flat_map { |name| Overrides.unit_files(name) }.uniq
+          # Root files last: if a write fails half way, only parts are left, and a part shadows only its own gem file.
+          files = names.flat_map { |name| Overrides.unit_files(name) }.uniq.sort_by { |rel| [ rel.include?("/") ? 0 : 1, rel ] }
           existing = files.select { |rel| File.exist?(File.join(override_dir, rel)) }
+          if options[:skip]
+            files -= existing
+            existing = []
+          end
           if existing.any? && !options[:force]
             raise Thor::Error, "#{existing.map { |rel| display(File.join(override_dir, rel)) }.join(', ')} already exist(s): " \
                                "--force overwrites them (your edits are lost; `--diff` shows them first)"
@@ -89,7 +98,11 @@ module Phlex
         end
 
         def report(names)
+          return say("(pretend) would eject #{names.join(', ')} into #{display(override_dir)}") if options[:pretend]
+
           say "Ejected #{names.join(', ')} into #{display(override_dir)}. Restart the server: the override directory is read at boot."
+          coupled = names.select { |name| RELOAD_COUPLED.include?(name) || name.end_with?("/support") }
+          say "#{coupled.join(', ')}: gem classes include this code, so an edit of your copy reaches them only after a restart.", :yellow if coupled.any?
           return if File.expand_path(override_dir) == File.expand_path(Phlex::Shadcn.config.override_dir.to_s)
 
           say "#{display(override_dir)} is not the configured override directory: set config.phlex_shadcn.override_dir to it.", :yellow
@@ -105,7 +118,9 @@ module Phlex
         end
 
         def diff_output(gem_file, copy_path)
-          output, status = Open3.capture2e("diff", "-u", gem_file, copy_path)
+          body = Overrides.strip_header(File.read(copy_path, encoding: "UTF-8"))
+          output, status = Open3.capture2e("diff", "-u", "--label", "gem: #{gem_file.delete_prefix("#{Overrides::GEM_DIR}/")}", "--label", display(copy_path),
+                                           gem_file, "-", stdin_data: body)
           status.success? ? "#{display(copy_path)}: same as the gem's file" : output
         rescue SystemCallError
           "diff is not installed: compare #{gem_file} with #{copy_path} by hand"

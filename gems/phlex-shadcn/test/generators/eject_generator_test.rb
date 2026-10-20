@@ -37,13 +37,17 @@ class EjectGeneratorTest < Rails::Generators::TestCase
     assert_equal Phlex::Shadcn::VERSION, header[:version]
     assert_equal "lib/phlex/shadcn/button.rb", header[:source]
     assert_equal Overrides.digest(gem_file("button.rb")), header[:digest]
-    assert_equal gem_file("button.rb"), ejected("button.rb").sub(/\A#.*\n#.*\n\n/, "")
+    assert_equal gem_file("button.rb"), Overrides.strip_header(ejected("button.rb"))
   end
 
-  test "the ejected header keeps the frozen string literal magic comment effective" do
-    eject "button"
+  test "the header keeps the frozen string literal magic comment effective" do
+    path = File.join(destination_root, DIR, "probe.rb")
+    FileUtils.mkdir_p(File.dirname(path))
+    File.write(path, "#{Overrides.header(version: '0', source: 'x', text: '')}\n# frozen_string_literal: true\n\nLITERAL = 'lit'\n")
+    probe = Module.new
+    probe.module_eval(File.read(path), path)
 
-    assert_includes ejected("button.rb").lines.first(5).join, "# frozen_string_literal: true"
+    assert_predicate probe::LITERAL, :frozen?
   end
 
   test "a compound root is ejected with all its nested parts" do
@@ -63,11 +67,12 @@ class EjectGeneratorTest < Rails::Generators::TestCase
   end
 
   test "several components, in any spelling, in one run" do
-    eject "Button", "alert-dialog", "AspectRatio"
+    eject "Button", "alert-dialog", "AspectRatio", "Dialog::Content"
 
     assert_path_exists File.join(destination_root, DIR, "button.rb")
     assert_path_exists File.join(destination_root, DIR, "alert_dialog.rb")
     assert_path_exists File.join(destination_root, DIR, "aspect_ratio.rb")
+    assert_path_exists File.join(destination_root, DIR, "dialog/content.rb")
   end
 
   test "an existing file is never overwritten without --force, and nothing is written for the other components" do
@@ -125,17 +130,46 @@ class EjectGeneratorTest < Rails::Generators::TestCase
     assert_includes output, "+# changed"
   end
 
+  test "--diff of an untouched copy says it is the same as the gem's file" do
+    eject "badge"
+
+    assert_includes eject("badge", "--diff"), "same as the gem's file"
+  end
+
+  test "--skip leaves existing files alone and writes the rest" do
+    eject "button"
+    File.write(File.join(destination_root, DIR, "button.rb"), "# mine\n")
+    eject "badge", "button", "--skip"
+
+    assert_equal "# mine\n", ejected("button.rb")
+    assert_path_exists File.join(destination_root, DIR, "badge.rb")
+  end
+
+  test "--pretend writes nothing" do
+    eject "button", "--pretend"
+
+    refute_path_exists File.join(destination_root, DIR, "button.rb")
+  end
+
+  test "ejecting sonner takes its Toaster alias along" do
+    eject "sonner"
+
+    assert_path_exists File.join(destination_root, DIR, "toaster.rb")
+    assert_path_exists File.join(destination_root, DIR, "sonner/toaster.rb")
+  end
+
   test "--diff names a component that is not ejected" do
     assert_includes eject("badge", "--diff"), "is not ejected"
   end
 
   test "the generator writes to the configured override directory when --dir is not given" do
-    configured = Phlex::Shadcn.config.override_dir
-    Phlex::Shadcn.config.instance_variable_set(:@override_dir, File.join(destination_root, "custom/ui"))
+    dir = File.join(destination_root, "custom/ui")
+    config = Phlex::Shadcn.config
+    config.define_singleton_method(:override_dir) { dir }
     run_generator [ "badge" ]
 
-    assert_path_exists File.join(destination_root, "custom/ui/badge.rb")
+    assert_path_exists File.join(dir, "badge.rb")
   ensure
-    Phlex::Shadcn.config.instance_variable_set(:@override_dir, configured)
+    config.singleton_class.remove_method(:override_dir)
   end
 end
