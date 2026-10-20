@@ -64,7 +64,7 @@ modifiers }`) and `shadcn--calendar:month-change` (`detail: { month }`), both bu
 ```ruby
 render Phlex::Shadcn::Calendar.new(mode: :single, selected: Date.new(2026, 3, 15), class: "rounded-md border shadow-sm")
 
-# a range over two months, weeks starting on Monday, weekends and past days disabled
+# a range over two months, weeks starting on Monday, weekends and the days before March 2026 disabled
 render Phlex::Shadcn::Calendar.new(
   mode: :range, number_of_months: 2, week_starts_on: 1, selected: { from: Date.new(2026, 3, 10), to: Date.new(2026, 3, 14) },
   disabled: [ { day_of_week: [ 0, 6 ] }, { before: Date.new(2026, 3, 1) } ]
@@ -86,13 +86,15 @@ whose text shows the formatted selection (its first text is the placeholder, and
 
 ```ruby
 date = Date.new(2026, 3, 10) # the model's value, nil when empty
+# date-fns "PPP", the text the controller writes into the label: March 10th, 2026
+ordinal = date && ((11..13).cover?(date.day % 100) ? "th" : { 1 => "st", 2 => "nd", 3 => "rd" }.fetch(date.day % 10, "th"))
 
 form(action: "/events", method: "post") do
   input(type: "hidden", id: "event_date", name: "event[date]", value: date&.iso8601)
   render Phlex::Shadcn::Popover.new do
     render Phlex::Shadcn::Popover::Trigger.new(as_child: Phlex::Shadcn::Button.new(variant: "outline", class: "w-[240px] justify-start text-left font-normal has-[[data-empty=true]]:text-muted-foreground")) do
       render Phlex::Shadcn::Icon.new("calendar")
-      span(id: "event_date_label") { date ? date.strftime("%B %-d, %Y") : "Pick a date" }
+      span(id: "event_date_label", data: { shadcn__calendar_placeholder: "Pick a date", empty: date.nil?.to_s }) { date ? date.strftime("%B #{date.day}#{ordinal}, %Y") : "Pick a date" }
     end
     render Phlex::Shadcn::Popover::Content.new(class: "w-auto p-0", align: "start") do
       render Phlex::Shadcn::Calendar.new(mode: :single, selected: date, input: "#event_date", label: "#event_date_label", close_on_select: true)
@@ -101,9 +103,17 @@ form(action: "/events", method: "post") do
 end
 ```
 
+The calendar only connects when the popover opens, so the server renders the label in its final state: the text, `data-empty`, and the
+placeholder in `data-shadcn--calendar-placeholder` (the controller falls back to it when the selection is cleared; without the attribute
+the label's first text becomes the placeholder, which is wrong when the label already shows a date). Format the text like the controller
+does (`March 10th, 2026` for English; other locales use `Intl` `dateStyle: "long"`), or the label changes the first time it is used.
+An `input:` or `label:` selector that matches nothing logs an error and is ignored; `input: { from:, to: }` is only valid for `mode: :range`.
+
 A range picker takes one selector per input (`input: { from: "#stay_from", to: "#stay_to" }`) or a single input holding
 `YYYY-MM-DD/YYYY-MM-DD`; a multiple picker holds `YYYY-MM-DD,YYYY-MM-DD`. A calendar that is not inside a popover can submit by itself
-with `name:`: it renders hidden inputs (`name`, `name[]` or `name[from]` and `name[to]`) that the controller keeps in sync.
+with `name:`: it renders hidden inputs (`name`, `name[]` or `name[from]` and `name[to]`) that the controller keeps in sync. A multiple
+calendar starts its `name[]` list with one blank value (like Rails' check box collections) so an empty selection still submits the key;
+call `compact_blank` on the array.
 
 ```ruby
 form(action: "/stays", method: "post") do

@@ -407,3 +407,44 @@ browserTest("calendar: disabled and hidden matchers are data: ranges, intervals 
   assert.equal(await page.evaluate(() => document.activeElement.closest("td").dataset.day), "2026-03-22", "20th hidden, 21st a Saturday");
   assert.equal(await page.locator('td[data-day="2026-03-20"] button').count(), 0);
 });
+
+browserTest("calendar: a pre-filled label with a declared placeholder falls back to it when the selection is cleared", async ({ open }) => {
+  const page = await open("mode-single__rest");
+  await page.evaluate(() => document.body.append(Object.assign(document.createElement("span"), { id: "shown", textContent: "March 22nd, 2026" })));
+  await page.evaluate(() => { const label = document.querySelector("#shown"); label.setAttribute("data-shadcn--calendar-placeholder", "Pick a date"); label.setAttribute("data-empty", "false"); });
+  await configure(page, { label: "#shown", selected: "2026-03-22" });
+  assert.equal(await page.getAttribute("#shown", "data-shadcn--calendar-placeholder"), "Pick a date", "the declared placeholder is kept");
+  assert.equal(await page.getAttribute("#shown", "data-empty"), "false");
+  await page.click(day("2026-03-22"));
+  assert.equal(await page.textContent("#shown"), "Pick a date");
+  assert.equal(await page.getAttribute("#shown", "data-empty"), "true");
+});
+
+browserTest("calendar: an input: selector that matches nothing logs an error and never overrides selected:", async ({ open }) => {
+  const page = await open("mode-single__selected");
+  const errors = [];
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+  await configure(page, { input: "#nope" });
+  assert.equal(await page.locator('td[aria-selected="true"]').getAttribute("data-day"), "2026-03-10");
+  assert.ok(errors.some((text) => text.includes('"#nope"')), errors.join("|"));
+  await page.click(day("2026-03-12"));
+  assert.equal(await page.locator('td[aria-selected="true"]').getAttribute("data-day"), "2026-03-12");
+
+  const range = await open("mode-range__selected");
+  await configure(range, { input: { from: "#nope-from", to: "#nope-to" } });
+  assert.equal(await range.locator('td[aria-selected="true"]').count(), 5, "range keeps selected:");
+  const multiple = await open("mode-multiple__selected");
+  await configure(multiple, { input: "#nope" });
+  assert.equal(await multiple.locator('td[aria-selected="true"]').count(), 3);
+});
+
+browserTest("calendar: without input: the inline name: inputs are the source on a reconnect", async ({ open }) => {
+  const page = await open("mode-single__selected");
+  await page.evaluate(() => {
+    const field = Object.assign(document.createElement("input"), { type: "hidden", name: "day", value: "2026-03-18" });
+    field.setAttribute("data-shadcn--calendar-field", "single");
+    document.querySelector("[data-slot=calendar]").append(field);
+  });
+  await reconnect(page);
+  assert.equal(await page.locator('td[aria-selected="true"]').getAttribute("data-day"), "2026-03-18");
+});

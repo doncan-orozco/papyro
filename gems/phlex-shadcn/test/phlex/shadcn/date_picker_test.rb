@@ -10,7 +10,10 @@ class Phlex::Shadcn::DatePickerTest < Phlex::Shadcn::TestCase
   Calendar = Phlex::Shadcn::Calendar
 
   # The composition of the docs, as a form field named `event[date]`.
+  def ordinal(day) = (11..13).cover?(day % 100) ? "th" : { 1 => "st", 2 => "nd", 3 => "rd" }.fetch(day % 10, "th")
+
   def date_picker(date: nil, **calendar)
+    suffix = date && ordinal(date.day)
     Class.new(Phlex::HTML) do
       define_method(:view_template) do
         form(action: "/events", method: "post") do
@@ -18,7 +21,9 @@ class Phlex::Shadcn::DatePickerTest < Phlex::Shadcn::TestCase
           render Popover.new do
             render Popover::Trigger.new(as_child: Phlex::Shadcn::Button.new(variant: "outline", class: "w-[240px] justify-start text-left font-normal")) do
               render Phlex::Shadcn::Icon.new("calendar")
-              span(id: "event_date_label") { date ? date.strftime("%B %-d, %Y") : "Pick a date" }
+              span(id: "event_date_label", data: { shadcn__calendar_placeholder: "Pick a date", empty: date.nil?.to_s }) do
+                date ? date.strftime("%B #{date.day}#{suffix}, %Y") : "Pick a date"
+              end
             end
             render Popover::Content.new(class: "w-auto p-0", align: "start") do
               render Calendar.new(mode: :single, input: "#event_date", label: "#event_date_label", close_on_select: true, **calendar)
@@ -59,7 +64,20 @@ class Phlex::Shadcn::DatePickerTest < Phlex::Shadcn::TestCase
     assert_equal "#event_date", config["input"]
     assert_equal "#event_date_label", config["label"]
     assert config["closeOnSelect"]
-    assert_equal "March 10, 2026", fragment.at_css("#event_date_label").text
+    label = fragment.at_css("#event_date_label")
+
+    assert_equal "March 10th, 2026", label.text
+    assert_equal "Pick a date", label["data-shadcn--calendar-placeholder"]
+    assert_equal "false", label["data-empty"]
+  end
+
+  test "an empty picker renders the placeholder text with data-empty true; ordinals follow date-fns" do
+    label = doc(date_picker).at_css("#event_date_label")
+
+    assert_equal [ "Pick a date", "Pick a date", "true" ], [ label.text, label["data-shadcn--calendar-placeholder"], label["data-empty"] ]
+    suffixes = [ 1, 2, 3, 4, 11, 12, 13, 21, 22, 23, 31 ].map { |day| ordinal(day) }
+
+    assert_equal %w[st nd rd th th th th st nd rd st], suffixes
   end
 
   test "the trigger is a button with the calendar icon and the label span" do

@@ -19,7 +19,8 @@ class ShadcnParity::TreeRenderer < Phlex::HTML
 
   ICON = /\A<icon:([\w-]+)>/
   REF = /\A\$ref:/
-  DATE_OR_LOCALE = /\A\$(?:date|locale):/
+  DATE = /\A\$date:(\d{4}-\d{2}-\d{2})\z/
+  LOCALE = /\A\$locale:(.+)\z/
   PARITY_ROOTS = %w[Probe ProbeGroup].freeze
   Target = Struct.new(:klass, :root, :helper)
 
@@ -168,10 +169,10 @@ class ShadcnParity::TreeRenderer < Phlex::HTML
     end
   end
 
-  # "$date:2026-03-15" -> "2026-03-15", "$locale:es" -> "es", at any depth (nested hashes keep their React key names).
+  # "$date:2026-03-15" -> "2026-03-15", "$locale:es" -> "es" (exact shapes, like Harness.tsx; anything else stays verbatim), at any depth (nested hashes keep their React key names).
   def plain_values(value)
     case value
-    when String then value.match?(DATE_OR_LOCALE) ? value.sub(DATE_OR_LOCALE, "") : value
+    when String then (value[DATE, 1] || value[LOCALE, 1]) || value
     when Array then value.map { |v| plain_values(v) }
     when Hash then value.key?("c") ? value : value.transform_values { |v| plain_values(v) }
     else value

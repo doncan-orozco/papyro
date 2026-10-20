@@ -47,6 +47,7 @@ module Phlex::Shadcn::Calendar::Parts
         tr do
           part(:week_number_header, :th, class: @classes[:week_number_header], scope: "col", aria: { label: labels["weekNumberHeader"] })
           part(:weekday, :th, class: @classes[:weekday], scope: "col")
+          # `week` is rdp's week object spread onto the td by the shadcn override; React stringifies it, and the oracle DOM has it.
           part(:week_number, :td, week: "[object Object]", class: @classes[:week_number], scope: "row", role: "rowheader") { div(class: WEEK_NUMBER_BOX) }
           part(:day, :td, role: "gridcell")
         end

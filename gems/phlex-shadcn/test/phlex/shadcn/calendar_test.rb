@@ -239,6 +239,15 @@ class Phlex::Shadcn::CalendarTest < Phlex::Shadcn::TestCase
     end
   end
 
+  test "input: hashes need mode range and exactly from and to selectors; selected: and name: need a mode" do
+    assert_raises(ArgumentError) { calendar(mode: :single, input: { from: "#a", to: "#b" }) }
+    assert_raises(ArgumentError) { calendar(mode: :range, input: { from: "#a" }) }
+    assert_raises(ArgumentError) { calendar(mode: :range, input: { from: "#a", to: "#b", extra: "#c" }) }
+    assert_raises(ArgumentError) { calendar(mode: :range, input: { from: "#a", to: 1 }) }
+    assert_raises(ArgumentError) { calendar(selected: "2026-03-10") }
+    assert_raises(ArgumentError) { calendar(name: "day") }
+  end
+
   test "components: {} is accepted" do
     assert_equal "calendar", root(calendar(components: {}))["data-slot"]
   end

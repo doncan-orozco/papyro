@@ -356,12 +356,13 @@ export function dateMatches(date, matchers) {
     if ("from" in matcher) return rangeIncludes(matcher, date, false)
     if ("dayOfWeek" in matcher) return [].concat(matcher.dayOfWeek).includes(date.getDay())
     if ("before" in matcher && "after" in matcher) {
+      if (!isDate(matcher.before) || !isDate(matcher.after)) return false
       const before = differenceInCalendarDays(matcher.before, date) > 0
       const after = differenceInCalendarDays(matcher.after, date) < 0
       return isAfter(matcher.before, matcher.after) ? after && before : before || after
     }
-    if ("after" in matcher) return differenceInCalendarDays(date, matcher.after) > 0
-    if ("before" in matcher) return differenceInCalendarDays(matcher.before, date) > 0
+    if ("after" in matcher) return isDate(matcher.after) && differenceInCalendarDays(date, matcher.after) > 0
+    if ("before" in matcher) return isDate(matcher.before) && differenceInCalendarDays(matcher.before, date) > 0
     return false
   })
 }
@@ -388,7 +389,7 @@ export function rangeContainsMatch(range, matchers) {
       const total = Math.min(differenceInCalendarDays(range.to, range.from), 6)
       return Array.from({ length: total + 1 }, (_, offset) => addDays(range.from, offset)).some((date) => days.includes(date.getDay()))
     }
-    if ("before" in matcher && "after" in matcher && isAfter(matcher.before, matcher.after)) {
+    if ("before" in matcher && "after" in matcher && isDate(matcher.before) && isDate(matcher.after) && isAfter(matcher.before, matcher.after)) {
       return rangesOverlap(range, { from: addDays(matcher.after, 1), to: addDays(matcher.before, -1) })
     }
     if ("before" in matcher || "after" in matcher) return dateMatches(range.from, matcher) || dateMatches(range.to, matcher)

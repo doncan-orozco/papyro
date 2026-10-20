@@ -29,10 +29,6 @@ class Phlex::Shadcn::Calendar::Options
   attr_reader :show_week_number
   # @return [Boolean]
   attr_reader :hide_navigation
-  # @return [Boolean]
-  attr_reader :hide_weekdays
-  # @return [Integer]
-  attr_reader :number_of_months
   # @return [String, nil]
   attr_reader :footer
   # @return [String, nil]
@@ -66,6 +62,9 @@ class Phlex::Shadcn::Calendar::Options
     @default_month = Phlex::Shadcn::Calendar::Dates.first_of_month(default_month, "default_month")
     @start_month = Phlex::Shadcn::Calendar::Dates.first_of_month(start_month, "start_month")
     @end_month = Phlex::Shadcn::Calendar::Dates.first_of_month(end_month, "end_month")
+    raise ArgumentError, "selected: needs a mode (#{MODES.join(', ')})" if !selected.nil? && @mode.nil?
+    raise ArgumentError, "name: needs a mode (#{MODES.join(', ')})" if name && @mode.nil?
+
     @selected = selection(selected)
     @class_names = class_name_overrides(class_names)
     @modifiers_class_names = (modifiers_class_names || {}).to_h { |key, value| [ key.to_s, value.to_s ] }
@@ -87,9 +86,6 @@ class Phlex::Shadcn::Calendar::Options
     @input = input_selectors(input)
     @label = label&.to_s
   end
-
-  # @return [Boolean] whether the days are buttons (a `mode` is set)
-  def interactive? = !@mode.nil?
 
   # @return [Boolean] whether a year dropdown is shown (it brings the default navigation bounds)
   def year_dropdown? = %w[dropdown dropdown-years].include?(@caption_layout)
@@ -209,7 +205,8 @@ class Phlex::Shadcn::Calendar::Options
     when nil, String then value
     when Hash
       pairs = value.transform_keys(&:to_s)
-      raise ArgumentError, "input: takes a selector String or { from:, to: } selectors" unless (pairs.keys - %w[from to]).empty? && pairs.values.all?(String)
+      raise ArgumentError, "input: { from:, to: } is only valid for mode range" unless @mode == "range"
+      raise ArgumentError, "input: { from:, to: } needs exactly a from and a to selector String" unless pairs.keys.sort == %w[from to] && pairs.values.all?(String)
 
       pairs
     else raise ArgumentError, "input: takes a selector String or { from:, to: } selectors, got #{value.inspect}"

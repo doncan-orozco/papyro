@@ -93,10 +93,11 @@ export default class extends Controller {
     this.storePlaceholder()
   }
 
-  // A selection written in the external input wins over `selected:` (spec calendar.md, DatePicker rules).
+  // A selection written in the external input wins over `selected:` (spec calendar.md, DatePicker rules). Without `input:` the inline
+  // `name:` inputs are the source on a reconnect (a Turbo snapshot keeps what the user chose); a missing input never overrides `selected:`.
   initialSelection() {
-    const fromInput = this.cfg.input ? this.readInput() : undefined
-    this.selectionFromInput = fromInput !== undefined && this.hasSelection(fromInput)
+    const fromInput = this.cfg.input ? this.readInput() : this.readInline()
+    this.selectionFromInput = Boolean(this.cfg.input) && fromInput !== undefined && this.hasSelection(fromInput)
     const selected = fromInput === undefined ? this.reviveSelection(this.cfg.selected) : fromInput
     return this.mode === "multiple" ? selected || [] : selected || null
   }
@@ -444,7 +445,8 @@ export default class extends Controller {
   syncDay(cell, day, modifiers, target, toFocus) {
     const { td } = cell
     const interactive = Boolean(this.mode)
-    if (td.className !== this.dayClassName(modifiers)) td.className = this.dayClassName(modifiers)
+    const className = this.dayClassName(modifiers)
+    if (td.className !== className) td.className = className
     setAttr(td, "aria-selected", modifiers.selected ? "true" : undefined)
     setAttr(td, "aria-label", !interactive && !modifiers.hidden ? this.dayLabel(day.date, modifiers, false) : undefined)
     setAttr(td, "data-day", day.iso)
@@ -683,7 +685,23 @@ export default class extends Controller {
   inputs() {
     const input = this.cfg.input
     if (!input) return null
-    return typeof input === "string" ? { value: document.querySelector(input) } : { from: document.querySelector(input.from), to: document.querySelector(input.to) }
+    const selectors = typeof input === "string" ? [input] : [input.from, input.to]
+    const found = selectors.map((selector) => document.querySelector(selector))
+    const missing = selectors.filter((_, index) => !found[index])
+    if (missing.length) {
+      console.error(`shadcn--calendar: input ${missing.map((selector) => `"${selector}"`).join(", ")} matches no element; the selection is not read from or written to it`, this.element)
+      return null
+    }
+    return typeof input === "string" ? { value: found[0] } : { from: found[0], to: found[1] }
+  }
+
+  // The inline `name:` inputs as a selection, or undefined when the calendar has none.
+  readInline() {
+    const field = (kind) => this.element.querySelector(`input[data-shadcn--calendar-field="${kind}"]`)
+    if (this.mode === "single") return field("single") ? grid.parseISO(field("single").value) : undefined
+    if (this.mode === "range") return field("from") ? rangeOrNull(grid.parseISO(field("from").value), grid.parseISO(field("to")?.value)) : undefined
+    if (this.mode !== "multiple" || !field("blank")) return undefined
+    return [...this.element.querySelectorAll('input[data-shadcn--calendar-field="item"]')].map((item) => grid.parseISO(item.value)).filter(Boolean)
   }
 
   readInput() {
@@ -753,7 +771,8 @@ export default class extends Controller {
     return this.cfg.label ? document.querySelector(this.cfg.label) : null
   }
 
-  // The initial text of the label element stays the placeholder (stored once, so a re-opened popover keeps the first one).
+  // The placeholder is declared by the server (`data-shadcn--calendar-placeholder`: the calendar connects only when the popover opens, so
+  // the label's own text may already be a date). Without the attribute the element's first text becomes the placeholder, stored once.
   storePlaceholder() {
     const label = this.labelElement
     if (label && !label.hasAttribute("data-shadcn--calendar-placeholder")) label.setAttribute("data-shadcn--calendar-placeholder", label.textContent)
