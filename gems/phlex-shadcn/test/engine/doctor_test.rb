@@ -122,4 +122,82 @@ class EngineTest::DoctorTask < Minitest::Test
     assert_equal :pass, statuses.fetch("source block")
     assert_equal :pass, statuses.fetch("theme import")
   end
+
+  # The javascript pipeline check, on an app directory with injected gems.
+  def js_pipeline(dir, gems = {})
+    context = Phlex::Shadcn::Doctor::Context.new(root: dir, gems: gems.transform_values { |version| Gem::Version.new(version) })
+    Phlex::Shadcn::Doctor::Checks::JsPipeline.call(context)
+  end
+
+  def esbuild_app(dir)
+    require "generators/phlex/shadcn/install/install_generator"
+    File.write(File.join(dir, "package.json"), %({"scripts": {"build": "esbuild app/javascript/*.*"}, "dependencies": {"@floating-ui/dom": "^1.8.0"}}))
+    FileUtils.mkdir_p(File.join(dir, "app/javascript"))
+    File.write(File.join(dir, "app/javascript/application.js"), "import \"./controllers\"\n")
+  end
+
+  def test_the_pipeline_check_passes_for_importmap
+    Dir.mktmpdir("phlex-shadcn-doctor-js") do |dir|
+      FileUtils.mkdir_p(File.join(dir, "config"))
+      File.write(File.join(dir, "config/importmap.rb"), "")
+
+      assert_equal :pass, js_pipeline(dir, "importmap-rails" => "2.0.0").status
+      assert_equal :fail, js_pipeline(dir).status
+    end
+  end
+
+  def test_the_pipeline_check_fails_for_an_esbuild_app_that_was_never_installed
+    Dir.mktmpdir("phlex-shadcn-doctor-js") do |dir|
+      esbuild_app(dir)
+      result = js_pipeline(dir)
+
+      assert_equal :fail, result.status
+      assert_includes result.message, "esbuild (jsbundling)"
+      assert_includes result.message, "copied file(s) missing"
+      assert_includes result.fix, "--js esbuild"
+    end
+  end
+
+  def test_the_pipeline_check_passes_after_the_installer_and_warns_when_a_copy_goes_stale_or_wiring_is_missing
+    Dir.mktmpdir("phlex-shadcn-doctor-js") do |dir|
+      esbuild_app(dir)
+      FileUtils.mkdir_p(File.join(dir, "app/assets/tailwind"))
+      File.write(File.join(dir, "app/assets/tailwind/application.css"), "@import \"tailwindcss\";\n")
+      capture_io { Phlex::Shadcn::Generators::InstallGenerator.start([], destination_root: dir) }
+
+      assert_equal :pass, js_pipeline(dir).status, js_pipeline(dir).message
+
+      File.write(File.join(dir, "app/javascript/shadcn/primitives/presence.js"), "// edited\n")
+      stale = js_pipeline(dir)
+
+      assert_equal :fail, stale.status
+      assert_includes stale.message, "differ from the gem's (app/javascript/shadcn/primitives/presence.js)"
+
+      File.write(File.join(dir, "app/javascript/application.js"), "")
+      File.write(File.join(dir, "package.json"), %({"scripts": {"build": "esbuild"}}))
+
+      assert_includes js_pipeline(dir).message, "lacks"
+    end
+  end
+
+  def test_the_stimulus_check_accepts_the_installers_registration_in_an_esbuild_app
+    Dir.mktmpdir("phlex-shadcn-doctor-js") do |dir|
+      esbuild_app(dir)
+      FileUtils.mkdir_p(File.join(dir, "app/assets/tailwind"))
+      File.write(File.join(dir, "app/assets/tailwind/application.css"), "@import \"tailwindcss\";\n")
+      capture_io { Phlex::Shadcn::Generators::InstallGenerator.start([], destination_root: dir) }
+      context = Phlex::Shadcn::Doctor::Context.new(root: dir, gems: { "stimulus-rails" => Gem::Version.new("1.3.0") })
+
+      assert_equal :pass, Phlex::Shadcn::Doctor::Checks::Stimulus.call(context).status
+    end
+  end
+
+  def test_the_pipeline_check_warns_for_an_unknown_bundler_and_fails_without_a_pipeline
+    Dir.mktmpdir("phlex-shadcn-doctor-js") do |dir|
+      assert_equal :fail, js_pipeline(dir).status
+      File.write(File.join(dir, "package.json"), %({"scripts": {"build": "webpack"}}))
+
+      assert_equal :warn, js_pipeline(dir).status
+    end
+  end
 end
