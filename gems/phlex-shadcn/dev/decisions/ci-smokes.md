@@ -20,9 +20,9 @@ would be one more moving part for three steps. The rows run in parallel, `fail-f
 
 ## Runtime added
 
-Two more `ubuntu-latest` runners per run, in parallel with the existing jobs, so wall-clock time grows only by the slowest row (about
-the length of the importmap smoke, a few minutes: `rails new`, `bundle install`, Tailwind build, one browser scenario; esbuild adds a
-`yarn`/`npm install` and a bundle step). Runner minutes grow by roughly two importmap smokes. Timeout is 30 minutes per row, like `clean-app`.
+Two more `ubuntu-latest` runners per run, in parallel with the existing jobs, so wall-clock time grows by nothing as long as the
+runners are available. Measured on the PR run (cold caches): importmap smoke 1m32s, esbuild 1m45s, sprockets 1m53s; the whole workflow
+finished in 2m29s. Runner minutes grow by about two importmap smokes (~4 minutes). Timeout is 30 minutes per row, like `clean-app`.
 
 ## Caching
 
