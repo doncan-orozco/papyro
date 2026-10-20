@@ -9,7 +9,7 @@ module Phlex
         # @api private
         module EngineBundle
           NAME = "engine bundle"
-          BUNDLE = "app/assets/builds/tailwind/phlex-shadcn"
+          BUNDLE = File.join("app", "assets", "builds", "tailwind", "phlex-shadcn")
 
           # @param context [Context]
           # @return [Result]

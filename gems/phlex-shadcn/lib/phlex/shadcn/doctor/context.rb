@@ -7,12 +7,12 @@ module Phlex
   module Shadcn
     module Doctor
       # What the checks look at: the app's files and the gem versions in its bundle. Everything is injectable, so the checks are tested
-      # against fixture directories and never need Rails.
+      # against fixture directories and need no framework.
       #
       # @api private
       class Context
         # The Tailwind entry file `rails g phlex:shadcn:install` edits, relative to the app root.
-        DEFAULT_CSS = "app/assets/tailwind/application.css"
+        DEFAULT_CSS = File.join("app", "assets", "tailwind", "application.css")
         # The supported Phlex range when the gem's own specification is not loaded.
         DEFAULT_PHLEX_REQUIREMENT = "~> 2.3"
 
