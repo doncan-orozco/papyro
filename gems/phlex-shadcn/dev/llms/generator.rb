@@ -18,7 +18,9 @@ module Phlex
       GEMSPEC = File.expand_path("../../phlex-shadcn.gemspec", __dir__)
       DISPATCH = /dispatch\(\s*["']([a-z][a-z-]*)["']/
       PREFIXED = /CustomEvent\(\s*["`]shadcn--[a-z-]+:([a-z][a-z-]*)["`]/
-      # A method that forwards its first parameter to dispatch (`#forward(name, event) { ... this.dispatch(name, ...) }`).
+      SHARED_IMPORT = %r!^import \{([^}]+)\} from "controllers/shadcn/(\w+)_controller"!
+      HOST_DISPATCH = /controller\.dispatch\(\s*["']([a-z][a-z-]*)["']/
+      # A method that forwards its first parameter to dispatch (`#forward(name, event) { ... this.dispatch(name, ...) }`); its closing brace sits at 2-space indent.
       FORWARDER = /^\s+(#?[A-Za-z_]\w*)\((\w+)[^)]*\)\s*\{\n(.*?)^  \}/m
 
       # The one place the repository location is written is the gemspec; the links in the generated files derive from its homepage.
@@ -146,7 +148,7 @@ module Phlex
       def controller_info(name, seen = [])
         source = File.read(controller_file(name), encoding: "UTF-8")
         values = static_values(source)
-        events = source.scan(DISPATCH).flatten + source.scan(PREFIXED).flatten + forwarded_events(source)
+        events = source.scan(DISPATCH).flatten + source.scan(PREFIXED).flatten + forwarded_events(source) + shared_events(source)
         parent = inherited_controller(source)
         if parent && !seen.include?(parent) && File.file?(controller_file(parent))
           inherited = controller_info(parent, seen + [ name ])
@@ -173,6 +175,19 @@ module Phlex
       def forwarded_events(source)
         helpers = source.scan(FORWARDER).select { |_, param, body| body.match?(/dispatch\(\s*#{Regexp.escape(param)}\b/) }.map(&:first)
         helpers.flat_map { |helper| source.scan(/#{Regexp.escape(helper)}\(\s*["']([a-z][a-z-]*)["']/).flatten }
+      end
+
+      # Events of a helper class imported from another controller file that dispatches on its host (`this.controller.dispatch(...)`):
+      # Stimulus prefixes them with the host controller's identifier.
+      def shared_events(source)
+        source.scan(SHARED_IMPORT).flat_map do |_names, file|
+          path = controller_file(file.tr("_", "-"))
+          next [] unless File.file?(path)
+
+          shared = File.read(path, encoding: "UTF-8")
+          helpers = shared.scan(FORWARDER).select { |_, param, body| body.match?(/controller\.dispatch\(\s*#{Regexp.escape(param)}\b/) }.map(&:first)
+          shared.scan(HOST_DISPATCH).flatten + helpers.flat_map { |h| shared.scan(/#{Regexp.escape(h)}\(\s*["']([a-z][a-z-]*)["']/).flatten }
+        end
       end
 
       def inherited_controller(source)

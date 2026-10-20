@@ -68,6 +68,9 @@ class LlmsDriftTest < Minitest::Test
 
     %w[max step min-steps-between-thumbs preserve-thumb-order form].each { |value| assert_includes slider, "`#{value}`" }
     assert_includes full[/^Stimulus: `shadcn--alert-dialog`.*$/], "`open-change`"
+    context_menu = full[/^Stimulus: `shadcn--context-menu`.*$/]
+
+    %w[open-change select checked-change value-change escape-key-down close-auto-focus].each { |event| assert_includes context_menu, "`#{event}`" }
   end
 
   def test_changing_a_stimulus_value_without_regenerating_fails_the_check

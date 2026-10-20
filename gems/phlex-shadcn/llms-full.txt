@@ -410,7 +410,7 @@ Parts (class, yielded-root helper, constructor):
 - `ContextMenu::SubTrigger` / `sub_trigger`: `new(inset: nil, disabled: false, text_value: nil, as_child: false, **attrs)` shadcn ContextMenuSubTrigger: a `div` with `role="menuitem"` and `aria-haspopup="menu"` that opens its `SubContent`, followed by a chevron icon.
 - `ContextMenu::Trigger` / `trigger`: `new(disabled: false, as_child: false, **attrs)` Radix ContextMenuTrigger: a `span` without classes, ids or aria that hosts the `shadcn--context-menu` controller.
 
-Stimulus: `shadcn--context-menu`; values: `controlled`, `dir`, `long-press-delay`, `modal`, `open`, `pointer-grace-timeout`, `sub-open-delay`, `template`, `typeahead-timeout`; events (prefixed `shadcn--context-menu:`): `open-change`
+Stimulus: `shadcn--context-menu`; values: `controlled`, `dir`, `long-press-delay`, `modal`, `open`, `pointer-grace-timeout`, `sub-open-delay`, `template`, `typeahead-timeout`; events (prefixed `shadcn--context-menu:`): `checked-change`, `close-auto-focus`, `escape-key-down`, `focus-outside`, `interact-outside`, `open-auto-focus`, `open-change`, `pointer-down-outside`, `select`, `value-change`
 
 Example:
 
