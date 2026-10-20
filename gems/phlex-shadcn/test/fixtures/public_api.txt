@@ -92,6 +92,7 @@ class Phlex::Shadcn::Command::List < Phlex::Shadcn::Base
 class Phlex::Shadcn::Command::Separator < Phlex::Shadcn::Base
 class Phlex::Shadcn::Command::Shortcut < Phlex::Shadcn::Base
 class Phlex::Shadcn::Configuration
+class Phlex::Shadcn::Configuration::LateSettingError < StandardError
 class Phlex::Shadcn::ContextMenu < Phlex::Shadcn::Base
 class Phlex::Shadcn::ContextMenu::CheckboxItem < Phlex::Shadcn::Base
 class Phlex::Shadcn::ContextMenu::Content < Phlex::Shadcn::Base
@@ -617,6 +618,8 @@ method Phlex::Shadcn::Command::Separator#initialize (always_render: false, **att
 method Phlex::Shadcn::Command::Separator#view_template ()
 method Phlex::Shadcn::Command::Shortcut#initialize (**attrs)
 method Phlex::Shadcn::Command::Shortcut#view_template ()
+method Phlex::Shadcn::Configuration#override_dir ()
+method Phlex::Shadcn::Configuration#override_dir= (value)
 method Phlex::Shadcn::Configuration#theme_dir ()
 method Phlex::Shadcn::Configuration#theme_dir= (value)
 method Phlex::Shadcn::ContextMenu#checkbox_item (**attrs, &block)

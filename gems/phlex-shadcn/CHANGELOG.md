@@ -34,7 +34,7 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   Base UI).
 - Primitives `scorer` (fuzzy match and ranking, with its own unit tests) and `anchor_positioner`.
 - Gem skeleton: Zeitwerk loader, version, license files and a standalone test harness.
-- The 51 ported components as `Phlex::Shadcn::<Name>` with their parts nested under the root (`Phlex::Shadcn::Dialog::Content`),
+- The 53 ported components as `Phlex::Shadcn::<Name>` with their parts nested under the root (`Phlex::Shadcn::Dialog::Content`),
   generated yielded-root helpers (`dialog.content { ... }`), `as_child:` with Radix Slot semantics and `**attrs` merging on every
   part; the Stimulus controllers `shadcn--<name>` and the shared primitives they build on.
 - Rails engine (loaded only when `Rails::Engine` is defined): importmap pins for the Stimulus controllers, primitives and vendored
