@@ -95,7 +95,7 @@ export default class extends Controller {
 
   registerGroup(el) {
     if (!el.hasAttribute("data-value")) el.setAttribute("data-value", el.querySelector(HEADING)?.textContent.trim() ?? "undefined")
-    this.groups.set(el, { el, forceMount: el.hasAttribute(FORCE_MOUNT) })
+    this.groups.set(el, { el, parent: el.parentElement, forceMount: el.hasAttribute(FORCE_MOUNT) })
   }
 
   registerNode(el) {
@@ -180,36 +180,47 @@ export default class extends Controller {
   }
 
   // A node the controller detached itself is still mounted=false; anything else that left the document is gone for good.
+  // A node that is connected again was moved, not removed.
   forget(node) {
+    if (node.isConnected) return false
     let forgotten = false
+    const removedGroups = new Set()
+    const dropped = new Map() // parent -> Set of removed children
+    const drop = (el, parent) => {
+      if (!dropped.has(parent)) dropped.set(parent, new Set())
+      dropped.get(parent).add(el)
+    }
     for (const el of [node, ...node.querySelectorAll(`${GROUP}, ${ITEM}, ${SEPARATOR}`)]) {
-      if (el.isConnected) continue
       const record = this.nodes.get(el)
       if (record?.mounted) {
         if (el.getAttribute("aria-selected") === "true") this.lostSelection = true
         this.nodes.delete(el)
-        this.dropSource(el)
+        drop(el, record.parent)
         forgotten = true
       }
-      if (this.groups.has(el)) {
+      const group = this.groups.get(el)
+      if (group) {
         this.groups.delete(el)
-        this.dropSource(el)
-        // Items the filter had detached from the removed group are gone with it.
-        for (const [child, other] of this.nodes) {
-          if (other.group !== el) continue
-          this.nodes.delete(child)
-          forgotten = true
-        }
+        removedGroups.add(el)
+        drop(el, group.parent)
       }
     }
+    // Records the filter had detached (separators, items) inside the removed subtree are gone with it.
+    for (const [el, record] of this.nodes) {
+      if (record.mounted || !(node.contains(record.parent) || removedGroups.has(record.group))) continue
+      this.nodes.delete(el)
+      forgotten = true
+    }
+    this.dropSources(node, dropped)
     return forgotten
   }
 
-  // Removes a node from every source order, and the orders of the containers inside it.
-  dropSource(el) {
-    this.sources.forEach((order, parent) => {
-      if (el.contains(parent)) this.sources.delete(parent)
-      else if (order.includes(el)) order.splice(order.indexOf(el), 1)
+  // Removes the containers inside a removed node from the source orders, and its removed children from their parents' orders.
+  dropSources(node, dropped) {
+    for (const parent of [...this.sources.keys()]) if (node.contains(parent)) this.sources.delete(parent)
+    dropped.forEach((els, parent) => {
+      const order = this.sources.get(parent)
+      if (order) this.sources.set(parent, order.filter((el) => !els.has(el)))
     })
   }
 
@@ -283,23 +294,29 @@ export default class extends Controller {
   }
 
   // React's host-sibling rule: before the next already-mounted node of the SOURCE order in the same parent, else appended.
+  // Walking each source order backwards keeps the next mounted sibling at hand (linear).
   insert(records) {
-    const positions = new Map() // parent -> Map(child -> index in its source order)
-    const position = (record) => {
-      if (!positions.has(record.parent)) positions.set(record.parent, new Map(this.sources.get(record.parent).map((el, index) => [el, index])))
-      return positions.get(record.parent).get(record.el)
-    }
-    for (const record of [...records].sort((a, b) => position(a) - position(b))) {
-      const siblings = this.sources.get(record.parent)
-      let next = null
-      for (let index = position(record) + 1; index < siblings.length; index += 1) {
-        if (siblings[index].parentNode !== record.parent) continue
-        next = siblings[index]
-        break
+    const entering = new Map() // parent -> Set of records to mount
+    for (const record of records) {
+      if (!this.sources.has(record.parent)) {
+        this.nodes.delete(record.el)
+        continue
       }
-      record.parent.insertBefore(record.el, next)
-      record.mounted = true
+      if (!entering.has(record.parent)) entering.set(record.parent, new Set())
+      entering.get(record.parent).add(record.el)
     }
+    entering.forEach((els, parent) => {
+      let next = null
+      const siblings = this.sources.get(parent)
+      for (let index = siblings.length - 1; index >= 0; index -= 1) {
+        const el = siblings[index]
+        if (els.has(el)) {
+          parent.insertBefore(el, next)
+          this.nodes.get(el).mounted = true
+          next = el
+        } else if (el.parentNode === parent) next = el
+      }
+    })
   }
 
   syncEmpty(template) {

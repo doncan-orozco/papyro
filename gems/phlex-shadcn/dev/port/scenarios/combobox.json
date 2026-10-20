@@ -11271,6 +11271,91 @@
       "animations": false
     },
     {
+      "id": "popup__keyboard-enter-opens",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex flex-col gap-4 w-72"
+        },
+        "children": [
+          {
+            "c": "Combobox",
+            "props": {
+              "items": [
+                "Next.js",
+                "SvelteKit",
+                "Nuxt.js",
+                "Remix",
+                "Astro"
+              ],
+              "defaultValue": "Astro"
+            },
+            "children": [
+              {
+                "c": "ComboboxTrigger",
+                "props": {
+                  "className": "w-64 justify-between font-normal"
+                },
+                "children": [
+                  {
+                    "c": "ComboboxValue"
+                  }
+                ]
+              },
+              {
+                "c": "ComboboxContent",
+                "children": [
+                  {
+                    "c": "ComboboxInput",
+                    "props": {
+                      "showTrigger": false,
+                      "placeholder": "Search"
+                    }
+                  },
+                  {
+                    "c": "ComboboxEmpty",
+                    "children": [
+                      "No items found."
+                    ]
+                  },
+                  {
+                    "c": "ComboboxList",
+                    "children": [
+                      {
+                        "c": "_Each",
+                        "children": [
+                          {
+                            "c": "ComboboxItem",
+                            "props": {
+                              "value": "$item"
+                            },
+                            "children": [
+                              "$item"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "tab"
+        },
+        {
+          "do": "press",
+          "key": "Enter"
+        }
+      ],
+      "dark": false,
+      "animations": false
+    },
+    {
       "id": "placement__side-top",
       "tree": {
         "c": "_div",

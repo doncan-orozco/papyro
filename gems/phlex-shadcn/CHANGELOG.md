@@ -30,7 +30,7 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   `Separator`, `Chips`, `Chip`, `ChipsInput`): shadcn's Base UI combobox with single and multiple (chips) selection, grouped items,
   clear button, `filter: "fuzzy"` (default, the scorer) or `"contains"` (Base UI's matching), and native form submission through hidden
   inputs (`name:`), restored from a Turbo snapshot. Positioned by the new `anchor_positioner` primitive (Base UI's anchor positioning,
-  next to the Radix `positioner`). Compared with Base UI in 150 parity scenarios; no new JavaScript dependency (no cmdk, fuse.js or
+  next to the Radix `positioner`). Compared with Base UI in 151 parity scenarios; no new JavaScript dependency (no cmdk, fuse.js or
   Base UI).
 - Primitives `scorer` (fuzzy match and ranking, with its own unit tests) and `anchor_positioner`.
 - Gem skeleton: Zeitwerk loader, version, license files and a standalone test harness.

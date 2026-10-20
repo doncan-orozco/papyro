@@ -107,7 +107,7 @@ primitiveTest("scorer: ranking a few thousand items is fast", async (page) => {
     return { hits, ms: performance.now() - started };
   });
   assert.equal(result.hits, 5000);
-  assert.ok(result.ms < 1500, `took ${result.ms}ms`);
+  assert.ok(result.ms < 500, `took ${result.ms}ms`);
 });
 
 primitiveTest("scorer: the exact bonus ignores whitespace in the text, like in the query", async (page) => {

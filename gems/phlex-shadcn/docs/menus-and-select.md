@@ -168,7 +168,8 @@ render Phlex::Shadcn::Command.new do |command|
   end
 end
 
-# the same list in a dialog (Cmd+K is yours to bind; the dialog opens through the controlled open: option)
+# the same list in a dialog. It has no trigger slot and is controlled by open: (Cmd+K is yours to bind): re-render it with
+# open: true to show it (or use default_open: true for a dialog that starts open)
 render Phlex::Shadcn::Command::Dialog.new(open: true) { |command| ... }
 
 # combobox, submitted in a form as framework=next.js
@@ -185,4 +186,4 @@ end
   matcher from JavaScript with `controller.filter = (value, search, keywords) => score`.
 - `Combobox.new(multiple: true)` shows chips (`Combobox::Chips`, `Chip`, `ChipsInput`) and submits one hidden input per selection;
   `Combobox::Input.new(show_clear: true)` adds the clear button; `filter: :contains` matches like Base UI, `filter: nil` disables filtering.
-- Both keep working across Turbo navigations: the controllers restore the server-rendered state from the page snapshot.
+- Both keep working across Turbo navigations: Command restores the server render from the page snapshot, while Combobox restores the current selection.

@@ -7,15 +7,6 @@ require "json"
 #
 # @api private
 class Phlex::Shadcn::Combobox::Model
-  # Options of the root, with their defaults.
-  DEFAULTS = {
-    items: nil, multiple: false, value: nil, default_value: nil, input_value: nil, default_input_value: nil, open: nil,
-    default_open: false, name: nil, form: nil, auto_complete: nil, id: nil, disabled: false, read_only: false, required: false,
-    auto_highlight: false, keep_highlight: false, highlight_item_on_hover: true, loop_focus: true, open_on_input_click: true,
-    modal: false, limit: Phlex::Shadcn::Combobox::NO_LIMIT, submit_on_item_click: false, filter: "fuzzy", locale: nil, item_to_string_label: nil,
-    item_to_string_value: nil, item_equal_to_value: nil
-  }.freeze
-
   FILTERS = %w[fuzzy contains].freeze
   private_constant :FILTERS
 
@@ -25,11 +16,10 @@ class Phlex::Shadcn::Combobox::Model
   # Per-render counters and flags the parts write while they render (ids of items, where the input lives).
   attr_accessor :item_index, :input_outside, :in_popup
 
-  # @param options [Hash] see {DEFAULTS}
+  # @param options [Hash] the full options hash of {Phlex::Shadcn::Combobox#initialize}
   # @param sequence [Integer] render-wide counter (ids of roots without `id:`)
   def initialize(options, sequence)
-    opts = DEFAULTS.merge(options)
-    @opts = opts
+    opts = @opts = options
     @id = (opts[:id] || "combobox-#{sequence}").to_s
     @sequence = sequence
     @items = opts[:items]

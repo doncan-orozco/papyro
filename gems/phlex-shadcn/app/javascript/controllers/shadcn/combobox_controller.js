@@ -81,6 +81,8 @@ export default class extends Controller {
     this.unmountPopup({ immediate: true })
     this.abort.abort()
     this.typeaheadBuffer?.release()
+    this.typeaheadBuffer?.reset()
+    this.typeaheadBuffer = null
     this.abort = null
   }
 
@@ -989,6 +991,7 @@ export default class extends Controller {
   }
 
   triggerKeydown(event) {
+    this.triggerPointer = null
     if (this.cfg.disabled) return
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       this.stop(event)
@@ -1083,6 +1086,7 @@ export default class extends Controller {
 
   pointerdown(event) {
     if (event.target === this.control || event.target.closest?.(part("trigger"))) this.pointerDownAt = performance.now()
+    if (event.target.closest?.(part("trigger"))) this.triggerPointer = event.pointerType || "mouse"
     const item = event.target.closest?.(part("item"))
     if (item && this.records?.has(item)) {
       if (event.isPrimary !== false) this.pointerDownItem = item
@@ -1114,6 +1118,18 @@ export default class extends Controller {
     this.requestOpen(!this.isOpen, "trigger-press", event)
   }
 
+  // A click with no pointer press before it is a keyboard activation (Enter/Space): it toggles like the mouse down does
+  // (useClick:105-120). After a pointer press the mouse down already toggled.
+  triggerClick(trigger, event) {
+    if (this.triggerPointer) {
+      this.triggerPointer = null
+      return
+    }
+    if (this.cfg.disabled || trigger.hasAttribute("disabled")) return
+    this.field?.focus()
+    this.requestOpen(!this.isOpen, "trigger-press", event)
+  }
+
   chipsPress(chips, event) {
     event.preventDefault()
     if (this.cfg.disabled) return
@@ -1125,6 +1141,8 @@ export default class extends Controller {
     const target = event.target
     const item = target.closest?.(part("item"))
     if (item && this.records?.has(item)) return this.itemClick(item, event)
+    const trigger = target.closest?.(part("trigger"))
+    if (trigger) return this.triggerClick(trigger, event)
     const clear = target.closest?.(part("clear"))
     if (clear) return this.clearPress(clear, event)
     const remove = target.closest?.(part("chip-remove"))

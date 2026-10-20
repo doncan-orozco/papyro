@@ -108,7 +108,7 @@ Trigger inside the Input = `InputGroup::Button(as_child: Combobox::Trigger)` (sr
 - `div[data-slot=combobox-chip][tabindex=-1]` per selected value, in selection order; `aria-disabled="true" data-disabled=""` when Root disabled; `aria-readonly="true"` when read_only (chip:L90-99); class src:L256. Children: the block text, then (show_remove) the remove button.
 - `button[data-slot=combobox-chip-remove][data-variant=ghost][data-size=icon-xs][type=button][tabindex=-1][aria-disabled=false]` (`aria-disabled="true" data-disabled=""` when disabled) = `Phlex::Shadcn::Button(variant: "ghost", size: "icon-xs")` with class `-ml-1 opacity-50 hover:opacity-100` and child `Icon("x", class: "pointer-events-none")` (src:L262-269, chiprm:L74-97).
 - `input[data-slot=combobox-chip-input]` with the input ARIA/state attributes above, class `min-w-16 flex-1 outline-none` (+ class:) (src:L280-284); `disabled` when passed.
-- New chips after a client-side selection are built from the Value block output: the server renders the Value block once for the current selection (real DOM) and once per item with `[item]` inside inert `<template>` prototypes that the controller reads and removes on `connect()` (deviation, structure, first paint only).
+- New chips after a client-side selection are built from the Value block output: the server renders the Value block once for the current selection (real DOM) and once per item with `[item]` inside inert `<template>` prototypes that stay in the document (deviation, structure).
 
 ### Content (portaled; nothing in the document while closed, portal:L24-27)
 While mounted (open, or during the exit animation):
@@ -152,6 +152,7 @@ Primitives composed: `template_mount`, `presence`, `dismissable_layer`, `scroll_
 ### Opening
 - Mouse down on the input (button 0) opens (`useClick` mousedown-only, no toggle, root:L1043-1051); clicking the input again keeps it open. Focus alone (Tab) does NOT open.
 - Mouse down on the trigger toggles (opens / closes), focuses the input and prevents the default (trigger:L109-113, L169-184).
+- Enter/Space (a click with no pointer press) on the trigger toggles the popup and moves focus to the search field (useClick:105-120).
 - `ArrowDown` / `ArrowUp` on the closed input open with the first / last item highlighted (or the selected item when there is one) (nav:L548-563; `focusItemOnOpen` "auto", root:L1077).
 - Typing a non-empty value opens (input:L195-257); without `auto_highlight` the highlight is cleared on every keystroke, with it the first match is highlighted (root:L551-553, L835-853).
 - `default_open:`/`open:` render open on connect without moving focus.
@@ -199,7 +200,7 @@ Backdrop element above, scroll lock (body), focus is not trapped (recorded devia
 Live-region marker 200 ms; closed-trigger typeahead reset 750 ms; Clear unmount after its exit transition; Presence on close.
 
 ### Cleanup (radix-stimulus R10)
-`disconnect()` and `turbo:before-cache` unmount the popup, release markers/aria-hidden, guards, scroll lock, autoUpdate, timers; hidden inputs keep the current value so a Turbo snapshot restores what the user selected.
+`disconnect()` and `turbo:before-cache` unmount the popup, release markers/aria-hidden, guards, scroll lock, autoUpdate, timers; hidden inputs keep the current value so a Turbo snapshot restores what the user selected. With a Turbo 8 morph refresh the controller stays connected, so `turbo:before-cache` resets while connected.
 
 ## Third-party
 
@@ -249,5 +250,5 @@ Acceptance (unit test): every row exists as a public method on the root instance
 ## Deviations
 
 Written to `gems/phlex-shadcn/dev/port/deviations/combobox.json` (structure and API only, no class-token allowance):
-- Structure: one `display: contents` controller host around the Root children and hidden inputs (Base UI Root renders no element); the closed Content shipped in an inert `<template>` mounted on open (Base UI Portal renders nothing while unmounted); Value-block chip prototypes and the single-mode Value text marker shipped as inert `<template>`s read and removed on `connect()` (first paint only). None carries a `data-slot`, class or box.
+- Structure: one `display: contents` controller host around the Root children and hidden inputs (Base UI Root renders no element); the closed Content shipped in an inert `<template>` mounted on open (Base UI Portal renders nothing while unmounted); Value-block chip prototypes and the single-mode Value text marker shipped as inert `<template>` markers that stay in the document (read on every selection change, so a Turbo snapshot can rebuild chips and the label). None carries a `data-slot`, class or box.
 - API: `Content anchor:` is a CSS selector string (React: element/ref, `useComboboxAnchor` has no Ruby equivalent); Trigger `as_child:` stands for Base UI `render`; `item_to_string_label`/`item_to_string_value`/`item_equal_to_value` are Ruby callables evaluated on the server and item equality defaults to `==` instead of `Object.is`; function-valued `filter` is replaced by the named filters `"fuzzy"`/`"contains"`/`nil` and callbacks by the events listed in API; `inline`, `grid`, `virtualized`, `filteredItems`, `filterQuery`, `actionsRef`, `inputRef` are not ported.

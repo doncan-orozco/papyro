@@ -270,3 +270,21 @@ browserTest("command: dialog variant mounts a fresh command on every open", asyn
   await page.keyboard.press("Escape");
   await page.waitForSelector(input, { state: "detached" });
 });
+
+browserTest("command: removing a group with a filter-detached separator and items does not break the next search", async ({ open }) => {
+  const page = await open("default__rest");
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  const total = await page.locator("[cmdk-item]").count();
+  const removed = await page.evaluate(() => {
+    const group = document.querySelector("[cmdk-group]");
+    return group.querySelectorAll("[cmdk-item]").length;
+  });
+  await search(page, "zzz");
+  await page.evaluate(() => document.querySelector("[cmdk-group]").remove());
+  await settle(page);
+  await search(page, "");
+  assert.deepEqual(errors, []);
+  assert.equal(await page.locator("[cmdk-item]").count(), total - removed);
+  assert.equal(await page.locator("[cmdk-group][hidden]").count(), 0);
+});

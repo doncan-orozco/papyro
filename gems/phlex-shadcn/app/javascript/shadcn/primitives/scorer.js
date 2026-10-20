@@ -26,6 +26,10 @@ const SEPARATORS = new Set([" ", "-", "_", "/", ".", ":", ",", "(", ")", "[", "]
 // Letters NFD does not decompose, mapped to one base letter (always one code point, so offsets stay aligned).
 const NO_DECOMPOSITION = new Map([["ø", "o"], ["ł", "l"], ["đ", "d"], ["ð", "d"], ["ı", "i"]])
 
+// Folded texts are reused across keystrokes (the same items are scored again on every key); callers never mutate the arrays.
+const FOLD_CACHE_LIMIT = 20000
+const FOLD_CACHE = new Map()
+
 /**
  * Fold one string to lower case without diacritics, one entry per code point of the input (so `folded[i]` describes
  * `Array.from(text)[i]`).
@@ -33,12 +37,18 @@ const NO_DECOMPOSITION = new Map([["ø", "o"], ["ł", "l"], ["đ", "d"], ["ð", 
  * @returns {string[]}
  */
 function foldChars(text) {
-  return Array.from(String(text ?? ""), (char) => {
+  const key = String(text ?? "")
+  const cached = FOLD_CACHE.get(key)
+  if (cached) return cached
+  const folded = Array.from(key, (char) => {
     const base = char.normalize("NFD").replace(/\p{M}/gu, "")
     const lower = (base || char).toLowerCase()
     const first = Array.from(lower)[0] ?? char
     return NO_DECOMPOSITION.get(first) ?? first
   })
+  if (FOLD_CACHE.size >= FOLD_CACHE_LIMIT) FOLD_CACHE.clear()
+  FOLD_CACHE.set(key, folded)
+  return folded
 }
 
 /**

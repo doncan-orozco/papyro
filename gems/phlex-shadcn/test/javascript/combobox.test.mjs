@@ -293,6 +293,18 @@ browserTest("combobox: a standalone trigger selects by typing without opening an
   assert.equal(await page.evaluate(() => document.activeElement.dataset.slot), "combobox-trigger");
 });
 
+browserTest("combobox: Enter and Space on the tabbed standalone trigger open the popup and focus the search field", async ({ open }) => {
+  const page = await open("popup__keyboard-enter-opens");
+  for (const key of ["Enter", "Space"]) {
+    await page.evaluate(() => document.querySelector("[data-slot=combobox-trigger]").focus());
+    await press(page, key);
+    assert.equal(await page.locator(popup).count(), 1, `${key} opens`);
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.slot), "input-group-control", `${key} focuses the search field`);
+    await press(page, "Escape");
+    assert.equal(await page.locator(popup).count(), 0);
+  }
+});
+
 browserTest("combobox: while open everything outside is aria-hidden and the page marked inert; both are restored on close", async ({ open }) => {
   const page = await open("default__open-click");
   const state = () => page.evaluate(() => ({
