@@ -25,6 +25,10 @@ class Phlex::Shadcn::Sonner::Toaster < Phlex::Shadcn::Base
     "error" => %w[octagon-x size-4],
     "loading" => [ "loader-circle", "size-4 animate-spin" ]
   }.freeze
+  # Default `hotkey:`. A frozen constant, because Ruby 3.2 renders an array literal default of a signature differently (YARD, snapshots).
+  #
+  # @api private
+  DEFAULT_HOTKEY = %w[altKey KeyT].freeze
   # Colors of the toast, from the shadcn wrapper `style` (the theme's popover colors).
   #
   # @api private
@@ -68,7 +72,7 @@ class Phlex::Shadcn::Sonner::Toaster < Phlex::Shadcn::Base
   # @param toasts [Array<Hash>, nil] toasts to show on load, each the keywords of {Phlex::Shadcn::Sonner::Toast}
   # @param attrs [Hash] HTML attributes of the `<section>` (`id:` defaults to `"toaster"`, the target of Turbo Stream appends; `class:` is added to the lists)
   def initialize(position: "bottom-right", theme: "system", rich_colors: nil, expand: false, close_button: false, invert: false,
-                 duration: nil, visible_toasts: 3, gap: 14, offset: nil, mobile_offset: nil, dir: nil, hotkey: %w[altKey KeyT],
+                 duration: nil, visible_toasts: 3, gap: 14, offset: nil, mobile_offset: nil, dir: nil, hotkey: DEFAULT_HOTKEY,
                  container_aria_label: "Notifications", swipe_directions: nil, toast_options: nil, icons: nil, style: nil, toaster_id: nil,
                  flash: nil, toasts: nil, **attrs)
     @position = normalize_option(position)

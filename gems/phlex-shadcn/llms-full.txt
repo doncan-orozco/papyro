@@ -1302,7 +1302,7 @@ Constructor: `Phlex::Shadcn::Sonner.new(**options)`
 Parts (class, yielded-root helper, constructor):
 
 - `Sonner::Toast` / `toast`: `new(title: nil, description: nil, type: nil, id: nil, duration: nil, position: nil, dismissible: nil, close_button: nil, rich_colors: nil, invert: nil, icon: nil, action: nil, cancel: nil, toaster_id: nil, test_id: nil, **attrs)` A toast the server asks the `Toaster` to show.
-- `Sonner::Toaster` / `toaster`: `new(position: "bottom-right", theme: "system", rich_colors: nil, expand: false, close_button: false, invert: false, duration: nil, visible_toasts: 3, gap: 14, offset: nil, mobile_offset: nil, dir: nil, hotkey: %w[altKey KeyT],, container_aria_label: "Notifications", swipe_directions: nil, toast_options: nil, icons: nil, style: nil, toaster_id: nil, flash: nil, toasts: nil, **attrs)` shadcn Toaster (the `Toaster` of shadcn's `sonner.tsx`): the live region the toasts are shown in.
+- `Sonner::Toaster` / `toaster`: `new(position: "bottom-right", theme: "system", rich_colors: nil, expand: false, close_button: false, invert: false, duration: nil, visible_toasts: 3, gap: 14, offset: nil, mobile_offset: nil, dir: nil, hotkey: DEFAULT_HOTKEY, container_aria_label: "Notifications", swipe_directions: nil, toast_options: nil, icons: nil, style: nil, toaster_id: nil, flash: nil, toasts: nil, **attrs)` shadcn Toaster (the `Toaster` of shadcn's `sonner.tsx`): the live region the toasts are shown in.
 
 Stimulus: `shadcn--sonner`; values: `class-name`, `close-button`, `dir`, `duration`, `expand`, `gap`, `hotkey`, `invert`, `mobile-offset`, `offset`, `position`, `rich-colors`, `style`, `swipe-directions`, `theme`, `toast-options`, `toaster-id`, `visible-toasts`; events (prefixed `shadcn--sonner:`): `action`, `cancel`
 
