@@ -1,7 +1,19 @@
 {
   "component": "calendar",
-  "reason": "shadcn's calendar.tsx wraps react-day-picker 10.0.2 (on date-fns 4.1.0), a React-only library. The port may not ship react-day-picker, date-fns or any other date library (maintainer constraint of the phlex-shadcn-adoption epic), so the shadcn--calendar Stimulus controller re-implements rdp's grid, focus, keyboard and selection model with native Date and Intl and renders rdp's DOM (including the rdp-* class names) exactly. The differences are the ones a server-rendered port without that library needs: (1) the server renders the root, the months container and the nav (so a Popover's focus scope finds the same first tabbable as React) and the controller renders the rest on connect, from an inert <template> of prototypes that keeps every class string in Ruby, plus hidden inputs for name:; none of these has a data-slot, classes on a box or text, so the compared DOM is unchanged after connect; (2) text and labels are reproduced exactly only for the locales nil/en/en-US and es: rdp formats with date-fns patterns and ships per-locale label translations, which Intl cannot reproduce for every locale, so other tags get Intl approximations and English labels; (3) function-valued props (formatters, components, function matchers, callbacks) cannot cross from Ruby, so they become data (Intl option hashes, matcher hashes) or events; (4) the standalone Calendar::DayButton is server-rendered and cannot read the browser locale or focus itself; (5) the DatePicker is a documented Popover + Calendar composition (no oracle component) with port-only form wiring kwargs.",
-  "allow_tokens": [],
+  "reason": "shadcn's calendar.tsx wraps react-day-picker 10.0.2 (on date-fns 4.1.0), a React-only library. The port may not ship react-day-picker, date-fns or any other date library (maintainer constraint of the phlex-shadcn-adoption epic), so the shadcn--calendar Stimulus controller re-implements rdp's grid, focus, keyboard and selection model with native Date and Intl and renders rdp's DOM (including the rdp-* class names) exactly. The differences are the ones a server-rendered port without that library needs: (1) the server renders the root, the months container and the nav (so a Popover's focus scope finds the same first tabbable as React) and the controller renders the rest on connect, from an inert <template> of prototypes that keeps every class string in Ruby, plus hidden inputs for name:; none of these has a data-slot, classes on a box or text, so the compared DOM is unchanged after connect; (2) text and labels are reproduced exactly only for the locales nil/en/en-US and es: rdp formats with date-fns patterns and ships per-locale label translations, which Intl cannot reproduce for every locale, so other tags get Intl approximations and English labels; (3) function-valued props (formatters, components, function matchers, callbacks) cannot cross from Ruby, so they become data (Intl option hashes, matcher hashes) or events; (4) the standalone Calendar::DayButton is server-rendered and cannot read the browser locale or focus itself; (5) the DatePicker is a documented Popover + Calendar composition (no oracle component) with port-only form wiring kwargs. allow_tokens lists the words of the English and Spanish label sentences (rdp locale labels): they are text, but G1 reads any string of four or more plain words as a class list.",
+  "allow_tokens": [
+    "Go",
+    "Ir",
+    "Month",
+    "Next",
+    "Previous",
+    "al",
+    "anterior",
+    "mes",
+    "siguiente",
+    "the",
+    "to"
+  ],
   "allow_missing_tokens": [],
   "api": [
     "formatters: takes Intl.DateTimeFormat option hashes (optional locale:) per formatter key instead of functions; only format_caption, format_day, format_month_dropdown, format_weekday_name and format_year_dropdown are accepted",
