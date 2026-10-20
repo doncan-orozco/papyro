@@ -206,7 +206,12 @@ module Bench
           output
         end
       baseline = JSON.parse(content)
-      baseline.is_a?(Hash) ? baseline : "cannot read a baseline from #{source.inspect}: not a JSON object"
+      return "cannot read a baseline from #{source.inspect}: not a JSON object" unless baseline.is_a?(Hash)
+
+      allocations = baseline.fetch("allocations", {})
+      return baseline if allocations.is_a?(Hash) && allocations.values.all?(Integer)
+
+      "cannot read a baseline from #{source.inspect}: allocations must map scenarios to integers"
     rescue JSON::ParserError, SystemCallError => error
       "cannot read a baseline from #{source.inspect}: #{error.message}"
     end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Run with: cd gems/phlex-shadcn && env -u BUNDLE_GEMFILE bundle exec ruby dev/bench/runner_test.rb
+# Run with: cd gems/phlex-shadcn && ruby dev/bench/runner_test.rb
 require "minitest/autorun"
 require "tempfile"
 require_relative "runner"
@@ -183,6 +183,34 @@ class BenchRunnerTest < Minitest::Test
 
   def test_option_like_revision_is_not_passed_to_git_as_an_option
     assert_match(/cannot read a baseline/, Bench::Runner.load_baseline("-p"))
+  end
+
+  def test_baseline_with_non_integer_allocations_is_a_readable_failure
+    with_baseline({ **CURRENT, "allocations" => { "button" => "57" } }) { |path| assert_match(/map scenarios to integers/, Bench::Runner.load_baseline(path)) }
+  end
+
+  def test_check_skips_on_drift_with_exit_zero
+    status = nil
+    _, err = capture_io { status = Bench::Runner.check(results: RESULTS, baseline: { "allocations" => {} }, json: false) }
+
+    assert_equal 0, status
+    assert_match(/allocation gate skipped/, err)
+  end
+
+  def test_check_fails_on_regression
+    status = nil
+    baseline = { **CURRENT, "allocations" => { "button" => 10, "card" => 119 } }
+    _, err = capture_io { status = Bench::Runner.check(results: RESULTS, baseline:, json: false) }
+
+    assert_equal 1, status
+    assert_match(/button: 41 allocations/, err)
+  end
+
+  def test_check_passes_within_baseline
+    status = nil
+    capture_io { status = Bench::Runner.check(results: RESULTS, baseline: { **CURRENT, "allocations" => { "button" => 41, "card" => 119 } }, json: false) }
+
+    assert_equal 0, status
   end
 
   private
