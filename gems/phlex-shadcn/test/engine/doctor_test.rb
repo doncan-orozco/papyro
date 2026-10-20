@@ -180,6 +180,24 @@ class EngineTest::DoctorTask < Minitest::Test
     end
   end
 
+  def test_the_pipeline_check_reads_the_entry_import_like_the_generator
+    Dir.mktmpdir("phlex-shadcn-doctor-js") do |dir|
+      esbuild_app(dir)
+      FileUtils.mkdir_p(File.join(dir, "app/assets/tailwind"))
+      File.write(File.join(dir, "app/assets/tailwind/application.css"), "@import \"tailwindcss\";\n")
+      capture_io { Phlex::Shadcn::Generators::InstallGenerator.start([], destination_root: dir) }
+      entry = File.join(dir, "app/javascript/application.js")
+
+      File.write(entry, "import \"./controllers\"\nimport './controllers/shadcn'\n")
+
+      assert_equal :pass, js_pipeline(dir).status, js_pipeline(dir).message
+
+      File.write(entry, "import \"./controllers\"\n// import \"./controllers/shadcn\"\n")
+
+      assert_includes js_pipeline(dir).message, "lacks"
+    end
+  end
+
   def test_the_stimulus_check_accepts_the_installers_registration_in_an_esbuild_app
     Dir.mktmpdir("phlex-shadcn-doctor-js") do |dir|
       esbuild_app(dir)

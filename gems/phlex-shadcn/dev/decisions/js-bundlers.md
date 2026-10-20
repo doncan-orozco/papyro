@@ -32,7 +32,7 @@ relative paths only, and there is no npm package: publishing one is a human step
      prepends a `managed by` header line (edits are overwritten by the next run, like the Tailwind block);
   2. writes `app/javascript/controllers/shadcn/index.js`, which registers every controller as `shadcn--<name>` with the app's
      `application` (`./application` of stimulus-rails), and adds `import "./controllers/shadcn"` to `app/javascript/application.js`;
-  3. adds `@floating-ui/dom` (the version the gem vendors) to `package.json` with the app's package manager (yarn, npm or bun,
+  3. adds `@floating-ui/dom` (the version the gem vendors) to `package.json` with the app's package manager (yarn, pnpm, bun or npm,
      chosen by the lock file), because floating-ui is a normal npm package and must not be copied.
 
 The copies are the only state outside the gem, so they can go stale. `rails g phlex:shadcn:install` is idempotent and refreshes them
@@ -46,7 +46,7 @@ computes the files; the generator writes them and the doctor compares against th
 
 - "esbuild" means any jsbundling-rails app: the copies use relative imports, which webpack, rollup and bun resolve as well; only
   esbuild is exercised by the smoke test.
-- The doctor's `stimulus controllers` check (outside this item's Owns, `doctor/checks/stimulus.rb`) accepts the managed `index.js`
+- The doctor's `stimulus controllers` check (`doctor/checks/stimulus.rb`, added to this item's scope as a deliberate, recorded deviation) accepts the managed `index.js`
   in an esbuild app: an esbuild app has no `controllers` importmap namespace, so the check would fail on a correct install.
   Recorded here and as a blocker note on #175 (epic-flow R5).
 - `JsBundle` lives next to the generator (the item's Owns) although the doctor uses it; moving it to `lib/phlex/shadcn/js_bundle.rb`

@@ -75,9 +75,9 @@ module Phlex
           package = File.join(destination_root, "package.json")
           raise Thor::Error, "package.json not found: --js esbuild needs a jsbundling-rails app" unless File.file?(package)
 
+          add_floating_ui(package)
           write_js_files
           import_in_application
-          add_floating_ui(package)
         end
 
         def show_next_steps

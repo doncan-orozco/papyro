@@ -65,7 +65,7 @@ module Phlex
           def self.missing_wiring(context)
             problems = []
             entry = context.read(context.path(JsBundle::ENTRY))
-            problems << %(#{JsBundle::ENTRY} lacks #{JsBundle::APPLICATION_IMPORT}) unless entry&.include?(JsBundle::APPLICATION_IMPORT)
+            problems << %(#{JsBundle::ENTRY} lacks #{JsBundle::APPLICATION_IMPORT}) unless entry&.match?(JsBundle::APPLICATION_IMPORT_PATTERN)
             problems << "#{JsBundle::FLOATING_UI} is not in package.json" unless JsBundle.floating_ui?(context.read(context.path("package.json")))
             problems
           end
