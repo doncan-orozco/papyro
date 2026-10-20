@@ -29,8 +29,9 @@ module Bench
         --record                        rewrite dev/bench/baseline.json with today's allocations
         --expect-improvement S=P[,...]  with --check: exit 1 unless each named scenario S allocates at least P percent less
                                         than the baseline (P is 0 to 100; button=25,card=20). Allocations only, never time.
-                                        Unlike --check it never skips: a baseline from another Ruby or Phlex, a missing
-                                        baseline or an unknown scenario fails.
+                                        It replaces the tolerance gate (unnamed scenarios are not checked) and, unlike
+                                        --check, never skips: a baseline from another Ruby or Phlex, a missing baseline
+                                        or an unknown scenario fails.
         --against FILE_OR_GIT_REV       baseline for --expect-improvement: a baseline JSON file, or a git revision whose
                                         dev/bench/baseline.json is read (default: the current dev/bench/baseline.json)
     TEXT
@@ -97,7 +98,9 @@ module Bench
 
     # @return [Hash, String] the options, or a message when the flags cannot be combined
     def inconsistency(options)
-      return "--record cannot be combined with --check, --json or --expect-improvement" if options[:record] && options.keys.intersect?(%i[check json expectations])
+      if options[:record] && options.keys.intersect?(%i[check json expectations])
+        return "--record cannot be combined with --check, --json or --expect-improvement"
+      end
       return "--expect-improvement needs --check" if options[:expectations] && !options[:check]
       return "--against needs --expect-improvement" if options[:against] && !options[:expectations]
 
@@ -169,11 +172,16 @@ module Bench
       environment.filter_map { |key, version| [ key, baseline[key] || "unknown" ] unless baseline[key] == version }.to_h
     end
 
+    # @return [String] which Ruby or Phlex the baseline was recorded on, and which one is running
+    def drift_message(drift)
+      "baseline recorded on #{drift.map { |key, version| "#{key} #{version}" }.join(", ")}; running " \
+        "#{drift.keys.map { |key| "#{key} #{environment[key]}" }.join(", ")}"
+    end
+
     def check(results:, baseline:, json:)
       drift = environment_drift(baseline)
       unless drift.empty?
-        warn "baseline recorded on #{drift.map { |key, version| "#{key} #{version}" }.join(", ")}; running " \
-             "#{drift.keys.map { |key| "#{key} #{environment[key]}" }.join(", ")}: allocation gate skipped (run bin/bench --record)"
+        warn "#{drift_message(drift)}: allocation gate skipped (run bin/bench --record)"
         report(results:, baseline:, json:)
         return 0
       end
@@ -187,12 +195,18 @@ module Bench
     # @param source [String] a baseline JSON file, or a git revision whose dev/bench/baseline.json is read
     # @return [Hash, String] the parsed baseline, or a message when it cannot be read
     def load_baseline(source)
-      if File.file?(source)
-        JSON.parse(File.read(source))
-      else
-        content, status = Open3.capture2e("git", "show", "#{source}:./dev/bench/baseline.json", chdir: File.expand_path("../..", __dir__))
-        status.success? ? JSON.parse(content) : "cannot read a baseline from #{source.inspect}: not a file and not a git revision with dev/bench/baseline.json"
-      end
+      content =
+        if File.file?(source)
+          File.read(source)
+        else
+          output, status = Open3.capture2e("git", "show", "--end-of-options", "#{source}:./dev/bench/baseline.json",
+                                           chdir: File.expand_path("../..", __dir__))
+          return "cannot read a baseline from #{source.inspect}: not a file and not a git revision with dev/bench/baseline.json" unless status.success?
+
+          output
+        end
+      baseline = JSON.parse(content)
+      baseline.is_a?(Hash) ? baseline : "cannot read a baseline from #{source.inspect}: not a JSON object"
     rescue JSON::ParserError, SystemCallError => error
       "cannot read a baseline from #{source.inspect}: #{error.message}"
     end
@@ -227,19 +241,29 @@ module Bench
 
       drift = environment_drift(baseline)
       unless drift.empty?
-        warn "baseline recorded on #{drift.map { |key, version| "#{key} #{version}" }.join(", ")}; running " \
-             "#{drift.keys.map { |key| "#{key} #{environment[key]}" }.join(", ")}: allocation counts are not comparable, " \
-             "improvement not verified (record the baseline on this Ruby and Phlex, or pass --against)"
+        warn "#{drift_message(drift)}: allocation counts are not comparable, improvement not verified " \
+             "(record the baseline on this Ruby and Phlex, or pass --against)"
         return 1
       end
 
       rows = improvements(results:, baseline:, expectations:)
-      report(results:, baseline:, json:)
+      json ? print_improvement_json(results:, rows:) : print_improvement_table(results:, baseline:, rows:)
+      rows.all? { |row| row.last == "ok" } ? 0 : 1
+    end
+
+    def print_improvement_json(results:, rows:)
+      improvement = rows.to_h do |name, before, now, drop, wanted, verdict|
+        [ name, { "before" => before, "now" => now, "drop" => drop&.round(2), "wanted" => wanted, "verdict" => verdict } ]
+      end
+      puts JSON.pretty_generate({ "results" => results, "improvement" => improvement })
+    end
+
+    def print_improvement_table(results:, baseline:, rows:)
+      report(results:, baseline:, json: false)
       puts format("%-12s %10s %10s %8s %8s  %s", "scenario", "before", "now", "drop %", "wanted %", "verdict")
       rows.each do |name, before, now, drop, wanted, verdict|
         puts format("%-12s %10s %10s %8s %8.1f  %s", name, before || "-", now || "-", drop ? format("%.1f", drop) : "-", wanted, verdict)
       end
-      rows.all? { |row| row.last == "ok" } ? 0 : 1
     end
   end
 end

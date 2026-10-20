@@ -7,6 +7,8 @@ require_relative "runner"
 
 class BenchRunnerTest < Minitest::Test
   CURRENT = { "ruby" => RUBY_VERSION, "phlex" => Phlex::VERSION }.freeze
+  RESULTS = { "button" => { "us" => 1.0, "allocations" => 41 }, "card" => { "us" => 1.0, "allocations" => 119 } }.freeze
+  EARLIER = { **CURRENT, "allocations" => { "button" => 57, "card" => 197 } }.freeze
   BASELINE = { "tolerance" => 0.02, "allocations" => { "button" => 100 } }.freeze
 
   def test_within_tolerance_passes
@@ -52,9 +54,6 @@ class BenchRunnerTest < Minitest::Test
 
     assert_equal scenarios["button"].call.call, scenarios["reference"].call.call
   end
-
-  RESULTS = { "button" => { "us" => 1.0, "allocations" => 41 }, "card" => { "us" => 1.0, "allocations" => 119 } }.freeze
-  EARLIER = { **CURRENT, "allocations" => { "button" => 57, "card" => 197 } }.freeze
 
   def test_expectations_parse_percentages
     assert_equal({ "button" => 25.0, "card" => 20.5 }, Bench::Runner.parse_expectations("button=25,card=20.5"))
@@ -166,6 +165,24 @@ class BenchRunnerTest < Minitest::Test
     skip "no git history available" unless system("git", "rev-parse", "--verify", "-q", "HEAD", out: File::NULL, err: File::NULL)
 
     assert_kind_of Hash, Bench::Runner.load_baseline("HEAD")
+  end
+
+  def test_json_mode_prints_only_json
+    with_baseline(EARLIER) do |path|
+      out, = capture_io { assert_equal 0, Bench::Runner.improvement(results: RESULTS, expectations: { "button" => 25.0 }, source: path, json: true) }
+      parsed = JSON.parse(out)
+
+      assert_equal "ok", parsed.dig("improvement", "button", "verdict")
+      assert_equal 41, parsed.dig("results", "button", "allocations")
+    end
+  end
+
+  def test_non_object_baseline_is_a_readable_failure
+    with_baseline([]) { |path| assert_match(/not a JSON object/, Bench::Runner.load_baseline(path)) }
+  end
+
+  def test_option_like_revision_is_not_passed_to_git_as_an_option
+    assert_match(/cannot read a baseline/, Bench::Runner.load_baseline("-p"))
   end
 
   private
