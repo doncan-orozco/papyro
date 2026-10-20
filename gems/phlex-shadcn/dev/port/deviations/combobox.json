@@ -9,11 +9,15 @@
     "Combobox::Trigger as_child: stands for Base UI's render prop",
     "item_to_string_label:, item_to_string_value:, item_equal_to_value: are Ruby callables evaluated on the server; item equality defaults to == instead of Object.is",
     "filter: takes the named filters \"fuzzy\" (default, primitives/scorer.js), \"contains\" (Base UI Intl.Collator) or nil instead of a function; Base UI callbacks are the shadcn--combobox:* events",
-    "inline, grid, virtualized, filteredItems, filterQuery, actionsRef and inputRef are not ported"
+    "inline, grid, virtualized, filteredItems, filterQuery, actionsRef and inputRef are not ported",
+    "value-change reports the item's form value ({ value }), not the item object; item identity on the client is the form value and equality callables run on the server",
+    "modal: true locks the page scroll and adds the backdrop but does not trap focus (the input keeps it; Tab leaves and closes, like the non-modal popup)"
   ],
   "structure": [
     "display: contents host around the Root children and hidden inputs",
-    "closed Combobox::Content markup inside an inert <template>, mounted into body > div[data-base-ui-portal] on open and removed on close",
-    "Value-block chip prototypes and the Value text marker shipped as inert <template> elements, read and removed on connect() (first paint only)"
+    "closed Combobox::Content markup inside an inert <template>, mounted into body > div[data-base-ui-portal] and removed on close",
+    "Combobox::Value ships inert <template> markers around its live content (start, end) and the block output of each possible selection inside the start marker; they stay in the document (not removed on connect) so a Turbo snapshot can rebuild chips and the selected label",
+    "Combobox::Clear ships its closed button in an inert <template> before the live button, and Combobox::List ships the item indicator in an inert <template>, so the controller can mount them after a client-side selection",
+    "data-shadcn--combobox-* markers on parts (ignored by the runner) carry item identity and part roles for the controller"
   ]
 }
