@@ -23,7 +23,7 @@ module Phlex
             end
 
             # An esbuild app has no importmap namespace: the generator's managed index.js registers the controllers (see the javascript pipeline check).
-            if context.path(Generators::JsBundle::INDEX).file?
+            if Generators::JsBundle.pipeline(context.root, context.gems) == :esbuild && context.path(Generators::JsBundle::INDEX).file?
               return Result.passed(NAME, "#{Generators::JsBundle::INDEX} registers the gem's shadcn--* controllers")
             end
 

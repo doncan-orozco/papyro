@@ -25,8 +25,10 @@ module Phlex
         # The bundler's entry file, which imports the registration file.
         ENTRY = "app/javascript/application.js"
         APPLICATION_IMPORT = %(import "./controllers/shadcn")
+        # An active (not commented out) import of the registration file, in either quote style.
+        APPLICATION_IMPORT_PATTERN = %r{^\s*import\s+["']\./controllers/shadcn(?:/index(?:\.js)?)?["']}
         HEADER = "// Managed by `rails g phlex:shadcn:install` (copied from the phlex-shadcn gem); edits are overwritten by the next run."
-        SPECIFIER = %r{(from\s+)"(shadcn/primitives/|controllers/shadcn/)([^"]+)"}
+        SPECIFIER = %r{((?:from|import)\s*\(?\s*)(["'])(shadcn/primitives/|controllers/shadcn/)([^"']+)\2}
         CONTROLLER_FILE = /_controller\.js\z/
 
         # @param root [Pathname, String] the app root
@@ -43,7 +45,8 @@ module Phlex
         # @param root [Pathname]
         # @return [String] the `scripts.build` of package.json, "" when absent or unreadable
         def self.build_script(root)
-          scripts = JSON.parse(root.join("package.json").read)["scripts"]
+          data = JSON.parse(root.join("package.json").read)
+          scripts = data.is_a?(Hash) ? data["scripts"] : nil
           scripts.is_a?(Hash) ? scripts["build"].to_s : ""
         rescue JSON::ParserError, SystemCallError
           ""
@@ -65,6 +68,8 @@ module Phlex
           return false if package_json.nil?
 
           data = JSON.parse(package_json)
+          return false unless data.is_a?(Hash)
+
           %w[dependencies devDependencies].any? { |key| data[key].is_a?(Hash) && data[key].key?(FLOATING_UI) }
         rescue JSON::ParserError
           false
@@ -84,8 +89,11 @@ module Phlex
         private_class_method :class_name
 
         def self.copies(gem_root, from, to)
-          Dir[gem_root.join(from, "*.js")].to_h do |path|
-            name = File.basename(path)
+          names = Dir.glob("*.js", base: gem_root.join(from).to_s)
+          raise ArgumentError, "no JavaScript files in #{gem_root.join(from)}" if names.empty?
+
+          names.to_h do |name|
+            path = gem_root.join(from, name)
             [ "#{to}/#{name}", "#{HEADER}\n#{relative_specifiers(File.read(path), to)}" ]
           end
         end
@@ -94,10 +102,9 @@ module Phlex
         # Rewrites `from "shadcn/primitives/x"` / `from "controllers/shadcn/x"` to the path from the file's directory.
         def self.relative_specifiers(source, directory)
           source.gsub(SPECIFIER) do
-            keyword = Regexp.last_match(1)
-            target = "app/javascript/#{Regexp.last_match(2)}#{Regexp.last_match(3)}"
-            relative = Pathname.new(target).relative_path_from(Pathname.new(directory)).to_s
-            %(#{keyword}"#{relative.start_with?('.') ? relative : "./#{relative}"}")
+            keyword, quote, namespace, name = Regexp.last_match.captures
+            relative = Pathname.new("app/javascript/#{namespace}#{name}").relative_path_from(Pathname.new(directory)).to_s
+            "#{keyword}#{quote}#{relative.start_with?('.') ? relative : "./#{relative}"}#{quote}"
           end
         end
         private_class_method :relative_specifiers

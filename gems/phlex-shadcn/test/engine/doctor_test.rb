@@ -158,7 +158,7 @@ class EngineTest::DoctorTask < Minitest::Test
     end
   end
 
-  def test_the_pipeline_check_passes_after_the_installer_and_warns_when_a_copy_goes_stale_or_wiring_is_missing
+  def test_the_pipeline_check_passes_after_the_installer_and_fails_when_a_copy_goes_stale_or_wiring_is_missing
     Dir.mktmpdir("phlex-shadcn-doctor-js") do |dir|
       esbuild_app(dir)
       FileUtils.mkdir_p(File.join(dir, "app/assets/tailwind"))
@@ -189,6 +189,18 @@ class EngineTest::DoctorTask < Minitest::Test
       context = Phlex::Shadcn::Doctor::Context.new(root: dir, gems: { "stimulus-rails" => Gem::Version.new("1.3.0") })
 
       assert_equal :pass, Phlex::Shadcn::Doctor::Checks::Stimulus.call(context).status
+    end
+  end
+
+  def test_the_stimulus_check_does_not_trust_the_esbuild_index_in_an_importmap_app
+    Dir.mktmpdir("phlex-shadcn-doctor-js") do |dir|
+      FileUtils.mkdir_p(File.join(dir, "app/javascript/controllers/shadcn"))
+      FileUtils.mkdir_p(File.join(dir, "config"))
+      File.write(File.join(dir, "config/importmap.rb"), "")
+      File.write(File.join(dir, "app/javascript/controllers/shadcn/index.js"), "")
+      context = Phlex::Shadcn::Doctor::Context.new(root: dir, gems: { "stimulus-rails" => Gem::Version.new("1.3.0") })
+
+      assert_equal :fail, Phlex::Shadcn::Doctor::Checks::Stimulus.call(context).status
     end
   end
 

@@ -69,11 +69,15 @@ module Phlex
         end
 
         def install_javascript
+          return say("No importmap or jsbundling esbuild setup found: add --js importmap|esbuild to wire the gem's JavaScript.", :yellow) if pipeline == :unknown
           return unless pipeline == :esbuild
+
+          package = File.join(destination_root, "package.json")
+          raise Thor::Error, "package.json not found: --js esbuild needs a jsbundling-rails app" unless File.file?(package)
 
           write_js_files
           import_in_application
-          add_floating_ui
+          add_floating_ui(package)
         end
 
         def show_next_steps
@@ -113,18 +117,17 @@ module Phlex
           end
 
           text = File.read(path)
-          return say_status(:identical, JsBundle::ENTRY, :blue) if text.include?(JsBundle::APPLICATION_IMPORT)
+          return say_status(:identical, JsBundle::ENTRY, :blue) if text.match?(JsBundle::APPLICATION_IMPORT_PATTERN)
 
-          File.write(path, "#{text.chomp}\n#{JsBundle::APPLICATION_IMPORT}\n") unless options[:pretend]
+          eol = text.include?("\r\n") ? "\r\n" : "\n"
+          File.write(path, "#{text.chomp}#{eol}#{JsBundle::APPLICATION_IMPORT}#{eol}") unless options[:pretend]
           say_status(:insert, JsBundle::ENTRY, :green)
         end
 
-        def add_floating_ui
-          package = File.join(destination_root, "package.json")
-          raise Thor::Error, "package.json not found: --js esbuild needs a jsbundling-rails app" unless File.file?(package)
+        def add_floating_ui(package)
           return say_status(:identical, "package.json (#{JsBundle::FLOATING_UI})", :blue) if JsBundle.floating_ui?(File.read(package))
 
-          run "#{package_manager_add} #{JsBundle::FLOATING_UI}@#{JsBundle::FLOATING_UI_REQUIREMENT}", abort_on_failure: true
+          inside(destination_root) { run "#{package_manager_add} #{JsBundle::FLOATING_UI}@#{JsBundle::FLOATING_UI_REQUIREMENT}", abort_on_failure: true }
         end
 
         def package_manager_add

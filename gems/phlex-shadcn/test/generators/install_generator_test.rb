@@ -276,6 +276,42 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     controllers.each { |name| assert_includes index, "application.register(\"shadcn--#{name.tr('_', '-')}\"," }
   end
 
+  test "no copy keeps an importmap-only specifier" do
+    Phlex::Shadcn::Generators::JsBundle.files(Phlex::Shadcn.root).each do |path, content|
+      refute_match(%r{["'](shadcn/primitives|controllers/shadcn)/}, content, path)
+    end
+  end
+
+  test "specifiers are rewritten in every quote and import form" do
+    source = %(import a from 'shadcn/primitives/x'\nimport "shadcn/primitives/y"\nconst m = await import("controllers/shadcn/z")\n)
+    rewritten = Phlex::Shadcn::Generators::JsBundle.send(:relative_specifiers, source, "app/javascript/controllers/shadcn")
+
+    assert_equal %(import a from '../../shadcn/primitives/x'\nimport "../../shadcn/primitives/y"\nconst m = await import("./z")\n), rewritten
+  end
+
+  test "pnpm and bun lock files choose their package manager" do
+    esbuild_app(package: %({"scripts": {"build": "esbuild"}}))
+    write("pnpm-lock.yaml", "")
+
+    assert_match(%r{pnpm add @floating-ui/dom}, run_generator(%w[--pretend]))
+    FileUtils.rm(File.join(destination_root, "pnpm-lock.yaml"))
+    write("bun.lockb", "")
+
+    assert_match(%r{bun add @floating-ui/dom}, run_generator(%w[--pretend]))
+  end
+
+  test "a commented-out import does not count and a single-quoted one does" do
+    esbuild_app
+    write("app/javascript/application.js", %(// import "./controllers/shadcn"\n))
+    run_generator
+
+    assert_equal 2, File.read(File.join(destination_root, "app/javascript/application.js")).scan("./controllers/shadcn").size
+    write("app/javascript/application.js", %(import './controllers/shadcn'\n))
+    run_generator
+
+    assert_equal 1, File.read(File.join(destination_root, "app/javascript/application.js")).scan("./controllers/shadcn").size
+  end
+
   test "an esbuild app run twice changes nothing" do
     esbuild_app
     run_generator
@@ -336,6 +372,8 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     output = run_failing_generator(%w[--js esbuild])
 
     assert_match(/package.json not found/, output)
+    assert_no_file "app/javascript/controllers/shadcn/index.js"
+    assert_no_file "app/javascript/shadcn/primitives/presence.js"
   end
 
   test "an esbuild app without application.js is told what to add" do

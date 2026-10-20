@@ -37,12 +37,20 @@ relative paths only, and there is no npm package: publishing one is a human step
 
 The copies are the only state outside the gem, so they can go stale. `rails g phlex:shadcn:install` is idempotent and refreshes them
 ("identical" when current), and the doctor's `javascript pipeline` check compares every copy with what the generator would write and
-warns with the exact command when one differs or is missing (after a `bundle update`, run the generator again).
+fails with the exact command when one differs or is missing (after a `bundle update`, run the generator again).
 
 Single source of truth: `Phlex::Shadcn::Generators::JsBundle` (plain Ruby, `lib/generators/phlex/shadcn/install/js_bundle.rb`)
 computes the files; the generator writes them and the doctor compares against them.
 
 ## Consequences and later items
+
+- "esbuild" means any jsbundling-rails app: the copies use relative imports, which webpack, rollup and bun resolve as well; only
+  esbuild is exercised by the smoke test.
+- The doctor's `stimulus controllers` check (outside this item's Owns, `doctor/checks/stimulus.rb`) accepts the managed `index.js`
+  in an esbuild app: an esbuild app has no `controllers` importmap namespace, so the check would fail on a correct install.
+  Recorded here and as a blocker note on #175 (epic-flow R5).
+- `JsBundle` lives next to the generator (the item's Owns) although the doctor uses it; moving it to `lib/phlex/shadcn/js_bundle.rb`
+  (Zeitwerk-managed core) is a follow-up outside this item.
 
 - The `shadcn--*` identifiers are the same in both pipelines, so the Phlex components and the DOM do not change.
 - `stimulus:manifest:update` also registers `controllers/shadcn/*_controller.js` under the same identifiers; the double registration
