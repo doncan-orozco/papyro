@@ -127,7 +127,7 @@ of Radix Dialog.
 
 `rails g phlex:shadcn:install --js auto|importmap|esbuild` chooses how the gem's Stimulus controllers reach the browser. The default,
 `auto`, detects the pipeline: a `config/importmap.rb` means importmap; otherwise a `package.json` together with `jsbundling-rails` in the
-bundle (or an `esbuild` build script in `package.json`) means esbuild. `--js importmap` or `--js esbuild` overrides the detection;
+bundle (or an `esbuild` build script in `package.json`) means esbuild. `--js importmap` or `--js esbuild` overrides the detection (any jsbundling-rails app is treated as esbuild; only esbuild is smoke-tested);
 when neither is found the generator says so and writes no JavaScript.
 
 - **importmap** (Rails' default and the setup above): nothing is written, the engine pins the controllers, the primitives and the
@@ -337,7 +337,7 @@ end
   Fixed landmark labels (`Spinner`, `NavigationMenu`, `Sidebar::Rail`...) take `aria: { label: ... }`; see
   [docs/api-conventions.md](docs/api-conventions.md).
 
-The API of every component is in the YARD documentation (`bundle exec yard server` in the gem,) and,
+The API of every component is in the YARD documentation (`bundle exec yard server` in the gem) and,
 per family, in [`docs/`](docs/): [conventions](docs/api-conventions.md), [display](docs/display.md), [form controls](docs/form-controls.md),
 [disclosure and navigation](docs/disclosure-and-navigation.md), [overlays](docs/overlays.md), [menus and select](docs/menus-and-select.md).
 [Compatibility](docs/compatibility.md) lists the supported Ruby, Phlex, Rails and Tailwind versions and the Phlex 3 policy.
@@ -442,7 +442,8 @@ Without Rails, set the environment variable `PHLEX_SHADCN_OVERRIDE_DIR` before `
 
 `bin/bench` (in the gem directory; plain Phlex, no Rails) renders representative components and prints microseconds and Ruby object
 allocations per render. Allocation counts are deterministic and are what `bin/bench --check` compares with `dev/bench/baseline.json` (run it by hand: it is not part of `bin/check` or CI, and it skips with a warning on another Ruby or Phlex version); times vary from run to run and are
-informational only. Merged class strings are memoized in `Base`, which cut allocations per render (Ruby 4.0.0, Phlex 2.4.1):
+informational only. Merged class strings are memoized in `Base`, which cut allocations per render (Ruby 4.0.0, Phlex 2.4.1; the "before" column is `dev/bench/baseline.json` as committed
+with the benchmark in `18c4cbd`, the "after" column is the current file):
 
 | Scenario | Allocations per render before the cache | after |
 |---|---|---|
