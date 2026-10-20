@@ -3395,7 +3395,7 @@
       "animations": false
     },
     {
-      "id": "keyboard__arrow-up-from-first-clears",
+      "id": "keyboard__arrow-up-from-first-then-last",
       "tree": {
         "c": "_div",
         "props": {
@@ -4420,7 +4420,7 @@
         },
         {
           "do": "hover",
-          "target": "[data-slot=combobox-empty]"
+          "target": "[data-slot=input-group-control]"
         }
       ],
       "dark": false,
@@ -4431,7 +4431,7 @@
       "tree": {
         "c": "_div",
         "props": {
-          "className": "flex flex-col gap-4 w-72"
+          "className": "flex w-72 flex-col items-start"
         },
         "children": [
           {
@@ -4483,6 +4483,20 @@
                 ]
               }
             ]
+          },
+          {
+            "c": "_button",
+            "props": {
+              "type": "button",
+              "id": "outside-button",
+              "className": "text-sm",
+              "style": {
+                "marginTop": "320px"
+              }
+            },
+            "children": [
+              "Outside"
+            ]
           }
         ]
       },
@@ -4493,11 +4507,7 @@
         },
         {
           "do": "click",
-          "target": "body",
-          "position": {
-            "x": 880,
-            "y": 680
-          }
+          "target": "#outside-button"
         }
       ],
       "dark": false,
@@ -4508,7 +4518,7 @@
       "tree": {
         "c": "_div",
         "props": {
-          "className": "flex flex-col gap-4 w-72"
+          "className": "flex w-72 flex-col items-start"
         },
         "children": [
           {
@@ -4561,6 +4571,20 @@
                 ]
               }
             ]
+          },
+          {
+            "c": "_button",
+            "props": {
+              "type": "button",
+              "id": "outside-button",
+              "className": "text-sm",
+              "style": {
+                "marginTop": "320px"
+              }
+            },
+            "children": [
+              "Outside"
+            ]
           }
         ]
       },
@@ -4574,11 +4598,131 @@
         },
         {
           "do": "click",
-          "target": "body",
-          "position": {
-            "x": 880,
-            "y": 680
+          "target": "#outside-button"
+        }
+      ],
+      "dark": false,
+      "animations": false
+    },
+    {
+      "id": "pointer__outside-click-multiple-keeps-chips",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex w-72 flex-col items-start"
+        },
+        "children": [
+          {
+            "c": "Combobox",
+            "props": {
+              "multiple": true,
+              "autoHighlight": true,
+              "items": [
+                "Next.js",
+                "SvelteKit",
+                "Nuxt.js",
+                "Remix",
+                "Astro"
+              ],
+              "defaultValue": [
+                "Next.js"
+              ]
+            },
+            "children": [
+              {
+                "c": "ComboboxChips",
+                "children": [
+                  {
+                    "c": "ComboboxValue",
+                    "children": [
+                      {
+                        "c": "_Each",
+                        "children": [
+                          {
+                            "c": "ComboboxChip",
+                            "children": [
+                              "$item"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "c": "ComboboxChipsInput",
+                        "props": {
+                          "placeholder": "Add framework"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "ComboboxContent",
+                "props": {
+                  "anchor": "$ref:[data-slot=combobox-chips]"
+                },
+                "children": [
+                  {
+                    "c": "ComboboxEmpty",
+                    "children": [
+                      "No items found."
+                    ]
+                  },
+                  {
+                    "c": "ComboboxList",
+                    "children": [
+                      {
+                        "c": "_Each",
+                        "children": [
+                          {
+                            "c": "ComboboxItem",
+                            "props": {
+                              "value": "$item"
+                            },
+                            "children": [
+                              "$item"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "c": "_button",
+            "props": {
+              "type": "button",
+              "id": "outside-button",
+              "className": "text-sm",
+              "style": {
+                "marginTop": "320px"
+              }
+            },
+            "children": [
+              "Outside"
+            ]
           }
+        ]
+      },
+      "steps": [
+        {
+          "do": "click",
+          "target": "[data-slot=combobox-chip-input]"
+        },
+        {
+          "do": "press",
+          "key": "ArrowDown"
+        },
+        {
+          "do": "press",
+          "key": "Enter"
+        },
+        {
+          "do": "click",
+          "target": "#outside-button"
         }
       ],
       "dark": false,
@@ -6261,8 +6405,7 @@
       "steps": [
         {
           "do": "click",
-          "target": "[data-slot=input-group-button]",
-          "force": true
+          "target": "[data-slot=input-group-addon]"
         }
       ],
       "dark": false,
@@ -10954,6 +11097,95 @@
       "animations": false
     },
     {
+      "id": "popup__closed-trigger-typeahead",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex flex-col gap-4 w-72"
+        },
+        "children": [
+          {
+            "c": "Combobox",
+            "props": {
+              "items": [
+                "Next.js",
+                "SvelteKit",
+                "Nuxt.js",
+                "Remix",
+                "Astro"
+              ],
+              "defaultValue": "Astro"
+            },
+            "children": [
+              {
+                "c": "ComboboxTrigger",
+                "props": {
+                  "className": "w-64 justify-between font-normal"
+                },
+                "children": [
+                  {
+                    "c": "ComboboxValue"
+                  }
+                ]
+              },
+              {
+                "c": "ComboboxContent",
+                "children": [
+                  {
+                    "c": "ComboboxInput",
+                    "props": {
+                      "showTrigger": false,
+                      "placeholder": "Search"
+                    }
+                  },
+                  {
+                    "c": "ComboboxEmpty",
+                    "children": [
+                      "No items found."
+                    ]
+                  },
+                  {
+                    "c": "ComboboxList",
+                    "children": [
+                      {
+                        "c": "_Each",
+                        "children": [
+                          {
+                            "c": "ComboboxItem",
+                            "props": {
+                              "value": "$item"
+                            },
+                            "children": [
+                              "$item"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "tab"
+        },
+        {
+          "do": "type",
+          "text": "r"
+        },
+        {
+          "do": "type",
+          "text": "e"
+        }
+      ],
+      "dark": false,
+      "animations": false
+    },
+    {
       "id": "popup__keyboard-open",
       "tree": {
         "c": "_div",
@@ -12035,6 +12267,175 @@
       "animations": false,
       "observe": [
         "div:has(> [data-slot=combobox-content])"
+      ]
+    },
+    {
+      "id": "modal__open-backdrop",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex flex-col gap-4 w-72"
+        },
+        "children": [
+          {
+            "c": "Combobox",
+            "props": {
+              "items": [
+                "Next.js",
+                "SvelteKit",
+                "Nuxt.js",
+                "Remix",
+                "Astro"
+              ],
+              "modal": true
+            },
+            "children": [
+              {
+                "c": "ComboboxInput",
+                "props": {
+                  "placeholder": "Select a framework"
+                }
+              },
+              {
+                "c": "ComboboxContent",
+                "children": [
+                  {
+                    "c": "ComboboxEmpty",
+                    "children": [
+                      "No items found."
+                    ]
+                  },
+                  {
+                    "c": "ComboboxList",
+                    "children": [
+                      {
+                        "c": "_Each",
+                        "children": [
+                          {
+                            "c": "ComboboxItem",
+                            "props": {
+                              "value": "$item"
+                            },
+                            "children": [
+                              "$item"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "click",
+          "target": "[data-slot=input-group-control]"
+        }
+      ],
+      "dark": false,
+      "animations": false,
+      "observe": [
+        "div[role=presentation][aria-hidden=true]",
+        "div:has(> [data-slot=combobox-content])"
+      ]
+    },
+    {
+      "id": "modal__outside-click-closes",
+      "tree": {
+        "c": "_div",
+        "props": {
+          "className": "flex w-72 flex-col items-start"
+        },
+        "children": [
+          {
+            "c": "Combobox",
+            "props": {
+              "items": [
+                "Next.js",
+                "SvelteKit",
+                "Nuxt.js",
+                "Remix",
+                "Astro"
+              ],
+              "modal": true
+            },
+            "children": [
+              {
+                "c": "ComboboxInput",
+                "props": {
+                  "placeholder": "Select a framework"
+                }
+              },
+              {
+                "c": "ComboboxContent",
+                "children": [
+                  {
+                    "c": "ComboboxEmpty",
+                    "children": [
+                      "No items found."
+                    ]
+                  },
+                  {
+                    "c": "ComboboxList",
+                    "children": [
+                      {
+                        "c": "_Each",
+                        "children": [
+                          {
+                            "c": "ComboboxItem",
+                            "props": {
+                              "value": "$item"
+                            },
+                            "children": [
+                              "$item"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "c": "_button",
+            "props": {
+              "type": "button",
+              "id": "outside-button",
+              "className": "text-sm",
+              "style": {
+                "marginTop": "320px"
+              }
+            },
+            "children": [
+              "Outside"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "do": "click",
+          "target": "[data-slot=input-group-control]"
+        },
+        {
+          "do": "click",
+          "target": "body",
+          "position": {
+            "x": 600,
+            "y": 600
+          }
+        }
+      ],
+      "dark": false,
+      "animations": false,
+      "observe": [
+        "div[role=presentation][aria-hidden=true]"
       ]
     },
     {
