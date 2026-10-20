@@ -104,12 +104,12 @@ class Phlex::Shadcn::Calendar::Options
     {
       "mode" => @mode, "selected" => @selected, "defaultMonth" => @default_month, "today" => @today,
       "numberOfMonths" => @number_of_months, "captionLayout" => @caption_layout, "showWeekNumber" => @show_week_number,
-      "hideNavigation" => @hide_navigation, "hideWeekdays" => @hide_weekdays, "locale" => @locale.intl_tag, "localeKind" => @locale.kind,
+      "hideWeekdays" => @hide_weekdays, "locale" => @locale.intl_tag, "localeKind" => @locale.kind,
       "yearFirst" => @locale.year_first?, "weekStartsOn" => @week_starts_on || @locale.week_starts_on,
       "firstWeekContainsDate" => @locale.first_week_contains_date, "disabled" => @disabled, "hidden" => @hidden, "modifiers" => @modifiers,
       "modifiersClassNames" => @modifiers_class_names, "dayClasses" => day_classes(classes),
       "startMonth" => @start_month, "endMonth" => @end_month, "min" => @min, "max" => @max, "required" => @required, "dir" => @dir,
-      "formatters" => @formatters, "labels" => @locale.labels, "input" => @input, "label" => @label, "name" => @name
+      "formatters" => @formatters, "labels" => @locale.labels, "input" => @input, "label" => @label
     }.merge(@flags).compact
   end
 

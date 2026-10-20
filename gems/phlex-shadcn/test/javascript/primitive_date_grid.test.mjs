@@ -428,3 +428,13 @@ primitiveTest("date_grid: reviveMatcher parses ISO strings as local dates and ke
   });
   assert.deepEqual(result, { first: ["2026-03-10", null, true], second: [2026, 2, 12, 0], dayOfWeek: [0, 6], boolean: true, invalid: false, nested: ["2026-03-01"] });
 });
+
+primitiveTest("date_grid: before/after matchers with an unparsable date never match", async (page) => {
+  const result = await grid(page, (g) => {
+    const date = g.parseISO("2026-03-15");
+    const range = { from: g.parseISO("2026-03-10"), to: g.parseISO("2026-03-20") };
+    return [{ before: "2026-13-40" }, { after: "bad" }, { before: "bad", after: "2026-03-01" }, { before: "2026-03-20", after: "bad" }]
+      .map((json) => [g.dateMatches(date, g.reviveMatcher(json)), g.rangeContainsMatch(range, g.reviveMatcher(json))]);
+  });
+  assert.deepEqual(result, Array(4).fill([false, false]));
+});

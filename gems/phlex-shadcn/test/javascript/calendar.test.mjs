@@ -265,8 +265,11 @@ browserTest("calendar: input: is the source of truth, receives input and change 
   assert.deepEqual(await page.evaluate(() => window.__input), [["input", true, "2026-07-20"], ["change", true, "2026-07-20"]]);
   await page.click(day("2026-07-20"));
   assert.equal(await page.inputValue("#chosen"), "", "clearing writes an empty value");
+  const warnings = [];
+  page.on("console", (message) => { if (message.type() === "warning") warnings.push(message.text()); });
   await page.evaluate(() => { document.querySelector("#chosen").value = "nonsense"; });
   await reconnect(page);
+  assert.ok(warnings.some((text) => text.includes('"nonsense"') && text.includes("no selection")), warnings.join("|"));
   assert.equal(await page.locator('td[aria-selected="true"]').count(), 0, "an unparsable value means no selection");
 });
 
@@ -354,7 +357,8 @@ browserTest("calendar: close_on_select closes the enclosing popover after a comp
   await page.click(day("2026-03-20"));
   await page.waitForSelector("[data-slot=popover-content]", { state: "detached" });
   assert.equal(await page.inputValue("#event_date"), "2026-03-20", "the input outlives the popover content");
-  assert.equal(await page.evaluate(() => document.activeElement?.getAttribute("data-slot")), "popover-trigger");
+  // The popover returns focus in its own close-auto-focus, after the content is gone: wait for it instead of reading once.
+  await page.waitForFunction(() => document.activeElement?.getAttribute("data-slot") === "popover-trigger", null, { timeout: 5000 });
   await page.click("[data-slot=popover-trigger]");
   await page.waitForSelector("[data-slot=popover-content]");
   await settle(page);
@@ -447,4 +451,25 @@ browserTest("calendar: without input: the inline name: inputs are the source on 
   });
   await reconnect(page);
   assert.equal(await page.locator('td[aria-selected="true"]').getAttribute("data-day"), "2026-03-18");
+});
+
+browserTest("calendar: a label: selector that matches nothing logs an error and the selection still works", async ({ open }) => {
+  const page = await open("mode-single__rest");
+  const errors = [];
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+  await configure(page, { label: "#nope" });
+  assert.ok(errors.some((text) => text.includes('label "#nope"') && text.includes("matches no element")), errors.join("|"));
+  await page.click(day("2026-03-12"));
+  assert.equal(await page.locator('td[aria-selected="true"]').getAttribute("data-day"), "2026-03-12");
+});
+
+browserTest("calendar: unparsable multiple and range input values warn and read as no selection", async ({ open }) => {
+  for (const [scenario, value] of [["mode-multiple__rest", "2026-03-03,bogus"], ["mode-range__rest", "2026-03-10/xx"]]) {
+    const page = await open(scenario);
+    const warnings = [];
+    page.on("console", (message) => { if (message.type() === "warning") warnings.push(message.text()); });
+    await page.evaluate((value) => document.body.append(Object.assign(document.createElement("input"), { type: "hidden", id: "bad", value })), value);
+    await configure(page, { input: "#bad" });
+    assert.ok(warnings.some((text) => text.includes(`"${value}"`)), warnings.join("|"));
+  }
 });

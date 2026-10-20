@@ -13,10 +13,10 @@ class ShadcnParity::TreeRendererTest < ActiveSupport::TestCase
 
   test "$date: and $locale: markers are converted at any depth, other strings stay verbatim like Harness.tsx" do
     renderer = ShadcnParity::TreeRenderer.new(tree: {})
-    value = { "a" => "$date:2026-03-15", "b" => [ "$locale:es", { "c" => "$date:2026-1-5" } ], "d" => "$date:2026-03-15x", "e" => "x$date:2026-03-15",
+    value = { "a" => "$date:2026-03-15", "b" => [ "$locale:es", { "x" => "$date:2026-03-15", "y" => "$date:2026-1-5" } ], "d" => "$date:2026-03-15x", "e" => "x$date:2026-03-15",
               "f" => "$date:", "g" => "$locale:" }
 
-    assert_equal({ "a" => "2026-03-15", "b" => [ "es", { "c" => "$date:2026-1-5" } ], "d" => "$date:2026-03-15x", "e" => "x$date:2026-03-15",
+    assert_equal({ "a" => "2026-03-15", "b" => [ "es", { "x" => "2026-03-15", "y" => "$date:2026-1-5" } ], "d" => "$date:2026-03-15x", "e" => "x$date:2026-03-15",
                    "f" => "$date:", "g" => "$locale:" }, renderer.send(:plain_values, value))
   end
 

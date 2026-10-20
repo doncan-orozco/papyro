@@ -66,6 +66,7 @@ export default class extends Controller {
   setup() {
     const config = this.configValue
     this.cfg = config
+    this.resolvedInputs = undefined
     this.today = config.today ? grid.parseISO(config.today) : grid.startOfDay(new Date())
     this.dir = direction(this.element, config.dir)
     this.mode = config.mode || null
@@ -90,6 +91,7 @@ export default class extends Controller {
     this.selected = this.initialSelection()
     this.firstMonth = this.initialFirstMonth()
     this.focused = config.autoFocus ? "auto" : null
+    this.label = this.resolveLabel()
     this.storePlaceholder()
   }
 
@@ -685,6 +687,11 @@ export default class extends Controller {
   inputs() {
     const input = this.cfg.input
     if (!input) return null
+    if (this.resolvedInputs === undefined) this.resolvedInputs = this.resolveInputs(input)
+    return this.resolvedInputs
+  }
+
+  resolveInputs(input) {
     const selectors = typeof input === "string" ? [input] : [input.from, input.to]
     const found = selectors.map((selector) => document.querySelector(selector))
     const missing = selectors.filter((_, index) => !found[index])
@@ -709,12 +716,23 @@ export default class extends Controller {
     if (!inputs) return undefined
     if (inputs.value) {
       const text = inputs.value.value.trim()
-      if (this.mode === "single") return grid.parseISO(text)
-      if (this.mode === "multiple") return text.split(",").map((part) => grid.parseISO(part.trim())).filter(Boolean)
-      const [from, to] = text.split("/")
-      return rangeOrNull(grid.parseISO(from?.trim()), grid.parseISO(to?.trim()))
+      if (this.mode === "single") return this.parsedInput(text, grid.parseISO(text))
+      if (this.mode === "multiple") {
+        const parts = text.split(",").map((part) => part.trim()).filter(Boolean)
+        const dates = parts.map((part) => grid.parseISO(part))
+        return this.parsedInput(text, dates.filter(Boolean), dates.every(Boolean))
+      }
+      const [from, to] = text.split("/").map((part) => part.trim())
+      const [start, end] = [grid.parseISO(from), grid.parseISO(to)]
+      return this.parsedInput(text, rangeOrNull(start, end), (!from || start) && (!to || end))
     }
     return this.mode === "range" ? rangeOrNull(grid.parseISO(inputs.from?.value), grid.parseISO(inputs.to?.value)) : undefined
+  }
+
+  // A non-empty value that does not parse is read as no selection, loudly.
+  parsedInput(text, result, valid = Boolean(result)) {
+    if (text && !valid) console.warn(`shadcn--calendar: input value "${text}" is not a valid ${this.mode} date value; it is read as no selection`, this.element)
+    return result
   }
 
   // The inline `name:` inputs and the label always follow the selection; `notify` (after a click) also writes the external inputs.
@@ -767,20 +785,24 @@ export default class extends Controller {
     }
   }
 
-  get labelElement() {
-    return this.cfg.label ? document.querySelector(this.cfg.label) : null
+  // The label element, resolved once per setup; a selector that matches nothing is reported and ignored.
+  resolveLabel() {
+    if (!this.cfg.label) return null
+    const label = document.querySelector(this.cfg.label)
+    if (!label) console.error(`shadcn--calendar: label "${this.cfg.label}" matches no element; the selection text is not shown`, this.element)
+    return label
   }
 
   // The placeholder is declared by the server (`data-shadcn--calendar-placeholder`: the calendar connects only when the popover opens, so
   // the label's own text may already be a date). Without the attribute the element's first text becomes the placeholder, stored once.
   storePlaceholder() {
-    const label = this.labelElement
+    const label = this.label
     if (label && !label.hasAttribute("data-shadcn--calendar-placeholder")) label.setAttribute("data-shadcn--calendar-placeholder", label.textContent)
   }
 
   // `data-empty` always follows the selection; the text changes only after a click (the server rendered the initial text).
   syncLabel(notify) {
-    const label = this.labelElement
+    const label = this.label
     if (!label) return
     const text = this.selectionText()
     label.setAttribute("data-empty", String(!text))
