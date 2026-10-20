@@ -10,7 +10,7 @@ What phlex-shadcn supports today, what CI proves, and what happens when Phlex 3 
 | Phlex | `phlex ~> 2.3` (2.3 up to, not including, 3.0) | `add_dependency "phlex", "~> 2.3"` |
 | tailwind_merge | `~> 1.4` | gemspec |
 | zeitwerk | `~> 2.7` | gemspec |
-| Rails (optional) | `~> 8.1` | the engine loads only when `Rails::Engine` is defined; CI runs the engine tests and a clean `rails new` app against the newest Rails 8.x; the repository lockfile pins 8.1 |
+| Rails (optional) | `~> 8.1` | the engine loads only when `Rails::Engine` is defined; CI runs the engine tests on the locked Rails 8.1 and, on the freshly resolved runs (Ruby 3.2, the Phlex 2.3 floor) and the clean `rails new` app, on the newest Rails 8.x allowed by `~> 8.1` |
 | Tailwind CSS | 4 (with Rails, `tailwindcss-rails`) | the components use Tailwind 4 syntax and theme variables |
 | Stimulus | 3 (`@hotwired/stimulus`) | needed only by the interactive components |
 
