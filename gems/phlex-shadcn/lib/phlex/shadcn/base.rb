@@ -89,16 +89,42 @@ class Phlex::Shadcn::Base < Phlex::HTML
     @tw_merger ||= TailwindMerge::Merger.new
   end
 
+  # Upper bound of memoized `cn` results. Callers may pass arbitrary class strings, so the cache is cleared when it fills
+  # up (cheap, and a full cache means the workload is not repeating anyway).
+  CN_CACHE_LIMIT = 2048
+  private_constant :CN_CACHE_LIMIT
+
+  # Process-wide memo of `cn` results, keyed by every input of the merge (defaults, variant, size, caller and slot classes).
+  # Values are frozen strings; guarded by a mutex so it is safe on threaded servers and non-MRI runtimes.
+  #
+  # @api private
+  def self.cn_cache = @cn_cache ||= {}
+
+  # @api private
+  def self.cn_cache_lock = @cn_cache_lock ||= Mutex.new
+
+  # @api private
+  def self.cn_cached(inputs)
+    lock = cn_cache_lock
+    cache = cn_cache
+    lock.synchronize { cache[inputs] } || yield.tap do |result|
+      lock.synchronize do
+        cache.clear if cache.size >= CN_CACHE_LIMIT
+        cache[inputs.map { |input| input&.dup&.freeze }.freeze] = result.freeze
+      end
+    end
+  end
+
   protected
 
   # Mirrors React's cn(...inputs) => twMerge(clsx(inputs)): strings, arrays, hashes (truthy keys) and nil, conflicts resolved.
+  # Results for plain string/nil inputs (the component hot path) are memoized; the returned string is frozen.
   #
   # @api private
   def cn(*inputs)
-    flattened = flatten_class_inputs(inputs)
-    return "" if flattened.empty?
+    return merge_classes(inputs) unless inputs.all? { |input| input.nil? || input.instance_of?(String) }
 
-    Phlex::Shadcn::Base.tw_merger.merge(flattened.join(" "))
+    Phlex::Shadcn::Base.cn_cached(inputs) { merge_classes(inputs) }
   end
 
   # JSON for a data attribute, with the HTML-sensitive characters escaped (see Values.json).
@@ -110,7 +136,10 @@ class Phlex::Shadcn::Base < Phlex::HTML
   #
   # @api private
   def normalize_option(value)
-    value&.to_s&.tr("_", "-")
+    return if value.nil?
+
+    string = value.is_a?(Symbol) ? value.name : value.to_s
+    string.include?("_") ? string.tr("_", "-") : string
   end
 
   # Ids for aria wiring: `ids("dialog-1")[:title]` => "dialog-1-title". Without a base a random one is used.
@@ -129,9 +158,14 @@ class Phlex::Shadcn::Base < Phlex::HTML
     defaults = canonical_attrs(defaults)
     attrs = canonical_attrs(attrs)
     merged = defaults.merge_deep(attrs)
-    actions = [ defaults.dig(:data, :action), attrs.dig(:data, :action) ].reject_blank
-    merged[:data] = (merged[:data] || {}).merge(action: actions.join(" ")) if actions.any?
-    css = flatten_class_inputs([ @slot_class, cn(defaults[:class], attrs[:class]) ]).join(" ")
+    default_action = defaults.dig(:data, :action)
+    caller_action = attrs.dig(:data, :action)
+    if default_action || caller_action
+      actions = [ default_action, caller_action ].reject_blank
+      merged[:data] = (merged[:data] || {}).merge(action: actions.join(" ")) if actions.any?
+    end
+    resolved = cn(defaults[:class], attrs[:class])
+    css = @slot_class.nil? ? resolved : flatten_class_inputs([ @slot_class, resolved ]).join(" ")
     css.empty? ? merged.except(:class) : merged.merge(class: css)
   end
 
@@ -150,6 +184,13 @@ class Phlex::Shadcn::Base < Phlex::HTML
   end
 
   private
+
+  def merge_classes(inputs)
+    flattened = flatten_class_inputs(inputs)
+    return "" if flattened.empty?
+
+    Phlex::Shadcn::Base.tw_merger.merge(flattened.join(" "))
+  end
 
   # Recursively flattens class inputs with clsx semantics (String, Array, Hash with truthy keys, nil).
   def flatten_class_inputs(inputs)
@@ -170,8 +211,8 @@ class Phlex::Shadcn::Base < Phlex::HTML
   def canonical_attrs(attrs)
     result = {}
     (attrs || {}).each do |key, value|
-      flat = key.to_s
-      group = flat[/\A(data|aria)-/, 1]
+      flat = key.is_a?(Symbol) ? key.name : key.to_s
+      group = (flat.start_with?("data-") && "data") || (flat.start_with?("aria-") && "aria")
       if group
         (result[group.to_sym] ||= {})[flat.delete_prefix("#{group}-").tr("-", "_").to_sym] = stringify_boolean(value)
       elsif DATA_ARIA.include?(flat)
