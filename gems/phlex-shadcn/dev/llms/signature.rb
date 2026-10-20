@@ -26,19 +26,20 @@ module Phlex
 
         # One parameter: `name`, `name = default` (positional) or `name: default` (keyword; YARD keeps the colon in the name).
         def parameter(name, default)
-          return name unless default
+          return name if default.nil?
 
-          value = default_source(default)
-          return name if value.empty?
-
-          name.end_with?(":") ? "#{name} #{value}" : "#{name} = #{value}"
+          name.end_with?(":") ? "#{name} #{default_source(default)}" : "#{name} = #{default_source(default)}"
         end
 
-        # The default expression alone, on one line.
+        # The default expression alone, on one line. Raises instead of printing a default that is not a complete Ruby expression, so a
+        # YARD or Ruby change can never silently corrupt the snapshot.
         def default_source(source)
           text = source.to_s.strip
           text = text.chop.rstrip while text.match?(TRAILING_DELIMITER) && !complete?(text)
-          text.gsub(LINE_BREAK, " ")
+          line = text.gsub(LINE_BREAK, " ")
+          return line if !line.empty? && complete?(line)
+
+          raise ArgumentError, "cannot render the default #{source.inspect}: #{line.inspect} is not a complete Ruby expression"
         end
 
         def complete?(text) = !Ripper.sexp(text).nil?

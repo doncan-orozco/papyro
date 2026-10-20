@@ -49,10 +49,14 @@ class LlmsDriftTest < Minitest::Test
   def test_signature_renders_every_default_literal_identically_on_every_ruby
     require "yard"
     YARD::Registry.clear
-    YARD.parse_string(SIGNATURE_SOURCE)
-    method = YARD::Registry.at("Sample#call")
+    begin
+      YARD.parse_string(SIGNATURE_SOURCE)
+      method = YARD::Registry.at("Sample#call")
 
-    assert_equal SIGNATURE_EXPECTED, Phlex::Shadcn::Llms::Signature.render(method.parameters)
+      assert_equal SIGNATURE_EXPECTED, Phlex::Shadcn::Llms::Signature.render(method.parameters)
+    ensure
+      YARD::Registry.clear
+    end
   end
 
   def test_signature_strips_the_delimiters_each_ruby_leaves_on_a_default
@@ -66,7 +70,18 @@ class LlmsDriftTest < Minitest::Test
     assert_equal "(width: foo(1), **attrs)", rendered.call("foo(1))")
     assert_equal "(width: { a: 1, b: 2 }, **attrs)", rendered.call("{ a: 1,\n    b: 2 },")
     assert_equal "(value = -1)", Phlex::Shadcn::Llms::Signature.render([ [ "value", "-1," ] ])
+    [ "foo(1)", "Foo.bar(1)", '"a, b)"', "->(x) { x }", '""' ].each do |clean|
+      assert_equal "(width: #{clean}, **attrs)", rendered.call(clean), clean.inspect
+    end
+    assert_equal '(width: "a, b)", **attrs)', rendered.call('"a, b)")')
+    assert_equal "(width: ->(x) { x }, **attrs)", rendered.call("->(x) { x })")
     assert_equal "(a, b:)", Phlex::Shadcn::Llms::Signature.render([ [ "a", nil ], [ "b:", nil ] ])
+  end
+
+  def test_signature_fails_loud_on_a_default_it_cannot_render
+    [ ",", ")", "foo(", "<<~T", "{ a: 1, # note\n b: 2 }" ].each do |raw|
+      assert_raises(ArgumentError, raw.inspect) { Phlex::Shadcn::Llms::Signature.render([ [ "width:", raw ] ]) }
+    end
   end
 
   def test_no_generated_file_has_a_doubled_comma
