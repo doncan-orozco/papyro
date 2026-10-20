@@ -1,15 +1,9 @@
 # frozen_string_literal: true
 
 module Bench
-  # Each scenario is a lambda returning a fresh Phlex view instance; `reference` is the same markup written by hand in plain Phlex.
+  # Each scenario is a lambda returning a fresh Phlex view; `reference` hand-writes the exact HTML of `button` in plain Phlex inside
+  # the same Block wrapper, so button minus reference is the component's own overhead.
   module Scenarios
-    # Hand-written Phlex of a button: the floor the Button component is measured against.
-    class ReferenceButton < Phlex::HTML
-      def view_template
-        button(class: "inline-flex items-center justify-center rounded-md px-4 py-2", data: { slot: "button", variant: "default", size: "default" }) { "Save" }
-      end
-    end
-
     # Wraps a block as a Phlex view.
     class Block < Phlex::HTML
       def initialize(body)
@@ -20,34 +14,39 @@ module Bench
       def view_template = instance_exec(&@body)
     end
 
-    S = Phlex::Shadcn
+    # The outline Button's class string, copied from its rendered output; runner_test.rb keeps the reference equal to the component.
+    REFERENCE_BUTTON_CLASS = "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3".freeze
 
     # @return [Block] a view rendering the block
     def self.view(&body) = Block.new(body)
 
     ALL = {
-      "reference" => -> { ReferenceButton.new },
-      "button" => -> { view { render(S::Button.new(variant: "outline")) { "Save" } } },
+      "reference" => lambda {
+        view do
+          button(data: { slot: "button", variant: "outline", size: "default" }, class: REFERENCE_BUTTON_CLASS) { "Save" }
+        end
+      },
+      "button" => -> { view { render(Phlex::Shadcn::Button.new(variant: "outline")) { "Save" } } },
       "card" => lambda {
         view do
-          render(S::Card.new) do
-            render(S::Card::Header.new) do
-              render(S::Card::Title.new) { "Title" }
-              render(S::Card::Description.new) { "Description" }
+          render(Phlex::Shadcn::Card.new) do
+            render(Phlex::Shadcn::Card::Header.new) do
+              render(Phlex::Shadcn::Card::Title.new) { "Title" }
+              render(Phlex::Shadcn::Card::Description.new) { "Description" }
             end
-            render(S::Card::Content.new) { "Body" }
-            render(S::Card::Footer.new) { "Footer" }
+            render(Phlex::Shadcn::Card::Content.new) { "Body" }
+            render(Phlex::Shadcn::Card::Footer.new) { "Footer" }
           end
         end
       },
       "select" => lambda {
         view do
-          render(S::Select.new) do
-            render(S::Select::Trigger.new) { render(S::Select::Value.new(placeholder: "Pick")) }
-            render(S::Select::Content.new) do
-              render(S::Select::Group.new) do
-                render(S::Select::Label.new) { "Fruits" }
-                %w[apple banana cherry].each { |fruit| render(S::Select::Item.new(value: fruit)) { fruit.capitalize } }
+          render(Phlex::Shadcn::Select.new) do
+            render(Phlex::Shadcn::Select::Trigger.new) { render(Phlex::Shadcn::Select::Value.new(placeholder: "Pick")) }
+            render(Phlex::Shadcn::Select::Content.new) do
+              render(Phlex::Shadcn::Select::Group.new) do
+                render(Phlex::Shadcn::Select::Label.new) { "Fruits" }
+                %w[apple banana cherry].each { |fruit| render(Phlex::Shadcn::Select::Item.new(value: fruit)) { fruit.capitalize } }
               end
             end
           end
@@ -55,26 +54,26 @@ module Bench
       },
       "dialog" => lambda {
         view do
-          render(S::Dialog.new) do
-            render(S::Dialog::Trigger.new(as_child: S::Button.new(variant: "outline"))) { "Open" }
-            render(S::Dialog::Content.new) do
-              render(S::Dialog::Header.new) do
-                render(S::Dialog::Title.new) { "Title" }
-                render(S::Dialog::Description.new) { "Description" }
+          render(Phlex::Shadcn::Dialog.new) do
+            render(Phlex::Shadcn::Dialog::Trigger.new(as_child: Phlex::Shadcn::Button.new(variant: "outline"))) { "Open" }
+            render(Phlex::Shadcn::Dialog::Content.new) do
+              render(Phlex::Shadcn::Dialog::Header.new) do
+                render(Phlex::Shadcn::Dialog::Title.new) { "Title" }
+                render(Phlex::Shadcn::Dialog::Description.new) { "Description" }
               end
-              render(S::Dialog::Footer.new) { "Actions" }
+              render(Phlex::Shadcn::Dialog::Footer.new) { "Actions" }
             end
           end
         end
       },
       "table" => lambda {
         view do
-          render(S::Table.new) do
-            render(S::Table::Body.new) do
-              50.times do |i|
-                render(S::Table::Row.new) do
-                  render(S::Table::Cell.new) { "Row #{i}" }
-                  render(S::Table::Cell.new) { render(S::Button.new(size: "sm")) { "Edit" } }
+          render(Phlex::Shadcn::Table.new) do
+            render(Phlex::Shadcn::Table::Body.new) do
+              50.times do |row_number|
+                render(Phlex::Shadcn::Table::Row.new) do
+                  render(Phlex::Shadcn::Table::Cell.new) { "Row #{row_number}" }
+                  render(Phlex::Shadcn::Table::Cell.new) { render(Phlex::Shadcn::Button.new(size: "sm")) { "Edit" } }
                 end
               end
             end

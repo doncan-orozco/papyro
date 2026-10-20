@@ -11,14 +11,22 @@ module Bench
   # Measures the scenarios and compares allocations with the recorded baseline.
   module Runner
     BASELINE = File.expand_path("baseline.json", __dir__)
+    FLAGS = %w[--json --check --record].freeze
     ITERATIONS = 200
     WARMUP = 20
-    # Allocations may exceed the baseline by this fraction before --check fails.
+    # Allocations may exceed the baseline by this fraction before --check fails (counts are deterministic, so for tiny counts one
+    # extra allocation already fails).
     DEFAULT_TOLERANCE = 0.02
 
     module_function
 
     def call(argv)
+      unknown = argv - FLAGS
+      unless unknown.empty?
+        warn "unknown option(s): #{unknown.join(" ")}; usage: bin/bench [--json] [--check | --record]"
+        return 2
+      end
+
       results = measure
       baseline = File.exist?(BASELINE) ? JSON.parse(File.read(BASELINE)) : {}
       if argv.include?("--record")
@@ -36,46 +44,70 @@ module Bench
         WARMUP.times { build.call.call }
         GC.start
         GC.disable
-        allocated = GC.stat(:total_allocated_objects)
-        started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        ITERATIONS.times { build.call.call }
-        elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
-        allocated = GC.stat(:total_allocated_objects) - allocated
-        GC.enable
-        { "us" => (elapsed * 1_000_000 / ITERATIONS).round(1), "allocations" => (allocated.to_f / ITERATIONS).round }
+        begin
+          allocations_before = GC.stat(:total_allocated_objects)
+          started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+          ITERATIONS.times { build.call.call }
+          elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
+          allocations_during = GC.stat(:total_allocated_objects) - allocations_before
+        ensure
+          GC.enable
+        end
+        { "us" => (elapsed * 1_000_000 / ITERATIONS).round(1), "allocations" => (allocations_during.to_f / ITERATIONS).round }
       end
     end
 
+    # @return [Hash{String => String}] the versions allocation counts depend on
+    def environment = { "ruby" => RUBY_VERSION, "phlex" => Phlex::VERSION }
+
     def record(results, baseline)
-      data = { "tolerance" => baseline.fetch("tolerance", DEFAULT_TOLERANCE), "ruby" => RUBY_VERSION,
-               "allocations" => results.transform_values { |r| r["allocations"] } }
-      File.write(BASELINE, "#{JSON.pretty_generate(data)}\n")
+      recorded_baseline = { "tolerance" => baseline.fetch("tolerance", DEFAULT_TOLERANCE), **environment,
+                            "allocations" => results.transform_values { |measurement| measurement["allocations"] } }
+      File.write(BASELINE, "#{JSON.pretty_generate(recorded_baseline)}\n")
       puts "recorded #{BASELINE}"
       0
     end
 
     def report(results, baseline, json:)
-      return puts(JSON.pretty_generate(results)).then { 0 } if json
+      if json
+        puts JSON.pretty_generate(results)
+        return 0
+      end
 
       recorded = baseline.fetch("allocations", {})
-      puts format("%-12s %12s %14s %12s", "scenario", "us/render", "allocs/render", "baseline")
-      results.each do |name, r|
-        puts format("%-12s %12.1f %14d %12s", name, r["us"], r["allocations"], recorded.fetch(name, "-"))
+      floor = results.dig("reference", "allocations").to_f
+      puts format("%-12s %12s %14s %10s %12s", "scenario", "us/render", "allocs/render", "x ref", "baseline")
+      results.each do |name, measurement|
+        puts format("%-12s %12.1f %14d %10.1f %12s", name, measurement["us"], measurement["allocations"],
+                    measurement["allocations"] / floor, recorded.fetch(name, "-"))
       end
       0
     end
 
-    def check(results, baseline, json:)
+    # @return [Array<String>] one message per scenario over baseline + tolerance, or without a baseline
+    def regressions(results, baseline)
       recorded = baseline.fetch("allocations", {})
       tolerance = baseline.fetch("tolerance", DEFAULT_TOLERANCE)
-      failures = results.filter_map do |name, r|
+      results.filter_map do |name, measurement|
         limit = recorded[name]
         next "#{name}: no baseline (run bin/bench --record)" unless limit
-        next if r["allocations"] <= limit * (1 + tolerance)
+        next if measurement["allocations"] <= limit * (1 + tolerance)
 
-        "#{name}: #{r["allocations"]} allocations per render, baseline #{limit} (+#{(tolerance * 100).round(1)}% allowed)"
+        "#{name}: #{measurement["allocations"]} allocations per render, baseline #{limit} (+#{(tolerance * 100).round(1)}% allowed)"
       end
-      json ? puts(JSON.pretty_generate(results)) : report(results, baseline, json: false)
+    end
+
+    def check(results, baseline, json:)
+      drift = environment.reject { |key, version| baseline[key].nil? || baseline[key] == version }
+      unless drift.empty?
+        warn "baseline recorded on #{drift.keys.map { |key| "#{key} #{baseline[key]}" }.join(", ")}; " \
+             "running #{drift.map { |key, version| "#{key} #{version}" }.join(", ")}: allocation gate skipped (run bin/bench --record)"
+        report(results, baseline, json: json)
+        return 0
+      end
+
+      failures = regressions(results, baseline)
+      report(results, baseline, json: json)
       warn failures.join("\n") unless failures.empty?
       failures.empty? ? 0 : 1
     end
