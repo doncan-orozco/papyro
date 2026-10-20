@@ -157,8 +157,8 @@ class GemCheckRulesTest < Minitest::Test
 
     assert_equal [], findings
   end
-  private
 
+  private
 
   def write(path, content)
     full = File.join(@gem, path)
