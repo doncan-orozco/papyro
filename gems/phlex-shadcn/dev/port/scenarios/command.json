@@ -7460,7 +7460,7 @@
         {
           "do": "fill",
           "target": "[data-slot=command-input]",
-          "value": "r"
+          "value": "e"
         },
         {
           "do": "fill",
