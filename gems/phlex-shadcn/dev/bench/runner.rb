@@ -61,7 +61,10 @@ module Bench
 
       baseline = default_baseline
       return abort_with(baseline) if baseline.is_a?(String) && !options[:record]
-      return record(results: measure, baseline: baseline.is_a?(Hash) ? baseline : {}) if options[:record]
+      if options[:record]
+        warn "#{baseline}; rewriting it (tolerance reset to #{DEFAULT_TOLERANCE})" if baseline.is_a?(String)
+        return record(results: measure, baseline: baseline.is_a?(Hash) ? baseline : {})
+      end
       return check(results: measure, baseline:, json: options[:json]) if options[:check]
 
       report(results: measure, baseline:, json: options[:json])

@@ -218,10 +218,12 @@ class BenchRunnerTest < Minitest::Test
   def test_git_revision_baseline_is_read
     skip "git is not available" unless system("git", "--version", out: File::NULL, err: File::NULL)
 
+    outer = ENV.to_h.select { |key, _| key.start_with?("GIT_") }
+    outer.each_key { |key| ENV.delete(key) }
     Dir.mktmpdir do |repo|
       FileUtils.mkdir_p(File.join(repo, "dev/bench"))
       File.write(File.join(repo, "dev/bench/baseline.json"), JSON.generate(EARLIER))
-      git = %w[git -c user.name=test -c user.email=test@example.com -c commit.gpgsign=false -c init.defaultBranch=main]
+      git = %w[git -c core.hooksPath=/dev/null -c user.name=test -c user.email=test@example.com -c commit.gpgsign=false -c init.defaultBranch=main]
       assert system(*git, "init", "-q", repo)
       assert system(*git, "-C", repo, "add", "dev/bench/baseline.json")
       assert system(*git, "-C", repo, "commit", "-q", "-m", "baseline")
@@ -229,6 +231,8 @@ class BenchRunnerTest < Minitest::Test
       assert_equal EARLIER, Bench::Runner.load_baseline("HEAD", repo:)
       assert_match(/cannot read a baseline/, Bench::Runner.load_baseline("no-such-rev", repo:))
     end
+  ensure
+    outer&.each { |key, value| ENV[key] = value }
   end
 
   def test_json_mode_prints_only_json
@@ -280,6 +284,18 @@ class BenchRunnerTest < Minitest::Test
     end
   end
 
+  def test_expect_improvement_against_a_malformed_default_baseline_fails_without_measuring
+    with_default_baseline("[]") do
+      forbidding_measurement do
+        status = nil
+        _, err = capture_io { status = Bench::Runner.call(%w[--check --expect-improvement button=0]) }
+
+        assert_equal 1, status
+        assert_match(/not a JSON object/, err)
+      end
+    end
+  end
+
   def test_unstamped_default_baseline_skips_the_check_with_a_warning
     with_default_baseline(JSON.generate({ "allocations" => { "button" => 1 } })) do
       status = nil
@@ -292,9 +308,12 @@ class BenchRunnerTest < Minitest::Test
 
   def test_record_repairs_a_malformed_baseline
     with_default_baseline("[]") do |path|
-      capture_io { assert_equal 0, Bench::Runner.call(%w[--record]) }
+      _, err = capture_io { assert_equal 0, Bench::Runner.call(%w[--record]) }
+      recorded = JSON.parse(File.read(path))
 
-      assert_equal Bench::Scenarios::ALL.keys, JSON.parse(File.read(path)).fetch("allocations").keys
+      assert_match(/rewriting it/, err)
+      assert_equal Bench::Scenarios::ALL.keys, recorded.fetch("allocations").keys
+      assert_equal CURRENT.merge("tolerance" => Bench::Runner::DEFAULT_TOLERANCE), recorded.slice("ruby", "phlex", "tolerance")
     end
   end
 
