@@ -181,7 +181,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
   def render_as_child(child, **slot_attrs, &)
     slot = canonical_attrs(slot_attrs)
     if child.is_a?(Symbol) || child.is_a?(String)
-      tag(child.to_sym, **slot, &)
+      tag(child.to_sym, **normalize_slot_controller(slot), &)
     else
       child.receive_slot(slot_merge(slot.except(:class), canonical_attrs(child.as_child_attrs)), slot[:class])
       render(child, &)
@@ -191,13 +191,14 @@ class Phlex::Shadcn::Base < Phlex::HTML
   private
 
   # `data-controller` is a token list: the component's identifiers first, then the caller's, de-duplicated. A caller cannot
-  # remove the component's controller (not even with `controller: nil`), like `data-action`. When the caller passed no
-  # controller key `merge_deep` kept the default and nothing is allocated; otherwise the fresh `data` hash that
-  # `merge_deep` built is replaced by a copy, never one the caller still holds.
+  # remove the component's controller (not even with `controller: nil`), like `data-action`. The caller's value is normalized
+  # (strings, symbols, arrays, sets; whitespace split) whether or not the component has a controller of its own. Without a
+  # caller `controller:` key nothing is allocated; otherwise the `data` hash is replaced by a copy, never one the caller holds.
   def merge_controllers(merged, default_controller, caller_data)
-    return if default_controller.nil? || caller_data.nil? || !caller_data.key?(:controller)
+    return if caller_data.nil? || !caller_data.key?(:controller)
 
-    merged[:data] = merged[:data].merge(controller: controller_tokens(default_controller, caller_data[:controller]).join(" "))
+    tokens = controller_tokens(default_controller, caller_data[:controller])
+    merged[:data] = tokens.empty? ? merged[:data].except(:controller) : merged[:data].merge(controller: tokens.join(" "))
   end
 
   # Whitespace-separated identifiers from strings, symbols, arrays or sets (blank entries dropped), in order, de-duplicated.
@@ -265,7 +266,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
     actions = [ child.dig(:data, :action), slot.dig(:data, :action) ].reject_blank
     data[:action] = actions.join(" ") if actions.any?
     controllers = controller_tokens(slot.dig(:data, :controller), child.dig(:data, :controller))
-    data[:controller] = controllers.join(" ") if controllers.any?
+    controllers.any? ? data[:controller] = controllers.join(" ") : data.delete(:controller)
     merged.delete(:data) if data.empty?
 
     merged[:style] = merge_styles(slot[:style], child[:style]) if slot[:style] && child[:style]
@@ -275,6 +276,15 @@ class Phlex::Shadcn::Base < Phlex::HTML
       merged[:aria] = merged[:aria].merge(describedby: ids.empty? ? nil : ids.join(" "))
     end
     merged
+  end
+
+  # A bare tag has no component controller to merge with, but the caller's token list is still normalized.
+  def normalize_slot_controller(slot)
+    return slot unless slot[:data]&.key?(:controller)
+
+    tokens = controller_tokens(nil, slot[:data][:controller])
+    data = tokens.empty? ? slot[:data].except(:controller) : slot[:data].merge(controller: tokens.join(" "))
+    data.empty? ? slot.except(:data) : slot.merge(data: data)
   end
 
   def merge_styles(slot_style, child_style)

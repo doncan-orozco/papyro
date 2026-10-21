@@ -98,4 +98,55 @@ class Phlex::Shadcn::BaseMergeAttrsTest < Phlex::Shadcn::TestCase
 
     assert_equal "shadcn--calendar x y", root["data-controller"]
   end
+
+  test "a caller controller on a component without one is normalized like the merged path" do
+    bare = { data: { slot: "x" } }
+
+    assert_equal "a b", controllers(Probe.new.merge_attrs(bare, { data: { controller: [ "a", "b a" ] } }))
+    assert_equal "a b", controllers(Probe.new.merge_attrs(bare, { data: { controller: Set["a", "b"] } }))
+    assert_equal "a", controllers(Probe.new.merge_attrs(bare, { data: { controller: :a } }))
+    assert_equal "a b", controllers(Probe.new.merge_attrs(bare, { "data-controller" => "  a  b\na " }))
+    assert_equal "a", controllers(Probe.new.merge_attrs(bare, { data: { controller: [ nil, "", "a" ] } }))
+  end
+
+  test "an empty or nil caller controller on a component without one renders no data-controller" do
+    [ nil, "", "  ", [], Set.new, [ nil ] ].each do |value|
+      merged = Probe.new.merge_attrs({}, { data: { controller: value } })
+
+      assert_not merged.fetch(:data, {}).key?(:controller), "controller #{value.inspect} should be dropped"
+    end
+  end
+
+  test "a frozen caller hash is not mutated when the component has no controller" do
+    caller_attrs = { data: { controller: [ "a", "b a" ].freeze }.freeze }.freeze
+
+    assert_equal "a b", controllers(Probe.new.merge_attrs({}, caller_attrs))
+    assert_equal [ "a", "b a" ], caller_attrs[:data][:controller]
+  end
+
+  test "a plain component renders a normalized caller controller" do
+    out = Phlex::Shadcn::Badge.new(data: { controller: [ "a", "b a" ] }).call
+
+    assert_equal "a b", Nokogiri::HTML5.fragment(out).at_css("[data-slot=badge]")["data-controller"]
+  end
+
+  test "as_child onto a bare tag normalizes the slot controller" do
+    out = Phlex::Shadcn::Button.new(as_child: :a, data: { controller: [ "x", "y x" ] }).call
+    root = Nokogiri::HTML5.fragment(out).at_css("a")
+
+    assert_equal "x y", root["data-controller"]
+  end
+
+  test "as_child onto a plain component merges and normalizes both sides" do
+    out = Phlex::Shadcn::Button.new(as_child: Phlex::Shadcn::Badge.new(data: { controller: "z" }),
+                                    data: { controller: :x }).call
+
+    assert_equal "x z", Nokogiri::HTML5.fragment(out).at_css("[data-slot=button]")["data-controller"]
+  end
+
+  test "as_child with a nil slot controller keeps the child's" do
+    out = Phlex::Shadcn::Button.new(as_child: Phlex::Shadcn::Badge.new(data: { controller: "z" }), data: { controller: nil }).call
+
+    assert_equal "z", Nokogiri::HTML5.fragment(out).at_css("[data-slot=button]")["data-controller"]
+  end
 end
