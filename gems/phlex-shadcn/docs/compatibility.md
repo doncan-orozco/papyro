@@ -36,7 +36,7 @@ The gem workflow runs the plain-Phlex suite, the Rails engine and generator suit
 - the current Phlex 2.x (the committed `Gemfile`);
 - Phlex 2.3, the floor of the constraint (`test/smoke/gemfiles/phlex_2.3.gemfile` in the repository).
 
-A plain-Phlex smoke renders the components with Rails not loaded, and a clean-app job follows the README in a new Rails app and drives a browser scenario. A version outside this matrix may work, but nothing tests it and bugs reported against it are triaged after those inside it.
+A plain-Phlex smoke renders the components with Rails not loaded, and clean-app jobs follow the README in a new Rails app and drive a browser scenario (importmap, plus esbuild and Sprockets in `clean-app-variants`). A version outside this matrix may work, but nothing tests it and bugs reported against it are triaged after those inside it.
 
 ## Phlex 3
 
