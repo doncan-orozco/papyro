@@ -35,7 +35,8 @@
 # `File.join("app", "assets", ...)`, `.join("app", "assets")` chains and `%w[app assets].join("/")`. A multi-piece path is reported on the
 # line of its first piece, which is where a marker must sit. Not seen: a paren-less `File.join "app", "assets"`. A heredoc body
 # whose text starts with a path is flagged and cannot carry a marker (write it as a quoted literal).
-# A path the gem builds from its own root (`__dir__`, `root`) is indistinguishable from a host path: keep it in the Rails integration files. Prose that merely mentions a path (`"edit app/assets/x"`) is not a path.
+# Prose that merely mentions a path (`"edit app/assets/x"`) is not a path. A path the gem builds from its own root (`__dir__`, `root`) is
+# indistinguishable from a host path: keep it in the Rails integration files.
 #
 # Intentional host paths (the one allowlist): a gem file whose job is to INSPECT the host (the doctor) may name a host path
 # (`app/assets/...`) when the SAME line carries the marker below as its trailing comment. Nothing else is accepted: a marker
@@ -112,7 +113,7 @@ module RubyLex
       when :on_embexpr_beg then stack << { kind: :expr }
       when :on_embexpr_end then interpolate(stack.tap(&:pop))
       when :on_embvar then skip = interpolate(stack) || true
-      when :on_words_sep then stack.last&.key?(:words) && (stack.last[:words] << +"") && (stack.last[:lines] << nil)
+      when :on_words_sep then start_word(stack.last)
       when :on_tstring_content
         if stack.last&.key?(:words)
           stack.last[:words].last << str
@@ -124,6 +125,13 @@ module RubyLex
       end
     end
     found
+  end
+
+  def start_word(unit)
+    return unless unit&.key?(:words)
+
+    unit[:words] << +""
+    unit[:lines] << nil
   end
 
   def interpolate(stack)
@@ -163,42 +171,65 @@ module RubyLex
     end
   end
 
-  def host_path_lines(tokens)
-    lits = literals(tokens).sort_by { |l| [ l[:from], l[:to] ] }
-    sig = tokens.each_index.reject { |i| IGNORED.include?(tokens[i][1]) }
-    inside_join = join_arguments(tokens, sig)
-    after = ->(index) { sig.bsearch_index { |i| i > index } || sig.size }
-    # The significant tokens strictly between two token indexes.
-    between = lambda do |from, to|
-      sig[after.call(from)...(sig.bsearch_index { |i| i >= to } || sig.size)] || []
+  # The token stream with its significant (non-space, non-comment) tokens indexed, so neighbours can be asked cheaply.
+  View = Struct.new(:tokens, :sig, :inside_join) do
+    def self.of(tokens)
+      sig = tokens.each_index.reject { |i| IGNORED.include?(tokens[i][1]) }
+      new(tokens, sig, RubyLex.join_arguments(tokens, sig))
     end
+
+    # Position in `sig` of the first significant token after a token index.
+    def after(index) = sig.bsearch_index { |i| i > index } || sig.size
+
+    # The significant tokens strictly between two token indexes.
+    def between(from, to) = sig[after(from)...(sig.bsearch_index { |i| i >= to } || sig.size)] || []
+
+    def texts(indexes) = indexes.map { |i| tokens[i][2] }
+
     # A load path is not a file read on the host: `require "x"` / `require_relative("x")` arguments are judged by the escape check.
-    require_arg = lambda do |l|
-      k = (sig.bsearch_index { |i| i >= l[:from] } || sig.size) - 1
+    def require_argument?(lit)
+      k = (sig.bsearch_index { |i| i >= lit[:from] } || sig.size) - 1
       k -= 1 if k >= 0 && tokens[sig[k]][1] == :on_lparen
       k >= 0 && tokens[sig[k]][1] == :on_ident && %w[require require_relative].include?(tokens[sig[k]][2])
     end
-    lits = lits.reject(&require_arg)
-    joiner = lambda do |a, b|
-      idx = between.call(a[:to], b[:from])
-      key = idx.map { |i| tokens[i][2] }
-      JOINERS[key] if JOINERS.key?(key) && (key != [ "," ] || inside_join[idx.first])
-    end
-    hits = lits.select { |l| !l[:list] && l[:text].match?(HOST_PATH) }.map { |l| l[:line] }
-    # `%w[app assets].join("/")` is one path; a bare %w list is only its words.
-    lits.select { |l| l[:list] && l[:text].match?(HOST_PATH) && sig[after.call(l[:to]), 2].map { |i| tokens[i][2] } == %w[. join] }.each { |l| hits << l[:line] }
-    # Literals join only with siblings of the same enclosing literal: never with the outer string's neighbours, but with each other.
-    lits.select { |l| l[:chain] }.group_by { |l| l[:parent] }.each_value do |siblings|
-      siblings.chunk_while { |a, b| b[:from] > a[:to] && joiner.call(a, b) }.each do |chain|
-        next if chain.size < 2
 
-        joined = chain.each_cons(2).reduce(chain.first[:text]) { |acc, (a, b)| acc + joiner.call(a, b) + b[:text] }
-        hits << chain.first[:line] if joined.match?(HOST_PATH)
+    def followed_by_join?(lit) = texts(sig[after(lit[:to]), 2]) == %w[. join]
+
+    # What joins two neighbouring literals into one path ("" or "/"), nil when they are not joined.
+    def separator(a, b)
+      indexes = between(a[:to], b[:from])
+      key = texts(indexes)
+      JOINERS[key] if JOINERS.key?(key) && (key != [ "," ] || inside_join[indexes.first])
+    end
+  end
+
+  def host_path_lines(tokens)
+    view = View.of(tokens)
+    lits = literals(tokens).sort_by { |l| [ l[:from], l[:to] ] }.reject { |l| view.require_argument?(l) }
+    single_hits(lits) + list_join_hits(view, lits) + chain_hits(view, lits)
+  end
+
+  def single_hits(lits) = lits.select { |l| !l[:list] && l[:text].match?(HOST_PATH) }.map { |l| l[:line] }
+
+  # `%w[app assets].join("/")` is one path; a bare %w list is only its words.
+  def list_join_hits(view, lits)
+    lits.select { |l| l[:list] && l[:text].match?(HOST_PATH) && view.followed_by_join?(l) }.map { |l| l[:line] }
+  end
+
+  # Literals join only with siblings of the same enclosing literal: never with the outer string's neighbours, but with each other.
+  def chain_hits(view, lits)
+    lits.select { |l| l[:chain] }.group_by { |l| l[:parent] }.values.flat_map do |siblings|
+      siblings.chunk_while { |a, b| b[:from] > a[:to] && view.separator(a, b) }.filter_map do |chain|
+        chain.first[:line] if chain.size > 1 && joined_text(view, chain).match?(HOST_PATH)
       end
     end
-    hits
+  end
+
+  def joined_text(view, chain)
+    chain.each_cons(2).reduce(chain.first[:text]) { |text, (a, b)| text + view.separator(a, b) + b[:text] }
   end
 end
+
 opts = { host_dir: ".", rails_files: %w[lib/**/engine.rb lib/**/railtie.rb lib/generators/**/* lib/tasks/**/*] }
 OptionParser.new do |o|
   o.on("--gem-dir DIR") { |v| opts[:gem_dir] = v }
