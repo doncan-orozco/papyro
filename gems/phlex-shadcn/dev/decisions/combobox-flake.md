@@ -15,7 +15,9 @@
 Line 333 is `assert.equal(await page.locator(popup).count(), 0)` after `page.mouse.click(5, 5)` + `settle`: the press on the
 backdrop did not close the popup. The two assertions before it (scroll lock attribute, one backdrop) had passed.
 
-## Root cause: test timing against a deliberately deferred listener
+## Probable root cause: test timing against a deliberately deferred listener
+
+Consistent with the deterministic emulation below; the CI failure itself cannot be re-observed on demand. Judge it by green CI reruns.
 
 `primitives/dismissable_layer.js` registers its `pointerdown` listener in `setTimeout(..., 0)`, exactly like Radix, so the event
 that opened the layer cannot close it. The scroll lock, the backdrop and `aria-hidden` are applied synchronously at open. So
@@ -30,12 +32,12 @@ that task, and removing it would let the opening press close the popup. The cont
 
 - Natural load did not reproduce it here: 30 runs under 20 busy-loop burners (plus about 6 other workers) never failed. That
   stress also made the shared machine unusable for the other workers, so it was dropped.
-- Deterministic emulation of the starved timer queue: `SHADCN_TEST_TIMER_DELAY_MS=300` (knob added to `test/javascript/harness.mjs`)
+- Deterministic emulation of the starved timer queue: `SHADCN_TEST_TIMER_DELAY_MS=300` (knob added to `test/javascript/harness.mjs`, `browserTest` pages only; a non-numeric or negative value throws)
   makes every zero-delay `setTimeout` of the page fire 300 ms late while input is delivered at once.
   - Before the fix: `SHADCN_TEST_TIMER_DELAY_MS=300 node --test --test-name-pattern="modal popup locks" test/javascript/combobox.test.mjs`
     fails 10/10 with `1 !== 0` at the same assertion as CI.
   - After the fix: the same command passes 30/30 consecutive runs (and the unloaded gate passes).
-- Recipe if a CPU burner is wanted instead: `nice -n 19` on at most 6 busy loops (cores minus 4).
+- Load hygiene only (it did not reproduce the failure): if a CPU burner is wanted anyway, `nice -n 19` on at most 6 busy loops (cores minus 4).
 
 ## Fix
 
