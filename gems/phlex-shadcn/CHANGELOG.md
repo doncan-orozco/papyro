@@ -183,11 +183,10 @@ Since the first extraction of the gem:
   `"tailwind"` explicitly there.
 - A caller's `data-controller` is normalized the same way on every path: strings, symbols, arrays and sets are flattened, split on
   whitespace and de-duplicated, and nil, `false` and blank entries are dropped (an empty result removes the attribute). This now also
-  holds for components that have no controller of their own and for `as_child` onto a bare tag. A component's own controller still
-  cannot be removed through `data:`.
-- `bin/bench` rejects a repeated `--against` (exit 2) and merges a repeated `--expect-improvement` instead of keeping only the last one.
+  holds for components that have no controller of their own and for `as_child` onto a bare tag.
+- `bin/bench` rejects a repeated `--against` (exit 2) and merges a repeated `--expect-improvement` instead of keeping only the last one (a scenario named twice exits 2).
   The default `dev/bench/baseline.json` is validated like an `--against` file: an unreadable or malformed one exits 1 with a message
-  (also for plain `--json`), and the baseline is validated before anything is measured.
+  (also for plain `--json`; `--record` warns and rewrites it instead), and the baseline is validated before anything is measured.
 
 ### Removed
 
