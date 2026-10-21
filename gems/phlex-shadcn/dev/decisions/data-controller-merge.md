@@ -33,7 +33,7 @@ Real renders (plain Phlex process, `Phlex::Shadcn` loaded, class attribute elide
 Badge.new(data: { controller: ["a", "b a"] })        => <span data-slot="badge" data-variant="default" data-controller="a b" ...>
 Badge.new(data: { controller: Set[:a, "a b"] })      => <span ... data-controller="a b" ...>
 Badge.new(data: { controller: "  a   b " })          => <span ... data-controller="a b" ...>
-Badge.new(data: { controller: nil })                 => <span data-slot="badge" data-variant="default" class="...">   (no attribute)
+Badge.new(data: { controller: nil })                 => <span data-slot="badge" data-variant="default" ...>   (no attribute)
 Badge.new(data: { controller: false })               => same, no attribute
 Badge.new(data: { controller: "" })                  => same, no attribute
 Badge.new(data: { controller: [nil, false, ""] })    => same, no attribute
@@ -47,7 +47,7 @@ Badge.new(as_child: :a, data: { controller: false })        => <a data-slot="bad
 ```
 
 `as_child` follows the same rule on both targets. Onto a component instance the Slot merge (`slot_merge`) unions the slot's and the
-child's tokens (slot first) and the child's own `merge_attrs` keeps that union; onto a bare tag symbol there is no component
+child's tokens (slot first) and the child's own `merge_attrs` then puts its default controller first, followed by that union; onto a bare tag symbol there is no component
 controller, but the slot's list is still normalized (`normalize_slot_controller`).
 
 ## Why append and not replace
@@ -75,7 +75,8 @@ really wants an inert element can use the plain tag.
   so the common path allocates nothing new (`bin/bench --check` unchanged). Otherwise it builds the list with `controller_tokens`
   (recursive `add_controller_tokens`: nil and false dropped, Array/Set recursed, anything else `to_s.split`, then `uniq!`) and writes it
   through `with_controllers`, which returns a copy of `data` with the joined names, or without the key when the list is empty.
-- `canonical_attrs` leaves the `controller` value untouched (no boolean stringification), so `false` reaches the normalizer and is dropped.
-- `slot_merge` (component instance) and `normalize_slot_controller` (bare tag) share `controller_tokens` and `with_controllers`.
+- `canonical_attrs` (through `canonical_value`) leaves the `controller` value untouched (no boolean stringification), so `false` reaches the normalizer and is dropped.
+- `slot_merge` (component instance) and `normalize_slot_controller` (bare tag) share `controller_tokens`; `normalize_slot_controller` writes through
+  `with_controllers`, while `slot_merge` writes the joined names into (or deletes the key from) its own copy of `data`.
 - Nothing is written into a hash the caller holds (`with_controllers` copies; covered by frozen-input tests).
 - The render cache memoizes class strings only, so it is unaffected.
