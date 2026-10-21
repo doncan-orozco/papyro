@@ -34,7 +34,8 @@
 # `%w[app/assets/x]` (multi-line lists too), `"#{root}/app/assets/x"`, adjacent / `+` / `<<` / `/` concatenations ("app/" + "assets/x"),
 # `File.join("app", "assets", ...)`, `.join("app", "assets")` chains and `%w[app assets].join("/")`. A multi-piece path is reported on the
 # line of its first piece, which is where a marker must sit. Not seen: a paren-less `File.join "app", "assets"`. A heredoc body
-# whose text starts with a path is flagged and cannot carry a marker (write it as a quoted literal). Prose that merely mentions a path (`"edit app/assets/x"`) is not a path.
+# whose text starts with a path is flagged and cannot carry a marker (write it as a quoted literal).
+# A path the gem builds from its own root (`__dir__`, `root`) is indistinguishable from a host path: keep it in the Rails integration files. Prose that merely mentions a path (`"edit app/assets/x"`) is not a path.
 #
 # Intentional host paths (the one allowlist): a gem file whose job is to INSPECT the host (the doctor) may name a host path
 # (`app/assets/...`) when the SAME line carries the marker below as its trailing comment. Nothing else is accepted: a marker
