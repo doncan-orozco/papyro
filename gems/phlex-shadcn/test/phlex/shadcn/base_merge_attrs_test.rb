@@ -149,4 +149,24 @@ class Phlex::Shadcn::BaseMergeAttrsTest < Phlex::Shadcn::TestCase
 
     assert_equal "z", Nokogiri::HTML5.fragment(out).at_css("[data-slot=button]")["data-controller"]
   end
+
+  test "false is blank on every path, top level or inside a list" do
+    assert_equal "shadcn--x", controllers(Probe.new.merge_attrs({ data: { controller: "shadcn--x" } }, { data: { controller: false } }))
+    assert_equal "a", controllers(Probe.new.merge_attrs({}, { data: { controller: [ false, "a" ] } }))
+    assert_nil controllers(Probe.new.merge_attrs({}, { "data-controller" => false }))
+  end
+
+  test "as_child onto a bare tag drops an empty or false controller" do
+    [ nil, "", [], false ].each do |value|
+      out = Phlex::Shadcn::Button.new(as_child: :a, data: { controller: value }).call
+
+      assert_nil Nokogiri::HTML5.fragment(out).at_css("a")["data-controller"], value.inspect
+    end
+  end
+
+  test "as_child onto a bare tag normalizes a flat data-controller key" do
+    out = Phlex::Shadcn::Button.new(as_child: :a, "data-controller": Set["x"]).call
+
+    assert_equal "x", Nokogiri::HTML5.fragment(out).at_css("a")["data-controller"]
+  end
 end
