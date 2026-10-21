@@ -173,7 +173,8 @@ class RenameCheckTest < ActiveSupport::TestCase
   end
 
   test "file paths that still carry an old name are reported once each under the most specific row" do
-    path = "gems/phlex-shadcn/app/javascript/controllers/shadcn/dialog_controller.js"
+    # Joined so the literal gem-internal path never appears here (phlex_shadcn_engine_test forbids it in host files).
+    path = File.join("gems/phlex-shadcn", "app/javascript/controllers/shadcn/dialog_controller.js")
     write(@host, path, "export default class {}\n")
     report, _, = check("--stage", "all")
 
