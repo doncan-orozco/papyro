@@ -183,6 +183,200 @@ class GemCheckRulesTest < Minitest::Test
     assert_equal [], findings
   end
 
+  CORE = "lib/phlex/x/helper.rb"
+
+  # --- comments: a commented-out line is not code, in either direction ---------------------------------------------
+
+  def test_a_commented_out_host_path_is_not_a_finding
+    write(CORE, "# #{HOST_PATH}\nx = 1\n")
+
+    assert_equal [], findings
+  end
+
+  def test_a_commented_out_host_path_in_the_middle_of_a_file_is_not_a_finding
+    write(CORE, "a = 1\n#{HOST_PATH.sub('DEFAULT_CSS', '# OLD')}\nb = 2 # app/assets/x is documented here\n")
+
+    assert_equal [], findings
+  end
+
+  def test_code_after_a_commented_line_is_still_checked
+    write(CORE, "# note\nx = 1 # trailing\n#{HOST_PATH}\n")
+
+    assert_equal [ [ CORE, 3 ] ], escapes
+  end
+
+  def test_code_before_a_trailing_comment_is_still_checked
+    write(CORE, "#{HOST_PATH} # only a note, not a marker\n")
+
+    assert_equal [ [ CORE, 1 ] ], escapes
+  end
+
+  def test_a_hash_inside_a_string_does_not_hide_the_rest_of_the_line
+    write(CORE, %(NOTE = "a # b"; #{HOST_PATH}\n))
+
+    assert_equal [ [ CORE, 1 ] ], escapes
+  end
+
+  def test_an_embedded_doc_block_is_not_code
+    write(CORE, "=begin\n#{HOST_PATH}\n=end\nx = 1\n")
+
+    assert_equal [], findings
+  end
+
+  def test_a_commented_out_rails_reference_is_not_a_finding
+    write(CORE, "# Rails.root.join('x')\nx = 1\n")
+
+    assert_equal [], findings
+  end
+
+  def test_a_rails_reference_after_a_comment_line_is_still_a_finding
+    write(CORE, "# note\nRails.root\n")
+
+    assert_includes codes, "GEM_RAILS_REFERENCE"
+  end
+
+  def test_a_provenance_mention_in_a_comment_still_requires_a_notice
+    write(CORE, "# ported from Radix\nx = 1\n")
+
+    assert_includes codes, "GEM_NOTICES"
+  end
+
+  # --- spellings of a host path: each one is the same hard-coded path --------------------------------------------
+
+  SPELLINGS = {
+    "a %w list" => "LIST = %w[app/assets/tailwind/application.css]",
+    "a %w list with a leading ./" => "LIST = %w[./app/javascript/application.js]",
+    "a %w list element among others" => "LIST = %w[lib/x app/views/layouts/application.rb]",
+    "%w pieces joined with a slash" => "LIST = %w[app assets tailwind].join(\"/\")",
+    "File.join pieces" => "PATH = File.join(\"app\", \"assets\", \"tailwind\", \"application.css\")",
+    "File.join with a root first" => "PATH = File.join(root, \"app\", \"javascript\", \"application.js\")",
+    "File.join with a bare directory" => "PATH = File.join(root, \"app/assets\")",
+    "an interpolated prefix" => "PATH = \"\#{root}/app/assets/tailwind/application.css\"",
+    "an interpolated ivar prefix" => "PATH = \"\#@root/app/views/layouts\"",
+    "a plus concatenation" => "PATH = \"app/\" + \"assets/tailwind/application.css\"",
+    "a split directory name" => "PATH = \"app\" + \"/assets/tailwind\"",
+    "a shovel concatenation" => "PATH = +\"app/\" << \"components/x.rb\"",
+    "adjacent literals" => "PATH = \"app/\" \"views/layouts\"",
+    "a Pathname / operator" => "PATH = Pathname(\"app\") / \"assets\" / \"x.css\"",
+    "chained join calls" => "PATH = root.join(\"app\").join(\"javascript\")",
+    "a backslash continuation" => "PATH = \"app/\" \\\n  \"components/x.rb\"",
+    "a multi-line plus concatenation" => "PATH = \"app/\" +\n  \"assets/x.css\""
+  }.freeze
+
+  SPELLINGS.each do |name, code|
+    define_method(:"test_#{name.gsub(/\W+/, '_')}_is_a_host_path") do
+      write(CORE, "#{code}\n")
+
+      assert_equal [ [ CORE, 1 ] ], escapes
+    end
+  end
+
+  def test_a_multi_line_percent_w_list_reports_the_line_of_each_path
+    write(CORE, "FILES = %w[\n  app/javascript/controllers/index.js\n  lib/x.rb\n  app/javascript/application.js\n].freeze\n")
+
+    assert_equal [ [ CORE, 2 ], [ CORE, 4 ] ], escapes
+  end
+
+  def test_a_multi_line_path_is_reported_on_the_line_of_its_first_piece
+    write(CORE, "PATH = File.join(\n  \"app\",\n  \"assets\"\n)\n")
+
+    assert_equal [ [ CORE, 2 ] ], escapes
+  end
+
+  def test_a_require_relative_into_the_gems_own_app_directory_is_not_a_host_path
+    write(CORE, "require_relative \"../../../app/components/base\"\n")
+
+    assert_equal [], findings
+  end
+
+  def test_a_require_relative_leaving_the_gem_is_one_escape_not_two
+    write(CORE, "require_relative \"../../../../app/components/base\"\n")
+
+    assert_equal [ [ CORE, 1 ] ], escapes
+  end
+
+  def test_a_heredoc_body_is_not_a_path
+    write(CORE, "TEXT = <<~MSG\n  edit app/assets/tailwind/application.css\nMSG\n")
+
+    assert_equal [], findings
+  end
+
+  NOT_PATHS = {
+    "prose that mentions a path" => "MESSAGE = \"add the import to app/assets/tailwind/application.css\"",
+    "an interpolated message" => "MESSAGE = \"\#{name} reads app/javascript/application.js\"",
+    "another app directory" => "PATH = File.join(\"app\", \"models\", \"user.rb\")",
+    "a name ending in app" => "PATH = \"myapp/assets/x.css\"",
+    "a lib path" => "PATH = File.join(\"lib\", \"assets\", \"x.css\")",
+    "an unrelated %w list" => "LIST = %w[app lib assets]",
+    "pieces that are not joined" => "PAIR = [\"app\", \"x\"] + [\"assets\"]",
+    "a regexp" => "PATTERN = %r{app/assets/x}",
+    "a symbol list" => "NAMES = %i[app assets]"
+  }.freeze
+
+  NOT_PATHS.each do |name, code|
+    define_method(:"test_#{name.gsub(/\W+/, '_')}_is_not_a_host_path") do
+      write(CORE, "#{code}\n")
+
+      assert_equal [], escapes
+    end
+  end
+
+  # --- the allowlist keeps its meaning for the new spellings -------------------------------------------------------
+
+  def test_a_marked_file_join_in_a_doctor_file_is_allowed
+    write(DOCTOR, %(PATH = File.join("app", "assets", "x.css") #{MARKER}\n))
+
+    assert_equal [], findings
+  end
+
+  def test_a_marked_percent_w_list_in_a_doctor_file_is_allowed_when_the_marker_trails_its_line
+    write(DOCTOR, "LIST = %w[app/assets/x.css] #{MARKER}\n")
+
+    assert_equal [], findings
+  end
+
+  def test_a_marked_interpolated_path_in_a_doctor_file_is_allowed
+    write(DOCTOR, %(PATH = "\#{root}/app/assets/x.css" #{MARKER}\n))
+
+    assert_equal [], findings
+  end
+
+  def test_the_same_marked_file_join_outside_the_doctor_still_fails
+    write(CORE, %(PATH = File.join("app", "assets", "x.css") #{MARKER}\n))
+
+    assert_equal [ [ CORE, 1 ] ], escapes
+  end
+
+  def test_an_unmarked_file_join_in_a_doctor_file_still_fails
+    write(DOCTOR, %(PATH = File.join("app", "assets", "x.css")\n))
+
+    assert_equal [ [ DOCTOR, 1 ] ], escapes
+  end
+
+  def test_a_marker_on_the_second_line_of_a_split_path_does_not_allow_it
+    write(DOCTOR, %(PATH = File.join("app",\n  "assets") #{MARKER}\n))
+
+    assert_equal [ [ DOCTOR, 1 ] ], escapes
+  end
+
+  def test_a_marker_inside_a_multi_line_percent_w_list_is_only_a_word
+    write(DOCTOR, "FILES = %w[\n  app/assets/x.css #{MARKER}\n]\n")
+
+    assert_equal [ [ DOCTOR, 2 ] ], escapes
+  end
+
+  def test_a_marker_in_a_string_after_a_file_join_does_not_allow_it
+    write(DOCTOR, %(PATH = File.join("app", "assets") + " #{MARKER}"\n))
+
+    assert_equal [ [ DOCTOR, 1 ] ], escapes
+  end
+
+  def test_generator_files_need_no_marker_for_any_spelling
+    write("lib/generators/x/install/manifest.rb", %(PATH = File.join("app", "assets", "x.css")\nLIST = %w[app/views/x]\n))
+
+    assert_equal [], findings
+  end
+
   private
 
   def write(path, content)
