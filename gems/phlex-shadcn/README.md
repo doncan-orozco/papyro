@@ -180,7 +180,7 @@ The task exits 1 when any check fails (warnings do not fail it), so it can gate 
 | `propshaft stub filter` | the hook that hides the Tailwind stubs works (not applicable without Propshaft) |
 | `source block` | the managed block exists and its `@source` points at the gem's `lib` |
 | `stimulus controllers` | the gem's `shadcn--*` controllers get registered |
-| `tailwind` | `tailwindcss-rails` 4.3.0 or newer (an older one fails with `tailwindcss-rails X found, it cannot bundle an engine's CSS before 4.3.0`) and Tailwind 4, and `@import "tailwindcss"` in the entry file |
+| `tailwind` | `tailwindcss-rails` 4.3.0 or newer (a 4.x below it fails with `tailwindcss-rails X found, it cannot bundle an engine's CSS before 4.3.0`, a 3.x with `tailwindcss-rails X found, the engine bundle needs tailwindcss-rails 4`) and Tailwind 4, and `@import "tailwindcss"` in the entry file |
 | `theme files` | `theme.css` and `presets/` in the theme directory |
 | `theme import` | the managed block imports `theme.css` |
 
