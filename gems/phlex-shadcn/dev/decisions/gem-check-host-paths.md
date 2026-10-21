@@ -20,9 +20,9 @@ Since #240 (PR #249) `gem_check` no longer greps the line text: it lexes the fil
 - interpolation: `"#{root}/app/assets/x"`, `"#@ivar/app/assets/x"`;
 - concatenation: `"app/" + "assets/x"`, `<<`, adjacent literals, backslash continuation;
 - `"./app/javascript/y"` and a bare `"app/assets"`;
-- a heredoc line that starts with the path.
+- a heredoc body whose text starts with the path.
 
-Real output from a scratch gem outside the repository (`ruby .claude/scripts/gem/gem_check.rb --gem-dir <scratch>/gems/phlex-x --host-dir <scratch>`), one file `lib/phlex/shadcn/core.rb` with `A = %w[app/assets/x]` (line 1), `B = File.join("app", "assets", "x")` (2), `C = Pathname("app").join("assets")` (3), `D = "#{root}/app/assets/x"` (4), `E = "app/" + "assets/x"` (5), `F = "./app/javascript/y"` (6), `G = "app/assets"` (7), a heredoc whose body line is `app/assets/tailwind.css` (reported on the body line, 10):
+Findings from a scratch gem outside the repository (`ruby .claude/scripts/gem/gem_check.rb --gem-dir <scratch>/gems/phlex-x --host-dir <scratch>`, which prints JSON), condensed to `code file:line detail` and limited to `lib/phlex/shadcn/core.rb`, which holds `A = %w[app/assets/x]` (line 1), `B = File.join("app", "assets", "x")` (2), `C = Pathname("app").join("assets")` (3), `D = "#{root}/app/assets/x"` (4), `E = "app/" + "assets/x"` (5), `F = "./app/javascript/y"` (6), `G = "app/assets"` (7), a heredoc whose body line is `app/assets/tailwind.css` (reported on the body line, 10):
 
 ```
 GEM_ESCAPES_ROOT lib/phlex/shadcn/core.rb:1 hard-coded host path (app/... or Rails.root); only doctor files may allow it, with `# gem_check:allow GEM_ESCAPES_ROOT -- <reason>` on the same line
@@ -31,7 +31,7 @@ GEM_ESCAPES_ROOT lib/phlex/shadcn/core.rb:1 hard-coded host path (app/... or Rai
 
 Not findings: prose that merely mentions a path (`"edit app/assets/x then save"`), a path inside a comment (`# K = "app/assets/x"`, blanked by Ripper), and `Rails.root` on its own (that is `GEM_RAILS_REFERENCE`, a different rule). A path the gem builds from its own root is indistinguishable from a host path, so it belongs in the Rails integration files.
 
-Documented gaps (script header):
+Known gaps (not exhaustive; the first three are in the script header, the syntax-error one comes from a scratch run):
 
 - A paren-less `File.join "app", "assets"` is not seen (scratch run: `H = File.join "app", "assets"` produced no finding).
 - A heredoc line that starts with a path is flagged and cannot carry a marker (a `#` there is text); write the path as a quoted literal.
@@ -61,6 +61,7 @@ DEFAULT_CSS = "app/assets/tailwind/application.css" # gem_check:allow GEM_ESCAPE
 - exact rule id (only the hard-coded host path check of `GEM_ESCAPES_ROOT`; `require_relative` leaving the gem is never allowable);
 - a reason after `--` is required, a bare marker does not count;
 - scope: files matching `HOST_PATH_ALLOW_GLOBS` (`lib/phlex/shadcn/doctor/**/*.rb`); the marker anywhere else is inert and the literal still fails;
+- for a path split over several lines the marker sits on the line of its first piece;
 - the marker is the line's trailing comment and its reason holds no quotes, so marker text inside a string literal never counts; since #240 it must also be a real comment token for the lexer, so a `#` inside a `%w[]` list or heredoc is not a marker;
 - same line only, so the exemption cannot drift away from the literal it covers.
 
@@ -70,7 +71,7 @@ Costs: one constant and a few lines in the script, and the doctor files had to b
 
 B. The point of the rule is that deliberate host knowledge is visible and bounded. A marker is greppable, carries a reason, is limited to the one directory whose job is to read the host, and is tested both ways (allowed in the doctor; the same literal elsewhere, unmarked, marked without a reason, marked for another rule, marker on another line, marker text inside a string, the root `doctor.rb` or another namespace's `doctor/`, or a `require_relative` escape still fail). Option A would keep the rule passing while removing what it protects.
 
-With the hardened script option A is moot: `File.join` and `%w[]` are findings like any literal, so there is no spelling left to sanction, and the allowlist marker is the only sanctioned way for the doctor to name a host path (the Rails integration files need none). Splitting a path into pieces, `%w[]`, interpolation or any other trick to get past the check is not sanctioned anywhere; where the script cannot see it (the gaps above) reviewers cite `ruby-gem-conventions R15`. The marker is honoured only for host-path literals in `doctor/**/*.rb`; real scratch results: a marked literal in `doctor/` passes; a bare marker (no reason), a reason containing quotes and `require_relative` leaving the gem (`require_relative leaves the gem directory (5 levels up from depth 4)`) are findings even there; the same marked lines in a non-doctor file are all findings. Whether the allowlist should exist at all is open in #223.
+With the hardened script option A is moot: `File.join` and `%w[]` are findings like any literal, so there is no spelling left to sanction, and the allowlist marker is the only sanctioned way for the doctor to name a host path (the Rails integration files need none). Splitting a path into pieces, `%w[]`, interpolation or any other trick to get past the check is not sanctioned anywhere; where the script cannot see it (the gaps above or any other) reviewers cite `ruby-gem-conventions R15`. The marker is honoured only for host-path literals in `doctor/**/*.rb`; real scratch results: a marked literal in `doctor/` passes; a bare marker (no reason), a reason containing quotes and `require_relative` leaving the gem (`require_relative leaves the gem directory (5 levels up from depth 4)`) are findings even there; the same marked lines in a non-doctor file are all findings. Whether the allowlist should exist at all is open in #223.
 
 ## Rollout
 
