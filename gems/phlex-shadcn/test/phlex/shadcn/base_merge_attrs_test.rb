@@ -48,7 +48,7 @@ class Phlex::Shadcn::BaseMergeAttrsTest < Phlex::Shadcn::TestCase
   end
 
   test "the hashes the caller holds are not mutated" do
-    defaults = { data: { controller: "a" }, class: "p-2" }.freeze
+    defaults = { data: { controller: "a" }.freeze, class: "p-2" }.freeze
     caller_attrs = { data: { controller: "b" }.freeze, class: "p-4" }.freeze
 
     merged = Probe.new.merge_attrs(defaults, caller_attrs)
@@ -56,6 +56,25 @@ class Phlex::Shadcn::BaseMergeAttrsTest < Phlex::Shadcn::TestCase
     assert_equal "a b", controllers(merged)
     assert_equal "a", defaults[:data][:controller]
     assert_equal "b", caller_attrs[:data][:controller]
+  end
+
+  test "an explicit nil or blank caller controller keeps the component's" do
+    assert_equal "shadcn--x", controllers(Probe.new.merge_attrs({ data: { controller: "shadcn--x" } }, { data: { controller: nil } }))
+    assert_equal "shadcn--x", controllers(Probe.new.merge_attrs({ data: { controller: "shadcn--x" } }, { "data-controller" => "  " }))
+  end
+
+  test "array, set and symbol controllers are token lists" do
+    defaults = { data: { controller: "shadcn--x" } }
+
+    assert_equal "shadcn--x a b", controllers(Probe.new.merge_attrs(defaults, { data: { controller: %w[a b] } }))
+    assert_equal "shadcn--x a", controllers(Probe.new.merge_attrs(defaults, { data: { controller: Set["a", "shadcn--x"] } }))
+    assert_equal "shadcn--x a", controllers(Probe.new.merge_attrs(defaults, { data: { controller: :a } }))
+  end
+
+  test "Calendar keeps shadcn--calendar when the caller passes controller: nil" do
+    out = Phlex::Shadcn::Calendar.new(today: "2026-03-15", data: { controller: nil }).call
+
+    assert_equal "shadcn--calendar", Nokogiri::HTML5.fragment(out).at_css("[data-slot=calendar]")["data-controller"]
   end
 
   test "Calendar keeps shadcn--calendar when the caller passes a controller" do

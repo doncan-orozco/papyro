@@ -15,7 +15,8 @@ already unioned the controllers of slot and child, but the child's own `merge_at
 `data-controller` is a space separated token list. The result is the component's controller names followed by the caller's, split on
 whitespace and de-duplicated, joined by one space: `shadcn--calendar` + `x` => `shadcn--calendar x`; `shadcn--x` + `shadcn--x mine`
 => `shadcn--x mine`. A caller controller on a component without one is kept as is, and a component controller with no caller one is
-untouched. Every other `data:`/`aria:` key keeps the deep-merge rule (caller wins), `data-action` keeps its concatenation (defaults
+untouched. An explicit `nil` or blank caller value keeps the component's controller (it is not an opt-out), like `data-action`; Array and
+Set values (Phlex token lists) and Symbols are accepted and flattened to names. Every other `data:`/`aria:` key keeps the deep-merge rule (caller wins), `data-action` keeps its concatenation (defaults
 first), and `class` keeps going through `cn`. The Slot merge (`as_child`) already behaved this way and is now consistent end to end.
 
 ## Why append and not replace
@@ -31,13 +32,16 @@ first), and `class` keeps going through `cn`. The Slot merge (`as_child`) alread
   (`data-controller="a b"`).
 - Order: the component's names first, like `data-action` (defaults first) and the Slot merge, so the output is stable.
 
+Radix also lets a caller cancel an internal handler with `event.preventDefault()` (`composeEventHandlers`); the Stimulus counterpart is a
+caller action that calls `preventDefault` before the component's. That, not removal of the controller, is the supported way to intervene.
+
 Not chosen: letting the caller opt out of the component controller. Nothing needs it today, it would add public API, and a caller who
 really wants an inert element can use the plain tag.
 
 ## Implementation notes
 
-- Only `merge_attrs` changed (a private helper `merge_controllers`). It runs only when both sides have a controller; otherwise
-  `merge_deep` already produced the right value, so the common path allocates nothing new (`bin/bench --check` unchanged).
+- `merge_attrs` calls a private `merge_controllers`; `slot_merge` shares the `controller_tokens` helper. It returns early (identity check)
+  when the caller passed no controller, so the common path allocates nothing new (`bin/bench --check` unchanged).
 - It writes into the `data` hash that `canonical_attrs`/`merge_deep` built for this call, never into a hash the caller holds
   (covered by a frozen-input test).
 - The render cache memoizes class strings only, so it is unaffected.
