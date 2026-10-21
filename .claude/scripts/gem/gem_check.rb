@@ -320,7 +320,9 @@ sources.each do |file, lines|
       depth = File.dirname(file.delete_prefix("#{gem_dir}/")).split("/").reject { |part| part == "." }.size
       add.call("GEM_ESCAPES_ROOT", file, n, "require_relative leaves the gem directory (#{rel.scan('../').size} levels up from depth #{depth})") if rel.scan("../").size > depth
     end
-    add.call("GEM_ESCAPES_ROOT", file, n, "hard-coded host path (app/... or Rails.root); only doctor files may allow it, with `# gem_check:allow GEM_ESCAPES_ROOT -- <reason>` on the same line") if (text.match?(%r{["'](?:\./)?app/(?:assets|javascript|views|components)/}) || host_paths[file].include?(n)) && !rails_glob.include?(file) && !marked.include?(n)
+    hard_coded = text.match?(%r{["'](?:\./)?app/(?:assets|javascript|views|components)/}) || host_paths[file].include?(n)
+    exempt = rails_glob.include?(file) || marked.include?(n)
+    add.call("GEM_ESCAPES_ROOT", file, n, "hard-coded host path (app/... or Rails.root); only doctor files may allow it, with `# gem_check:allow GEM_ESCAPES_ROOT -- <reason>` on the same line") if hard_coded && !exempt
   end
 end
 
