@@ -84,8 +84,14 @@ class LlmsSignatureTest < Minitest::Test
     assert_equal "(a, b:)", Signature.render([ [ "a", nil ], [ "b:", nil ] ])
   end
 
+  def test_a_multi_line_word_list_and_a_backslash_continuation_are_joined
+    assert_equal "(words: %w[a b], **attrs)", Signature.render([ [ "words:", "%w[a\n          b]," ], [ "**attrs", nil ] ])
+    assert_equal "(syms: %i[a b])", Signature.render([ [ "syms:", "%i[a\n  b])" ] ])
+    assert_equal "(sum: 1 + 2)", Signature.render([ [ "sum:", "1 +\\\n  2)" ] ])
+  end
+
   def test_signature_fails_loud_on_a_default_it_cannot_render
-    [ ",", ")", "foo(", "<<~T", "{ a: 1, # note\n b: 2 }" ].each do |raw|
+    [ ",", ")", "foo(", "<<~T", "<<~T\n  x\nT", "{ a: 1, # note\n b: 2 }" ].each do |raw|
       assert_raises(ArgumentError, raw.inspect) { Signature.render([ [ "width:", raw ] ]) }
     end
   end
@@ -107,7 +113,7 @@ class LlmsSignatureTest < Minitest::Test
 
   private
 
-  # The YARD registry is process-wide state: start from an empty one and leave it empty, whatever the block does.
+  # The YARD registry is process-wide state: parse into an empty one (teardown empties it again).
   def parse_method(source, path)
     YARD::Registry.clear
     YARD.parse_string(source)

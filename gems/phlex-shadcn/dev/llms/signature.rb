@@ -15,7 +15,7 @@ module Phlex
       # has to avoid literal defaults; line breaks inside a string literal are part of its value and are kept as they are.
       module Signature
         TRAILING_DELIMITER = /[,)\s]\z/
-        WHITESPACE_TOKENS = %i[on_sp on_ignored_sp on_nl on_ignored_nl].freeze
+        WHITESPACE_TOKENS = %i[on_sp on_ignored_sp on_nl on_ignored_nl on_words_sep].freeze
 
         module_function
 
@@ -46,8 +46,8 @@ module Phlex
           raise ArgumentError, "cannot render the default #{source.inspect} of #{origin}: #{(line || text).inspect} is not a complete Ruby expression"
         end
 
-        # Replaces every run of whitespace tokens that spans a line break with one space. Whitespace inside a string is not a whitespace
-        # token, so it stays. Nil when a comment is in the way: joined lines would let it swallow the rest of the expression.
+        # Replaces every run of whitespace tokens (the separators of a %w/%i literal included) that spans a line break with one space. Whitespace inside a string is not a whitespace
+        # token, so it stays. A heredoc cannot be joined and is refused by the completeness check. Nil when a comment is in the way: joined lines would let it swallow the rest of the expression.
         def join_lines(text)
           tokens = Ripper.lex(text)
           return if tokens.any? { |token| token[1] == :on_comment }
