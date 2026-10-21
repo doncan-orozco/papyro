@@ -98,7 +98,7 @@ class RenameCheckTest < ActiveSupport::TestCase
     paths = report["findings"].select { |f| f["line"].nil? }.map { |f| f["old"] }
 
     assert_includes paths, "gems/phlex-shadcn"
-    assert_includes paths, "controllers/shadcn"
+    assert_includes paths, "app/javascript/controllers/shadcn"
   end
 
   test "node_modules and untracked files are not scanned" do
@@ -139,7 +139,7 @@ class RenameCheckTest < ActiveSupport::TestCase
     out, _, status = Open3.capture3(RbConfig.ruby, SCRIPT, "--mapping")
     olds = JSON.parse(out).map { |row| row["old"] }
 
-    assert status.success?
+    assert_predicate status, :success?
     %w[phlex-shadcn phlex_shadcn Phlex::Shadcn phlex/shadcn phlex:shadcn PHLEX_SHADCN_ gems/phlex-shadcn lib/phlex/shadcn
        phlex:shadcn:install phlex:shadcn:eject config.phlex_shadcn phlex_shadcn: phlex-shadcn:start phlex-shadcn:end
        app/assets/tailwind/phlex-shadcn skills/phlex-shadcn phlex-shadcn.yml gem_phlex_shadcn doncan-orozco/phlex-shadcn
@@ -149,7 +149,7 @@ class RenameCheckTest < ActiveSupport::TestCase
   test "the self-test passes" do
     _, err, status = Open3.capture3(RbConfig.ruby, SCRIPT, "--stage", "ruby", "--self-test")
 
-    assert status.success?, err
+    assert_equal 0, status.exitstatus, err
   end
 
   test "an unknown stage is a usage error" do
