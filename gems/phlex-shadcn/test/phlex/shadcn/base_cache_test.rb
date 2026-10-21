@@ -88,7 +88,7 @@ class Phlex::Shadcn::BaseCacheTest < Phlex::Shadcn::TestCase
     require "tailwind_merge"
     $built = Queue.new
     TailwindMerge::Merger.singleton_class.prepend(Module.new do
-      def new(*)
+      def new(...)
         $built << 1
         sleep 0.02
         super
