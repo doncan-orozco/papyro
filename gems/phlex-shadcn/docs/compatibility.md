@@ -21,8 +21,8 @@ The gem itself depends only on `phlex`, `tailwind_merge` and `zeitwerk`. Rails, 
 | Rails | Assets | JavaScript | Status |
 |---|---|---|---|
 | 8.1 | Propshaft | importmap | supported; the clean-app smoke runs it in CI |
-| 8.1 | Propshaft | esbuild (jsbundling-rails) | supported; `bin/smoke --app --js esbuild` run by hand, not in CI yet |
-| 8.1 | Sprockets 4 (sprockets-rails 3.5) | importmap | supported; `bin/smoke --app --assets sprockets` run by hand, not in CI yet |
+| 8.1 | Propshaft | esbuild (jsbundling-rails) | supported; covered by a CI smoke (`bin/smoke --app --js esbuild`, job `clean-app-variants`) |
+| 8.1 | Sprockets 4 (sprockets-rails 3.5) | importmap | supported; covered by a CI smoke (`bin/smoke --app --assets sprockets`, job `clean-app-variants`) |
 | 8.1 | Sprockets | esbuild | not covered: no smoke proves it |
 | any | Sprockets below 4, or Sass/SCSS instead of the Tailwind CLI | any | not supported |
 
