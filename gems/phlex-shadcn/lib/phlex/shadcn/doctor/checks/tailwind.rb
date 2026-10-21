@@ -15,6 +15,7 @@ module Phlex
           # sources: v4.2.3 has no lib/tailwindcss/engines.rb and no `engines` task in lib/tasks/build.rake, v4.3.0 (2025-07-06, "Experimental
           # support for engines") has both. No minimum exists for tailwindcss-ruby (the Tailwind CLI): the engine CSS is plain
           # Tailwind 4 `@import`/`@source`/`@theme` syntax, so the Tailwind 4 check below is all it needs.
+          # (A 4.3.0 prerelease sorts below 4.3.0 and fails: intended, the released task is what was verified.)
           MINIMUM_ENGINE_SUPPORT = Gem::Version.new("4.3.0")
 
           # @param context [Context]

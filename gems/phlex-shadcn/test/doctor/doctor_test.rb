@@ -112,11 +112,11 @@ class DoctorTest < Minitest::Test
     build_healthy_app
     write("app/javascript/controllers/index.js", "// nothing registered\n")
 
-    assert_check report, "stimulus controllers", :fail, "to #{Phlex::Shadcn::Doctor::Checks::Stimulus::FILES.first}"
+    assert_check report, "stimulus controllers", :fail, "to app/javascript/controllers/index.js"
   end
 
   def test_the_usage_lists_every_format
-    Phlex::Shadcn::Doctor::Report::FORMATS.each { |format| assert_includes Phlex::Shadcn::Doctor::Report::USAGE, format }
+    assert_includes Phlex::Shadcn::Doctor::Report::USAGE, "phlex_shadcn:doctor[text|json]"
   end
 
   def test_a_tailwind_3_entry_file_fails
