@@ -12,8 +12,8 @@ module Phlex
           REGISTRATION = /(?:eager|lazy)LoadControllersFrom\(\s*["']controllers["']/
           COMMENT = %r{/\*.*?\*/|//[^\n]*}m
           FILES = [
-            "app/javascript/controllers/index.js", # gem_check:allow GEM_ESCAPES_ROOT -- the doctor reads the host Stimulus entry file
-            "app/javascript/application.js" # gem_check:allow GEM_ESCAPES_ROOT -- the doctor reads the host Stimulus entry file
+            "app/javascript/controllers/index.js", # gem_check:allow GEM_ESCAPES_ROOT -- the doctor reads the host Stimulus controllers index
+            "app/javascript/application.js" # gem_check:allow GEM_ESCAPES_ROOT -- the doctor reads the host JS entry, the fallback registration site
           ].freeze
 
           # @param context [Context]
