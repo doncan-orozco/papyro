@@ -33,7 +33,8 @@
 # Hard-coded host paths are looked for in the lexed string literals, not in the line text: besides `"app/assets/..."` the check sees
 # `%w[app/assets/x]` (multi-line lists too), `"#{root}/app/assets/x"`, adjacent / `+` / `<<` / `/` concatenations ("app/" + "assets/x"),
 # `File.join("app", "assets", ...)`, `.join("app", "assets")` chains and `%w[app assets].join("/")`. A multi-piece path is reported on the
-# line of its first piece, which is where a marker must sit. Prose that merely mentions a path (`"edit app/assets/x"`) is not a path.
+# line of its first piece, which is where a marker must sit. Not seen: a paren-less `File.join "app", "assets"`. A heredoc body
+# whose text starts with a path is flagged and cannot carry a marker (write it as a quoted literal). Prose that merely mentions a path (`"edit app/assets/x"`) is not a path.
 #
 # Intentional host paths (the one allowlist): a gem file whose job is to INSPECT the host (the doctor) may name a host path
 # (`app/assets/...`) when the SAME line carries the marker below as its trailing comment. Nothing else is accepted: a marker
@@ -105,8 +106,8 @@ module RubyLex
         next
       end
       case type
-      when *OPENERS then stack << { kind: type, line: line, from: i, words: [ +"" ], lines: [ nil ] }
-      when :on_symbeg then stack << { kind: :on_tstring_beg, line: line, from: i, words: [ +"" ], lines: [ nil ] } unless str == ":"
+      when *OPENERS then stack << open_unit(type, line, i, stack)
+      when :on_symbeg then stack << open_unit(:on_tstring_beg, line, i, stack) unless str == ":"
       when :on_embexpr_beg then stack << { kind: :expr }
       when :on_embexpr_end then interpolate(stack.tap(&:pop))
       when :on_embvar then skip = interpolate(stack) || true
@@ -118,7 +119,7 @@ module RubyLex
         else
           found << { text: str, line: line, from: i, to: i }
         end
-      when *CLOSERS then close(stack, found, i)
+      when *CLOSERS then close(stack, found, i, type)
       end
     end
     found
@@ -128,17 +129,23 @@ module RubyLex
     stack.last&.fetch(:words, nil)&.last&.<<("\0")
   end
 
-  def close(stack, found, index)
+  # `parent` is the token index of the enclosing literal (nil at top level): only siblings join each other.
+  def open_unit(kind, line, from, stack)
+    parent = stack.reverse_each.find { |u| u.key?(:words) }
+    { kind: kind, line: line, from: from, words: [ +"" ], lines: [ nil ], parent: parent && parent[:from] }
+  end
+
+  def close(stack, found, index, closer)
     unit = stack.pop
     return unless unit&.key?(:words) && unit[:kind] != :on_regexp_beg
 
-    at = { line: unit[:line], from: unit[:from], to: index }
+    at = { line: unit[:line], from: unit[:from], to: index, parent: unit[:parent] }
     words = unit[:words]
     if WORD_LISTS.include?(unit[:kind])
       words.zip(unit[:lines]).reject { |word, _| word.empty? }.each { |word, line| found << at.merge(text: word, line: line || unit[:line]) }
       found << at.merge(text: words.reject(&:empty?).join("/"), list: true)
     else
-      found << at.merge(text: words.last, chain: true)
+      found << at.merge(text: words.last, chain: closer != :on_label_end) # a hash label key never starts a concatenation
     end
   end
 
@@ -179,14 +186,14 @@ module RubyLex
     hits = lits.select { |l| !l[:list] && l[:text].match?(HOST_PATH) }.map { |l| l[:line] }
     # `%w[app assets].join("/")` is one path; a bare %w list is only its words.
     lits.select { |l| l[:list] && l[:text].match?(HOST_PATH) && sig[after.call(l[:to]), 2].map { |i| tokens[i][2] } == %w[. join] }.each { |l| hits << l[:line] }
-    # Literals written inside another literal's interpolation never join the outer string's neighbours.
-    reach = -1
-    top_level = lits.select { |l| l[:chain] }.select { |l| (l[:from] >= reach).tap { reach = l[:to] if l[:from] >= reach } }
-    top_level.chunk_while { |a, b| b[:from] > a[:to] && joiner.call(a, b) }.each do |chain|
-      next if chain.size < 2
+    # Literals join only with siblings of the same enclosing literal: never with the outer string's neighbours, but with each other.
+    lits.select { |l| l[:chain] }.group_by { |l| l[:parent] }.each_value do |siblings|
+      siblings.chunk_while { |a, b| b[:from] > a[:to] && joiner.call(a, b) }.each do |chain|
+        next if chain.size < 2
 
-      joined = chain.each_cons(2).reduce(chain.first[:text]) { |acc, (a, b)| acc + joiner.call(a, b) + b[:text] }
-      hits << chain.first[:line] if joined.match?(HOST_PATH)
+        joined = chain.each_cons(2).reduce(chain.first[:text]) { |acc, (a, b)| acc + joiner.call(a, b) + b[:text] }
+        hits << chain.first[:line] if joined.match?(HOST_PATH)
+      end
     end
     hits
   end

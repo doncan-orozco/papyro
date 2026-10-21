@@ -260,6 +260,8 @@ class GemCheckRulesTest < Minitest::Test
     "a Pathname / operator" => "PATH = Pathname(\"app\") / \"assets\" / \"x.css\"",
     "chained join calls" => "PATH = root.join(\"app\").join(\"javascript\")",
     "a backslash continuation" => "PATH = \"app/\" \\\n  \"components/x.rb\"",
+    "a File.join inside an interpolation" => "PATH = \"\#{File.join(root, \"app\", \"assets\")}/x.css\"",
+    "a join chain inside an interpolation" => "PATH = \"\#{root.join(\"app\").join(\"views\")}\"",
     "a join chain after a newline" => "P = %w[app assets]\n  .join(\"/\")",
     "a path after a quoted symbol interpolation" => "P = \"\#{h[:'k']}/app\" + \"/assets\"",
     "a require option" => "OPTS = { require: File.join(\"app\", \"views\") }",
@@ -345,6 +347,8 @@ class GemCheckRulesTest < Minitest::Test
     "a regexp" => "PATTERN = %r{app/assets/x}",
     "a quoted array of names" => "DIRS = [\"app\", \"components\"]",
     "two method arguments" => "call(\"app\", \"views\")",
+    "a label key next to its value" => "H = { \"app\": \"/assets/x\" }",
+    "an interpolated literal next to the outer neighbour" => "P = \"\#{h[\"app/\"]}\" + \"views/x\"",
     "a symbol list" => "NAMES = %i[app assets]"
   }.freeze
 
