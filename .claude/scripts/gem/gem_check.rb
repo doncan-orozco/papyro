@@ -26,11 +26,32 @@
 #   GEM_UNDECLARED_DEPENDENCY a library namespace is used but the gemspec does not declare its gem
 #   GEM_ACTIVESUPPORT_EXT    ActiveSupport core extensions used while activesupport is not a declared dependency and not required
 #   GEM_ESCAPES_ROOT         require_relative / File path reaching outside the gem directory, or a host path hard-coded
+#
+# Intentional host paths (the one allowlist): a gem file whose job is to INSPECT the host (the doctor) may name a host path
+# (`app/assets/...`) when the SAME line carries the marker below as its trailing comment. Nothing else is accepted: a marker
+# elsewhere in the file or inside a string does not count. Spellings the regex cannot see (File.join pieces, %w[]) are not
+# detected by this script; they violate ruby-gem-conventions R15 and are a review finding.
+#
+#   DEFAULT_CSS = "app/assets/tailwind/application.css" # gem_check:allow GEM_ESCAPES_ROOT -- the doctor reads the host stylesheet
+#
+#   - exact rule id: only GEM_ESCAPES_ROOT's hard-coded host path check can be allowed (never require_relative leaving the gem,
+#     never another code); the id must be written out;
+#   - a reason after `--` is required and holds no quotes (a bare marker does not count);
+#   - scope: only files matching HOST_PATH_ALLOW_GLOBS (lib/phlex/shadcn/doctor/**/*.rb). The Rails integration files
+#     (generators, rake tasks, engine, railtie) are already exempt from this check and need no marker. The same literal in any
+#     other file keeps failing, marker or not.
+#   Decision: gems/phlex-shadcn/dev/decisions/gem-check-host-paths.md
 
 require "json"
 require "optparse"
 require "rubygems"
 require "uri"
+
+# Files that inspect the host on purpose and may carry a `# gem_check:allow GEM_ESCAPES_ROOT -- <reason>` marker (see header).
+HOST_PATH_ALLOW_GLOBS = %w[lib/phlex/shadcn/doctor/**/*.rb].freeze
+# Matched against the line's TRAILING COMMENT only; the reason holds no quotes, so marker text inside a string literal never counts.
+HOST_PATH_ALLOW_MARKER = /\A#\s*gem_check:allow\s+GEM_ESCAPES_ROOT\s+--\s+[^"'\s][^"']*\z/
+HOST_PATH_TRAILING_COMMENT = /(?<!\S)#(?![{@$]).*\z/
 
 opts = { host_dir: ".", rails_files: %w[lib/**/engine.rb lib/**/railtie.rb lib/generators/**/* lib/tasks/**/*] }
 OptionParser.new do |o|
@@ -111,6 +132,12 @@ lib_files = Dir[File.join(gem_dir, "{lib,app}/**/*.rb")]
 rails_glob = opts[:rails_files].flat_map { |g| Dir[File.join(gem_dir, g)] }.select { |f| File.file?(f) }
 code_of = ->(file) { File.readlines(file).each_with_index.map { |l, i| [ i + 1, l.sub(/(?<!\S)#(?![{@$]).*\z/, "") ] } }
 sources = lib_files.to_h { |f| [ f, code_of.call(f) ] }
+host_path_allowed_files = HOST_PATH_ALLOW_GLOBS.flat_map { |g| Dir[File.join(gem_dir, g)] }
+host_path_marked_lines = lambda do |file|
+  next [] unless host_path_allowed_files.include?(file)
+
+  File.readlines(file, chomp: true).each_with_index.filter_map { |l, i| i + 1 if l[HOST_PATH_TRAILING_COMMENT]&.match?(HOST_PATH_ALLOW_MARKER) }
+end
 all_code = sources.values.flatten(1).map(&:last).join
 
 # Third-party code notices: required as soon as the gem ships things derived from these projects.
@@ -130,6 +157,7 @@ generic = %w[Rails ActiveSupport ActionView ActionController ActiveRecord Active
 host_constants = host_top_level.call(host_files) - declared_anywhere.call(Dir[File.join(gem_dir, "**/*.rb")]) - generic
 
 sources.each do |file, lines|
+  marked = host_path_marked_lines.call(file)
   lines.each do |n, text|
     host_constants.each do |const|
       add.call("GEM_HOST_CONSTANT", file, n, "references #{const}, defined by the host app") if text.match?(/(?<![\w:])#{const}(?:::|\.\w)/)
@@ -138,7 +166,7 @@ sources.each do |file, lines|
       depth = File.dirname(file.delete_prefix("#{gem_dir}/")).split("/").reject { |part| part == "." }.size
       add.call("GEM_ESCAPES_ROOT", file, n, "require_relative leaves the gem directory (#{rel.scan('../').size} levels up from depth #{depth})") if rel.scan("../").size > depth
     end
-    add.call("GEM_ESCAPES_ROOT", file, n, "hard-coded host path (app/... or Rails.root)") if text.match?(/["'](?:\.\/)?app\/(?:assets|javascript|views|components)\//) && !rails_glob.include?(file)
+    add.call("GEM_ESCAPES_ROOT", file, n, "hard-coded host path (app/... or Rails.root); only doctor files may allow it, with `# gem_check:allow GEM_ESCAPES_ROOT -- <reason>` on the same line") if text.match?(/["'](?:\.\/)?app\/(?:assets|javascript|views|components)\//) && !rails_glob.include?(file) && !marked.include?(n)
   end
 end
 
