@@ -37,7 +37,7 @@ Costs: one constant and a few lines in the script, and the doctor files should b
 
 ## Decision
 
-B. The point of the rule is that deliberate host knowledge is visible and bounded. A marker is greppable, carries a reason, is limited to the one directory whose job is to read the host, and is tested both ways (allowed in the doctor; the same literal elsewhere, unmarked, marked without a reason, marked for another rule, marker on another line, or a `require_relative` escape still fail). Option A would keep the rule passing while removing what it protects.
+B. The point of the rule is that deliberate host knowledge is visible and bounded. A marker is greppable, carries a reason, is limited to the one directory whose job is to read the host, and is tested both ways (allowed in the doctor; the same literal elsewhere, unmarked, marked without a reason, marked for another rule, marker on another line, marker text inside a string, the root `doctor.rb` or another namespace's `doctor/`, or a `require_relative` escape still fail). Option A would keep the rule passing while removing what it protects.
 
 `File.join` string-splitting, `%w[]` literals and similar spellings to evade the rule are not sanctioned anywhere. They are not findings (the script cannot see those spellings), so reviewers cite `ruby-gem-conventions R15` when they see it.
 
