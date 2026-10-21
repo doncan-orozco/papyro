@@ -37,8 +37,8 @@
 #
 # Intentional host paths (the one allowlist): a gem file whose job is to INSPECT the host (the doctor) may name a host path
 # (`app/assets/...`) when the SAME line carries the marker below as its trailing comment. Nothing else is accepted: a marker
-# elsewhere in the file or inside a string does not count. A path spelled over a `%w[]` list cannot carry a marker (a `#` inside
-# `%w[]` is a word), so it is written as quoted literals.
+# elsewhere in the file or inside a string does not count. A path inside a multi-line `%w[]` list cannot carry a marker (a `#`
+# there is a word), so it is written as quoted literals.
 #
 #   DEFAULT_CSS = "app/assets/tailwind/application.css" # gem_check:allow GEM_ESCAPES_ROOT -- the doctor reads the host stylesheet
 #
@@ -106,7 +106,7 @@ module RubyLex
       end
       case type
       when *OPENERS then stack << { kind: type, line: line, from: i, words: [ +"" ], lines: [ nil ] }
-      when :on_symbeg then stack << { kind: :on_tstring_beg, line: line, from: i, words: [ +"" ], lines: [ nil ] } if str == ':"'
+      when :on_symbeg then stack << { kind: :on_tstring_beg, line: line, from: i, words: [ +"" ], lines: [ nil ] } unless str == ":"
       when :on_embexpr_beg then stack << { kind: :expr }
       when :on_embexpr_end then interpolate(stack.tap(&:pop))
       when :on_embvar then skip = interpolate(stack) || true
@@ -142,30 +142,55 @@ module RubyLex
     end
   end
 
+  # token index => true when the token sits directly inside the parentheses of a `join(` call (File.join, Pathname#join, Array#join)
+  def join_arguments(tokens, sig)
+    owners = []
+    prev = nil
+    sig.each_with_object({}) do |i, inside|
+      type = tokens[i][1]
+      owners.pop if type == :on_rparen
+      inside[i] = owners.last == true
+      owners << (!prev.nil? && tokens[prev][1] == :on_ident && tokens[prev][2] == "join") if type == :on_lparen
+      prev = i
+    end
+  end
+
   def host_path_lines(tokens)
     lits = literals(tokens).sort_by { |l| [ l[:from], l[:to] ] }
     sig = tokens.each_index.reject { |i| IGNORED.include?(tokens[i][1]) }
+    inside_join = join_arguments(tokens, sig)
+    after = ->(index) { sig.bsearch_index { |i| i > index } || sig.size }
     # The significant tokens strictly between two token indexes.
     between = lambda do |from, to|
-      first = sig.bsearch_index { |i| i > from } || sig.size
-      sig[first..].take_while { |i| i < to }.map { |i| tokens[i][2] }
+      sig[after.call(from)...(sig.bsearch_index { |i| i >= to } || sig.size)] || []
+    end
+    # A load path is not a file read on the host: `require "x"` / `require_relative("x")` arguments are judged by the escape check.
+    require_arg = lambda do |l|
+      k = (sig.bsearch_index { |i| i >= l[:from] } || sig.size) - 1
+      k -= 1 if k >= 0 && tokens[sig[k]][1] == :on_lparen
+      k >= 0 && tokens[sig[k]][1] == :on_ident && %w[require require_relative].include?(tokens[sig[k]][2])
+    end
+    lits = lits.reject(&require_arg)
+    joiner = lambda do |a, b|
+      idx = between.call(a[:to], b[:from])
+      key = idx.map { |i| tokens[i][2] }
+      JOINERS[key] if JOINERS.key?(key) && (key != [ "," ] || inside_join[idx.first])
     end
     hits = lits.select { |l| !l[:list] && l[:text].match?(HOST_PATH) }.map { |l| l[:line] }
     # `%w[app assets].join("/")` is one path; a bare %w list is only its words.
-    lits.select { |l| l[:list] && l[:text].match?(HOST_PATH) && between.call(l[:to], l[:to] + 4).first(2) == %w[. join] }.each { |l| hits << l[:line] }
-    lits.select { |l| l[:chain] }.chunk_while { |a, b| b[:from] > a[:to] && JOINERS.key?(between.call(a[:to], b[:from])) }.each do |chain|
+    lits.select { |l| l[:list] && l[:text].match?(HOST_PATH) && sig[after.call(l[:to]), 2].map { |i| tokens[i][2] } == %w[. join] }.each { |l| hits << l[:line] }
+    # Literals written inside another literal's interpolation never join the outer string's neighbours.
+    reach = -1
+    top_level = lits.select { |l| l[:chain] }.select { |l| (l[:from] >= reach).tap { reach = l[:to] if l[:from] >= reach } }
+    top_level.chunk_while { |a, b| b[:from] > a[:to] && joiner.call(a, b) }.each do |chain|
       next if chain.size < 2
 
-      joined = chain.each_cons(2).reduce(chain.first[:text]) { |acc, (a, b)| acc + JOINERS.fetch(between.call(a[:to], b[:from])) + b[:text] }
+      joined = chain.each_cons(2).reduce(chain.first[:text]) { |acc, (a, b)| acc + joiner.call(a, b) + b[:text] }
       hits << chain.first[:line] if joined.match?(HOST_PATH)
     end
     hits
   end
 end
-
-# A `require` / `require_relative` line names a load path (the escape check above judges it), not a file the gem reads on the host.
-REQUIRE_LINE = /\brequire(?:_relative)?\b/
-
 opts = { host_dir: ".", rails_files: %w[lib/**/engine.rb lib/**/railtie.rb lib/generators/**/* lib/tasks/**/*] }
 OptionParser.new do |o|
   o.on("--gem-dir DIR") { |v| opts[:gem_dir] = v }
@@ -257,7 +282,7 @@ host_path_marked_lines = lambda do |file|
     i + 1 if l[HOST_PATH_TRAILING_COMMENT]&.match?(HOST_PATH_ALLOW_MARKER) && real_comments[file][i + 1]&.match?(HOST_PATH_ALLOW_MARKER)
   end
 end
-all_code = sources.values.flatten(1).map(&:last).join
+all_code = sources.values.flatten(1).map(&:last).join("\n")
 # Mentions count for provenance even inside a comment ("ported from Radix"): the notice requirement reads the raw text.
 raw_code = lib_files.map { |f| File.read(f).scrub }.join
 
@@ -287,7 +312,7 @@ sources.each do |file, lines|
       depth = File.dirname(file.delete_prefix("#{gem_dir}/")).split("/").reject { |part| part == "." }.size
       add.call("GEM_ESCAPES_ROOT", file, n, "require_relative leaves the gem directory (#{rel.scan('../').size} levels up from depth #{depth})") if rel.scan("../").size > depth
     end
-    add.call("GEM_ESCAPES_ROOT", file, n, "hard-coded host path (app/... or Rails.root); only doctor files may allow it, with `# gem_check:allow GEM_ESCAPES_ROOT -- <reason>` on the same line") if (text.match?(%r{["'](?:\./)?app/(?:assets|javascript|views|components)/}) || (host_paths[file].include?(n) && !text.match?(REQUIRE_LINE))) && !rails_glob.include?(file) && !marked.include?(n)
+    add.call("GEM_ESCAPES_ROOT", file, n, "hard-coded host path (app/... or Rails.root); only doctor files may allow it, with `# gem_check:allow GEM_ESCAPES_ROOT -- <reason>` on the same line") if (text.match?(%r{["'](?:\./)?app/(?:assets|javascript|views|components)/}) || host_paths[file].include?(n)) && !rails_glob.include?(file) && !marked.include?(n)
   end
 end
 

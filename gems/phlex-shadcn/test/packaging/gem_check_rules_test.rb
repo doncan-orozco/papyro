@@ -260,6 +260,9 @@ class GemCheckRulesTest < Minitest::Test
     "a Pathname / operator" => "PATH = Pathname(\"app\") / \"assets\" / \"x.css\"",
     "chained join calls" => "PATH = root.join(\"app\").join(\"javascript\")",
     "a backslash continuation" => "PATH = \"app/\" \\\n  \"components/x.rb\"",
+    "a join chain after a newline" => "P = %w[app assets]\n  .join(\"/\")",
+    "a path after a quoted symbol interpolation" => "P = \"\#{h[:'k']}/app\" + \"/assets\"",
+    "a require option" => "OPTS = { require: File.join(\"app\", \"views\") }",
     "a multi-line plus concatenation" => "PATH = \"app/\" +\n  \"assets/x.css\""
   }.freeze
 
@@ -295,6 +298,36 @@ class GemCheckRulesTest < Minitest::Test
     assert_equal [ [ CORE, 1 ] ], escapes
   end
 
+  def test_a_marked_doctor_list_with_a_non_host_first_entry_is_clean
+    write(DOCTOR, "FILES = [\n  \"config/importmap.rb\",\n  \"app/javascript/application.js\" #{MARKER}\n]\n")
+
+    assert_equal [], findings
+  end
+
+  def test_crlf_lines_are_stripped_and_checked
+    write(CORE, "# #{HOST_PATH}\r\n#{HOST_PATH}\r\n")
+
+    assert_equal [ [ CORE, 2 ] ], escapes
+  end
+
+  def test_a_comment_after_multibyte_text_is_cut_at_the_right_column
+    write(CORE, "A = \"ñandú\" # #{HOST_PATH}\nB = \"é\"; #{HOST_PATH}\n")
+
+    assert_equal [ [ CORE, 2 ] ], escapes
+  end
+
+  def test_the_data_section_after_end_is_scanned
+    write(CORE, "x = 1\n__END__\n#{HOST_PATH}\n")
+
+    assert_equal [ [ CORE, 3 ] ], escapes
+  end
+
+  def test_commented_dependencies_are_not_findings
+    write(CORE, "# ActiveSupport::Inflector.camelize(x)\n# x.presence\nx = 1\n")
+
+    assert_equal [], findings
+  end
+
   def test_a_heredoc_body_is_not_a_path
     write(CORE, "TEXT = <<~MSG\n  edit app/assets/tailwind/application.css\nMSG\n")
 
@@ -310,6 +343,8 @@ class GemCheckRulesTest < Minitest::Test
     "an unrelated %w list" => "LIST = %w[app lib assets]",
     "pieces that are not joined" => "PAIR = [\"app\", \"x\"] + [\"assets\"]",
     "a regexp" => "PATTERN = %r{app/assets/x}",
+    "a quoted array of names" => "DIRS = [\"app\", \"components\"]",
+    "two method arguments" => "call(\"app\", \"views\")",
     "a symbol list" => "NAMES = %i[app assets]"
   }.freeze
 
