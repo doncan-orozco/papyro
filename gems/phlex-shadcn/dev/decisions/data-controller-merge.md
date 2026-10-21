@@ -47,7 +47,7 @@ Badge.new(as_child: :a, data: { controller: false })        => <a data-slot="bad
 ```
 
 `as_child` follows the same rule on both targets. Onto a component instance the Slot merge (`slot_merge`) unions the slot's and the
-child's tokens (slot first) and the child's own `merge_attrs` then puts its default controller first, followed by that union; onto a bare tag symbol there is no component
+child's tokens (slot first) and the child's own `merge_attrs` then puts its default controller first, followed by that union; onto a bare tag (Symbol or String) there is no component
 controller, but the slot's list is still normalized (`normalize_slot_controller`).
 
 ## Why append and not replace
@@ -73,7 +73,7 @@ really wants an inert element can use the plain tag.
 
 - `merge_attrs` calls a private `merge_controllers`, which returns early (key-presence check) when the caller passed no `controller:` key,
   so the common path allocates nothing new (`bin/bench --check` unchanged). Otherwise it builds the list with `controller_tokens`
-  (recursive `add_controller_tokens`: nil and false dropped, Array/Set recursed, anything else `to_s.split`, then `uniq!`) and writes it
+  (the recursive `add_controller_tokens` drops nil and false, recurses into Array/Set and calls `to_s.split` on anything else; `controller_tokens` then calls `uniq!`) and writes it
   through `with_controllers`, which returns a copy of `data` with the joined names, or without the key when the list is empty.
 - `canonical_attrs` (through `canonical_value`) leaves the `controller` value untouched (no boolean stringification), so `false` reaches the normalizer and is dropped.
 - `slot_merge` (component instance) and `normalize_slot_controller` (bare tag) share `controller_tokens`; `normalize_slot_controller` writes through
