@@ -136,9 +136,10 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   `bin/bench` button 57 to 41, card 197 to 119, select 882 to 597, dialog 540 to 378, table 7115 to 4339 (Ruby 4.0.0, Phlex 2.4.1).
 - `gem_check` (repo tooling) strips comments with Ruby's lexer (Ripper), so commented-out code no longer triggers or hides a finding,
   and `GEM_ESCAPES_ROOT` now sees a host path written as `%w[app/assets/x]`, `File.join("app", "assets", ...)`, an interpolated or
-  concatenated string (`+`, `<<`, adjacent literals), `Pathname("app") / "assets"` or `./app/...`, not only a quote directly before
+  concatenated string (`+`, `<<`, adjacent literals, `.join` chains, backslash continuations), `Pathname("app") / "assets"` or `./app/...`, not only a quote directly before
   `app/`. The `# gem_check:allow GEM_ESCAPES_ROOT -- reason` marker keeps its meaning but must now be a real comment. Not detected: a
-  paren-less `File.join "app", "assets"` and heredoc bodies.
+  paren-less `File.join "app", "assets"`; a heredoc body that starts with a host path is flagged and cannot carry a marker (write it as
+  a quoted literal).
 
 Relative to the in-app port (`Components::V2`):
 
@@ -189,9 +190,10 @@ Since the first extraction of the gem:
 - A caller's `data-controller` is normalized the same way on every path: strings, symbols, arrays and sets are flattened, split on
   whitespace and de-duplicated, and nil, `false` and blank entries are dropped (an empty result removes the attribute). This now also
   holds for components that have no controller of their own and for `as_child` onto a bare tag.
-- `bin/bench` rejects a repeated `--against` (exit 2) and merges a repeated `--expect-improvement` instead of keeping only the last one (a scenario named twice exits 2).
+- `bin/bench` rejects a repeated `--against` (exit 2) and merges a repeated `--expect-improvement` instead of keeping only the last one
+  (a scenario named twice exits 2).
   The default `dev/bench/baseline.json` is validated like an `--against` file: an unreadable or malformed one exits 1 with a message
-  (also for plain `--json`; `--record` warns and rewrites it instead), and the baseline is validated before anything is measured.
+  (for plain runs, `--json` and `--check` alike; `--record` warns and rewrites it instead), and the baseline is validated before anything is measured.
 
 ### Removed
 
