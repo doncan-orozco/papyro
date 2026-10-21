@@ -36,6 +36,7 @@ Known gaps (not exhaustive; the first three are in the script header, the syntax
 - A paren-less `File.join "app", "assets"` is not seen (scratch run: `H = File.join "app", "assets"` produced no finding).
 - A heredoc line that starts with a path is flagged and cannot carry a marker (a `#` there is text); write the path as a quoted literal.
 - A path inside a multi-line `%w[]` list cannot carry a marker either (a `#` there is a word); write quoted literals.
+- Only `lib/**/*.rb` and `app/**/*.rb` are scanned (`.rake` files, `config/`, `bin/` and the gemspec are not), and `require`/`require_relative` arguments are judged only by the escape check.
 - A syntax error gets no finding of its own (scratch run on `def (` : only the other findings of that file appeared); `ruby -c` and RuboCop are the gates for that.
 
 A gap is not a licence: a spelling the script cannot see still violates R15 and reviewers cite it.
