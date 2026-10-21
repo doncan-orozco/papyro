@@ -62,14 +62,15 @@ live on the instance. A few helpers share a name with an HTML element (`header`,
   `tabindex`, `html_for:` renders `for`, `read_only:`, `max_length:`...). Boolean `aria`/`data` values render as `"true"`/`"false"`
   like React.
 - `data-controller` and `data-action` are token lists, so they are appended instead of replaced. A `data-action` you pass follows the
-  component's own, and a `data-controller` you pass is added after the component's own controller names (space separated,
-  de-duplicated). The component's own controller therefore cannot be removed from outside, not even with `controller: nil`: the
+  component's own (descriptors joined as given), and a `data-controller` you pass is added after the component's own controller
+  names (space separated, de-duplicated). The component's own controller therefore cannot be removed from outside, not even with `controller: nil`: the
   Stimulus behavior that the markup relies on stays wired. The rule is `Base#merge_attrs` (decision record
   `dev/decisions/data-controller-merge.md`, which lives in the repository and is not packaged with the gem).
 
   ```ruby
   render Phlex::Shadcn::Dialog.new(data: { controller: "x", action: "click->x#go" })
   # <div style="display: contents" data-controller="shadcn--dialog x" ... data-action="click->x#go"></div>
+  # Dialog has no data-action of its own, so only the caller's renders.
   # data: { controller: nil } and data: { controller: "shadcn--dialog x" } render data-controller="shadcn--dialog" and
   # data-controller="shadcn--dialog x" respectively; the other data-* attributes of the host are elided above.
   ```
