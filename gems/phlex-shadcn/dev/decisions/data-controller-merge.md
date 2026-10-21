@@ -40,8 +40,8 @@ really wants an inert element can use the plain tag.
 
 ## Implementation notes
 
-- `merge_attrs` calls a private `merge_controllers`; `slot_merge` shares the `controller_tokens` helper. It returns early (identity check)
-  when the caller passed no controller, so the common path allocates nothing new (`bin/bench --check` unchanged).
+- `merge_attrs` calls a private `merge_controllers`; `slot_merge` shares the `controller_tokens` helper. It returns early (key-presence check)
+  when the caller passed no `controller:` key, so the common path allocates nothing new (`bin/bench --check` unchanged).
 - It writes into the `data` hash that `canonical_attrs`/`merge_deep` built for this call, never into a hash the caller holds
   (covered by a frozen-input test).
 - The render cache memoizes class strings only, so it is unaffected.
