@@ -134,6 +134,11 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   first lookup. Without Rails the loader is still set up at require time.
 - `Base#cn` memoizes merged class strings (bounded cache, internal; no public API change), which cut allocations per render:
   `bin/bench` button 57 to 41, card 197 to 119, select 882 to 597, dialog 540 to 378, table 7115 to 4339 (Ruby 4.0.0, Phlex 2.4.1).
+- `gem_check` (repo tooling) strips comments with Ruby's lexer (Ripper), so commented-out code no longer triggers or hides a finding,
+  and `GEM_ESCAPES_ROOT` now sees a host path written as `%w[app/assets/x]`, `File.join("app", "assets", ...)`, an interpolated or
+  concatenated string (`+`, `<<`, adjacent literals), `Pathname("app") / "assets"` or `./app/...`, not only a quote directly before
+  `app/`. The `# gem_check:allow GEM_ESCAPES_ROOT -- reason` marker keeps its meaning but must now be a real comment. Not detected: a
+  paren-less `File.join "app", "assets"` and heredoc bodies.
 
 Relative to the in-app port (`Components::V2`):
 
