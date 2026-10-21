@@ -2,11 +2,11 @@
 
 # shadcn SidebarGroupLabel.
 #
-# Rendered inside a {Phlex::Shadcn::Sidebar}; also available as `sidebar.group_label` on the yielded sidebar.
+# Rendered inside a {Chadcn::Sidebar}; also available as `sidebar.group_label` on the yielded sidebar.
 #
-# @see Phlex::Shadcn::Sidebar
-class Phlex::Shadcn::Sidebar::GroupLabel < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sidebar::Support
+# @see Chadcn::Sidebar
+class Chadcn::Sidebar::GroupLabel < Chadcn::Base
+  include Chadcn::Sidebar::Support
 
   # Tailwind classes of the `div` (verbatim from shadcn/ui).
   #
@@ -16,7 +16,7 @@ class Phlex::Shadcn::Sidebar::GroupLabel < Phlex::Shadcn::Base
     "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0"
   ].freeze
 
-  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  # @param as_child [false, nil, Symbol, String, Chadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
   #   the part's attributes are merged onto it. `true` is not supported.
   # @param attrs [Hash] HTML attributes for the element; `class:` is tailwind-merged over the defaults, `data:` and `aria:`
   #   are deep-merged (caller wins).

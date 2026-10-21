@@ -4,12 +4,12 @@ One table, applied mechanically by the builder AND by the harness (`ShadcnParity
 
 | React | Phlex | Notes |
 |---|---|---|
-| `<Button variant="outline" size="sm">` | `render Phlex::Shadcn::Button.new(variant: "outline", size: "sm") { "Click" }` | Strings and symbols both accepted (R4). |
+| `<Button variant="outline" size="sm">` | `render Chadcn::Button.new(variant: "outline", size: "sm") { "Click" }` | Strings and symbols both accepted (R4). |
 | `className="x"` | `class: "x"` | Merged last via `cn` (tailwind_merge): caller wins. |
 | `children` | block | Text, other components, `plain`/`raw` inside the block. |
 | camelCase prop `defaultValue` | `default_value:` | `ariaLabel` is passed as `aria: { label: }` or `"aria-label":`; both accepted. |
 | `data-foo="x"`, `aria-*`, `role`, `id`, `type`, `disabled`... | same keys through `**attrs` | `data: {}` / `aria: {}` hashes deep-merged with component defaults; `Base#merge_attrs` maps React DOM props (`tab_index:`, `read_only:`, `max_length:`, `html_for:`...) to their HTML names and renders boolean aria/data values as `"true"`/`"false"` like React. |
-| `asChild` | `as_child:` | `false` (default) \| a tag symbol (`as_child: :a`, the part renders that tag with its own classes, `data-slot` and attrs) \| a V2 component **instance** (`as_child: Phlex::Shadcn::Button.new(variant: "outline")`, Radix `Slot` semantics via `Phlex::Shadcn::Base#render_as_child`). |
+| `asChild` | `as_child:` | `false` (default) \| a tag symbol (`as_child: :a`, the part renders that tag with its own classes, `data-slot` and attrs) \| a V2 component **instance** (`as_child: Chadcn::Button.new(variant: "outline")`, Radix `Slot` semantics via `Chadcn::Base#render_as_child`). |
 | `disabled` boolean | `disabled: true` | Renders attribute exactly like React (`disabled=""`). |
 | `open` / `onOpenChange` | `open:` (initial/controlled) + event `shadcn--dialog:open-change` with `detail: { open }` | Controlled mode = the server renders the next state; client mode = Stimulus value. |
 | `defaultOpen` | `default_open:` | |
@@ -17,10 +17,10 @@ One table, applied mechanically by the builder AND by the harness (`ShadcnParity
 | `checked` / `onCheckedChange` | `checked:` / event `shadcn--<name>:checked-change` | `checked: "indeterminate"` supported where Radix supports it. |
 | `onClick` etc. | plain DOM events; use `data: { action: "click->foo#bar" }` | No JS callbacks in Ruby. |
 | `ref` | `data: { <controller>_target: ... }` or no equivalent | Not part of the API. List in the spec if React callers rely on it. |
-| Compound exports `Dialog`, `DialogTrigger`, `DialogContent`... | `Phlex::Shadcn::Dialog`, `Dialog::Trigger`, `Dialog::Content`... | Rule: strip the root name prefix. Exceptions (`buttonVariants`, `useSidebar`) map to class methods: `Phlex::Shadcn::Button.variants(variant:, size:)` returns the class string. |
+| Compound exports `Dialog`, `DialogTrigger`, `DialogContent`... | `Chadcn::Dialog`, `Dialog::Trigger`, `Dialog::Content`... | Rule: strip the root name prefix. Exceptions (`buttonVariants`, `useSidebar`) map to class methods: `Chadcn::Button.variants(variant:, size:)` returns the class string. |
 | `cva` variants | class-level table + `Component.variants(**opts)` | Keys identical to React (`"icon-sm"`). |
-| `cn(...)` | `cn(...)` from `Phlex::Shadcn::Base` | Same semantic (clsx + tailwind-merge). |
-| lucide icons (`<XIcon />`) | `render Phlex::Shadcn::Icon.new(name: "x")` rendering the exact lucide SVG (`class`, `size-4`, `aria-hidden`) | Icon set must be the same lucide version as the catalog. |
+| `cn(...)` | `cn(...)` from `Chadcn::Base` | Same semantic (clsx + tailwind-merge). |
+| lucide icons (`<XIcon />`) | `render Chadcn::Icon.new(name: "x")` rendering the exact lucide SVG (`class`, `size-4`, `aria-hidden`) | Icon set must be the same lucide version as the catalog. |
 | `useIsMobile()` and other hooks | Stimulus value/helper in the owning controller | Document in the spec. |
 
 ## Example: Button
@@ -29,7 +29,7 @@ One table, applied mechanically by the builder AND by the harness (`ShadcnParity
 <Button variant="outline" size="sm" className="shrink-0" onClick={...}>Save</Button>
 ```
 ```ruby
-render Phlex::Shadcn::Button.new(variant: "outline", size: "sm", class: "shrink-0", data: { action: "click->foo#save" }) { "Save" }
+render Chadcn::Button.new(variant: "outline", size: "sm", class: "shrink-0", data: { action: "click->foo#save" }) { "Save" }
 ```
 Must emit `<button data-slot="button" class="...tokens identical to React...">Save</button>`.
 
@@ -42,15 +42,15 @@ Must emit `<button data-slot="button" class="...tokens identical to React...">Sa
 </Dialog>
 ```
 ```ruby
-render Phlex::Shadcn::Dialog.new do
-  render Phlex::Shadcn::Dialog::Trigger.new(as_child: Phlex::Shadcn::Button.new(variant: "outline")) { "Open" }
-  render Phlex::Shadcn::Dialog::Content.new do
-    render Phlex::Shadcn::Dialog::Header.new { render Phlex::Shadcn::Dialog::Title.new { "Hi" } }
+render Chadcn::Dialog.new do
+  render Chadcn::Dialog::Trigger.new(as_child: Chadcn::Button.new(variant: "outline")) { "Open" }
+  render Chadcn::Dialog::Content.new do
+    render Chadcn::Dialog::Header.new { render Chadcn::Dialog::Title.new { "Hi" } }
   end
 end
 ```
 
-## `as_child` = Radix Slot merge (implemented once in `Phlex::Shadcn::Base`)
+## `as_child` = Radix Slot merge (implemented once in `Chadcn::Base`)
 
 `render_as_child(child, **slot_attrs, &block)` merges the parent part's computed attributes (`slot_attrs`: aria, `data-state`, `data-action`, `id`...) into the child's attributes with exactly Radix `mergeProps` semantics: **child props win** (so the child's `data-slot="button"` is kept), `class` is a PLAIN join, slot first then child, `[slot, child].compact_blank.join(" ")`, with NO tailwind-merge and no conflict resolution (Radix `mergeProps` does exactly `[slotPropValue, childPropValue].filter(Boolean).join(" ")`; resolving conflicts would drop a class that the React DOM keeps, so the class sets would differ), `data-action` descriptors are concatenated with the child's first then the slot's (Radix calls the child's handler, then the slot's), `style` is merged slot-then-child (child wins), `aria-describedby` ids are concatenated child first, then slot, deduplicated and space-joined, `nil` when empty (react-slot 1.4.0 `concatAriaDescribedby`; only when the child has the prop, otherwise the slot's value passes through), Stimulus `data-controller` tokens are UNIONED (slot first, so a nested trigger keeps both controllers), everything else child-over-slot. This is DIFFERENT from `merge_attrs`, which is for a component's own default classes plus the caller's `class:` and does go through `cn`. Verified against `@radix-ui/react-slot/dist/index.mjs` `mergeProps`. Then it renders the child with the block. `as_child: :tag` is the degenerate case (no child component): same merge against a bare element. Parts never implement this themselves.
 
@@ -66,7 +66,7 @@ Radix `Root`/`Sub`/`Provider`/`Portal` parts (Dialog, AlertDialog, DropdownMenu,
 
 ## DX helpers (yielded root)
 
-Beside the 1:1 nested classes the root offers generated helpers: `render Phlex::Shadcn::Table.new do |table| table.header { table.row { table.head { ... } } } end`. Rules: the root `yield self`s; the helper name is the snake_cased part name with the root prefix stripped once (`TableHead` -> `head`; an export without the prefix keeps its name: `ScrollBar` -> `scroll_bar`); `root.helper(**attrs, &block)` is exactly `render Root::Part.new(**attrs), &block`; helpers are generated by `Phlex::Shadcn::Base` (`const_added` on nested `Phlex::Shadcn::Base` subclasses), never hand-written; both forms may be mixed in a view; scenarios and tests use the explicit classes, and `parity_run.mjs --dx helpers` renders the same scenarios through the helpers (gate G2b). `.claude/scripts/shadcn/spec_helpers.rb` derives each component's helper list from the oracle and writes it into the spec.
+Beside the 1:1 nested classes the root offers generated helpers: `render Chadcn::Table.new do |table| table.header { table.row { table.head { ... } } } end`. Rules: the root `yield self`s; the helper name is the snake_cased part name with the root prefix stripped once (`TableHead` -> `head`; an export without the prefix keeps its name: `ScrollBar` -> `scroll_bar`); `root.helper(**attrs, &block)` is exactly `render Root::Part.new(**attrs), &block`; helpers are generated by `Chadcn::Base` (`const_added` on nested `Chadcn::Base` subclasses), never hand-written; both forms may be mixed in a view; scenarios and tests use the explicit classes, and `parity_run.mjs --dx helpers` renders the same scenarios through the helpers (gate G2b). `.claude/scripts/shadcn/spec_helpers.rb` derives each component's helper list from the oracle and writes it into the spec.
 
 
 Raw elements (`_input`, `_select`, `_textarea`...) in scenario trees take React DOM props: `className`/`htmlFor`/camelCase DOM props map to real attribute names, and `defaultValue`/`value` become the `value` attribute (input), the text content (textarea) or `selected` on the matching `<option>` (select); `defaultChecked`/`checked` become `checked`.

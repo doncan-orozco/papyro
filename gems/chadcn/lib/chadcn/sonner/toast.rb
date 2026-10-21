@@ -7,11 +7,11 @@
 # http(s) URL, `event` is the `name` of the `shadcn--sonner:action` / `shadcn--sonner:cancel` event the Toaster dispatches.
 #
 # @example
-#   render Phlex::Shadcn::Sonner::Toast.new(type: :error, title: "Could not save", description: "Try again", action: { label: "Retry", event: "retry" })
-class Phlex::Shadcn::Sonner::Toast < Phlex::Shadcn::Base
+#   render Chadcn::Sonner::Toast.new(type: :error, title: "Could not save", description: "Try again", action: { label: "Retry", event: "retry" })
+class Chadcn::Sonner::Toast < Chadcn::Base
   # @param title [String, nil] the toast message; the block is the title when this is nil
   # @param description [String, nil] second line
-  # @param type [String, Symbol, nil] one of {Phlex::Shadcn::Sonner::TYPES}; nil shows a plain toast
+  # @param type [String, Symbol, nil] one of {Chadcn::Sonner::TYPES}; nil shows a plain toast
   # @param id [String, nil] a stable id: showing the same id again updates the toast instead of adding one
   # @param duration [Integer, Symbol, nil] ms before it closes (default 4000); `:infinity` keeps it until dismissed
   # @param position [String, Symbol, nil] `top-left`, `top-center`, `top-right`, `bottom-left`, `bottom-center` or `bottom-right`
@@ -28,7 +28,7 @@ class Phlex::Shadcn::Sonner::Toast < Phlex::Shadcn::Base
   def initialize(title: nil, description: nil, type: nil, id: nil, duration: nil, position: nil, dismissible: nil, close_button: nil,
                  rich_colors: nil, invert: nil, icon: nil, action: nil, cancel: nil, toaster_id: nil, test_id: nil, **attrs)
     type = normalize_option(type)
-    raise ArgumentError, "unknown toast type #{type.inspect} (#{Phlex::Shadcn::Sonner::TYPES.join(', ')})" if type && !Phlex::Shadcn::Sonner::TYPES.include?(type)
+    raise ArgumentError, "unknown toast type #{type.inspect} (#{Chadcn::Sonner::TYPES.join(', ')})" if type && !Chadcn::Sonner::TYPES.include?(type)
 
     @title = title
     @description = description

@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-# shadcn `CalendarDayButton` (new-york-v4): the ghost icon `Button` of one day. {Phlex::Shadcn::Calendar} renders a prototype of it
+# shadcn `CalendarDayButton` (new-york-v4): the ghost icon `Button` of one day. {Chadcn::Calendar} renders a prototype of it
 # and its controller clones one per day; rendered on its own it is a plain server-rendered button.
 #
 # Differences from React when rendered outside a Calendar (spec calendar.md, "Calendar::DayButton"): `data-day` is the en-US
 # `M/D/YYYY` form (the server cannot know the browser locale) and `modifiers: { focused: true }` does not focus the button.
 #
 # @example
-#   render Phlex::Shadcn::Calendar::DayButton.new(day: "2026-03-15", modifiers: { selected: true }) { "15" }
-class Phlex::Shadcn::Calendar::DayButton < Phlex::Shadcn::Base
+#   render Chadcn::Calendar::DayButton.new(day: "2026-03-15", modifiers: { selected: true }) { "15" }
+class Chadcn::Calendar::DayButton < Chadcn::Base
   # Tailwind classes of the day button (calendar.tsx `CalendarDayButton`).
   #
   # @api private
@@ -31,7 +31,7 @@ class Phlex::Shadcn::Calendar::DayButton < Phlex::Shadcn::Base
   # @raise [ArgumentError] when `day` is not a date
   def initialize(day:, modifiers: NO_MODIFIERS, **attrs)
     date = day.is_a?(Hash) ? (day[:date] || day["date"]) : day
-    @date = Phlex::Shadcn::Calendar::Dates.to_date(date, "day")
+    @date = Chadcn::Calendar::Dates.to_date(date, "day")
     @modifiers = modifiers.transform_keys(&:to_s)
     @attrs = attrs
     super()
@@ -40,7 +40,7 @@ class Phlex::Shadcn::Calendar::DayButton < Phlex::Shadcn::Base
   # @yield the label of the day (usually its number)
   # @return [void]
   def view_template(&)
-    render Phlex::Shadcn::Button.new(variant: "ghost", size: "icon", **merge_attrs(default_attrs, @attrs.except(:class)),
+    render Chadcn::Button.new(variant: "ghost", size: "icon", **merge_attrs(default_attrs, @attrs.except(:class)),
                                      class: cn(CLASSES, RDP_DAY, @attrs[:class])), &
   end
 

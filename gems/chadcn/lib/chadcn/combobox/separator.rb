@@ -3,9 +3,9 @@
 # shadcn ComboboxSeparator: a rule between groups (`div`, `role="presentation"`).
 #
 # @example
-#   render Phlex::Shadcn::Combobox::Separator.new
-class Phlex::Shadcn::Combobox::Separator < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+#   render Chadcn::Combobox::Separator.new
+class Chadcn::Combobox::Separator < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #

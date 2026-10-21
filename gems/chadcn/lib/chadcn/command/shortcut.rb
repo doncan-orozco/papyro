@@ -3,8 +3,8 @@
 # shadcn CommandShortcut: the right-aligned keyboard hint of an item (`span`).
 #
 # @example
-#   render(Phlex::Shadcn::Command::Shortcut.new { "⌘P" })
-class Phlex::Shadcn::Command::Shortcut < Phlex::Shadcn::Base
+#   render(Chadcn::Command::Shortcut.new { "⌘P" })
+class Chadcn::Command::Shortcut < Chadcn::Base
   # Tailwind classes of the element, as in the shadcn source.
   #
   # @return [String]

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn Breadcrumb (new-york-v4). Spec: docs/shadcn-port/specs/breadcrumb.md. Static: no controller.
 #
@@ -8,14 +8,14 @@ using Phlex::Shadcn::Values::Refinements
 # `ellipsis`) equal to rendering `Breadcrumb::List`, `Breadcrumb::Item`, etc.
 #
 # @example
-#   render Phlex::Shadcn::Breadcrumb.new do |bc|
+#   render Chadcn::Breadcrumb.new do |bc|
 #     bc.list do
 #       bc.item { bc.link(href: "/") { "Home" } }
 #       bc.separator
 #       bc.item { bc.page { "Current" } }
 #     end
 #   end
-class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
+class Chadcn::Breadcrumb < Chadcn::Base
   # @param attrs [Hash] HTML attributes for the `nav` (the `class` is emitted verbatim)
   def initialize(**attrs)
     @attrs = attrs
@@ -24,7 +24,7 @@ class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
 
   # The React root does not destructure className: the caller class is emitted verbatim, not through cn.
   #
-  # @yieldparam breadcrumb [Phlex::Shadcn::Breadcrumb] the root, exposing the part helpers
+  # @yieldparam breadcrumb [Chadcn::Breadcrumb] the root, exposing the part helpers
   # @return [void]
   def view_template(&block)
     attrs = { aria: { label: "breadcrumb" }, data: { slot: "breadcrumb" } }.merge_deep(canonical_attrs(@attrs))
@@ -32,7 +32,7 @@ class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
   end
 
   # The `ol` that holds the items.
-  class List < Phlex::Shadcn::Base
+  class List < Chadcn::Base
     # Default Tailwind classes of the list.
     #
     # @api private
@@ -52,7 +52,7 @@ class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
   end
 
   # An `li` wrapping a link, the current page or an ellipsis.
-  class Item < Phlex::Shadcn::Base
+  class Item < Chadcn::Base
     # Default Tailwind classes of the item.
     #
     # @api private
@@ -75,13 +75,13 @@ class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
   #
   # @example
   #   bc.link(href: "/docs") { "Docs" }
-  class Link < Phlex::Shadcn::Base
+  class Link < Chadcn::Base
     # Default Tailwind classes of the link.
     #
     # @api private
     CLASS_NAME = "transition-colors hover:text-foreground"
 
-    # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+    # @param as_child [false, nil, Symbol, String, Chadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
     #   the part's attributes are merged onto it. `true` is not supported.
     # @param attrs [Hash] HTML attributes merged onto the element
     def initialize(as_child: false, **attrs)
@@ -103,7 +103,7 @@ class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
   end
 
   # The current page: a `span` with `aria-current="page"`.
-  class Page < Phlex::Shadcn::Base
+  class Page < Chadcn::Base
     # Default Tailwind classes of the current page.
     #
     # @api private
@@ -124,7 +124,7 @@ class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
   end
 
   # An `li` separator; renders a chevron icon when the block is missing or emits nothing.
-  class Separator < Phlex::Shadcn::Base
+  class Separator < Chadcn::Base
     # Default Tailwind classes of the separator.
     #
     # @api private
@@ -144,7 +144,7 @@ class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
       content = block ? capture(&block) : ""
       li(**merge_attrs(defaults, @attrs)) do
         if content.blank_value?
-          render Phlex::Shadcn::Icon.new("chevron-right")
+          render Chadcn::Icon.new("chevron-right")
         else
           raw(safe(content))
         end
@@ -153,7 +153,7 @@ class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
   end
 
   # A collapsed-items marker: ellipsis icon plus a screen-reader label.
-  class Ellipsis < Phlex::Shadcn::Base
+  class Ellipsis < Chadcn::Base
     # Default Tailwind classes of the ellipsis.
     #
     # @api private
@@ -171,7 +171,7 @@ class Phlex::Shadcn::Breadcrumb < Phlex::Shadcn::Base
     def view_template
       defaults = { data: { slot: "breadcrumb-ellipsis" }, role: "presentation", aria: { hidden: "true" }, class: CLASS_NAME }
       span(**merge_attrs(defaults, @attrs)) do
-        render Phlex::Shadcn::Icon.new("ellipsis", class: "size-4")
+        render Chadcn::Icon.new("ellipsis", class: "size-4")
         span(class: "sr-only") { plain @label }
       end
     end

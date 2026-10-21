@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::InputTest < Phlex::Shadcn::TestCase
-  def render_input(**attrs) = Phlex::Shadcn::Input.new(**attrs).call
+class Chadcn::InputTest < Chadcn::TestCase
+  def render_input(**attrs) = Chadcn::Input.new(**attrs).call
 
   test "renders slot, type and base classes" do
     html = render_input(type: :email, name: "e")
@@ -45,7 +45,7 @@ class Phlex::Shadcn::InputTest < Phlex::Shadcn::TestCase
   test "focus and invalid style constants are part of the class" do
     html = render_input
 
-    assert_includes html, Phlex::Shadcn::Input::FOCUS.split.first
-    assert_includes html, Phlex::Shadcn::Input::INVALID.split.first
+    assert_includes html, Chadcn::Input::FOCUS.split.first
+    assert_includes html, Chadcn::Input::INVALID.split.first
   end
 end

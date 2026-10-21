@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::BreadcrumbTest < Phlex::Shadcn::TestCase
-  Breadcrumb = Phlex::Shadcn::Breadcrumb
+class Chadcn::BreadcrumbTest < Chadcn::TestCase
+  Breadcrumb = Chadcn::Breadcrumb
 
   def render_root(**, &)
     Breadcrumb.new(**).call(&)

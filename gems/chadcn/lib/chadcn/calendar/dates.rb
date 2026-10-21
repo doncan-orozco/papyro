@@ -6,7 +6,7 @@ require "date"
 # date, so a date never shifts with the time zone.
 #
 # @api private
-module Phlex::Shadcn::Calendar::Dates
+module Chadcn::Calendar::Dates
   # Shape of an ISO calendar date.
   ISO = /\A\d{4}-\d{2}-\d{2}\z/
 

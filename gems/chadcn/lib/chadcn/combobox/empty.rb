@@ -4,9 +4,9 @@
 # no item matches (the controller keeps the content and toggles it).
 #
 # @example
-#   render(Phlex::Shadcn::Combobox::Empty.new { "No items found." })
-class Phlex::Shadcn::Combobox::Empty < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+#   render(Chadcn::Combobox::Empty.new { "No items found." })
+class Chadcn::Combobox::Empty < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #

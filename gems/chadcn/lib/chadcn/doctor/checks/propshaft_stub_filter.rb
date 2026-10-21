@@ -19,8 +19,8 @@ module Phlex
               return Result.passed(NAME, "not applicable (needs Propshaft and tailwindcss-rails)")
             end
             unless context.hide_tailwind_stubs?
-              return Result.warning(NAME, "config.phlex_shadcn.hide_tailwind_stubs is false: stylesheet_link_tag :app links stubs that 404",
-                                    fix: "remove config.phlex_shadcn.hide_tailwind_stubs = false, or exclude app/assets/builds/tailwind yourself")
+              return Result.warning(NAME, "config.chadcn.hide_tailwind_stubs is false: stylesheet_link_tag :app links stubs that 404",
+                                    fix: "remove config.chadcn.hide_tailwind_stubs = false, or exclude app/assets/builds/tailwind yourself")
             end
             return Result.passed(NAME, "the Tailwind stubs are hidden from the served assets") if context.propshaft_hook?
 

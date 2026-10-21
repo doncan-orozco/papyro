@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::TabsTest < Phlex::Shadcn::TestCase
-  Tabs = Phlex::Shadcn::Tabs
+class Chadcn::TabsTest < Chadcn::TestCase
+  Tabs = Chadcn::Tabs
 
   def render_view(&block)
     Class.new(Phlex::HTML) { define_method(:view_template, &block) }.new.call
@@ -92,7 +92,7 @@ class Phlex::Shadcn::TabsTest < Phlex::Shadcn::TestCase
 
   test "dir: local wins, then the provider, then ltr" do
     provided = render_view do
-      render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) do
+      render(Chadcn::Direction::Provider.new(dir: "rtl")) do
         render(Tabs.new) { }
         render(Tabs.new(dir: "ltr")) { }
       end

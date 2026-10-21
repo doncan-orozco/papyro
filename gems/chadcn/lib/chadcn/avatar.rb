@@ -4,7 +4,7 @@
 # The loading logic lives in the +shadcn--avatar+ Stimulus controller.
 #
 # @example
-#   Phlex::Shadcn::Avatar.new(size: :lg) { |avatar| avatar.image(src: "/me.png", alt: "Me"); avatar.fallback { "ME" } }
+#   Chadcn::Avatar.new(size: :lg) { |avatar| avatar.image(src: "/me.png", alt: "Me"); avatar.fallback { "ME" } }
 #
 # @!method image(**attrs, &block)
 #   Renders {Avatar::Image}; same as +render Avatar::Image.new(**attrs), &block+.
@@ -25,7 +25,7 @@
 # @!method group_count(**attrs, &block)
 #   Renders {Avatar::GroupCount}; same as +render Avatar::GroupCount.new(**attrs), &block+.
 #   @return [void]
-class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
+class Chadcn::Avatar < Chadcn::Base
   # Accepted +size+ values.
   SIZES = %w[default sm lg].freeze
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
@@ -34,7 +34,7 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
   ROOT_CLASS = "group/avatar relative flex size-8 shrink-0 overflow-hidden rounded-full select-none data-[size=lg]:size-10 data-[size=sm]:size-6"
 
   # @param size [String, Symbol, nil] one of {SIZES}; nil means +default+
-  # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
+  # @param as_child [Boolean, Symbol, Chadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
   # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
   # @raise [ArgumentError] on an unknown size
   def initialize(size: "default", as_child: false, **attrs)
@@ -49,7 +49,7 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
   # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+avatar.fallback { ... }+).
   # The block is skipped when none is given.
   #
-  # @yieldparam avatar [Phlex::Shadcn::Avatar] the component itself
+  # @yieldparam avatar [Chadcn::Avatar] the component itself
   # @return [void]
   def view_template(&block)
     attrs = merge_attrs({ data: { slot: "avatar", size: @size, controller: "shadcn--avatar" }, class: ROOT_CLASS }, @attrs)
@@ -63,14 +63,14 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
   # The avatar picture; mounted by the Stimulus controller once the image has loaded (kept in an inert +template+ until then).
   #
   # @note Deviation from Radix: the +img+ is not in the DOM before it has loaded.
-  class Image < Phlex::Shadcn::Base
+  class Image < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
     CLASSES = "aspect-square size-full"
 
     # @param src [String, nil] image URL
-    # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
+    # @param as_child [Boolean, Symbol, Chadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
     # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
     def initialize(src: nil, as_child: false, **attrs)
       @as_child = as_child
@@ -90,14 +90,14 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
   end
 
   # Shown while the image is missing or loading (initials, an icon). With +delay_ms:+ it waits in a +template+ and appears after the delay.
-  class Fallback < Phlex::Shadcn::Base
+  class Fallback < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
     CLASSES = "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs"
 
     # @param delay_ms [Integer, nil] wait this long before showing the fallback
-    # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
+    # @param as_child [Boolean, Symbol, Chadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
     # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
     def initialize(delay_ms: nil, as_child: false, **attrs)
       @delay_ms = delay_ms
@@ -125,7 +125,7 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
   end
 
   # A small status dot (or tiny icon) anchored to the bottom-right corner of the avatar.
-  class Badge < Phlex::Shadcn::Base
+  class Badge < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -146,7 +146,7 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
   end
 
   # Overlaps several avatars in a row.
-  class Group < Phlex::Shadcn::Base
+  class Group < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -167,7 +167,7 @@ class Phlex::Shadcn::Avatar < Phlex::Shadcn::Base
   end
 
   # The "+3" bubble that closes an {Avatar::Group}.
-  class GroupCount < Phlex::Shadcn::Base
+  class GroupCount < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn `Button` (new-york-v4). Spec: docs/shadcn-port/specs/button.md
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # A clickable button, the shadcn `Button` with its variant and size tables.
 #
@@ -9,10 +9,10 @@ using Phlex::Shadcn::Values::Refinements
 # attributes (`data:`/`aria:` are deep-merged, `class:` wins Tailwind conflicts).
 #
 # @example A secondary action
-#   render Phlex::Shadcn::Button.new(variant: "outline") { "Save" }
+#   render Chadcn::Button.new(variant: "outline") { "Save" }
 # @example Rendering a link with button styles
-#   render Phlex::Shadcn::Button.new(as_child: :a, href: "/docs") { "Docs" }
-class Phlex::Shadcn::Button < Phlex::Shadcn::Base
+#   render Chadcn::Button.new(as_child: :a, href: "/docs") { "Docs" }
+class Chadcn::Button < Chadcn::Base
   # Classes shared by every variant and size.
   #
   # @return [String]
@@ -54,14 +54,14 @@ class Phlex::Shadcn::Button < Phlex::Shadcn::Base
   # @return [String]
   # @raise [ArgumentError] when the variant or size is unknown
   # @example
-  #   a(href: "/x", class: Phlex::Shadcn::Button.variants(variant: "link")) { "Read more" }
+  #   a(href: "/x", class: Chadcn::Button.variants(variant: "link")) { "Read more" }
   def self.variants(variant: "default", size: "default", class: nil)
     new(variant: variant, size: size).send(:classes, binding.local_variable_get(:class))
   end
 
   # @param variant [String, Symbol, nil] one of VARIANTS (nil means "default")
   # @param size [String, Symbol, nil] one of SIZES (nil means "default"); underscores are normalized (`:icon_sm` is `"icon-sm"`)
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base]
+  # @param as_child [false, Symbol, String, Chadcn::Base]
   #   the tag (`:a`) or component instance to render instead of a `<button>`, merging the button props
   #   into it; false renders the default `<button>`
   # @param attrs [Hash] HTML attributes (`type:`, `disabled:`, `class:`, `data:`, `aria:`...)

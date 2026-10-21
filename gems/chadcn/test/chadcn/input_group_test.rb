@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::InputGroupTest < Phlex::Shadcn::TestCase
-  IG = Phlex::Shadcn::InputGroup
+class Chadcn::InputGroupTest < Chadcn::TestCase
+  IG = Chadcn::InputGroup
 
   def render_part(part, **, &block)
     part.new(**).call(&block || proc { "x" })

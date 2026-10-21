@@ -3,8 +3,8 @@
 # shadcn Skeleton: a pulsing placeholder box; size it with +class+.
 #
 # @example
-#   Phlex::Shadcn::Skeleton.new(class: "h-4 w-40")
-class Phlex::Shadcn::Skeleton < Phlex::Shadcn::Base
+#   Chadcn::Skeleton.new(class: "h-4 w-40")
+class Chadcn::Skeleton < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private

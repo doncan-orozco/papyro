@@ -3,8 +3,8 @@
 require "phlex/test_case"
 require "json"
 
-class Phlex::Shadcn::CalendarTest < Phlex::Shadcn::TestCase
-  Calendar = Phlex::Shadcn::Calendar
+class Chadcn::CalendarTest < Chadcn::TestCase
+  Calendar = Chadcn::Calendar
 
   def fragment(html) = Nokogiri::HTML5.fragment(html)
 

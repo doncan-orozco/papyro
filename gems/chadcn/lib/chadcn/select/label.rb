@@ -4,13 +4,13 @@
 #
 # @example
 #   select.label { "Fruits" }
-class Phlex::Shadcn::Select::Label < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Select::Support
+class Chadcn::Select::Label < Chadcn::Base
+  include Chadcn::Select::Support
 
   # @return [String] Tailwind classes of the label
   CLASSES = "px-2 py-1.5 text-xs text-muted-foreground"
 
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String or a
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String or a
   #   component instance renders that instead, receiving the part's attributes
   # @param attrs [Hash] HTML attributes merged into the element (+class+ is merged with Tailwind conflict resolution, +data+/+aria+ deep-merged, caller wins)
   # @return [void]
@@ -22,9 +22,9 @@ class Phlex::Shadcn::Select::Label < Phlex::Shadcn::Base
 
   # @yield the label content
   # @return [void]
-  # @raise [ArgumentError] at render when not inside a {Phlex::Shadcn::Select::Group}
+  # @raise [ArgumentError] at render when not inside a {Chadcn::Select::Group}
   def view_template(&)
-    id = context[Phlex::Shadcn::Select::GROUP_KEY] or raise ArgumentError, "#{self.class.name} must be used within a Group"
+    id = context[Chadcn::Select::GROUP_KEY] or raise ArgumentError, "#{self.class.name} must be used within a Group"
     render_part(:div, @as_child, merge_attrs({ id:, class: CLASSES, data: { slot: "select-label" } }, @attrs), &)
   end
 end

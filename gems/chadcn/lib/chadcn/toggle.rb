@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 # shadcn Toggle over Radix Toggle. Spec: docs/shadcn-port/specs/toggle.md
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # A two-state button (`aria-pressed`). Use `Toggle.variants` to get its classes for another element.
 #
 # @example
-#   render Phlex::Shadcn::Toggle.new(variant: :outline, size: :sm, aria: { label: "Bold" }) { "B" }
-class Phlex::Shadcn::Toggle < Phlex::Shadcn::Base
+#   render Chadcn::Toggle.new(variant: :outline, size: :sm, aria: { label: "Bold" }) { "B" }
+class Chadcn::Toggle < Chadcn::Base
   # Base classes shared by every variant and size.
   #
   # @return [String]
@@ -40,7 +40,7 @@ class Phlex::Shadcn::Toggle < Phlex::Shadcn::Base
   # @return [String]
   # @raise [ArgumentError] on an unknown variant or size
   # @example
-  #   Phlex::Shadcn::Toggle.variants(variant: :outline, size: :lg)
+  #   Chadcn::Toggle.variants(variant: :outline, size: :lg)
   def self.variants(variant: "default", size: "default", class: nil)
     new(variant:, size:).send(:classes, binding.local_variable_get(:class))
   end
@@ -50,7 +50,7 @@ class Phlex::Shadcn::Toggle < Phlex::Shadcn::Base
   # @param pressed [Boolean, nil] controlled state (non-nil: user input only dispatches an event, the caller re-renders)
   # @param default_pressed [Boolean] initial state (uncontrolled)
   # @param disabled [Boolean] disables the button (`disabled` attribute and `data-disabled`)
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base]
+  # @param as_child [false, Symbol, String, Chadcn::Base]
   #   a tag or component instance to render instead of the `<button>`; false renders the default element
   # @param attrs [Hash] HTML attributes for the root (`class:` merged last, `aria:`, `data:`)
   # @raise [ArgumentError] on an unknown variant or size

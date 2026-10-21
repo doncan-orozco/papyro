@@ -3,7 +3,7 @@
 # shadcn Empty: the empty-state block (no results, nothing here yet). Compose with {Empty::Header}, {Empty::Media}, {Empty::Title}, {Empty::Description} and {Empty::Content}.
 #
 # @example
-#   Phlex::Shadcn::Empty.new { |empty| empty.header { empty.media(variant: :icon) { "i" }; empty.title { "No projects" } } }
+#   Chadcn::Empty.new { |empty| empty.header { empty.media(variant: :icon) { "i" }; empty.title { "No projects" } } }
 #
 # @!method header(**attrs, &block)
 #   Renders {Empty::Header}; same as +render Empty::Header.new(**attrs), &block+.
@@ -24,7 +24,7 @@
 # @!method content(**attrs, &block)
 #   Renders {Empty::Content}; same as +render Empty::Content.new(**attrs), &block+.
 #   @return [void]
-class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
+class Chadcn::Empty < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -39,14 +39,14 @@ class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
   # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+empty.title { ... }+).
   # The block is skipped when none is given.
   #
-  # @yieldparam empty [Phlex::Shadcn::Empty] the component itself
+  # @yieldparam empty [Chadcn::Empty] the component itself
   # @return [void]
   def view_template(&block)
     div(**merge_attrs({ data: { slot: "empty" }, class: CLASS_NAME }, @attrs)) { yield self if block }
   end
 
   # Groups the media, title and description.
-  class Header < Phlex::Shadcn::Base
+  class Header < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -67,7 +67,7 @@ class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
   end
 
   # The illustration slot. The +icon+ variant draws a muted rounded square around an icon.
-  class Media < Phlex::Shadcn::Base
+  class Media < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -82,7 +82,7 @@ class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
     # Class string of the component, for styling another element the same way (React +emptyMediaVariants+).
     #
     # @example
-    #   Phlex::Shadcn::Empty::Media.variants(variant: :icon)
+    #   Chadcn::Empty::Media.variants(variant: :icon)
     #
     # @param variant [String, Symbol] one of the keys of {VARIANTS}
     # @param class [String, nil] extra classes, merged last
@@ -119,7 +119,7 @@ class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
   end
 
   # The empty-state heading.
-  class Title < Phlex::Shadcn::Base
+  class Title < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -140,7 +140,7 @@ class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
   end
 
   # Supporting text; links inside it are underlined.
-  class Description < Phlex::Shadcn::Base
+  class Description < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -161,7 +161,7 @@ class Phlex::Shadcn::Empty < Phlex::Shadcn::Base
   end
 
   # Holds the call-to-action below the header.
-  class Content < Phlex::Shadcn::Base
+  class Content < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private

@@ -42,8 +42,8 @@ class GemCheckTest < ActiveSupport::TestCase
     write(@host, "app/components/base.rb", "class Components::Base < Phlex::HTML; end\n")
     write(@host, "app/models/article.rb", "class Article < ApplicationRecord; end\n")
     write(@gem, "phlex-x.gemspec", GEMSPEC)
-    write(@gem, "lib/phlex/shadcn.rb", BASE)
-    write(@gem, "lib/phlex/shadcn/engine.rb", "module Phlex::Shadcn\n  class Engine < ::Rails::Engine; end\nend\n")
+    write(@gem, "lib/chadcn.rb", BASE)
+    write(@gem, "lib/chadcn/engine.rb", "module Chadcn\n  class Engine < ::Rails::Engine; end\nend\n")
     write(@gem, "test/test_helper.rb", "require 'minitest/autorun'\n")
     write(@gem, "LICENSE", "MIT\n")
     write(@gem, "THIRD_PARTY_NOTICES.md", "shadcn/ui (MIT), Radix (MIT), Lucide (ISC)\n")
@@ -73,7 +73,7 @@ class GemCheckTest < ActiveSupport::TestCase
   end
 
   test "a reference to a constant only the host defines is reported with file and line" do
-    write(@gem, "lib/phlex/shadcn/leak.rb", "module Phlex::Shadcn\n  class Leak < Components::Base\n    def x = Article.first\n  end\nend\n")
+    write(@gem, "lib/chadcn/leak.rb", "module Chadcn\n  class Leak < Components::Base\n    def x = Article.first\n  end\nend\n")
     codes, status, result = check
 
     assert_equal 1, status
@@ -83,23 +83,23 @@ class GemCheckTest < ActiveSupport::TestCase
 
   test "a constant the gem declares itself is not a host reference even when the host uses the same name" do
     write(@host, "app/models/item.rb", "class Item < ApplicationRecord; end\n")
-    write(@gem, "lib/phlex/shadcn/item.rb", "module Phlex::Shadcn\n  class Item < Base; end\nend\nPhlex::Shadcn::Item\nItem.name\n")
+    write(@gem, "lib/chadcn/item.rb", "module Chadcn\n  class Item < Base; end\nend\nPhlex::Shadcn::Item\nItem.name\n")
 
     assert_not_includes check[0], "GEM_HOST_CONSTANT"
   end
 
   test "Rails is allowed in the engine file and rejected in core code" do
     assert_not_includes check[0], "GEM_RAILS_REFERENCE"
-    write(@gem, "lib/phlex/shadcn/dev.rb", "module Phlex::Shadcn\n  DEV = Rails.env.development?\nend\n")
+    write(@gem, "lib/chadcn/dev.rb", "module Chadcn\n  DEV = Rails.env.development?\nend\n")
     codes, _, result = check
 
     assert_includes codes, "GEM_RAILS_REFERENCE"
-    assert_equal "lib/phlex/shadcn/dev.rb", finding(result, "GEM_RAILS_REFERENCE")["file"]
+    assert_equal "lib/chadcn/dev.rb", finding(result, "GEM_RAILS_REFERENCE")["file"]
   end
 
   test "integration files in nested generator and task directories may use Rails and host paths" do
-    write(@gem, "lib/generators/phlex/shadcn/install/install_generator.rb",
-          "class Phlex::Shadcn::InstallGenerator < Rails::Generators::Base\n  CSS = \"app/assets/tailwind/application.css\"\nend\n")
+    write(@gem, "lib/generators/chadcn/install/install_generator.rb",
+          "class Chadcn::InstallGenerator < Rails::Generators::Base\n  CSS = \"app/assets/tailwind/application.css\"\nend\n")
     write(@gem, "lib/tasks/deep/theme.rake", "namespace :theme do\n  task x: :environment do\n    puts Rails.root.join(\"app/assets/x\")\n  end\nend\n")
     codes, = check
 
@@ -108,13 +108,13 @@ class GemCheckTest < ActiveSupport::TestCase
   end
 
   test "loading the engine only when Rails is present is not a Rails reference" do
-    write(@gem, "lib/phlex/shadcn/loader.rb", "require \"phlex/shadcn/engine\" if defined?(Rails::Engine)\nrequire \"x/railtie\" if defined?( Rails )\n")
+    write(@gem, "lib/chadcn/loader.rb", "require \"chadcn/engine\" if defined?(Rails::Engine)\nrequire \"x/railtie\" if defined?( Rails )\n")
 
     assert_not_includes check[0], "GEM_RAILS_REFERENCE"
   end
 
   test "a real Rails dependency next to a guard is still reported" do
-    write(@gem, "lib/phlex/shadcn/mixed.rb", "x = defined?(Rails::Engine)\nRails.logger.info(\"hi\") if defined?(Rails)\n")
+    write(@gem, "lib/chadcn/mixed.rb", "x = defined?(Rails::Engine)\nRails.logger.info(\"hi\") if defined?(Rails)\n")
     codes, _, result = check
 
     assert_includes codes, "GEM_RAILS_REFERENCE"
@@ -129,7 +129,7 @@ class GemCheckTest < ActiveSupport::TestCase
   end
 
   test "ActiveSupport extensions need activesupport declared or required" do
-    write(@gem, "lib/phlex/shadcn/merge.rb", "module Phlex::Shadcn\n  def self.m(a, b) = a.deep_merge(b).presence\nend\n")
+    write(@gem, "lib/chadcn/merge.rb", "module Chadcn\n  def self.m(a, b) = a.deep_merge(b).presence\nend\n")
 
     assert_includes check[0], "GEM_ACTIVESUPPORT_EXT"
     write(@gem, "phlex-x.gemspec", GEMSPEC.sub(%(  s.add_dependency "phlex", ">= 2"\n), %(  s.add_dependency "phlex", ">= 2"\n  s.add_dependency "activesupport", ">= 7"\n)))
@@ -138,14 +138,14 @@ class GemCheckTest < ActiveSupport::TestCase
   end
 
   test "require_relative may not leave the gem and host paths may not be hard-coded outside the Rails files" do
-    write(@gem, "lib/phlex/shadcn/up.rb", "require_relative '../../../../../app/components/base'\n")
-    write(@gem, "lib/phlex/shadcn/ok.rb", "require_relative 'engine'\nrequire_relative '../shadcn'\n")
-    write(@gem, "lib/phlex/shadcn/path.rb", "module Phlex::Shadcn\n  CSS = 'app/assets/tailwind/theme/theme.css'\nend\n")
+    write(@gem, "lib/chadcn/up.rb", "require_relative '../../../../../app/components/base'\n")
+    write(@gem, "lib/chadcn/ok.rb", "require_relative 'engine'\nrequire_relative '../shadcn'\n")
+    write(@gem, "lib/chadcn/path.rb", "module Chadcn\n  CSS = 'app/assets/tailwind/theme/theme.css'\nend\n")
     codes, _, result = check
     flagged = result["findings"].select { |f| f["code"] == "GEM_ESCAPES_ROOT" }.map { |f| f["file"] }
 
     assert_equal 2, codes.count("GEM_ESCAPES_ROOT")
-    assert_equal [ "lib/phlex/shadcn/path.rb", "lib/phlex/shadcn/up.rb" ], flagged.sort
+    assert_equal [ "lib/chadcn/path.rb", "lib/chadcn/up.rb" ], flagged.sort
   end
 
   test "gemspec metadata, ruby version, license and packaged files are checked" do
@@ -165,7 +165,7 @@ class GemCheckTest < ActiveSupport::TestCase
     FileUtils.rm_f(File.join(@gem, "LICENSE"))
     FileUtils.rm_rf(File.join(@gem, "test"))
     write(@gem, "THIRD_PARTY_NOTICES.md", "shadcn/ui only\n")
-    write(@gem, "lib/phlex/shadcn/icon.rb", "module Phlex::Shadcn\n  ICON = 'lucide-check' # from radix\nend\n")
+    write(@gem, "lib/chadcn/icon.rb", "module Chadcn\n  ICON = 'lucide-check' # from radix\nend\n")
     codes, _, result = check
 
     assert_includes codes, "GEMSPEC_LICENSE"

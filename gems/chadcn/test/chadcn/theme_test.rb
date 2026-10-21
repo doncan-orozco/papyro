@@ -4,9 +4,9 @@ require "phlex/test_case"
 require "tmpdir"
 require "stringio"
 
-class Phlex::Shadcn::ThemeTest < Phlex::Shadcn::TestCase
-  Theme = Phlex::Shadcn::Theme
-  ASSETS = Phlex::Shadcn.root.join("app/assets/tailwind/phlex-shadcn")
+class Chadcn::ThemeTest < Chadcn::TestCase
+  Theme = Chadcn::Theme
+  ASSETS = Chadcn.root.join("app/assets/tailwind/chadcn")
 
   HSL_THEME = <<~CSS
     :root {
@@ -23,21 +23,21 @@ class Phlex::Shadcn::ThemeTest < Phlex::Shadcn::TestCase
   CSS
 
   def setup
-    @original_dir = Phlex::Shadcn.config.theme_dir
+    @original_dir = Chadcn.config.theme_dir
     @theme_dir = Dir.mktmpdir
     FileUtils.mkdir_p(File.join(@theme_dir, "presets"))
     FileUtils.cp(ASSETS.join("theme.css"), File.join(@theme_dir, "theme.css"))
     Dir[ASSETS.join("presets/*.css").to_s].each { |preset| FileUtils.cp(preset, File.join(@theme_dir, "presets")) }
-    Phlex::Shadcn.configure { |config| config.theme_dir = @theme_dir }
+    Chadcn.configure { |config| config.theme_dir = @theme_dir }
   end
 
   def teardown
-    Phlex::Shadcn.configure { |config| config.theme_dir = @original_dir }
+    Chadcn.configure { |config| config.theme_dir = @original_dir }
     FileUtils.remove_entry(@theme_dir)
   end
 
   test "the directory has to be configured and the error says how" do
-    Phlex::Shadcn.configure { |config| config.theme_dir = nil }
+    Chadcn.configure { |config| config.theme_dir = nil }
 
     refute_predicate Theme, :configured?
     error = assert_raises(Theme::Error) { Theme.theme_file }

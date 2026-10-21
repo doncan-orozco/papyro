@@ -3,7 +3,7 @@
 # shadcn Alert: a callout box with an optional leading +svg+ icon (a direct child, styled by the classes), {Alert::Title} and {Alert::Description}.
 #
 # @example
-#   Phlex::Shadcn::Alert.new(variant: :destructive) { |alert| alert.title { "Heads up" }; alert.description { "Something broke." } }
+#   Chadcn::Alert.new(variant: :destructive) { |alert| alert.title { "Heads up" }; alert.description { "Something broke." } }
 #
 # @!method title(**attrs, &block)
 #   Renders {Alert::Title}; same as +render Alert::Title.new(**attrs), &block+.
@@ -12,7 +12,7 @@
 # @!method description(**attrs, &block)
 #   Renders {Alert::Description}; same as +render Alert::Description.new(**attrs), &block+.
 #   @return [void]
-class Phlex::Shadcn::Alert < Phlex::Shadcn::Base
+class Chadcn::Alert < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -38,7 +38,7 @@ class Phlex::Shadcn::Alert < Phlex::Shadcn::Base
   # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+alert.title { ... }+).
   # The block is skipped when none is given.
   #
-  # @yieldparam alert [Phlex::Shadcn::Alert] the component itself
+  # @yieldparam alert [Chadcn::Alert] the component itself
   # @return [void]
   def view_template(&block)
     attrs = merge_attrs({ data: { slot: "alert" }, role: "alert", class: cn(BASE, VARIANTS[@variant]) }, @attrs)
@@ -46,7 +46,7 @@ class Phlex::Shadcn::Alert < Phlex::Shadcn::Base
   end
 
   # The alert heading (+div data-slot="alert-title"+).
-  class Title < Phlex::Shadcn::Base
+  class Title < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -67,7 +67,7 @@ class Phlex::Shadcn::Alert < Phlex::Shadcn::Base
   end
 
   # The alert body text (+div data-slot="alert-description"+).
-  class Description < Phlex::Shadcn::Base
+  class Description < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private

@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::SeparatorTest < Phlex::Shadcn::TestCase
-  def html(**) = Phlex::Shadcn::Separator.new(**).call
+class Chadcn::SeparatorTest < Chadcn::TestCase
+  def html(**) = Chadcn::Separator.new(**).call
 
   test "decorative horizontal by default" do
     out = html

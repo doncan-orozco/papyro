@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn/ui Switch over Radix Switch. Spec: docs/shadcn-port/specs/switch.md
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # A toggle button with `role=switch`, plus a hidden checkbox so it submits with a form.
 #
@@ -10,8 +10,8 @@ using Phlex::Shadcn::Values::Refinements
 # and has no `form:`.
 #
 # @example
-#   render Phlex::Shadcn::Switch.new(name: "notifications", default_checked: true, id: "notifications")
-class Phlex::Shadcn::Switch < Phlex::Shadcn::Base
+#   render Chadcn::Switch.new(name: "notifications", default_checked: true, id: "notifications")
+class Chadcn::Switch < Chadcn::Base
   # Classes of the switch button.
   #
   # @api private

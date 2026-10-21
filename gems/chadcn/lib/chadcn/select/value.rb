@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Shows the selected item's content, or the placeholder while no value is selected (the span shows the placeholder, its own
 # block, or a copy of the selected item's HTML children). +class+ and +style+ are dropped. +as_child:+ is not offered and is
@@ -9,8 +9,8 @@ using Phlex::Shadcn::Values::Refinements
 #
 # @example
 #   select.value(placeholder: "Pick a fruit")
-class Phlex::Shadcn::Select::Value < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Select::Support
+class Chadcn::Select::Value < Chadcn::Base
+  include Chadcn::Select::Support
 
   # @param placeholder [String] text shown while the value is blank
   # @param attrs [Hash] HTML attributes for the span; +class+ and +style+ keys are discarded
@@ -24,7 +24,7 @@ class Phlex::Shadcn::Select::Value < Phlex::Shadcn::Base
   # @yield optional content that replaces the copy of the selected item's children; while the value is blank the placeholder
   #   takes priority over the block
   # @return [void]
-  # @raise [ArgumentError] at render when used outside {Phlex::Shadcn::Select}
+  # @raise [ArgumentError] at render when used outside {Chadcn::Select}
   def view_template(&block)
     return if collecting?
 

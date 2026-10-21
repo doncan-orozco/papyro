@@ -6,20 +6,20 @@ module Phlex
   module Shadcn
     # Everything the override directory needs that is plain Ruby (dev/decisions/eject-override.md): which gem files an override
     # directory shadows, which components can be ejected, and the header an ejected copy carries. Used by the gem's loader setup
-    # (lib/phlex/shadcn.rb), the eject generator and the `ejected` doctor check, so none of them knows how the others read the directory.
+    # (lib/chadcn.rb), the eject generator and the `ejected` doctor check, so none of them knows how the others read the directory.
     #
-    # The loader needs it BEFORE it is set up, so lib/phlex/shadcn.rb requires it explicitly and ignores it in the loader (like
+    # The loader needs it BEFORE it is set up, so lib/chadcn.rb requires it explicitly and ignores it in the loader (like
     # configuration.rb); the path still follows the constant. It needs no framework.
     #
     # @api private
     module Overrides
       # The gem's component sources: the Zeitwerk root of the gem loader.
-      GEM_DIR = File.join(Shadcn::ROOT, "lib/phlex/shadcn").freeze
+      GEM_DIR = File.join(Chadcn::ROOT, "lib/chadcn").freeze
       # Top-level names that are not components: the base class, settings, tooling, the engine and the plain-Ruby helpers.
       INFRASTRUCTURE = %w[base configuration doctor engine icons js_bundle overrides theme values version].freeze
       # First line of an ejected file: the gem version it was copied from, the gem file and the SHA-256 of that file's text.
-      HEADER = /\A# Ejected from phlex-shadcn (?<version>\S+) \((?<source>[^)\n]+)\) sha256:(?<digest>\h{64})$/
-      # The component names `phlex-shadcn:eject` accepts: snake_case, with `/` for a nested part (`dialog/content`).
+      HEADER = /\A# Ejected from chadcn (?<version>\S+) \((?<source>[^)\n]+)\) sha256:(?<digest>\h{64})$/
+      # The component names `chadcn:eject` accepts: snake_case, with `/` for a nested part (`dialog/content`).
       NAME = %r{\A[a-z][a-z0-9_]*(?:/[a-z][a-z0-9_]*)*\z}
 
       # Gem files that hold a load-time reference into a unit (an alias constant), so they are ejected and shadowed with it: otherwise the
@@ -39,8 +39,8 @@ module Phlex
       # @param text [String] the text of the gem file
       # @return [String] the two comment lines that start an ejected copy
       def self.header(version:, source:, text:)
-        "# Ejected from phlex-shadcn #{version} (#{source}) sha256:#{digest(text)}\n" \
-          "# This copy is yours; the gem no longer loads its own file. `bin/rails phlex_shadcn:doctor` warns when the gem's file changes.\n"
+        "# Ejected from chadcn #{version} (#{source}) sha256:#{digest(text)}\n" \
+          "# This copy is yours; the gem no longer loads its own file. `bin/rails chadcn:doctor` warns when the gem's file changes.\n"
       end
 
       # @param text [String] the text of an ejected file

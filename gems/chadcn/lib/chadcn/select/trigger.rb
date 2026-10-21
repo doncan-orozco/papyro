@@ -8,8 +8,8 @@
 #
 # @example
 #   select.trigger(size: :sm, class: "w-40") { select.value(placeholder: "Pick") }
-class Phlex::Shadcn::Select::Trigger < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Select::Support
+class Chadcn::Select::Trigger < Chadcn::Base
+  include Chadcn::Select::Support
 
   # @return [String] Tailwind classes of the button
   CLASSES = "flex w-fit items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[placeholder]:text-muted-foreground data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground"
@@ -30,16 +30,16 @@ class Phlex::Shadcn::Select::Trigger < Phlex::Shadcn::Base
     super()
   end
 
-  # @yield optional block rendered before the chevron icon (usually {Phlex::Shadcn::Select::Value})
+  # @yield optional block rendered before the chevron icon (usually {Chadcn::Select::Value})
   # @return [void]
-  # @raise [ArgumentError] at render when used outside {Phlex::Shadcn::Select}
+  # @raise [ArgumentError] at render when used outside {Chadcn::Select}
   def view_template
     return if collecting?
 
     state = select_state
     button(**merge_attrs(attributes(state), @attrs)) do
       yield if block_given?
-      render Phlex::Shadcn::Icon.new("chevron-down", class: "size-4 opacity-50")
+      render Chadcn::Icon.new("chevron-down", class: "size-4 opacity-50")
     end
     native_select(state) if state[:name] || state[:form]
   end

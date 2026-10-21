@@ -6,9 +6,9 @@
 # (`role`, `type`, `id`, `autocomplete`, `aria-controls`...) cannot be overridden.
 #
 # @example
-#   render Phlex::Shadcn::Command::Input.new(placeholder: "Type a command or search...")
-class Phlex::Shadcn::Command::Input < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Command::Support
+#   render Chadcn::Command::Input.new(placeholder: "Type a command or search...")
+class Chadcn::Command::Input < Chadcn::Base
+  include Chadcn::Command::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #
@@ -32,7 +32,7 @@ class Phlex::Shadcn::Command::Input < Phlex::Shadcn::Base
   def view_template
     root = root_context
     div(class: WRAPPER_CLASSES, data: { slot: "command-input-wrapper" }) do
-      render Phlex::Shadcn::Icon.new("search", class: "size-4 shrink-0 opacity-50")
+      render Chadcn::Icon.new("search", class: "size-4 shrink-0 opacity-50")
       input(**input_attrs(root))
     end
   end

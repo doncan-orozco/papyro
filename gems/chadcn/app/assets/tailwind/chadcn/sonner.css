@@ -1,5 +1,5 @@
 /*
- * Styles of the Toaster (Phlex::Shadcn::Sonner::Toaster). The stacking, swipe and variant rules are the ones the sonner library 2.0.7 injects
+ * Styles of the Toaster (Chadcn::Sonner::Toaster). The stacking, swipe and variant rules are the ones the sonner library 2.0.7 injects
  * at runtime (https://github.com/emilkowalski/sonner, MIT, see THIRD_PARTY_NOTICES.md), which shadcn's Toaster wraps; the port ships them as
  * plain CSS so no JavaScript dependency is needed. Every rule is scoped by a data-sonner-* attribute or a .sonner-* class, so it cannot leak.
  * The shadcn wrapper colors (--normal-bg, --normal-text, --normal-border, --border-radius) are set inline by the Toaster from the theme.

@@ -10,15 +10,15 @@
 # Parts are rendered with the explicit classes or with the helpers generated on the yielded root (one per part).
 #
 # @example Explicit form
-#   render Phlex::Shadcn::Dialog.new do
-#     render Phlex::Shadcn::Dialog::Trigger.new { "Open" }
-#     render Phlex::Shadcn::Dialog::Content.new do
-#       render(Phlex::Shadcn::Dialog::Title.new { "Title" })
+#   render Chadcn::Dialog.new do
+#     render Chadcn::Dialog::Trigger.new { "Open" }
+#     render Chadcn::Dialog::Content.new do
+#       render(Chadcn::Dialog::Title.new { "Title" })
 #     end
 #   end
 #
 # @example Yielded-root helper form
-#   render Phlex::Shadcn::Dialog.new do |dialog|
+#   render Chadcn::Dialog.new do |dialog|
 #     dialog.trigger { "Open" }
 #     dialog.content { dialog.title { "Title" } }
 #   end
@@ -43,7 +43,7 @@
 #   Same as `render Dialog::Description.new(**attrs), &block`.
 # @!method close(**attrs, &block)
 #   Same as `render Dialog::Close.new(**attrs), &block`.
-class Phlex::Shadcn::Dialog < Phlex::Shadcn::Base
+class Chadcn::Dialog < Chadcn::Base
   # @api private
   ROOT_KEY = :shadcn_dialog_root
   # @api private

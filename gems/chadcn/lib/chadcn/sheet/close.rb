@@ -3,8 +3,8 @@
 # Radix DialogClose: no data-state and no aria attributes (dialog:305-312).
 #
 # Closes the sheet (renders a `button`).
-class Phlex::Shadcn::Sheet::Close < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sheet::Support
+class Chadcn::Sheet::Close < Chadcn::Base
+  include Chadcn::Sheet::Support
 
   # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
   # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)

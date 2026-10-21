@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # shadcn/ui Checkbox over Radix Checkbox. Spec: docs/shadcn-port/specs/checkbox.md
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # A checkbox: a `<button role="checkbox">` plus the hidden form input Radix renders.
 #
@@ -12,10 +12,10 @@ using Phlex::Shadcn::Values::Refinements
 # checkbox is not inside a `<form>` and has no `form:`.
 #
 # @example
-#   render Phlex::Shadcn::Checkbox.new(name: "terms", id: "terms", default_checked: true)
+#   render Chadcn::Checkbox.new(name: "terms", id: "terms", default_checked: true)
 # @example Indeterminate
-#   render Phlex::Shadcn::Checkbox.new(checked: "indeterminate")
-class Phlex::Shadcn::Checkbox < Phlex::Shadcn::Base
+#   render Chadcn::Checkbox.new(checked: "indeterminate")
+class Chadcn::Checkbox < Chadcn::Base
   # Classes of the checkbox button.
   #
   # @return [String]
@@ -111,7 +111,7 @@ class Phlex::Shadcn::Checkbox < Phlex::Shadcn::Base
   def indicator(state)
     span(data: { state:, slot: "checkbox-indicator", **(@disabled ? { disabled: "" } : {}) }, class: INDICATOR_CLASS,
          style: "pointer-events: none;") do
-      render Phlex::Shadcn::Icon.new("check", class: "size-3.5")
+      render Chadcn::Icon.new("check", class: "size-3.5")
     end
   end
 

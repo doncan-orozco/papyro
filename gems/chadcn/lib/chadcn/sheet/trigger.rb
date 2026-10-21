@@ -5,11 +5,11 @@
 # Toggles the sheet (renders a `button`; `aria-controls` only while open).
 #
 # @example Explicit form
-#   render Phlex::Shadcn::Sheet::Trigger.new { "Open" }
+#   render Chadcn::Sheet::Trigger.new { "Open" }
 # @example Yielded-root helper form
 #   sheet.trigger { "Open" }
-class Phlex::Shadcn::Sheet::Trigger < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sheet::Support
+class Chadcn::Sheet::Trigger < Chadcn::Base
+  include Chadcn::Sheet::Support
 
   # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
   # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)

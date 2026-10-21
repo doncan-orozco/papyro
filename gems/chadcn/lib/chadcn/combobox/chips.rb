@@ -4,14 +4,14 @@
 # selected). Pressing it focuses the input and opens the popup. Its block usually holds a {Combobox::Value}.
 #
 # @example
-#   render Phlex::Shadcn::Combobox::Chips.new do
-#     render(Phlex::Shadcn::Combobox::Value.new) do |values|
-#       values.each { |value| render(Phlex::Shadcn::Combobox::Chip.new { value }) }
-#       render Phlex::Shadcn::Combobox::ChipsInput.new
+#   render Chadcn::Combobox::Chips.new do
+#     render(Chadcn::Combobox::Value.new) do |values|
+#       values.each { |value| render(Chadcn::Combobox::Chip.new { value }) }
+#       render Chadcn::Combobox::ChipsInput.new
 #     end
 #   end
-class Phlex::Shadcn::Combobox::Chips < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+class Chadcn::Combobox::Chips < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #

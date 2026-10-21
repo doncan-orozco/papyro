@@ -6,13 +6,13 @@
 # Root of the HoverCard family. Renders no element.
 #
 # @example Explicit form
-#   render Phlex::Shadcn::HoverCard.new do
-#     render Phlex::Shadcn::HoverCard::Trigger.new(href: "/u/1") { "@ada" }
-#     render Phlex::Shadcn::HoverCard::Content.new { "Profile" }
+#   render Chadcn::HoverCard.new do
+#     render Chadcn::HoverCard::Trigger.new(href: "/u/1") { "@ada" }
+#     render Chadcn::HoverCard::Content.new { "Profile" }
 #   end
 #
 # @example Yielded-root helper form
-#   render Phlex::Shadcn::HoverCard.new do |card|
+#   render Chadcn::HoverCard.new do |card|
 #     card.trigger(href: "/u/1") { "@ada" }
 #     card.content { "Profile" }
 #   end
@@ -23,7 +23,7 @@
 #   Same as `render HoverCard::Trigger.new(**attrs), &block`.
 # @!method content(**attrs, &block)
 #   Same as `render HoverCard::Content.new(**attrs), &block`.
-class Phlex::Shadcn::HoverCard < Phlex::Shadcn::Base
+class Chadcn::HoverCard < Chadcn::Base
   # @api private
   CONTEXT_KEY = :shadcn_hover_card_root
   # @api private
@@ -68,10 +68,10 @@ class Phlex::Shadcn::HoverCard < Phlex::Shadcn::Base
   # The link that opens the card on hover/focus (renders an `a` and hosts the controller).
   #
   # @example Explicit form
-  #   render Phlex::Shadcn::HoverCard::Trigger.new(href: "/u/1") { "@ada" }
+  #   render Chadcn::HoverCard::Trigger.new(href: "/u/1") { "@ada" }
   # @example Yielded-root helper form
   #   card.trigger(href: "/u/1") { "@ada" }
-  class Trigger < Phlex::Shadcn::Base
+  class Trigger < Chadcn::Base
     # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
     def initialize(as_child: false, **attrs)
@@ -109,10 +109,10 @@ class Phlex::Shadcn::HoverCard < Phlex::Shadcn::Base
   # Floating card. Its markup ships in an inert `<template>` that the controller clones on open.
   #
   # @example Explicit form
-  #   render Phlex::Shadcn::HoverCard::Content.new(side: "right") { "Profile" }
+  #   render Chadcn::HoverCard::Content.new(side: "right") { "Profile" }
   # @example Yielded-root helper form
   #   card.content(side: "right") { "Profile" }
-  class Content < Phlex::Shadcn::Base
+  class Content < Chadcn::Base
     # @api private
     CLASSES = "z-50 w-64 origin-(--radix-hover-card-content-transform-origin) rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
     # @api private

@@ -4,7 +4,7 @@
 # {Table::Row}, {Table::Head}, {Table::Cell} and {Table::Caption}.
 #
 # @example
-#   Phlex::Shadcn::Table.new { |t| t.header { t.row { t.head { "Name" } } }; t.body { t.row { t.cell { "Ada" } } } }
+#   Chadcn::Table.new { |t| t.header { t.row { t.head { "Name" } } }; t.body { t.row { t.cell { "Ada" } } } }
 #
 # @!method header(**attrs, &block)
 #   Renders {Table::Header}; same as +render Table::Header.new(**attrs), &block+.
@@ -33,7 +33,7 @@
 # @!method caption(**attrs, &block)
 #   Renders {Table::Caption}; same as +render Table::Caption.new(**attrs), &block+.
 #   @return [void]
-class Phlex::Shadcn::Table < Phlex::Shadcn::Base
+class Chadcn::Table < Chadcn::Base
   # Tailwind classes of the wrapper +div+; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -52,7 +52,7 @@ class Phlex::Shadcn::Table < Phlex::Shadcn::Base
   # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+table.row { ... }+).
   # The block is skipped when none is given.
   #
-  # @yieldparam table [Phlex::Shadcn::Table] the component itself
+  # @yieldparam table [Chadcn::Table] the component itself
   # @return [void]
   def view_template(&block)
     div(data: { slot: "table-container" }, class: CONTAINER_CLASS) do
@@ -61,7 +61,7 @@ class Phlex::Shadcn::Table < Phlex::Shadcn::Base
   end
 
   # +thead+.
-  class Header < Phlex::Shadcn::Base
+  class Header < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -82,7 +82,7 @@ class Phlex::Shadcn::Table < Phlex::Shadcn::Base
   end
 
   # +tbody+.
-  class Body < Phlex::Shadcn::Base
+  class Body < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -103,7 +103,7 @@ class Phlex::Shadcn::Table < Phlex::Shadcn::Base
   end
 
   # +tfoot+.
-  class Footer < Phlex::Shadcn::Base
+  class Footer < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -124,7 +124,7 @@ class Phlex::Shadcn::Table < Phlex::Shadcn::Base
   end
 
   # +tr+; use +data-state="selected"+ to highlight it.
-  class Row < Phlex::Shadcn::Base
+  class Row < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -145,7 +145,7 @@ class Phlex::Shadcn::Table < Phlex::Shadcn::Base
   end
 
   # +th+ (column heading).
-  class Head < Phlex::Shadcn::Base
+  class Head < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -166,7 +166,7 @@ class Phlex::Shadcn::Table < Phlex::Shadcn::Base
   end
 
   # +td+.
-  class Cell < Phlex::Shadcn::Base
+  class Cell < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -187,7 +187,7 @@ class Phlex::Shadcn::Table < Phlex::Shadcn::Base
   end
 
   # +caption+, shown below the table.
-  class Caption < Phlex::Shadcn::Base
+  class Caption < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private

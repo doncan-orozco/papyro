@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-# The validated, normalized options of a {Phlex::Shadcn::Calendar}: coerces dates to ISO strings, matchers to their JSON form and
+# The validated, normalized options of a {Chadcn::Calendar}: coerces dates to ISO strings, matchers to their JSON form and
 # checks every enumerated value, then answers the two questions the server needs (the controller config, and which nav buttons start
 # disabled). Raises `ArgumentError` for anything that cannot reach the controller as data.
 #
 # @api private
-class Phlex::Shadcn::Calendar::Options
+class Chadcn::Calendar::Options
   # Accepted values of `mode:`.
   MODES = %w[single multiple range].freeze
   # Accepted values of `caption_layout:`.
@@ -17,7 +17,7 @@ class Phlex::Shadcn::Calendar::Options
 
   # @return [String, nil] `single`, `multiple`, `range` or nil (a non-interactive grid)
   attr_reader :mode
-  # @return [Phlex::Shadcn::Calendar::Locale]
+  # @return [Chadcn::Calendar::Locale]
   attr_reader :locale
   # @return [String] `label`, `dropdown`, `dropdown-months` or `dropdown-years`
   attr_reader :caption_layout
@@ -42,7 +42,7 @@ class Phlex::Shadcn::Calendar::Options
   # @return [Object] the normalized selection (a date, an Array of dates, a `from`/`to` Hash or nil)
   attr_reader :selected
 
-  # Arguments are those of {Phlex::Shadcn::Calendar#initialize}.
+  # Arguments are those of {Chadcn::Calendar#initialize}.
   def initialize(mode:, selected:, default_month:, month:, today:, number_of_months:, show_outside_days:, caption_layout:, button_variant:,
                  locale:, week_starts_on:, fixed_weeks:, show_week_number:, disabled:, hidden:, modifiers:, modifiers_class_names:,
                  class_names:, formatters:, components:, start_month:, end_month:, min:, max:, required:, exclude_disabled:,
@@ -50,25 +50,25 @@ class Phlex::Shadcn::Calendar::Options
                  name:, input:, label:, close_on_select:)
     @mode = enum(mode, MODES, "mode", allow_nil: true)
     @caption_layout = enum(caption_layout, CAPTION_LAYOUTS, "caption_layout")
-    @button_variant = enum(button_variant, Phlex::Shadcn::Button::VARIANTS.keys, "button_variant")
+    @button_variant = enum(button_variant, Chadcn::Button::VARIANTS.keys, "button_variant")
     @dir = enum(dir, DIRS, "dir", allow_nil: true)
     raise ArgumentError, "components: render overrides are not portable; only nil or {} are accepted" unless components.nil? || components == {}
 
-    @locale = Phlex::Shadcn::Calendar::Locale.new(locale)
+    @locale = Chadcn::Calendar::Locale.new(locale)
     @number_of_months = positive_integer(number_of_months, "number_of_months")
     @week_starts_on = week_start(week_starts_on)
-    @today = Phlex::Shadcn::Calendar::Dates.iso(today, "today")
-    @month = Phlex::Shadcn::Calendar::Dates.first_of_month(month, "month")
-    @default_month = Phlex::Shadcn::Calendar::Dates.first_of_month(default_month, "default_month")
-    @start_month = Phlex::Shadcn::Calendar::Dates.first_of_month(start_month, "start_month")
-    @end_month = Phlex::Shadcn::Calendar::Dates.first_of_month(end_month, "end_month")
+    @today = Chadcn::Calendar::Dates.iso(today, "today")
+    @month = Chadcn::Calendar::Dates.first_of_month(month, "month")
+    @default_month = Chadcn::Calendar::Dates.first_of_month(default_month, "default_month")
+    @start_month = Chadcn::Calendar::Dates.first_of_month(start_month, "start_month")
+    @end_month = Chadcn::Calendar::Dates.first_of_month(end_month, "end_month")
     raise ArgumentError, "selected: needs a mode (#{MODES.join(', ')})" if !selected.nil? && @mode.nil?
     raise ArgumentError, "name: needs a mode (#{MODES.join(', ')})" if name && @mode.nil?
 
     @selected = selection(selected)
     @class_names = class_name_overrides(class_names)
     @modifiers_class_names = (modifiers_class_names || {}).to_h { |key, value| [ key.to_s, value.to_s ] }
-    @modifiers = (modifiers || {}).to_h { |key, value| [ key.to_s, Phlex::Shadcn::Calendar::Dates.matcher(value, "modifiers[#{key}]") ] }
+    @modifiers = (modifiers || {}).to_h { |key, value| [ key.to_s, Chadcn::Calendar::Dates.matcher(value, "modifiers[#{key}]") ] }
     @show_week_number = show_week_number
     @hide_navigation = hide_navigation
     @hide_weekdays = hide_weekdays
@@ -78,8 +78,8 @@ class Phlex::Shadcn::Calendar::Options
     @flags = { "showOutsideDays" => show_outside_days, "fixedWeeks" => fixed_weeks, "excludeDisabled" => exclude_disabled,
                "resetOnSelect" => reset_on_select, "disableNavigation" => disable_navigation, "pagedNavigation" => paged_navigation,
                "autoFocus" => auto_focus, "closeOnSelect" => close_on_select }
-    @disabled = disabled.nil? ? nil : Phlex::Shadcn::Calendar::Dates.matcher(disabled, "disabled")
-    @hidden = hidden.nil? ? nil : Phlex::Shadcn::Calendar::Dates.matcher(hidden, "hidden")
+    @disabled = disabled.nil? ? nil : Chadcn::Calendar::Dates.matcher(disabled, "disabled")
+    @hidden = hidden.nil? ? nil : Chadcn::Calendar::Dates.matcher(hidden, "hidden")
     @min = integer_or_nil(min, "min")
     @max = integer_or_nil(max, "max")
     @formatters = formatter_options(formatters)
@@ -98,7 +98,7 @@ class Phlex::Shadcn::Calendar::Options
 
   # The hash the controller reads from `data-shadcn--calendar-config-value` (camelCase keys, dates as ISO strings). Nil entries are dropped.
   #
-  # @param classes [Hash{Symbol => String}] the finished class strings ({Phlex::Shadcn::Calendar::Classes.build})
+  # @param classes [Hash{Symbol => String}] the finished class strings ({Chadcn::Calendar::Classes.build})
   # @return [Hash{String => Object}]
   def config(classes)
     {
@@ -116,7 +116,7 @@ class Phlex::Shadcn::Calendar::Options
   # @param classes [Hash{Symbol => String}] the finished class strings
   # @return [Hash{Symbol => String}] the day-cell entries
   def day_classes(classes)
-    classes.select { |key, _| key == :day || Phlex::Shadcn::Calendar::Classes::DAY_FLAGS.include?(key) }
+    classes.select { |key, _| key == :day || Chadcn::Calendar::Classes::DAY_FLAGS.include?(key) }
   end
 
   # Whether the previous / next nav button starts disabled, as far as the server can tell (today is the server date when `today:` is
@@ -170,19 +170,19 @@ class Phlex::Shadcn::Calendar::Options
     return if value.nil? || @mode.nil?
 
     case @mode
-    when "single" then Phlex::Shadcn::Calendar::Dates.iso(value, "selected")
+    when "single" then Chadcn::Calendar::Dates.iso(value, "selected")
     when "multiple"
       raise ArgumentError, "selected must be an Array of dates for mode multiple, got #{value.inspect}" unless value.is_a?(Array)
 
-      value.map { |date| Phlex::Shadcn::Calendar::Dates.iso(date, "selected") }
-    else Phlex::Shadcn::Calendar::Dates.range(value)
+      value.map { |date| Chadcn::Calendar::Dates.iso(date, "selected") }
+    else Chadcn::Calendar::Dates.range(value)
     end
   end
 
   def class_name_overrides(value)
     (value || {}).to_h do |key, classes|
       symbol = key.to_s.tr("-", "_").to_sym
-      raise ArgumentError, "unknown class_names key #{key.inspect} (expected one of #{Phlex::Shadcn::Calendar::Classes::KEYS.join(', ')})" unless Phlex::Shadcn::Calendar::Classes::KEYS.include?(symbol)
+      raise ArgumentError, "unknown class_names key #{key.inspect} (expected one of #{Chadcn::Calendar::Classes::KEYS.join(', ')})" unless Chadcn::Calendar::Classes::KEYS.include?(symbol)
 
       [ symbol, classes ]
     end

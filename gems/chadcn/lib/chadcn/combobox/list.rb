@@ -4,9 +4,9 @@
 # groups) and the controller filters the rendered nodes; without them the block renders the items once.
 #
 # @example
-#   render(Phlex::Shadcn::Combobox::List.new) { |item| render(Phlex::Shadcn::Combobox::Item.new(value: item) { item }) }
-class Phlex::Shadcn::Combobox::List < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+#   render(Chadcn::Combobox::List.new) { |item| render(Chadcn::Combobox::Item.new(value: item) { item }) }
+class Chadcn::Combobox::List < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #

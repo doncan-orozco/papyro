@@ -11,8 +11,8 @@
 # plus an inert template with the mobile Sheet; the controller swaps them on mobile (deviations/sidebar.json).
 #
 # @example Collapsible-to-icons sidebar with a menu
-#   render Phlex::Shadcn::Sidebar::Provider.new do
-#     render Phlex::Shadcn::Sidebar.new(collapsible: "icon") do |sidebar|
+#   render Chadcn::Sidebar::Provider.new do
+#     render Chadcn::Sidebar.new(collapsible: "icon") do |sidebar|
 #       sidebar.header { plain "Acme" }
 #       sidebar.content do
 #         sidebar.group do
@@ -26,12 +26,12 @@
 #       end
 #       sidebar.rail
 #     end
-#     render Phlex::Shadcn::Sidebar::Inset.new { plain "Page" }
+#     render Chadcn::Sidebar::Inset.new { plain "Page" }
 #   end
 #
 # @see Sidebar::Provider
 # @see https://ui.shadcn.com/docs/components/sidebar
-class Phlex::Shadcn::Sidebar < Phlex::Shadcn::Base
+class Chadcn::Sidebar < Chadcn::Base
   # Name of the React hook, used in error messages.
   #
   # @api private
@@ -127,7 +127,7 @@ class Phlex::Shadcn::Sidebar < Phlex::Shadcn::Base
 
   # React `useSidebar`: the state of the nearest {Provider}.
   #
-  # @param component [Phlex::Shadcn::Base] the component that reads the state (its render context is used)
+  # @param component [Chadcn::Base] the component that reads the state (its render context is used)
   # @return [State]
   # @raise [ArgumentError] when there is no {Provider} above
   def self.use_sidebar(component)
@@ -154,7 +154,7 @@ class Phlex::Shadcn::Sidebar < Phlex::Shadcn::Base
 
   # Renders the desktop sidebar plus the inert mobile sheet template, or a single `div` with `collapsible: "none"`.
   #
-  # @yieldparam sidebar [Phlex::Shadcn::Sidebar] the root, exposing the part helpers
+  # @yieldparam sidebar [Chadcn::Sidebar] the root, exposing the part helpers
   # @return [void]
   # @raise [ArgumentError] when there is no {Provider} above
   def view_template(&)
@@ -202,12 +202,12 @@ class Phlex::Shadcn::Sidebar < Phlex::Shadcn::Base
   # the controller moves the single server-rendered copy into mobileBody.
   def mobile
     template(data: { shadcn__sidebar_target: "mobile" }) do
-      render Phlex::Shadcn::Sheet.new(open: false) do
-        render Phlex::Shadcn::Sheet::Content.new(side: @side, class: MOBILE_CLASSES, style: "--sidebar-width: #{SIDEBAR_WIDTH_MOBILE};",
+      render Chadcn::Sheet.new(open: false) do
+        render Chadcn::Sheet::Content.new(side: @side, class: MOBILE_CLASSES, style: "--sidebar-width: #{SIDEBAR_WIDTH_MOBILE};",
                                                  data: { sidebar: "sidebar", slot: "sidebar", mobile: "true" }) do
-          render Phlex::Shadcn::Sheet::Header.new(class: "sr-only") do
-            render(Phlex::Shadcn::Sheet::Title.new) { @mobile_title }
-            render(Phlex::Shadcn::Sheet::Description.new) { @mobile_description }
+          render Chadcn::Sheet::Header.new(class: "sr-only") do
+            render(Chadcn::Sheet::Title.new) { @mobile_title }
+            render(Chadcn::Sheet::Description.new) { @mobile_description }
           end
           div(class: "flex h-full w-full flex-col", data: { shadcn__sidebar_target: "mobileBody" })
         end

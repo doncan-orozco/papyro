@@ -4,9 +4,9 @@
 # and unmounts it, after its exit transition); the closed copy ships in an inert `<template>` so it can appear later.
 #
 # @example
-#   render Phlex::Shadcn::Combobox::Clear.new
-class Phlex::Shadcn::Combobox::Clear < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+#   render Chadcn::Combobox::Clear.new
+class Chadcn::Combobox::Clear < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # @param disabled [Boolean]
   # @param attrs [Hash] HTML attributes merged into the button (class goes through tailwind-merge)
@@ -31,9 +31,9 @@ class Phlex::Shadcn::Combobox::Clear < Phlex::Shadcn::Base
     state = {}
     state.merge!(visible: "", **(model.open? ? { popup_open: "" } : {})) if mounted
     state[:disabled] = "" if disabled
-    render Phlex::Shadcn::InputGroup::Button.new(
+    render Chadcn::InputGroup::Button.new(
       variant: "ghost", size: "icon-xs", "data-slot": "combobox-clear", tabindex: "-1", disabled: disabled,
       data: state.merge(shadcn__combobox_part: "clear"), **@attrs
-    ) { render Phlex::Shadcn::Icon.new("x", class: "pointer-events-none") }
+    ) { render Chadcn::Icon.new("x", class: "pointer-events-none") }
   end
 end

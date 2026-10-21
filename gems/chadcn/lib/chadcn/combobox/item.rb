@@ -4,9 +4,9 @@
 # of the root's `items:`); the controller reads its identity from `data-shadcn--combobox-*` markers.
 #
 # @example
-#   render(Phlex::Shadcn::Combobox::Item.new(value: "Next.js") { "Next.js" })
-class Phlex::Shadcn::Combobox::Item < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+#   render(Chadcn::Combobox::Item.new(value: "Next.js") { "Next.js" })
+class Chadcn::Combobox::Item < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #

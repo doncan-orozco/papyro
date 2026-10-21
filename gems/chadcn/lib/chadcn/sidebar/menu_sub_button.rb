@@ -2,14 +2,14 @@
 
 # shadcn SidebarMenuSubButton (an `a` without href unless given).
 #
-# Rendered inside a {Phlex::Shadcn::Sidebar}; also available as `sidebar.menu_sub_button` on the yielded sidebar.
+# Rendered inside a {Chadcn::Sidebar}; also available as `sidebar.menu_sub_button` on the yielded sidebar.
 #
 # @example
 #   sidebar.menu_sub_button(as_child: :a, href: "/docs/intro") { plain "Introduction" }
 #
-# @see Phlex::Shadcn::Sidebar
-class Phlex::Shadcn::Sidebar::MenuSubButton < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sidebar::Support
+# @see Chadcn::Sidebar
+class Chadcn::Sidebar::MenuSubButton < Chadcn::Base
+  include Chadcn::Sidebar::Support
 
   # Accepted `size:` values.
   SIZES = %w[sm md].freeze
@@ -25,7 +25,7 @@ class Phlex::Shadcn::Sidebar::MenuSubButton < Phlex::Shadcn::Base
   # @api private
   SIZE_CLASSES = { "sm" => "text-xs", "md" => "text-sm" }.freeze
 
-  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  # @param as_child [false, nil, Symbol, String, Chadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
   #   the part's attributes are merged onto it. `true` is not supported.
   # @param size [String, Symbol] one of `sm`, `md` (default: "md")
   # @param is_active [Boolean] mark the button as the current page (`data-active`) (default: false)

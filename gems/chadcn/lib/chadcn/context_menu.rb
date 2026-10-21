@@ -25,7 +25,7 @@
 # The parts are available as helpers on the yielded root (and on any subclass of it); see the +@!method+ entries below.
 #
 # @example
-#   render Phlex::Shadcn::ContextMenu.new do |menu|
+#   render Chadcn::ContextMenu.new do |menu|
 #     menu.trigger { "Right click here" }
 #     menu.content(class: "w-52") do
 #       menu.item { "Back" }
@@ -39,76 +39,76 @@
 #   end
 #
 # @!method trigger(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::Trigger.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::Trigger#initialize}
+#   Sugar for +render Chadcn::ContextMenu::Trigger.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::Trigger#initialize}
 #   @return [void]
 #
 # @!method content(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::Content.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::Content#initialize}
+#   Sugar for +render Chadcn::ContextMenu::Content.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::Content#initialize}
 #   @return [void]
 #
 # @!method item(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::Item.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::Item#initialize}
+#   Sugar for +render Chadcn::ContextMenu::Item.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::Item#initialize}
 #   @return [void]
 #
 # @!method checkbox_item(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::CheckboxItem.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::CheckboxItem#initialize}
+#   Sugar for +render Chadcn::ContextMenu::CheckboxItem.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::CheckboxItem#initialize}
 #   @return [void]
 #
 # @!method radio_item(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::RadioItem.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::RadioItem#initialize}
+#   Sugar for +render Chadcn::ContextMenu::RadioItem.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::RadioItem#initialize}
 #   @return [void]
 #
 # @!method label(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::Label.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::Label#initialize}
+#   Sugar for +render Chadcn::ContextMenu::Label.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::Label#initialize}
 #   @return [void]
 #
 # @!method separator(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::Separator.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::Separator#initialize}
+#   Sugar for +render Chadcn::ContextMenu::Separator.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::Separator#initialize}
 #   @return [void]
 #
 # @!method shortcut(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::Shortcut.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::Shortcut#initialize}
+#   Sugar for +render Chadcn::ContextMenu::Shortcut.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::Shortcut#initialize}
 #   @return [void]
 #
 # @!method group(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::Group.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::Group#initialize}
+#   Sugar for +render Chadcn::ContextMenu::Group.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::Group#initialize}
 #   @return [void]
 #
 # @!method portal(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::Portal.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::Portal#initialize}
+#   Sugar for +render Chadcn::ContextMenu::Portal.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::Portal#initialize}
 #   @return [void]
 #
 # @!method sub(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::Sub.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::Sub#initialize}
+#   Sugar for +render Chadcn::ContextMenu::Sub.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::Sub#initialize}
 #   @return [void]
 #
 # @!method sub_content(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::SubContent.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::SubContent#initialize}
+#   Sugar for +render Chadcn::ContextMenu::SubContent.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::SubContent#initialize}
 #   @return [void]
 #
 # @!method sub_trigger(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::SubTrigger.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::SubTrigger#initialize}
+#   Sugar for +render Chadcn::ContextMenu::SubTrigger.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::SubTrigger#initialize}
 #   @return [void]
 #
 # @!method radio_group(**attrs, &block)
-#   Sugar for +render Phlex::Shadcn::ContextMenu::RadioGroup.new(**attrs), &block+.
-#   @param attrs [Hash] keyword arguments of {Phlex::Shadcn::ContextMenu::RadioGroup#initialize}
+#   Sugar for +render Chadcn::ContextMenu::RadioGroup.new(**attrs), &block+.
+#   @param attrs [Hash] keyword arguments of {Chadcn::ContextMenu::RadioGroup#initialize}
 #   @return [void]
-class Phlex::Shadcn::ContextMenu < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Direction::Consumer
+class Chadcn::ContextMenu < Chadcn::Base
+  include Chadcn::Direction::Consumer
 
   # @api private
   # @return [Symbol] render-context key holding the root state
@@ -134,7 +134,7 @@ class Phlex::Shadcn::ContextMenu < Phlex::Shadcn::Base
   #   flips the state itself. Radix has no default open for the root (there is no +default_open:+; passing it raises
   #   +ArgumentError+ at construction)
   # @param dir [String, Symbol, nil] +"ltr"+ or +"rtl"+ sets the direction of the menu; any other value (including +nil+) is
-  #   ignored and the direction comes from the surrounding {Phlex::Shadcn::Direction} provider, or +"ltr"+
+  #   ignored and the direction comes from the surrounding {Chadcn::Direction} provider, or +"ltr"+
   # @param modal [Boolean] default +true+; passed to the controller as its +modal+ value (not validated)
   def initialize(open: nil, dir: nil, modal: true)
     @controlled = !open.nil?
@@ -145,7 +145,7 @@ class Phlex::Shadcn::ContextMenu < Phlex::Shadcn::Base
   end
 
   # @yield [root] the block renders the parts of the menu
-  # @yieldparam root [Phlex::Shadcn::ContextMenu] self, which carries the part helpers (+root.item { }+)
+  # @yieldparam root [Chadcn::ContextMenu] self, which carries the part helpers (+root.item { }+)
   # @return [void]
   def view_template
     previous = context[ROOT_KEY]

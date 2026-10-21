@@ -2,10 +2,10 @@
 
 # Class strings of the Calendar parts: the shadcn `classNames` of calendar.tsx joined with react-day-picker's default class names
 # (`getDefaultClassNames()`, which the tsx appends to every key). Every Tailwind token of the calendar lives in this file and in
-# {Phlex::Shadcn::Calendar}; the Stimulus controller only receives the finished strings.
+# {Chadcn::Calendar}; the Stimulus controller only receives the finished strings.
 #
 # @api private
-module Phlex::Shadcn::Calendar::Classes
+module Chadcn::Calendar::Classes
   # rdp `getDefaultClassNames()` (GDC:11-30): UI key => its `rdp-*` class.
   RDP = {
     root: "rdp-root", months: "rdp-months", month: "rdp-month", nav: "rdp-nav", button_previous: "rdp-button_previous",
@@ -47,7 +47,7 @@ module Phlex::Shadcn::Calendar::Classes
   # @param merger [#call] the `cn` of the rendering component
   # @return [Hash{Symbol => String}]
   def build(caption_layout:, show_week_number:, button_variant:, overrides:, merger:)
-    nav_button = [ Phlex::Shadcn::Button.variants(variant: button_variant), NAV_BUTTON ]
+    nav_button = [ Chadcn::Button.variants(variant: button_variant), NAV_BUTTON ]
     shadcn = {
       root: "w-fit",
       months: "relative flex flex-col gap-4 md:flex-row",

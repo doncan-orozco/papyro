@@ -4,9 +4,9 @@
 # own, the button that shows the selection and opens a popup holding the search {Combobox::Input}. Renders the chevron after the block.
 #
 # @example A button that opens a searchable popup
-#   render(Phlex::Shadcn::Combobox::Trigger.new(class: "w-64 justify-between font-normal")) { render Phlex::Shadcn::Combobox::Value.new }
-class Phlex::Shadcn::Combobox::Trigger < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+#   render(Chadcn::Combobox::Trigger.new(class: "w-64 justify-between font-normal")) { render Chadcn::Combobox::Value.new }
+class Chadcn::Combobox::Trigger < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #
@@ -32,7 +32,7 @@ class Phlex::Shadcn::Combobox::Trigger < Phlex::Shadcn::Base
     attrs[:disabled] = true if disabled?(model)
     render_part(:button, @as_child, attrs) do
       block&.call
-      render Phlex::Shadcn::Icon.new("chevron-down", class: "pointer-events-none size-4 text-muted-foreground",
+      render Chadcn::Icon.new("chevron-down", class: "pointer-events-none size-4 text-muted-foreground",
                                                      "data-slot": "combobox-trigger-icon")
     end
   end

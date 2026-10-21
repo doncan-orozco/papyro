@@ -8,18 +8,18 @@
 # on the yielded root (one per part).
 #
 # @example Explicit form
-#   render Phlex::Shadcn::Command.new do
-#     render Phlex::Shadcn::Command::Input.new(placeholder: "Type a command or search...")
-#     render Phlex::Shadcn::Command::List.new do
-#       render Phlex::Shadcn::Command::Empty.new { "No results found." }
-#       render Phlex::Shadcn::Command::Group.new(heading: "Suggestions") do
-#         render(Phlex::Shadcn::Command::Item.new { "Calendar" })
+#   render Chadcn::Command.new do
+#     render Chadcn::Command::Input.new(placeholder: "Type a command or search...")
+#     render Chadcn::Command::List.new do
+#       render Chadcn::Command::Empty.new { "No results found." }
+#       render Chadcn::Command::Group.new(heading: "Suggestions") do
+#         render(Chadcn::Command::Item.new { "Calendar" })
 #       end
 #     end
 #   end
 #
 # @example Yielded-root helper form
-#   render Phlex::Shadcn::Command.new do |command|
+#   render Chadcn::Command.new do |command|
 #     command.input(placeholder: "Type a command or search...")
 #     command.list do
 #       command.empty { "No results found." }
@@ -48,7 +48,7 @@
 #   Same as `render Command::Shortcut.new(**attrs), &block`.
 # @!method separator(**attrs)
 #   Same as `render Command::Separator.new(**attrs)`.
-class Phlex::Shadcn::Command < Phlex::Shadcn::Base
+class Chadcn::Command < Chadcn::Base
   # @api private
   CONTEXT_KEY = :shadcn_command_root
   # @api private

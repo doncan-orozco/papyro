@@ -3,12 +3,12 @@
 require "phlex/test_case"
 require "tempfile"
 
-class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
-  class Probe < Phlex::Shadcn::Base
+class Chadcn::BaseTest < Chadcn::TestCase
+  class Probe < Chadcn::Base
     public :merge_attrs, :normalize_option, :ids, :render_as_child
   end
 
-  class Kid < Phlex::Shadcn::Base
+  class Kid < Chadcn::Base
     def initialize(**attrs) = @attrs = attrs
 
     def view_template(&)
@@ -17,7 +17,7 @@ class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
     end
   end
 
-  class Slotter < Phlex::Shadcn::Base
+  class Slotter < Chadcn::Base
     def initialize(as_child:, **slot)
       (@child = as_child
        @slot = slot)
@@ -26,19 +26,19 @@ class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
     def view_template(&) = render_as_child(@child, **@slot, &)
   end
 
-  class Table < Phlex::Shadcn::Base
+  class Table < Chadcn::Base
     def initialize(**attrs) = @attrs = attrs
 
     def view_template(&block)
       tag(:table, **@attrs) { yield self if block }
     end
 
-    class Header < Phlex::Shadcn::Base
+    class Header < Chadcn::Base
       def initialize(**attrs) = @attrs = attrs
       def view_template(&) = tag(:thead, **@attrs, &)
     end
 
-    class CheckboxItem < Phlex::Shadcn::Base
+    class CheckboxItem < Chadcn::Base
       def initialize(**attrs) = @attrs = attrs
       def view_template(&) = tag(:td, **@attrs, &)
     end
@@ -46,7 +46,7 @@ class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
     class Plain; end
   end
 
-  class Row < Phlex::Shadcn::Base
+  class Row < Chadcn::Base
     def initialize(table:) = @table = table
     def view_template = @table.checkbox_item { "x" }
   end
@@ -78,12 +78,12 @@ class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
   end
 
   test "a name that overrides a Ruby or Phlex API method raises" do
-    assert_raises(ArgumentError) { Class.new(Phlex::Shadcn::Base) { const_set(:Render, Class.new(Phlex::Shadcn::Base)) } }
-    assert_raises(ArgumentError) { Class.new(Phlex::Shadcn::Base) { const_set(:Context, Class.new(Phlex::Shadcn::Base)) } }
+    assert_raises(ArgumentError) { Class.new(Chadcn::Base) { const_set(:Render, Class.new(Chadcn::Base)) } }
+    assert_raises(ArgumentError) { Class.new(Chadcn::Base) { const_set(:Context, Class.new(Chadcn::Base)) } }
   end
 
   test "an HTML element name is allowed" do
-    klass = Class.new(Phlex::Shadcn::Base) { const_set(:Title, Class.new(Phlex::Shadcn::Base)) }
+    klass = Class.new(Chadcn::Base) { const_set(:Title, Class.new(Chadcn::Base)) }
 
     assert klass.method_defined?(:title)
   end
@@ -204,7 +204,7 @@ class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
   module LazyRoots; end
 
   def lazy_root(name, source)
-    root = Class.new(Phlex::Shadcn::Base)
+    root = Class.new(Chadcn::Base)
     LazyRoots.const_set(name, root)
     file = Tempfile.new([ name.to_s, ".rb" ])
     file.write(source.call(root))
@@ -213,7 +213,7 @@ class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
   end
 
   test "a lazily loaded part gets its helper when it is registered" do
-    root, file = lazy_root(:Good, ->(r) { "class #{r.name}::FooBar < Phlex::Shadcn::Base; end" })
+    root, file = lazy_root(:Good, ->(r) { "class #{r.name}::FooBar < Chadcn::Base; end" })
     root.autoload(:FooBar, file.path)
 
     assert_respond_to root.new, :foo_bar
@@ -222,7 +222,7 @@ class Phlex::Shadcn::BaseTest < Phlex::Shadcn::TestCase
   end
 
   test "a NameError raised by a part file is deferred to the first real access, not lost" do
-    root, file = lazy_root(:Bad, ->(r) { "class #{r.name}::Broken < Phlex::Shadcn::Base\n  NotDefinedAnywhere\nend" })
+    root, file = lazy_root(:Bad, ->(r) { "class #{r.name}::Broken < Chadcn::Base\n  NotDefinedAnywhere\nend" })
     root.autoload(:Broken, file.path)
 
     error = assert_raises(NameError) { root.const_get(:Broken) }

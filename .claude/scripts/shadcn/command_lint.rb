@@ -13,7 +13,7 @@
 #   LINT_SCRIPT_MISSING   .claude/scripts/shadcn/<file> referenced but absent
 #   LINT_FLAG_UNKNOWN     `--flag` used on a line with a script, but the script never defines it
 #   LINT_SUBCOMMAND       `port_state.rb <sub>` not handled by the script
-#   LINT_RAKE_MISSING     `bin/rails theme:<task>` not defined in gems/phlex-shadcn/lib/tasks/phlex_shadcn*.rake
+#   LINT_RAKE_MISSING     `bin/rails theme:<task>` not defined in gems/chadcn/lib/tasks/chadcn*.rake
 #   LINT_REF_MISSING      `references/<file>.md` (or a skill path) that does not exist
 #   LINT_AGENT_MISSING    agent name referenced as shadcn-* but no .claude/agents file
 #   LINT_COMMAND_MISSING  /shadcn-* slash command referenced but no .claude/commands file
@@ -39,7 +39,7 @@ add = ->(code, file, line, detail) { findings << { code: code, file: file, line:
 
 docs = ARGV.first == "--docs" ? ARGV.drop(1) : DOC_GLOBS.flat_map { |g| Dir[g] }.uniq.sort
 script_sources = Dir[File.join(SCRIPTS_DIR, "*")].to_h { |f| [File.basename(f), File.read(f)] }
-rake_tasks = Dir["#{ShadcnLayout::GEM_DIR}/lib/tasks/phlex_shadcn*.rake"].flat_map do |file|
+rake_tasks = Dir["#{ShadcnLayout::GEM_DIR}/lib/tasks/chadcn*.rake"].flat_map do |file|
   File.read(file).scan(/^\s*task\s+:(\w+)|^\s*task\s+(\w+):/).flatten.compact
 end
 agents = Dir[".claude/agents/shadcn-*.md"].map { |f| File.basename(f, ".md") }

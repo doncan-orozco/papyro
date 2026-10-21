@@ -2,9 +2,9 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::MarkerTest < Phlex::Shadcn::TestCase
+class Chadcn::MarkerTest < Chadcn::TestCase
   def html(**opts)
-    Phlex::Shadcn::Marker.new(**opts).call do |m|
+    Chadcn::Marker.new(**opts).call do |m|
       m.icon { "i" }
       m.content { "Text" }
     end
@@ -22,7 +22,7 @@ class Phlex::Shadcn::MarkerTest < Phlex::Shadcn::TestCase
   end
 
   test "renders every variant" do
-    Phlex::Shadcn::Marker::VARIANTS.each_key { |v| assert_includes html(variant: v.to_sym), %(data-variant="#{v}") }
+    Chadcn::Marker::VARIANTS.each_key { |v| assert_includes html(variant: v.to_sym), %(data-variant="#{v}") }
     assert_includes html(variant: :separator), "before:bg-border"
     assert_includes html(variant: :border), "border-b"
   end
@@ -48,18 +48,18 @@ class Phlex::Shadcn::MarkerTest < Phlex::Shadcn::TestCase
   end
 
   test "variants helper" do
-    assert_includes Phlex::Shadcn::Marker.variants(variant: :border, class: "pb-4"), "border-b"
-    assert_not_includes Phlex::Shadcn::Marker.variants(class: "gap-4"), "gap-2"
+    assert_includes Chadcn::Marker.variants(variant: :border, class: "pb-4"), "border-b"
+    assert_not_includes Chadcn::Marker.variants(class: "gap-4"), "gap-2"
   end
 
   test "helpers match explicit parts" do
-    helper = Phlex::Shadcn::Marker.new.call do |m|
+    helper = Chadcn::Marker.new.call do |m|
       m.icon(class: "a") { "x" }
       m.content(id: "c") { "y" }
     end
-    explicit = Phlex::Shadcn::Marker.new.call do |m|
-      m.render Phlex::Shadcn::Marker::Icon.new(class: "a") { "x" }
-      m.render Phlex::Shadcn::Marker::Content.new(id: "c") { "y" }
+    explicit = Chadcn::Marker.new.call do |m|
+      m.render Chadcn::Marker::Icon.new(class: "a") { "x" }
+      m.render Chadcn::Marker::Content.new(id: "c") { "y" }
     end
 
     assert_equal explicit, helper

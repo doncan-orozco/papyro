@@ -2,12 +2,12 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::CardTest < Phlex::Shadcn::TestCase
+class Chadcn::CardTest < Chadcn::TestCase
   PARTS = { header: "card-header", footer: "card-footer", title: "card-title",
             action: "card-action", description: "card-description", content: "card-content" }.freeze
 
   def html(**, &block)
-    Phlex::Shadcn::Card.new(**).call(&block || proc { |_| "Body" })
+    Chadcn::Card.new(**).call(&block || proc { |_| "Body" })
   end
 
   test "root renders slot, merged class and passthrough attrs" do
@@ -31,7 +31,7 @@ class Phlex::Shadcn::CardTest < Phlex::Shadcn::TestCase
   test "helpers render the same HTML as the explicit classes" do
     helpers = html { |c| PARTS.each_key { |n| c.public_send(n, class: "k") { "x" } } }
     explicit = html do |c|
-      PARTS.each_key { |n| c.render Phlex::Shadcn::Card.const_get(n.to_s.capitalize).new(class: "k") { "x" } }
+      PARTS.each_key { |n| c.render Chadcn::Card.const_get(n.to_s.capitalize).new(class: "k") { "x" } }
     end
 
     assert_equal explicit, helpers

@@ -7,9 +7,9 @@
 # `force_mount` never reach the DOM as such; the controller reads `data-shadcn--command-*` attributes.
 #
 # @example
-#   render(Phlex::Shadcn::Command::Item.new(keywords: ["agenda"]) { "Calendar" })
-class Phlex::Shadcn::Command::Item < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Command::Support
+#   render(Chadcn::Command::Item.new(keywords: ["agenda"]) { "Calendar" })
+class Chadcn::Command::Item < Chadcn::Base
+  include Chadcn::Command::Support
 
   # Default of `keywords:` (cmdk's `[]`), frozen so the signature renders identically on every Ruby.
   KEYWORDS = [].freeze

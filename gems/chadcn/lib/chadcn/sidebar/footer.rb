@@ -2,11 +2,11 @@
 
 # shadcn SidebarFooter.
 #
-# Rendered inside a {Phlex::Shadcn::Sidebar}; also available as `sidebar.footer` on the yielded sidebar.
+# Rendered inside a {Chadcn::Sidebar}; also available as `sidebar.footer` on the yielded sidebar.
 #
-# @see Phlex::Shadcn::Sidebar
-class Phlex::Shadcn::Sidebar::Footer < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sidebar::Support
+# @see Chadcn::Sidebar
+class Chadcn::Sidebar::Footer < Chadcn::Base
+  include Chadcn::Sidebar::Support
 
   # Tailwind classes of the `div` (verbatim from shadcn/ui).
   #

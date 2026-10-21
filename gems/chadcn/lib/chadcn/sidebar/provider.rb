@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn SidebarProvider: the wrapper div, the Stimulus host and the state every other part reads (`useSidebar`).
 #
 # Wrap the whole layout (sidebar and inset) in it; it yields itself.
 #
 # @example
-#   render Phlex::Shadcn::Sidebar::Provider.new(default_open: true) do
-#     render Phlex::Shadcn::Sidebar.new(collapsible: "icon") { |sidebar| sidebar.content { plain "Menu" } }
-#     render Phlex::Shadcn::Sidebar::Inset.new { plain "Page" }
+#   render Chadcn::Sidebar::Provider.new(default_open: true) do
+#     render Chadcn::Sidebar.new(collapsible: "icon") { |sidebar| sidebar.content { plain "Menu" } }
+#     render Chadcn::Sidebar::Inset.new { plain "Page" }
 #   end
-# @see Phlex::Shadcn::Sidebar
-class Phlex::Shadcn::Sidebar::Provider < Phlex::Shadcn::Base
+# @see Chadcn::Sidebar
+class Chadcn::Sidebar::Provider < Chadcn::Base
   # Tailwind classes of the wrapper `div` (verbatim from shadcn/ui).
   #
   # @api private
@@ -42,29 +42,29 @@ class Phlex::Shadcn::Sidebar::Provider < Phlex::Shadcn::Base
 
   # Publishes the sidebar state to the render context and renders the wrapper `div` inside a tooltip provider.
   #
-  # @yieldparam provider [Phlex::Shadcn::Sidebar::Provider] the provider itself; it exposes no part helpers (they live on {Phlex::Shadcn::Sidebar})
+  # @yieldparam provider [Chadcn::Sidebar::Provider] the provider itself; it exposes no part helpers (they live on {Chadcn::Sidebar})
   # @return [void]
   def view_template(&block)
-    previous = context[Phlex::Shadcn::Sidebar::CONTEXT_KEY]
-    context[Phlex::Shadcn::Sidebar::CONTEXT_KEY] = state
-    render Phlex::Shadcn::Tooltip::Provider.new(delay_duration: 0) do
+    previous = context[Chadcn::Sidebar::CONTEXT_KEY]
+    context[Chadcn::Sidebar::CONTEXT_KEY] = state
+    render Chadcn::Tooltip::Provider.new(delay_duration: 0) do
       div(**merge_attrs({ class: CLASSES, style: style_attribute, data: wrapper_data }, @attrs.except(:style))) { yield self if block }
     end
   ensure
-    context[Phlex::Shadcn::Sidebar::CONTEXT_KEY] = previous
+    context[Chadcn::Sidebar::CONTEXT_KEY] = previous
   end
 
   private
 
   def state
-    id = "sidebar-#{context[Phlex::Shadcn::Sidebar::SEQUENCE_KEY] = context.fetch(Phlex::Shadcn::Sidebar::SEQUENCE_KEY, 0) + 1}"
-    Phlex::Shadcn::Sidebar::State.new(id:, state: @open ? "expanded" : "collapsed", open: @open, open_mobile: false, is_mobile: false)
+    id = "sidebar-#{context[Chadcn::Sidebar::SEQUENCE_KEY] = context.fetch(Chadcn::Sidebar::SEQUENCE_KEY, 0) + 1}"
+    Chadcn::Sidebar::State.new(id:, state: @open ? "expanded" : "collapsed", open: @open, open_mobile: false, is_mobile: false)
   end
 
   def wrapper_data
     {
       slot: "sidebar-wrapper", controller: "shadcn--sidebar", shadcn__sidebar_open_value: @open.to_s, shadcn__sidebar_controlled_value: @controlled.to_s,
-      shadcn__sidebar_open_mobile_value: "false", shadcn__sidebar_id_value: context[Phlex::Shadcn::Sidebar::CONTEXT_KEY].id
+      shadcn__sidebar_open_mobile_value: "false", shadcn__sidebar_id_value: context[Chadcn::Sidebar::CONTEXT_KEY].id
     }
   end
 
@@ -72,7 +72,7 @@ class Phlex::Shadcn::Sidebar::Provider < Phlex::Shadcn::Base
 
   # Component variables first, the caller style after (tsx:136-138).
   def style_attribute
-    base = { "--sidebar-width" => Phlex::Shadcn::Sidebar::SIDEBAR_WIDTH, "--sidebar-width-icon" => Phlex::Shadcn::Sidebar::SIDEBAR_WIDTH_ICON }
+    base = { "--sidebar-width" => Chadcn::Sidebar::SIDEBAR_WIDTH, "--sidebar-width-icon" => Chadcn::Sidebar::SIDEBAR_WIDTH_ICON }
     return "#{css_declarations(base.merge(declarations(@style)))};" unless @style.is_a?(String)
 
     [ "#{css_declarations(base)};", @style.strip ].reject_blank.join(" ")

@@ -7,13 +7,13 @@
 # Root of the Popover family. Renders no element: the first Trigger or Content inside hosts the Stimulus controller.
 #
 # @example Explicit form
-#   render Phlex::Shadcn::Popover.new do
-#     render Phlex::Shadcn::Popover::Trigger.new { "Open" }
-#     render Phlex::Shadcn::Popover::Content.new { "Body" }
+#   render Chadcn::Popover.new do
+#     render Chadcn::Popover::Trigger.new { "Open" }
+#     render Chadcn::Popover::Content.new { "Body" }
 #   end
 #
 # @example Yielded-root helper form
-#   render Phlex::Shadcn::Popover.new do |popover|
+#   render Chadcn::Popover.new do |popover|
 #     popover.trigger { "Open" }
 #     popover.content { "Body" }
 #   end
@@ -33,7 +33,7 @@
 #   Same as `render Popover::Title.new(**attrs), &block`.
 # @!method description(**attrs, &block)
 #   Same as `render Popover::Description.new(**attrs), &block`.
-class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
+class Chadcn::Popover < Chadcn::Base
   # @api private
   CONTEXT_KEY = :shadcn_popover_root
   # @api private
@@ -72,7 +72,7 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
     private
 
     def root_context
-      context[Phlex::Shadcn::Popover::CONTEXT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Popover"
+      context[Chadcn::Popover::CONTEXT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Popover"
     end
 
     # The first of Trigger / Content rendered in the block hosts the controller and its values.
@@ -103,11 +103,11 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
   # Toggles the popover (renders a `button`; the first Trigger/Content hosts the controller).
   #
   # @example Explicit form
-  #   render Phlex::Shadcn::Popover::Trigger.new { "Open" }
+  #   render Chadcn::Popover::Trigger.new { "Open" }
   # @example Yielded-root helper form
   #   popover.trigger { "Open" }
-  class Trigger < Phlex::Shadcn::Base
-    include Phlex::Shadcn::Popover::Support
+  class Trigger < Chadcn::Base
+    include Chadcn::Popover::Support
 
     # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
@@ -143,8 +143,8 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
   #
   # @example
   #   popover.anchor { "Anchor" }
-  class Anchor < Phlex::Shadcn::Base
-    include Phlex::Shadcn::Popover::Support
+  class Anchor < Chadcn::Base
+    include Chadcn::Popover::Support
 
     # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
@@ -166,11 +166,11 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
   # Floating panel of the popover. Its markup ships in an inert `<template>` that the controller mounts while open.
   #
   # @example Explicit form
-  #   render Phlex::Shadcn::Popover::Content.new(side: "top") { "Body" }
+  #   render Chadcn::Popover::Content.new(side: "top") { "Body" }
   # @example Yielded-root helper form
   #   popover.content(side: "top") { "Body" }
-  class Content < Phlex::Shadcn::Base
-    include Phlex::Shadcn::Popover::Support
+  class Content < Chadcn::Base
+    include Chadcn::Popover::Support
 
     # @api private
     CLASSES = "z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
@@ -238,7 +238,7 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
   end
 
   # Popover header (`div`). Needs no root context.
-  class Header < Phlex::Shadcn::Base
+  class Header < Chadcn::Base
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
     def initialize(**attrs)
       @attrs = attrs
@@ -253,7 +253,7 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
   end
 
   # Popover title (`div`). Needs no root context.
-  class Title < Phlex::Shadcn::Base
+  class Title < Chadcn::Base
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
     def initialize(**attrs)
       @attrs = attrs
@@ -268,7 +268,7 @@ class Phlex::Shadcn::Popover < Phlex::Shadcn::Base
   end
 
   # Popover description (`p`). Needs no root context.
-  class Description < Phlex::Shadcn::Base
+  class Description < Chadcn::Base
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
     def initialize(**attrs)
       @attrs = attrs

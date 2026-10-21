@@ -8,14 +8,14 @@
 # one holding the block output for each item (and for no selection), and an end marker.
 #
 # @example Show the selection (single mode)
-#   render(Phlex::Shadcn::Combobox::Value.new(placeholder: "Select a framework"))
+#   render(Chadcn::Combobox::Value.new(placeholder: "Select a framework"))
 # @example Chips (multiple mode)
-#   render(Phlex::Shadcn::Combobox::Value.new) do |values|
-#     values.each { |value| render(Phlex::Shadcn::Combobox::Chip.new { value }) }
-#     render Phlex::Shadcn::Combobox::ChipsInput.new
+#   render(Chadcn::Combobox::Value.new) do |values|
+#     values.each { |value| render(Chadcn::Combobox::Chip.new { value }) }
+#     render Chadcn::Combobox::ChipsInput.new
 #   end
-class Phlex::Shadcn::Combobox::Value < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+class Chadcn::Combobox::Value < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # @param placeholder [String, nil] shown while nothing is selected
   def initialize(placeholder: nil)

@@ -7,8 +7,8 @@
 #     acc.trigger { "Title" }
 #     acc.content { "Body" }
 #   end
-class Phlex::Shadcn::Accordion::Item < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Accordion::Support
+class Chadcn::Accordion::Item < Chadcn::Base
+  include Chadcn::Accordion::Support
 
   # Default Tailwind classes of the item element.
   #
@@ -17,7 +17,7 @@ class Phlex::Shadcn::Accordion::Item < Phlex::Shadcn::Base
 
   # @param value [String, Symbol] identifies the item; matched against the root `value`/`default_value`
   # @param disabled [Boolean] disables this item
-  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  # @param as_child [false, nil, Symbol, String, Chadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
   #   the part's attributes are merged onto it. `true` is not supported.
   # @param attrs [Hash] HTML attributes merged onto the item element
   def initialize(value:, disabled: false, as_child: false, **attrs)
@@ -32,9 +32,9 @@ class Phlex::Shadcn::Accordion::Item < Phlex::Shadcn::Base
   # @return [void]
   def view_template
     root = root_context
-    previous = context[Phlex::Shadcn::Accordion::ITEM_KEY]
+    previous = context[Chadcn::Accordion::ITEM_KEY]
     item = build_item(root)
-    context[Phlex::Shadcn::Accordion::ITEM_KEY] = item
+    context[Chadcn::Accordion::ITEM_KEY] = item
     attrs = merge_attrs({
                           class: CLASSES,
                           data: { state: state_of(item), disabled: disabled_data(item), orientation: root[:orientation], slot: "accordion-item",
@@ -43,13 +43,13 @@ class Phlex::Shadcn::Accordion::Item < Phlex::Shadcn::Base
     content = proc { yield if block_given? }
     @as_child ? render_as_child(@as_child, **attrs, &content) : div(**attrs, &content)
   ensure
-    context[Phlex::Shadcn::Accordion::ITEM_KEY] = previous
+    context[Chadcn::Accordion::ITEM_KEY] = previous
   end
 
   private
 
   def build_item(root)
-    number = context[Phlex::Shadcn::Accordion::SEQUENCE_KEY] = context.fetch(Phlex::Shadcn::Accordion::SEQUENCE_KEY, 0) + 1
+    number = context[Chadcn::Accordion::SEQUENCE_KEY] = context.fetch(Chadcn::Accordion::SEQUENCE_KEY, 0) + 1
     {
       open: root[:open_values].include?(@value), disabled: root[:disabled] || @disabled, root:,
       trigger_id: "accordion-#{number}-trigger", content_id: "accordion-#{number}-content"

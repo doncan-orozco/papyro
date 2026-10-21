@@ -4,7 +4,7 @@
 # {Message::Header} and {Message::Footer} (the header and footer sit inside the content).
 #
 # @example
-#   Phlex::Shadcn::Message.new(align: :end) { |message| message.content { message.header { "You" } } }
+#   Chadcn::Message.new(align: :end) { |message| message.content { message.header { "You" } } }
 #
 # @!method group(**attrs, &block)
 #   Renders {Message::Group}; same as +render Message::Group.new(**attrs), &block+.
@@ -25,7 +25,7 @@
 # @!method footer(**attrs, &block)
 #   Renders {Message::Footer}; same as +render Message::Footer.new(**attrs), &block+.
 #   @return [void]
-class Phlex::Shadcn::Message < Phlex::Shadcn::Base
+class Chadcn::Message < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -47,14 +47,14 @@ class Phlex::Shadcn::Message < Phlex::Shadcn::Base
   # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+message.content { ... }+).
   # The block is skipped when none is given.
   #
-  # @yieldparam message [Phlex::Shadcn::Message] the component itself
+  # @yieldparam message [Chadcn::Message] the component itself
   # @return [void]
   def view_template(&block)
     div(**merge_attrs({ data: { slot: "message", align: @align }, class: BASE }, @attrs)) { yield self if block }
   end
 
   # Stacks consecutive messages of the same sender.
-  class Group < Phlex::Shadcn::Base
+  class Group < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -75,7 +75,7 @@ class Phlex::Shadcn::Message < Phlex::Shadcn::Base
   end
 
   # The sender avatar slot.
-  class Avatar < Phlex::Shadcn::Base
+  class Avatar < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -96,7 +96,7 @@ class Phlex::Shadcn::Message < Phlex::Shadcn::Base
   end
 
   # Column holding the header, bubble(s) and footer.
-  class Content < Phlex::Shadcn::Base
+  class Content < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -117,7 +117,7 @@ class Phlex::Shadcn::Message < Phlex::Shadcn::Base
   end
 
   # Small line above the bubble (sender name).
-  class Header < Phlex::Shadcn::Base
+  class Header < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -138,7 +138,7 @@ class Phlex::Shadcn::Message < Phlex::Shadcn::Base
   end
 
   # Small line below the bubble (time, status).
-  class Footer < Phlex::Shadcn::Base
+  class Footer < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private

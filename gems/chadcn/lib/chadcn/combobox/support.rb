@@ -4,7 +4,7 @@
 # clear button, and the item indicator markup.
 #
 # @api private
-module Phlex::Shadcn::Combobox::Support
+module Chadcn::Combobox::Support
   # The check mark of a selected item (src ComboboxItem: `ComboboxPrimitive.ItemIndicator` with this `span`).
   INDICATOR_CLASS = "pointer-events-none absolute right-2 flex size-4 items-center justify-center"
   # Classes of the icon inside the indicator.
@@ -13,7 +13,7 @@ module Phlex::Shadcn::Combobox::Support
   private
 
   def root_model
-    context[Phlex::Shadcn::Combobox::CONTEXT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Combobox"
+    context[Chadcn::Combobox::CONTEXT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Combobox"
   end
 
   # Whether the filtered list is empty at first paint: no `items:` (static children), or an empty list.
@@ -48,7 +48,7 @@ module Phlex::Shadcn::Combobox::Support
   # The indicator `span` of a selected item.
   def render_indicator(selected: true)
     span(class: INDICATOR_CLASS, data: { slot: "combobox-item-indicator", selected: (selected ? "" : nil) }, aria: { hidden: "true" }) do
-      render Phlex::Shadcn::Icon.new("check", class: INDICATOR_ICON_CLASS)
+      render Chadcn::Icon.new("check", class: INDICATOR_ICON_CLASS)
     end
   end
 

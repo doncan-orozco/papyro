@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::SheetTest < Phlex::Shadcn::TestCase
-  Sheet = Phlex::Shadcn::Sheet
+class Chadcn::SheetTest < Chadcn::TestCase
+  Sheet = Chadcn::Sheet
 
   HELPERS = {
     trigger: Sheet::Trigger, close: Sheet::Close, content: Sheet::Content, header: Sheet::Header,

@@ -3,9 +3,9 @@
 # shadcn ComboboxChip: one selected value in multiple mode (`div`) with its remove button.
 #
 # @example
-#   render(Phlex::Shadcn::Combobox::Chip.new { "Next.js" })
-class Phlex::Shadcn::Combobox::Chip < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+#   render(Chadcn::Combobox::Chip.new { "Next.js" })
+class Chadcn::Combobox::Chip < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #
@@ -37,10 +37,10 @@ class Phlex::Shadcn::Combobox::Chip < Phlex::Shadcn::Base
   private
 
   def remove_button(model)
-    render Phlex::Shadcn::Button.new(
+    render Chadcn::Button.new(
       variant: "ghost", size: "icon-xs", type: "button", tabindex: "-1", class: "-ml-1 opacity-50 hover:opacity-100",
       "data-slot": "combobox-chip-remove", "aria-disabled": model.disabled?.to_s,
       data: { disabled: (model.disabled? ? "" : nil), shadcn__combobox_part: "chip-remove" }
-    ) { render Phlex::Shadcn::Icon.new("x", class: "pointer-events-none") }
+    ) { render Chadcn::Icon.new("x", class: "pointer-events-none") }
   end
 end

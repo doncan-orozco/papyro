@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn Marker: a timeline/chat divider line with an optional {Marker::Icon} and {Marker::Content}.
 #
 # @example
-#   Phlex::Shadcn::Marker.new(variant: :separator) { |marker| marker.content { "Today" } }
+#   Chadcn::Marker.new(variant: :separator) { |marker| marker.content { "Today" } }
 #
 # @!method icon(**attrs, &block)
 #   Renders {Marker::Icon}; same as +render Marker::Icon.new(**attrs), &block+.
@@ -14,7 +14,7 @@ using Phlex::Shadcn::Values::Refinements
 # @!method content(**attrs, &block)
 #   Renders {Marker::Content}; same as +render Marker::Content.new(**attrs), &block+.
 #   @return [void]
-class Phlex::Shadcn::Marker < Phlex::Shadcn::Base
+class Chadcn::Marker < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -30,7 +30,7 @@ class Phlex::Shadcn::Marker < Phlex::Shadcn::Base
   # Class string of the component, for styling another element the same way (React +markerVariants+).
   #
   # @example
-  #   Phlex::Shadcn::Marker.variants(variant: :border)
+  #   Chadcn::Marker.variants(variant: :border)
   #
   # @param variant [String, Symbol] one of the keys of {VARIANTS}
   # @param class [String, nil] extra classes, merged last
@@ -44,7 +44,7 @@ class Phlex::Shadcn::Marker < Phlex::Shadcn::Base
   end
 
   # @param variant [String, Symbol] one of the keys of {VARIANTS} (underscores read as dashes)
-  # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
+  # @param as_child [Boolean, Symbol, Chadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
   # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
   # @raise [ArgumentError] on an unknown variant
   def initialize(variant: "default", as_child: false, **attrs)
@@ -59,7 +59,7 @@ class Phlex::Shadcn::Marker < Phlex::Shadcn::Base
   # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+marker.content { ... }+).
   # The block is skipped when none is given.
   #
-  # @yieldparam marker [Phlex::Shadcn::Marker] the component itself
+  # @yieldparam marker [Chadcn::Marker] the component itself
   # @return [void]
   def view_template(&block)
     attrs = merge_attrs({ data: { slot: "marker", variant: @variant }, class: cn(BASE, VARIANTS[@variant]) }, @attrs)
@@ -69,7 +69,7 @@ class Phlex::Shadcn::Marker < Phlex::Shadcn::Base
   end
 
   # Leading icon of the marker (+aria-hidden+).
-  class Icon < Phlex::Shadcn::Base
+  class Icon < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -90,7 +90,7 @@ class Phlex::Shadcn::Marker < Phlex::Shadcn::Base
   end
 
   # The marker label.
-  class Content < Phlex::Shadcn::Base
+  class Content < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private

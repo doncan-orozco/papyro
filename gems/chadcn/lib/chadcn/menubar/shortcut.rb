@@ -4,7 +4,7 @@
 #
 # @example
 #   bar.item { plain "New"; bar.shortcut { "Ctrl+N" } }
-class Phlex::Shadcn::Menubar::Shortcut < Phlex::Shadcn::Base
+class Chadcn::Menubar::Shortcut < Chadcn::Base
   # @return [String] default Tailwind classes; the +class:+ you pass is merged on top
   CLASSES = "ml-auto text-xs tracking-widest text-muted-foreground"
 

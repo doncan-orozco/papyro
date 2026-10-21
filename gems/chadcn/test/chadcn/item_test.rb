@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::ItemTest < Phlex::Shadcn::TestCase
-  Item = Phlex::Shadcn::Item
+class Chadcn::ItemTest < Chadcn::TestCase
+  Item = Chadcn::Item
 
   def html(component = Item.new, &block)
     component.call(&block || proc { |_| "x" })

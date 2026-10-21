@@ -2,21 +2,21 @@
 
 # shadcn Tooltip (Radix Tooltip). Spec: docs/shadcn-port/specs/tooltip.md. Behavior in controllers/shadcn/tooltip_controller.js.
 # Provider and Root render no element: they push their options into the Phlex render context for the parts inside.
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Root of the Tooltip family; must be rendered inside a {Tooltip::Provider}. Renders no element.
 #
 # @example Explicit form
-#   render Phlex::Shadcn::Tooltip::Provider.new do
-#     render Phlex::Shadcn::Tooltip.new do
-#       render Phlex::Shadcn::Tooltip::Trigger.new { "Hover" }
-#       render Phlex::Shadcn::Tooltip::Content.new { "Tip" }
+#   render Chadcn::Tooltip::Provider.new do
+#     render Chadcn::Tooltip.new do
+#       render Chadcn::Tooltip::Trigger.new { "Hover" }
+#       render Chadcn::Tooltip::Content.new { "Tip" }
 #     end
 #   end
 #
 # @example Yielded-root helper form
-#   render Phlex::Shadcn::Tooltip::Provider.new do
-#     render Phlex::Shadcn::Tooltip.new do |tooltip|
+#   render Chadcn::Tooltip::Provider.new do
+#     render Chadcn::Tooltip.new do |tooltip|
 #       tooltip.trigger { "Hover" }
 #       tooltip.content { "Tip" }
 #     end
@@ -30,7 +30,7 @@ using Phlex::Shadcn::Values::Refinements
 #   Same as `render Tooltip::Trigger.new(**attrs), &block`.
 # @!method content(**attrs, &block)
 #   Same as `render Tooltip::Content.new(**attrs), &block`.
-class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
+class Chadcn::Tooltip < Chadcn::Base
   # @api private
   CONTEXT_KEY = :shadcn_tooltip_root
   # @api private
@@ -81,8 +81,8 @@ class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
   # Shares the delay options with the tooltips inside (renders no element).
   #
   # @example
-  #   render Phlex::Shadcn::Tooltip::Provider.new(delay_duration: 200) { ... }
-  class Provider < Phlex::Shadcn::Base
+  #   render Chadcn::Tooltip::Provider.new(delay_duration: 200) { ... }
+  class Provider < Chadcn::Base
     # @param delay_duration [Integer] ms before a tooltip opens (default 0)
     # @param skip_delay_duration [Integer] ms during which moving to another tooltip skips the delay (default 300)
     # @param disable_hoverable_content [Boolean] close when the pointer leaves the trigger (default false)
@@ -106,10 +106,10 @@ class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
   # The element that shows the tooltip on hover/focus (renders a `button` and hosts the controller).
   #
   # @example Explicit form
-  #   render Phlex::Shadcn::Tooltip::Trigger.new { "Hover" }
+  #   render Chadcn::Tooltip::Trigger.new { "Hover" }
   # @example Yielded-root helper form
   #   tooltip.trigger { "Hover" }
-  class Trigger < Phlex::Shadcn::Base
+  class Trigger < Chadcn::Base
     # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
     # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
     def initialize(as_child: false, **attrs)
@@ -156,10 +156,10 @@ class Phlex::Shadcn::Tooltip < Phlex::Shadcn::Base
   # An `aria-label` attribute switches to a visually hidden `role=tooltip` span.
   #
   # @example Explicit form
-  #   render Phlex::Shadcn::Tooltip::Content.new(side: "right") { "Tip" }
+  #   render Chadcn::Tooltip::Content.new(side: "right") { "Tip" }
   # @example Yielded-root helper form
   #   tooltip.content(side: "right") { "Tip" }
-  class Content < Phlex::Shadcn::Base
+  class Content < Chadcn::Base
     # @api private
     CLASSES = "z-50 w-fit origin-(--radix-tooltip-content-transform-origin) animate-in rounded-md bg-foreground px-3 py-1.5 text-xs text-balance text-background fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
     # @api private

@@ -2,9 +2,9 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::BadgeTest < Phlex::Shadcn::TestCase
+class Chadcn::BadgeTest < Chadcn::TestCase
   def html(**opts)
-    Phlex::Shadcn::Badge.new(**opts).call { |_| "New" }
+    Chadcn::Badge.new(**opts).call { |_| "New" }
   end
 
   test "renders defaults" do
@@ -17,7 +17,7 @@ class Phlex::Shadcn::BadgeTest < Phlex::Shadcn::TestCase
   end
 
   test "renders every variant" do
-    Phlex::Shadcn::Badge::VARIANTS.each_key { |v| assert_includes html(variant: v.to_sym), %(data-variant="#{v}") }
+    Chadcn::Badge::VARIANTS.each_key { |v| assert_includes html(variant: v.to_sym), %(data-variant="#{v}") }
   end
 
   test "class is merged last and attrs pass through" do
@@ -42,7 +42,7 @@ class Phlex::Shadcn::BadgeTest < Phlex::Shadcn::TestCase
   end
 
   test "variants helper" do
-    assert_includes Phlex::Shadcn::Badge.variants(variant: :outline, class: "px-1"), "border-border"
-    assert_not_includes Phlex::Shadcn::Badge.variants(class: "px-1"), "px-2"
+    assert_includes Chadcn::Badge.variants(variant: :outline, class: "px-1"), "border-border"
+    assert_not_includes Chadcn::Badge.variants(class: "px-1"), "px-2"
   end
 end

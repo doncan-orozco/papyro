@@ -11,15 +11,15 @@
 # Parts are rendered with the explicit classes or with the helpers generated on the yielded root (one per part).
 #
 # @example Explicit form
-#   render Phlex::Shadcn::Sheet.new do
-#     render Phlex::Shadcn::Sheet::Trigger.new { "Open" }
-#     render Phlex::Shadcn::Sheet::Content.new do
-#       render(Phlex::Shadcn::Sheet::Title.new { "Title" })
+#   render Chadcn::Sheet.new do
+#     render Chadcn::Sheet::Trigger.new { "Open" }
+#     render Chadcn::Sheet::Content.new do
+#       render(Chadcn::Sheet::Title.new { "Title" })
 #     end
 #   end
 #
 # @example Yielded-root helper form
-#   render Phlex::Shadcn::Sheet.new do |sheet|
+#   render Chadcn::Sheet.new do |sheet|
 #     sheet.trigger { "Open" }
 #     sheet.content { sheet.title { "Title" } }
 #   end
@@ -44,7 +44,7 @@
 #   Same as `render Sheet::Description.new(**attrs), &block`.
 # @!method close(**attrs, &block)
 #   Same as `render Sheet::Close.new(**attrs), &block`.
-class Phlex::Shadcn::Sheet < Phlex::Shadcn::Base
+class Chadcn::Sheet < Chadcn::Base
   # @api private
   ROOT_KEY = :shadcn_sheet_root
   # @api private

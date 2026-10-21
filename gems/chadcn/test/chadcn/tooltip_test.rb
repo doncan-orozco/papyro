@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::TooltipTest < Phlex::Shadcn::TestCase
-  Tooltip = Phlex::Shadcn::Tooltip
+class Chadcn::TooltipTest < Chadcn::TestCase
+  Tooltip = Chadcn::Tooltip
 
   def render_tooltip(root: {}, provider: {}, trigger: {}, content: {}, &block)
     Class.new(Phlex::HTML) do

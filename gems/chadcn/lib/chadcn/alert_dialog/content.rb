@@ -2,16 +2,16 @@
 
 # shadcn AlertDialogContent = Portal + Overlay + Radix Content. The body is captured first because aria-labelledby /
 # aria-describedby depend on whether a Title / Description was rendered inside (Radix learns it in an effect, dialog:261-262).
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Portal + Overlay + content panel (`role=alertdialog`) of the alert dialog; no close button.
 #
 # @example Explicit form
-#   render Phlex::Shadcn::AlertDialog::Content.new { "Body" }
+#   render Chadcn::AlertDialog::Content.new { "Body" }
 # @example Yielded-root helper form
 #   alert_dialog.content { "Body" }
-class Phlex::Shadcn::AlertDialog::Content < Phlex::Shadcn::Base
-  include Phlex::Shadcn::AlertDialog::Support
+class Chadcn::AlertDialog::Content < Chadcn::Base
+  include Chadcn::AlertDialog::Support
 
   # @api private
   CLASSES = "group/alert-dialog-content fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-[size=sm]:max-w-xs data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[size=default]:sm:max-w-lg"
@@ -41,12 +41,12 @@ class Phlex::Shadcn::AlertDialog::Content < Phlex::Shadcn::Base
   def view_template
     root = root_context
     body = capture { yield if block_given? }
-    portaled = context[Phlex::Shadcn::AlertDialog::PORTAL_KEY]
+    portaled = context[Chadcn::AlertDialog::PORTAL_KEY]
     markup = proc do
-      render Phlex::Shadcn::AlertDialog::Overlay.new
+      render Chadcn::AlertDialog::Overlay.new
       render_part(:div, @as_child, content_attrs(root, state_of(root))) { raw(safe(body)) }
     end
-    portaled ? instance_exec(&markup) : render(Phlex::Shadcn::AlertDialog::Portal.new, &markup)
+    portaled ? instance_exec(&markup) : render(Chadcn::AlertDialog::Portal.new, &markup)
   end
 
   private

@@ -5,14 +5,14 @@
 #
 # @example
 #   bar.trigger { "File" }
-class Phlex::Shadcn::Menubar::Trigger < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Menubar::Support
+class Chadcn::Menubar::Trigger < Chadcn::Base
+  include Chadcn::Menubar::Support
 
   # @return [String] default Tailwind classes; the +class:+ you pass is merged on top
   CLASSES = "flex items-center rounded-sm px-2 py-1 text-sm font-medium outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
 
   # @param disabled [Boolean] renders the +disabled+ attribute and +data-disabled+. Default +false+
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String or a component instance
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String or a component instance
   #   renders that element carrying this part's attributes instead
   # @param attrs [Hash] extra HTML attributes; +class+ is merged with {CLASSES} (yours wins Tailwind conflicts), +data+/+aria+ are deep merged
   # @raise [ArgumentError] at render, when not inside a {Menu}

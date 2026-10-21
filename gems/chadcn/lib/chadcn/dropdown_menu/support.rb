@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # What the parts share: the render context, the Radix MenuItemImpl + RovingFocusGroup.Item markup (the controller keeps
 # tabindex and data-highlighted in sync afterwards), the Content markup and the as_child switch.
 #
 # @api private
-module Phlex::Shadcn::DropdownMenu::Support
+module Chadcn::DropdownMenu::Support
   # shadcn does not set these; Radix re-namespaces the popper variables on every (Sub)Content (DM:125-135).
   #
   # @api private
@@ -22,7 +22,7 @@ module Phlex::Shadcn::DropdownMenu::Support
   private
 
   def root_context
-    context[Phlex::Shadcn::DropdownMenu::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within DropdownMenu"
+    context[Chadcn::DropdownMenu::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within DropdownMenu"
   end
 
   def item_attrs(disabled:, text_value: nil)

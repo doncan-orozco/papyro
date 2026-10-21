@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::HoverCardTest < Phlex::Shadcn::TestCase
-  HoverCard = Phlex::Shadcn::HoverCard
+class Chadcn::HoverCardTest < Chadcn::TestCase
+  HoverCard = Chadcn::HoverCard
 
   def render_card(root: {}, trigger: {}, content: {}, &block)
     Class.new(Phlex::HTML) do

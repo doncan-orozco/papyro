@@ -4,12 +4,12 @@
 # {Combobox::Collection} renders them.
 #
 # @example
-#   render(Phlex::Shadcn::Combobox::Group.new(items: group_items)) do
-#     render(Phlex::Shadcn::Combobox::Label.new { "Europe" })
-#     render(Phlex::Shadcn::Combobox::Collection.new) { |item| render(Phlex::Shadcn::Combobox::Item.new(value: item) { item }) }
+#   render(Chadcn::Combobox::Group.new(items: group_items)) do
+#     render(Chadcn::Combobox::Label.new { "Europe" })
+#     render(Chadcn::Combobox::Collection.new) { |item| render(Chadcn::Combobox::Item.new(value: item) { item }) }
 #   end
-class Phlex::Shadcn::Combobox::Group < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+class Chadcn::Combobox::Group < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # @api private
   CONTEXT_KEY = :shadcn_combobox_group

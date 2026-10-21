@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::CommandTest < Phlex::Shadcn::TestCase
-  Command = Phlex::Shadcn::Command
+class Chadcn::CommandTest < Chadcn::TestCase
+  Command = Chadcn::Command
 
   HELPERS = {
     dialog: Command::Dialog, input: Command::Input, list: Command::List, empty: Command::Empty, group: Command::Group,

@@ -2,10 +2,10 @@
 
 # The part prototypes of a Calendar: one inert `<template>` whose elements carry the FINAL class strings of every part the controller
 # builds (months, captions, dropdowns, the grid, week numbers, day cells and buttons). The controller clones them, so no Tailwind token
-# ever appears in JavaScript. Mixed into {Phlex::Shadcn::Calendar}; needs its `@classes`, `@options` and `cn`.
+# ever appears in JavaScript. Mixed into {Chadcn::Calendar}; needs its `@classes`, `@options` and `cn`.
 #
 # @api private
-module Phlex::Shadcn::Calendar::Parts
+module Chadcn::Calendar::Parts
   # Visually hidden live region that announces the caption in the dropdown layouts (rdp `DP:282-293`).
   VISUALLY_HIDDEN = "border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;white-space:nowrap;word-wrap:normal"
 
@@ -31,7 +31,7 @@ module Phlex::Shadcn::Calendar::Parts
       part(:status, :span, role: "status", aria: { live: "polite" }, style: VISUALLY_HIDDEN)
       part(:month_grid, :table, class: @classes[:month_grid], role: "grid", aria: { multiselectable: %w[multiple range].include?(@options.mode).to_s })
       table_parts
-      render Phlex::Shadcn::Calendar::DayButton.new(day: PLACEHOLDER_DAY, type: "button", class: @classes[:day_button],
+      render Chadcn::Calendar::DayButton.new(day: PLACEHOLDER_DAY, type: "button", class: @classes[:day_button],
                                                     data: { shadcn__calendar_part: "day_button" })
     end
   end
@@ -61,7 +61,7 @@ module Phlex::Shadcn::Calendar::Parts
       tag(:select, class: [ @classes[:dropdown], @classes[key] ].join(" "), aria: { label: labels[label_key] },
                    disabled: (true if @options.disable_navigation?))
       span(class: @classes[:caption_label], aria: { hidden: "true" }) do
-        render Phlex::Shadcn::Icon.new("chevron-down", width: DROPDOWN_CHEVRON_SIZE, height: DROPDOWN_CHEVRON_SIZE,
+        render Chadcn::Icon.new("chevron-down", width: DROPDOWN_CHEVRON_SIZE, height: DROPDOWN_CHEVRON_SIZE,
                                                        class: cn("size-4", @classes[:chevron]))
       end
     end

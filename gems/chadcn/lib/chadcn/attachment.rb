@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn Attachment: an uploaded-file chip with a +state+ (idle, uploading, processing, error, done). Compose with {Attachment::Media}, {Attachment::Content},
 # {Attachment::Actions} and {Attachment::Trigger}.
 #
 # @example
-#   Phlex::Shadcn::Attachment.new(state: :uploading) { |a| a.media { "i" }; a.content { a.title { "report.pdf" } } }
+#   Chadcn::Attachment.new(state: :uploading) { |a| a.media { "i" }; a.content { a.title { "report.pdf" } } }
 #
 # @!method group(**attrs, &block)
 #   Renders {Attachment::Group}; same as +render Attachment::Group.new(**attrs), &block+.
@@ -39,7 +39,7 @@ using Phlex::Shadcn::Values::Refinements
 # @!method trigger(**attrs, &block)
 #   Renders {Attachment::Trigger}; same as +render Attachment::Trigger.new(**attrs), &block+.
 #   @return [void]
-class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
+class Chadcn::Attachment < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -89,7 +89,7 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
   # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+attachment.content { ... }+).
   # The block is skipped when none is given.
   #
-  # @yieldparam attachment [Phlex::Shadcn::Attachment] the component itself
+  # @yieldparam attachment [Chadcn::Attachment] the component itself
   # @return [void]
   def view_template(&block)
     defaults = {
@@ -100,7 +100,7 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
   end
 
   # A horizontally scrolling row of attachments.
-  class Group < Phlex::Shadcn::Base
+  class Group < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -121,7 +121,7 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
   end
 
   # Leading icon or image thumbnail.
-  class Media < Phlex::Shadcn::Base
+  class Media < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -137,7 +137,7 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
     # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
     # @raise [ArgumentError] on an unknown variant
     def initialize(variant: "icon", **attrs)
-      @variant = Phlex::Shadcn::Attachment.fetch_option!(variant, "icon", VARIANTS.keys, "variant")
+      @variant = Chadcn::Attachment.fetch_option!(variant, "icon", VARIANTS.keys, "variant")
       @attrs = attrs
       super()
     end
@@ -152,7 +152,7 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
   end
 
   # Title and description column.
-  class Content < Phlex::Shadcn::Base
+  class Content < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -173,7 +173,7 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
   end
 
   # File name (+span+, shimmers while uploading or processing).
-  class Title < Phlex::Shadcn::Base
+  class Title < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -194,7 +194,7 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
   end
 
   # Size or error text (+span+).
-  class Description < Phlex::Shadcn::Base
+  class Description < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -216,7 +216,7 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
   end
 
   # Container for {Attachment::Action} buttons.
-  class Actions < Phlex::Shadcn::Base
+  class Actions < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -236,12 +236,12 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
     end
   end
 
-  # An icon {Phlex::Shadcn::Button} (+ghost+, +icon-xs+ by default) inside the actions area.
-  class Action < Phlex::Shadcn::Base
-    # @param variant [String, Symbol, nil] any {Phlex::Shadcn::Button} variant (default +ghost+)
-    # @param size [String, Symbol] any {Phlex::Shadcn::Button} size (default +icon-xs+)
+  # An icon {Chadcn::Button} (+ghost+, +icon-xs+ by default) inside the actions area.
+  class Action < Chadcn::Base
+    # @param variant [String, Symbol, nil] any {Chadcn::Button} variant (default +ghost+)
+    # @param size [String, Symbol] any {Chadcn::Button} size (default +icon-xs+)
     # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
-    # @note Variant and size are validated by {Phlex::Shadcn::Button} when the action renders, not here.
+    # @note Variant and size are validated by {Chadcn::Button} when the action renders, not here.
     def initialize(variant: nil, size: "icon-xs", **attrs)
       @variant = variant || "ghost"
       @size = size
@@ -254,18 +254,18 @@ class Phlex::Shadcn::Attachment < Phlex::Shadcn::Base
     # @return [void]
     def view_template(&)
       attrs = merge_attrs({ data: { slot: "attachment-action" } }, @attrs)
-      render(Phlex::Shadcn::Button.new(variant: @variant, size: @size, **attrs), &)
+      render(Chadcn::Button.new(variant: @variant, size: @size, **attrs), &)
     end
   end
 
   # Invisible full-area button that makes the whole attachment clickable. +as_child:+ renders it as a link.
-  class Trigger < Phlex::Shadcn::Base
+  class Trigger < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
     CLASS_NAME = "absolute inset-0 z-10 outline-none"
 
-    # @param as_child [Symbol, Phlex::Shadcn::Base, false] render this tag name or component instance instead of the +button+ (Radix +asChild+)
+    # @param as_child [Symbol, Chadcn::Base, false] render this tag name or component instance instead of the +button+ (Radix +asChild+)
     # @param type [String, nil] button type (default +"button"+; not set with +as_child:+)
     # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
     def initialize(as_child: false, type: nil, **attrs)

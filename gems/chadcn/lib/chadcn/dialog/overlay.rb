@@ -3,8 +3,8 @@
 # shadcn DialogOverlay. Radix renders it only for modal dialogs (dialog:109).
 #
 # Backdrop of the dialog; rendered only when the root is modal.
-class Phlex::Shadcn::Dialog::Overlay < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Dialog::Support
+class Chadcn::Dialog::Overlay < Chadcn::Base
+  include Chadcn::Dialog::Support
 
   # @api private
   CLASSES = "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"

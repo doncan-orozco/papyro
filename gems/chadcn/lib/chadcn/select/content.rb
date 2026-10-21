@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # The popup: a +div role="listbox"+ inside an inert +template+ (with the viewport, the scroll buttons and a +data-options+ JSON
 # for the controller; the controller clones it into +body+ when opening and creates the positioning wrapper). Radix mounts it only
@@ -12,8 +12,8 @@ using Phlex::Shadcn::Values::Refinements
 #   select.content(position: "popper", side: "top") do
 #     select.item(value: "apple") { "Apple" }
 #   end
-class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Select::Support
+class Chadcn::Select::Content < Chadcn::Base
+  include Chadcn::Select::Support
 
   # @return [String] Tailwind classes of the listbox
   CLASSES = "relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-md data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
@@ -73,7 +73,7 @@ class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
 
   # @yield the items, groups and separators rendered inside the viewport
   # @return [void]
-  # @raise [ArgumentError] at render when used outside {Phlex::Shadcn::Select}
+  # @raise [ArgumentError] at render when used outside {Chadcn::Select}
   def view_template(&block)
     return capture(&block) if collecting?
 
@@ -82,13 +82,13 @@ class Phlex::Shadcn::Select::Content < Phlex::Shadcn::Base
       indicator
     end, options: json(@options) }) do
       div(**content_attrs(state)) do
-        render Phlex::Shadcn::Select::ScrollUpButton.new
+        render Chadcn::Select::ScrollUpButton.new
         tag(:style) { raw(safe(VIEWPORT_CSS)) }
         div(
           data: { radix_select_viewport: "" }, role: "presentation", style: VIEWPORT_STYLE,
           class: cn(VIEWPORT_CLASSES, (VIEWPORT_POPPER_CLASSES if popper?)), &block
         )
-        render Phlex::Shadcn::Select::ScrollDownButton.new
+        render Chadcn::Select::ScrollDownButton.new
       end
     end
   end

@@ -6,7 +6,7 @@
 #
 # @example
 #   bar.portal(container: "#menus") { bar.sub_content { bar.item { "Email" } } }
-class Phlex::Shadcn::Menubar::Portal < Phlex::Shadcn::Base
+class Chadcn::Menubar::Portal < Chadcn::Base
   # @param force_mount [Boolean] keep the SubContent mounted while closed. Default +false+
   # @param container [String, nil] CSS selector of the element to mount into; +body+ when nil or when nothing matches. Default +nil+
   def initialize(force_mount: false, container: nil)
@@ -18,10 +18,10 @@ class Phlex::Shadcn::Menubar::Portal < Phlex::Shadcn::Base
   # @yield the SubContent to portal
   # @return [void]
   def view_template
-    previous = context[Phlex::Shadcn::Menubar::PORTAL_KEY]
-    context[Phlex::Shadcn::Menubar::PORTAL_KEY] = { force_mount: @force_mount, container: @container }
+    previous = context[Chadcn::Menubar::PORTAL_KEY]
+    context[Chadcn::Menubar::PORTAL_KEY] = { force_mount: @force_mount, container: @container }
     yield if block_given?
   ensure
-    context[Phlex::Shadcn::Menubar::PORTAL_KEY] = previous
+    context[Chadcn::Menubar::PORTAL_KEY] = previous
   end
 end

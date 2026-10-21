@@ -14,7 +14,7 @@ module Phlex
           # @return [Result]
           def self.call(context)
             block = context.managed_block
-            return Result.failure(NAME, "no phlex-shadcn block in #{context.css_name}", fix: context.install_command) unless block
+            return Result.failure(NAME, "no chadcn block in #{context.css_name}", fix: context.install_command) unless block
             unless context.theme_dir
               return Result.failure(NAME, "no theme directory configured", fix: Context::THEME_DIR_FIX)
             end

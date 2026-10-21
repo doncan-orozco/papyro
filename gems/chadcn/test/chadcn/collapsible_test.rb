@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::CollapsibleTest < Phlex::Shadcn::TestCase
-  Collapsible = Phlex::Shadcn::Collapsible
+class Chadcn::CollapsibleTest < Chadcn::TestCase
+  Collapsible = Chadcn::Collapsible
 
   def render_view(&block)
     Class.new(Phlex::HTML) { define_method(:view_template, &block) }.new.call

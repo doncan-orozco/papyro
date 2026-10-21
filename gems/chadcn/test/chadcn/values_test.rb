@@ -2,14 +2,14 @@
 
 require "phlex/test_case"
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Refinements are invisible to respond_to?/send, so the refined predicates are called directly (no assert_predicate), and the
 # custom failure message of `assert Values.blank_value?(value), value.inspect` is intended.
 # rubocop:disable Minitest/AssertPredicate, Minitest/AssertWithExpectedArgument
 
-class Phlex::Shadcn::ValuesTest < Phlex::Shadcn::TestCase
-  Values = Phlex::Shadcn::Values
+class Chadcn::ValuesTest < Chadcn::TestCase
+  Values = Chadcn::Values
 
   test "blank values are nil, false, empty or whitespace strings and empty collections" do
     [ nil, false, "", "  \n\t", [], {}, [].freeze ].each { |value| assert Values.blank_value?(value), value.inspect }
@@ -44,13 +44,13 @@ class Phlex::Shadcn::ValuesTest < Phlex::Shadcn::TestCase
   test "snake_case converts the names the components use" do
     {
       "tabIndex" => "tab_index", "itemID" => "item_id", "httpEquiv" => "http_equiv", "DropdownMenu" => "dropdown_menu",
-      "Phlex::Shadcn::CheckItem" => "phlex/shadcn/check_item", "already_snake" => "already_snake", "kebab-case" => "kebab_case",
+      "Chadcn::CheckItem" => "chadcn/check_item", "already_snake" => "already_snake", "kebab-case" => "kebab_case",
       "HTMLParser" => "html_parser", "className" => "class_name"
     }.each { |input, expected| assert_equal expected, input.snake_case, input }
   end
 
   test "unqualified keeps the last constant name" do
-    assert_equal "Dialog", "Phlex::Shadcn::Dialog".unqualified
+    assert_equal "Dialog", "Chadcn::Dialog".unqualified
     assert_equal "Dialog", "Dialog".unqualified
   end
 
@@ -87,10 +87,10 @@ class Phlex::Shadcn::ValuesTest < Phlex::Shadcn::TestCase
     library = File.expand_path("../../../lib", __dir__)
     missing = Dir[File.join(library, "**/*.rb")].reject { |file| file.end_with?("shadcn/values.rb", "icons/catalog.rb") }.select do |file|
       code = File.readlines(file).reject { |line| line.lstrip.start_with?("#") }.join
-      code.match?(names) && !code.include?("using Phlex::Shadcn::Values::Refinements")
+      code.match?(names) && !code.include?("using Chadcn::Values::Refinements")
     end
 
-    assert_empty missing, "these files call a Values helper without `using Phlex::Shadcn::Values::Refinements`"
+    assert_empty missing, "these files call a Values helper without `using Chadcn::Values::Refinements`"
   end
 end
 # rubocop:enable Minitest/AssertPredicate, Minitest/AssertWithExpectedArgument

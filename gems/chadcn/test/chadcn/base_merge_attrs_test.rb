@@ -4,8 +4,8 @@ require "phlex/test_case"
 
 # `data-controller` is a list of Stimulus identifiers, so a caller's controllers are appended to the component's own ones
 # instead of replacing them (see dev/decisions/data-controller-merge.md).
-class Phlex::Shadcn::BaseMergeAttrsTest < Phlex::Shadcn::TestCase
-  class Probe < Phlex::Shadcn::Base
+class Chadcn::BaseMergeAttrsTest < Chadcn::TestCase
+  class Probe < Chadcn::Base
     public :merge_attrs
   end
 
@@ -72,13 +72,13 @@ class Phlex::Shadcn::BaseMergeAttrsTest < Phlex::Shadcn::TestCase
   end
 
   test "Calendar keeps shadcn--calendar when the caller passes controller: nil" do
-    out = Phlex::Shadcn::Calendar.new(today: "2026-03-15", data: { controller: nil }).call
+    out = Chadcn::Calendar.new(today: "2026-03-15", data: { controller: nil }).call
 
     assert_equal "shadcn--calendar", Nokogiri::HTML5.fragment(out).at_css("[data-slot=calendar]")["data-controller"]
   end
 
   test "Calendar keeps shadcn--calendar when the caller passes a controller" do
-    out = Phlex::Shadcn::Calendar.new(today: "2026-03-15", data: { controller: "x" }).call
+    out = Chadcn::Calendar.new(today: "2026-03-15", data: { controller: "x" }).call
     root = Nokogiri::HTML5.fragment(out).at_css("[data-slot=calendar]")
 
     assert_equal "shadcn--calendar x", root["data-controller"]
@@ -86,13 +86,13 @@ class Phlex::Shadcn::BaseMergeAttrsTest < Phlex::Shadcn::TestCase
   end
 
   test "Sonner toaster keeps shadcn--sonner when the caller passes a controller" do
-    out = Phlex::Shadcn::Sonner::Toaster.new(data: { controller: "x" }).call
+    out = Chadcn::Sonner::Toaster.new(data: { controller: "x" }).call
 
     assert_equal "shadcn--sonner x", Nokogiri::HTML5.fragment(out).at_css("section")["data-controller"]
   end
 
   test "as_child merges controllers through the slot and the child's own defaults" do
-    out = Phlex::Shadcn::Button.new(as_child: Phlex::Shadcn::Calendar.new(today: "2026-03-15", data: { controller: "y" }),
+    out = Chadcn::Button.new(as_child: Chadcn::Calendar.new(today: "2026-03-15", data: { controller: "y" }),
                                     data: { controller: "x y" }).call
     root = Nokogiri::HTML5.fragment(out).at_css("[data-slot=button]")
 
@@ -125,27 +125,27 @@ class Phlex::Shadcn::BaseMergeAttrsTest < Phlex::Shadcn::TestCase
   end
 
   test "a plain component renders a normalized caller controller" do
-    out = Phlex::Shadcn::Badge.new(data: { controller: [ "a", "b a" ] }).call
+    out = Chadcn::Badge.new(data: { controller: [ "a", "b a" ] }).call
 
     assert_equal "a b", Nokogiri::HTML5.fragment(out).at_css("[data-slot=badge]")["data-controller"]
   end
 
   test "as_child onto a bare tag normalizes the slot controller" do
-    out = Phlex::Shadcn::Button.new(as_child: :a, data: { controller: [ "x", "y x" ] }).call
+    out = Chadcn::Button.new(as_child: :a, data: { controller: [ "x", "y x" ] }).call
     root = Nokogiri::HTML5.fragment(out).at_css("a")
 
     assert_equal "x y", root["data-controller"]
   end
 
   test "as_child onto a plain component merges and normalizes both sides" do
-    out = Phlex::Shadcn::Button.new(as_child: Phlex::Shadcn::Badge.new(data: { controller: "z" }),
+    out = Chadcn::Button.new(as_child: Chadcn::Badge.new(data: { controller: "z" }),
                                     data: { controller: :x }).call
 
     assert_equal "x z", Nokogiri::HTML5.fragment(out).at_css("[data-slot=button]")["data-controller"]
   end
 
   test "as_child with a nil slot controller keeps the child's" do
-    out = Phlex::Shadcn::Button.new(as_child: Phlex::Shadcn::Badge.new(data: { controller: "z" }), data: { controller: nil }).call
+    out = Chadcn::Button.new(as_child: Chadcn::Badge.new(data: { controller: "z" }), data: { controller: nil }).call
 
     assert_equal "z", Nokogiri::HTML5.fragment(out).at_css("[data-slot=button]")["data-controller"]
   end
@@ -158,14 +158,14 @@ class Phlex::Shadcn::BaseMergeAttrsTest < Phlex::Shadcn::TestCase
 
   test "as_child onto a bare tag drops an empty or false controller" do
     [ nil, "", [], false ].each do |value|
-      out = Phlex::Shadcn::Button.new(as_child: :a, data: { controller: value }).call
+      out = Chadcn::Button.new(as_child: :a, data: { controller: value }).call
 
       assert_nil Nokogiri::HTML5.fragment(out).at_css("a")["data-controller"], value.inspect
     end
   end
 
   test "as_child onto a bare tag normalizes a flat data-controller key" do
-    out = Phlex::Shadcn::Button.new(as_child: :a, "data-controller": Set["x"]).call
+    out = Chadcn::Button.new(as_child: :a, "data-controller": Set["x"]).call
 
     assert_equal "x", Nokogiri::HTML5.fragment(out).at_css("a")["data-controller"]
   end

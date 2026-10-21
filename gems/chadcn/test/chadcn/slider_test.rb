@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::SliderTest < Phlex::Shadcn::TestCase
-  Slider = Phlex::Shadcn::Slider
+class Chadcn::SliderTest < Chadcn::TestCase
+  Slider = Chadcn::Slider
 
   def render_view(&block)
     Class.new(Phlex::HTML) { define_method(:view_template, &block) }.new.call
@@ -74,8 +74,8 @@ class Phlex::Shadcn::SliderTest < Phlex::Shadcn::TestCase
   end
 
   test "dir resolves from the direction provider and a local dir wins" do
-    provided = render_view { render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(Slider.new(default_value: [ 10 ])) } }
-    local = render_view { render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(Slider.new(default_value: [ 10 ], dir: "ltr")) } }
+    provided = render_view { render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(Slider.new(default_value: [ 10 ])) } }
+    local = render_view { render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(Slider.new(default_value: [ 10 ], dir: "ltr")) } }
 
     assert_equal "rtl", fragment(provided).at_css("[data-slot=slider]")["dir"]
     assert_equal "ltr", fragment(local).at_css("[data-slot=slider]")["dir"]

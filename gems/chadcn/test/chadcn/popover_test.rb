@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::PopoverTest < Phlex::Shadcn::TestCase
-  Popover = Phlex::Shadcn::Popover
+class Chadcn::PopoverTest < Chadcn::TestCase
+  Popover = Chadcn::Popover
 
   def render_popover(root: {}, trigger: {}, content: {}, &block)
     Class.new(Phlex::HTML) do

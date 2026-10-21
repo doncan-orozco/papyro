@@ -2,10 +2,10 @@
 
 # shadcn SidebarInset: the page content next to the sidebar (a `main`; no data-sidebar).
 #
-# Rendered next to a {Phlex::Shadcn::Sidebar} inside the provider; also available as `sidebar.inset`.
+# Rendered next to a {Chadcn::Sidebar} inside the provider; also available as `sidebar.inset`.
 #
-# @see Phlex::Shadcn::Sidebar
-class Phlex::Shadcn::Sidebar::Inset < Phlex::Shadcn::Base
+# @see Chadcn::Sidebar
+class Chadcn::Sidebar::Inset < Chadcn::Base
   # Tailwind classes of the `main` (verbatim from shadcn/ui).
   #
   # @api private

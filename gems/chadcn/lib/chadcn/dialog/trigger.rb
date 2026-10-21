@@ -5,11 +5,11 @@
 # Toggles the dialog (renders a `button`; `aria-controls` only while open).
 #
 # @example Explicit form
-#   render Phlex::Shadcn::Dialog::Trigger.new { "Open" }
+#   render Chadcn::Dialog::Trigger.new { "Open" }
 # @example Yielded-root helper form
 #   dialog.trigger { "Open" }
-class Phlex::Shadcn::Dialog::Trigger < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Dialog::Support
+class Chadcn::Dialog::Trigger < Chadcn::Base
+  include Chadcn::Dialog::Support
 
   # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
   # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)

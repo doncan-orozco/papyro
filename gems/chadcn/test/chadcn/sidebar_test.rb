@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
-  Sidebar = Phlex::Shadcn::Sidebar
+class Chadcn::SidebarTest < Chadcn::TestCase
+  Sidebar = Chadcn::Sidebar
 
   # Sidebar helper name => the part class it renders (each helper must exist on Sidebar and render that part)
   HELPERS = {
@@ -211,7 +211,7 @@ class Phlex::Shadcn::SidebarTest < Phlex::Shadcn::TestCase
 
   test "use_sidebar returns the state of the nearest provider" do
     captured = nil
-    probe = Class.new(Phlex::Shadcn::Base) do
+    probe = Class.new(Chadcn::Base) do
       define_method(:view_template) { captured = Sidebar.use_sidebar(self) }
     end
     provider(default_open: false) { render probe.new }

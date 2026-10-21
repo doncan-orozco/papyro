@@ -3,12 +3,12 @@
 # shadcn Kbd: a keyboard key cap (+kbd+), optionally grouped with {Kbd::Group}.
 #
 # @example
-#   Phlex::Shadcn::Kbd.new { "Esc" }
+#   Chadcn::Kbd.new { "Esc" }
 #
 # @!method group(**attrs, &block)
 #   Renders {Kbd::Group}; same as +render Kbd::Group.new(**attrs), &block+.
 #   @return [void]
-class Phlex::Shadcn::Kbd < Phlex::Shadcn::Base
+class Chadcn::Kbd < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -23,14 +23,14 @@ class Phlex::Shadcn::Kbd < Phlex::Shadcn::Base
   # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+kbd.group { ... }+).
   # The block is skipped when none is given.
   #
-  # @yieldparam kbd [Phlex::Shadcn::Kbd] the component itself
+  # @yieldparam kbd [Chadcn::Kbd] the component itself
   # @return [void]
   def view_template(&block)
     kbd(**merge_attrs({ data: { slot: "kbd" }, class: CLASS_NAME }, @attrs)) { yield self if block }
   end
 
   # Lays several {Kbd} keys out in a row (a shortcut).
-  class Group < Phlex::Shadcn::Base
+  class Group < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private

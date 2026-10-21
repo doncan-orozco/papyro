@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-require_relative "lib/phlex/shadcn/version"
+require_relative "lib/chadcn/version"
 
 # The one place the repository location is written: a split into its own repository changes these lines.
 # The metadata URIs and the links of the generated llms files derive from them.
 repository = "https://github.com/doncan-orozco/papyro"
-gem_path = "gems/phlex-shadcn" # "" once the gem has its own repository
+gem_path = "gems/chadcn" # "" once the gem has its own repository
 ref = "main"
 at = ->(kind, *rest) { [ repository, kind, ref, gem_path, *rest ].reject(&:empty?).join("/") }
 
 Gem::Specification.new do |spec|
-  spec.name = "phlex-shadcn"
-  spec.version = Phlex::Shadcn::VERSION
+  spec.name = "chadcn"
+  spec.version = Chadcn::VERSION
   spec.authors = [ "Doncan Orozco" ]
   spec.email = [ "doncan.orozco@gmail.com" ]
 

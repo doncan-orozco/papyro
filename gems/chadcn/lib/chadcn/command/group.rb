@@ -3,9 +3,9 @@
 # shadcn CommandGroup: a titled set of items (`div` > heading + `cmdk-group-items`). Hidden while none of its items match.
 #
 # @example
-#   render(Phlex::Shadcn::Command::Group.new(heading: "Suggestions") { "..." })
-class Phlex::Shadcn::Command::Group < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Command::Support
+#   render(Chadcn::Command::Group.new(heading: "Suggestions") { "..." })
+class Chadcn::Command::Group < Chadcn::Base
+  include Chadcn::Command::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #

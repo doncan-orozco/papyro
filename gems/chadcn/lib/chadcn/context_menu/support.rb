@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Context menu flavour of the dropdown menu part helpers (item markup, position options, as_child switch).
 # The data-shadcn--dropdown-menu-* names are the shared menu module's contract (template, sub ids, radio value).
 #
 # @api private
-module Phlex::Shadcn::ContextMenu::Support
-  include Phlex::Shadcn::DropdownMenu::Support
+module Chadcn::ContextMenu::Support
+  include Chadcn::DropdownMenu::Support
 
   # Radix re-namespaces the popper variables on every (Sub)Content (CM:148-157, CM:246-256).
   #
@@ -24,7 +24,7 @@ module Phlex::Shadcn::ContextMenu::Support
   private
 
   def root_context
-    context[Phlex::Shadcn::ContextMenu::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within ContextMenu"
+    context[Chadcn::ContextMenu::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within ContextMenu"
   end
 
   # Parts without oracle classes do not call cn in shadcn: the caller's class is emitted untouched (no tailwind-merge).

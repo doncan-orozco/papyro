@@ -8,10 +8,10 @@
 # @example
 #   menu.trigger(class: "w-full") { "Open" }
 #   menu.trigger(as_child: :span, class: "cursor-pointer") { "Open" }
-class Phlex::Shadcn::DropdownMenu::Trigger < Phlex::Shadcn::Base
-  include Phlex::Shadcn::DropdownMenu::Support
+class Chadcn::DropdownMenu::Trigger < Chadcn::Base
+  include Chadcn::DropdownMenu::Support
 
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String
   #   or a component instance renders that instead, receiving this part's attributes merged in (Radix Slot)
   # @param disabled [Boolean] default +false+; renders +disabled+ and +data-disabled+
   # @param attrs [Hash] extra HTML attributes merged over the defaults: +class:+ is merged with tailwind_merge,

@@ -3,7 +3,7 @@
 # shadcn AlertDialogFooter.
 #
 # Layout wrapper for the actions (`div`).
-class Phlex::Shadcn::AlertDialog::Footer < Phlex::Shadcn::Base
+class Chadcn::AlertDialog::Footer < Chadcn::Base
   # @api private
   CLASSES = "flex flex-col-reverse gap-2 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end"
 

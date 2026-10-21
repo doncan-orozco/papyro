@@ -1,26 +1,26 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn/ui Direction over Radix Direction. Spec: docs/shadcn-port/specs/direction.md
 # Namespace plus the use_direction helper; the provider part renders no element.
 #
 # Wrap a subtree in {Provider} to set the direction its parts read through {Consumer}; use
-# {Phlex::Shadcn::Direction.use_direction} from your own components. The default direction is `ltr` (the document `dir` is never read).
+# {Chadcn::Direction.use_direction} from your own components. The default direction is `ltr` (the document `dir` is never read).
 #
 # @example Set the direction of a subtree
-#   render Phlex::Shadcn::Direction::Provider.new(direction: :rtl) do
-#     render Phlex::Shadcn::Tabs.new(default_value: "a") { |tabs| tabs.list { tabs.trigger(value: "a") { plain "A" } } }
+#   render Chadcn::Direction::Provider.new(direction: :rtl) do
+#     render Chadcn::Tabs.new(default_value: "a") { |tabs| tabs.list { tabs.trigger(value: "a") { plain "A" } } }
 #   end
 # @example Read the direction in a component
-#   class DirectionLabel < Phlex::Shadcn::Base
-#     def view_template = span { Phlex::Shadcn::Direction.use_direction(context) }
+#   class DirectionLabel < Chadcn::Base
+#     def view_template = span { Chadcn::Direction.use_direction(context) }
 #   end
-#   render Phlex::Shadcn::Direction::Provider.new(dir: "rtl") { render DirectionLabel.new } # => <span>rtl</span>
+#   render Chadcn::Direction::Provider.new(dir: "rtl") { render DirectionLabel.new } # => <span>rtl</span>
 #
-# @see Phlex::Shadcn::Direction::Provider
-# @see Phlex::Shadcn::Direction::Consumer
-class Phlex::Shadcn::Direction < Phlex::Shadcn::Base
+# @see Chadcn::Direction::Provider
+# @see Chadcn::Direction::Consumer
+class Chadcn::Direction < Chadcn::Base
   # Render-context key holding the direction of the nearest provider.
   #
   # @api private

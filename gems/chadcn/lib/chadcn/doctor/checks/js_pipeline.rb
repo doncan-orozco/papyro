@@ -5,7 +5,7 @@ module Phlex
     module Doctor
       module Checks
         # The JavaScript pipeline and how the gem's JavaScript reaches it (dev/decisions/js-bundlers.md): importmap-rails gets the gem's
-        # pins from its engine; an esbuild (jsbundling-rails) app gets managed copies from `rails g phlex:shadcn:install`, which this
+        # pins from its engine; an esbuild (jsbundling-rails) app gets managed copies from `rails g chadcn:install`, which this
         # check compares with what the generator would write. Other pipelines are reported, not configured.
         #
         # @api private

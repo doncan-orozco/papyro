@@ -2,12 +2,12 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::TableTest < Phlex::Shadcn::TestCase
+class Chadcn::TableTest < Chadcn::TestCase
   PARTS = { header: "table-header", body: "table-body", footer: "table-footer", row: "table-row",
             head: "table-head", cell: "table-cell", caption: "table-caption" }.freeze
 
   def html(**, &block)
-    Phlex::Shadcn::Table.new(**).call(&block || proc { |_| "x" })
+    Chadcn::Table.new(**).call(&block || proc { |_| "x" })
   end
 
   test "attrs and class go to the inner table, container is fixed" do
@@ -28,7 +28,7 @@ class Phlex::Shadcn::TableTest < Phlex::Shadcn::TestCase
   test "helpers render the same HTML as the explicit classes" do
     helpers = html { |t| PARTS.each_key { |n| t.public_send(n, class: "k") { "x" } } }
     explicit = html do |t|
-      PARTS.each_key { |n| t.render Phlex::Shadcn::Table.const_get(n.to_s.capitalize).new(class: "k") { "x" } }
+      PARTS.each_key { |n| t.render Chadcn::Table.const_get(n.to_s.capitalize).new(class: "k") { "x" } }
     end
 
     assert_equal explicit, helpers

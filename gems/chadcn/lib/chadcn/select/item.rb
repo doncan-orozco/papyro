@@ -11,8 +11,8 @@ require "cgi/escape"
 #
 # @example
 #   select.item(value: "apple", text_value: "Apple") { "Apple" }
-class Phlex::Shadcn::Select::Item < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Select::Support
+class Chadcn::Select::Item < Chadcn::Base
+  include Chadcn::Select::Support
 
   # @api private
   TAG = /<(?:[^>\x22\x27]|\x22[^\x22]*\x22|\x27[^\x27]*\x27)*>/
@@ -40,7 +40,7 @@ class Phlex::Shadcn::Select::Item < Phlex::Shadcn::Base
 
   # @yield the option's content (also shown in Value when selected)
   # @return [void]
-  # @raise [ArgumentError] at render when used outside {Phlex::Shadcn::Select}
+  # @raise [ArgumentError] at render when used outside {Chadcn::Select}
   def view_template(&block)
     return register(block ? capture(&block) : "") if collecting?
 

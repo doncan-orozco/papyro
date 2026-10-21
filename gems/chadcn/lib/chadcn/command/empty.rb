@@ -7,9 +7,9 @@
 # classes (shadcn does not merge them here).
 #
 # @example
-#   render(Phlex::Shadcn::Command::Empty.new { "No results found." })
-class Phlex::Shadcn::Command::Empty < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Command::Support
+#   render(Chadcn::Command::Empty.new { "No results found." })
+class Chadcn::Command::Empty < Chadcn::Base
+  include Chadcn::Command::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #

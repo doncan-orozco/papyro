@@ -3,9 +3,9 @@
 # shadcn ComboboxChipsInput: the text field inside {Combobox::Chips} (`input`). Everything you pass reaches the input.
 #
 # @example
-#   render Phlex::Shadcn::Combobox::ChipsInput.new(placeholder: "Add framework")
-class Phlex::Shadcn::Combobox::ChipsInput < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+#   render Chadcn::Combobox::ChipsInput.new(placeholder: "Add framework")
+class Chadcn::Combobox::ChipsInput < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #

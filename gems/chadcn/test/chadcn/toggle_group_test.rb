@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::ToggleGroupTest < Phlex::Shadcn::TestCase
-  ToggleGroup = Phlex::Shadcn::ToggleGroup
+class Chadcn::ToggleGroupTest < Chadcn::TestCase
+  ToggleGroup = Chadcn::ToggleGroup
 
   def render_view(&block)
     Class.new(Phlex::HTML) { define_method(:view_template, &block) }.new.call

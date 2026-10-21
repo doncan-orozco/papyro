@@ -8,12 +8,12 @@
 # Without JavaScript only the shell and the navigation exist.
 #
 # @example A single-date calendar
-#   render Phlex::Shadcn::Calendar.new(mode: :single, selected: Date.new(2026, 3, 15))
+#   render Chadcn::Calendar.new(mode: :single, selected: Date.new(2026, 3, 15))
 # @example A range over two months, Monday first
-#   render Phlex::Shadcn::Calendar.new(mode: :range, number_of_months: 2, week_starts_on: 1,
+#   render Chadcn::Calendar.new(mode: :range, number_of_months: 2, week_starts_on: 1,
 #                                      selected: { from: Date.new(2026, 3, 10), to: Date.new(2026, 3, 14) })
 # @example Disabled days and a custom modifier
-#   render Phlex::Shadcn::Calendar.new(mode: :single, disabled: [ { day_of_week: [ 0, 6 ] }, { before: Date.today } ],
+#   render Chadcn::Calendar.new(mode: :single, disabled: [ { day_of_week: [ 0, 6 ] }, { before: Date.today } ],
 #                                      modifiers: { booked: [ Date.new(2026, 3, 16) ] }, modifiers_class_names: { booked: "line-through" })
 #
 # Events (bubbling, on the root): `shadcn--calendar:select` with `detail: { selected, date, modifiers }` and
@@ -21,8 +21,8 @@
 # (Popover + Button + Calendar + hidden input).
 #
 # The nested {DayButton} is the shadcn `CalendarDayButton`; the controller clones a prototype of it for every day.
-class Phlex::Shadcn::Calendar < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Calendar::Parts
+class Chadcn::Calendar < Chadcn::Base
+  include Chadcn::Calendar::Parts
 
   # Tailwind classes of the root (calendar.tsx `className`), before the caller's.
   #
@@ -86,7 +86,7 @@ class Phlex::Shadcn::Calendar < Phlex::Shadcn::Base
                  exclude_disabled: false, reset_on_select: false, disable_navigation: false, hide_navigation: false,
                  hide_weekdays: false, paged_navigation: false, auto_focus: false, footer: nil, dir: nil, name: nil, input: nil,
                  label: nil, close_on_select: false, **attrs)
-    @options = Phlex::Shadcn::Calendar::Options.new(
+    @options = Chadcn::Calendar::Options.new(
       mode:, selected:, default_month:, month:, today:, number_of_months:, show_outside_days:, caption_layout:, button_variant:, locale:,
       week_starts_on:, fixed_weeks:, show_week_number:, disabled:, hidden:, modifiers:, modifiers_class_names:, class_names:, formatters:,
       components:, start_month:, end_month:, min:, max:, required:, exclude_disabled:, reset_on_select:, disable_navigation:,
@@ -100,7 +100,7 @@ class Phlex::Shadcn::Calendar < Phlex::Shadcn::Base
   #
   # @return [void]
   def view_template
-    @classes = Phlex::Shadcn::Calendar::Classes.build(
+    @classes = Chadcn::Calendar::Classes.build(
       caption_layout: @options.caption_layout, show_week_number: @options.show_week_number, button_variant: @options.button_variant,
       overrides: @options.class_names, merger: method(:cn)
     )
@@ -139,7 +139,7 @@ class Phlex::Shadcn::Calendar < Phlex::Shadcn::Base
   def nav_button(direction, icon, enabled)
     button(type: "button", class: @classes[:"button_#{direction}"], aria: { label: labels[direction.to_s], disabled: ("true" unless enabled) },
            tabindex: (-1 unless enabled), data: { shadcn__calendar_target: direction.to_s, action: "click->shadcn--calendar##{direction}" }) do
-      render Phlex::Shadcn::Icon.new(icon, class: cn("size-4", @classes[:chevron]), disabled: (true unless enabled))
+      render Chadcn::Icon.new(icon, class: cn("size-4", @classes[:chevron]), disabled: (true unless enabled))
     end
   end
 

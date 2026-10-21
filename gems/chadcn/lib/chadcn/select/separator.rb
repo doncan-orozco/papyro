@@ -4,13 +4,13 @@
 #
 # @example
 #   select.separator
-class Phlex::Shadcn::Select::Separator < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Select::Support
+class Chadcn::Select::Separator < Chadcn::Base
+  include Chadcn::Select::Support
 
   # @return [String] Tailwind classes of the separator
   CLASSES = "pointer-events-none -mx-1 my-1 h-px bg-border"
 
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String or a
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String or a
   #   component instance renders that instead, receiving the part's attributes
   # @param attrs [Hash] HTML attributes merged into the element (+class+ is merged with Tailwind conflict resolution, +data+/+aria+ deep-merged, caller wins)
   # @return [void]

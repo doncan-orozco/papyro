@@ -3,8 +3,8 @@
 # shadcn AlertDialogOverlay. Always rendered: the alert dialog is always modal (dialog:109).
 #
 # Backdrop of the alert dialog (always rendered: it is always modal).
-class Phlex::Shadcn::AlertDialog::Overlay < Phlex::Shadcn::Base
-  include Phlex::Shadcn::AlertDialog::Support
+class Chadcn::AlertDialog::Overlay < Chadcn::Base
+  include Chadcn::AlertDialog::Support
 
   # @api private
   CLASSES = "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"

@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::PaginationTest < Phlex::Shadcn::TestCase
-  Pagination = Phlex::Shadcn::Pagination
+class Chadcn::PaginationTest < Chadcn::TestCase
+  Pagination = Chadcn::Pagination
 
   def fragment(html) = Nokogiri::HTML5.fragment(html)
 

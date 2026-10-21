@@ -2,13 +2,13 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::AlertTest < Phlex::Shadcn::TestCase
+class Chadcn::AlertTest < Chadcn::TestCase
   def html(**, &block)
-    Phlex::Shadcn::Alert.new(**).call(&block || proc { |_| "Body" })
+    Chadcn::Alert.new(**).call(&block || proc { |_| "Body" })
   end
 
   test "renders each variant with slot and role" do
-    Phlex::Shadcn::Alert::VARIANTS.each_key do |v|
+    Chadcn::Alert::VARIANTS.each_key do |v|
       out = html(variant: v)
 
       assert_includes out, 'data-slot="alert"'
@@ -38,8 +38,8 @@ class Phlex::Shadcn::AlertTest < Phlex::Shadcn::TestCase
       a.description { "D" }
     end
     explicit = html do |a|
-      a.render Phlex::Shadcn::Alert::Title.new(class: "t") { "T" }
-      a.render(Phlex::Shadcn::Alert::Description.new { "D" })
+      a.render Chadcn::Alert::Title.new(class: "t") { "T" }
+      a.render(Chadcn::Alert::Description.new { "D" })
     end
 
     assert_equal explicit, helpers

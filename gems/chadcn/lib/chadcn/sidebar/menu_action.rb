@@ -2,11 +2,11 @@
 
 # shadcn SidebarMenuAction (no `type` attribute, like React).
 #
-# Rendered inside a {Phlex::Shadcn::Sidebar}; also available as `sidebar.menu_action` on the yielded sidebar.
+# Rendered inside a {Chadcn::Sidebar}; also available as `sidebar.menu_action` on the yielded sidebar.
 #
-# @see Phlex::Shadcn::Sidebar
-class Phlex::Shadcn::Sidebar::MenuAction < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sidebar::Support
+# @see Chadcn::Sidebar
+class Chadcn::Sidebar::MenuAction < Chadcn::Base
+  include Chadcn::Sidebar::Support
 
   # Tailwind classes of the `button` (verbatim from shadcn/ui).
   #
@@ -24,7 +24,7 @@ class Phlex::Shadcn::Sidebar::MenuAction < Phlex::Shadcn::Base
   # @api private
   SHOW_ON_HOVER = "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground data-[state=open]:opacity-100 md:opacity-0"
 
-  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  # @param as_child [false, nil, Symbol, String, Chadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
   #   the part's attributes are merged onto it. `true` is not supported.
   # @param show_on_hover [Boolean] hide the action on desktop until the menu item is hovered or focused (default: false)
   # @param attrs [Hash] HTML attributes for the element; `class:` is tailwind-merged over the defaults, `data:` and `aria:`

@@ -2,13 +2,13 @@
 
 require "rails/generators"
 require "pathname"
-require "phlex/shadcn"
+require "chadcn"
 
 module Phlex
   module Shadcn
-    # Rails generators of the gem (`rails g phlex:shadcn:install`).
+    # Rails generators of the gem (`rails g chadcn:install`).
     module Generators
-      # `rails g phlex:shadcn:install` wires the gem into a host that uses tailwindcss-rails:
+      # `rails g chadcn:install` wires the gem into a host that uses tailwindcss-rails:
       #
       # 1. writes one marker-delimited block into the Tailwind entry file (app/assets/tailwind/application.css) right after
       #    `@import "tailwindcss";`: the `@source` line for the gem's Ruby files (Tailwind 4 only generates the classes it finds in
@@ -24,24 +24,24 @@ module Phlex
       #
       # @api private
       class InstallGenerator < ::Rails::Generators::Base
-        desc "Imports the phlex-shadcn Tailwind assets (with the @source line for the gem) and copies the default theme."
+        desc "Imports the chadcn Tailwind assets (with the @source line for the gem) and copies the default theme."
 
-        source_root Phlex::Shadcn.root.join("app/assets/tailwind/phlex-shadcn").to_s
+        source_root Chadcn.root.join("app/assets/tailwind/chadcn").to_s
 
         class_option :css, type: :string, default: "app/assets/tailwind/application.css",
                            desc: "The Tailwind entry file of the app"
         class_option :theme_dir, type: :string,
-                                 desc: "Where theme.css and presets/ are kept (default: config.phlex_shadcn.theme_dir, " \
-                                       "else #{Phlex::Shadcn::Engine::DEFAULT_THEME_DIR})"
+                                 desc: "Where theme.css and presets/ are kept (default: config.chadcn.theme_dir, " \
+                                       "else #{Chadcn::Engine::DEFAULT_THEME_DIR})"
         class_option :js, type: :string, default: "auto", enum: %w[auto importmap esbuild],
                           desc: "The JavaScript pipeline of the app (auto detects importmap-rails or jsbundling-rails with esbuild)"
 
-        BLOCK_START = "/* phlex-shadcn:start (managed by rails g phlex:shadcn:install) */"
-        BLOCK_END = "/* phlex-shadcn:end */"
+        BLOCK_START = "/* chadcn:start (managed by rails g chadcn:install) */"
+        BLOCK_END = "/* chadcn:end */"
         # `@import "tailwindcss";` also with options such as `source(none)` or `prefix(tw)`, LF or CRLF.
         TAILWIND_IMPORT = /^@import\s+["']tailwindcss["'][^;\n]*;[ \t]*(?=\r?$)/
         MANAGED_BLOCK = /#{Regexp.escape(BLOCK_START)}.*?#{Regexp.escape(BLOCK_END)}/m
-        ENGINE_BUNDLE = "app/assets/builds/tailwind/phlex-shadcn"
+        ENGINE_BUNDLE = "app/assets/builds/tailwind/chadcn"
         private_constant :BLOCK_START, :BLOCK_END, :TAILWIND_IMPORT, :MANAGED_BLOCK, :ENGINE_BUNDLE
 
         # Scripted installs (CI, smoke tests) must see a failure: Rails generators exit 0 on Thor::Error unless this is true.
@@ -82,10 +82,10 @@ module Phlex
         def show_next_steps
           say "\nRun bin/rails tailwindcss:build (it bundles the engine CSS) and restart the server.", :green
           say "Run the generator again after updating the gem: it refreshes the copied JavaScript.", :green if pipeline == :esbuild
-          return if theme_dir == (configured_theme_dir || Phlex::Shadcn::Engine::DEFAULT_THEME_DIR)
+          return if theme_dir == (configured_theme_dir || Chadcn::Engine::DEFAULT_THEME_DIR)
 
-          say "The theme tasks look in #{configured_theme_dir || Phlex::Shadcn::Engine::DEFAULT_THEME_DIR}: set " \
-              "config.phlex_shadcn.theme_dir = \"#{theme_dir}\" in config/application.rb.", :yellow
+          say "The theme tasks look in #{configured_theme_dir || Chadcn::Engine::DEFAULT_THEME_DIR}: set " \
+              "config.chadcn.theme_dir = \"#{theme_dir}\" in config/application.rb.", :yellow
         end
 
         private
@@ -96,7 +96,7 @@ module Phlex
         end
 
         def write_js_files
-          JsBundle.files(Phlex::Shadcn.root).each do |path, content|
+          JsBundle.files(Chadcn.root).each do |path, content|
             full = File.join(destination_root, path)
             existing = File.file?(full) ? File.binread(full).force_encoding(Encoding::UTF_8) : nil
             next say_status(:identical, path, :blue) if existing == content
@@ -139,9 +139,9 @@ module Phlex
 
         def css_path = File.expand_path(options[:css], destination_root)
 
-        def configured_theme_dir = ::Rails.application&.config&.phlex_shadcn&.theme_dir # rubocop:disable Style/SafeNavigationChainLength
+        def configured_theme_dir = ::Rails.application&.config&.chadcn&.theme_dir # rubocop:disable Style/SafeNavigationChainLength
 
-        def theme_dir = options[:theme_dir] || configured_theme_dir || Phlex::Shadcn::Engine::DEFAULT_THEME_DIR
+        def theme_dir = options[:theme_dir] || configured_theme_dir || Chadcn::Engine::DEFAULT_THEME_DIR
 
         def theme_path = File.expand_path(File.join(theme_dir, "theme.css"), destination_root)
 
@@ -149,12 +149,12 @@ module Phlex
           Pathname.new(File.expand_path(path)).relative_path_from(Pathname.new(css_path).dirname).to_s
         rescue ::ArgumentError => e # Phlex::ArgumentError would win the constant lookup here
           raise Thor::Error, "cannot express #{path} relative to #{options[:css]} (#{e.message}): after @import \"tailwindcss\"; add an @source for " \
-                             "#{File.join(Phlex::Shadcn.root.to_s, 'lib')} and @imports of #{ENGINE_BUNDLE} and #{theme_dir}/theme.css"
+                             "#{File.join(Chadcn.root.to_s, 'lib')} and @imports of #{ENGINE_BUNDLE} and #{theme_dir}/theme.css"
         end
 
         # With `eol` the block uses the file's own line endings (CRLF files stay consistent).
         def managed_block(eol)
-          source = relative_to_css(Phlex::Shadcn.root.join("lib"))
+          source = relative_to_css(Chadcn.root.join("lib"))
           bundle = relative_to_css(File.expand_path(ENGINE_BUNDLE, destination_root))
           theme = relative_to_css(theme_path)
           lines = [ BLOCK_START, %(@source "#{source}";), %(@import "#{bundle}";), %(@import "#{theme.start_with?('.') ? theme : "./#{theme}"}";), BLOCK_END ]
@@ -165,7 +165,7 @@ module Phlex
           eol = css.include?("\r\n") ? "\r\n" : "\n"
           if css.include?(BLOCK_START) || css.include?(BLOCK_END)
             unless css.scan(MANAGED_BLOCK).size == 1 && css.scan(BLOCK_START).size == 1 && css.scan(BLOCK_END).size == 1
-              raise Thor::Error, "#{options[:css]} has missing, repeated or misordered phlex-shadcn markers: fix or remove them"
+              raise Thor::Error, "#{options[:css]} has missing, repeated or misordered chadcn markers: fix or remove them"
             end
 
             return css.sub(MANAGED_BLOCK) { managed_block(eol) }

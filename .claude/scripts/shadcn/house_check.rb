@@ -108,9 +108,9 @@ end
 end
 
 # G5 validates the gem's default theme; the host's theme.css is validated by `bin/rails theme:check` and the engine integration test.
-require File.expand_path("lib/phlex/shadcn/theme", ShadcnLayout::GEM_DIR)
+require File.expand_path("lib/chadcn/theme", ShadcnLayout::GEM_DIR)
 if File.exist?("#{ShadcnLayout::THEME_DIR}/theme.css")
-  theme = Phlex::Shadcn::Theme.validate(Phlex::Shadcn::Theme.parse(File.read("#{ShadcnLayout::THEME_DIR}/theme.css")))
+  theme = Chadcn::Theme.validate(Chadcn::Theme.parse(File.read("#{ShadcnLayout::THEME_DIR}/theme.css")))
   theme[:errors].each { |e| add.call("G5_THEME_INVALID", e) }
   if File.exist?("#{ShadcnLayout::THEME_DIR}/tokens.css") && Dir.exist?("#{ShadcnLayout::ORACLE_DIR}/manifest")
     out, status = Open3.capture2("ruby", ".claude/scripts/shadcn/theme_sync.rb", "--check-tokens")

@@ -2,9 +2,9 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::ButtonTest < Phlex::Shadcn::TestCase
+class Chadcn::ButtonTest < Chadcn::TestCase
   def html(**opts)
-    Phlex::Shadcn::Button.new(**opts).call { |_| "Go" }
+    Chadcn::Button.new(**opts).call { |_| "Go" }
   end
 
   test "renders defaults" do
@@ -17,8 +17,8 @@ class Phlex::Shadcn::ButtonTest < Phlex::Shadcn::TestCase
   end
 
   test "renders every variant and size, normalizing underscores" do
-    Phlex::Shadcn::Button::VARIANTS.each_key { |v| assert_includes html(variant: v), %(data-variant="#{v}") }
-    Phlex::Shadcn::Button::SIZES.each_key { |s| assert_includes html(size: s), %(data-size="#{s}") }
+    Chadcn::Button::VARIANTS.each_key { |v| assert_includes html(variant: v), %(data-variant="#{v}") }
+    Chadcn::Button::SIZES.each_key { |s| assert_includes html(size: s), %(data-size="#{s}") }
     assert_includes html(size: :icon_sm), 'data-size="icon-sm"'
   end
 
@@ -44,7 +44,7 @@ class Phlex::Shadcn::ButtonTest < Phlex::Shadcn::TestCase
   end
 
   test "variants class method" do
-    classes = Phlex::Shadcn::Button.variants(variant: :outline, size: :sm, class: "x").split
+    classes = Chadcn::Button.variants(variant: :outline, size: :sm, class: "x").split
 
     assert_includes classes, "bg-background"
     assert_includes classes, "h-8"
@@ -52,9 +52,9 @@ class Phlex::Shadcn::ButtonTest < Phlex::Shadcn::TestCase
   end
 
   test "variants raises on unknown options and defaults nil" do
-    assert_raises(ArgumentError) { Phlex::Shadcn::Button.variants(variant: :nope) }
-    assert_raises(ArgumentError) { Phlex::Shadcn::Button.variants(size: :huge) }
-    assert_equal Phlex::Shadcn::Button.variants, Phlex::Shadcn::Button.variants(variant: nil, size: nil)
+    assert_raises(ArgumentError) { Chadcn::Button.variants(variant: :nope) }
+    assert_raises(ArgumentError) { Chadcn::Button.variants(size: :huge) }
+    assert_equal Chadcn::Button.variants, Chadcn::Button.variants(variant: nil, size: nil)
   end
 
   test "unknown size raises and the message lists the allowed values" do
@@ -65,7 +65,7 @@ class Phlex::Shadcn::ButtonTest < Phlex::Shadcn::TestCase
   end
 
   test "as_child merges the button props into a component instance" do
-    out = html(as_child: Phlex::Shadcn::Label.new(html_for: "x"), variant: :ghost)
+    out = html(as_child: Chadcn::Label.new(html_for: "x"), variant: :ghost)
 
     assert_includes out, "<label"
     assert_includes out, 'for="x"'

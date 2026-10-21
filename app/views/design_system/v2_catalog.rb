@@ -2,13 +2,13 @@
 
 # Explicit require so this view does not depend on Components::Parity::Catalog having loaded the parity harness first.
 # Dev-kit coupling: the gem's dev/ is not packaged, so this works with the path gem only.
-require Phlex::Shadcn.root.join("dev/parity/lib/shadcn_parity").to_s
+require Chadcn.root.join("dev/parity/lib/shadcn_parity").to_s
 
 include Phlex::Rails::Helpers::ContentFor
 
 module Views
   module DesignSystem
-    # Index of every ported Phlex::Shadcn component, generated from the scenario files (see Components::Parity::Catalog).
+    # Index of every ported Chadcn component, generated from the scenario files (see Components::Parity::Catalog).
     class V2Catalog < Views::Base
       def initialize(entries: Components::Parity::Catalog.entries)
         @entries = entries

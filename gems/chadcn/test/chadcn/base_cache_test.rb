@@ -3,14 +3,14 @@
 require "open3"
 require "phlex/test_case"
 
-class Phlex::Shadcn::BaseCacheTest < Phlex::Shadcn::TestCase
-  class Probe < Phlex::Shadcn::Base
+class Chadcn::BaseCacheTest < Chadcn::TestCase
+  class Probe < Chadcn::Base
     public :cn, :merge_attrs, :normalize_option
 
     def slot!(value) = receive_slot({}, value)
   end
 
-  def setup = Phlex::Shadcn::Base.clear_cn_cache
+  def setup = Chadcn::Base.clear_cn_cache
 
   test "cached cn equals an uncached merge, on a miss and on a hit" do
     expected = TailwindMerge::Merger.new.merge("px-2 py-1 px-4")
@@ -38,20 +38,20 @@ class Phlex::Shadcn::BaseCacheTest < Phlex::Shadcn::TestCase
     probe = Probe.new
 
     assert_equal "a c", probe.cn("a", { "c" => true, "d" => false })
-    assert_empty Phlex::Shadcn::Base.cn_cache
+    assert_empty Chadcn::Base.cn_cache
   end
 
   test "the cache is bounded" do
     probe = Probe.new
-    (Phlex::Shadcn::Base.const_get(:CN_CACHE_LIMIT) * 2).times { |i| probe.cn("m-#{i}", "p-1") }
+    (Chadcn::Base.const_get(:CN_CACHE_LIMIT) * 2).times { |i| probe.cn("m-#{i}", "p-1") }
 
-    assert_operator Phlex::Shadcn::Base.cn_cache.size, :<=, Phlex::Shadcn::Base.const_get(:CN_CACHE_LIMIT)
+    assert_operator Chadcn::Base.cn_cache.size, :<=, Chadcn::Base.const_get(:CN_CACHE_LIMIT)
   end
 
   test "the cache keeps its own frozen copy of a mutable caller string" do
     caller_class = +"px-2"
     Probe.new.cn("p-1", caller_class)
-    key = Phlex::Shadcn::Base.cn_cache.keys.first
+    key = Chadcn::Base.cn_cache.keys.first
 
     assert_predicate key, :frozen?
     assert(key.compact.all?(&:frozen?))
@@ -94,8 +94,8 @@ class Phlex::Shadcn::BaseCacheTest < Phlex::Shadcn::TestCase
         super
       end
     end)
-    require "phlex/shadcn"
-    base = Phlex::Shadcn::Base
+    require "chadcn"
+    base = Chadcn::Base
     built_at_load = $built.size
     probe = Class.new(base) { public :cn }
     ready = Queue.new
@@ -124,7 +124,7 @@ class Phlex::Shadcn::BaseCacheTest < Phlex::Shadcn::TestCase
 
   test "cn_cache is a frozen snapshot, never the live hash" do
     Probe.new.cn("p-1", "m-1")
-    snapshot = Phlex::Shadcn::Base.cn_cache
+    snapshot = Chadcn::Base.cn_cache
 
     assert_predicate snapshot, :frozen?
     assert_equal 1, snapshot.size
@@ -132,14 +132,14 @@ class Phlex::Shadcn::BaseCacheTest < Phlex::Shadcn::TestCase
     Probe.new.cn("p-2", "m-2")
 
     assert_equal 1, snapshot.size
-    assert_equal 2, Phlex::Shadcn::Base.cn_cache.size
+    assert_equal 2, Chadcn::Base.cn_cache.size
   end
 
   test "subclasses share the one merger and the one cache" do
-    assert_same Phlex::Shadcn::Base.tw_merger, Probe.tw_merger
+    assert_same Chadcn::Base.tw_merger, Probe.tw_merger
     Probe.new.cn("p-1", "m-1")
 
-    assert_equal 1, Phlex::Shadcn::Base.cn_cache.size
+    assert_equal 1, Chadcn::Base.cn_cache.size
     assert_equal 1, Probe.cn_cache.size
   end
 

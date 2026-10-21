@@ -5,7 +5,7 @@ module Phlex
     module Generators
       # Where the gem's JavaScript lives and where an esbuild app gets its copies, see dev/decisions/js-bundlers.md. Plain Ruby, no Rails:
       # it lives here, next to the install generator, because gem_check (GEM_ESCAPES_ROOT) allows app/... layout paths only in the
-      # generators; {Phlex::Shadcn::JsBundle} (lib/phlex/shadcn/js_bundle.rb, loaded by Zeitwerk) reads them from here, the same
+      # generators; {Chadcn::JsBundle} (lib/chadcn/js_bundle.rb, loaded by Zeitwerk) reads them from here, the same
       # precedent as SprocketsManifest.
       #
       # @api private

@@ -6,15 +6,15 @@
 # and the toasts the server wants to show on load. The stacked `<ol>`/`<li>` toasts are created by the controller, like sonner does.
 #
 # Toasts: `window.Toaster` (JavaScript), `flash:` / `toasts:` / the block (server, on page load), a Turbo Stream that appends a
-# {Phlex::Shadcn::Sonner::Toast} to this Toaster's `id` (server, later), or the `shadcn--sonner:show` event. The hotkey (default Alt+T)
+# {Chadcn::Sonner::Toast} to this Toaster's `id` (server, later), or the `shadcn--sonner:show` event. The hotkey (default Alt+T)
 # expands the stack and focuses it, Escape collapses it.
 #
 # Events (on the section, bubbling): `shadcn--sonner:dismiss`, `:auto-close` (`detail: { id }`), `:action` and `:cancel`
 # (`detail: { id, name }` with the `event` of the toast's action).
 #
 # @example Layout
-#   render Phlex::Shadcn::Toaster.new(flash: flash.to_h, close_button: true, position: "top-center")
-class Phlex::Shadcn::Sonner::Toaster < Phlex::Shadcn::Base
+#   render Chadcn::Toaster.new(flash: flash.to_h, close_button: true, position: "top-center")
+class Chadcn::Sonner::Toaster < Chadcn::Base
   # Lucide icon and classes of each type, from the shadcn wrapper (`icons={{ success: <CircleCheckIcon className="size-4" /> ... }}`).
   #
   # @api private
@@ -69,7 +69,7 @@ class Phlex::Shadcn::Sonner::Toaster < Phlex::Shadcn::Base
   # @param style [Hash, nil] inline style of the toast lists, merged over the shadcn theme variables (`--normal-bg`...)
   # @param toaster_id [String, nil] show only the toasts created for this id (sonner's `id`; the HTML id is `id:`)
   # @param flash [#to_h, nil] a flash hash: `notice`/`success` become success toasts, `alert`/`error` errors, `warning`, `info`
-  # @param toasts [Array<Hash>, nil] toasts to show on load, each the keywords of {Phlex::Shadcn::Sonner::Toast}
+  # @param toasts [Array<Hash>, nil] toasts to show on load, each the keywords of {Chadcn::Sonner::Toast}
   # @param attrs [Hash] HTML attributes of the `<section>` (`id:` defaults to `"toaster"`, the target of Turbo Stream appends; `class:` is added to the lists)
   def initialize(position: "bottom-right", theme: "system", rich_colors: nil, expand: false, close_button: false, invert: false,
                  duration: nil, visible_toasts: 3, gap: 14, offset: nil, mobile_offset: nil, dir: nil, hotkey: DEFAULT_HOTKEY,
@@ -100,13 +100,13 @@ class Phlex::Shadcn::Sonner::Toaster < Phlex::Shadcn::Base
     super()
   end
 
-  # @yieldparam toaster [Toaster] the toaster; render {Phlex::Shadcn::Sonner::Toast}s inside the block to show them on load
+  # @yieldparam toaster [Toaster] the toaster; render {Chadcn::Sonner::Toast}s inside the block to show them on load
   # @return [void]
   def view_template(&)
     section(**merge_attrs(root_attrs, @attrs.except(:class))) do
       icon_templates
       flash_toasts
-      @toasts&.each { |toast| render Phlex::Shadcn::Sonner::Toast.new(**toast) }
+      @toasts&.each { |toast| render Chadcn::Sonner::Toast.new(**toast) }
       yield(self) if block_given?
     end
   end
@@ -160,7 +160,7 @@ class Phlex::Shadcn::Sonner::Toaster < Phlex::Shadcn::Base
 
   def icon_templates
     ICONS.each do |type, (name, classes)|
-      icon_template(type, @icons.fetch(type.to_sym) { @icons.fetch(type, nil) }) { render Phlex::Shadcn::Icon.new(name, class: classes) }
+      icon_template(type, @icons.fetch(type.to_sym) { @icons.fetch(type, nil) }) { render Chadcn::Icon.new(name, class: classes) }
     end
     icon_template("close", @icons.fetch(:close) { @icons.fetch("close", nil) }) { close_icon }
   end
@@ -188,7 +188,7 @@ class Phlex::Shadcn::Sonner::Toaster < Phlex::Shadcn::Base
     @flash.to_h.each do |key, message|
       next unless message.is_a?(String) && !message.empty?
 
-      render Phlex::Shadcn::Sonner::Toast.new(title: message.to_s, type: FLASH_TYPES[key.to_s])
+      render Chadcn::Sonner::Toast.new(title: message.to_s, type: FLASH_TYPES[key.to_s])
     end
   end
 end

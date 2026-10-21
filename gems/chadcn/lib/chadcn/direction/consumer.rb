@@ -4,13 +4,13 @@
 #
 # Including it adds the private `use_direction(local_dir = nil)` to a component.
 #
-# @see Phlex::Shadcn::Direction.use_direction
-module Phlex::Shadcn::Direction::Consumer
+# @see Chadcn::Direction.use_direction
+module Chadcn::Direction::Consumer
   private
 
   # @param local_dir [String, Symbol, nil] direction set on the component itself, wins when present (default: nil)
   # @return [String] `"ltr"` or `"rtl"`
   def use_direction(local_dir = nil)
-    Phlex::Shadcn::Direction.use_direction(context, local_dir)
+    Chadcn::Direction.use_direction(context, local_dir)
   end
 end

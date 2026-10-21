@@ -3,7 +3,7 @@
 # shadcn DialogHeader.
 #
 # Layout wrapper for the title and description (`div`).
-class Phlex::Shadcn::Dialog::Header < Phlex::Shadcn::Base
+class Chadcn::Dialog::Header < Chadcn::Base
   # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
   def initialize(**attrs)
     @attrs = attrs

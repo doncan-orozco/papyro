@@ -4,8 +4,8 @@
 # Like shadcn, the DOM is always +data-state="indeterminate"+: +value+ only moves the indicator.
 #
 # @example
-#   Phlex::Shadcn::Progress.new(value: 40)
-class Phlex::Shadcn::Progress < Phlex::Shadcn::Base
+#   Chadcn::Progress.new(value: 40)
+class Chadcn::Progress < Chadcn::Base
   # The +max+ used when none (or an invalid one) is given.
   DEFAULT_MAX = 100
 

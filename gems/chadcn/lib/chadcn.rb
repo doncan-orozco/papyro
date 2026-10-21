@@ -6,7 +6,7 @@ require "phlex"
 require "tailwind_merge"
 require "zeitwerk"
 
-# Phlex, the view library; this gem adds the shadcn/ui components under {Phlex::Shadcn}.
+# Phlex, the view library; this gem adds the shadcn/ui components under {Chadcn}.
 module Phlex
   # shadcn/ui components for Phlex.
   module Shadcn
@@ -18,10 +18,10 @@ module Phlex
     # The gem's root directory (where `lib`, `app` and `vendor` live), e.g. for a Tailwind `@source` line.
     def self.root = ROOT
 
-    # Zeitwerk loader of `lib/phlex/shadcn/**` (`Loader.eager_load` loads every component at once).
+    # Zeitwerk loader of `lib/chadcn/**` (`Loader.eager_load` loads every component at once).
     #
     # @api private
-    Loader = Zeitwerk::Loader.for_gem_extension(Phlex)
+    Loader = Zeitwerk::Loader.for_gem
     # The engine (and the files under engine/ it requires itself) is required explicitly below, only inside an app, and is never
     # autoloaded or eager loaded.
     Loader.ignore(File.join(__dir__, "shadcn/engine.rb"), File.join(__dir__, "shadcn/engine"))
@@ -36,16 +36,16 @@ module Phlex
     SETUP_LOCK = Monitor.new
     private_constant :SETUP_LOCK
 
-    # @return [Phlex::Shadcn::Configuration] the gem's settings
+    # @return [Chadcn::Configuration] the gem's settings
     def self.config = (@config ||= Configuration.new)
 
-    # Sets the gem's settings, once at boot: `Phlex::Shadcn.configure { |config| config.theme_dir = "/path/to/theme" }`.
-    # @yieldparam config [Phlex::Shadcn::Configuration]
+    # Sets the gem's settings, once at boot: `Chadcn.configure { |config| config.theme_dir = "/path/to/theme" }`.
+    # @yieldparam config [Chadcn::Configuration]
     def self.configure = yield(config)
 
     # Sets up the loader of the gem's components, ignoring the gem files the override directory shadows (they must be known before
     # the setup, or the gem wins silently; dev/decisions/eject-override.md), and mounts the override directory on the
-    # {Phlex::Shadcn} namespace. Called once: at require time in a plain Phlex process, by the engine initializer in an app (before the
+    # {Chadcn} namespace. Called once: at require time in a plain Phlex process, by the engine initializer in an app (before the
     # app's autoload paths, with the app's main autoloader as the override loader, so ejected files reload in development).
     #
     # @api private
@@ -67,7 +67,7 @@ module Phlex
     # A loader that is given (the app's main autoloader) is set up by its owner, later; its own loader is set up here.
     def self.mount_overrides(dir, override_loader)
       own = override_loader.nil?
-      override_loader ||= Zeitwerk::Loader.new.tap { |loader| loader.tag = "phlex-shadcn-overrides" }
+      override_loader ||= Zeitwerk::Loader.new.tap { |loader| loader.tag = "chadcn-overrides" }
       override_loader.push_dir(dir, namespace: self)
       return unless own
 
@@ -100,9 +100,9 @@ module Phlex
 end
 
 if defined?(Rails::Engine)
-  require "phlex/shadcn/engine"
+  require "chadcn/engine"
 else
-  override_dir = ENV.fetch("PHLEX_SHADCN_OVERRIDE_DIR", "")
-  Phlex::Shadcn.config.override_dir = File.expand_path(override_dir) unless override_dir.empty?
-  Phlex::Shadcn.setup
+  override_dir = ENV.fetch("CHADCN_OVERRIDE_DIR", "")
+  Chadcn.config.override_dir = File.expand_path(override_dir) unless override_dir.empty?
+  Chadcn.setup
 end

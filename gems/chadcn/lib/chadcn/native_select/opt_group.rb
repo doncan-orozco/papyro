@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-class Phlex::Shadcn::NativeSelect
+class Chadcn::NativeSelect
   # An `<optgroup>` wrapping {Option}s.
   #
   # @example
   #   select.opt_group(label: "Staff") { select.option(value: "editor") { "Editor" } }
-  class OptGroup < Phlex::Shadcn::Base
+  class OptGroup < Chadcn::Base
     # @param attrs [Hash] HTML attributes for the `<optgroup>` (`label:`, `disabled:`, `class:`)
     def initialize(**attrs)
       @attrs = attrs

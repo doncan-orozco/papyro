@@ -5,11 +5,11 @@
 #
 # @example
 #   bar.radio_group(value: "list") { bar.radio_item(value: "list") { "List" }; bar.radio_item(value: "grid") { "Grid" } }
-class Phlex::Shadcn::Menubar::RadioGroup < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Menubar::Support
+class Chadcn::Menubar::RadioGroup < Chadcn::Base
+  include Chadcn::Menubar::Support
 
   # @param value [String, Symbol, nil] the checked item's value (compared as a String); +nil+ checks none. Default +nil+
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String or a component instance
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String or a component instance
   #   renders that element carrying this part's attributes instead
   # @param attrs [Hash] extra HTML attributes; +class+, +data+ and +aria+ are merged with the defaults
   def initialize(value: nil, as_child: false, **attrs)
@@ -22,10 +22,10 @@ class Phlex::Shadcn::Menubar::RadioGroup < Phlex::Shadcn::Base
   # @yield the group's {RadioItem}s
   # @return [void]
   def view_template(&)
-    previous = context[Phlex::Shadcn::Menubar::RADIO_GROUP_KEY]
-    context[Phlex::Shadcn::Menubar::RADIO_GROUP_KEY] = { value: @value }
+    previous = context[Chadcn::Menubar::RADIO_GROUP_KEY]
+    context[Chadcn::Menubar::RADIO_GROUP_KEY] = { value: @value }
     render_part(:div, @as_child, merge_attrs({ role: "group", data: { slot: "menubar-radio-group" } }, @attrs), &)
   ensure
-    context[Phlex::Shadcn::Menubar::RADIO_GROUP_KEY] = previous
+    context[Chadcn::Menubar::RADIO_GROUP_KEY] = previous
   end
 end

@@ -3,16 +3,16 @@
 # shadcn SheetContent = Portal + Overlay + Radix Content (+ the X close button). The body is captured first because
 # aria-labelledby / aria-describedby depend on whether a Title / Description was rendered inside (Radix learns it in
 # an effect, dialog:261-262).
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Portal + Overlay + side-aware content panel of the sheet (+ the X close button).
 #
 # @example Explicit form
-#   render Phlex::Shadcn::Sheet::Content.new { "Body" }
+#   render Chadcn::Sheet::Content.new { "Body" }
 # @example Yielded-root helper form
 #   sheet.content { "Body" }
-class Phlex::Shadcn::Sheet::Content < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sheet::Support
+class Chadcn::Sheet::Content < Chadcn::Base
+  include Chadcn::Sheet::Support
 
   # @api private
   CLASSES = "fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500"
@@ -55,12 +55,12 @@ class Phlex::Shadcn::Sheet::Content < Phlex::Shadcn::Base
       yield if block_given?
       close_button if @show_close_button
     end
-    portaled = context[Phlex::Shadcn::Sheet::PORTAL_KEY]
+    portaled = context[Chadcn::Sheet::PORTAL_KEY]
     markup = proc do
-      render Phlex::Shadcn::Sheet::Overlay.new
+      render Chadcn::Sheet::Overlay.new
       render_part(:div, @as_child, content_attrs(root)) { raw(safe(body)) }
     end
-    portaled ? instance_exec(&markup) : render(Phlex::Shadcn::Sheet::Portal.new, &markup)
+    portaled ? instance_exec(&markup) : render(Chadcn::Sheet::Portal.new, &markup)
   end
 
   private
@@ -68,7 +68,7 @@ class Phlex::Shadcn::Sheet::Content < Phlex::Shadcn::Base
   # The oracle renders Radix Close directly, so the X button has no data-slot (not sheet-close).
   def close_button
     button(type: "button", class: cn(CLOSE_CLASSES), data: { shadcn__dialog_part: "close", action: "click->shadcn--sheet#close" }) do
-      render Phlex::Shadcn::Icon.new("x", class: "size-4")
+      render Chadcn::Icon.new("x", class: "size-4")
       span(class: "sr-only") { @close_label }
     end
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn ToggleGroupItem: Radix Toggle inside a RovingFocusGroup item.
 #
@@ -9,8 +9,8 @@ using Phlex::Shadcn::Values::Refinements
 #
 # @example
 #   group.item(value: "bold", aria: { label: "Bold" }) { "B" }
-class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
-  # Classes added on top of {Phlex::Shadcn::Toggle} classes.
+class Chadcn::ToggleGroup::Item < Chadcn::Base
+  # Classes added on top of {Chadcn::Toggle} classes.
   #
   # @return [String]
   EXTRA_CLASSES = "w-auto min-w-0 shrink-0 px-3 focus:z-10 focus-visible:z-10"
@@ -27,7 +27,7 @@ class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
   # @param variant [String, Symbol, nil] used when the group sets none
   # @param size [String, Symbol, nil] used when the group sets none
   # @param disabled [Boolean] disables this item (the group's `disabled:` also applies)
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base]
+  # @param as_child [false, Symbol, String, Chadcn::Base]
   #   a tag or component instance to render instead of the `<button>`; false renders the default element
   # @param attrs [Hash] HTML attributes for the item (`class:` merged last, `aria:`, `data:`)
   def initialize(value:, variant: nil, size: nil, disabled: false, as_child: false, **attrs)
@@ -45,7 +45,7 @@ class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
   # @raise [ArgumentError] when rendered outside a {ToggleGroup}, or when the effective variant or size is unknown
   #   (raised by `Toggle.variants`)
   def view_template(&)
-    root = context[Phlex::Shadcn::ToggleGroup::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within ToggleGroup"
+    root = context[Chadcn::ToggleGroup::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within ToggleGroup"
     variant = root[:variant] || @variant
     size = root[:size] || @size
     disabled = root[:disabled] || @disabled
@@ -59,7 +59,7 @@ class Phlex::Shadcn::ToggleGroup::Item < Phlex::Shadcn::Base
   private
 
   def classes(variant, size)
-    cn(Phlex::Shadcn::Toggle.variants(variant: variant || "default", size: size || "default"), EXTRA_CLASSES, SPACING_CLASSES,
+    cn(Chadcn::Toggle.variants(variant: variant || "default", size: size || "default"), EXTRA_CLASSES, SPACING_CLASSES,
        @attrs[:class])
   end
 

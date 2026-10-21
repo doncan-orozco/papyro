@@ -3,7 +3,7 @@
 # shadcn SheetFooter.
 #
 # Layout wrapper for the actions (`div`).
-class Phlex::Shadcn::Sheet::Footer < Phlex::Shadcn::Base
+class Chadcn::Sheet::Footer < Chadcn::Base
   # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
   def initialize(**attrs)
     @attrs = attrs

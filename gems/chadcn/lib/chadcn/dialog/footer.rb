@@ -3,7 +3,7 @@
 # shadcn DialogFooter. show_close_button appends a Close that wraps an outline Button.
 #
 # Layout wrapper for the actions (`div`).
-class Phlex::Shadcn::Dialog::Footer < Phlex::Shadcn::Base
+class Chadcn::Dialog::Footer < Chadcn::Base
   # @param show_close_button [Boolean] append an outline Button that closes (default false)
   # @param close_label [String] screen-reader text of the close button (default "Close")
   # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)
@@ -28,7 +28,7 @@ class Phlex::Shadcn::Dialog::Footer < Phlex::Shadcn::Base
 
   # shadcn wraps the Button in a Close without data-slot, so the Button keeps its own: a Dialog::Close part would stamp dialog-close.
   def close_button
-    render Phlex::Shadcn::Button.new(
+    render Chadcn::Button.new(
       variant: "outline", type: "button", data: { shadcn__dialog_part: "close", action: "click->shadcn--dialog#close" }
     ) { @close_label }
   end

@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
-  Select = Phlex::Shadcn::Select
+class Chadcn::SelectTest < Chadcn::TestCase
+  Select = Chadcn::Select
 
   HELPERS = {
     trigger: Select::Trigger, value: Select::Value, content: Select::Content, group: Select::Group, label: Select::Label,
@@ -132,8 +132,8 @@ class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
   end
 
   test "dir resolves from the direction provider and a local dir wins" do
-    provided = render_view { render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(Select.new) { render(Select::Trigger.new) { "x" } } } }
-    local = render_view { render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(Select.new(dir: "ltr")) { render(Select::Trigger.new) { "x" } } } }
+    provided = render_view { render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(Select.new) { render(Select::Trigger.new) { "x" } } } }
+    local = render_view { render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(Select.new(dir: "ltr")) { render(Select::Trigger.new) { "x" } } } }
 
     assert_equal "rtl", fragment(provided).at_css("[data-slot=select-trigger]")["dir"]
     assert_equal "ltr", fragment(local).at_css("[data-slot=select-trigger]")["dir"]
@@ -181,7 +181,7 @@ class Phlex::Shadcn::SelectTest < Phlex::Shadcn::TestCase
   test "a label outside a group raises at render" do
     error = assert_raises(ArgumentError) { render_view { render(Select.new) { render(Select::Label.new) { "x" } } } }
 
-    assert_equal "Phlex::Shadcn::Select::Label must be used within a Group", error.message
+    assert_equal "Chadcn::Select::Label must be used within a Group", error.message
   end
 
   test "item requires value" do

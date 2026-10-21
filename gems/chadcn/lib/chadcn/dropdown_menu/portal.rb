@@ -9,7 +9,7 @@
 #     menu.sub_trigger { "More" }
 #     menu.portal { menu.sub_content { menu.item { "Export" } } }
 #   end
-class Phlex::Shadcn::DropdownMenu::Portal < Phlex::Shadcn::Base
+class Chadcn::DropdownMenu::Portal < Chadcn::Base
   # @param force_mount [Boolean] forwarded to the SubContent options as +forceMount+, default +false+
   # @param container [String, nil] CSS selector of the mount point, default +nil+ (the controller mounts in +body+)
   def initialize(force_mount: false, container: nil)
@@ -21,10 +21,10 @@ class Phlex::Shadcn::DropdownMenu::Portal < Phlex::Shadcn::Base
   # @yield the SubContent to portal
   # @return [void]
   def view_template
-    previous = context[Phlex::Shadcn::DropdownMenu::PORTAL_KEY]
-    context[Phlex::Shadcn::DropdownMenu::PORTAL_KEY] = { force_mount: @force_mount, container: @container }
+    previous = context[Chadcn::DropdownMenu::PORTAL_KEY]
+    context[Chadcn::DropdownMenu::PORTAL_KEY] = { force_mount: @force_mount, container: @container }
     yield if block_given?
   ensure
-    context[Phlex::Shadcn::DropdownMenu::PORTAL_KEY] = previous
+    context[Chadcn::DropdownMenu::PORTAL_KEY] = previous
   end
 end

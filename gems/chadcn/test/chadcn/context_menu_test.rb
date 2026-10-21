@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
-  ContextMenu = Phlex::Shadcn::ContextMenu
+class Chadcn::ContextMenuTest < Chadcn::TestCase
+  ContextMenu = Chadcn::ContextMenu
 
   HELPERS = {
     trigger: ContextMenu::Trigger, content: ContextMenu::Content, item: ContextMenu::Item,
@@ -44,7 +44,7 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
   end
 
   test "dir resolves from the direction provider and a local dir wins" do
-    provider = Phlex::Shadcn::Direction::Provider
+    provider = Chadcn::Direction::Provider
     provided = render_view { render(provider.new(dir: "rtl")) { render(ContextMenu.new) { render(ContextMenu::Trigger.new) { "x" } } } }
     local = render_view { render(provider.new(dir: "rtl")) { render(ContextMenu.new(dir: "ltr")) { render(ContextMenu::Trigger.new) { "x" } } } }
 
@@ -169,7 +169,7 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
   end
 
   test "every default class table is applied by its part" do
-    merger = Phlex::Shadcn::Base.tw_merger
+    merger = Chadcn::Base.tw_merger
     {
       ContextMenu::Item => "[data-slot=context-menu-item]",
       ContextMenu::CheckboxItem => "[data-slot=context-menu-checkbox-item]",
@@ -278,7 +278,7 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
   end
 
   test "as_child with a component instance merges the part attributes into it" do
-    html = render_in_menu { render(ContextMenu::Item.new(as_child: Phlex::Shadcn::Button.new(variant: "ghost"))) { "x" } }
+    html = render_in_menu { render(ContextMenu::Item.new(as_child: Chadcn::Button.new(variant: "ghost"))) { "x" } }
     item = fragment(html).at_css("[data-slot=context-menu-item]")
 
     assert_equal "button", item.name
@@ -409,7 +409,7 @@ class Phlex::Shadcn::ContextMenuTest < Phlex::Shadcn::TestCase
     %w[SubTrigger SubContent].each do |name|
       error = assert_raises(ArgumentError, name) { render_in_menu { render(ContextMenu.const_get(name).new) { "x" } } }
 
-      assert_equal "Phlex::Shadcn::ContextMenu::#{name} must be used within ContextMenu::Sub", error.message
+      assert_equal "Chadcn::ContextMenu::#{name} must be used within ContextMenu::Sub", error.message
     end
   end
 

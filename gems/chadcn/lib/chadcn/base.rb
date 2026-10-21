@@ -3,15 +3,15 @@
 require "date" # Phlex::SGML::Attributes references Date without requiring it
 require "securerandom"
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
-# Parent of every Phlex::Shadcn component and part. Provides attribute merging (`**attrs`, `class:` through tailwind-merge,
+# Parent of every Chadcn component and part. Provides attribute merging (`**attrs`, `class:` through tailwind-merge,
 # deep-merged `data:`/`aria:`), the Radix Slot merge behind `as_child:` and the generated yielded-root helpers
 # (`root.header { ... }`, one per nested part; the README and docs/api-conventions.md describe them).
 #
 # Use its subclasses (the components) through their own API. Subclassing Base itself from application code is not a supported
 # API before 1.0: every method on this class is plumbing for the components and is `@api private`.
-class Phlex::Shadcn::Base < Phlex::HTML
+class Chadcn::Base < Phlex::HTML
   # @api private
   ELEMENT_METHODS = (Phlex::HTML::StandardElements.public_instance_methods +
                      Phlex::HTML::VoidElements.public_instance_methods).freeze
@@ -53,13 +53,13 @@ class Phlex::Shadcn::Base < Phlex::HTML
 
       nil
     end
-    return unless part.is_a?(Class) && part < Phlex::Shadcn::Base
+    return unless part.is_a?(Class) && part < Chadcn::Base
 
     helper = name.to_s.gsub(/([a-z\d])([A-Z])/, '\1_\2').downcase.to_sym
     raise ArgumentError, "helper ##{helper} (from #{name}) would override a Ruby/Phlex API method" if reserved_helper_names.include?(helper)
 
     # Resolved at call time (not captured): `const_added` fires when the class is created, before its file has defined `initialize`.
-    # Looked up on the namespace that owns the part, so subclasses of a root (`class AppTable < Phlex::Shadcn::Table`) keep the helpers.
+    # Looked up on the namespace that owns the part, so subclasses of a root (`class AppTable < Chadcn::Table`) keep the helpers.
     owner = self
     define_method(helper) { |**attrs, &block| render owner.const_get(name, false).new(**attrs), &block }
   end
@@ -145,13 +145,13 @@ class Phlex::Shadcn::Base < Phlex::HTML
   def cn(*inputs)
     return merge_classes(inputs) unless inputs.all? { |input| input.nil? || input.instance_of?(String) }
 
-    Phlex::Shadcn::Base.cn_cached(inputs) { merge_classes(inputs) }
+    Chadcn::Base.cn_cached(inputs) { merge_classes(inputs) }
   end
 
   # JSON for a data attribute, with the HTML-sensitive characters escaped (see Values.json).
   #
   # @api private
-  def json(value) = Phlex::Shadcn::Values.json(value)
+  def json(value) = Chadcn::Values.json(value)
 
   # `"icon-sm"`, `:icon_sm` and `"icon_sm"` all become `"icon-sm"` (React variant keys).
   #
@@ -192,7 +192,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
     css.empty? ? merged.except(:class) : merged.merge(class: css)
   end
 
-  # Radix `Slot`: renders `child` (a Phlex::Shadcn component instance, or a tag symbol) with `slot_attrs` merged in,
+  # Radix `Slot`: renders `child` (a Chadcn component instance, or a tag symbol) with `slot_attrs` merged in,
   # exactly like `@radix-ui/react-slot` mergeProps. NOT `merge_attrs`: no tailwind-merge here.
   #
   # @api private
@@ -239,7 +239,7 @@ class Phlex::Shadcn::Base < Phlex::HTML
     flattened = flatten_class_inputs(inputs)
     return "" if flattened.empty?
 
-    Phlex::Shadcn::Base.tw_merger.merge(flattened.join(" "))
+    Chadcn::Base.tw_merger.merge(flattened.join(" "))
   end
 
   # Recursively flattens class inputs with clsx semantics (String, Array, Hash with truthy keys, nil).

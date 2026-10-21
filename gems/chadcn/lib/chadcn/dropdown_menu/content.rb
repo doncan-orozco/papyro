@@ -8,8 +8,8 @@
 #   menu.content(side: "right", align: "start", loop: true) do
 #     menu.item { "Profile" }
 #   end
-class Phlex::Shadcn::DropdownMenu::Content < Phlex::Shadcn::Base
-  include Phlex::Shadcn::DropdownMenu::Support
+class Chadcn::DropdownMenu::Content < Chadcn::Base
+  include Chadcn::DropdownMenu::Support
 
   # Default Tailwind classes of the content element (merged with +class:+).
   #
@@ -32,7 +32,7 @@ class Phlex::Shadcn::DropdownMenu::Content < Phlex::Shadcn::Base
   # @param loop [Boolean] wrap keyboard navigation around the ends, default +false+
   # @param force_mount [Boolean] default +false+; serialized as +forceMount+ but without effect on this root Content (the
   #   controller only honors it on sub menus)
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String
   #   or a component instance renders that instead, receiving this part's attributes merged in (Radix Slot)
   # @param attrs [Hash] extra HTML attributes merged over the defaults: +class:+ is merged with tailwind_merge,
   #   +data:+ and +aria:+ hashes are deep merged; +style:+ is merged into the inline style that sets the popper CSS variables

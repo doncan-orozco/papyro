@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
-  DropdownMenu = Phlex::Shadcn::DropdownMenu
+class Chadcn::DropdownMenuTest < Chadcn::TestCase
+  DropdownMenu = Chadcn::DropdownMenu
 
   HELPERS = {
     portal: DropdownMenu::Portal, trigger: DropdownMenu::Trigger, content: DropdownMenu::Content, group: DropdownMenu::Group,
@@ -242,8 +242,8 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
   end
 
   test "dir resolves from the direction provider and a local dir wins" do
-    provided = render_view { render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(DropdownMenu.new) { render(DropdownMenu::Trigger.new) { "x" } } } }
-    local = render_view { render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(DropdownMenu.new(dir: "ltr")) { render(DropdownMenu::Trigger.new) { "x" } } } }
+    provided = render_view { render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(DropdownMenu.new) { render(DropdownMenu::Trigger.new) { "x" } } } }
+    local = render_view { render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(DropdownMenu.new(dir: "ltr")) { render(DropdownMenu::Trigger.new) { "x" } } } }
 
     assert_equal "rtl", fragment(provided).at_css("[data-slot=dropdown-menu-trigger]")["data-shadcn--dropdown-menu-dir-value"]
     assert_equal "ltr", fragment(local).at_css("[data-slot=dropdown-menu-trigger]")["data-shadcn--dropdown-menu-dir-value"]
@@ -339,7 +339,7 @@ class Phlex::Shadcn::DropdownMenuTest < Phlex::Shadcn::TestCase
   end
 
   test "item as_child accepts a component instance and merges the item attributes into it" do
-    html = menu { render(DropdownMenu::Item.new(as_child: Phlex::Shadcn::Button.new(href: "/x"))) { "Go" } }
+    html = menu { render(DropdownMenu::Item.new(as_child: Chadcn::Button.new(href: "/x"))) { "Go" } }
     item = fragment(html).at_css("[data-slot=dropdown-menu-item]")
 
     assert_equal "menuitem", item["role"]

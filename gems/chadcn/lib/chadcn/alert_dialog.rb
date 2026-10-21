@@ -12,15 +12,15 @@
 # Parts are rendered with the explicit classes or with the helpers generated on the yielded root (one per part).
 #
 # @example Explicit form
-#   render Phlex::Shadcn::AlertDialog.new do
-#     render Phlex::Shadcn::AlertDialog::Trigger.new { "Open" }
-#     render Phlex::Shadcn::AlertDialog::Content.new do
-#       render(Phlex::Shadcn::AlertDialog::Title.new { "Title" })
+#   render Chadcn::AlertDialog.new do
+#     render Chadcn::AlertDialog::Trigger.new { "Open" }
+#     render Chadcn::AlertDialog::Content.new do
+#       render(Chadcn::AlertDialog::Title.new { "Title" })
 #     end
 #   end
 #
 # @example Yielded-root helper form
-#   render Phlex::Shadcn::AlertDialog.new do |alert_dialog|
+#   render Chadcn::AlertDialog.new do |alert_dialog|
 #     alert_dialog.trigger { "Open" }
 #     alert_dialog.content { alert_dialog.title { "Title" } }
 #   end
@@ -49,7 +49,7 @@
 #   Same as `render AlertDialog::Cancel.new(**attrs), &block`.
 # @!method media(**attrs, &block)
 #   Same as `render AlertDialog::Media.new(**attrs), &block`.
-class Phlex::Shadcn::AlertDialog < Phlex::Shadcn::Base
+class Chadcn::AlertDialog < Chadcn::Base
   # @api private
   ROOT_KEY = :shadcn_alert_dialog_root
   # @api private

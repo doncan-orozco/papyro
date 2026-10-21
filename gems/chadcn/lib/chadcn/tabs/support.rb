@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # What the tabs parts share: the render context pushed by Tabs.
 #
 # @api private
-module Phlex::Shadcn::Tabs::Support
+module Chadcn::Tabs::Support
   private
 
   def root_context
-    context[Phlex::Shadcn::Tabs::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Tabs"
+    context[Chadcn::Tabs::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Tabs"
   end
 
   def render_part(tag_name, as_child, attrs, &)

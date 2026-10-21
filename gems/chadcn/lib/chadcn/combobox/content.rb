@@ -5,12 +5,12 @@
 # against the input (or the trigger, when the search field lives inside the popup, or `anchor:`).
 #
 # @example
-#   render Phlex::Shadcn::Combobox::Content.new do
-#     render(Phlex::Shadcn::Combobox::Empty.new { "No items found." })
-#     render(Phlex::Shadcn::Combobox::List.new) { |item| render(Phlex::Shadcn::Combobox::Item.new(value: item) { item }) }
+#   render Chadcn::Combobox::Content.new do
+#     render(Chadcn::Combobox::Empty.new { "No items found." })
+#     render(Chadcn::Combobox::List.new) { |item| render(Chadcn::Combobox::Item.new(value: item) { item }) }
 #   end
-class Phlex::Shadcn::Combobox::Content < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+class Chadcn::Combobox::Content < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #

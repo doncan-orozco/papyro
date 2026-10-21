@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn ScrollArea over Radix ScrollArea (Root, Viewport, Scrollbar, Thumb, Corner). Spec: docs/shadcn-port/specs/scroll-area.md.
 # Behavior: controllers/shadcn/scroll_area_controller.js (one controller on the root div; it mounts the scrollbars kept in templates).
@@ -9,15 +9,15 @@ using Phlex::Shadcn::Values::Refinements
 # The vertical scrollbar is always rendered; render a horizontal one inside the block to enable that axis.
 #
 # @example
-#   render Phlex::Shadcn::ScrollArea.new(type: "always", class: "h-72 w-48") do |area|
+#   render Chadcn::ScrollArea.new(type: "always", class: "h-72 w-48") do |area|
 #     %w[v1.2.0 v1.1.0 v1.0.0].each { |tag| div { plain tag } }
 #     area.scroll_bar(orientation: "horizontal")
 #   end
 #
-# @see Phlex::Shadcn::ScrollArea::ScrollBar
+# @see Chadcn::ScrollArea::ScrollBar
 # @see https://ui.shadcn.com/docs/components/scroll-area
-class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Direction::Consumer
+class Chadcn::ScrollArea < Chadcn::Base
+  include Chadcn::Direction::Consumer
 
   # Render-context key holding the orientations enabled by the scrollbars.
   #
@@ -43,7 +43,7 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
   ROOT_STYLE = "position: relative; --radix-scroll-area-corner-width: 0px; --radix-scroll-area-corner-height: 0px;"
 
   # @param type [String, Symbol] when the scrollbars show: `auto`, `always`, `scroll` or `hover` (default: "hover")
-  # @param dir [String, Symbol, nil] `ltr` or `rtl`; defaults to the nearest {Phlex::Shadcn::Direction::Provider} (default: nil)
+  # @param dir [String, Symbol, nil] `ltr` or `rtl`; defaults to the nearest {Chadcn::Direction::Provider} (default: nil)
   # @param scroll_hide_delay [Integer] milliseconds before the scrollbars hide (default: 600)
   # @param attrs [Hash] HTML attributes for the root `div`; `class:` is tailwind-merged, `style:` is appended, `data:` and `aria:`
   #   are deep-merged
@@ -62,7 +62,7 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
 
   # Renders the root, the viewport (with the block as content) and the vertical scrollbar.
   #
-  # @yieldparam area [Phlex::Shadcn::ScrollArea] the root, exposing the part helpers
+  # @yieldparam area [Chadcn::ScrollArea] the root, exposing the part helpers
   # @return [void]
   def view_template
     direction = use_direction(@dir)
@@ -103,8 +103,8 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
 
   # Radix ScrollAreaScrollbar + Thumb. Both stay in inert <template>s until the controller mounts them (spec: Deviations).
   #
-  # Must be rendered inside a {Phlex::Shadcn::ScrollArea}; also available as `area.scroll_bar` on the yielded scroll area.
-  class ScrollBar < Phlex::Shadcn::Base
+  # Must be rendered inside a {Chadcn::ScrollArea}; also available as `area.scroll_bar` on the yielded scroll area.
+  class ScrollBar < Chadcn::Base
     # Accepted `orientation:` values.
     ORIENTATIONS = %w[vertical horizontal].freeze
     # Classes shared by both orientations.
@@ -144,10 +144,10 @@ class Phlex::Shadcn::ScrollArea < Phlex::Shadcn::Base
     # Registers the orientation with the scroll area and renders the scrollbar and its thumb inside inert templates.
     #
     # @return [void]
-    # @raise [ArgumentError] when rendered outside a {Phlex::Shadcn::ScrollArea}
+    # @raise [ArgumentError] when rendered outside a {Chadcn::ScrollArea}
     def view_template
-      state = context[Phlex::Shadcn::ScrollArea::KEY]
-      raise ArgumentError, "#{self.class.name} must be rendered inside a #{Phlex::Shadcn::ScrollArea.name}" unless state
+      state = context[Chadcn::ScrollArea::KEY]
+      raise ArgumentError, "#{self.class.name} must be rendered inside a #{Chadcn::ScrollArea.name}" unless state
 
       state[:orientations] << @orientation
       template(data: { shadcn__scroll_area_target: "scrollbar", shadcn__scroll_area_force_mount: (@force_mount ? "true" : nil) }) do

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
+class Chadcn::Bubble < Chadcn::Base
   CLASS_NAME = "flex w-fit flex-col gap-1 bg-[oklch(from_var(--primary)_0.93_calc(c*0.4)_h)] text-foreground"
 
   def initialize(**attrs)
@@ -13,6 +13,6 @@ class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
   end
 end
 
-class Phlex::Shadcn::Bubble
+class Chadcn::Bubble
   EXTRA = "text-[#fff] bg-[oklch(0.5 0 0)]"
 end

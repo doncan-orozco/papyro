@@ -5,7 +5,7 @@
 # the English labels.
 #
 # @api private
-class Phlex::Shadcn::Calendar::Locale
+class Chadcn::Calendar::Locale
   # Translated labels of the exact locales (rdp locale/en-US.js and locale/es.js).
   LABELS = {
     "en" => {

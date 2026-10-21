@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-# shadcn CommandDialog: a Command inside a Dialog (Phlex::Shadcn::Dialog does all the dialog behavior).
+# shadcn CommandDialog: a Command inside a Dialog (Chadcn::Dialog does all the dialog behavior).
 #
 # `class:` goes to the dialog content; the other attributes, `open:`, `default_open:` and `modal:` go to the Dialog root.
 # The block receives the Command root (so `command.input`, `command.list`... work).
 #
 # @example
-#   render Phlex::Shadcn::Command::Dialog.new(default_open: true) do |command|
+#   render Chadcn::Command::Dialog.new(default_open: true) do |command|
 #     command.input(placeholder: "Type a command or search...")
 #     command.list { command.empty { "No results found." } }
 #   end
-class Phlex::Shadcn::Command::Dialog < Phlex::Shadcn::Base
+class Chadcn::Command::Dialog < Chadcn::Base
   # @param title [String] the sr-only dialog title
   # @param description [String] the sr-only dialog description
   # @param show_close_button [Boolean] render the X close button
@@ -28,16 +28,16 @@ class Phlex::Shadcn::Command::Dialog < Phlex::Shadcn::Base
     super()
   end
 
-  # @yieldparam command [Phlex::Shadcn::Command] the Command root inside the dialog
+  # @yieldparam command [Chadcn::Command] the Command root inside the dialog
   # @return [void]
   def view_template(&block)
-    render Phlex::Shadcn::Dialog.new(**@dialog, **@attrs.except(:class)) do
-      render(Phlex::Shadcn::Dialog::Header.new(class: "sr-only")) do
-        render(Phlex::Shadcn::Dialog::Title.new { @title })
-        render(Phlex::Shadcn::Dialog::Description.new { @description })
+    render Chadcn::Dialog.new(**@dialog, **@attrs.except(:class)) do
+      render(Chadcn::Dialog::Header.new(class: "sr-only")) do
+        render(Chadcn::Dialog::Title.new { @title })
+        render(Chadcn::Dialog::Description.new { @description })
       end
-      render Phlex::Shadcn::Dialog::Content.new(class: cn("overflow-hidden p-0", @attrs[:class]), show_close_button: @show_close_button) do
-        render Phlex::Shadcn::Command.new(class: Phlex::Shadcn::Command::DIALOG_COMMAND_CLASSES), &block
+      render Chadcn::Dialog::Content.new(class: cn("overflow-hidden p-0", @attrs[:class]), show_close_button: @show_close_button) do
+        render Chadcn::Command.new(class: Chadcn::Command::DIALOG_COMMAND_CLASSES), &block
       end
     end
   end

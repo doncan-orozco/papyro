@@ -5,7 +5,7 @@
 # Confirms and closes the alert dialog (a Button-styled `button`).
 #
 # @example Explicit form
-#   render Phlex::Shadcn::AlertDialog::Action.new { "Action" }
+#   render Chadcn::AlertDialog::Action.new { "Action" }
 # @example Yielded-root helper form
 #   alert_dialog.action { "Action" }
 #
@@ -18,8 +18,8 @@
 # @!method view_template(&)
 #   @yield the button content
 #   @return [void]
-class Phlex::Shadcn::AlertDialog::Action < Phlex::Shadcn::Base
-  include Phlex::Shadcn::AlertDialog::ActionButton
+class Chadcn::AlertDialog::Action < Chadcn::Base
+  include Chadcn::AlertDialog::ActionButton
 
   private
 

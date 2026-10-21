@@ -2,12 +2,12 @@
 
 # Action and Cancel: Button as slot around Primitive.Close. The Slot joins classes as plain strings (button
 # classes first, then the caller class, no tailwind-merge), so a caller rounded-full keeps both radius classes.
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Shared by Action and Cancel.
 # @api private
-module Phlex::Shadcn::AlertDialog::ActionButton
-  include Phlex::Shadcn::AlertDialog::Support
+module Chadcn::AlertDialog::ActionButton
+  include Chadcn::AlertDialog::Support
 
   # @param variant [String, Symbol, nil] Button variant (Action defaults to "default", Cancel to "outline")
   # @param size [String, Symbol] Button size (default "default")
@@ -16,7 +16,7 @@ module Phlex::Shadcn::AlertDialog::ActionButton
   def initialize(variant: nil, size: "default", as_child: false, **attrs)
     @variant = normalize_option(variant) || default_variant
     @size = normalize_option(size) || "default"
-    @button_classes = Phlex::Shadcn::Button.variants(variant: @variant, size: @size)
+    @button_classes = Chadcn::Button.variants(variant: @variant, size: @size)
     @as_child = as_child
     @attrs = attrs
     super()

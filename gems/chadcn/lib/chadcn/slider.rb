@@ -2,7 +2,7 @@
 
 # shadcn Slider over Radix Slider (Root, Track, Range, Thumb rendered internally). Spec: docs/shadcn-port/specs/slider.md.
 # Behavior: controllers/shadcn/slider_controller.js (one controller on the root span).
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Single component with no nested parts: the track, range, thumbs and hidden inputs (one per thumb) are rendered internally.
 # One thumb per element of the initial value array. With no array value, two thumbs and two hidden inputs are rendered:
@@ -15,9 +15,9 @@ using Phlex::Shadcn::Values::Refinements
 # The hidden inputs are removed by the controller when the slider is neither inside a `<form>` nor given `form:`.
 #
 # @example
-#   render Phlex::Shadcn::Slider.new(default_value: [ 25, 75 ], max: 100, step: 5, name: "price", class: "w-64")
-class Phlex::Shadcn::Slider < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Direction::Consumer
+#   render Chadcn::Slider.new(default_value: [ 25, 75 ], max: 100, step: 5, name: "price", class: "w-64")
+class Chadcn::Slider < Chadcn::Base
+  include Chadcn::Direction::Consumer
 
   # Allowed values of `orientation:`.
   # @return [Array<String>]

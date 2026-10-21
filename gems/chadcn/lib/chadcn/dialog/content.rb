@@ -3,16 +3,16 @@
 # shadcn DialogContent = Portal + Overlay + Radix Content (+ the X close button). The body is captured first because
 # aria-labelledby / aria-describedby depend on whether a Title / Description was rendered inside (Radix learns it in
 # an effect, dialog:261-262).
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Portal + Overlay + content panel of the dialog (+ the X close button).
 #
 # @example Explicit form
-#   render Phlex::Shadcn::Dialog::Content.new { "Body" }
+#   render Chadcn::Dialog::Content.new { "Body" }
 # @example Yielded-root helper form
 #   dialog.content { "Body" }
-class Phlex::Shadcn::Dialog::Content < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Dialog::Support
+class Chadcn::Dialog::Content < Chadcn::Base
+  include Chadcn::Dialog::Support
 
   # @api private
   CLASSES = "fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg"
@@ -43,19 +43,19 @@ class Phlex::Shadcn::Dialog::Content < Phlex::Shadcn::Base
       yield if block_given?
       close_button if @show_close_button
     end
-    portaled = context[Phlex::Shadcn::Dialog::PORTAL_KEY]
+    portaled = context[Chadcn::Dialog::PORTAL_KEY]
     markup = proc do
-      render Phlex::Shadcn::Dialog::Overlay.new
+      render Chadcn::Dialog::Overlay.new
       render_part(:div, @as_child, content_attrs(root)) { raw(safe(body)) }
     end
-    portaled ? instance_exec(&markup) : render(Phlex::Shadcn::Dialog::Portal.new, &markup)
+    portaled ? instance_exec(&markup) : render(Chadcn::Dialog::Portal.new, &markup)
   end
 
   private
 
   def close_button
-    render Phlex::Shadcn::Dialog::Close.new(class: CLOSE_CLASSES) do
-      render Phlex::Shadcn::Icon.new("x")
+    render Chadcn::Dialog::Close.new(class: CLOSE_CLASSES) do
+      render Chadcn::Icon.new("x")
       span(class: "sr-only") { @close_label }
     end
   end

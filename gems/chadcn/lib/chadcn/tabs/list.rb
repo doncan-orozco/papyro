@@ -4,12 +4,12 @@
 #
 # @example
 #   tabs.list(variant: "line") { tabs.trigger(value: "a") { "A" } }
-class Phlex::Shadcn::Tabs::List < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Tabs::Support
+class Chadcn::Tabs::List < Chadcn::Base
+  include Chadcn::Tabs::Support
 
   # @param variant [String, Symbol] `"default"` or `"line"`
   # @param loop [Boolean] whether keyboard navigation wraps around
-  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  # @param as_child [false, nil, Symbol, String, Chadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
   #   the part's attributes are merged onto it. `true` is not supported.
   # @param attrs [Hash] HTML attributes merged onto the list (`style:` is joined after the outline reset)
   def initialize(variant: "default", loop: true, as_child: false, **attrs)
@@ -29,7 +29,7 @@ class Phlex::Shadcn::Tabs::List < Phlex::Shadcn::Base
                           role: "tablist",
                           tabindex: 0,
                           style: join_style("outline: none", @style),
-                          class: Phlex::Shadcn::Tabs.list_variants(variant: @variant),
+                          class: Chadcn::Tabs.list_variants(variant: @variant),
                           aria: { orientation: root[:orientation] },
                           data: { orientation: root[:orientation], slot: "tabs-list", variant: @variant,
                                   shadcn__tabs_target: "list", shadcn__tabs_loop_value: @loop.to_s }

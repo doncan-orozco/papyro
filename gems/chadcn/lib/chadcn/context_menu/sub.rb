@@ -8,8 +8,8 @@
 #     menu.sub_trigger { "More tools" }
 #     menu.sub_content { menu.item { "Save page as..." } }
 #   end
-class Phlex::Shadcn::ContextMenu::Sub < Phlex::Shadcn::Base
-  include Phlex::Shadcn::ContextMenu::Support
+class Chadcn::ContextMenu::Sub < Chadcn::Base
+  include Chadcn::ContextMenu::Support
 
   # @param open [Boolean, nil] non-nil makes the sub menu controlled and rendered open or closed accordingly (default +nil+)
   # @param default_open [Boolean] default +false+; only affects the server markup: the controller closes every sub when
@@ -22,16 +22,16 @@ class Phlex::Shadcn::ContextMenu::Sub < Phlex::Shadcn::Base
 
   # @yield the SubTrigger and SubContent
   # @return [void]
-  # @raise [ArgumentError] when not rendered within a {Phlex::Shadcn::ContextMenu}
+  # @raise [ArgumentError] when not rendered within a {Chadcn::ContextMenu}
   def view_template
     root = root_context
-    previous = context[Phlex::Shadcn::ContextMenu::SUB_KEY]
-    base = "#{root[:base]}-sub-#{Phlex::Shadcn::ContextMenu.next_sequence(context)}"
-    context[Phlex::Shadcn::ContextMenu::SUB_KEY] = {
+    previous = context[Chadcn::ContextMenu::SUB_KEY]
+    base = "#{root[:base]}-sub-#{Chadcn::ContextMenu.next_sequence(context)}"
+    context[Chadcn::ContextMenu::SUB_KEY] = {
       trigger_id: "#{base}-trigger", content_id: "#{base}-content", open: @open, controlled: @controlled
     }
     yield if block_given?
   ensure
-    context[Phlex::Shadcn::ContextMenu::SUB_KEY] = previous
+    context[Chadcn::ContextMenu::SUB_KEY] = previous
   end
 end

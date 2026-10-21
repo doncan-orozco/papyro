@@ -2,11 +2,11 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::MessageTest < Phlex::Shadcn::TestCase
+class Chadcn::MessageTest < Chadcn::TestCase
   PARTS = { group: "group", avatar: "avatar", content: "content", footer: "footer", header: "header" }.freeze
 
   def html(**, &block)
-    Phlex::Shadcn::Message.new(**).call(&block || proc { |_| "Hi" })
+    Chadcn::Message.new(**).call(&block || proc { |_| "Hi" })
   end
 
   test "root renders slot, align default and symbol align" do
@@ -30,7 +30,7 @@ class Phlex::Shadcn::MessageTest < Phlex::Shadcn::TestCase
 
   test "every part renders its slot" do
     PARTS.each_value do |name|
-      klass = Phlex::Shadcn::Message.const_get(name.capitalize)
+      klass = Chadcn::Message.const_get(name.capitalize)
 
       assert_includes klass.new(id: "x").call { "t" }, %(data-slot="message-#{name}"), name
     end
@@ -38,9 +38,9 @@ class Phlex::Shadcn::MessageTest < Phlex::Shadcn::TestCase
 
   test "every DX helper renders the same HTML as the explicit class" do
     PARTS.each do |helper, name|
-      klass = Phlex::Shadcn::Message.const_get(name.capitalize)
-      via_helper = Phlex::Shadcn::Message.new.call { |m| m.public_send(helper, class: "x") { "t" } }
-      explicit = Phlex::Shadcn::Message.new.call { |m| m.render klass.new(class: "x") { "t" } }
+      klass = Chadcn::Message.const_get(name.capitalize)
+      via_helper = Chadcn::Message.new.call { |m| m.public_send(helper, class: "x") { "t" } }
+      explicit = Chadcn::Message.new.call { |m| m.render klass.new(class: "x") { "t" } }
 
       assert_equal explicit, via_helper, helper.to_s
     end

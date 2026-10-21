@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::NativeSelectTest < Phlex::Shadcn::TestCase
-  NS = Phlex::Shadcn::NativeSelect
+class Chadcn::NativeSelectTest < Chadcn::TestCase
+  NS = Chadcn::NativeSelect
 
   def html(**opts)
     NS.new(**opts).call do |s|

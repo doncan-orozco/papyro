@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::DialogTest < Phlex::Shadcn::TestCase
-  Dialog = Phlex::Shadcn::Dialog
+class Chadcn::DialogTest < Chadcn::TestCase
+  Dialog = Chadcn::Dialog
 
   HELPERS = {
     close: Dialog::Close, content: Dialog::Content, description: Dialog::Description, footer: Dialog::Footer,
@@ -19,7 +19,7 @@ class Phlex::Shadcn::DialogTest < Phlex::Shadcn::TestCase
   def dialog(root: {}, content: {}, footer: {}, &body)
     render_view do
       render(Dialog.new(**root)) do
-        render(Dialog::Trigger.new(as_child: Phlex::Shadcn::Button.new(variant: "outline"))) { "Open" }
+        render(Dialog::Trigger.new(as_child: Chadcn::Button.new(variant: "outline"))) { "Open" }
         render(Dialog::Content.new(**content)) do
           instance_exec(&body) if body
           render(Dialog::Footer.new(**footer)) { "Actions" }

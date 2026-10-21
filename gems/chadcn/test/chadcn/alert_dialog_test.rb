@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::AlertDialogTest < Phlex::Shadcn::TestCase
-  AlertDialog = Phlex::Shadcn::AlertDialog
+class Chadcn::AlertDialogTest < Chadcn::TestCase
+  AlertDialog = Chadcn::AlertDialog
 
   HELPERS = {
     trigger: AlertDialog::Trigger, content: AlertDialog::Content, header: AlertDialog::Header,

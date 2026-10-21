@@ -5,8 +5,8 @@
 # A single-line text field, the shadcn `Input`; renders a void `<input data-slot="input">`.
 #
 # @example
-#   render Phlex::Shadcn::Input.new(type: "email", name: "email", placeholder: "you@example.com")
-class Phlex::Shadcn::Input < Phlex::Shadcn::Base
+#   render Chadcn::Input.new(type: "email", name: "email", placeholder: "you@example.com")
+class Chadcn::Input < Chadcn::Base
   # Layout, typography and disabled classes.
   #
   # @api private

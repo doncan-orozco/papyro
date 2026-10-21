@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn AccordionTrigger: Radix Header (h3) > Trigger (button) + chevron.
 #
 # @example
 #   acc.trigger(class: "text-lg") { "Title" }
-class Phlex::Shadcn::Accordion::Trigger < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Accordion::Support
+class Chadcn::Accordion::Trigger < Chadcn::Base
+  include Chadcn::Accordion::Support
 
   # Default Tailwind classes of the trigger button.
   #
@@ -33,7 +33,7 @@ class Phlex::Shadcn::Accordion::Trigger < Phlex::Shadcn::Base
     h3(class: "flex", data: { orientation: root[:orientation], state:, disabled: disabled_data(item) }) do
       button(**button_attrs(item, root, state)) do
         yield if block_given?
-        render Phlex::Shadcn::Icon.new("chevron-down", class: ICON_CLASSES)
+        render Chadcn::Icon.new("chevron-down", class: ICON_CLASSES)
       end
     end
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Radix MenuRadioItem: a +div role="menuitemradio"+ with a circle indicator, checked when its +value+ equals the enclosing
 # RadioGroup value (compared as strings; outside a RadioGroup it is never checked). Activating it dispatches +select+ and
@@ -8,8 +8,8 @@ using Phlex::Shadcn::Values::Refinements
 #
 # @example
 #   menu.radio_item(value: "asc") { "Ascending" }
-class Phlex::Shadcn::DropdownMenu::RadioItem < Phlex::Shadcn::Base
-  include Phlex::Shadcn::DropdownMenu::Support
+class Chadcn::DropdownMenu::RadioItem < Chadcn::Base
+  include Chadcn::DropdownMenu::Support
 
   # Default Tailwind classes of the item (merged with +class:+).
   #
@@ -23,7 +23,7 @@ class Phlex::Shadcn::DropdownMenu::RadioItem < Phlex::Shadcn::Base
   # @param value [String, Symbol] required (omitting it raises ArgumentError at construction); stored with +to_s+
   # @param disabled [Boolean] default +false+; renders +data-disabled+ and +aria-disabled+
   # @param text_value [String, nil] text used by typeahead, default +nil+
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String
   #   or a component instance renders that instead, receiving this part's attributes merged in (Radix Slot)
   # @param attrs [Hash] extra HTML attributes merged over the defaults: +class:+ is merged with tailwind_merge,
   #   +data:+ and +aria:+ hashes are deep merged
@@ -39,7 +39,7 @@ class Phlex::Shadcn::DropdownMenu::RadioItem < Phlex::Shadcn::Base
   # @yield the item content (rendered after the indicator)
   # @return [void]
   def view_template(&)
-    group = context[Phlex::Shadcn::DropdownMenu::RADIO_GROUP_KEY]
+    group = context[Chadcn::DropdownMenu::RADIO_GROUP_KEY]
     checked = !group.nil? && !group[:value].nil? && group[:value].to_s == @value
     defaults = item_attrs(disabled: @disabled, text_value: @text_value).merge_deep(
       role: "menuitemradio", class: CLASSES,
@@ -48,7 +48,7 @@ class Phlex::Shadcn::DropdownMenu::RadioItem < Phlex::Shadcn::Base
     )
     render_part(:div, @as_child, merge_attrs(defaults, @attrs)) do
       span(class: INDICATOR_CLASSES) do
-        span(data: { state: "checked" }) { render Phlex::Shadcn::Icon.new("circle", class: "size-2 fill-current") } if checked
+        span(data: { state: "checked" }) { render Chadcn::Icon.new("circle", class: "size-2 fill-current") } if checked
       end
       yield if block_given?
     end

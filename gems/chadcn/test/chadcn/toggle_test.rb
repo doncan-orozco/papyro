@@ -2,9 +2,9 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::ToggleTest < Phlex::Shadcn::TestCase
+class Chadcn::ToggleTest < Chadcn::TestCase
   def html(**opts)
-    Phlex::Shadcn::Toggle.new(**opts).call { |_| "Bold" }
+    Chadcn::Toggle.new(**opts).call { |_| "Bold" }
   end
 
   test "renders defaults" do
@@ -45,21 +45,21 @@ class Phlex::Shadcn::ToggleTest < Phlex::Shadcn::TestCase
   end
 
   test "variants helper" do
-    classes = Phlex::Shadcn::Toggle.variants(variant: :outline, size: :sm, class: "x").split
+    classes = Chadcn::Toggle.variants(variant: :outline, size: :sm, class: "x").split
 
     assert_includes classes, "h-8"
     assert_includes classes, "x"
   end
 
   test "constant tables" do
-    assert_equal %w[default outline], Phlex::Shadcn::Toggle::VARIANTS.keys
-    assert_equal %w[default sm lg], Phlex::Shadcn::Toggle::SIZES.keys
+    assert_equal %w[default outline], Chadcn::Toggle::VARIANTS.keys
+    assert_equal %w[default sm lg], Chadcn::Toggle::SIZES.keys
   end
 
   test "unknown variant or size raises" do
     assert_raises(ArgumentError) { html(variant: :ghost) }
     assert_raises(ArgumentError) { html(size: :huge) }
-    assert_raises(ArgumentError) { Phlex::Shadcn::Toggle.variants(variant: :ghost) }
+    assert_raises(ArgumentError) { Chadcn::Toggle.variants(variant: :ghost) }
   end
 
   test "as_child renders the given tag with the toggle attributes" do

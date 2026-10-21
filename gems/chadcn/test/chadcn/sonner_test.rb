@@ -3,13 +3,13 @@
 require "phlex/test_case"
 require "json"
 
-class Phlex::Shadcn::SonnerTest < Phlex::Shadcn::TestCase
+class Chadcn::SonnerTest < Chadcn::TestCase
   def render_toaster(**props, &)
-    Phlex::Shadcn::Toaster.new(**props).call(&)
+    Chadcn::Toaster.new(**props).call(&)
   end
 
   def render_toast(**props, &)
-    Phlex::Shadcn::Sonner::Toast.new(**props).call(&)
+    Chadcn::Sonner::Toast.new(**props).call(&)
   end
 
   def value_of(html, name)
@@ -17,21 +17,21 @@ class Phlex::Shadcn::SonnerTest < Phlex::Shadcn::TestCase
   end
 
   test "Toaster is the Sonner::Toaster class" do
-    assert_same Phlex::Shadcn::Sonner::Toaster, Phlex::Shadcn::Toaster
+    assert_same Chadcn::Sonner::Toaster, Chadcn::Toaster
   end
 
   test "the Sonner root renders a Toaster and its generated helpers equal the explicit classes" do
     explicit = Class.new(Phlex::HTML) do
       def view_template
-        render(Phlex::Shadcn::Sonner::Toaster.new(position: "top-center")) { render Phlex::Shadcn::Sonner::Toast.new(title: "Hi", type: :success) }
+        render(Chadcn::Sonner::Toaster.new(position: "top-center")) { render Chadcn::Sonner::Toast.new(title: "Hi", type: :success) }
       end
     end.new.call
     helpers = Class.new(Phlex::HTML) do
-      def view_template = render(Phlex::Shadcn::Sonner.new(position: "top-center")) { |sonner| sonner.toast(title: "Hi", type: :success) }
+      def view_template = render(Chadcn::Sonner.new(position: "top-center")) { |sonner| sonner.toast(title: "Hi", type: :success) }
     end.new.call
 
     assert_equal explicit, helpers
-    assert_equal(%i[toast toaster], %i[toast toaster].select { |helper| Phlex::Shadcn::Sonner.public_method_defined?(helper) })
+    assert_equal(%i[toast toaster], %i[toast toaster].select { |helper| Chadcn::Sonner.public_method_defined?(helper) })
   end
 
   test "renders sonner's live region section with the controller" do
@@ -126,7 +126,7 @@ class Phlex::Shadcn::SonnerTest < Phlex::Shadcn::TestCase
   end
 
   test "icons can be replaced or switched off per type" do
-    html = render_toaster(icons: { success: false, error: Phlex::Shadcn::Icon.new("x", class: "size-3") })
+    html = render_toaster(icons: { success: false, error: Chadcn::Icon.new("x", class: "size-3") })
 
     assert_match(%r{<template data-shadcn--sonner-icon="success" data-none(="")?></template>}, html)
     assert_match(/<template data-shadcn--sonner-icon="error"><svg[^>]*class="lucide lucide-x size-3"/, html)
@@ -144,7 +144,7 @@ class Phlex::Shadcn::SonnerTest < Phlex::Shadcn::TestCase
   test "toasts: and the block render Toast templates" do
     page = Class.new(Phlex::HTML) do
       def view_template
-        render(Phlex::Shadcn::Toaster.new(toasts: [ { title: "A", type: :info } ])) { render Phlex::Shadcn::Sonner::Toast.new(title: "B") }
+        render(Chadcn::Toaster.new(toasts: [ { title: "A", type: :info } ])) { render Chadcn::Sonner::Toast.new(title: "B") }
       end
     end
     html = page.new.call
@@ -198,7 +198,7 @@ class Phlex::Shadcn::SonnerTest < Phlex::Shadcn::TestCase
   end
 
   test "ships no JavaScript dependency" do
-    root = Phlex::Shadcn.root
+    root = Chadcn.root
     controller = File.read(root.join("app/javascript/controllers/shadcn/sonner_controller.js"))
     primitive = File.read(root.join("app/javascript/shadcn/primitives/toast_stack.js"))
 

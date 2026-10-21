@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn ContextMenuCheckboxItem: a +div+ with +role="menuitemcheckbox"+ and a check indicator. +checked:+ is controlled only,
 # like Radix: the port never flips it; selecting the item dispatches +shadcn--context-menu:checked-change+ on the item
@@ -10,8 +10,8 @@ using Phlex::Shadcn::Values::Refinements
 #
 # @example
 #   menu.checkbox_item(checked: true) { "Show bookmarks" }
-class Phlex::Shadcn::ContextMenu::CheckboxItem < Phlex::Shadcn::Base
-  include Phlex::Shadcn::ContextMenu::Support
+class Chadcn::ContextMenu::CheckboxItem < Chadcn::Base
+  include Chadcn::ContextMenu::Support
 
   # @return [String] the default Tailwind classes (shadcn new-york-v4)
   CLASSES = "relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
@@ -22,7 +22,7 @@ class Phlex::Shadcn::ContextMenu::CheckboxItem < Phlex::Shadcn::Base
   #   (+data-state="indeterminate"+, +aria-checked="mixed"+); any other truthy value is checked, falsy is unchecked (default +false+)
   # @param disabled [Boolean] +true+ renders +data-disabled+ and +aria-disabled="true"+ (default +false+)
   # @param text_value [String, nil] rendered as +data-text-value+ (typeahead text); omitted when +nil+
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String
   #   or a component instance renders that element/component instead, with this part's attributes merged into it
   #   (Radix Slot)
   # @param attrs [Hash] HTML attributes for the element; +class+ is merged with the defaults through tailwind-merge, +data+ and
@@ -52,7 +52,7 @@ class Phlex::Shadcn::ContextMenu::CheckboxItem < Phlex::Shadcn::Base
     render_part(:div, @as_child, merge_attrs(defaults, @attrs)) do
       span(class: INDICATOR_CLASSES) do
         # Radix ItemIndicator (Presence): mounted for checked and indeterminate.
-        span(data: { state: @state }) { render Phlex::Shadcn::Icon.new("check", class: "size-4") } unless @state == "unchecked"
+        span(data: { state: @state }) { render Chadcn::Icon.new("check", class: "size-4") } unless @state == "unchecked"
       end
       yield if block_given?
     end

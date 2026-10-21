@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::MenubarTest < Phlex::Shadcn::TestCase
-  Menubar = Phlex::Shadcn::Menubar
+class Chadcn::MenubarTest < Chadcn::TestCase
+  Menubar = Chadcn::Menubar
 
   HELPERS = {
     portal: Menubar::Portal, menu: Menubar::Menu, trigger: Menubar::Trigger, content: Menubar::Content,
@@ -123,7 +123,7 @@ class Phlex::Shadcn::MenubarTest < Phlex::Shadcn::TestCase
   end
 
   test "dir resolves from the direction provider and a local dir wins" do
-    provider = Phlex::Shadcn::Direction::Provider
+    provider = Chadcn::Direction::Provider
     provided = render_view { render(provider.new(dir: "rtl")) { render(Menubar.new) { "x" } } }
     local = render_view { render(provider.new(dir: "rtl")) { render(Menubar.new(dir: "ltr")) { "x" } } }
 
@@ -168,7 +168,7 @@ class Phlex::Shadcn::MenubarTest < Phlex::Shadcn::TestCase
     assert_equal "menubar", as_nav["role"]
     assert_includes as_nav["class"], "extra"
 
-    as_button = fragment(render_view { render(Menubar.new(as_child: Phlex::Shadcn::Button.new(variant: "outline"))) { "x" } }).at_css("[data-slot=menubar]")
+    as_button = fragment(render_view { render(Menubar.new(as_child: Chadcn::Button.new(variant: "outline"))) { "x" } }).at_css("[data-slot=menubar]")
 
     assert_equal "button", as_button.name
     assert_equal "menubar", as_button["role"]

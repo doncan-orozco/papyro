@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Radix MenuItem: a +div role="menuitem"+. Activating it (click, Enter, Space) dispatches +select+ (cancelable: preventing
 # it keeps the menu open) and closes the menu. Disabled items are skipped by keyboard navigation and ignore activation.
@@ -9,8 +9,8 @@ using Phlex::Shadcn::Values::Refinements
 #   menu.item { "Profile" }
 #   menu.item(variant: "destructive", inset: true) { "Delete" }
 #   menu.item(disabled: true, text_value: "Archive") { "Archive (soon)" }
-class Phlex::Shadcn::DropdownMenu::Item < Phlex::Shadcn::Base
-  include Phlex::Shadcn::DropdownMenu::Support
+class Chadcn::DropdownMenu::Item < Chadcn::Base
+  include Chadcn::DropdownMenu::Support
 
   # Default Tailwind classes of the item (merged with +class:+).
   #
@@ -22,7 +22,7 @@ class Phlex::Shadcn::DropdownMenu::Item < Phlex::Shadcn::Base
   # @param inset [Boolean, nil] +nil+ (default) omits +data-inset+; +true+/+false+ render +data-inset="true"+/+"false"+
   # @param disabled [Boolean] default +false+; renders +data-disabled+ and +aria-disabled+
   # @param text_value [String, nil] text used by typeahead instead of the item's text, default +nil+
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String
   #   or a component instance renders that instead, receiving this part's attributes merged in (Radix Slot)
   # @param attrs [Hash] extra HTML attributes merged over the defaults: +class:+ is merged with tailwind_merge,
   #   +data:+ and +aria:+ hashes are deep merged

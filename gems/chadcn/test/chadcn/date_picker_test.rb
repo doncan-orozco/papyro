@@ -5,9 +5,9 @@ require "json"
 
 # The DatePicker is not a class: it is the Popover + Button + Calendar composition documented in docs/form-controls.md. This renders
 # that composition and checks the wiring the controller relies on (the hidden input outside the popover, the label, the options).
-class Phlex::Shadcn::DatePickerTest < Phlex::Shadcn::TestCase
-  Popover = Phlex::Shadcn::Popover
-  Calendar = Phlex::Shadcn::Calendar
+class Chadcn::DatePickerTest < Chadcn::TestCase
+  Popover = Chadcn::Popover
+  Calendar = Chadcn::Calendar
 
   # The composition of the docs, as a form field named `event[date]`.
   def ordinal(day) = (11..13).cover?(day % 100) ? "th" : { 1 => "st", 2 => "nd", 3 => "rd" }.fetch(day % 10, "th")
@@ -19,8 +19,8 @@ class Phlex::Shadcn::DatePickerTest < Phlex::Shadcn::TestCase
         form(action: "/events", method: "post") do
           input(type: "hidden", id: "event_date", name: "event[date]", value: date&.iso8601)
           render Popover.new do
-            render Popover::Trigger.new(as_child: Phlex::Shadcn::Button.new(variant: "outline", class: "w-[240px] justify-start text-left font-normal")) do
-              render Phlex::Shadcn::Icon.new("calendar")
+            render Popover::Trigger.new(as_child: Chadcn::Button.new(variant: "outline", class: "w-[240px] justify-start text-left font-normal")) do
+              render Chadcn::Icon.new("calendar")
               span(id: "event_date_label", data: { shadcn__calendar_placeholder: "Pick a date", empty: date.nil?.to_s }) do
                 date ? date.strftime("%B #{date.day}#{suffix}, %Y") : "Pick a date"
               end

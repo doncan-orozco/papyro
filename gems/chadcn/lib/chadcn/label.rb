@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn/ui Label over Radix Label. Spec: docs/shadcn-port/specs/label.md
 #
 # A form label, the shadcn `Label` over Radix Label (its `shadcn--label` controller blocks text selection on double click).
 #
 # @example
-#   render Phlex::Shadcn::Label.new(html_for: "email") { "Email" }
-class Phlex::Shadcn::Label < Phlex::Shadcn::Base
+#   render Chadcn::Label.new(html_for: "email") { "Email" }
+class Chadcn::Label < Chadcn::Base
   # Label classes, including the disabled styles driven by a sibling or a group.
   # @return [String]
   #
@@ -24,7 +24,7 @@ class Phlex::Shadcn::Label < Phlex::Shadcn::Base
   ACTION = "mousedown->shadcn--label#mousedown"
 
   # @param html_for [String, nil] id of the labelled control, rendered as `for`; wins over an explicit `for:`
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base]
+  # @param as_child [false, Symbol, String, Chadcn::Base]
   #   a tag or component instance to render instead of the `<label>`; false renders the default element
   # @param attrs [Hash] HTML attributes (`class:`, `data:`, `aria:`...)
   def initialize(html_for: nil, as_child: false, **attrs)

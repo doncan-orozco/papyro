@@ -2,13 +2,13 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::AttachmentTest < Phlex::Shadcn::TestCase
+class Chadcn::AttachmentTest < Chadcn::TestCase
   PARTS = { group: "attachment-group", media: "attachment-media", content: "attachment-content",
             title: "attachment-title", description: "attachment-description", actions: "attachment-actions",
             action: "attachment-action", trigger: "attachment-trigger" }.freeze
 
   def html(**, &block)
-    Phlex::Shadcn::Attachment.new(**).call(&block || proc { |_| "Body" })
+    Chadcn::Attachment.new(**).call(&block || proc { |_| "Body" })
   end
 
   test "root renders data attributes, defaults and merged class" do
@@ -49,14 +49,14 @@ class Phlex::Shadcn::AttachmentTest < Phlex::Shadcn::TestCase
   test "helpers render the same HTML as the explicit classes" do
     helpers = html { |a| PARTS.each_key { |n| a.public_send(n, class: "k") { "x" } } }
     explicit = html do |a|
-      PARTS.each_key { |n| a.render Phlex::Shadcn::Attachment.const_get(n.to_s.capitalize).new(class: "k") { "x" } }
+      PARTS.each_key { |n| a.render Chadcn::Attachment.const_get(n.to_s.capitalize).new(class: "k") { "x" } }
     end
 
     assert_equal explicit, helpers
   end
 
   test "media rejects an unknown variant and accepts the image one" do
-    assert_raises(ArgumentError) { Phlex::Shadcn::Attachment::Media.new(variant: :nope) }
-    assert_includes Phlex::Shadcn::Attachment::Media.new(variant: :image).call { "x" }, 'data-variant="image"'
+    assert_raises(ArgumentError) { Chadcn::Attachment::Media.new(variant: :nope) }
+    assert_includes Chadcn::Attachment::Media.new(variant: :image).call { "x" }, 'data-variant="image"'
   end
 end

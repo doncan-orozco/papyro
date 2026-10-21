@@ -6,8 +6,8 @@
 #
 # @example
 #   menu.sub_content(side_offset: 2) { menu.item { "Export" } }
-class Phlex::Shadcn::DropdownMenu::SubContent < Phlex::Shadcn::Base
-  include Phlex::Shadcn::DropdownMenu::Support
+class Chadcn::DropdownMenu::SubContent < Chadcn::Base
+  include Chadcn::DropdownMenu::Support
 
   # Default Tailwind classes of the sub content element (merged with +class:+).
   #
@@ -26,7 +26,7 @@ class Phlex::Shadcn::DropdownMenu::SubContent < Phlex::Shadcn::Base
   # @param arrow_padding [Integer] default +0+
   # @param loop [Boolean] wrap keyboard navigation around the ends, default +false+
   # @param force_mount [Boolean] default +false+; also forced by an enclosing Portal with +force_mount: true+
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String
   #   or a component instance renders that instead, receiving this part's attributes merged in (Radix Slot)
   # @param attrs [Hash] extra HTML attributes merged over the defaults: +class:+ is merged with tailwind_merge,
   #   +data:+ and +aria:+ hashes are deep merged; +style:+ is merged into the inline style that sets the popper CSS variables
@@ -46,19 +46,19 @@ class Phlex::Shadcn::DropdownMenu::SubContent < Phlex::Shadcn::Base
   # @return [void]
   def view_template
     root = root_context
-    sub = context[Phlex::Shadcn::DropdownMenu::SUB_KEY] or raise ArgumentError, "#{self.class.name} must be used within DropdownMenu::Sub"
-    portal = context[Phlex::Shadcn::DropdownMenu::PORTAL_KEY]
+    sub = context[Chadcn::DropdownMenu::SUB_KEY] or raise ArgumentError, "#{self.class.name} must be used within DropdownMenu::Sub"
+    portal = context[Chadcn::DropdownMenu::PORTAL_KEY]
     options = @options.merge(
       forceMount: @force_mount || portal&.dig(:force_mount) || false, portal: !portal.nil?, container: portal&.dig(:container)
     ).compact
     attrs = menu_content_attrs(classes: CLASSES, slot: "dropdown-menu-sub-content", id: sub[:content_id], labelledby: sub[:trigger_id],
                                dir: root[:dir])
     # A Portal reaches only its own SubContent: sub menus nested inside need a Portal of their own.
-    context[Phlex::Shadcn::DropdownMenu::PORTAL_KEY] = nil
+    context[Chadcn::DropdownMenu::PORTAL_KEY] = nil
     template(data: { shadcn__dropdown_menu_template: sub[:content_id], options: json(options) }) do
       render_part(:div, @as_child, attrs) { yield if block_given? }
     end
   ensure
-    context[Phlex::Shadcn::DropdownMenu::PORTAL_KEY] = portal
+    context[Chadcn::DropdownMenu::PORTAL_KEY] = portal
   end
 end

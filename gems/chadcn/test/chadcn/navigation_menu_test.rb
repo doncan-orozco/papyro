@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
-  NavigationMenu = Phlex::Shadcn::NavigationMenu
+class Chadcn::NavigationMenuTest < Chadcn::TestCase
+  NavigationMenu = Chadcn::NavigationMenu
 
   def render_menu(root: {}, trigger: {}, content: {}, link: {}, item: {})
     Class.new(Phlex::HTML) do
@@ -195,7 +195,7 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
 
   test "dir comes from the direction provider unless set" do
     inherited = render_view do
-      render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(NavigationMenu.new(viewport: false)) }
+      render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(NavigationMenu.new(viewport: false)) }
     end
     nav = part(inherited, "navigation-menu")
 
@@ -203,7 +203,7 @@ class Phlex::Shadcn::NavigationMenuTest < Phlex::Shadcn::TestCase
     assert_equal "rtl", nav["data-shadcn--navigation-menu-dir-value"]
 
     explicit = render_view do
-      render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(NavigationMenu.new(viewport: false, dir: "ltr")) }
+      render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(NavigationMenu.new(viewport: false, dir: "ltr")) }
     end
     local = part(explicit, "navigation-menu")
 

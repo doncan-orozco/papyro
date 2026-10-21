@@ -7,7 +7,7 @@
 #     plain "Save"
 #     menu.shortcut { "Ctrl+S" }
 #   end
-class Phlex::Shadcn::DropdownMenu::Shortcut < Phlex::Shadcn::Base
+class Chadcn::DropdownMenu::Shortcut < Chadcn::Base
   # Default Tailwind classes of the shortcut (merged with +class:+).
   #
   # @return [String]

@@ -5,9 +5,9 @@
 # Inside {Combobox::Content} it is the search field of a popup that opens from a standalone {Combobox::Trigger}.
 #
 # @example
-#   render Phlex::Shadcn::Combobox::Input.new(placeholder: "Select a framework", show_clear: true)
-class Phlex::Shadcn::Combobox::Input < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+#   render Chadcn::Combobox::Input.new(placeholder: "Select a framework", show_clear: true)
+class Chadcn::Combobox::Input < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # @param disabled [Boolean] disables the rendered `<input>`, the trigger and the clear button (not the combobox)
   # @param show_trigger [Boolean] render the chevron button
@@ -21,18 +21,18 @@ class Phlex::Shadcn::Combobox::Input < Phlex::Shadcn::Base
     super()
   end
 
-  # @yield extra InputGroup children (an {Phlex::Shadcn::InputGroup::Addon}, for example)
+  # @yield extra InputGroup children (an {Chadcn::InputGroup::Addon}, for example)
   # @return [void]
   # @raise [ArgumentError] when rendered outside Combobox
   def view_template(&block)
     model = root_model
     model.input_outside = true unless model.in_popup
-    render Phlex::Shadcn::InputGroup.new(class: cn("w-auto", @attrs[:class])) do |group|
+    render Chadcn::InputGroup.new(class: cn("w-auto", @attrs[:class])) do |group|
       dismiss_button(model)
       group.input(**input_attrs(model))
       group.addon(align: "inline-end") do
         render_trigger if @show_trigger
-        render Phlex::Shadcn::Combobox::Clear.new(disabled: @disabled) if @show_clear
+        render Chadcn::Combobox::Clear.new(disabled: @disabled) if @show_clear
       end
       block&.call(group)
     end
@@ -44,13 +44,13 @@ class Phlex::Shadcn::Combobox::Input < Phlex::Shadcn::Base
   def dismiss_button(model)
     return if model.in_popup || !model.open?
 
-    span(role: "button", aria: { label: "Dismiss" }, style: Phlex::Shadcn::Combobox::VISUALLY_HIDDEN_INPUT,
+    span(role: "button", aria: { label: "Dismiss" }, style: Chadcn::Combobox::VISUALLY_HIDDEN_INPUT,
          data: { shadcn__combobox_part: "dismiss-start" })
   end
 
   def render_trigger
-    render Phlex::Shadcn::InputGroup::Button.new(
-      size: "icon-xs", variant: "ghost", as_child: Phlex::Shadcn::Combobox::Trigger.new, "data-slot": "input-group-button",
+    render Chadcn::InputGroup::Button.new(
+      size: "icon-xs", variant: "ghost", as_child: Chadcn::Combobox::Trigger.new, "data-slot": "input-group-button",
       class: "group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent", disabled: @disabled
     )
   end

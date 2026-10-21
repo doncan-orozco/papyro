@@ -17,7 +17,7 @@ You are the **Critic**. You never fix code and never edit files. You run read-on
 ### Inputs
 `COMPONENT`, `MODE` = `full | triage | static` , optional `GATE_REPORTS` (paths) and `SERVERS_UP`.
 - `static` (used by `/shadcn-golden` and when no browser is available): run G1 only, then do the code review below on the given files.
-  In `static` mode, before issuing ANY `Q_API_SURFACE` or `Q_SPEC_DRIFT` finding you MUST first `Read` `.ai/skills/shadcn-port/references/api-mapping.md` (event names, `detail` shape, `as_child`) and, if it exists, `gems/phlex-shadcn/dev/port/specs/<name>.md`; golden cases have no spec, so then compare against the oracle source and Radix behavior only.
+  In `static` mode, before issuing ANY `Q_API_SURFACE` or `Q_SPEC_DRIFT` finding you MUST first `Read` `.ai/skills/shadcn-port/references/api-mapping.md` (event names, `detail` shape, `as_child`) and, if it exists, `gems/chadcn/dev/port/specs/<name>.md`; golden cases have no spec, so then compare against the oracle source and Radix behavior only.
 - `triage`: take existing gate reports and the Builder's `stuck` note, return causes and fixes.
 - `full`: run G1, G2/G3 and G4 yourself (never trust the Builder's numbers), then triage + review.
 
@@ -56,7 +56,7 @@ You are the **Critic**. You never fix code and never edit files. You run read-on
       "summary": "Focus is not returned to the trigger on close",
       "scenarios": ["close-escape", "close-x"],
       "evidence": ["FOCUSED at step 2:press(Escape) react=dialog-trigger phlex=body"],
-      "fix_target": { "file": "gems/phlex-shadcn/app/javascript/controllers/shadcn/dialog_controller.js", "change": "On release of focusScope pass onUnmountAutoFocus that focuses the trigger target unless event.defaultPrevented", "oracle": "dialog.tsx DialogContent -> Radix DialogContent onCloseAutoFocus default" }
+      "fix_target": { "file": "gems/chadcn/app/javascript/controllers/shadcn/dialog_controller.js", "change": "On release of focusScope pass onUnmountAutoFocus that focuses the trigger target unless event.defaultPrevented", "oracle": "dialog.tsx DialogContent -> Radix DialogContent onCloseAutoFocus default" }
     }
   ],
   "findings": [ { "code": "Q_CLEANUP", "severity": "ADVISORY", "file": "...", "line": 0, "detail": "..." } ],

@@ -6,8 +6,8 @@
 #
 # @example
 #   menu.content(class: "w-52") { menu.item { "Back" } }
-class Phlex::Shadcn::ContextMenu::Content < Phlex::Shadcn::Base
-  include Phlex::Shadcn::ContextMenu::Support
+class Chadcn::ContextMenu::Content < Chadcn::Base
+  include Chadcn::ContextMenu::Support
 
   # @return [String] the default Tailwind classes (shadcn new-york-v4)
   CLASSES = "z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
@@ -26,7 +26,7 @@ class Phlex::Shadcn::ContextMenu::Content < Phlex::Shadcn::Base
   # @param loop [Boolean] keyboard focus wraps around the items (default +false+)
   # @param force_mount [Boolean] forwarded as +forceMount+ (default +false+); the controller only honours it for sub menus, so
   #   it never keeps the root content mounted
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String
   #   or a component instance renders that element/component instead, with this part's attributes merged into it
   #   (Radix Slot)
   # @param attrs [Hash] HTML attributes for the menu element; +class+ is merged with the defaults, +data+ and +aria+ are
@@ -49,7 +49,7 @@ class Phlex::Shadcn::ContextMenu::Content < Phlex::Shadcn::Base
 
   # @yield the items of the menu
   # @return [void]
-  # @raise [ArgumentError] when not rendered within a {Phlex::Shadcn::ContextMenu}
+  # @raise [ArgumentError] when not rendered within a {Chadcn::ContextMenu}
   def view_template
     root = root_context
     attrs = menu_content_attrs(classes: CLASSES, slot: "context-menu-content", id: nil, labelledby: nil, dir: root[:dir])

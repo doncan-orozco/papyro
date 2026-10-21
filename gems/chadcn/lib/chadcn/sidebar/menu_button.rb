@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn SidebarMenuButton. With `tooltip:` the button is the trigger of a Tooltip whose content stays hidden unless the
 # sidebar is collapsed on desktop (tsx:525-545); the controller keeps `hidden` current.
 #
-# Rendered inside a {Phlex::Shadcn::Sidebar::Provider}; also available as `sidebar.menu_button` on the yielded sidebar.
+# Rendered inside a {Chadcn::Sidebar::Provider}; also available as `sidebar.menu_button` on the yielded sidebar.
 #
 # @example
 #   sidebar.menu_button(as_child: :a, href: "/", is_active: true, tooltip: "Home") { plain "Home" }
 #
-# @see Phlex::Shadcn::Sidebar
-class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sidebar::Support
+# @see Chadcn::Sidebar
+class Chadcn::Sidebar::MenuButton < Chadcn::Base
+  include Chadcn::Sidebar::Support
 
   # Spellings of the tooltip class key that are normalized to `:class`.
   #
@@ -50,7 +50,7 @@ class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
     [ BASE, VARIANTS.fetch(variant.to_s), SIZES.fetch(size.to_s) ].join(" ")
   end
 
-  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  # @param as_child [false, nil, Symbol, String, Chadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
   #   the part's attributes are merged onto it. `true` is not supported.
   # @param is_active [Boolean] mark the button as the current page (`data-active`) (default: false)
   # @param variant [String, Symbol] one of `default`, `outline` (default: "default")
@@ -59,7 +59,7 @@ class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
   #   plus `children` (default: nil, no tooltip)
   # @param attrs [Hash] HTML attributes for the element; `class:` is tailwind-merged over the defaults, `data:` and `aria:`
   #   are deep-merged (caller wins)
-  # @raise [ArgumentError] when `variant` or `size` is unknown, or on render without a {Phlex::Shadcn::Sidebar::Provider}
+  # @raise [ArgumentError] when `variant` or `size` is unknown, or on render without a {Chadcn::Sidebar::Provider}
   def initialize(as_child: false, is_active: false, variant: "default", size: "default", tooltip: nil, **attrs)
     @as_child = as_child
     @is_active = is_active
@@ -75,7 +75,7 @@ class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
   # @yield the content of the element
   # @return [void]
   def view_template(&)
-    sidebar = Phlex::Shadcn::Sidebar.use_sidebar(self)
+    sidebar = Chadcn::Sidebar.use_sidebar(self)
     attrs = part_attrs(cn(self.class.variants(variant: @variant, size: @size)),
                        data: { slot: "sidebar-menu-button", sidebar: "menu-button", size: @size, active: @is_active.to_s })
     return render_part(:button, @as_child, attrs, &) if @tooltip.blank_value?
@@ -90,9 +90,9 @@ class Phlex::Shadcn::Sidebar::MenuButton < Phlex::Shadcn::Base
   def with_tooltip(attrs, sidebar, &block)
     options = tooltip_options
     text = options.delete(:children)
-    render Phlex::Shadcn::Tooltip.new do
-      render(Phlex::Shadcn::Tooltip::Trigger.new(as_child: @as_child || :button, **trigger_attrs(attrs)), &block)
-      render(Phlex::Shadcn::Tooltip::Content.new(**content_options(options, sidebar))) { text }
+    render Chadcn::Tooltip.new do
+      render(Chadcn::Tooltip::Trigger.new(as_child: @as_child || :button, **trigger_attrs(attrs)), &block)
+      render(Chadcn::Tooltip::Content.new(**content_options(options, sidebar))) { text }
     end
   end
 

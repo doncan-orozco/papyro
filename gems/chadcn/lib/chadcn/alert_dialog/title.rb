@@ -3,8 +3,8 @@
 # shadcn AlertDialogTitle. Marks the dialog as titled so Content can emit aria-labelledby.
 #
 # Accessible title (`h2`); makes Content emit `aria-labelledby`.
-class Phlex::Shadcn::AlertDialog::Title < Phlex::Shadcn::Base
-  include Phlex::Shadcn::AlertDialog::Support
+class Chadcn::AlertDialog::Title < Chadcn::Base
+  include Chadcn::AlertDialog::Support
 
   # @api private
   CLASSES = "text-lg font-semibold sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2"

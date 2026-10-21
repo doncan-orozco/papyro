@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # What the parts share: the render context, the Radix MenuItemImpl + RovingFocusGroup.Item markup (the controller keeps
 # tabindex and data-highlighted in sync afterwards), the Content markup and the as_child switch.
 #
 # @api private
-module Phlex::Shadcn::Menubar::Support
+module Chadcn::Menubar::Support
   # @api private
   # @return [Hash{String=>String}] inline CSS variables set on every (Sub)Content. shadcn does not set these; Radix re-namespaces the popper
   #   variables on every (Sub)Content (Mb:262-272).
@@ -21,11 +21,11 @@ module Phlex::Shadcn::Menubar::Support
   private
 
   def root_context
-    context[Phlex::Shadcn::Menubar::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Menubar"
+    context[Chadcn::Menubar::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Menubar"
   end
 
   def menu_context
-    context[Phlex::Shadcn::Menubar::MENU_KEY] or raise ArgumentError, "#{self.class.name} must be used within Menubar::Menu"
+    context[Chadcn::Menubar::MENU_KEY] or raise ArgumentError, "#{self.class.name} must be used within Menubar::Menu"
   end
 
   def item_attrs(disabled:, text_value: nil)

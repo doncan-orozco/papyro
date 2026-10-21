@@ -8,8 +8,8 @@
 #     menu.sub_trigger { "More" }
 #     menu.sub_content { menu.item { "Export" } }
 #   end
-class Phlex::Shadcn::DropdownMenu::Sub < Phlex::Shadcn::Base
-  include Phlex::Shadcn::DropdownMenu::Support
+class Chadcn::DropdownMenu::Sub < Chadcn::Base
+  include Chadcn::DropdownMenu::Support
 
   # @param open [Boolean, nil] non-nil makes the sub menu controlled (user actions only dispatch +open-change+), default +nil+
   # @param default_open [Boolean] default +false+; only affects the server markup: the controller closes every sub when
@@ -25,13 +25,13 @@ class Phlex::Shadcn::DropdownMenu::Sub < Phlex::Shadcn::Base
   # @return [void]
   def view_template
     root = root_context
-    previous = context[Phlex::Shadcn::DropdownMenu::SUB_KEY]
-    base = "#{root[:base]}-sub-#{Phlex::Shadcn::DropdownMenu.next_sequence(context)}"
-    context[Phlex::Shadcn::DropdownMenu::SUB_KEY] = {
+    previous = context[Chadcn::DropdownMenu::SUB_KEY]
+    base = "#{root[:base]}-sub-#{Chadcn::DropdownMenu.next_sequence(context)}"
+    context[Chadcn::DropdownMenu::SUB_KEY] = {
       trigger_id: "#{base}-trigger", content_id: "#{base}-content", open: @open, controlled: @controlled
     }
     yield if block_given?
   ensure
-    context[Phlex::Shadcn::DropdownMenu::SUB_KEY] = previous
+    context[Chadcn::DropdownMenu::SUB_KEY] = previous
   end
 end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn Pagination (new-york-v4). Spec: docs/shadcn-port/specs/pagination.md. Static: no controller.
 #
@@ -8,21 +8,21 @@ using Phlex::Shadcn::Values::Refinements
 # `ellipsis`) equal to rendering `Pagination::Content`, `Pagination::Item`, etc.
 #
 # @example
-#   render Phlex::Shadcn::Pagination.new do |pg|
+#   render Chadcn::Pagination.new do |pg|
 #     pg.content do
 #       pg.item { pg.previous(href: "?page=1") }
 #       pg.item { pg.link(href: "?page=2", is_active: true) { "2" } }
 #       pg.item { pg.next(href: "?page=3") }
 #     end
 #   end
-class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
+class Chadcn::Pagination < Chadcn::Base
   # @param attrs [Hash] HTML attributes merged onto the `nav`
   def initialize(**attrs)
     @attrs = attrs
     super()
   end
 
-  # @yieldparam pagination [Phlex::Shadcn::Pagination] the root, exposing the part helpers
+  # @yieldparam pagination [Chadcn::Pagination] the root, exposing the part helpers
   # @return [void]
   def view_template(&block)
     defaults = { role: "navigation", aria: { label: "pagination" }, data: { slot: "pagination" },
@@ -31,7 +31,7 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
   end
 
   # The `ul` that holds the items.
-  class Content < Phlex::Shadcn::Base
+  class Content < Chadcn::Base
     # @param attrs [Hash] HTML attributes merged onto the element
     def initialize(**attrs)
       @attrs = attrs
@@ -46,7 +46,7 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
   end
 
   # An `li` wrapping a link, previous/next or an ellipsis.
-  class Item < Phlex::Shadcn::Base
+  class Item < Chadcn::Base
     # @param attrs [Hash] HTML attributes merged onto the element
     def initialize(**attrs)
       @attrs = attrs
@@ -66,7 +66,7 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
   #
   # @example
   #   pg.link(href: "?page=2", is_active: true) { "2" }
-  class Link < Phlex::Shadcn::Base
+  class Link < Chadcn::Base
     # @param is_active [Boolean, nil] tri-state: true marks the current page, false emits `data-active="false"`, nil emits nothing
     # @param size [String, Symbol] Button size variant (`"icon"` by default)
     # @param attrs [Hash] HTML attributes for the `a` (`class:` is merged into the Button variant classes)
@@ -82,7 +82,7 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
     def view_template(&)
       # Tri-state like React: nil emits no data-active, false emits "false".
       state = { aria: { current: ("page" if @is_active) }, data: { slot: "pagination-link", active: @is_active } }
-      klass = Phlex::Shadcn::Button.variants(variant: @is_active ? "outline" : "ghost", size: @size, class: @attrs[:class])
+      klass = Chadcn::Button.variants(variant: @is_active ? "outline" : "ghost", size: @size, class: @attrs[:class])
       attrs = canonical_attrs(state).merge_deep(canonical_attrs(@attrs.except(:class)))
       a(**attrs.merge(class: klass), &)
     end
@@ -92,7 +92,7 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
   #
   # @example
   #   pg.item { pg.previous(href: "?page=1") }
-  class Previous < Phlex::Shadcn::Base
+  class Previous < Chadcn::Base
     # @param label [String] visible text (default: "Previous")
     # @param aria_label [String] accessible name of the link (default: "Go to previous page")
     # @param attrs [Hash] HTML attributes merged onto the element
@@ -106,8 +106,8 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
     # @return [void]
     def view_template
       attrs = merge_attrs({ aria: { label: @aria_label }, size: "default", class: "gap-1 px-2.5 sm:pl-2.5" }, @attrs)
-      render Phlex::Shadcn::Pagination::Link.new(**attrs) do
-        render Phlex::Shadcn::Icon.new("chevron-left")
+      render Chadcn::Pagination::Link.new(**attrs) do
+        render Chadcn::Icon.new("chevron-left")
         span(class: "hidden sm:block") { plain @label }
       end
     end
@@ -117,7 +117,7 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
   #
   # @example
   #   pg.item { pg.next(href: "?page=3") }
-  class Next < Phlex::Shadcn::Base
+  class Next < Chadcn::Base
     # @param label [String] visible text (default: "Next")
     # @param aria_label [String] accessible name of the link (default: "Go to next page")
     # @param attrs [Hash] HTML attributes merged onto the element
@@ -131,15 +131,15 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
     # @return [void]
     def view_template
       attrs = merge_attrs({ aria: { label: @aria_label }, size: "default", class: "gap-1 px-2.5 sm:pr-2.5" }, @attrs)
-      render Phlex::Shadcn::Pagination::Link.new(**attrs) do
+      render Chadcn::Pagination::Link.new(**attrs) do
         span(class: "hidden sm:block") { plain @label }
-        render Phlex::Shadcn::Icon.new("chevron-right")
+        render Chadcn::Icon.new("chevron-right")
       end
     end
   end
 
   # A collapsed-pages marker: ellipsis icon plus a screen-reader label.
-  class Ellipsis < Phlex::Shadcn::Base
+  class Ellipsis < Chadcn::Base
     # @param label [String] screen-reader text (default: "More pages")
     # @param attrs [Hash] HTML attributes merged onto the element
     def initialize(label: "More pages", **attrs)
@@ -152,7 +152,7 @@ class Phlex::Shadcn::Pagination < Phlex::Shadcn::Base
     def view_template
       defaults = { aria: { hidden: "true" }, data: { slot: "pagination-ellipsis" }, class: "flex size-9 items-center justify-center" }
       span(**merge_attrs(defaults, @attrs)) do
-        render Phlex::Shadcn::Icon.new("ellipsis", class: "size-4")
+        render Chadcn::Icon.new("ellipsis", class: "size-4")
         span(class: "sr-only") { plain @label }
       end
     end

@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn Separator over Radix Separator: a thin horizontal or vertical rule.
 #
 # @example
-#   Phlex::Shadcn::Separator.new(orientation: :vertical, decorative: false)
-class Phlex::Shadcn::Separator < Phlex::Shadcn::Base
+#   Chadcn::Separator.new(orientation: :vertical, decorative: false)
+class Chadcn::Separator < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -16,7 +16,7 @@ class Phlex::Shadcn::Separator < Phlex::Shadcn::Base
 
   # @param orientation [String, Symbol] +horizontal+ or +vertical+; any other value falls back to +horizontal+
   # @param decorative [Boolean] +true+ renders +role="none"+; +false+ renders +role="separator"+ (plus +aria-orientation+ when vertical)
-  # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
+  # @param as_child [Boolean, Symbol, Chadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
   # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
   def initialize(orientation: "horizontal", decorative: true, as_child: false, **attrs)
     orientation = orientation.to_s

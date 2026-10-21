@@ -17,15 +17,15 @@ module Phlex
         # @api private
         module Ejected
           NAME = "ejected components"
-          FIX = "bin/rails g phlex:shadcn:eject %<unit>s --diff shows the change; --force copies the new file over yours (merge your edits first)"
+          FIX = "bin/rails g chadcn:eject %<unit>s --diff shows the change; --force copies the new file over yours (merge your edits first)"
           private_constant :FIX
 
           # @param context [Context]
           # @param override_dir [String, nil] the override directory; the configured one by default
           # @param gem_dir [String] the gem's component sources
           # @return [Result]
-          def self.call(context, override_dir: Shadcn.config.override_dir, gem_dir: Overrides::GEM_DIR)
-            installed = context.gem_version("phlex-shadcn")&.to_s || VERSION
+          def self.call(context, override_dir: Chadcn.config.override_dir, gem_dir: Overrides::GEM_DIR)
+            installed = context.gem_version("chadcn")&.to_s || VERSION
             units = Overrides.ejected_units(override_dir, gem_dir: gem_dir)
             by_unit = units.to_h { |unit| [ unit, problems(unit, override_dir, gem_dir, installed) ] }.reject { |_, found| found.empty? }
             problems = by_unit.values.flatten + orphans(override_dir, gem_dir)
@@ -63,11 +63,11 @@ module Phlex
 
           # @return [Array<String>]
           def self.stale(unit, rel, header, gem_dir, installed)
-            gem_file = File.join(gem_dir, header[:source].delete_prefix("lib/phlex/shadcn/"))
-            return [ "#{unit} (#{rel}) was copied from phlex-shadcn #{header[:version]}, but the gem has no such file any more" ] unless File.file?(gem_file)
+            gem_file = File.join(gem_dir, header[:source].delete_prefix("lib/chadcn/"))
+            return [ "#{unit} (#{rel}) was copied from chadcn #{header[:version]}, but the gem has no such file any more" ] unless File.file?(gem_file)
             return [] if Overrides.digest(File.read(gem_file, encoding: "UTF-8")) == header[:digest]
 
-            [ "#{unit} (#{rel}) changed upstream: copied from phlex-shadcn #{header[:version]}, installed #{installed}" ]
+            [ "#{unit} (#{rel}) changed upstream: copied from chadcn #{header[:version]}, installed #{installed}" ]
           end
           private_class_method :stale
 
@@ -81,7 +81,7 @@ module Phlex
             (Dir.glob("**/*.rb", base: override_dir) - covered).filter_map do |rel|
               next unless Overrides.parse_header(File.read(File.join(override_dir, rel), encoding: "UTF-8"))
 
-              "#{rel} was ejected from phlex-shadcn but the gem no longer has that file"
+              "#{rel} was ejected from chadcn but the gem no longer has that file"
             end
           end
           private_class_method :orphans

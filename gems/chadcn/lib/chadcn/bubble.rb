@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn Bubble: one chat bubble. Compose with {Bubble::Content}, {Bubble::Group} and {Bubble::Reactions}.
 #
 # @example
-#   Phlex::Shadcn::Bubble.new(variant: :muted, align: :end) { |bubble| bubble.content { "Hello" } }
+#   Chadcn::Bubble.new(variant: :muted, align: :end) { |bubble| bubble.content { "Hello" } }
 #
 # @!method group(**attrs, &block)
 #   Renders {Bubble::Group}; same as +render Bubble::Group.new(**attrs), &block+.
@@ -18,7 +18,7 @@ using Phlex::Shadcn::Values::Refinements
 # @!method reactions(**attrs, &block)
 #   Renders {Bubble::Reactions}; same as +render Bubble::Reactions.new(**attrs), &block+.
 #   @return [void]
-class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
+class Chadcn::Bubble < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -63,7 +63,7 @@ class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
   # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+bubble.content { ... }+).
   # The block is skipped when none is given.
   #
-  # @yieldparam bubble [Phlex::Shadcn::Bubble] the component itself
+  # @yieldparam bubble [Chadcn::Bubble] the component itself
   # @return [void]
   def view_template(&block)
     defaults = { data: { slot: "bubble", variant: @variant, align: @align }, class: cn(BASE, VARIANTS[@variant]) }
@@ -71,7 +71,7 @@ class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
   end
 
   # Stacks consecutive bubbles of the same sender.
-  class Group < Phlex::Shadcn::Base
+  class Group < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -92,13 +92,13 @@ class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
   end
 
   # The bubble surface that holds the text. +as_child:+ renders it as a link or button.
-  class Content < Phlex::Shadcn::Base
+  class Content < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
     CLASS_NAME = "w-fit max-w-full min-w-0 overflow-hidden rounded-xl border border-transparent px-3 py-2 text-sm leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-left [button,a]:transition-colors [button,a]:outline-none [button,a]:focus-visible:border-ring [button,a]:focus-visible:ring-3 [button,a]:focus-visible:ring-ring/50"
 
-    # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
+    # @param as_child [Boolean, Symbol, Chadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
     # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
     def initialize(as_child: false, **attrs)
       @as_child = as_child
@@ -119,7 +119,7 @@ class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
   end
 
   # The reaction pill that overlaps the bubble edge.
-  class Reactions < Phlex::Shadcn::Base
+  class Reactions < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -135,8 +135,8 @@ class Phlex::Shadcn::Bubble < Phlex::Shadcn::Base
     # @raise [ArgumentError] on an unknown side
     # @raise [ArgumentError] on an unknown align
     def initialize(side: "bottom", align: "end", **attrs)
-      @side = Phlex::Shadcn::Bubble.fetch_option!(side, "bottom", SIDES.keys, "side")
-      @align = Phlex::Shadcn::Bubble.fetch_option!(align, "end", ALIGNS.keys, "align")
+      @side = Chadcn::Bubble.fetch_option!(side, "bottom", SIDES.keys, "side")
+      @align = Chadcn::Bubble.fetch_option!(align, "end", ALIGNS.keys, "align")
       @attrs = attrs
       super()
     end

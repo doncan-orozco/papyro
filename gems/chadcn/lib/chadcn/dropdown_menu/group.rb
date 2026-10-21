@@ -4,10 +4,10 @@
 #
 # @example
 #   menu.group { menu.item { "Profile" } }
-class Phlex::Shadcn::DropdownMenu::Group < Phlex::Shadcn::Base
-  include Phlex::Shadcn::DropdownMenu::Support
+class Chadcn::DropdownMenu::Group < Chadcn::Base
+  include Chadcn::DropdownMenu::Support
 
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String
   #   or a component instance renders that instead, receiving this part's attributes merged in (Radix Slot)
   # @param attrs [Hash] extra HTML attributes merged over the defaults: +class:+ is merged with tailwind_merge,
   #   +data:+ and +aria:+ hashes are deep merged

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    phlex-shadcn (0.1.0)
+    chadcn (0.1.0)
       phlex (~> 2.3)
       tailwind_merge (~> 1.4)
       zeitwerk (~> 2.7)
@@ -292,7 +292,7 @@ DEPENDENCIES
   importmap-rails
   minitest (~> 6.0)
   nokogiri
-  phlex-shadcn!
+  chadcn!
   propshaft
   rails (~> 8.1)
   rake
@@ -356,7 +356,7 @@ CHECKSUMS
   parallel (2.3.0) sha256=f75a3e904101ce6a1ccb6b8dc800cbafd42166d83330192438dcf29395167a6f
   parser (3.3.12.0) sha256=21a6d7f755d5a24dfbdc6e6b772e4e879a52e7631a88bc5a3a134606052c9828
   phlex (2.4.1) sha256=e596717fbfe38b5271840266758779ebe75092e02629f0c170287e6290a70b12
-  phlex-shadcn (0.1.0)
+  chadcn (0.1.0)
   pp (0.6.4) sha256=dfcb0fce700c41456265922884f9fe195d7fbb0674a3578e6c0f69588e82b570
   prettyprint (0.2.1) sha256=d555d57ea6d7cf001d4774b693546a6bd88bec1e778ddffb5c60b68ceec4b7d4
   prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85

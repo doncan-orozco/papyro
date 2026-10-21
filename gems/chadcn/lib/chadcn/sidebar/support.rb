@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # What the sidebar parts share: the as_child switch and the default/caller attribute merge.
 #
 # @api private
-module Phlex::Shadcn::Sidebar::Support
+module Chadcn::Sidebar::Support
   # Stimulus action descriptor that toggles the sidebar.
   #
   # @api private

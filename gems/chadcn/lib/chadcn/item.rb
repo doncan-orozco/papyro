@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn Item: a flexible list row (media, content, actions). Renders a +div+, or a link through +as_child:+.
 #
 # @example
-#   Phlex::Shadcn::Item.new(variant: :outline) { |item| item.content { item.title { "Invoice" }; item.description { "Due Friday" } } }
+#   Chadcn::Item.new(variant: :outline) { |item| item.content { item.title { "Invoice" }; item.description { "Due Friday" } } }
 #
 # @!method media(**attrs, &block)
 #   Renders {Item::Media}; same as +render Item::Media.new(**attrs), &block+.
@@ -42,7 +42,7 @@ using Phlex::Shadcn::Values::Refinements
 # @!method separator(**attrs, &block)
 #   Renders {Item::Separator}; same as +render Item::Separator.new(**attrs), &block+.
 #   @return [void]
-class Phlex::Shadcn::Item < Phlex::Shadcn::Base
+class Chadcn::Item < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -64,7 +64,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   # Class string of the component, for styling another element the same way (React +itemVariants+).
   #
   # @example
-  #   Phlex::Shadcn::Item.variants(variant: :outline, size: :sm)
+  #   Chadcn::Item.variants(variant: :outline, size: :sm)
   #
   # @param variant [String, Symbol] one of the keys of {VARIANTS}
   # @param size [String, Symbol] one of the keys of {SIZES}
@@ -77,7 +77,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
 
   # @param variant [String, Symbol] one of the keys of {VARIANTS} (underscores read as dashes)
   # @param size [String, Symbol] one of the keys of {SIZES}
-  # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
+  # @param as_child [Boolean, Symbol, Chadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
   # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
   # @raise [ArgumentError] on an unknown variant
   # @raise [ArgumentError] on an unknown size
@@ -94,7 +94,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+item.content { ... }+).
   # The block is skipped when none is given.
   #
-  # @yieldparam item [Phlex::Shadcn::Item] the component itself
+  # @yieldparam item [Chadcn::Item] the component itself
   # @return [void]
   def view_template(&block)
     attrs = merge_attrs({ data: { slot: "item", variant: @variant, size: @size } }, @attrs.except(:class))
@@ -109,7 +109,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   def classes(extra) = cn(BASE, VARIANTS[@variant], SIZES[@size], extra)
 
   # Leading icon or image of an {Item}.
-  class Media < Phlex::Shadcn::Base
+  class Media < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -125,7 +125,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
     # Class string of the media slot (React +itemMediaVariants+).
     #
     # @example
-    #   Phlex::Shadcn::Item::Media.variants(variant: :icon)
+    #   Chadcn::Item::Media.variants(variant: :icon)
     #
     # @param variant [String, Symbol] one of the keys of {VARIANTS}
     # @param class [String, nil] extra classes, merged last
@@ -161,7 +161,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   end
 
   # Title and description column.
-  class Content < Phlex::Shadcn::Base
+  class Content < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -181,7 +181,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   end
 
   # Trailing buttons.
-  class Actions < Phlex::Shadcn::Base
+  class Actions < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -201,7 +201,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   end
 
   # A +role="list"+ wrapper that stacks items.
-  class Group < Phlex::Shadcn::Base
+  class Group < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -221,7 +221,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   end
 
   # The item title.
-  class Title < Phlex::Shadcn::Base
+  class Title < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -241,7 +241,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   end
 
   # A +p+ with the item description (clamped to two lines).
-  class Description < Phlex::Shadcn::Base
+  class Description < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -261,7 +261,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   end
 
   # Full-width row above the content.
-  class Header < Phlex::Shadcn::Base
+  class Header < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -281,7 +281,7 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
   end
 
   # Full-width row below the content.
-  class Footer < Phlex::Shadcn::Base
+  class Footer < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -300,18 +300,18 @@ class Phlex::Shadcn::Item < Phlex::Shadcn::Base
     end
   end
 
-  # A horizontal {Phlex::Shadcn::Separator} between items (+class: "my-0"+).
-  class Separator < Phlex::Shadcn::Base
+  # A horizontal {Chadcn::Separator} between items (+class: "my-0"+).
+  class Separator < Chadcn::Base
     # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
     def initialize(**attrs)
       @attrs = attrs
     end
 
-    # Renders a horizontal {Phlex::Shadcn::Separator} marked +data-slot="item-separator"+ (takes no block).
+    # Renders a horizontal {Chadcn::Separator} marked +data-slot="item-separator"+ (takes no block).
     #
     # @return [void]
     def view_template
-      render Phlex::Shadcn::Separator.new(**merge_attrs({ data: { slot: "item-separator" }, orientation: "horizontal", class: "my-0" },
+      render Chadcn::Separator.new(**merge_attrs({ data: { slot: "item-separator" }, orientation: "horizontal", class: "my-0" },
                                                         @attrs))
     end
   end

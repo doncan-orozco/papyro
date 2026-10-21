@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # Radix MenuCheckboxItem: a +div role="menuitemcheckbox"+ with a check indicator. +checked:+ is controlled only, like
 # Radix: the port never flips it, it dispatches +checked-change+ (+detail.checked+ is the requested value) and the caller
@@ -9,8 +9,8 @@ using Phlex::Shadcn::Values::Refinements
 # @example
 #   menu.checkbox_item(checked: @show_status) { "Status bar" }
 #   menu.checkbox_item(checked: "indeterminate") { "Partial" }
-class Phlex::Shadcn::DropdownMenu::CheckboxItem < Phlex::Shadcn::Base
-  include Phlex::Shadcn::DropdownMenu::Support
+class Chadcn::DropdownMenu::CheckboxItem < Chadcn::Base
+  include Chadcn::DropdownMenu::Support
 
   # Default Tailwind classes of the item (merged with +class:+).
   #
@@ -25,7 +25,7 @@ class Phlex::Shadcn::DropdownMenu::CheckboxItem < Phlex::Shadcn::Base
   #   any other truthy value renders checked, falsy renders unchecked. Default +false+.
   # @param disabled [Boolean] default +false+; renders +data-disabled+ and +aria-disabled+
   # @param text_value [String, nil] text used by typeahead, default +nil+
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String
   #   or a component instance renders that instead, receiving this part's attributes merged in (Radix Slot)
   # @param attrs [Hash] extra HTML attributes merged over the defaults: +class:+ is merged with tailwind_merge,
   #   +data:+ and +aria:+ hashes are deep merged
@@ -54,7 +54,7 @@ class Phlex::Shadcn::DropdownMenu::CheckboxItem < Phlex::Shadcn::Base
     render_part(:div, @as_child, merge_attrs(defaults, @attrs)) do
       span(class: INDICATOR_CLASSES) do
         # Radix ItemIndicator (Presence): mounted for checked and indeterminate.
-        span(data: { state: @state }) { render Phlex::Shadcn::Icon.new("check", class: "size-4") } unless @state == "unchecked"
+        span(data: { state: @state }) { render Chadcn::Icon.new("check", class: "size-4") } unless @state == "unchecked"
       end
       yield if block_given?
     end

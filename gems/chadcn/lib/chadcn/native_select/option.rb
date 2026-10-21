@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-class Phlex::Shadcn::NativeSelect
+class Chadcn::NativeSelect
   # An `<option>`. Renders `selected` when its `value:` matches the parent's `value`/`default_value`
   # (only the first match in single mode). An explicit `selected:` attribute wins.
   #
   # @example
   #   select.option(value: "a") { "Alpha" }
-  class Option < Phlex::Shadcn::Base
+  class Option < Chadcn::Base
     # @param attrs [Hash] HTML attributes for the `<option>` (`value:`, `disabled:`, `selected:`, `class:`)
     def initialize(**attrs)
       @attrs = attrs
@@ -25,7 +25,7 @@ class Phlex::Shadcn::NativeSelect
 
     # Single mode marks only the first match, like React updateOptions.
     def selected?
-      state = context[Phlex::Shadcn::NativeSelect::CONTEXT_KEY]
+      state = context[Chadcn::NativeSelect::CONTEXT_KEY]
       return false if state.nil? || state[:values].empty?
 
       value = (@attrs[:value] || "").to_s

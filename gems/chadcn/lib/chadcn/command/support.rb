@@ -3,11 +3,11 @@
 # What the command parts share: the render context pushed by Command and the cmdk-wins attribute merge.
 #
 # @api private
-module Phlex::Shadcn::Command::Support
+module Chadcn::Command::Support
   private
 
   def root_context
-    context[Phlex::Shadcn::Command::CONTEXT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Command"
+    context[Chadcn::Command::CONTEXT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Command"
   end
 
   # cmdk spreads some attributes AFTER the caller props, so the caller cannot override them: `forced` replaces the merged

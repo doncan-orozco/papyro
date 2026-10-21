@@ -6,10 +6,10 @@ require "stringio"
 require "rake"
 
 # Theme.import against a stand-in for the network: tests have no internet, so Net::HTTP.start is replaced by a scripted server.
-class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
-  Theme = Phlex::Shadcn::Theme
-  ASSETS = Phlex::Shadcn.root.join("app/assets/tailwind/phlex-shadcn")
-  RAKE_FILE = Phlex::Shadcn.root.join("lib/tasks/phlex_shadcn.rake").to_s
+class Chadcn::ThemeImportTest < Chadcn::TestCase
+  Theme = Chadcn::Theme
+  ASSETS = Chadcn.root.join("app/assets/tailwind/chadcn")
+  RAKE_FILE = Chadcn.root.join("lib/tasks/chadcn.rake").to_s
   PRESET_CSS = ASSETS.join("presets/slate.css").read
 
   # Scripted answers by URL; records every start call. A String is a 200 body, a Class raises
@@ -56,15 +56,15 @@ class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
   end
 
   def setup
-    @original_dir = Phlex::Shadcn.config.theme_dir
+    @original_dir = Chadcn.config.theme_dir
     @theme_dir = Dir.mktmpdir
     FileUtils.mkdir_p(File.join(@theme_dir, "presets"))
     FileUtils.cp(ASSETS.join("theme.css"), File.join(@theme_dir, "theme.css"))
-    Phlex::Shadcn.configure { |config| config.theme_dir = @theme_dir }
+    Chadcn.configure { |config| config.theme_dir = @theme_dir }
   end
 
   def teardown
-    Phlex::Shadcn.configure { |config| config.theme_dir = @original_dir }
+    Chadcn.configure { |config| config.theme_dir = @original_dir }
     FileUtils.remove_entry(@theme_dir)
   end
 
@@ -279,7 +279,7 @@ class Phlex::Shadcn::ThemeImportTest < Phlex::Shadcn::TestCase
     Rake.application = Rake::Application.new
     Rake::Task.define_task(:environment)
     load RAKE_FILE
-    task = Rake::Task["phlex_shadcn:theme:import"]
+    task = Rake::Task["chadcn:theme:import"]
 
     stderr = capture_io do
       with_network_failure(Net::OpenTimeout) do

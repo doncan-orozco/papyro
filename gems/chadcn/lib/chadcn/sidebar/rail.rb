@@ -2,11 +2,11 @@
 
 # shadcn SidebarRail: the thin toggle strip on the sidebar edge.
 #
-# Rendered inside a {Phlex::Shadcn::Sidebar::Provider}; also available as `sidebar.rail` on the yielded sidebar.
+# Rendered inside a {Chadcn::Sidebar::Provider}; also available as `sidebar.rail` on the yielded sidebar.
 #
-# @see Phlex::Shadcn::Sidebar
-class Phlex::Shadcn::Sidebar::Rail < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sidebar::Support
+# @see Chadcn::Sidebar
+class Chadcn::Sidebar::Rail < Chadcn::Base
+  include Chadcn::Sidebar::Support
 
   # Tailwind classes of the `button` (verbatim from shadcn/ui).
   #
@@ -22,7 +22,7 @@ class Phlex::Shadcn::Sidebar::Rail < Phlex::Shadcn::Base
 
   # @param attrs [Hash] HTML attributes for the `button`; the defaults (`aria-label`, `tabindex`, `title`) can be overridden,
   #   `class:` is tailwind-merged, `data:` and `aria:` are deep-merged (caller wins)
-  # @raise [ArgumentError] on render, when there is no {Phlex::Shadcn::Sidebar::Provider} above
+  # @raise [ArgumentError] on render, when there is no {Chadcn::Sidebar::Provider} above
   def initialize(**attrs)
     @attrs = attrs
     super()
@@ -33,7 +33,7 @@ class Phlex::Shadcn::Sidebar::Rail < Phlex::Shadcn::Base
   # @yield the content of the element
   # @return [void]
   def view_template(&)
-    Phlex::Shadcn::Sidebar.use_sidebar(self)
+    Chadcn::Sidebar.use_sidebar(self)
     attrs = with_toggle(part_attrs(cn(CLASSES), data: { slot: "sidebar-rail", sidebar: "rail" }, aria: { label: "Toggle Sidebar" },
                                                 tabindex: -1, title: "Toggle Sidebar"))
     button(**attrs, &)

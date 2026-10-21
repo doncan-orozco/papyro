@@ -2,12 +2,12 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::FieldTest < Phlex::Shadcn::TestCase
+class Chadcn::FieldTest < Chadcn::TestCase
   HELPERS = { label: "field-label", description: "field-description", group: "field-group", legend: "field-legend",
               separator: "field-separator", set: "field-set", content: "field-content", title: "field-label" }.freeze
 
   def html(**, &block)
-    Phlex::Shadcn::Field.new(**).call(&block || proc { |_| "Body" })
+    Chadcn::Field.new(**).call(&block || proc { |_| "Body" })
   end
 
   test "root renders slot, role, orientation, merged class and passthrough attrs" do
@@ -25,7 +25,7 @@ class Phlex::Shadcn::FieldTest < Phlex::Shadcn::TestCase
   test "every helper renders the same HTML as the explicit class" do
     helpers = html { |f| HELPERS.each_key { |n| f.public_send(n, class: "k") { "x" } } }
     explicit = html do |f|
-      HELPERS.each_key { |n| f.render Phlex::Shadcn::Field.const_get(n.to_s.capitalize).new(class: "k") { "x" } }
+      HELPERS.each_key { |n| f.render Chadcn::Field.const_get(n.to_s.capitalize).new(class: "k") { "x" } }
     end
 
     assert_equal explicit, helpers
@@ -34,7 +34,7 @@ class Phlex::Shadcn::FieldTest < Phlex::Shadcn::TestCase
 
   test "error helper renders the same HTML as the explicit class" do
     helpers = html { |f| f.error(errors: [ { "message" => "a" } ]) }
-    explicit = html { |f| f.render Phlex::Shadcn::Field::Error.new(errors: [ { "message" => "a" } ]) }
+    explicit = html { |f| f.render Chadcn::Field::Error.new(errors: [ { "message" => "a" } ]) }
 
     assert_equal explicit, helpers
   end
@@ -56,22 +56,22 @@ class Phlex::Shadcn::FieldTest < Phlex::Shadcn::TestCase
   end
 
   test "every orientation renders its classes and data attribute" do
-    Phlex::Shadcn::Field::ORIENTATIONS.each_key do |name|
+    Chadcn::Field::ORIENTATIONS.each_key do |name|
       root = Nokogiri::HTML5.fragment(html(orientation: name)).at_css("[data-slot=field]")
 
       assert_equal name, root["data-orientation"]
-      assert_equal Phlex::Shadcn::Field.variants(orientation: name).split.sort, root["class"].split.sort
+      assert_equal Chadcn::Field.variants(orientation: name).split.sort, root["class"].split.sort
     end
   end
 
   test "nil orientation falls back to vertical" do
     assert_includes html(orientation: nil), 'data-orientation="vertical"'
-    assert_equal Phlex::Shadcn::Field.variants, Phlex::Shadcn::Field.variants(orientation: nil)
+    assert_equal Chadcn::Field.variants, Chadcn::Field.variants(orientation: nil)
   end
 
   test "variants merges extra classes last" do
-    assert_includes Phlex::Shadcn::Field.variants(class: "gap-1"), "gap-1"
-    assert_not_includes Phlex::Shadcn::Field.variants(class: "gap-1"), "gap-3"
+    assert_includes Chadcn::Field.variants(class: "gap-1"), "gap-1"
+    assert_not_includes Chadcn::Field.variants(class: "gap-1"), "gap-3"
   end
 
   test "legend variant defaults to legend and accepts label" do

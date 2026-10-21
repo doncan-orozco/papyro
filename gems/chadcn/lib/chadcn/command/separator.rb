@@ -4,9 +4,9 @@
 # unless `always_render`.
 #
 # @example
-#   render Phlex::Shadcn::Command::Separator.new
-class Phlex::Shadcn::Command::Separator < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Command::Support
+#   render Chadcn::Command::Separator.new
+class Chadcn::Command::Separator < Chadcn::Base
+  include Chadcn::Command::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #

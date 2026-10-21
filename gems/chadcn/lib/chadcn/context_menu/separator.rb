@@ -4,13 +4,13 @@
 #
 # @example
 #   menu.separator
-class Phlex::Shadcn::ContextMenu::Separator < Phlex::Shadcn::Base
-  include Phlex::Shadcn::ContextMenu::Support
+class Chadcn::ContextMenu::Separator < Chadcn::Base
+  include Chadcn::ContextMenu::Support
 
   # @return [String] the default Tailwind classes (shadcn new-york-v4)
   CLASSES = "-mx-1 my-1 h-px bg-border"
 
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String
   #   or a component instance renders that element/component instead, with this part's attributes merged into it
   #   (Radix Slot)
   # @param attrs [Hash] HTML attributes for the element; +class+ is merged with the defaults through tailwind-merge, +data+ and

@@ -2,9 +2,9 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::SkeletonTest < Phlex::Shadcn::TestCase
+class Chadcn::SkeletonTest < Chadcn::TestCase
   def html(**, &)
-    Phlex::Shadcn::Skeleton.new(**).call(&)
+    Chadcn::Skeleton.new(**).call(&)
   end
 
   test "renders defaults" do

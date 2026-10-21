@@ -6,7 +6,7 @@ require "test_helper"
 
 # The README's non-Rails path: Select::Item must render without Nokogiri (a development dependency only). plain_render.rb runs in
 # a subprocess that loads neither Nokogiri nor Rails; its HTML must equal the output recorded while the Item still used Nokogiri.
-class Phlex::Shadcn::Select::PlainRenderTest < Minitest::Test
+class Chadcn::Select::PlainRenderTest < Minitest::Test
   DIR = File.expand_path(__dir__)
   LIB = File.expand_path("../../../../lib", __dir__)
 

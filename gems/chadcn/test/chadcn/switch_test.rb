@@ -2,9 +2,9 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::SwitchTest < Phlex::Shadcn::TestCase
+class Chadcn::SwitchTest < Chadcn::TestCase
   def render_switch(**props)
-    Phlex::Shadcn::Switch.new(**props).call
+    Chadcn::Switch.new(**props).call
   end
 
   test "renders the unchecked default with thumb and bubble input" do

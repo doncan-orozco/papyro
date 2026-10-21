@@ -3,8 +3,8 @@
 # shadcn DialogTitle. Marks the dialog as titled so Content can emit aria-labelledby.
 #
 # Accessible title (`h2`); makes Content emit `aria-labelledby`.
-class Phlex::Shadcn::Dialog::Title < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Dialog::Support
+class Chadcn::Dialog::Title < Chadcn::Base
+  include Chadcn::Dialog::Support
 
   # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
   # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)

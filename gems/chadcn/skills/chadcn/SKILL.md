@@ -1,16 +1,16 @@
 ---
-name: phlex-shadcn
-description: "Use when writing Phlex views with the phlex-shadcn gem (shadcn/ui components for Phlex): component names, constructor keywords, compound parts, Stimulus behavior and theming."
+name: chadcn
+description: "Use when writing Phlex views with the chadcn gem (shadcn/ui components for Phlex): component names, constructor keywords, compound parts, Stimulus behavior and theming."
 ---
 
-# phlex-shadcn
+# chadcn
 
-54 shadcn/ui components as Phlex classes under `Phlex::Shadcn`. The exact keywords, variants, parts, controllers and events of every component are in [llms-full.txt](../../llms-full.txt) (generated, always current): read the section of the component before using it.
+54 shadcn/ui components as Phlex classes under `Chadcn`. The exact keywords, variants, parts, controllers and events of every component are in [llms-full.txt](../../llms-full.txt) (generated, always current): read the section of the component before using it.
 
 ## Rules
 
-1. Render with `render Phlex::Shadcn::Button.new(variant: "outline") { "Save" }`. Unknown variants or sizes raise `ArgumentError`.
-2. Compound components nest parts (`Phlex::Shadcn::Dialog::Content`). The root also yields itself with one helper per part (`dialog.trigger { "Open" }`); both forms render the same markup.
+1. Render with `render Chadcn::Button.new(variant: "outline") { "Save" }`. Unknown variants or sizes raise `ArgumentError`.
+2. Compound components nest parts (`Chadcn::Dialog::Content`). The root also yields itself with one helper per part (`dialog.trigger { "Open" }`); both forms render the same markup.
 3. Extra keywords become HTML attributes. `class:` is merged with `tailwind_merge` (yours wins), `data:` and `aria:` are deep-merged. Do not copy shadcn Tailwind classes into your views: they are already applied.
 4. `as_child:` renders the part's props onto another tag or component instead of its default element.
 5. Behavior comes from Stimulus controllers named `shadcn--<component>`. Events are dispatched as `shadcn--<component>:<event>`; values are set with `data-shadcn--<component>-<value>-value`.

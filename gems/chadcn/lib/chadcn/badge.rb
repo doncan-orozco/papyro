@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn Badge: a small status label. Renders a +span+, or any element through +as_child:+.
 #
 # @example
-#   Phlex::Shadcn::Badge.new(variant: :secondary) { "New" }
-class Phlex::Shadcn::Badge < Phlex::Shadcn::Base
+#   Chadcn::Badge.new(variant: :secondary) { "New" }
+class Chadcn::Badge < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -25,7 +25,7 @@ class Phlex::Shadcn::Badge < Phlex::Shadcn::Base
   # Class string of the component, for styling another element the same way (React +badgeVariants+).
   #
   # @example
-  #   Phlex::Shadcn::Badge.variants(variant: :outline, class: "ml-2")
+  #   Chadcn::Badge.variants(variant: :outline, class: "ml-2")
   #
   # @param variant [String, Symbol] one of the keys of {VARIANTS}
   # @param class [String, nil] extra classes, merged last
@@ -36,7 +36,7 @@ class Phlex::Shadcn::Badge < Phlex::Shadcn::Base
   end
 
   # @param variant [String, Symbol] one of the keys of {VARIANTS} (underscores read as dashes)
-  # @param as_child [Boolean, Symbol, Phlex::Shadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
+  # @param as_child [Boolean, Symbol, Chadcn::Base] render this element (a tag name or component instance) instead of the default one (Radix +asChild+)
   # @param attrs [Hash] extra HTML attributes; +class+ is merged with the defaults (Tailwind conflicts resolved, yours win), +data+/+aria+ are deep-merged
   # @raise [ArgumentError] on an unknown variant
   def initialize(variant: "default", as_child: false, **attrs)

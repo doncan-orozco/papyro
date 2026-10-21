@@ -4,10 +4,10 @@
 #
 # @example
 #   bar.group { bar.item { "Undo" }; bar.item { "Redo" } }
-class Phlex::Shadcn::Menubar::Group < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Menubar::Support
+class Chadcn::Menubar::Group < Chadcn::Base
+  include Chadcn::Menubar::Support
 
-  # @param as_child [false, Symbol, String, Phlex::Shadcn::Base] +false+ renders the default element; a tag Symbol/String or a component instance
+  # @param as_child [false, Symbol, String, Chadcn::Base] +false+ renders the default element; a tag Symbol/String or a component instance
   #   renders that element carrying this part's attributes instead
   # @param attrs [Hash] extra HTML attributes; +class+, +data+ and +aria+ are merged with the defaults
   def initialize(as_child: false, **attrs)

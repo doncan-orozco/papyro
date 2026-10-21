@@ -7,11 +7,11 @@
 # `Collapsible::Trigger` and `Collapsible::Content`.
 #
 # @example
-#   render Phlex::Shadcn::Collapsible.new(default_open: false) do |c|
+#   render Chadcn::Collapsible.new(default_open: false) do |c|
 #     c.trigger { "Toggle" }
 #     c.content { "Hidden body" }
 #   end
-class Phlex::Shadcn::Collapsible < Phlex::Shadcn::Base
+class Chadcn::Collapsible < Chadcn::Base
   # @api private
   ROOT_KEY = :shadcn_collapsible_root
   # @api private
@@ -22,7 +22,7 @@ class Phlex::Shadcn::Collapsible < Phlex::Shadcn::Base
   # @param open [Boolean, nil] non-nil makes the collapsible controlled
   # @param default_open [Boolean] initial state when uncontrolled
   # @param disabled [Boolean] disables the trigger
-  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  # @param as_child [false, nil, Symbol, String, Chadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
   #   the part's attributes are merged onto it. `true` is not supported.
   # @param attrs [Hash] HTML attributes merged onto the root element
   def initialize(open: nil, default_open: false, disabled: false, as_child: false, **attrs)
@@ -34,7 +34,7 @@ class Phlex::Shadcn::Collapsible < Phlex::Shadcn::Base
     super()
   end
 
-  # @yieldparam collapsible [Phlex::Shadcn::Collapsible] the root, exposing the part helpers
+  # @yieldparam collapsible [Chadcn::Collapsible] the root, exposing the part helpers
   # @return [void]
   def view_template
     previous = context[ROOT_KEY]

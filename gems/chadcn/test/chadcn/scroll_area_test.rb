@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::ScrollAreaTest < Phlex::Shadcn::TestCase
-  ScrollArea = Phlex::Shadcn::ScrollArea
+class Chadcn::ScrollAreaTest < Chadcn::TestCase
+  ScrollArea = Chadcn::ScrollArea
 
   def render_view(&block)
     Class.new(Phlex::HTML) { define_method(:view_template, &block) }.new.call
@@ -85,10 +85,10 @@ class Phlex::Shadcn::ScrollAreaTest < Phlex::Shadcn::TestCase
 
   test "dir wins over the direction provider and the provider wins over ltr" do
     local = fragment(render_view do
-      render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(ScrollArea.new(dir: "ltr")) { plain "x" } }
+      render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(ScrollArea.new(dir: "ltr")) { plain "x" } }
     end)
     inherited = fragment(render_view do
-      render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(ScrollArea.new) { plain "x" } }
+      render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(ScrollArea.new) { plain "x" } }
     end)
 
     assert_equal "ltr", local.at_css("[data-slot=scroll-area]")["dir"]

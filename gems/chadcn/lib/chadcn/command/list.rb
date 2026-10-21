@@ -3,9 +3,9 @@
 # shadcn CommandList: the listbox (`div`) around cmdk's inner sizer `div`.
 #
 # @example
-#   render Phlex::Shadcn::Command::List.new { "..." }
-class Phlex::Shadcn::Command::List < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Command::Support
+#   render Chadcn::Command::List.new { "..." }
+class Chadcn::Command::List < Chadcn::Base
+  include Chadcn::Command::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #

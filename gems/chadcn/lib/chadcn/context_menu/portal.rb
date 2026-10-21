@@ -6,7 +6,7 @@
 #
 # @example
 #   menu.portal(container: "#overlays") { menu.sub_content { menu.item { "Save" } } }
-class Phlex::Shadcn::ContextMenu::Portal < Phlex::Shadcn::Base
+class Chadcn::ContextMenu::Portal < Chadcn::Base
   # @param force_mount [Boolean] makes the wrapped SubContent force-mounted (default +false+)
   # @param container [String, nil] CSS selector of the element the SubContent mounts into; +nil+ (default) mounts it in +body+
   def initialize(force_mount: false, container: nil)
@@ -18,10 +18,10 @@ class Phlex::Shadcn::ContextMenu::Portal < Phlex::Shadcn::Base
   # @yield the parts rendered inside the portal (a SubContent)
   # @return [void]
   def view_template
-    previous = context[Phlex::Shadcn::ContextMenu::PORTAL_KEY]
-    context[Phlex::Shadcn::ContextMenu::PORTAL_KEY] = { force_mount: @force_mount, container: @container }
+    previous = context[Chadcn::ContextMenu::PORTAL_KEY]
+    context[Chadcn::ContextMenu::PORTAL_KEY] = { force_mount: @force_mount, container: @container }
     yield if block_given?
   ensure
-    context[Phlex::Shadcn::ContextMenu::PORTAL_KEY] = previous
+    context[Chadcn::ContextMenu::PORTAL_KEY] = previous
   end
 end

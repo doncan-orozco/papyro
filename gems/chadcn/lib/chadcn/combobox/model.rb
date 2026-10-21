@@ -6,7 +6,7 @@ require "json"
 # initial state. Items are Strings, Hashes (`value:`/`label:`, String or Symbol keys alike) or groups (`{ value:, items: [...] }`).
 #
 # @api private
-class Phlex::Shadcn::Combobox::Model
+class Chadcn::Combobox::Model
   FILTERS = %w[fuzzy contains].freeze
   private_constant :FILTERS
 
@@ -16,7 +16,7 @@ class Phlex::Shadcn::Combobox::Model
   # Per-render counters and flags the parts write while they render (ids of items, where the input lives).
   attr_accessor :item_index, :input_outside, :in_popup
 
-  # @param options [Hash] the full options hash of {Phlex::Shadcn::Combobox#initialize}
+  # @param options [Hash] the full options hash of {Chadcn::Combobox#initialize}
   # @param sequence [Integer] render-wide counter (ids of roots without `id:`)
   def initialize(options, sequence)
     opts = @opts = options

@@ -3,7 +3,7 @@
 # shadcn Card: a bordered surface. Compose with {Card::Header}, {Card::Title}, {Card::Description}, {Card::Action}, {Card::Content} and {Card::Footer}.
 #
 # @example
-#   Phlex::Shadcn::Card.new { |card| card.header { card.title { "Plan" } }; card.content { "Body" } }
+#   Chadcn::Card.new { |card| card.header { card.title { "Plan" } }; card.content { "Body" } }
 #
 # @!method header(**attrs, &block)
 #   Renders {Card::Header}; same as +render Card::Header.new(**attrs), &block+.
@@ -28,7 +28,7 @@
 # @!method footer(**attrs, &block)
 #   Renders {Card::Footer}; same as +render Card::Footer.new(**attrs), &block+.
 #   @return [void]
-class Phlex::Shadcn::Card < Phlex::Shadcn::Base
+class Chadcn::Card < Chadcn::Base
   # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
   #
   # @api private
@@ -43,14 +43,14 @@ class Phlex::Shadcn::Card < Phlex::Shadcn::Base
   # Renders the element; yields +self+ so the parts can be composed with the generated helpers (+card.title { ... }+).
   # The block is skipped when none is given.
   #
-  # @yieldparam card [Phlex::Shadcn::Card] the component itself
+  # @yieldparam card [Chadcn::Card] the component itself
   # @return [void]
   def view_template(&block)
     div(**merge_attrs({ data: { slot: "card" }, class: CLASS_NAME }, @attrs)) { yield self if block }
   end
 
   # Top section: places the title, description and an optional {Card::Action} on a grid.
-  class Header < Phlex::Shadcn::Base
+  class Header < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -71,7 +71,7 @@ class Phlex::Shadcn::Card < Phlex::Shadcn::Base
   end
 
   # The card title.
-  class Title < Phlex::Shadcn::Base
+  class Title < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -92,7 +92,7 @@ class Phlex::Shadcn::Card < Phlex::Shadcn::Base
   end
 
   # Muted supporting text under the title.
-  class Description < Phlex::Shadcn::Base
+  class Description < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -113,7 +113,7 @@ class Phlex::Shadcn::Card < Phlex::Shadcn::Base
   end
 
   # Top-right slot of the header (a button, a menu trigger).
-  class Action < Phlex::Shadcn::Base
+  class Action < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -134,7 +134,7 @@ class Phlex::Shadcn::Card < Phlex::Shadcn::Base
   end
 
   # The card body.
-  class Content < Phlex::Shadcn::Base
+  class Content < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private
@@ -155,7 +155,7 @@ class Phlex::Shadcn::Card < Phlex::Shadcn::Base
   end
 
   # Bottom row, typically actions.
-  class Footer < Phlex::Shadcn::Base
+  class Footer < Chadcn::Base
     # Tailwind classes of the element; they are the DOM contract, not part of the Ruby API.
     #
     # @api private

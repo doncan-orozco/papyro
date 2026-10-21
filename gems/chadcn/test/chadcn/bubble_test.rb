@@ -2,13 +2,13 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::BubbleTest < Phlex::Shadcn::TestCase
+class Chadcn::BubbleTest < Chadcn::TestCase
   def html(**, &block)
-    Phlex::Shadcn::Bubble.new(**).call(&block || proc { |_| "Hi" })
+    Chadcn::Bubble.new(**).call(&block || proc { |_| "Hi" })
   end
 
   test "renders each variant with slot, data attrs and defaults" do
-    Phlex::Shadcn::Bubble::VARIANTS.each_key do |v|
+    Chadcn::Bubble::VARIANTS.each_key do |v|
       out = html(variant: v)
 
       assert_includes out, 'data-slot="bubble"'
@@ -51,16 +51,16 @@ class Phlex::Shadcn::BubbleTest < Phlex::Shadcn::TestCase
       b.reactions { "R" }
     end
     explicit = html do |b|
-      b.render(Phlex::Shadcn::Bubble::Group.new { "g" })
-      b.render Phlex::Shadcn::Bubble::Content.new(class: "c") { "C" }
-      b.render(Phlex::Shadcn::Bubble::Reactions.new { "R" })
+      b.render(Chadcn::Bubble::Group.new { "g" })
+      b.render Chadcn::Bubble::Content.new(class: "c") { "C" }
+      b.render(Chadcn::Bubble::Reactions.new { "R" })
     end
 
     assert_equal explicit, helpers
   end
 
   test "reactions reject an unknown side or align" do
-    assert_raises(ArgumentError) { Phlex::Shadcn::Bubble::Reactions.new(side: :left) }
-    assert_raises(ArgumentError) { Phlex::Shadcn::Bubble::Reactions.new(align: :middle) }
+    assert_raises(ArgumentError) { Chadcn::Bubble::Reactions.new(side: :left) }
+    assert_raises(ArgumentError) { Chadcn::Bubble::Reactions.new(align: :middle) }
   end
 end

@@ -2,9 +2,9 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::CheckboxTest < Phlex::Shadcn::TestCase
+class Chadcn::CheckboxTest < Chadcn::TestCase
   def render_checkbox(**props)
-    Phlex::Shadcn::Checkbox.new(**props).call
+    Chadcn::Checkbox.new(**props).call
   end
 
   test "renders the unchecked default without indicator" do

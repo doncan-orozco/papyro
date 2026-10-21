@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::ComboboxTest < Phlex::Shadcn::TestCase
-  Combobox = Phlex::Shadcn::Combobox
+class Chadcn::ComboboxTest < Chadcn::TestCase
+  Combobox = Chadcn::Combobox
   FRAMEWORKS = [ "Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro" ].freeze
 
   HELPERS = {

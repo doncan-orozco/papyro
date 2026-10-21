@@ -1,4 +1,4 @@
-# CI of the phlex-shadcn gem (gems/phlex-shadcn). Runs only when the gem or this file changes.
+# CI of the chadcn gem (gems/chadcn). Runs only when the gem or this file changes.
 #
 # gem:       the gem's own checks on every Ruby and Phlex the gemspec claims (Ruby >= 3.2, phlex ~> 2.3) with Rails ~> 8.1 for the
 #            engine tests: rake test, rake test:engine, rubocop, bundler-audit, 100% YARD coverage, gem build without warnings,
@@ -10,18 +10,18 @@
 # js-tests:  the gem's browser tests of the Stimulus controllers and primitives (test/javascript/*.test.mjs) against the dummy app.
 # docs:      every Ruby fence of README.md and docs/*.md renders in a plain process (bin/smoke --docs; known gem defects are
 #            explicit XFAILs).
-name: phlex-shadcn
+name: chadcn
 
 on:
   push:
     branches: [ main ]
     paths:
-      - "gems/phlex-shadcn/**"
-      - ".github/workflows/phlex-shadcn.yml"
+      - "gems/chadcn/**"
+      - ".github/workflows/chadcn.yml"
   pull_request:
     paths:
-      - "gems/phlex-shadcn/**"
-      - ".github/workflows/phlex-shadcn.yml"
+      - "gems/chadcn/**"
+      - ".github/workflows/chadcn.yml"
 
 defaults:
   run:
@@ -38,7 +38,7 @@ jobs:
         ruby: [ "3.2", "3.3", "3.4", "4.0" ]
         gemfile: [ "Gemfile", "test/smoke/gemfiles/phlex_2.3.gemfile" ]
     env:
-      BUNDLE_GEMFILE: ${{ github.workspace }}/gems/phlex-shadcn/${{ matrix.gemfile }}
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gems/chadcn/${{ matrix.gemfile }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -58,34 +58,34 @@ jobs:
           bundle install --jobs 4
 
       - name: Tests (plain Phlex)
-        working-directory: gems/phlex-shadcn
+        working-directory: gems/chadcn
         run: bundle exec rake test
 
       - name: Tests (Rails engine and install generator)
-        working-directory: gems/phlex-shadcn
+        working-directory: gems/chadcn
         run: bundle exec rake test:engine
 
       - name: RuboCop
-        working-directory: gems/phlex-shadcn
+        working-directory: gems/chadcn
         run: bundle exec rubocop
 
       - name: Dependency audit
-        working-directory: gems/phlex-shadcn
+        working-directory: gems/chadcn
         run: bundle exec bundler-audit check --update
 
       - name: Public API fully documented
-        working-directory: gems/phlex-shadcn
+        working-directory: gems/chadcn
         run: bundle exec yard stats --list-undoc | tee yard-stats.log && grep -q '100.00% documented' yard-stats.log
 
       - name: Gem builds without warnings
-        working-directory: gems/phlex-shadcn
-        run: gem build phlex-shadcn.gemspec 2>&1 | tee gem-build.log && ! grep -i warning gem-build.log
+        working-directory: gems/chadcn
+        run: gem build chadcn.gemspec 2>&1 | tee gem-build.log && ! grep -i warning gem-build.log
 
       - name: Gem gate
-        run: ruby .claude/scripts/gem/gem_check.rb --gem-dir gems/phlex-shadcn --host-dir .
+        run: ruby .claude/scripts/gem/gem_check.rb --gem-dir gems/chadcn --host-dir .
 
       - name: Plain-Phlex smoke (Rails not loaded)
-        working-directory: gems/phlex-shadcn
+        working-directory: gems/chadcn
         run: bundle exec bin/smoke --plain
 
   clean-app:
@@ -117,9 +117,9 @@ jobs:
 
       - name: Clean-app smoke (rails new, README quick start, HTTP checks, browser scenario)
         env:
-          PHLEX_SHADCN_PLAYWRIGHT: ${{ runner.temp }}/playwright
+          CHADCN_PLAYWRIGHT: ${{ runner.temp }}/playwright
           SMOKE_APP_DIR: ${{ runner.temp }}/smoke_app
-        run: gems/phlex-shadcn/bin/smoke --app
+        run: gems/chadcn/bin/smoke --app
 
       - name: Keep the generated app's logs
         uses: actions/upload-artifact@v7
@@ -174,9 +174,9 @@ jobs:
 
       - name: Clean-app smoke (${{ matrix.name }})
         env:
-          PHLEX_SHADCN_PLAYWRIGHT: ${{ runner.temp }}/playwright
+          CHADCN_PLAYWRIGHT: ${{ runner.temp }}/playwright
           SMOKE_APP_DIR: ${{ runner.temp }}/smoke_app
-        run: gems/phlex-shadcn/bin/smoke --app ${{ matrix.args }}
+        run: gems/chadcn/bin/smoke --app ${{ matrix.args }}
 
       - name: Keep the generated app's logs
         uses: actions/upload-artifact@v7
@@ -204,23 +204,23 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: gems/phlex-shadcn/dev/react-shadcn-catalog/package-lock.json
+          cache-dependency-path: gems/chadcn/dev/react-shadcn-catalog/package-lock.json
 
       - name: Install the React catalog (the oracle server and the Playwright the tests use)
-        working-directory: gems/phlex-shadcn/dev/react-shadcn-catalog
+        working-directory: gems/chadcn/dev/react-shadcn-catalog
         run: |
           npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
 
       - name: Install the dummy app's bundle (the Phlex side of the parity harness)
-        working-directory: gems/phlex-shadcn/dev/dummy
+        working-directory: gems/chadcn/dev/dummy
         run: bundle install --jobs 4
 
       - name: Start the dev servers and run the browser tests
         run: |
           ruby .claude/scripts/shadcn/servers.rb start > /dev/null
           status=0
-          node --test --test-timeout=60000 --test-reporter=spec gems/phlex-shadcn/test/javascript/*.test.mjs || status=$?
+          node --test --test-timeout=60000 --test-reporter=spec gems/chadcn/test/javascript/*.test.mjs || status=$?
           ruby .claude/scripts/shadcn/servers.rb stop > /dev/null
           exit $status
 
@@ -232,7 +232,7 @@ jobs:
           # servers.rb writes rails.log / vite.log to the repository-root tmp/shadcn-port (layout.rb TMP_DIR).
           path: |
             tmp/shadcn-port
-            gems/phlex-shadcn/dev/dummy/log
+            gems/chadcn/dev/dummy/log
           if-no-files-found: ignore
 
   docs:
@@ -241,7 +241,7 @@ jobs:
     timeout-minutes: 10
     # Known failures are explicit XFAILs in test/smoke/docs.rb (Smoke::Docs::KNOWN_RED); any other failure, or a known one that starts passing, turns this job red.
     env:
-      BUNDLE_GEMFILE: ${{ github.workspace }}/gems/phlex-shadcn/Gemfile
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gems/chadcn/Gemfile
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -252,5 +252,5 @@ jobs:
           bundler-cache: true
 
       - name: Documentation examples render
-        working-directory: gems/phlex-shadcn
+        working-directory: gems/chadcn
         run: bundle exec bin/smoke --docs

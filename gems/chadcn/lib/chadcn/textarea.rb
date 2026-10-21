@@ -3,8 +3,8 @@
 # shadcn `Textarea` (new-york-v4). Spec: docs/shadcn-port/specs/textarea.md
 #
 # @example
-#   render Phlex::Shadcn::Textarea.new(name: "bio", rows: 4, placeholder: "Tell us about you", default_value: user.bio)
-class Phlex::Shadcn::Textarea < Phlex::Shadcn::Base
+#   render Chadcn::Textarea.new(name: "bio", rows: 4, placeholder: "Tell us about you", default_value: user.bio)
+class Chadcn::Textarea < Chadcn::Base
   # Classes of the `<textarea>`; a caller `class:` is merged last.
   # @return [String]
   #

@@ -3,10 +3,10 @@
 # Run in a subprocess by plain_render_test.rb: renders a Select whose Items hold real markup (nested elements, an icon whose
 # attribute contains ">", entities) in plain Phlex, then reports what was loaded. The HTML printed after the marker line is
 # compared with plain_render.html, recorded while Select::Item still read the text with Nokogiri.
-require "phlex/shadcn"
+require "chadcn"
 
 class PlainSelect < Phlex::HTML
-  Select = Phlex::Shadcn::Select
+  Select = Chadcn::Select
 
   def view_template
     render(Select.new(default_value: "b", name: "fruit", form: "f")) do

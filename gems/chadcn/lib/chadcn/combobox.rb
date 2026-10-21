@@ -12,18 +12,18 @@
 # `items:` and let {Combobox::List} yield each one, or render {Combobox::Item}s yourself (static children, nothing is filtered).
 #
 # @example Explicit form
-#   render Phlex::Shadcn::Combobox.new(items: %w[Next.js SvelteKit Astro]) do
-#     render Phlex::Shadcn::Combobox::Input.new(placeholder: "Select a framework")
-#     render Phlex::Shadcn::Combobox::Content.new do
-#       render(Phlex::Shadcn::Combobox::Empty.new { "No items found." })
-#       render Phlex::Shadcn::Combobox::List.new do |item|
-#         render(Phlex::Shadcn::Combobox::Item.new(value: item) { item })
+#   render Chadcn::Combobox.new(items: %w[Next.js SvelteKit Astro]) do
+#     render Chadcn::Combobox::Input.new(placeholder: "Select a framework")
+#     render Chadcn::Combobox::Content.new do
+#       render(Chadcn::Combobox::Empty.new { "No items found." })
+#       render Chadcn::Combobox::List.new do |item|
+#         render(Chadcn::Combobox::Item.new(value: item) { item })
 #       end
 #     end
 #   end
 #
 # @example Yielded-root helper form
-#   render Phlex::Shadcn::Combobox.new(items: %w[Next.js SvelteKit Astro], name: "framework") do |combobox|
+#   render Chadcn::Combobox.new(items: %w[Next.js SvelteKit Astro], name: "framework") do |combobox|
 #     combobox.input(placeholder: "Select a framework")
 #     combobox.content do
 #       combobox.empty { "No items found." }
@@ -68,7 +68,7 @@
 #   Same as `render Combobox::Chip.new(**attrs), &block`.
 # @!method chips_input(**attrs, &block)
 #   Same as `render Combobox::ChipsInput.new(**attrs), &block`.
-class Phlex::Shadcn::Combobox < Phlex::Shadcn::Base
+class Chadcn::Combobox < Chadcn::Base
   # Default of `limit:`: render every match. A named constant keeps the YARD-rendered signature identical on every Ruby.
   # @api private
   NO_LIMIT = -1

@@ -2,11 +2,11 @@
 
 # shadcn SidebarMenuBadge.
 #
-# Rendered inside a {Phlex::Shadcn::Sidebar}; also available as `sidebar.menu_badge` on the yielded sidebar.
+# Rendered inside a {Chadcn::Sidebar}; also available as `sidebar.menu_badge` on the yielded sidebar.
 #
-# @see Phlex::Shadcn::Sidebar
-class Phlex::Shadcn::Sidebar::MenuBadge < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sidebar::Support
+# @see Chadcn::Sidebar
+class Chadcn::Sidebar::MenuBadge < Chadcn::Base
+  include Chadcn::Sidebar::Support
 
   # Tailwind classes of the `div` (verbatim from shadcn/ui).
   #

@@ -5,7 +5,7 @@
 # Cancels and closes the alert dialog (outline Button-styled `button`); receives the open auto focus.
 #
 # @example Explicit form
-#   render Phlex::Shadcn::AlertDialog::Cancel.new { "Cancel" }
+#   render Chadcn::AlertDialog::Cancel.new { "Cancel" }
 # @example Yielded-root helper form
 #   alert_dialog.cancel { "Cancel" }
 #
@@ -19,8 +19,8 @@
 #   @yield the button content
 #   @return [void]
 #   @raise [ArgumentError] when rendered outside AlertDialog
-class Phlex::Shadcn::AlertDialog::Cancel < Phlex::Shadcn::Base
-  include Phlex::Shadcn::AlertDialog::ActionButton
+class Chadcn::AlertDialog::Cancel < Chadcn::Base
+  include Chadcn::AlertDialog::ActionButton
 
   private
 

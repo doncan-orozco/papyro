@@ -6,7 +6,7 @@ module Phlex
   module Shadcn
     # Small plain-Ruby helpers the components use, so the gem needs only Phlex and tailwind_merge. The Hash/Array/String/Object
     # helpers are refinements (nothing is patched globally): a component file opts in with
-    # `using Phlex::Shadcn::Values::Refinements`. Their names are the gem's own, never the names of framework extensions.
+    # `using Chadcn::Values::Refinements`. Their names are the gem's own, never the names of framework extensions.
     #
     # @api private
     module Values
@@ -40,7 +40,7 @@ module Phlex
               .downcase
       end
 
-      # `"Phlex::Shadcn::Dialog"` => `"Dialog"`.
+      # `"Chadcn::Dialog"` => `"Dialog"`.
       def self.unqualified(string) = string.to_s.split("::").last.to_s
 
       # JSON for a data attribute with the HTML-sensitive characters (& < > and the two JavaScript line separators) \u-escaped,

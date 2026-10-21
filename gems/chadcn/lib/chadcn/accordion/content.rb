@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn AccordionContent: the region div has fixed classes, the caller class goes to the inner div. Radix mounts the
 # children only while open: closed bodies ship in an inert template that the controller takes over on connect.
 #
 # @example
 #   acc.content(class: "text-muted-foreground") { "Body" }
-class Phlex::Shadcn::Accordion::Content < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Accordion::Support
+class Chadcn::Accordion::Content < Chadcn::Base
+  include Chadcn::Accordion::Support
 
   # Tailwind classes of the region div.
   #

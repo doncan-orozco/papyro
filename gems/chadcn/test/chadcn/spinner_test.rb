@@ -2,9 +2,9 @@
 
 require "phlex/test_case"
 
-class SpinnerTest < Phlex::Shadcn::TestCase
+class SpinnerTest < Chadcn::TestCase
   def render_spinner(**attrs)
-    Phlex::Shadcn::Spinner.new(**attrs).call
+    Chadcn::Spinner.new(**attrs).call
   end
 
   test "renders status svg without data-slot or aria-hidden" do

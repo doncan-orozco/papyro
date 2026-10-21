@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::AccordionTest < Phlex::Shadcn::TestCase
-  Accordion = Phlex::Shadcn::Accordion
+class Chadcn::AccordionTest < Chadcn::TestCase
+  Accordion = Chadcn::Accordion
 
   def render_view(&block)
     Class.new(Phlex::HTML) { define_method(:view_template, &block) }.new.call
@@ -133,8 +133,8 @@ class Phlex::Shadcn::AccordionTest < Phlex::Shadcn::TestCase
   end
 
   test "dir resolves from the direction provider and a local dir wins" do
-    provided = render_view { render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(Accordion.new) } }
-    local = render_view { render(Phlex::Shadcn::Direction::Provider.new(dir: "rtl")) { render(Accordion.new(dir: "ltr")) } }
+    provided = render_view { render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(Accordion.new) } }
+    local = render_view { render(Chadcn::Direction::Provider.new(dir: "rtl")) { render(Accordion.new(dir: "ltr")) } }
 
     assert_equal "rtl", fragment(provided).at_css("[data-slot=accordion]")["data-shadcn--accordion-dir-value"]
     assert_equal "ltr", fragment(local).at_css("[data-slot=accordion]")["data-shadcn--accordion-dir-value"]

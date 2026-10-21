@@ -1,13 +1,13 @@
 require "test_helper"
 require "rake"
 
-class PhlexShadcnEngineTest < ActiveSupport::TestCase
-  test "application.css imports the phlex-shadcn engine bundle" do
+class ChadcnEngineTest < ActiveSupport::TestCase
+  test "application.css imports the chadcn engine bundle" do
     css = Rails.root.join("app/assets/tailwind/application.css").read
 
-    assert_includes css, "/* phlex-shadcn:start"
-    assert_includes css, "/* phlex-shadcn:end */"
-    assert_includes css, '@import "../builds/tailwind/phlex-shadcn";'
+    assert_includes css, "/* chadcn:start"
+    assert_includes css, "/* chadcn:end */"
+    assert_includes css, '@import "../builds/tailwind/chadcn";'
     assert_includes css, '@import "./theme/legacy-compat.css";'
     assert_includes css, '@import "./domains/articles/reader.css";'
   end
@@ -33,33 +33,33 @@ class PhlexShadcnEngineTest < ActiveSupport::TestCase
   end
 
   test "the engine javascript directory is on the asset paths exactly once" do
-    gem_js = Phlex::Shadcn.root.join("app/javascript").to_s
+    gem_js = Chadcn.root.join("app/javascript").to_s
     paths = Rails.application.config.assets.paths.map(&:to_s)
 
     assert_equal 1, paths.count(gem_js)
   end
 
   test "the theme directory is the app's app/assets/tailwind/theme" do
-    assert_equal Rails.root.join("app/assets/tailwind/theme").to_s, Phlex::Shadcn::Theme.dir.to_s
+    assert_equal Rails.root.join("app/assets/tailwind/theme").to_s, Chadcn::Theme.dir.to_s
   end
 
   test "the app theme is valid and ships the zinc and slate presets" do
-    result = Phlex::Shadcn::Theme.check
+    result = Chadcn::Theme.check
 
     assert_empty result[:errors]
-    assert_includes Phlex::Shadcn::Theme.presets, "zinc"
-    assert_includes Phlex::Shadcn::Theme.presets, "slate"
+    assert_includes Chadcn::Theme.presets, "zinc"
+    assert_includes Chadcn::Theme.presets, "slate"
   end
 
   test "theme tasks come from the gem only" do
-    gem_tasks = Phlex::Shadcn.root.join("lib/tasks").to_s
+    gem_tasks = Chadcn.root.join("lib/tasks").to_s
     previous = [ Rake.application, Rake::TaskManager.record_task_metadata ]
     Rake::TaskManager.record_task_metadata = true
     Rake.application = Rake::Application.new
     Rails.application.load_tasks
 
     %w[list use import check].each do |name|
-      [ "theme:#{name}", "phlex_shadcn:theme:#{name}" ].each do |task_name|
+      [ "theme:#{name}", "chadcn:theme:#{name}" ].each do |task_name|
         task = Rake::Task[task_name]
 
         assert_not_empty task.locations, "#{task_name} has no recorded location"
@@ -72,11 +72,11 @@ class PhlexShadcnEngineTest < ActiveSupport::TestCase
 
   # The host only consumes the gem's public API. Sanctioned exceptions run the gem's OWN test suite and CI job.
   test "host Ruby does not reach into the gem's internals or repo paths" do
-    internals = /Phlex::Shadcn::(?:Engine|Loader|Generators)\b|Phlex::Shadcn::[\w:]+\.send\(|gems\/phlex-shadcn\/(?:app|lib|vendor|config)\//
+    internals = /Chadcn::(?:Engine|Loader|Generators)\b|Chadcn::[\w:]+\.send\(|gems\/chadcn\/(?:app|lib|vendor|config)\//
     skipped = [ File.expand_path(__FILE__), Rails.root.join("lib/tasks/tests.rake").to_s, Rails.root.join("config/ci.rb").to_s ]
     files = Dir[Rails.root.join("{app,lib,config,test}/**/*.{rb,rake}")].map { |file| File.expand_path(file) } - skipped
     offenders = files.select { |file| File.read(file).match?(internals) }
 
-    assert_empty offenders, "host files reaching into phlex-shadcn internals: #{offenders.join(', ')}"
+    assert_empty offenders, "host files reaching into chadcn internals: #{offenders.join(', ')}"
   end
 end

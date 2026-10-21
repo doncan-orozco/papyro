@@ -2,7 +2,7 @@
 
 require "json"
 require "pathname"
-require_relative "../../generators/phlex/shadcn/install/js_layout"
+require_relative "../../generators/chadcn/install/js_layout"
 
 module Phlex
   module Shadcn
@@ -27,7 +27,7 @@ module Phlex
       APPLICATION_IMPORT = %(import "./controllers/shadcn")
       # An active (not commented out) import of the registration file, in either quote style.
       APPLICATION_IMPORT_PATTERN = %r{^\s*import\s+["']\./controllers/shadcn(?:/index(?:\.js)?)?["']}
-      HEADER = "// Managed by `rails g phlex:shadcn:install` (copied from the phlex-shadcn gem); edits are overwritten by the next run."
+      HEADER = "// Managed by `rails g chadcn:install` (copied from the chadcn gem); edits are overwritten by the next run."
       SPECIFIER = %r{((?:from|import)\s*\(?\s*)(["'])(shadcn/primitives/|controllers/shadcn/)([^"']+)\2}
       CONTROLLER_FILE = /_controller\.js\z/
 

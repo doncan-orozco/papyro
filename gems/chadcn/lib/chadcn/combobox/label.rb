@@ -3,9 +3,9 @@
 # shadcn ComboboxLabel: the heading of a {Combobox::Group} (`div`, hidden from assistive technology; the group names itself with it).
 #
 # @example
-#   render(Phlex::Shadcn::Combobox::Label.new { "Europe" })
-class Phlex::Shadcn::Combobox::Label < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Combobox::Support
+#   render(Chadcn::Combobox::Label.new { "Europe" })
+class Chadcn::Combobox::Label < Chadcn::Base
+  include Chadcn::Combobox::Support
 
   # Tailwind classes of the element, as in the shadcn source.
   #
@@ -23,7 +23,7 @@ class Phlex::Shadcn::Combobox::Label < Phlex::Shadcn::Base
   # @raise [ArgumentError] when rendered outside Combobox
   def view_template(&)
     model = root_model
-    id = context[Phlex::Shadcn::Combobox::Group::CONTEXT_KEY]&.fetch(:label_id) || "#{model.id}-label-#{model.next_counter}"
+    id = context[Chadcn::Combobox::Group::CONTEXT_KEY]&.fetch(:label_id) || "#{model.id}-label-#{model.next_counter}"
     div(**merge_attrs({ id: id, aria: { hidden: "true" }, class: CLASSES, data: { slot: "combobox-label" } }, @attrs), &)
   end
 end

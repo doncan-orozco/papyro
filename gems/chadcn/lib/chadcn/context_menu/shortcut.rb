@@ -8,7 +8,7 @@
 #     plain "Back"
 #     menu.shortcut { "Cmd+[" }
 #   end
-class Phlex::Shadcn::ContextMenu::Shortcut < Phlex::Shadcn::Base
+class Chadcn::ContextMenu::Shortcut < Chadcn::Base
   # @return [String] the default Tailwind classes (shadcn new-york-v4)
   CLASSES = "ml-auto text-xs tracking-widest text-muted-foreground"
 

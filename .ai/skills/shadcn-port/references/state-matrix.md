@@ -1,6 +1,6 @@
 # State matrix and scenario format
 
-`gems/phlex-shadcn/dev/port/scenarios/<name>.json` is the single description of "what the component can be". Both harnesses render it; the parity runner replays its steps on both. It is written by `shadcn-port-planner` (never by the builder), derived from the manifest + the registry's examples. A renderless component (e.g. `direction`) may add a top-level `"composes": ["select", ...]` (max 8 names, each in the oracle manifests and `state.json`, never itself) to allow those components' exports in its trees; anything else fails `SC_COMPOSES_INVALID`/`SC_UNKNOWN_COMPONENT`.
+`gems/chadcn/dev/port/scenarios/<name>.json` is the single description of "what the component can be". Both harnesses render it; the parity runner replays its steps on both. It is written by `shadcn-port-planner` (never by the builder), derived from the manifest + the registry's examples. A renderless component (e.g. `direction`) may add a top-level `"composes": ["select", ...]` (max 8 names, each in the oracle manifests and `state.json`, never itself) to allow those components' exports in its trees; anything else fails `SC_COMPOSES_INVALID`/`SC_UNKNOWN_COMPONENT`.
 
 ## Format
 

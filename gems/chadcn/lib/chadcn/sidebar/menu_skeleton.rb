@@ -3,14 +3,14 @@
 # shadcn SidebarMenuSkeleton. The text width is random per render like the oracle (50..89 percent, tsx:610-612).
 # Parity pages only: with_pinned_width fixes the width so it can match the React harness, which stubs Math.random.
 #
-# Rendered inside a {Phlex::Shadcn::Sidebar}; also available as `sidebar.menu_skeleton` on the yielded sidebar.
+# Rendered inside a {Chadcn::Sidebar}; also available as `sidebar.menu_skeleton` on the yielded sidebar.
 #
 # @example
 #   sidebar.menu_skeleton(show_icon: true)
 #
-# @see Phlex::Shadcn::Sidebar
-class Phlex::Shadcn::Sidebar::MenuSkeleton < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sidebar::Support
+# @see Chadcn::Sidebar
+class Chadcn::Sidebar::MenuSkeleton < Chadcn::Base
+  include Chadcn::Sidebar::Support
 
   # Tailwind classes of the wrapper `div` (verbatim from shadcn/ui).
   #
@@ -56,8 +56,8 @@ class Phlex::Shadcn::Sidebar::MenuSkeleton < Phlex::Shadcn::Base
   # @return [void]
   def view_template
     div(**part_attrs(CLASSES, data: { slot: "sidebar-menu-skeleton", sidebar: "menu-skeleton" })) do
-      render Phlex::Shadcn::Skeleton.new(class: "size-4 rounded-md", data: { sidebar: "menu-skeleton-icon" }) if @show_icon
-      render Phlex::Shadcn::Skeleton.new(class: "h-4 max-w-(--skeleton-width) flex-1", data: { sidebar: "menu-skeleton-text" },
+      render Chadcn::Skeleton.new(class: "size-4 rounded-md", data: { sidebar: "menu-skeleton-icon" }) if @show_icon
+      render Chadcn::Skeleton.new(class: "h-4 max-w-(--skeleton-width) flex-1", data: { sidebar: "menu-skeleton-text" },
                                          style: "--skeleton-width: #{self.class.width_percent}%;")
     end
   end

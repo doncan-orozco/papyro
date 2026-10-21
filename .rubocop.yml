@@ -12,7 +12,7 @@ AllCops:
   NewCops: enable
   Exclude:
     - ".claude/audit-golden/**/*"
-    - "gems/phlex-shadcn/dev/**/*" # dev kit: golden fixtures are deliberately bad Ruby; the gem's own RuboCop excludes dev/ too
+    - "gems/chadcn/dev/**/*" # dev kit: golden fixtures are deliberately bad Ruby; the gem's own RuboCop excludes dev/ too
     - "tmp/**/*"
     - "vendor/**/*"
     - "node_modules/**/*"

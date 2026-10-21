@@ -2,9 +2,9 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::LabelTest < Phlex::Shadcn::TestCase
+class Chadcn::LabelTest < Chadcn::TestCase
   def html(**, &block)
-    Phlex::Shadcn::Label.new(**).call(&block || proc { |_| "Name" })
+    Chadcn::Label.new(**).call(&block || proc { |_| "Name" })
   end
 
   test "renders slot, base classes, controller and action" do

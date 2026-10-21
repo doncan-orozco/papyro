@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-using Phlex::Shadcn::Values::Refinements
+using Chadcn::Values::Refinements
 
 # shadcn Tabs over Radix Tabs. Spec: docs/shadcn-port/specs/tabs.md.
 # Behavior: controllers/shadcn/tabs_controller.js.
@@ -9,7 +9,7 @@ using Phlex::Shadcn::Values::Refinements
 # `Tabs::List`, `Tabs::Trigger` and `Tabs::Content`.
 #
 # @example
-#   render Phlex::Shadcn::Tabs.new(default_value: "account") do |tabs|
+#   render Chadcn::Tabs.new(default_value: "account") do |tabs|
 #     tabs.list do
 #       tabs.trigger(value: "account") { "Account" }
 #       tabs.trigger(value: "password") { "Password" }
@@ -17,8 +17,8 @@ using Phlex::Shadcn::Values::Refinements
 #     tabs.content(value: "account") { "Account settings" }
 #     tabs.content(value: "password") { "Password settings" }
 #   end
-class Phlex::Shadcn::Tabs < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Direction::Consumer
+class Chadcn::Tabs < Chadcn::Base
+  include Chadcn::Direction::Consumer
 
   # @api private
   ROOT_KEY = :shadcn_tabs_root
@@ -50,7 +50,7 @@ class Phlex::Shadcn::Tabs < Phlex::Shadcn::Base
   # @param orientation [String, Symbol] `"horizontal"` or `"vertical"`
   # @param dir [String, Symbol, nil] reading direction (`"ltr"`/`"rtl"`); falls back to the Direction provider
   # @param activation_mode [String, Symbol] `"automatic"` or `"manual"` (anything else is `"automatic"`)
-  # @param as_child [false, nil, Symbol, String, Phlex::Shadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
+  # @param as_child [false, nil, Symbol, String, Chadcn::Base] a tag name (`:a`) or a component to render instead of the default element (Radix Slot);
   #   the part's attributes are merged onto it. `true` is not supported.
   # @param attrs [Hash] HTML attributes merged onto the root element (`id:` is the base of the trigger/panel ids)
   def initialize(value: nil, default_value: nil, orientation: "horizontal", dir: nil, activation_mode: "automatic",
@@ -65,7 +65,7 @@ class Phlex::Shadcn::Tabs < Phlex::Shadcn::Base
     super()
   end
 
-  # @yieldparam tabs [Phlex::Shadcn::Tabs] the root, exposing the part helpers
+  # @yieldparam tabs [Chadcn::Tabs] the root, exposing the part helpers
   # @return [void]
   def view_template
     previous = context[ROOT_KEY]

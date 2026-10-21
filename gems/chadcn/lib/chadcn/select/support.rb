@@ -3,11 +3,11 @@
 # What the parts share: the render context pushed by the root and the as_child switch.
 #
 # @api private
-module Phlex::Shadcn::Select::Support
+module Chadcn::Select::Support
   private
 
   def select_state
-    context[Phlex::Shadcn::Select::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Select"
+    context[Chadcn::Select::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Select"
   end
 
   # The first pass of the root only lets the Items register themselves.
@@ -22,7 +22,7 @@ module Phlex::Shadcn::Select::Support
 
   # What ItemIndicator renders inside a selected item. The Content ships it too so the controller can mark a new selection.
   def indicator
-    span(aria: { hidden: "true" }) { render Phlex::Shadcn::Icon.new("check", class: "size-4") }
+    span(aria: { hidden: "true" }) { render Chadcn::Icon.new("check", class: "size-4") }
   end
 
   def render_part(tag_name, as_child, attrs, &)

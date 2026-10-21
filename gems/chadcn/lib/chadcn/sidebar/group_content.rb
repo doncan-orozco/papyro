@@ -2,11 +2,11 @@
 
 # shadcn SidebarGroupContent.
 #
-# Rendered inside a {Phlex::Shadcn::Sidebar}; also available as `sidebar.group_content` on the yielded sidebar.
+# Rendered inside a {Chadcn::Sidebar}; also available as `sidebar.group_content` on the yielded sidebar.
 #
-# @see Phlex::Shadcn::Sidebar
-class Phlex::Shadcn::Sidebar::GroupContent < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sidebar::Support
+# @see Chadcn::Sidebar
+class Chadcn::Sidebar::GroupContent < Chadcn::Base
+  include Chadcn::Sidebar::Support
 
   # Tailwind classes of the `div` (verbatim from shadcn/ui).
   #

@@ -3,11 +3,11 @@
 # What the alert dialog parts share: the render context pushed by AlertDialog and the as_child switch.
 #
 # @api private
-module Phlex::Shadcn::AlertDialog::Support
+module Chadcn::AlertDialog::Support
   private
 
   def root_context
-    context[Phlex::Shadcn::AlertDialog::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within AlertDialog"
+    context[Chadcn::AlertDialog::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within AlertDialog"
   end
 
   def state_of(root) = root[:open] ? "open" : "closed"

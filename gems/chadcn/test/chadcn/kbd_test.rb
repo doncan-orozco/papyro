@@ -2,9 +2,9 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::KbdTest < Phlex::Shadcn::TestCase
+class Chadcn::KbdTest < Chadcn::TestCase
   def html(**, &block)
-    Phlex::Shadcn::Kbd.new(**).call(&block || proc { |_| "K" })
+    Chadcn::Kbd.new(**).call(&block || proc { |_| "K" })
   end
 
   test "renders kbd with slot, merged class and passthrough attrs" do
@@ -20,7 +20,7 @@ class Phlex::Shadcn::KbdTest < Phlex::Shadcn::TestCase
 
   test "group helper renders the same HTML as the explicit class" do
     helper = html { |k| k.group(class: "k") { "x" } }
-    explicit = html { |k| k.render Phlex::Shadcn::Kbd::Group.new(class: "k") { "x" } }
+    explicit = html { |k| k.render Chadcn::Kbd::Group.new(class: "k") { "x" } }
 
     assert_equal explicit, helper
     assert_includes helper, 'data-slot="kbd-group"'

@@ -2,8 +2,8 @@
 
 require "phlex/test_case"
 
-class Phlex::Shadcn::AvatarTest < Phlex::Shadcn::TestCase
-  Avatar = Phlex::Shadcn::Avatar
+class Chadcn::AvatarTest < Chadcn::TestCase
+  Avatar = Chadcn::Avatar
 
   def render_avatar(**props, &block)
     block ||= proc { |avatar| avatar.fallback { "CN" } }

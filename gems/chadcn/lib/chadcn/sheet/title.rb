@@ -3,8 +3,8 @@
 # shadcn SheetTitle. Marks the sheet as titled so Content can emit aria-labelledby.
 #
 # Accessible title (`h2`); makes Content emit `aria-labelledby`.
-class Phlex::Shadcn::Sheet::Title < Phlex::Shadcn::Base
-  include Phlex::Shadcn::Sheet::Support
+class Chadcn::Sheet::Title < Chadcn::Base
+  include Chadcn::Sheet::Support
 
   # @param as_child [Boolean, Symbol, Phlex::SGML] render onto the given child element (Radix Slot merge) instead of the default tag
   # @param attrs [Hash] HTML attributes merged into the element (class goes through tailwind-merge)

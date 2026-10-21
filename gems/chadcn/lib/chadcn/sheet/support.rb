@@ -3,11 +3,11 @@
 # What the sheet parts share: the render context pushed by Sheet and the as_child switch.
 #
 # @api private
-module Phlex::Shadcn::Sheet::Support
+module Chadcn::Sheet::Support
   private
 
   def root_context
-    context[Phlex::Shadcn::Sheet::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Sheet"
+    context[Chadcn::Sheet::ROOT_KEY] or raise ArgumentError, "#{self.class.name} must be used within Sheet"
   end
 
   def state_of(root) = root[:open] ? "open" : "closed"
