@@ -90,7 +90,7 @@ class DoctorTest < Minitest::Test
     build_healthy_app
     run = report(gems: GEMS.merge("tailwindcss-rails" => Gem::Version.new("3.3.0"), "tailwindcss-ruby" => Gem::Version.new("3.4.17")))
 
-    assert_check run, "tailwind", :fail, "tailwindcss-rails (4.x)"
+    assert_check run, "tailwind", :fail, "tailwindcss-rails (4.3.0 or newer)"
   end
 
   def test_a_tailwind_rails_without_engine_bundling_fails
@@ -271,7 +271,16 @@ class DoctorTest < Minitest::Test
     build_healthy_app
     run = report(gems: GEMS.merge("tailwindcss-rails" => Gem::Version.new("3.3.0"), "tailwindcss-ruby" => Gem::Version.new("4.1.0")))
 
-    assert_check run, "tailwind", :fail, "tailwindcss-rails (4.x)"
+    assert_check run, "tailwind", :fail, "tailwindcss-rails (4.3.0 or newer)"
+  end
+
+  # The docs state the minimum tailwindcss-rails; they must follow the constant the doctor enforces.
+  def test_the_docs_state_the_tailwind_minimum_the_doctor_enforces
+    minimum = Doctor::Checks::Tailwind::MINIMUM_ENGINE_SUPPORT.to_s
+
+    %w[README.md docs/compatibility.md].each do |doc|
+      assert_includes GEM_ROOT.join(doc).read, minimum, "#{doc} must mention the tailwindcss-rails minimum #{minimum} (Doctor::Checks::Tailwind::MINIMUM_ENGINE_SUPPORT)"
+    end
   end
 
   def test_the_default_phlex_requirement_is_the_gemspecs
