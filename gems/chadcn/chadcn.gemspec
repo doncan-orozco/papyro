@@ -15,9 +15,10 @@ Gem::Specification.new do |spec|
   spec.authors = [ "Doncan Orozco" ]
   spec.email = [ "doncan.orozco@gmail.com" ]
 
-  spec.summary = "shadcn/ui components for Phlex."
+  spec.summary = "shadcn/ui for Phlex. Built different."
   spec.description = "A 1:1 port of the shadcn/ui component library to Phlex views with Stimulus behavior, " \
-                     "Tailwind classes taken verbatim from shadcn/ui and shadcn-format theme variables."
+                     "Tailwind classes taken verbatim from shadcn/ui and shadcn-format theme variables. " \
+                     "Not affiliated with shadcn. Built on shadcn/ui (MIT)."
   spec.homepage = at.call("tree")
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2"
