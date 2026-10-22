@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
                      "Not affiliated with shadcn. Built on shadcn/ui (MIT)."
   spec.homepage = at.call("tree")
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.2"
+  spec.required_ruby_version = ">= 3.3"
 
   spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = at.call("blob", "CHANGELOG.md")

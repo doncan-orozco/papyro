@@ -98,7 +98,7 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   `Kernel.format` template with `%<index>d` and `%<count>d` for three or more thumbs).
 - The `chadcn--theme` controller reads its `localStorage` key from `data-chadcn--theme-storage-key-value` (default `shadcn-theme`).
 - The built gem includes `docs/*.md` and `.yardopts`; `gem_check` gained the rules `GEMSPEC_DEV_MATERIAL` and `GEMSPEC_METADATA`.
-- CI: a Ruby 3.2 to 4.0 matrix against the current Phlex 2.x and the Phlex 2.3 lower bound, a plain-Phlex smoke, a clean-app
+- CI: a Ruby 3.3 to 4.0 matrix against the current Phlex 2.x and the Phlex 2.3 lower bound, a plain-Phlex smoke, a clean-app
   smoke, a `js-tests` job running the Stimulus browser suite (`test/javascript`, the suite the host's `bin/rails test:javascript`
   runs) and a `docs` job that renders every Ruby example of the README and `docs/` (`bin/smoke --docs`).
 - CI: the esbuild and Sprockets clean-app smokes (`bin/smoke --app --js esbuild` and `--assets sprockets`) run on every gem change
@@ -112,6 +112,8 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
 
 ### Changed
 
+- Ruby 3.3 is the minimum (`required_ruby_version >= 3.3`): Ruby 3.2 reached upstream end of life on 2026-03-31, so the
+  first release does not claim it (`docs/compatibility.md`).
 - Renamed from phlex-shadcn (Phlex::Shadcn) to chadcn (Chadcn). The gem is unreleased, so there is no compatibility alias. Every
   renamed spelling:
   - renamed the gem `phlex-shadcn` to `chadcn` (`gem "chadcn"`, `chadcn.gemspec`, `require "chadcn"`);
@@ -144,7 +146,7 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   (`dev/decisions/data-controller-merge.md`). Behavior change for callers who relied on replacing the controller.
 - `Chadcn::Overrides` and `Chadcn::JsBundle` (the install generator's JavaScript helper, formerly
   `Generators::JsBundle`) now live under `lib/chadcn/` (`@api private`).
-- The signatures printed in `llms-full.txt` and the public-surface snapshot are rendered identically on Ruby 3.2 to 4.0; negative
+- The signatures printed in `llms-full.txt` and the public-surface snapshot are rendered identically on Ruby 3.3 to 4.0; negative
   keyword defaults no longer print a doubled comma (`align_offset: -4,,`). A default that spans several lines is joined onto one
   line, except line breaks inside a string literal, which are kept; a default that cannot be rendered raises an error naming the method
   and the parameter.

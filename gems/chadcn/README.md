@@ -40,8 +40,8 @@ Same components, unbothered.
 
 ## Requirements
 
-- Ruby 3.2 or newer and [Phlex](https://www.phlex.fun) 2.x from 2.3 (`~> 2.3`; Phlex 3 is not supported). CI runs the gem suite
-  on Ruby 3.2, 3.3, 3.4 and 4.0, each against the current Phlex 2.x and against Phlex 2.3.
+- Ruby 3.3 or newer and [Phlex](https://www.phlex.fun) 2.x from 2.3 (`~> 2.3`; Phlex 3 is not supported). CI runs the gem suite
+  on Ruby 3.3, 3.4 and 4.0, each against the current Phlex 2.x and against Phlex 2.3.
 - Tailwind CSS 4 (the components use Tailwind utility classes). With Rails, `tailwindcss-rails` 4.3.0 or newer: 4.3.0 is the first release that
   bundles an engine's CSS (`tailwindcss:engines`), which is how the gem's styles reach your app. `chadcn:doctor` reports an older one as a failure.
 - For the interactive components: Stimulus 3 (`@hotwired/stimulus`). With Rails, `importmap-rails` (the gem's engine adds its pins) or
@@ -398,7 +398,7 @@ render Chadcn::Calendar.new(mode: :single, selected: Date.new(2026, 3, 15), name
 - **Command.** The built-in `scorer` primitive replaces cmdk's `command-score`, and it is not the same algorithm: the scores are
   different numbers. The parity scenarios use queries where both rank identically, but that is not guaranteed in general: items cmdk
   scores equally (a tie) can come out in another order, `command-score` matches `"app"` against `"Apricot"` and the scorer does not,
-  and whitespace in the query is ignored instead of matched. See [menus and select](docs/menus-and-select.md#command-and-combobox).
+  and whitespace in the query is ignored instead of matched. This difference is accepted on purpose (#225): porting `command-score` is reconsidered if users report rankings that matter to them. See [menus and select](docs/menus-and-select.md#command-and-combobox).
 - **Combobox.** The default `filter:` is `"fuzzy"` (the same scorer, so `"nxt"` finds `next.js`). Pass `filter: :contains` for Base
   UI's own substring matching and `filter: nil` for no filtering. Single and multiple (chips) selection, grouped items and a clear
   button are supported, and `name:` submits through hidden inputs.
