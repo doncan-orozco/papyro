@@ -5,7 +5,7 @@
   </picture>
 </h1>
 
-<p align="center"><strong>shadcn/ui for Phlex. Built different.</strong></p>
+<p align="center"><strong><a href="https://ui.shadcn.com">shadcn/ui</a> for Phlex. Built different.</strong></p>
 
 [shadcn/ui](https://ui.shadcn.com) for [Phlex](https://www.phlex.fun): the same component API, the same Tailwind class strings and
 the same behavior as the React originals (Radix, and the libraries shadcn wraps), as Phlex views with Stimulus controllers. 54 components (`Button`, `Dialog`, `Select`, `Sidebar`,

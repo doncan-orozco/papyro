@@ -2,8 +2,8 @@
 
 require_relative "lib/chadcn/version"
 
-# The one place the repository location is written: a split into its own repository changes these lines.
-# The metadata URIs and the links of the generated llms files derive from them.
+# The repository location: a split into its own repository changes these lines. The metadata URIs and the links of the
+# generated llms files derive from them; the README hero image URLs and the CHANGELOG compare links repeat them by hand.
 repository = "https://github.com/doncan-orozco/papyro"
 gem_path = "gems/chadcn" # "" once the gem has its own repository
 ref = "main"
