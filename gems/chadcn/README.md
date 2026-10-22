@@ -5,7 +5,7 @@
   </picture>
 </h1>
 
-<p align="center"><strong><a href="https://ui.shadcn.com">shadcn/ui</a> for Phlex. Built different.</strong></p>
+<p align="center"><strong>chadcn go brrrrrr</strong></p>
 
 [shadcn/ui](https://ui.shadcn.com) for [Phlex](https://www.phlex.fun): the same component API, the same Tailwind class strings and
 the same behavior as the React originals (Radix, and the libraries shadcn wraps), as Phlex views with Stimulus controllers. 54 components (`Button`, `Dialog`, `Select`, `Sidebar`,
@@ -31,8 +31,9 @@ the same behavior as the React originals (Radix, and the libraries shadcn wraps)
 | Pulls in a framework's worth of gems to render a button | Three runtime dependencies: `phlex`, `tailwind_merge`, `zeitwerk` |
 | Re-types the theme colors by hand | Pastes a theme from ui.shadcn.com/themes, unchanged |
 | Greps the app to find out why the styles are missing | `bin/rails chadcn:doctor` says why |
+| Renders every page through a stack of partials | Phlex: 5x faster (benchmark: trust me bro) |
 
-The facts behind the right column:
+The facts behind the right column (all but the last row, which is a joke):
 
 - **The shadcn markup, verbatim.** Class strings, structure, `data-slot` attributes and variants are copied from the shadcn/ui
   registry, so the HTML follows the React original (each deliberate difference is recorded in `dev/port/DEVIATIONS.md` and

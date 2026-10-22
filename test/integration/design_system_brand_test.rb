@@ -16,7 +16,7 @@ class DesignSystemBrandTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "header img[alt='chadcn'][src*='brand/wordmark-light']", 1
     assert_select "header img[alt='chadcn'][src*='brand/wordmark-dark']", 1
-    assert_select "header p", text: "shadcn/ui for Phlex. Built different."
+    assert_select "header p", text: "chadcn go brrrrrr"
     assert_select "footer", text: /Not affiliated with shadcn\. Built on shadcn\/ui \(MIT\)\./
     assert_select "footer a[href='https://ui.shadcn.com']", text: "shadcn/ui"
     assert_select "title", text: /\Achadcn/
@@ -26,22 +26,22 @@ class DesignSystemBrandTest < ActionDispatch::IntegrationTest
     get design_system_v2_path(locale: :es)
 
     assert_response :success
-    assert_select "header p", text: "shadcn/ui para Phlex. De otra pasta."
+    assert_select "header p", text: "chadcn go brrrrrr"
     assert_select "footer", text: /Sin afiliación con shadcn\. Basado en shadcn\/ui \(MIT\)\./
     assert_select "header img[alt='chadcn']", 2
   end
 
-  test "the first shadcn/ui mention, in the tagline, links to ui.shadcn.com" do
+  test "the tagline names no upstream, so the shadcn/ui link is the footer's" do
     get design_system_v2_path(locale: :en)
 
-    assert_select "header p a[href='https://ui.shadcn.com']", text: "shadcn/ui", count: 1
+    assert_select "header a[href='https://ui.shadcn.com']", false
+    assert_select "footer a[href='https://ui.shadcn.com']", text: "shadcn/ui", count: 1
   end
 
-  test "the Spanish page carries the chadcn title and both upstream links" do
+  test "the Spanish page carries the chadcn title and the upstream link" do
     get design_system_v2_path(locale: :es)
 
     assert_select "title", text: /\ACatálogo chadcn/
-    assert_select "header p a[href='https://ui.shadcn.com']", text: "shadcn/ui", count: 1
     assert_select "footer a[href='https://ui.shadcn.com']", text: "shadcn/ui", count: 1
   end
 

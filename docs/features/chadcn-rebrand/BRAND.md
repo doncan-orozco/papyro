@@ -4,8 +4,8 @@ The one source the rebrand items of the `chadcn-rebrand` epic copy from (README,
 generator output). If a wording here and a wording in an item disagree, this file wins; change it here first.
 
 > Status: the mascot was redrawn in the Chad meme style and the copy moved to "virgin vs chad" comparisons at the
-> maintainer's request (#271, 2026-10-22). The redrawn assets and the comparison table wait for the maintainer's final
-> sign-off in that issue.
+> maintainer's request (#271). The maintainer approved the art and set the tagline on 2026-10-22; the disclaimer wording
+> waits for sign-off in that issue.
 
 ## The name
 
@@ -64,14 +64,16 @@ Rules:
 
 ## Tagline
 
-**Primary (needs sign-off):**
+**Primary (approved by the maintainer, 2026-10-22):**
 
-> shadcn/ui for Phlex. Built different.
+> chadcn go brrrrrr
 
-Alternatives offered for the sign-off, in order of preference:
+Always lowercase, no final period, six r's. It names no upstream project, so on pages whose tagline it is, the first
+shadcn/ui mention (and its link) is in the description paragraph or the footer disclaimer. The gemspec summary keeps a
+factual lead: "shadcn/ui for Phlex. chadcn go brrrrrr."
 
-1. "The shadcn/ui port that never skips leg day."
-2. "shadcn/ui, in Ruby, unbothered."
+Retired alternatives: "shadcn/ui for Phlex. Built different." (the first tagline), "The shadcn/ui port that never skips leg
+day.", "shadcn/ui, in Ruby, unbothered."
 
 The tagline goes under the wordmark in the README hero and on the demo catalog header. It is the only line of meme copy
 that may appear above the fold; the factual description paragraph ("shadcn/ui for Phlex: the same component API, the
@@ -82,12 +84,12 @@ disclaimer from `config/locales/{en,es}/design_system.yml`:
 
 | key | en | es |
 |---|---|---|
-| `design_system.brand.tagline` | shadcn/ui for Phlex. Built different. | shadcn/ui para Phlex. De otra pasta. |
+| `design_system.brand.tagline` | chadcn go brrrrrr | chadcn go brrrrrr |
 | `design_system.brand.disclaimer` | Not affiliated with shadcn. Built on shadcn/ui (MIT). | Sin afiliación con shadcn. Basado en shadcn/ui (MIT). |
 | `design_system.brand.wordmark_alt` | chadcn | chadcn |
 
-The gem's own surfaces (README, docs, dummy catalog, doctor, generators) are English only. The ES tagline is part of the
-maintainer sign-off.
+The gem's own surfaces (README, docs, dummy catalog, doctor, generators) are English only. The ES tagline is the English
+meme on purpose: "go brrrrrr" is used untranslated in Spanish.
 
 ## Approved one-liners
 
@@ -105,7 +107,7 @@ check, so the joke always carries information.
 ## Virgin vs chad
 
 The meme's two columns, as a table. The left column, "the virgin hand-rolled UI", is a way of working (copying files,
-patching by hand, guessing); the right column is chadcn. Every chad cell is a fact the reader can check, named in the last
+patching by hand, guessing); the right column is chadcn. Every chad cell but V8 is a fact the reader can check, named in the last
 column. The README "Why chadcn" section opens with this table (it replaces one-liner 1 there); other surfaces use at
 most three rows of it.
 
@@ -118,12 +120,12 @@ most three rows of it.
 | V5 | Pulls in a framework's worth of gems to render a button | Three runtime dependencies: `phlex`, `tailwind_merge`, `zeitwerk` | the gemspec |
 | V6 | Re-types the theme colors by hand | Pastes a theme from ui.shadcn.com/themes, unchanged | the theme file is shadcn format |
 | V7 | Greps the app to find out why the styles are missing | `bin/rails chadcn:doctor` says why | the doctor checks |
+| V8 | Renders every page through a stack of partials | Phlex: 5x faster (benchmark: trust me bro) | none, on purpose: the joke row |
 
-Pending, not used on any surface until its fact exists:
-
-- "Phlex renders it N times faster": needs a published benchmark against the alternative it names (the gem's `bin/bench`
-  measures chadcn alone and "makes no comparison with other libraries"). Add the row with the number and its source once a
-  benchmark is committed.
+V8 is the one row that is not a fact, and its cell says so. The maintainer chose it on 2026-10-22 knowing "5x" is not
+measured (`bin/bench` measures chadcn alone and makes no comparison with other libraries). Keep the "trust me bro" marker
+wherever the row appears, so nobody quotes the number as a benchmark; replace the cell with a measured number and its
+source once a comparison benchmark is committed.
 
 ## Voice rules
 
@@ -159,7 +161,7 @@ reader user, a translator or someone who never heard of the meme must lose nothi
   libraries or their authors on that side.
 - "Virgin" and "chad" name the meme's two columns and nothing else. No body shaming, gender, dating or sexual jokes, slurs,
   gym-bro insults or crude language. The tagline, its alternatives, the one-liners and the virgin vs chad table are the
-  whole vocabulary ("jawline", "leg day", "unbothered", "no sweat", "built different", "peak condition"); anything new is
+  whole vocabulary ("jawline", "leg day", "unbothered", "no sweat", "built different", "peak condition", "go brrrrrr", "trust me bro"); anything new is
   added here by PR first.
 - Plain English the reader can parse without the meme. If a line only works for people who know the reference, cut it.
 - One line, then facts. A meme line never replaces information and is never longer than one sentence.

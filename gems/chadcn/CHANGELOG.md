@@ -137,7 +137,7 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
   - renamed the JavaScript paths `app/javascript/controllers/shadcn/` and `app/javascript/shadcn/` to `controllers/chadcn/` and
     `app/javascript/chadcn/` (importmap `under: "chadcn"`, imports `chadcn/primitives/...`).
 - The README opens with the chadcn wordmark and tagline and ends with the not-affiliated-with-shadcn notice that keeps the
-  shadcn/ui MIT credit; the gemspec summary is "shadcn/ui for Phlex. Built different." and its description carries the short
+  shadcn/ui MIT credit; the gemspec summary is "shadcn/ui for Phlex. chadcn go brrrrrr." and its description carries the short
   form of that notice. The brand assets live in `dev/brand/` of the repository (not packaged; the README links them by URL).
 - A caller's `data-controller` no longer replaces a component's own: `merge_attrs` (and `as_child`) appends the caller's controller
   names after the component's and de-duplicates them, so `Calendar.new(data: { controller: "x" })` renders
