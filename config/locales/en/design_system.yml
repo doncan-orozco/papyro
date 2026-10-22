@@ -675,7 +675,7 @@ en:
       unavailable: "Preview unavailable (%{error})"
       page_title: "chadcn catalog"
     brand:
-      tagline: "shadcn/ui for Phlex. Built different."
+      tagline: "%{upstream} for Phlex. Built different."
       disclaimer: "Not affiliated with shadcn. Built on %{upstream} (MIT)."
       wordmark_alt: "chadcn"
       upstream_name: "shadcn/ui"

@@ -31,6 +31,20 @@ class DesignSystemBrandTest < ActionDispatch::IntegrationTest
     assert_select "header img[alt='chadcn']", 2
   end
 
+  test "the first shadcn/ui mention, in the tagline, links to ui.shadcn.com" do
+    get design_system_v2_path(locale: :en)
+
+    assert_select "header p a[href='https://ui.shadcn.com']", text: "shadcn/ui", count: 1
+  end
+
+  test "the Spanish page carries the chadcn title and both upstream links" do
+    get design_system_v2_path(locale: :es)
+
+    assert_select "title", text: /\ACatálogo chadcn/
+    assert_select "header p a[href='https://ui.shadcn.com']", text: "shadcn/ui", count: 1
+    assert_select "footer a[href='https://ui.shadcn.com']", text: "shadcn/ui", count: 1
+  end
+
   test "the light variant hides in dark mode and the dark variant shows only there" do
     get design_system_v2_path(locale: :en)
 

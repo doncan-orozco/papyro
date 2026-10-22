@@ -15,8 +15,10 @@ module Views
       UPSTREAM_URL = "https://ui.shadcn.com"
       # Wordmark file variant -> classes that show it only in its own theme (the `.dark` class switches).
       WORDMARK_VARIANTS = { "light" => "h-12 w-auto dark:hidden", "dark" => "hidden h-12 w-auto dark:block" }.freeze
-      # Stands in for the upstream link inside the translated disclaimer, so the sentence stays one key per locale.
+      # Stands in for the upstream link inside a translated sentence, so each sentence stays one key per locale.
       UPSTREAM_SLOT = "\u0000"
+      # Intrinsic size of the BRAND.md wordmark SVGs, so the browser reserves the box.
+      WORDMARK_SIZE = { width: 352, height: 96 }.freeze
 
       def initialize(entries: Components::Parity::Catalog.entries)
         @entries = entries
@@ -47,7 +49,7 @@ module Views
           div(class: "max-w-7xl mx-auto px-4 py-6 flex items-center justify-between gap-4") do
             div do
               wordmark
-              p(class: "text-sm font-medium mt-2") { t("design_system.brand.tagline") }
+              p(class: "text-sm font-medium mt-2") { upstream_sentence("design_system.brand.tagline") }
               h1(class: "text-3xl font-bold mt-4") { t("design_system.catalog_v2.title") }
               p(class: "text-muted-foreground mt-2") { t("design_system.catalog_v2.subtitle", count: @entries.size) }
             end
@@ -63,19 +65,26 @@ module Views
       def wordmark
         alt = t("design_system.brand.wordmark_alt")
         WORDMARK_VARIANTS.each do |variant, classes|
-          img(src: image_path("brand/wordmark-#{variant}.svg"), alt:, width: 352, height: 96, class: classes)
+          img(src: image_path("brand/wordmark-#{variant}.svg"), alt:, **WORDMARK_SIZE, class: classes)
         end
       end
 
       def footer_section
         footer(class: "border-t border-border") do
           p(class: "max-w-7xl mx-auto px-4 py-6 text-xs text-muted-foreground") do
-            before, after = t("design_system.brand.disclaimer", upstream: UPSTREAM_SLOT).split(UPSTREAM_SLOT, 2)
-            plain before
-            a(href: UPSTREAM_URL, class: "underline underline-offset-4") { t("design_system.brand.upstream_name") }
-            plain after
+            upstream_sentence("design_system.brand.disclaimer")
           end
         end
+      end
+
+      # A translated sentence whose %{upstream} slot becomes the shadcn/ui link (BRAND.md: link on first mention).
+      def upstream_sentence(key)
+        lead_in, slot, trailing_text = t(key, upstream: UPSTREAM_SLOT).partition(UPSTREAM_SLOT)
+        plain lead_in
+        unless slot.empty?
+          link_to(t("design_system.brand.upstream_name"), UPSTREAM_URL, class: "underline underline-offset-4")
+        end
+        plain trailing_text
       end
 
       def nav_section
