@@ -26,7 +26,7 @@ gem "phlex"
 gem "phlex-rails"
 gem "tailwindcss-rails"
 gem "tailwind_merge"
-gem "chadcn", path: "gems/chadcn"
+gem "chadcn", github: "doncan-orozco/chadcn", branch: "main" # local checkout: bundle config set --local local.chadcn ../chadcn
 gem "lucide-rails" # Server-rendered SVGs
 
 # Papyro Core Engines

@@ -1,18 +1,20 @@
 ---
 name: design-system
-description: "Papyro design system built on the shadcn/ui port: `Chadcn` in `gems/chadcn/lib/chadcn/*` with 1:1 React API (`Dialog`, `Dialog::Trigger`, `Dialog::Content`), semantic tokens, shadcn-format theme variables and the `chadcn--` Stimulus controllers. Use when creating or editing `gems/chadcn/lib/chadcn/*`, composing V2 components in views, or touching theme tokens. Legacy `app/components/ui/*` is frozen."
+description: "Papyro design system built on the shadcn/ui port: `Chadcn` from the chadcn gem (doncan-orozco/chadcn, `lib/chadcn/*`) with 1:1 React API (`Dialog`, `Dialog::Trigger`, `Dialog::Content`), semantic tokens, shadcn-format theme variables and the `chadcn--` Stimulus controllers. Use when composing V2 components in views, or touching theme tokens. Legacy `app/components/ui/*` is frozen."
 ---
 
 # Design System (shadcn/ui port: `Chadcn`)
 
 The design system is a **1:1 Phlex port of shadcn/ui (new-york-v4, Radix)**. How a component is ported, verified and kept faithful is owned by `shadcn-port` (API, classes, themes, gates) and `radix-stimulus` (behavior). This skill is the day-to-day contract for **writing and using** V2 components.
 
+> The gem, its port tooling (`/shadcn-*`) and the skills `shadcn-port`, `radix-stimulus` and `ruby-gem-conventions` live in **doncan-orozco/chadcn** (sibling checkout `../chadcn`). Paths below such as `lib/chadcn/` are inside that repository; component changes are made, audited and released there. In Papyro this skill governs using the components and the theme.
+
 ## Quick Rules
 
 Cite as `design-system R<n>`.
 
 R1. **Semantic tokens only.** `bg-primary`, `text-muted-foreground`, `border-input`...; no palette classes, hex or rgb. The only color classes allowed are the ones the shadcn source itself uses (`text-white`, `bg-black/50`). → `shadcn-port` R9
-R2. **Namespace and location.** V2 lives in `gems/chadcn/lib/chadcn/` as `Chadcn::<Name>`, every part inherits `Chadcn::Base` (cn, attribute merging, `render_as_child`); Stimulus identifiers are `chadcn--<name>`, controllers in `gems/chadcn/app/javascript/controllers/chadcn/`. Never import from legacy `app/components/ui/`. → `shadcn-port` R15
+R2. **Namespace and location.** V2 lives in `chadcn: lib/chadcn/` as `Chadcn::<Name>`, every part inherits `Chadcn::Base` (cn, attribute merging, `render_as_child`); Stimulus identifiers are `chadcn--<name>`, controllers in `chadcn: app/javascript/controllers/chadcn/`. Never import from legacy `app/components/ui/`. → `shadcn-port` R15
 R3. **Same API as React.** One Ruby class per React export: `Dialog` -> `Chadcn::Dialog`, `DialogContent` -> `Chadcn::Dialog::Content`, `DropdownMenuCheckboxItem` -> `DropdownMenu::CheckboxItem`. Props are snake_case kwargs; `className` -> `class:`; children -> block. → `shadcn-port` references/api-mapping.md
 R4. **Two equivalent ways to compose parts; the classes are canonical, the helpers are sugar.** (a) Explicit: `render Chadcn::Dialog::Content.new(...) { }`, one class per React export (used by scenarios, tests, the harness, and always valid). (b) DX helpers: the root yields itself and `Chadcn::Base` GENERATES one helper per nested part, so `render Chadcn::Table.new do |table| table.header { table.row { table.head { "Name" } } } end` reads like the JSX tree. A helper is exactly `render Root::Part.new(**attrs), &block`: never hand-written, never adds behavior. Mixing both in one view is fine. → references/compound-components.md
 R5. **`**attrs` everywhere.** Every class (root and each part) takes `**attrs`, passes them through, merges `class` via `cn` (caller wins) and deep-merges `data:`/`aria:` with the component's required attributes.
@@ -60,7 +62,7 @@ Components that are not compound parts (`Button`, `Input`...) are always rendere
 
 ## Legacy
 
-`app/components/ui/*`, `controllers/ui/*` and the references below describe the **frozen first attempt**. They stay for existing pages until each caller is migrated to V2 (`gems/chadcn/dev/port/CALLERS.md`). Do not extend them, do not copy from them.
+`app/components/ui/*`, `controllers/ui/*` and the references below describe the **frozen first attempt**. They stay for existing pages until each caller is migrated to V2 (`chadcn: dev/port/CALLERS.md`). Do not extend them, do not copy from them.
 
 Legacy references (read only when touching a legacy file): `references/compound-components.md` (current: nested parts), `references/design-system.md`, `references/stimulus-interactive-components.md`, `references/shadcn-conversion-guide.md`, `references/css-variables-guide.md`, `references/toast-notifications.md`, `examples/interactive-components-examples.md`.
 

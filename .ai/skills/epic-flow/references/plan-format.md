@@ -10,12 +10,12 @@
       "key": "skeleton",
       "title": "Gem skeleton with standalone test harness",
       "wave": 0,
-      "owns": ["gems/chadcn/*.gemspec", "gems/chadcn/Gemfile", "gems/chadcn/test/test_helper.rb"],
+      "owns": ["gems/mygem/*.gemspec", "gems/mygem/Gemfile", "gems/mygem/test/test_helper.rb"],
       "blocked_by": [],
       "stage": "plan",
       "priority": 10,
       "goal": "One paragraph: what exists when this is done and why.",
-      "gates": ["cd gems/chadcn && bundle exec rake test", "ruby .claude/scripts/gem/coupling_check.rb --gem-dir gems/chadcn"],
+      "gates": ["cd gems/mygem && bundle exec rake test"],
       "acceptance": ["gem tests run without the host app", "no host constant is visible from the gem"],
       "context": "optional: links, prior decisions, pitfalls"
     }
