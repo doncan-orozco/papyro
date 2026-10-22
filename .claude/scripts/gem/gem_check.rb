@@ -4,7 +4,7 @@
 # Mechanical gate for a gem that lives in (or was extracted from) a host Rails app: proves the gem stands alone and is packaged
 # like a gem. Deterministic, no network, no bundler context needed.
 #
-#   ruby .claude/scripts/gem/gem_check.rb --gem-dir gems/phlex-shadcn [--host-dir .] [--rails-files 'lib/**/engine.rb,lib/**/railtie.rb,lib/generators/**/*,lib/tasks/**/*']
+#   ruby .claude/scripts/gem/gem_check.rb --gem-dir gems/chadcn [--host-dir .] [--rails-files 'lib/**/engine.rb,lib/**/railtie.rb,lib/generators/**/*,lib/tasks/**/*']
 #
 # Prints JSON { gem_dir, pass, findings: [{ code, file, line, detail }] }; exit 1 when findings, 2 on usage error.
 #
@@ -48,10 +48,10 @@
 #   - exact rule id: only GEM_ESCAPES_ROOT's hard-coded host path check can be allowed (never require_relative leaving the gem,
 #     never another code); the id must be written out;
 #   - a reason after `--` is required and holds no quotes (a bare marker does not count);
-#   - scope: only files matching HOST_PATH_ALLOW_GLOBS (lib/phlex/shadcn/doctor/**/*.rb). The Rails integration files
+#   - scope: only files matching HOST_PATH_ALLOW_GLOBS (lib/chadcn/doctor/**/*.rb). The Rails integration files
 #     (generators, rake tasks, engine, railtie) are already exempt from this check and need no marker. The same literal in any
 #     other file keeps failing, marker or not.
-#   Decision: gems/phlex-shadcn/dev/decisions/gem-check-host-paths.md
+#   Decision: gems/chadcn/dev/decisions/gem-check-host-paths.md
 
 require "json"
 require "optparse"
@@ -60,7 +60,7 @@ require "rubygems"
 require "uri"
 
 # Files that inspect the host on purpose and may carry a `# gem_check:allow GEM_ESCAPES_ROOT -- <reason>` marker (see header).
-HOST_PATH_ALLOW_GLOBS = %w[lib/phlex/shadcn/doctor/**/*.rb].freeze
+HOST_PATH_ALLOW_GLOBS = %w[lib/chadcn/doctor/**/*.rb].freeze
 # Matched against the line's TRAILING COMMENT only; the reason holds no quotes, so marker text inside a string literal never counts.
 HOST_PATH_ALLOW_MARKER = /\A#\s*gem_check:allow\s+GEM_ESCAPES_ROOT\s+--\s+[^"'\s][^"']*\z/
 HOST_PATH_TRAILING_COMMENT = /(?<!\S)#(?![{@$]).*\z/
@@ -368,7 +368,8 @@ sources.each do |file, lines|
 end
 
 runtime = spec ? spec.runtime_dependencies.map(&:name) : []
-# Library namespaces and the gem that provides them (the gem's own Phlex::Shadcn namespace is not a use of phlex).
+# Library namespaces and the gem that provides them (only phlex's own classes count: Phlex::HTML/SGML/Kit/Helpers, so a
+# third-party namespace nested under Phlex is not a use of phlex).
 USES = {
   "activesupport" => /(?<![\w:])ActiveSupport(?:::|\.)/,
   "tailwind_merge" => /(?<![\w:])TailwindMerge(?:::|\.)/,

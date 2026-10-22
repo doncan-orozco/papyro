@@ -3,7 +3,7 @@
 # VERIFIED REFERENCE for the `_base` task's DX helper generator (golden case 34 runs this file with plain `ruby`).
 # Shows the three moving parts: (1) `Base.const_added` defines one helper per nested Base subclass, (2) the root yields itself,
 # (3) a component that receives the yielded root (the legacy `Row.new(table: table)` pattern) can call the helpers.
-# The real `Phlex::Shadcn::Base` adds: attrs merging, `cn`, `render_as_child`, and the same collision check.
+# The real `Chadcn::Base` adds: attrs merging, `cn`, `render_as_child`, and the same collision check.
 require "phlex"
 
 module Proto

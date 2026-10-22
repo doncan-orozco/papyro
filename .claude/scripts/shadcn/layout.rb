@@ -5,15 +5,15 @@
 # dev kit sits under the gem) means changing these constants or setting the env vars, nothing else. An unset or empty variable
 # means "use the default".
 #
-#   SHADCN_GEM_DIR           root of the gem; every default below derives from it   (default gems/phlex-shadcn)
-#   SHADCN_RUBY_DIR          directory of the Ruby components                 (default gems/phlex-shadcn/lib/phlex/shadcn)
-#   SHADCN_NAMESPACE         Ruby namespace of the components                  (default Phlex::Shadcn)
-#   SHADCN_CONTROLLER_DIR    directory of the Stimulus controllers             (default gems/phlex-shadcn/app/javascript/controllers/shadcn)
+#   SHADCN_GEM_DIR           root of the gem; every default below derives from it   (default gems/chadcn)
+#   SHADCN_RUBY_DIR          directory of the Ruby components                 (default gems/chadcn/lib/chadcn)
+#   SHADCN_NAMESPACE         Ruby namespace of the components                  (default Chadcn)
+#   SHADCN_CONTROLLER_DIR    directory of the Stimulus controllers             (default gems/chadcn/app/javascript/controllers/shadcn)
 #   SHADCN_PROBE_DIR         directory of the dev-only controllers (parity probes, theme panel)  (default <dummy>/app/javascript/controllers/shadcn)
-#   SHADCN_PRIMITIVES_DIR    directory of the shared JS primitives             (default gems/phlex-shadcn/app/javascript/shadcn/primitives)
-#   SHADCN_RUBY_TEST_DIR     directory of the Ruby component tests             (default gems/phlex-shadcn/test/phlex/shadcn)
-#   SHADCN_JS_TEST_DIR       directory of the browser controller tests         (default gems/phlex-shadcn/test/javascript)
-#   SHADCN_DEV_DIR           the dev kit (oracle, specs, scenarios, React catalog, golden cases)     (default gems/phlex-shadcn/dev)
+#   SHADCN_PRIMITIVES_DIR    directory of the shared JS primitives             (default gems/chadcn/app/javascript/shadcn/primitives)
+#   SHADCN_RUBY_TEST_DIR     directory of the Ruby component tests             (default gems/chadcn/test/chadcn)
+#   SHADCN_JS_TEST_DIR       directory of the browser controller tests         (default gems/chadcn/test/javascript)
+#   SHADCN_DEV_DIR           the dev kit (oracle, specs, scenarios, React catalog, golden cases)     (default gems/chadcn/dev)
 #   SHADCN_PORT_DIR          oracle/specs/scenarios/deviations/state                            (default <dev>/port)
 #   SHADCN_CATALOG_DIR       the React oracle renderer                                          (default <dev>/react-shadcn-catalog)
 #   SHADCN_DUMMY_DIR         the dummy Rails app the Phlex side is served from                  (default <dev>/dummy)
@@ -27,12 +27,12 @@ module ShadcnLayout
     (value.empty? ? default : value).freeze
   end
 
-  GEM_DIR = env_or("SHADCN_GEM_DIR", "gems/phlex-shadcn")
-  RUBY_DIR = env_or("SHADCN_RUBY_DIR", "#{GEM_DIR}/lib/phlex/shadcn")
-  NAMESPACE = env_or("SHADCN_NAMESPACE", "Phlex::Shadcn")
+  GEM_DIR = env_or("SHADCN_GEM_DIR", "gems/chadcn")
+  RUBY_DIR = env_or("SHADCN_RUBY_DIR", "#{GEM_DIR}/lib/chadcn")
+  NAMESPACE = env_or("SHADCN_NAMESPACE", "Chadcn")
   CONTROLLER_DIR = env_or("SHADCN_CONTROLLER_DIR", "#{GEM_DIR}/app/javascript/controllers/shadcn")
   PRIMITIVES_DIR = env_or("SHADCN_PRIMITIVES_DIR", "#{GEM_DIR}/app/javascript/shadcn/primitives")
-  RUBY_TEST_DIR = env_or("SHADCN_RUBY_TEST_DIR", "#{GEM_DIR}/test/phlex/shadcn")
+  RUBY_TEST_DIR = env_or("SHADCN_RUBY_TEST_DIR", "#{GEM_DIR}/test/chadcn")
   JS_TEST_DIR = env_or("SHADCN_JS_TEST_DIR", "#{GEM_DIR}/test/javascript")
   STIMULUS_PREFIX = env_or("SHADCN_STIMULUS_PREFIX", "shadcn")
 
@@ -51,9 +51,9 @@ module ShadcnLayout
   # Dev-only Stimulus controllers (the `_probe_*` parity probes and the theme panel). They are served by the dummy app and must never sit in
   # CONTROLLER_DIR: that tree is packaged and pinned by every consumer.
   PROBE_DIR = env_or("SHADCN_PROBE_DIR", "#{DUMMY_DIR}/app/javascript/controllers/shadcn")
-  # The theme both sides read: the gem's shipped default theme (the dummy app's config.phlex_shadcn.theme_dir, the React catalog's
+  # The theme both sides read: the gem's shipped default theme (the dummy app's config.chadcn.theme_dir, the React catalog's
   # @host-theme alias).
-  THEME_DIR = "#{GEM_DIR}/app/assets/tailwind/phlex-shadcn".freeze
+  THEME_DIR = "#{GEM_DIR}/app/assets/tailwind/chadcn".freeze
   PRESETS_DIR = "#{THEME_DIR}/presets".freeze
   SERVERS_FILE = env_or("SHADCN_SERVERS_FILE", "#{DEV_DIR}/tmp/shadcn-port/servers.json")
   TMP_DIR = "tmp/shadcn-port"
@@ -64,7 +64,7 @@ module ShadcnLayout
   # `button-group` => `button_group`
   def self.ruby_name(component) = component.tr("-", "_")
 
-  # `button-group` => `Phlex::Shadcn::ButtonGroup`
+  # `button-group` => `Chadcn::ButtonGroup`
   def self.root_constant(component) = "#{NAMESPACE}::#{root_class_name(component)}"
 
   # `button-group` => `ButtonGroup` (the class name without the namespace)

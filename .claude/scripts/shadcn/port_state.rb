@@ -31,7 +31,7 @@ GRAPH = "#{ShadcnLayout::ORACLE_DIR}/graph.json"
 STATUSES = %w[pending planned built done blocked].freeze
 DEFAULT_PILOT = %w[button switch dialog tooltip dropdown-menu select].freeze
 INFRA = [
-  { "name" => "_theme", "owns" => ["#{ShadcnLayout::THEME_DIR}/** (bug fixes only)", "#{ShadcnLayout::CONTROLLER_DIR}/theme_controller.js", "#{ShadcnLayout::CATALOG_DIR}/src/index.css", "#{ShadcnLayout::RUBY_DIR}/theme.rb", "#{ShadcnLayout::GEM_DIR}/lib/tasks/phlex_shadcn*.rake", "#{ShadcnLayout::RUBY_TEST_DIR}/theme_test.rb"] },
+  { "name" => "_theme", "owns" => ["#{ShadcnLayout::THEME_DIR}/** (bug fixes only)", "#{ShadcnLayout::CONTROLLER_DIR}/theme_controller.js", "#{ShadcnLayout::CATALOG_DIR}/src/index.css", "#{ShadcnLayout::RUBY_DIR}/theme.rb", "#{ShadcnLayout::GEM_DIR}/lib/tasks/chadcn*.rake", "#{ShadcnLayout::RUBY_TEST_DIR}/theme_test.rb"] },
   { "name" => "_harness", "owns" => ["#{ShadcnLayout::DEV_DIR}/parity/**", "#{ShadcnLayout::DUMMY_DIR}/**", "#{ShadcnLayout::CATALOG_DIR}/src/parity/**", "#{ShadcnLayout::CATALOG_DIR}/vite.config.ts", "#{ShadcnLayout::CATALOG_DIR}/package.json"] },
   { "name" => "_primitives", "owns" => ["#{ShadcnLayout::PRIMITIVES_DIR}/**", "config/importmap.rb (primitives and controllers pins)", "#{ShadcnLayout::CATALOG_DIR}/src/parity/primitives/**", "#{ShadcnLayout::SCENARIOS_DIR}/_primitives-*.json"] },
   { "name" => "_base", "owns" => ["#{ShadcnLayout::RUBY_DIR}/base.rb", "#{ShadcnLayout::RUBY_TEST_DIR}/base_test.rb"] },

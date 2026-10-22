@@ -4,18 +4,18 @@
 
 ```json
 {
-  "epic": { "slug": "phlex-shadcn", "title": "Extract Components::V2 into the phlex-shadcn gem", "body": "scope, non-goals, decisions already made, links" },
+  "epic": { "slug": "chadcn", "title": "Extract Components::V2 into the chadcn gem", "body": "scope, non-goals, decisions already made, links" },
   "items": [
     {
       "key": "skeleton",
       "title": "Gem skeleton with standalone test harness",
       "wave": 0,
-      "owns": ["gems/phlex-shadcn/*.gemspec", "gems/phlex-shadcn/Gemfile", "gems/phlex-shadcn/test/test_helper.rb"],
+      "owns": ["gems/chadcn/*.gemspec", "gems/chadcn/Gemfile", "gems/chadcn/test/test_helper.rb"],
       "blocked_by": [],
       "stage": "plan",
       "priority": 10,
       "goal": "One paragraph: what exists when this is done and why.",
-      "gates": ["cd gems/phlex-shadcn && bundle exec rake test", "ruby .claude/scripts/gem/coupling_check.rb --gem-dir gems/phlex-shadcn"],
+      "gates": ["cd gems/chadcn && bundle exec rake test", "ruby .claude/scripts/gem/coupling_check.rb --gem-dir gems/chadcn"],
       "acceptance": ["gem tests run without the host app", "no host constant is visible from the gem"],
       "context": "optional: links, prior decisions, pitfalls"
     }

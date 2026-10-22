@@ -4,7 +4,7 @@
 # component: one entry per `dev/port/scenarios/<component>.json` of the gem whose V2 class exists, previewing its first
 # plain (light) default scenario. Harness-only nodes of a scenario (`data-testid` outside/next/neutral probes) are pruned.
 # Dev-kit coupling: the gem's dev/ is not packaged, so this works with the path gem only.
-require Phlex::Shadcn.root.join("dev/parity/lib/shadcn_parity").to_s
+require Chadcn.root.join("dev/parity/lib/shadcn_parity").to_s
 
 class Components::Parity::Catalog
   Entry = Struct.new(:component, :title, :scenario_id, :scenario_count, :tree, keyword_init: true) do
@@ -16,7 +16,7 @@ class Components::Parity::Catalog
   def self.entries(directory: ShadcnParity::Scenario::DIRECTORY)
     Dir[directory.join("*.json").to_s].filter_map do |file|
       component = File.basename(file, ".json")
-      next if component.start_with?("_") || !Phlex::Shadcn.const_defined?(component.tr("-", "_").camelize, false)
+      next if component.start_with?("_") || !Chadcn.const_defined?(component.tr("-", "_").camelize, false)
 
       build(component, JSON.parse(File.read(file)).fetch("scenarios", []))
     end.sort_by(&:component)

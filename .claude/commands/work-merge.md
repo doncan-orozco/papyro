@@ -1,7 +1,7 @@
 ---
 description: Release manager for an epic, run by a human: merge the PRs of items in review that pass the merge policy, finish the merged items (Gates on main, advance to done) so their dependents become claimable, free stale claims, and report what still needs a person. The only command that merges.
 argument-hint: "--epic <slug> [--dry-run] [--only N,M] [--no-sweep] [--wait-ci MIN] [--no-issues]"
-allowed-tools: Read, Write, Grep, Glob, TodoWrite, Bash(ruby:*), Bash(git:*), Bash(gh pr view:*), Bash(gh pr checks:*), Bash(gh pr update-branch:*), Bash(gh pr list:*), Bash(gh run:*), Bash(gh issue list:*), Bash(gh issue create:*), Bash(bin/rails:*), Bash(bin/rubocop:*), Bash(bin/brakeman:*), Bash(bundle:*), Bash(gems/phlex-shadcn/bin/check:*), Bash(cd:*), Bash(ls:*), Bash(mkdir:*), Bash(cp:*), Bash(rm:*), Bash(cat:*), Bash(tail:*), Bash(grep:*), Bash(nohup:*), Bash(ps:*)
+allowed-tools: Read, Write, Grep, Glob, TodoWrite, Bash(ruby:*), Bash(git:*), Bash(gh pr view:*), Bash(gh pr checks:*), Bash(gh pr update-branch:*), Bash(gh pr list:*), Bash(gh run:*), Bash(gh issue list:*), Bash(gh issue create:*), Bash(bin/rails:*), Bash(bin/rubocop:*), Bash(bin/brakeman:*), Bash(bundle:*), Bash(gems/chadcn/bin/check:*), Bash(cd:*), Bash(ls:*), Bash(mkdir:*), Bash(cp:*), Bash(rm:*), Bash(cat:*), Bash(tail:*), Bash(grep:*), Bash(nohup:*), Bash(ps:*)
 ---
 
 # /work-merge: merge what is ready, finish what is merged, say what is left

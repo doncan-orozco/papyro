@@ -1,6 +1,6 @@
 ---
 name: radix-stimulus
-description: "How Radix UI / shadcn behavior is reproduced with Stimulus in the Phlex port: shared primitives (dismissable layer, focus scope, roving focus, positioner, presence, typeahead, scroll lock), behavior families (overlay, menu, selection, disclosure, slider) and the per-component behavior spec. Use when writing `gems/phlex-shadcn/app/javascript/controllers/shadcn/*` or `gems/phlex-shadcn/app/javascript/shadcn/primitives/*` for the shadcn port, or auditing behavior parity."
+description: "How Radix UI / shadcn behavior is reproduced with Stimulus in the Phlex port: shared primitives (dismissable layer, focus scope, roving focus, positioner, presence, typeahead, scroll lock), behavior families (overlay, menu, selection, disclosure, slider) and the per-component behavior spec. Use when writing `gems/chadcn/app/javascript/controllers/shadcn/*` or `gems/chadcn/app/javascript/shadcn/primitives/*` for the shadcn port, or auditing behavior parity."
 ---
 
 # Radix behavior -> Stimulus
@@ -11,8 +11,8 @@ Complements `stimulus` (lifecycle, targets, Turbo) and `shadcn-port` (API/style/
 
 Cite as `radix-stimulus R<n>`.
 
-R1. **Behavior spec before code.** Each interactive component has a "Behavior" section in `gems/phlex-shadcn/dev/port/specs/<name>.md` (states, transitions, keys, focus rules, timers) written from the Radix source and the live catalog, not from memory.
-R2. **Compose primitives, never copy.** Focus trapping, outside-dismiss, Esc handling, scroll lock, `aria-hidden` siblings, roving focus, typeahead, positioning and presence live once in `gems/phlex-shadcn/app/javascript/shadcn/primitives/`. A controller importing floating-ui or adding `keydown` Esc logic directly is wrong. → references/primitives.md
+R1. **Behavior spec before code.** Each interactive component has a "Behavior" section in `gems/chadcn/dev/port/specs/<name>.md` (states, transitions, keys, focus rules, timers) written from the Radix source and the live catalog, not from memory.
+R2. **Compose primitives, never copy.** Focus trapping, outside-dismiss, Esc handling, scroll lock, `aria-hidden` siblings, roving focus, typeahead, positioning and presence live once in `gems/chadcn/app/javascript/shadcn/primitives/`. A controller importing floating-ui or adding `keydown` Esc logic directly is wrong. → references/primitives.md
 R3. **State is `data-state` (and friends) on the DOM.** Controllers mutate `data-state/data-highlighted/data-disabled/data-side/data-align/aria-*` exactly as Radix; Tailwind `data-[state=open]:` classes then work unchanged. No class toggling for state.
 R4. **Server renders the initial state,** controller reconciles in `connect()` and on `*ValueChanged`. The first paint and the post-connect DOM are identical.
 R5. **Events out use `this.dispatch`** with names from `shadcn-port` api-mapping (`open-change`, `value-change`, `checked-change`), `detail` carrying the new value, cancelable where Radix's `onOpenAutoFocus`/`onEscapeKeyDown` are preventable (`prevent-default`).
@@ -44,4 +44,4 @@ The oracle is the running React catalog. Reading Radix source tells you *why*; t
 ## References
 
 - `references/primitives.md`: the primitive modules, their API and which Radix package each replaces.
-- `references/js-controller-tests.md`: the browser tests in `gems/phlex-shadcn/test/javascript` (touch, cancelable events, positioner options, layer nesting) and how to add one.
+- `references/js-controller-tests.md`: the browser tests in `gems/chadcn/test/javascript` (touch, cancelable events, positioner options, layer nesting) and how to add one.
