@@ -4,8 +4,8 @@ The one source the rebrand items of the `chadcn-rebrand` epic copy from (README,
 generator output). If a wording here and a wording in an item disagree, this file wins; change it here first.
 
 > Status: the mascot was redrawn in the Chad meme style and the copy moved to "virgin vs chad" comparisons at the
-> maintainer's request (#271). The maintainer approved the art and set the tagline on 2026-10-22; the disclaimer wording
-> waits for sign-off in that issue.
+> maintainer's request (#271). On 2026-10-22 the maintainer approved the art, the tagline and the disclaimer
+> wording; the guide is final.
 
 ## The name
 
