@@ -20,7 +20,7 @@ module Chadcn
   #   config.chadcn.theme_dir = "app/assets/tailwind/theme"   # where theme.css and presets/ live; relative to the app root
   #   config.chadcn.theme_task_aliases = true                 # false when the app defines its own theme:* tasks
   #   config.chadcn.hide_tailwind_stubs = true                # false to leave the tailwindcss-rails stubs to Propshaft
-  #   config.chadcn.override_dir = "app/components/chadcn"  # where ejected components live (`rails g chadcn:eject`)
+  #   config.chadcn.override_dir = "app/components/chadcn"    # where ejected components live (`rails g chadcn:eject`)
   #
   # `override_dir` is read while the app boots, before its autoload paths exist: set it in config/application.rb or
   # config/environments/*.rb (config/initializers/*.rb raise). Ejecting a component needs a restart; editing an ejected file reloads.

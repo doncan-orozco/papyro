@@ -368,8 +368,8 @@ sources.each do |file, lines|
 end
 
 runtime = spec ? spec.runtime_dependencies.map(&:name) : []
-# Library namespaces and the gem that provides them (only phlex's own classes count, so a gem namespace nested under Phlex is
-# not a use of phlex).
+# Library namespaces and the gem that provides them (only phlex's own classes count: Phlex::HTML/SGML/Kit/Helpers, so a
+# third-party namespace nested under Phlex is not a use of phlex).
 USES = {
   "activesupport" => /(?<![\w:])ActiveSupport(?:::|\.)/,
   "tailwind_merge" => /(?<![\w:])TailwindMerge(?:::|\.)/,
