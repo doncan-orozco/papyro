@@ -58,7 +58,7 @@ class Chadcn::Sidebar::MenuSkeleton < Chadcn::Base
     div(**part_attrs(CLASSES, data: { slot: "sidebar-menu-skeleton", sidebar: "menu-skeleton" })) do
       render Chadcn::Skeleton.new(class: "size-4 rounded-md", data: { sidebar: "menu-skeleton-icon" }) if @show_icon
       render Chadcn::Skeleton.new(class: "h-4 max-w-(--skeleton-width) flex-1", data: { sidebar: "menu-skeleton-text" },
-                                         style: "--skeleton-width: #{self.class.width_percent}%;")
+                                  style: "--skeleton-width: #{self.class.width_percent}%;")
     end
   end
 end

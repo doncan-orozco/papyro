@@ -41,7 +41,7 @@ class Chadcn::Calendar::DayButton < Chadcn::Base
   # @return [void]
   def view_template(&)
     render Chadcn::Button.new(variant: "ghost", size: "icon", **merge_attrs(default_attrs, @attrs.except(:class)),
-                                     class: cn(CLASSES, RDP_DAY, @attrs[:class])), &
+                              class: cn(CLASSES, RDP_DAY, @attrs[:class])), &
   end
 
   private

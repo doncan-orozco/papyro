@@ -33,7 +33,7 @@ class Chadcn::Combobox::Trigger < Chadcn::Base
     render_part(:button, @as_child, attrs) do
       block&.call
       render Chadcn::Icon.new("chevron-down", class: "pointer-events-none size-4 text-muted-foreground",
-                                                     "data-slot": "combobox-trigger-icon")
+                                              "data-slot": "combobox-trigger-icon")
     end
   end
 

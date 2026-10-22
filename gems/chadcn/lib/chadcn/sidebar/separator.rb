@@ -33,6 +33,6 @@ class Chadcn::Sidebar::Separator < Chadcn::Base
     attrs = canonical_attrs(@attrs).except(:class)
     data = { slot: "sidebar-separator", sidebar: "separator" }.merge(attrs[:data] || {})
     render(Chadcn::Separator.new(orientation: @orientation, decorative: @decorative, as_child: @as_child,
-                                        class: cn(CLASSES, @attrs[:class]), **attrs.merge(data:)), &)
+                                 class: cn(CLASSES, @attrs[:class]), **attrs.merge(data:)), &)
   end
 end

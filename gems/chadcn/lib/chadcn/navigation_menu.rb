@@ -246,7 +246,7 @@ class Chadcn::NavigationMenu < Chadcn::Base
         yield if block_given?
         plain " "
         render Chadcn::Icon.new("chevron-down",
-                                       class: "relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180", aria: { hidden: "true" })
+                                class: "relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180", aria: { hidden: "true" })
       end
     end
   end

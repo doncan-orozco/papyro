@@ -32,7 +32,7 @@ module Chadcn::Calendar::Parts
       part(:month_grid, :table, class: @classes[:month_grid], role: "grid", aria: { multiselectable: %w[multiple range].include?(@options.mode).to_s })
       table_parts
       render Chadcn::Calendar::DayButton.new(day: PLACEHOLDER_DAY, type: "button", class: @classes[:day_button],
-                                                    data: { shadcn__calendar_part: "day_button" })
+                                             data: { shadcn__calendar_part: "day_button" })
     end
   end
 
@@ -62,7 +62,7 @@ module Chadcn::Calendar::Parts
                    disabled: (true if @options.disable_navigation?))
       span(class: @classes[:caption_label], aria: { hidden: "true" }) do
         render Chadcn::Icon.new("chevron-down", width: DROPDOWN_CHEVRON_SIZE, height: DROPDOWN_CHEVRON_SIZE,
-                                                       class: cn("size-4", @classes[:chevron]))
+                                                class: cn("size-4", @classes[:chevron]))
       end
     end
   end

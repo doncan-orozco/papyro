@@ -50,7 +50,7 @@ class EngineTest::Eject < Minitest::Test
       result["footer_uses_ejected_button"] = Chadcn::Dialog::Footer.new(show_close_button: true).call.include?("data-ejected")
       result["toaster_same_class"] = defined?(Chadcn::Toaster) ? Chadcn::Toaster.equal?(Chadcn::Sonner::Toaster) : nil
       result["override_dir"] = Chadcn.config.override_dir
-      result["main_loader_roots"] = Rails.autoloaders.main.dirs.grep(/chadcn/)
+      result["main_loader_roots"] = Rails.autoloaders.main.dirs.grep(%r{/components/chadcn\z})
       if scenario == "reload_sonner"
         path = File.join(root, "app/components/chadcn/sonner/toaster.rb")
         File.write(path, File.read(path) + "\nChadcn::Sonner::Toaster::EDITED = 'yes'\n")

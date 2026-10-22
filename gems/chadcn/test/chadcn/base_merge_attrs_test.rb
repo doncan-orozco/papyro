@@ -93,7 +93,7 @@ class Chadcn::BaseMergeAttrsTest < Chadcn::TestCase
 
   test "as_child merges controllers through the slot and the child's own defaults" do
     out = Chadcn::Button.new(as_child: Chadcn::Calendar.new(today: "2026-03-15", data: { controller: "y" }),
-                                    data: { controller: "x y" }).call
+                             data: { controller: "x y" }).call
     root = Nokogiri::HTML5.fragment(out).at_css("[data-slot=button]")
 
     assert_equal "shadcn--calendar x y", root["data-controller"]
@@ -139,7 +139,7 @@ class Chadcn::BaseMergeAttrsTest < Chadcn::TestCase
 
   test "as_child onto a plain component merges and normalizes both sides" do
     out = Chadcn::Button.new(as_child: Chadcn::Badge.new(data: { controller: "z" }),
-                                    data: { controller: :x }).call
+                             data: { controller: :x }).call
 
     assert_equal "x z", Nokogiri::HTML5.fragment(out).at_css("[data-slot=button]")["data-controller"]
   end

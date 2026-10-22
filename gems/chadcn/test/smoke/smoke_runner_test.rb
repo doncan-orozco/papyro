@@ -29,7 +29,7 @@ class SmokeRunnerTest < Minitest::Test
     assert_includes readme.gemfile_lines, 'gem "phlex-rails"'
     assert_match(/class Views::Demo::Index < Views::Base/, readme.view_source)
     assert_match(/class DemoController < ApplicationController/, readme.controller_source)
-    assert_match(%r{\Arequire "chadcn"}, readme.without_rails_source)
+    assert_match(/\Arequire "chadcn"/, readme.without_rails_source)
   end
 
   def test_the_readme_reader_fails_loudly_when_the_quick_start_is_gone

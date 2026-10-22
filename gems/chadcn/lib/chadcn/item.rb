@@ -312,7 +312,7 @@ class Chadcn::Item < Chadcn::Base
     # @return [void]
     def view_template
       render Chadcn::Separator.new(**merge_attrs({ data: { slot: "item-separator" }, orientation: "horizontal", class: "my-0" },
-                                                        @attrs))
+                                                 @attrs))
     end
   end
 end

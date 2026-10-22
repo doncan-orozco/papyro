@@ -204,7 +204,7 @@ class Chadcn::Sidebar < Chadcn::Base
     template(data: { shadcn__sidebar_target: "mobile" }) do
       render Chadcn::Sheet.new(open: false) do
         render Chadcn::Sheet::Content.new(side: @side, class: MOBILE_CLASSES, style: "--sidebar-width: #{SIDEBAR_WIDTH_MOBILE};",
-                                                 data: { sidebar: "sidebar", slot: "sidebar", mobile: "true" }) do
+                                          data: { sidebar: "sidebar", slot: "sidebar", mobile: "true" }) do
           render Chadcn::Sheet::Header.new(class: "sr-only") do
             render(Chadcn::Sheet::Title.new) { @mobile_title }
             render(Chadcn::Sheet::Description.new) { @mobile_description }
