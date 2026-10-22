@@ -261,6 +261,19 @@ React side: `react-day-picker` 10.0.2 (`DayPicker` with shadcn `classNames`, `fo
 Port: NO third-party JavaScript (maintainer constraint): the `shadcn--calendar` Stimulus controller re-implements the rdp model above with `Date` and `Intl` (`DateTimeFormat`, `PluralRules`, `Locale#getWeekInfo`). It renders rdp's DOM exactly, including rdp's default class names (`rdp-root`, `rdp-months`, `rdp-month`, `rdp-nav`, `rdp-button_previous`, `rdp-button_next`, `rdp-chevron`, `rdp-month_caption`, `rdp-caption_label`, `rdp-dropdowns`, `rdp-dropdown_root`, `rdp-dropdown`, `rdp-months_dropdown`, `rdp-years_dropdown`, `rdp-month_grid`, `rdp-weekdays`, `rdp-weekday`, `rdp-week_number_header`, `rdp-weeks`, `rdp-week`, `rdp-week_number`, `rdp-day`, `rdp-day_button`, `rdp-focused`, `rdp-disabled`, `rdp-hidden`, `rdp-outside`, `rdp-today`, `rdp-selected`, `rdp-range_start`, `rdp-range_middle`, `rdp-range_end`, `rdp-footer`; GDC:11-30), because shadcn appends them to its own strings and the RTL classes target `.rdp-button_next` / `.rdp-button_previous`. No rdp stylesheet is loaded on either side (shadcn does not import `react-day-picker/style.css`), so the `rdp-*` classes carry no CSS.
 Mapping rdp component -> port element: Root -> root `div` (server); Months -> `div.rdp-months` (server, empty); Nav/PreviousMonthButton/NextMonthButton/Chevron -> server `nav` + buttons + `Chadcn::Icon` (`chevron-left`/`chevron-right`, `chevron-down` in dropdowns with width/height 18); Month, MonthCaption, CaptionLabel, DropdownNav, Dropdown/MonthsDropdown/YearsDropdown/Select/Option, MonthGrid, Weekdays/Weekday, WeekNumberHeader, Weeks/Week, WeekNumber (shadcn `td` override), Day, DayButton (shadcn `CalendarDayButton` = `Calendar::DayButton` prototype), Footer -> cloned prototypes. rdp's own `Chevron` svg (polygons) never appears (shadcn overrides it with lucide).
 
+<!-- spec_helpers:begin -->
+## DX helpers (derived from the oracle, do not edit)
+
+`Chadcn::Calendar` MUST `yield self` from `view_template`; `Chadcn::Base` generates one helper per nested part (`const_added`), each exactly `render Calendar::<Part>.new(**attrs), &block`. The helpers are sugar: the nested classes stay the canonical API (scenarios, tests and the parity harness use them), and fully qualified calls (`render Chadcn::Calendar::Content.new`) stay valid.
+
+| helper | part class | React export |
+|---|---|---|
+| `calendar.day_button` | `Calendar::DayButton` | `CalendarDayButton` |
+
+
+Acceptance (unit test): every row exists as a public method on the root instance and renders the same HTML as the explicit class call; no helper is defined by hand.
+<!-- spec_helpers:end -->
+
 ## Dependencies
 
 - `Chadcn::Button` (`Calendar::DayButton` renders it with `variant: "ghost", size: "icon"`) and `Chadcn::Button.variants(variant:)` for the nav button class (`buttonVariants({ variant: buttonVariant })`).
