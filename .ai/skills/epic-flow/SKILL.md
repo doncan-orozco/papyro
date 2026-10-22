@@ -58,6 +58,7 @@ ruby .claude/scripts/epic/work_board.rb advance N --epic S --session ID --stage 
 ruby .claude/scripts/epic/work_board.rb comment N --epic S --session ID --type shared --body "..."
 ruby .claude/scripts/epic/work_board.rb block N --epic S --session ID --reason "..."
 ruby .claude/scripts/epic/work_board.rb release N --epic S --session ID
+ruby .claude/scripts/epic/work_board.rb item edit N --epic S --session ID --blocked-by 1,2 --reason "..."   # maintainer plan change only ("" clears)
 ```
 
 Exit codes: 0 ok, 1 a negative answer you must act on (claim lost, validation findings), 2 error (read stderr; a failing remote is an error, never "nothing is claimed").

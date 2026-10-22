@@ -133,6 +133,45 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert(result["findings"].any? { |f| f["code"] == "CYCLE" })
   end
 
+  test "item edit replaces the blockers in the meta block, keeps the rest of the body and logs the reason" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    b = make_item("B", wave: 2, owns: "lib/b/**", blocked_by: [ a ])
+    result, code = wb("item", "edit", b.to_s, "--epic", "demo", "--session", "s1", "--blocked-by", "", "--reason", "A moved to another repository")
+    issue = fake_db["issues"].find { |i| i["number"] == b }
+
+    assert_equal 0, code, result.inspect
+    assert_equal({ "ok" => true, "number" => b, "blocked_by" => [], "was" => [ a ] }, result)
+    assert_match(/\Ado B\n/, issue["body"])
+    assert_match(/work-item \{.*"blocked_by":\[\].*"owns":\["lib\/b\/\*\*"\]|work-item \{.*"owns":\["lib\/b\/\*\*"\].*"blocked_by":\[\]/, issue["body"])
+    assert_equal "ready", state_of(b)["state"]
+    note = issue["comments"].last["body"]
+
+    assert_match(/work-note \{"type":"plan-edit","session":"s1"/, note)
+    assert_includes note, "blocked_by [#{a}] -> []: A moved to another repository"
+  end
+
+  test "item edit refuses a blocker outside the epic, a wave-order violation and a cycle, and changes nothing" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    b = make_item("B", wave: 2, owns: "lib/b/**", blocked_by: [ a ])
+    before = fake_db
+    edit = ->(number, blockers) { wb("item", "edit", number.to_s, "--epic", "demo", "--session", "s1", "--blocked-by", blockers, "--reason", "r") }
+
+    { [ b, "999" ] => "BLOCKER_MISSING", [ a, b.to_s ] => "WAVE_ORDER" }.each do |(number, blockers), expected|
+      result, code = edit.call(number, blockers)
+
+      assert_equal 1, code, result.inspect
+      assert_equal "invalid_blockers", result["reason"]
+      assert_includes result["findings"].map { |f| f["code"] }, expected
+    end
+    assert_equal before, fake_db
+
+    _, code = wb("item", "edit", b.to_s, "--epic", "demo", "--session", "s1", "--blocked-by", a.to_s)
+
+    assert_equal 2, code, "--reason is required: a plan change says why"
+  end
+
   test "validate requires owns on every item" do
     make_epic
     db_args = [ "item", "create", "--epic", "demo", "--title", "no owns", "--wave", "1", "--owns", "x" ]
