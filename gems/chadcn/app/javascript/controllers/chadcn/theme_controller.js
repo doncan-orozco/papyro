@@ -7,8 +7,8 @@ import { Controller } from "@hotwired/stimulus"
 // must stay static while the controller is connected. Storage that throws (private windows, blocked site data) degrades to the system
 // preference. disconnect leaves `.dark` and `data-theme` in place on purpose (a persisted page-wide choice; it keeps Turbo snapshots right).
 //
-//   <div data-controller="shadcn--theme" data-shadcn--theme-storage-key-value="my-app-theme">
-//     <button data-action="shadcn--theme#setLight">...</button>  setDark / setSystem / toggle
+//   <div data-controller="chadcn--theme" data-chadcn--theme-storage-key-value="my-app-theme">
+//     <button data-action="chadcn--theme#setLight">...</button>  setDark / setSystem / toggle
 export default class extends Controller {
   static values = {
     current: { type: String, default: "system" },

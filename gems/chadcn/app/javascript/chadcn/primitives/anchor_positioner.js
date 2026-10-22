@@ -14,7 +14,7 @@
 //   collisions flip top/bottom only (`fallbackAxisSide: "none"`), `collisionPadding` 5 (flip: +1 and +1 more towards the preferred
 //             side), shift on the main axis; `lazyFlip` keeps the side the popup first flipped to while it resizes.
 import { arrow, autoUpdate, computePosition, detectOverflow, flip, limitShift, offset, shift, size } from "@floating-ui/dom"
-import { sideAndAlign } from "shadcn/primitives/positioner"
+import { sideAndAlign } from "chadcn/primitives/positioner"
 
 const DEFAULTS = {
   side: "bottom",

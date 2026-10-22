@@ -1,9 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
-import { items, textValue } from "shadcn/primitives/collection"
-import { rovingFocus } from "shadcn/primitives/roving_focus"
-import { isCharacterKey, nextMatch, typeahead } from "shadcn/primitives/typeahead"
+import { items, textValue } from "chadcn/primitives/collection"
+import { rovingFocus } from "chadcn/primitives/roving_focus"
+import { isCharacterKey, nextMatch, typeahead } from "chadcn/primitives/typeahead"
 
-// Parity probe for shadcn/primitives/typeahead (scenarios _primitives-typeahead): the Radix Menu content typeahead
+// Parity probe for chadcn/primitives/typeahead (scenarios _primitives-typeahead): the Radix Menu content typeahead
 // (react-menu handleTypeaheadSearch, onKeyDown, onBlur) over server-rendered `role="menuitem"` items, composed with
 // roving focus like Menu does, plus the focus-driven `data-highlighted` of MenuItem.
 export default class extends Controller {

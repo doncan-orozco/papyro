@@ -47,7 +47,7 @@ The doctor (`lib/chadcn/doctor/**`) is Core but may name host paths under R15, w
 
 ## Namespacing
 
-`Chadcn::Button`, `Chadcn::Dialog::Content`. Stimulus identifiers use the `shadcn--` prefix, matching `app/javascript/controllers/shadcn/<name>_controller.js` inside the gem. A rename (for example from `Components::V2`) is a mechanical, reviewed change and is followed by the full parity gates: the DOM must not change.
+`Chadcn::Button`, `Chadcn::Dialog::Content`. Stimulus identifiers use the `chadcn--` prefix, matching `app/javascript/controllers/chadcn/<name>_controller.js` inside the gem. A rename (for example from `Components::V2`) is a mechanical, reviewed change and is followed by the full parity gates: the DOM must not change.
 
 Recorded exceptions to "no monkey patches" (each one guarded by a method and arity check, off through one `config.chadcn` option, logged instead of failing when the hook is gone, and named here with the condition for its removal):
 
@@ -83,7 +83,7 @@ Copy the license text of each upstream project into `THIRD_PARTY_NOTICES.md` wit
 
 ## Assets
 
-JS: ES modules under the gem's `app/javascript/shadcn/`, pinned by the engine's `config/importmap.rb` (and published as an npm package later if bundler-based hosts need it). CSS: the theme file, token mapping, presets and vendored animation CSS ship in the gem; the install generator imports them and adds the Tailwind `@source` line. Host customisation goes through the theme file and CSS variables, never through patching gem files.
+JS: ES modules under the gem's `app/javascript/chadcn/`, pinned by the engine's `config/importmap.rb` (and published as an npm package later if bundler-based hosts need it). CSS: the theme file, token mapping, presets and vendored animation CSS ship in the gem; the install generator imports them and adds the Tailwind `@source` line. Host customisation goes through the theme file and CSS variables, never through patching gem files.
 
 ## Testing
 

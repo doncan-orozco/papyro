@@ -1,9 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
-import { dismissable } from "shadcn/primitives/dismissable_layer"
-import { hoverIntent } from "shadcn/primitives/hover_intent"
-import { positioner } from "shadcn/primitives/positioner"
-import { presence } from "shadcn/primitives/presence"
-import { mountTemplate } from "shadcn/primitives/template_mount"
+import { dismissable } from "chadcn/primitives/dismissable_layer"
+import { hoverIntent } from "chadcn/primitives/hover_intent"
+import { positioner } from "chadcn/primitives/positioner"
+import { presence } from "chadcn/primitives/presence"
+import { mountTemplate } from "chadcn/primitives/template_mount"
 
 // Radix HoverCard (Root + Trigger + Content). Spec: docs/shadcn-port/specs/hover-card.md (Behavior).
 // The controller element is the trigger. The content lives in an inert <template> next to it and is mounted in <body>
@@ -61,7 +61,7 @@ export default class extends Controller {
   }
 
   findTemplate() {
-    const selector = `template[data-shadcn--hover-card-template="${this.templateKeyValue}"]`
+    const selector = `template[data-chadcn--hover-card-template="${this.templateKeyValue}"]`
     return (this.element.parentElement || document).querySelector(selector) || document.querySelector(selector)
   }
 

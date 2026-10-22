@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
-import { dismissable } from "shadcn/primitives/dismissable_layer"
-import { presence } from "shadcn/primitives/presence"
+import { dismissable } from "chadcn/primitives/dismissable_layer"
+import { presence } from "chadcn/primitives/presence"
 
 // Radix NavigationMenu (Root + List + Item + Trigger + Content + Viewport + Link + Indicator).
 // Spec: docs/shadcn-port/specs/navigation-menu.md (Behavior). The controller element is the root `nav`.
@@ -11,8 +11,8 @@ const LINK = "[data-slot=navigation-menu-link]"
 const CONTENT = "[data-slot=navigation-menu-content]"
 const GROUP = "[data-slot=navigation-menu-list], [data-slot=navigation-menu-content]"
 const ITEM = "[data-radix-collection-item]"
-const VALUE_PARAM = "data-shadcn--navigation-menu-value-param"
-const CONTROLS_PARAM = "data-shadcn--navigation-menu-controls-param"
+const VALUE_PARAM = "data-chadcn--navigation-menu-value-param"
+const CONTROLS_PARAM = "data-chadcn--navigation-menu-controls-param"
 const ARROW_KEYS = ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"]
 const CLOSE_DELAY = 150 // hard-coded in Radix (nm:88)
 // react-visually-hidden style object, set through element.style so it serializes like React's.

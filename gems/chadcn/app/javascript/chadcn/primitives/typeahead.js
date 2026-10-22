@@ -3,7 +3,7 @@
 // through the items starting with that letter.
 //
 // Known divergences: none.
-import { wrapArray, textValue } from "shadcn/primitives/collection"
+import { wrapArray, textValue } from "chadcn/primitives/collection"
 
 /** Milliseconds of inactivity after which the typeahead buffer resets. @type {number} */
 export const RESET_MS = 1000

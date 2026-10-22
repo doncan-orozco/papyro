@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
-import { pointerCapture } from "shadcn/primitives/pointer_capture"
-import { direction } from "shadcn/primitives/direction"
+import { pointerCapture } from "chadcn/primitives/pointer_capture"
+import { direction } from "chadcn/primitives/direction"
 
 // Radix Slider behavior (docs/shadcn-port/specs/slider.md). Host = the root span; thumbs, range and bubble inputs are
 // children rendered by the server. Thumb elements never move: values are re-sorted across them.
@@ -262,7 +262,7 @@ export default class extends Controller {
   }
 
   #dispatch(name, value) {
-    this.element.dispatchEvent(new CustomEvent(`shadcn--slider:${name}`, { detail: { value }, bubbles: true }))
+    this.element.dispatchEvent(new CustomEvent(`chadcn--slider:${name}`, { detail: { value }, bubbles: true }))
   }
 }
 

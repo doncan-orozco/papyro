@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
-import { ensureId } from "shadcn/primitives/ids"
+import { ensureId } from "chadcn/primitives/ids"
 
-// Parity probe for shadcn/primitives/ids (scenarios _primitives-ids): wires trigger aria-controls to the panel id (server id first).
+// Parity probe for chadcn/primitives/ids (scenarios _primitives-ids): wires trigger aria-controls to the panel id (server id first).
 export default class extends Controller {
   connect() {
     const trigger = this.element.querySelector("[data-slot=trigger]")

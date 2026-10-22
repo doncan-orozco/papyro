@@ -1,8 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
-import { mountTemplate } from "shadcn/primitives/template_mount"
-import { presence } from "shadcn/primitives/presence"
+import { mountTemplate } from "chadcn/primitives/template_mount"
+import { presence } from "chadcn/primitives/presence"
 
-// Parity probe for shadcn/primitives/presence + template_mount (docs/shadcn-port/scenarios/_primitives-presence.json).
+// Parity probe for chadcn/primitives/presence + template_mount (docs/shadcn-port/scenarios/_primitives-presence.json).
 export default class extends Controller {
   static targets = ["template"]
   static values = { open: Boolean }

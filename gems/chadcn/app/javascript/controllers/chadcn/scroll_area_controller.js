@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
-import { presence } from "shadcn/primitives/presence"
-import { direction } from "shadcn/primitives/direction"
+import { presence } from "chadcn/primitives/presence"
+import { direction } from "chadcn/primitives/direction"
 
 // Radix ScrollArea behavior (docs/shadcn-port/specs/scroll-area.md, @radix-ui/react-scroll-area 1.3.0). Host = the Root div.
 // Each ScrollBar waits in an inert <template> (its thumb in a nested one); mounting inserts a clone right after it.
@@ -98,7 +98,7 @@ export default class extends Controller {
   #record(template) {
     const prototype = template.content.firstElementChild
     const record = {
-      template, prototype, force: template.getAttribute("data-shadcn--scroll-area-force-mount") === "true",
+      template, prototype, force: template.getAttribute("data-chadcn--scroll-area-force-mount") === "true",
       horizontal: prototype.dataset.orientation === "horizontal",
       node: null, hover: false, autoVisible: false, scrollState: "hidden", hideTimer: 0, sizes: ZERO_SIZES
     }

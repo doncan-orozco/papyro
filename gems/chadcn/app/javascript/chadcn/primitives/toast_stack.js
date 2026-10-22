@@ -4,7 +4,7 @@
 // Known divergences (recorded in dev/port/deviations/sonner.json): no React elements (`toast.custom` takes a DOM node or a function
 // returning one), no `useSonner` hook, an `error` toast is also announced through an assertive live region.
 //
-//   import { toast, ToastStack } from "shadcn/primitives/toast_stack"
+//   import { toast, ToastStack } from "chadcn/primitives/toast_stack"
 //   toast.success("Saved", { description: "All changes stored", action: { label: "Undo", onClick() {} } })
 //   const stack = new ToastStack(sectionElement, { position: "bottom-right", iconFor }); stack.connect(); ... stack.disconnect()
 

@@ -1,12 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
-import { dismissable } from "shadcn/primitives/dismissable_layer"
-import { focusGuards } from "shadcn/primitives/focus_guards"
-import { focusScope } from "shadcn/primitives/focus_scope"
-import { hideOthers } from "shadcn/primitives/hide_others"
-import { positioner } from "shadcn/primitives/positioner"
-import { presence } from "shadcn/primitives/presence"
-import { scrollLock } from "shadcn/primitives/scroll_lock"
-import { mountTemplate } from "shadcn/primitives/template_mount"
+import { dismissable } from "chadcn/primitives/dismissable_layer"
+import { focusGuards } from "chadcn/primitives/focus_guards"
+import { focusScope } from "chadcn/primitives/focus_scope"
+import { hideOthers } from "chadcn/primitives/hide_others"
+import { positioner } from "chadcn/primitives/positioner"
+import { presence } from "chadcn/primitives/presence"
+import { scrollLock } from "chadcn/primitives/scroll_lock"
+import { mountTemplate } from "chadcn/primitives/template_mount"
 
 // Radix Popover (Root + Trigger + Anchor + Content). Spec: docs/shadcn-port/specs/popover.md (Behavior).
 // The controller host is the first Trigger or, without one, the Content <template>. The content ships in that inert
@@ -18,7 +18,7 @@ export default class extends Controller {
   static values = { open: Boolean, controlled: Boolean, modal: Boolean, contentId: String, templateKey: String }
 
   connect() {
-    this.template = document.querySelector(`template[data-shadcn--popover-template="${this.templateKeyValue}"]`)
+    this.template = document.querySelector(`template[data-chadcn--popover-template="${this.templateKeyValue}"]`)
     if (!this.template) return
 
     this.options = JSON.parse(this.template.dataset.options || "{}")
@@ -86,12 +86,12 @@ export default class extends Controller {
   }
 
   get triggers() {
-    const keyed = [...document.querySelectorAll(`[data-shadcn--popover-trigger="${this.templateKeyValue}"]`)]
+    const keyed = [...document.querySelectorAll(`[data-chadcn--popover-trigger="${this.templateKeyValue}"]`)]
     return this.element === this.template ? keyed : [this.element, ...keyed]
   }
 
   get anchor() {
-    return document.querySelector(`[data-shadcn--popover-anchor="${this.templateKeyValue}"]`)
+    return document.querySelector(`[data-chadcn--popover-anchor="${this.templateKeyValue}"]`)
   }
 
   syncTriggers() {

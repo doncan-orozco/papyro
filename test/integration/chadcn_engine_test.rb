@@ -24,8 +24,8 @@ class ChadcnEngineTest < ActiveSupport::TestCase
     imports = JSON.parse(Rails.application.importmap.to_json(resolver: ActionController::Base.helpers))["imports"]
 
     assert imports.key?("@floating-ui/dom")
-    assert imports.key?("controllers/shadcn/dialog_controller")
-    assert imports.key?("shadcn/primitives/portal")
+    assert imports.key?("controllers/chadcn/dialog_controller")
+    assert imports.key?("chadcn/primitives/portal")
   end
 
   test "the engine vendored floating-ui is served by the asset pipeline" do

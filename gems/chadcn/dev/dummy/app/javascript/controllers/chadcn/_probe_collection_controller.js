@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
-import { ITEM_ATTR, items, textValue } from "shadcn/primitives/collection"
+import { ITEM_ATTR, items, textValue } from "chadcn/primitives/collection"
 
-// Parity probe for shadcn/primitives/collection (scenarios _primitives-collection). Buttons by data-slot: read (writes the ordered
+// Parity probe for chadcn/primitives/collection (scenarios _primitives-collection). Buttons by data-slot: read (writes the ordered
 // items to out / out-all), prepend / append (add an item to the list), toggle (flips data-disabled on item-b).
 export default class extends Controller {
   #front = 0

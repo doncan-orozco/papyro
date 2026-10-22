@@ -1,8 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
-import { mountTemplate } from "shadcn/primitives/template_mount"
-import { collapsibleContent } from "shadcn/primitives/collapsible_content"
+import { mountTemplate } from "chadcn/primitives/template_mount"
+import { collapsibleContent } from "chadcn/primitives/collapsible_content"
 
-// Parity probe for shadcn/primitives/collapsible_content (docs/shadcn-port/scenarios/_primitives-collapsible-content.json).
+// Parity probe for chadcn/primitives/collapsible_content (docs/shadcn-port/scenarios/_primitives-collapsible-content.json).
 export default class extends Controller {
   static targets = ["trigger", "content", "template"]
   static values = { open: Boolean }

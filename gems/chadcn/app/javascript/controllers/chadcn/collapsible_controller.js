@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { collapsibleContent } from "shadcn/primitives/collapsible_content"
+import { collapsibleContent } from "chadcn/primitives/collapsible_content"
 
 // Radix Collapsible. Spec: docs/shadcn-port/specs/collapsible.md (Behavior).
 //
@@ -30,7 +30,7 @@ export default class extends Controller {
   }
 
   #setup() {
-    const childTemplates = this.bodyTargets.filter((el) => el.hasAttribute("data-shadcn--collapsible-slot"))
+    const childTemplates = this.bodyTargets.filter((el) => el.hasAttribute("data-chadcn--collapsible-slot"))
     this.records = [
       ...this.contentTargets.map((el) => this.#record(el)),
       ...childTemplates.map((template) => this.#childRecord(template))
@@ -65,8 +65,8 @@ export default class extends Controller {
       if (record.el && (!closed || record.forceMount)) return record.anchor.remove()
       record.el?.remove() // an exit animation still running
       record.el = null
-      record.template.setAttribute("data-shadcn--collapsible-target", "body")
-      record.template.setAttribute("data-shadcn--collapsible-slot", "child")
+      record.template.setAttribute("data-chadcn--collapsible-target", "body")
+      record.template.setAttribute("data-chadcn--collapsible-slot", "child")
       return record.anchor.replaceWith(record.template)
     }
     if (record.forceMount || !closed) return
@@ -74,7 +74,7 @@ export default class extends Controller {
     record.el.hidden = true
     record.el.style.removeProperty("--radix-collapsible-content-height")
     record.el.style.removeProperty("--radix-collapsible-content-width")
-    record.body.setAttribute("data-shadcn--collapsible-target", "body")
+    record.body.setAttribute("data-chadcn--collapsible-target", "body")
     record.el.replaceChildren(record.body)
     record.mounted = false
   }
@@ -90,8 +90,8 @@ export default class extends Controller {
 
   #record(el) {
     const open = el.dataset.state === "open"
-    const forceMount = el.getAttribute("data-shadcn--collapsible-force-mount") === "true"
-    if (el.getAttribute("data-shadcn--collapsible-as-child") === "true") return this.#openChildRecord(el, open, forceMount)
+    const forceMount = el.getAttribute("data-chadcn--collapsible-force-mount") === "true"
+    if (el.getAttribute("data-chadcn--collapsible-as-child") === "true") return this.#openChildRecord(el, open, forceMount)
 
     const body = this.#takeBody(el)
     const record = { el, body, forceMount, mounted: open || forceMount }
@@ -128,7 +128,7 @@ export default class extends Controller {
 
   // The closed body template, or a template built from the server-rendered children of an open content.
   #takeBody(el) {
-    const template = el.querySelector(":scope > template[data-shadcn--collapsible-target~=body]")
+    const template = el.querySelector(":scope > template[data-chadcn--collapsible-target~=body]")
     if (template) {
       template.remove()
       return template

@@ -1,11 +1,11 @@
-// Parity probe for shadcn/primitives/submenu_grace (+ positioner) against the raw Radix DropdownMenu with a sub menu
+// Parity probe for chadcn/primitives/submenu_grace (+ positioner) against the raw Radix DropdownMenu with a sub menu
 // (scenario _primitives-submenu-grace). Not a product controller: it models only what the grace logic observably drives
 // (item focus on pointer move/leave, roving tab stop, sub open delay, sub closing on focus outside).
 // Tree: root > trigger, menu > [item*, sub-trigger, sub-content > item*, item*]. Options (data-parity-options, shared with the
 // React twin): side, align, sideOffset.
 import { Controller } from "@hotwired/stimulus"
-import { positioner } from "shadcn/primitives/positioner"
-import { submenuGrace } from "shadcn/primitives/submenu_grace"
+import { positioner } from "chadcn/primitives/positioner"
+import { submenuGrace } from "chadcn/primitives/submenu_grace"
 
 const SUB_OPEN_DELAY = 100
 const mouse = (handler) => (event) => event.pointerType === "mouse" && handler(event)

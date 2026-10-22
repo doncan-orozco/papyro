@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
-import { FormBubbleInput } from "shadcn/primitives/form_bubble_input"
+import { FormBubbleInput } from "chadcn/primitives/form_bubble_input"
 
-// Parity probe for shadcn/primitives/form_bubble_input (scenario _primitives-form-bubble-input). Twin of
+// Parity probe for chadcn/primitives/form_bubble_input (scenario _primitives-form-bubble-input). Twin of
 // react-shadcn-catalog/src/parity/primitives/form_bubble_input.tsx. Not shipped to components.
 // Config comes from data-probe-* on the root (kind, name, value, required, disabled, options JSON, selected) so the same tree
 // also drives the raw Radix control in React.

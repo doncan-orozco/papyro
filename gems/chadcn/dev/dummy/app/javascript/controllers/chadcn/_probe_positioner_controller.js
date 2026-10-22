@@ -1,8 +1,8 @@
-// Parity probe for shadcn/primitives/positioner (scenario _primitives-positioner). Not a product controller.
+// Parity probe for chadcn/primitives/positioner (scenario _primitives-positioner). Not a product controller.
 // Root children: anchor, content. Options come from data-parity-options, the same JSON the React twin
 // (react-shadcn-catalog/src/parity/primitives/positioner.tsx) reads.
 import { Controller } from "@hotwired/stimulus"
-import { positioner } from "shadcn/primitives/positioner"
+import { positioner } from "chadcn/primitives/positioner"
 
 const SVG = "http://www.w3.org/2000/svg"
 

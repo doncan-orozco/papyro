@@ -1,15 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
-import { ITEM_SELECTOR, isDisabled, textValue } from "shadcn/primitives/collection"
-import { dismissable } from "shadcn/primitives/dismissable_layer"
-import { focusGuards } from "shadcn/primitives/focus_guards"
-import { focusScope } from "shadcn/primitives/focus_scope"
-import { hideOthers } from "shadcn/primitives/hide_others"
-import { ensureWrapper, positioner } from "shadcn/primitives/positioner"
-import { presence } from "shadcn/primitives/presence"
-import { scrollLock } from "shadcn/primitives/scroll_lock"
-import { submenuGrace } from "shadcn/primitives/submenu_grace"
-import { mountTemplate } from "shadcn/primitives/template_mount"
-import { nextMatch, typeahead } from "shadcn/primitives/typeahead"
+import { ITEM_SELECTOR, isDisabled, textValue } from "chadcn/primitives/collection"
+import { dismissable } from "chadcn/primitives/dismissable_layer"
+import { focusGuards } from "chadcn/primitives/focus_guards"
+import { focusScope } from "chadcn/primitives/focus_scope"
+import { hideOthers } from "chadcn/primitives/hide_others"
+import { ensureWrapper, positioner } from "chadcn/primitives/positioner"
+import { presence } from "chadcn/primitives/presence"
+import { scrollLock } from "chadcn/primitives/scroll_lock"
+import { submenuGrace } from "chadcn/primitives/submenu_grace"
+import { mountTemplate } from "chadcn/primitives/template_mount"
+import { nextMatch, typeahead } from "chadcn/primitives/typeahead"
 
 // Radix DropdownMenu + Menu. Spec: docs/shadcn-port/specs/dropdown-menu.md (Behavior).
 //
@@ -24,7 +24,7 @@ import { nextMatch, typeahead } from "shadcn/primitives/typeahead"
 // Known divergence from the shared primitives: roving focus is implemented per level here (not with the roving_focus
 // primitive) because an un-portaled SubContent sits inside its parent content and the primitive collects the items of
 // nested groups too. Items are scoped by their closest [data-radix-menu-content].
-const TEMPLATE = "shadcn--dropdown-menu-template"
+const TEMPLATE = "chadcn--dropdown-menu-template"
 const CONTENT = "[data-radix-menu-content]"
 const SUB_TRIGGER = "[data-slot=dropdown-menu-sub-trigger]" // controllers reusing MenuLevel may set `subTriggerSelector`
 const SELECTION_KEYS = ["Enter", " "]
@@ -50,8 +50,8 @@ export class SubMenu {
   constructor(parent, trigger) {
     this.parent = parent
     this.trigger = trigger
-    this.id = trigger.getAttribute("data-shadcn--dropdown-menu-sub-content-id")
-    this.controlled = trigger.getAttribute("data-shadcn--dropdown-menu-sub-controlled") === "true"
+    this.id = trigger.getAttribute("data-chadcn--dropdown-menu-sub-content-id")
+    this.controlled = trigger.getAttribute("data-chadcn--dropdown-menu-sub-controlled") === "true"
     this.isOpen = trigger.dataset.state === "open"
     this.level = null
     this.openTimer = 0
@@ -440,7 +440,7 @@ export class MenuLevel {
       const checked = item.dataset.state === "checked"
       this.controller.dispatch("checked-change", { target: item, cancelable: false, detail: { checked: !checked } })
     } else if (role === "menuitemradio") {
-      this.controller.dispatch("value-change", { target: item, cancelable: false, detail: { value: item.getAttribute("data-shadcn--dropdown-menu-value") } })
+      this.controller.dispatch("value-change", { target: item, cancelable: false, detail: { value: item.getAttribute("data-chadcn--dropdown-menu-value") } })
     }
     if (select.defaultPrevented) pointerDowns.delete(item)
     else this.controller.requestOpen(false)

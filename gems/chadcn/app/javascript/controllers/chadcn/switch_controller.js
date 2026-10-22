@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { FormBubbleInput } from "shadcn/primitives/form_bubble_input"
+import { FormBubbleInput } from "chadcn/primitives/form_bubble_input"
 
 // Radix Switch behavior (docs/shadcn-port/specs/switch.md). Host = the switch button.
 // No key handlers: the native button turns Space/Enter into click.
@@ -45,7 +45,7 @@ export default class extends Controller {
       this.#state(next)
       this.bubble.sync({ checked: next }, { userInteraction, propagationStopped })
     }
-    this.element.dispatchEvent(new CustomEvent("shadcn--switch:checked-change", { detail: { checked: next }, bubbles: true }))
+    this.element.dispatchEvent(new CustomEvent("chadcn--switch:checked-change", { detail: { checked: next }, bubbles: true }))
   }
 
   #state(checked) {

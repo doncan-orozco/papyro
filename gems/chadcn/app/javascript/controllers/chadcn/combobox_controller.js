@@ -1,13 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
-import { anchorPositioner } from "shadcn/primitives/anchor_positioner"
-import { dismissable } from "shadcn/primitives/dismissable_layer"
-import { hideOthers } from "shadcn/primitives/hide_others"
-import { generateId } from "shadcn/primitives/ids"
-import { presence } from "shadcn/primitives/presence"
-import { rank } from "shadcn/primitives/scorer"
-import { scrollLock } from "shadcn/primitives/scroll_lock"
-import { mountTemplate } from "shadcn/primitives/template_mount"
-import { typeahead } from "shadcn/primitives/typeahead"
+import { anchorPositioner } from "chadcn/primitives/anchor_positioner"
+import { dismissable } from "chadcn/primitives/dismissable_layer"
+import { hideOthers } from "chadcn/primitives/hide_others"
+import { generateId } from "chadcn/primitives/ids"
+import { presence } from "chadcn/primitives/presence"
+import { rank } from "chadcn/primitives/scorer"
+import { scrollLock } from "chadcn/primitives/scroll_lock"
+import { mountTemplate } from "chadcn/primitives/template_mount"
+import { typeahead } from "chadcn/primitives/typeahead"
 
 // shadcn Combobox: a hand-written equivalent of Base UI 1.9.0 `Combobox` (no third-party JavaScript). Spec:
 // dev/port/specs/combobox.md (Behavior); the `root:` / `input:` / `nav:` citations of the comments point at the Base UI sources the spec cites.
@@ -19,7 +19,7 @@ import { typeahead } from "shadcn/primitives/typeahead"
 // `open`, `inputValue`. `config` is static. With `value:` / `open:` / `input_value:` given the matching value is CONTROLLED: the events fire
 // and the DOM waits for the caller to change the attribute.
 //
-// Events (prefix shadcn--combobox:, bubbling; cancelable ones map Base UI's `eventDetails.cancel()` to preventDefault()):
+// Events (prefix chadcn--combobox:, bubbling; cancelable ones map Base UI's `eventDetails.cancel()` to preventDefault()):
 // `value-change` { value, reason } (value = the item's form value), `open-change` { open, reason }, `input-value-change`
 // { inputValue, reason }, `item-highlighted` { value, index, reason } and `open-change-complete` { open } (not cancelable).
 //
@@ -27,8 +27,8 @@ import { typeahead } from "shadcn/primitives/typeahead"
 // modal popup traps no focus (the input keeps it; Tab leaves and closes, like the non-modal popup); `value-change` carries the form value, not the
 // item object; the closed-trigger typeahead and the autofill match use the form value / label of the item.
 
-const PART = "data-shadcn--combobox-part"
-const KEY = "data-shadcn--combobox-key"
+const PART = "data-chadcn--combobox-part"
+const KEY = "data-chadcn--combobox-key"
 const part = (name) => `[${PART}="${name}"]`
 const VISUALLY_HIDDEN_INPUT = "clip-path: inset(50%); overflow: hidden; white-space: nowrap; border: 0px; padding: 0px; width: 1px; height: 1px; margin: -1px; position: absolute;"
 const VISUALLY_HIDDEN_FIXED = "clip-path: inset(50%); overflow: hidden; white-space: nowrap; border: 0px; padding: 0px; width: 1px; height: 1px; margin: 0px; position: fixed; top: 0px; left: 0px;"
@@ -59,7 +59,7 @@ export default class extends Controller {
     this.pointerModality = true
     this.hadInputClear = false
     this.mountedPopup = null
-    this.options = JSON.parse(this.template?.getAttribute("data-shadcn--combobox-options") ?? "{}")
+    this.options = JSON.parse(this.template?.getAttribute("data-chadcn--combobox-options") ?? "{}")
     this.collator = new Intl.Collator(this.cfg.locale ?? undefined, { usage: "search", sensitivity: "base", ignorePunctuation: true })
 
     this.hidden = this.element.querySelector(part("hidden-input"))

@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Parity probe for shadcn/primitives/toast_stack (dev/port/scenarios/sonner.json): a click on a descendant with data-parity-toast calls
+// Parity probe for chadcn/primitives/toast_stack (dev/port/scenarios/sonner.json): a click on a descendant with data-parity-toast calls
 // window.Toaster (the same call a page makes). Twin: react-shadcn-catalog/src/parity/primitives/toast_probe.tsx.
 export default class extends Controller {
   connect() {

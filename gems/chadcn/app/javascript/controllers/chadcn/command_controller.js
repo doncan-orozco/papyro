@@ -1,14 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
-import { generateId } from "shadcn/primitives/ids"
-import { scoreItem } from "shadcn/primitives/scorer"
-import { mountTemplate } from "shadcn/primitives/template_mount"
+import { generateId } from "chadcn/primitives/ids"
+import { scoreItem } from "chadcn/primitives/scorer"
+import { mountTemplate } from "chadcn/primitives/template_mount"
 
 // shadcn Command: a hand-written equivalent of cmdk 1.1.1 (no third-party JavaScript). Spec: dev/port/specs/command.md
 // (Behavior); the `cmdk:<n>` citations point at the minified cmdk source the spec cites. The server renders every item;
 // the controller keeps cmdk's state (search, selected value, scores) and mounts/unmounts nodes the way React does:
 // detached nodes are kept here and re-inserted before the next already-mounted sibling of their SOURCE order.
 //
-// Events (prefix shadcn--command:): `value-change` (controlled root), `search-change` (the input), `select` (an item).
+// Events (prefix chadcn--command:): `value-change` (controlled root), `search-change` (the input), `select` (an item).
 // A custom filter is assigned from JavaScript: `controller.filter = (value, search, keywords) => number`.
 // Known divergences: the default scorer is scorer.js, not command-score; aria-activedescendant follows a controlled
 // value immediately (spec Deviations 5).
@@ -19,10 +19,10 @@ const HEADING = '[cmdk-group-heading=""]'
 const ITEM = '[cmdk-item=""]'
 const ENABLED_ITEM = `${ITEM}:not([aria-disabled="true"])`
 const SEPARATOR = '[cmdk-separator=""]'
-const KEYWORDS = "data-shadcn--command-keywords"
-const FORCE_MOUNT = "data-shadcn--command-force-mount"
-const ALWAYS_RENDER = "data-shadcn--command-always-render"
-const SEARCH = "data-shadcn--command-search"
+const KEYWORDS = "data-chadcn--command-keywords"
+const FORCE_MOUNT = "data-chadcn--command-force-mount"
+const ALWAYS_RENDER = "data-chadcn--command-always-render"
+const SEARCH = "data-chadcn--command-search"
 
 const defaultFilter = (value, search, keywords) => scoreItem(search, value, keywords)
 

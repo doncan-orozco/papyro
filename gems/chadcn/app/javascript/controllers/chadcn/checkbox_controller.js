@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
-import { FormBubbleInput } from "shadcn/primitives/form_bubble_input"
-import { presence } from "shadcn/primitives/presence"
+import { FormBubbleInput } from "chadcn/primitives/form_bubble_input"
+import { presence } from "chadcn/primitives/presence"
 
 // Radix Checkbox behavior (docs/shadcn-port/specs/checkbox.md). Host = the checkbox button.
 const ARIA = { checked: "true", unchecked: "false", indeterminate: "mixed" }
@@ -57,7 +57,7 @@ export default class extends Controller {
       this.#render(next)
       this.bubble.sync({ checked: next === true, indeterminate: next === "indeterminate" }, { userInteraction, propagationStopped })
     }
-    this.element.dispatchEvent(new CustomEvent("shadcn--checkbox:checked-change", { detail: { checked: next }, bubbles: true }))
+    this.element.dispatchEvent(new CustomEvent("chadcn--checkbox:checked-change", { detail: { checked: next }, bubbles: true }))
   }
 
   #render(checked) {

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
-import { rovingFocus } from "shadcn/primitives/roving_focus"
+import { rovingFocus } from "chadcn/primitives/roving_focus"
 
-// Parity probe for shadcn/primitives/roving_focus (scenarios _primitives-roving-focus). Config comes from data-roving-* attributes
+// Parity probe for chadcn/primitives/roving_focus (scenarios _primitives-roving-focus). Config comes from data-roving-* attributes
 // so the same tree also drives the raw Radix group in React.
 export default class extends Controller {
   connect() {

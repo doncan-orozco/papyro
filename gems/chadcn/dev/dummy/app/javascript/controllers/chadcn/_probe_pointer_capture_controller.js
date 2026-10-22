@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
-import { pointerCapture } from "shadcn/primitives/pointer_capture"
+import { pointerCapture } from "chadcn/primitives/pointer_capture"
 
-// Parity probe for shadcn/primitives/pointer_capture (scenario _primitives-pointer-capture). Twin of
+// Parity probe for chadcn/primitives/pointer_capture (scenario _primitives-pointer-capture). Twin of
 // react-shadcn-catalog/src/parity/primitives/pointer_capture.tsx: a slider root whose value comes from the pointer
 // position (Radix SliderHorizontal math: linear scale over the root rect, clamp, snap to step). Not shipped to components.
 export default class extends Controller {

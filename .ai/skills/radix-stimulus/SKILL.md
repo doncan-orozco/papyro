@@ -1,6 +1,6 @@
 ---
 name: radix-stimulus
-description: "How Radix UI / shadcn behavior is reproduced with Stimulus in the Phlex port: shared primitives (dismissable layer, focus scope, roving focus, positioner, presence, typeahead, scroll lock), behavior families (overlay, menu, selection, disclosure, slider) and the per-component behavior spec. Use when writing `gems/chadcn/app/javascript/controllers/shadcn/*` or `gems/chadcn/app/javascript/shadcn/primitives/*` for the shadcn port, or auditing behavior parity."
+description: "How Radix UI / shadcn behavior is reproduced with Stimulus in the Phlex port: shared primitives (dismissable layer, focus scope, roving focus, positioner, presence, typeahead, scroll lock), behavior families (overlay, menu, selection, disclosure, slider) and the per-component behavior spec. Use when writing `gems/chadcn/app/javascript/controllers/chadcn/*` or `gems/chadcn/app/javascript/chadcn/primitives/*` for the shadcn port, or auditing behavior parity."
 ---
 
 # Radix behavior -> Stimulus
@@ -12,7 +12,7 @@ Complements `stimulus` (lifecycle, targets, Turbo) and `shadcn-port` (API/style/
 Cite as `radix-stimulus R<n>`.
 
 R1. **Behavior spec before code.** Each interactive component has a "Behavior" section in `gems/chadcn/dev/port/specs/<name>.md` (states, transitions, keys, focus rules, timers) written from the Radix source and the live catalog, not from memory.
-R2. **Compose primitives, never copy.** Focus trapping, outside-dismiss, Esc handling, scroll lock, `aria-hidden` siblings, roving focus, typeahead, positioning and presence live once in `gems/chadcn/app/javascript/shadcn/primitives/`. A controller importing floating-ui or adding `keydown` Esc logic directly is wrong. → references/primitives.md
+R2. **Compose primitives, never copy.** Focus trapping, outside-dismiss, Esc handling, scroll lock, `aria-hidden` siblings, roving focus, typeahead, positioning and presence live once in `gems/chadcn/app/javascript/chadcn/primitives/`. A controller importing floating-ui or adding `keydown` Esc logic directly is wrong. → references/primitives.md
 R3. **State is `data-state` (and friends) on the DOM.** Controllers mutate `data-state/data-highlighted/data-disabled/data-side/data-align/aria-*` exactly as Radix; Tailwind `data-[state=open]:` classes then work unchanged. No class toggling for state.
 R4. **Server renders the initial state,** controller reconciles in `connect()` and on `*ValueChanged`. The first paint and the post-connect DOM are identical.
 R5. **Events out use `this.dispatch`** with names from `shadcn-port` api-mapping (`open-change`, `value-change`, `checked-change`), `detail` carrying the new value, cancelable where Radix's `onOpenAutoFocus`/`onEscapeKeyDown` are preventable (`prevent-default`).
@@ -22,7 +22,7 @@ R8. **Timing constants copied from Radix** (tooltip 700ms delay and 300ms skip, 
 R9. **Pointer details count:** `pointerdown` vs `click` (Select/Menu open on pointerdown), pointer capture (Slider), pointer-grace triangle (sub menus), touch vs mouse, `pointer-events: none` on body while a modal layer is open.
 R10. **Cleanup everything** (listeners, observers, timers, floating-ui `autoUpdate`) in `disconnect()`; a Turbo cache restore must not leave a modal open or body scroll-locked.
 R11. **Accessibility is verified by the gate,** not assumed: if the DOM snapshot after each key step equals the oracle's, a11y equals Radix's. Do not add extra ARIA the oracle lacks.
-R12. **One controller per component, named `shadcn--<name>`,** with values for every controllable prop from `shadcn-port` api-mapping (`open`, `value`, `default-value`, `disabled`, `modal`, `side`, `align`, `side-offset`...).
+R12. **One controller per component, named `chadcn--<name>`,** with values for every controllable prop from `shadcn-port` api-mapping (`open`, `value`, `default-value`, `disabled`, `modal`, `side`, `align`, `side-offset`...).
 
 ## Behavior families
 

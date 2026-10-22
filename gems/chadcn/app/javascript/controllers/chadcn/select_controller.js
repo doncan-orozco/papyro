@@ -1,15 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
-import { ITEM_SELECTOR, isDisabled } from "shadcn/primitives/collection"
-import { dismissable } from "shadcn/primitives/dismissable_layer"
-import { focusGuards } from "shadcn/primitives/focus_guards"
-import { focusScope } from "shadcn/primitives/focus_scope"
-import { FormBubbleInput } from "shadcn/primitives/form_bubble_input"
-import { hideOthers } from "shadcn/primitives/hide_others"
-import { ensureWrapper, positioner } from "shadcn/primitives/positioner"
-import { presence } from "shadcn/primitives/presence"
-import { scrollLock } from "shadcn/primitives/scroll_lock"
-import { mountTemplate } from "shadcn/primitives/template_mount"
-import { matchItem, typeahead } from "shadcn/primitives/typeahead"
+import { ITEM_SELECTOR, isDisabled } from "chadcn/primitives/collection"
+import { dismissable } from "chadcn/primitives/dismissable_layer"
+import { focusGuards } from "chadcn/primitives/focus_guards"
+import { focusScope } from "chadcn/primitives/focus_scope"
+import { FormBubbleInput } from "chadcn/primitives/form_bubble_input"
+import { hideOthers } from "chadcn/primitives/hide_others"
+import { ensureWrapper, positioner } from "chadcn/primitives/positioner"
+import { presence } from "chadcn/primitives/presence"
+import { scrollLock } from "chadcn/primitives/scroll_lock"
+import { mountTemplate } from "chadcn/primitives/template_mount"
+import { matchItem, typeahead } from "chadcn/primitives/typeahead"
 
 // Radix Select. Spec: docs/shadcn-port/specs/select.md (Behavior).
 //
@@ -19,7 +19,7 @@ import { matchItem, typeahead } from "shadcn/primitives/typeahead"
 // the clone lives outside the controller scope.
 //
 // Known divergence: the focus trap does not switch off while the exit animation plays.
-const TEMPLATE = "shadcn--select-template"
+const TEMPLATE = "chadcn--select-template"
 const OPEN_KEYS = [" ", "Enter", "ArrowUp", "ArrowDown"]
 const SELECTION_KEYS = [" ", "Enter"]
 const NAVIGATION_KEYS = ["ArrowUp", "ArrowDown", "Home", "End"]
@@ -30,12 +30,12 @@ const blank = (value) => value === "" || value === undefined || value === null
 const clamp = (value, [min, max]) => Math.min(max, Math.max(min, value))
 const boundaries = (selectors) => (selectors ? [selectors].flat().flatMap((selector) => [...document.querySelectorAll(selector)]) : undefined)
 const itemText = (item) => item.lastElementChild
-const textOf = (item) => item.getAttribute("data-shadcn--select-text-value") || itemText(item).textContent.trim()
+const textOf = (item) => item.getAttribute("data-chadcn--select-text-value") || itemText(item).textContent.trim()
 
 // The items as the closed Select knows them (Radix registers them in a detached fragment, sel:L285-299).
 function registry(template) {
   return [...template.content.querySelectorAll(ITEM_SELECTOR)].map((item) => ({
-    value: item.getAttribute("data-shadcn--select-value"),
+    value: item.getAttribute("data-chadcn--select-value"),
     disabled: isDisabled(item),
     html: itemText(item).innerHTML,
     label: itemText(item).textContent,
@@ -109,10 +109,10 @@ class SelectContent {
   // Item state follows the current value (the template was rendered with the value of the first paint).
   applySelection() {
     this.#items().forEach((item) => {
-      const selected = !blank(this.select.value) && item.getAttribute("data-shadcn--select-value") === this.select.value
+      const selected = !blank(this.select.value) && item.getAttribute("data-chadcn--select-value") === this.select.value
       item.dataset.state = selected ? "checked" : "unchecked"
       const indicator = item.querySelector('[data-slot="select-item-indicator"]')
-      if (selected && !indicator.firstElementChild) indicator.innerHTML = this.template.getAttribute("data-shadcn--select-indicator")
+      if (selected && !indicator.firstElementChild) indicator.innerHTML = this.template.getAttribute("data-chadcn--select-indicator")
       else if (!selected) indicator.replaceChildren()
       if (item.hasAttribute("data-highlighted")) item.setAttribute("aria-selected", String(selected))
     })
@@ -148,7 +148,7 @@ class SelectContent {
     this.selectedItem = null
     this.#items().forEach((item) => {
       const first = !firstFound && !isDisabled(item)
-      const selected = !blank(this.select.value) && item.getAttribute("data-shadcn--select-value") === this.select.value
+      const selected = !blank(this.select.value) && item.getAttribute("data-chadcn--select-value") === this.select.value
       if (!selected && !first) return
       this.selectedItem = item
       this.selectedText = itemText(item)
@@ -446,7 +446,7 @@ class SelectContent {
   }
 
   #select(item) {
-    this.select.requestValue(item.getAttribute("data-shadcn--select-value"))
+    this.select.requestValue(item.getAttribute("data-chadcn--select-value"))
     this.select.requestOpen(false)
   }
 
@@ -598,8 +598,8 @@ export default class extends Controller {
     this.element.toggleAttribute("data-placeholder", blank(this.value))
     const node = this.valueNode
     if (!node) return
-    const children = node.getAttribute("data-shadcn--select-children")
-    if (blank(this.value)) node.textContent = node.getAttribute("data-shadcn--select-placeholder") ?? ""
+    const children = node.getAttribute("data-chadcn--select-children")
+    if (blank(this.value)) node.textContent = node.getAttribute("data-chadcn--select-placeholder") ?? ""
     else if (children !== null) node.innerHTML = children
     else node.innerHTML = this.items.find((item) => item.value === this.value)?.html ?? ""
   }

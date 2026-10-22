@@ -51,7 +51,7 @@ export default class extends Controller {
 
   #fallbackRecord(el) {
     const isTemplate = el.tagName === "TEMPLATE"
-    const delayAttr = isTemplate ? el.getAttribute("data-shadcn--avatar-delay-ms") : null
+    const delayAttr = isTemplate ? el.getAttribute("data-chadcn--avatar-delay-ms") : null
     const delay = delayAttr === null ? null : Number(delayAttr)
     const record = { delay, canRender: delay === null, node: null, prototype: null, placeholder: null }
     if (isTemplate) {
@@ -61,7 +61,7 @@ export default class extends Controller {
       record.node = el
       record.prototype = el.cloneNode(true)
       record.placeholder = document.createElement("template")
-      record.placeholder.setAttribute("data-shadcn--avatar-target", "fallback")
+      record.placeholder.setAttribute("data-chadcn--avatar-target", "fallback")
     }
     return record
   }
@@ -110,7 +110,7 @@ export default class extends Controller {
     if (status === this.status) return
     this.status = status
     this.#render()
-    this.element.dispatchEvent(new CustomEvent("shadcn--avatar:loading-status-change", { detail: { status }, bubbles: true }))
+    this.element.dispatchEvent(new CustomEvent("chadcn--avatar:loading-status-change", { detail: { status }, bubbles: true }))
   }
 
   #render() {

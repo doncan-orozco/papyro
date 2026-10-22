@@ -29,7 +29,7 @@ module Components
         ...
       end
 
-      def view_template(&block) = ...   # root part: data-slot="dialog", controller shadcn--dialog
+      def view_template(&block) = ...   # root part: data-slot="dialog", controller chadcn--dialog
 
       class Trigger < Chadcn::Base ... end   # data-slot="dialog-trigger"
       class Content < Chadcn::Base ... end   # data-slot="dialog-content"
@@ -40,7 +40,7 @@ end
 ```
 
 - Every part is a `Chadcn::Base` subclass with its own `initialize(..., **attrs)` and `view_template`. Parts that would push the file past ~250 lines move to `gems/chadcn/lib/chadcn/dialog/content.rb` (still `Dialog::Content`; Zeitwerk reopens the namespace).
-- Parts never reach into the parent's instance. Shared state travels through the DOM (the root renders `data-controller="shadcn--dialog"` and ids; parts use Stimulus targets/outlets and the ids from `aria-*` wiring). Cross-part ids come from the `id:` kwarg or a deterministic helper in the root class (`Dialog.ids(id)` -> `{ trigger:, content:, title:, description: }`), so server-rendered `aria-labelledby/controls` resolve before JS.
+- Parts never reach into the parent's instance. Shared state travels through the DOM (the root renders `data-controller="chadcn--dialog"` and ids; parts use Stimulus targets/outlets and the ids from `aria-*` wiring). Cross-part ids come from the `id:` kwarg or a deterministic helper in the root class (`Dialog.ids(id)` -> `{ trigger:, content:, title:, description: }`), so server-rendered `aria-labelledby/controls` resolve before JS.
 - Parts are order-independent in Ruby; DOM order is the order the caller renders them, as in React.
 
 ## Usage

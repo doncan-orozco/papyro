@@ -12,7 +12,7 @@
 // isMountAnimationPreventedRef in a requestAnimationFrame), so it does not animate in on load. Server markup may already carry
 // that suspension inline (`transition-duration: 0s; animation-name: none`); it is not the content's own style, so it is not
 // restored as one.
-import { presence } from "shadcn/primitives/presence"
+import { presence } from "chadcn/primitives/presence"
 
 /**
  * Open/closed mechanics of a collapsible content element (data-state, `hidden`, size CSS variables, exit animation).

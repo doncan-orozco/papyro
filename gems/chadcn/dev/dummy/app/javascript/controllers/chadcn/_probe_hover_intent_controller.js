@@ -1,13 +1,13 @@
-// Parity probe for shadcn/primitives/hover_intent (+ positioner) against raw Radix Tooltip / HoverCard
+// Parity probe for chadcn/primitives/hover_intent (+ positioner) against raw Radix Tooltip / HoverCard
 // (scenario _primitives-hover-intent). Not a product controller.
 // Root children: any elements; every `[data-slot=trigger]` is followed by its `[data-slot=content]`. The content is detached
 // while closed and inserted right after its trigger while open (Radix renders it unmounted when closed).
 // data-parity-options (JSON, shared with the React twin): kind "tooltip" | "hover-card", side, sideOffset,
 //   tooltip: delayDuration, skipDelayDuration, hoverable (hoverable content, grace area) | hover-card: openDelay, closeDelay.
 import { Controller } from "@hotwired/stimulus"
-import { hoverIntent, hoverProvider } from "shadcn/primitives/hover_intent"
-import { positioner } from "shadcn/primitives/positioner"
-import { hoverGrace } from "shadcn/primitives/submenu_grace"
+import { hoverIntent, hoverProvider } from "chadcn/primitives/hover_intent"
+import { positioner } from "chadcn/primitives/positioner"
+import { hoverGrace } from "chadcn/primitives/submenu_grace"
 
 export default class extends Controller {
   static count = 0

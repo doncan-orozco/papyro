@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { rovingFocus } from "shadcn/primitives/roving_focus"
+import { rovingFocus } from "chadcn/primitives/roving_focus"
 
 // Radix ToggleGroup behavior (docs/shadcn-port/specs/toggle-group.md). Host = the group element; the items are plain
 // buttons wired by data-action (no per-item controller). Arrows only move focus (roving focus), click presses.
@@ -37,7 +37,7 @@ export default class extends Controller {
 
   get #items() { return [...this.element.querySelectorAll("[data-slot=toggle-group-item]")] }
 
-  #valueOf(item) { return item.getAttribute("data-shadcn--toggle-group-item-value") }
+  #valueOf(item) { return item.getAttribute("data-chadcn--toggle-group-item-value") }
 
   #pressed(item) { return item.dataset.state === "on" }
 
@@ -58,7 +58,7 @@ export default class extends Controller {
   #change(next) {
     if (this.#single && next === this.value) return
     if (!this.controlledValue) this.#render(next)
-    this.element.dispatchEvent(new CustomEvent("shadcn--toggle-group:value-change", { detail: { value: next }, bubbles: true }))
+    this.element.dispatchEvent(new CustomEvent("chadcn--toggle-group:value-change", { detail: { value: next }, bubbles: true }))
   }
 
   #render(next) {

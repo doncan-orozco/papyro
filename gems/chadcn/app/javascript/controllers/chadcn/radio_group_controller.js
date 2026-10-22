@@ -1,8 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
-import { FormBubbleInput } from "shadcn/primitives/form_bubble_input"
-import { presence } from "shadcn/primitives/presence"
-import { rovingFocus } from "shadcn/primitives/roving_focus"
-import { items as collectionItems } from "shadcn/primitives/collection"
+import { FormBubbleInput } from "chadcn/primitives/form_bubble_input"
+import { presence } from "chadcn/primitives/presence"
+import { rovingFocus } from "chadcn/primitives/roving_focus"
+import { items as collectionItems } from "chadcn/primitives/collection"
 
 // Radix RadioGroup behavior (docs/shadcn-port/specs/radio-group.md). Host = the radiogroup element; the items are
 // plain buttons wired by data-action (no per-item controller).
@@ -81,7 +81,7 @@ export default class extends Controller {
   #change(next, userInteraction, propagationStopped = false) {
     if (next === this.value) return
     if (!this.controlledValue) this.#render(next, userInteraction, propagationStopped)
-    this.element.dispatchEvent(new CustomEvent("shadcn--radio-group:value-change", { detail: { value: next }, bubbles: true }))
+    this.element.dispatchEvent(new CustomEvent("chadcn--radio-group:value-change", { detail: { value: next }, bubbles: true }))
   }
 
   #render(next, userInteraction, propagationStopped) {

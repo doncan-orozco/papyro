@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
-import { direction } from "shadcn/primitives/direction"
-import * as grid from "shadcn/primitives/date_grid"
+import { direction } from "chadcn/primitives/direction"
+import * as grid from "chadcn/primitives/date_grid"
 
 // shadcn Calendar (react-day-picker 10) on `Date` and `Intl` only. Spec: docs/shadcn-port/specs/calendar.md (Structure, Behavior).
 //
@@ -510,8 +510,8 @@ export default class extends Controller {
   }
 
   part(name) {
-    const node = this.partsTarget.content.querySelector(`[data-shadcn--calendar-part="${name}"]`).cloneNode(true)
-    node.removeAttribute("data-shadcn--calendar-part")
+    const node = this.partsTarget.content.querySelector(`[data-chadcn--calendar-part="${name}"]`).cloneNode(true)
+    node.removeAttribute("data-chadcn--calendar-part")
     return node
   }
 
@@ -696,7 +696,7 @@ export default class extends Controller {
     const found = selectors.map((selector) => document.querySelector(selector))
     const missing = selectors.filter((_, index) => !found[index])
     if (missing.length) {
-      console.error(`shadcn--calendar: input ${missing.map((selector) => `"${selector}"`).join(", ")} matches no element; the selection is not read from or written to it`, this.element)
+      console.error(`chadcn--calendar: input ${missing.map((selector) => `"${selector}"`).join(", ")} matches no element; the selection is not read from or written to it`, this.element)
       return null
     }
     return typeof input === "string" ? { value: found[0] } : { from: found[0], to: found[1] }
@@ -704,11 +704,11 @@ export default class extends Controller {
 
   // The inline `name:` inputs as a selection, or undefined when the calendar has none.
   readInline() {
-    const field = (kind) => this.element.querySelector(`input[data-shadcn--calendar-field="${kind}"]`)
+    const field = (kind) => this.element.querySelector(`input[data-chadcn--calendar-field="${kind}"]`)
     if (this.mode === "single") return field("single") ? grid.parseISO(field("single").value) : undefined
     if (this.mode === "range") return field("from") ? rangeOrNull(grid.parseISO(field("from").value), grid.parseISO(field("to")?.value)) : undefined
     if (this.mode !== "multiple" || !field("blank")) return undefined
-    return [...this.element.querySelectorAll('input[data-shadcn--calendar-field="item"]')].map((item) => grid.parseISO(item.value)).filter(Boolean)
+    return [...this.element.querySelectorAll('input[data-chadcn--calendar-field="item"]')].map((item) => grid.parseISO(item.value)).filter(Boolean)
   }
 
   readInput() {
@@ -739,7 +739,7 @@ export default class extends Controller {
   // A non-empty value that does not fully parse is read as no selection, loudly, the same in every mode.
   parsedInput(text, result, valid = Boolean(result)) {
     if (!text || valid) return result
-    console.warn(`shadcn--calendar: input value "${text}" is not a valid ${this.mode} date value; it is read as no selection`, this.element)
+    console.warn(`chadcn--calendar: input value "${text}" is not a valid ${this.mode} date value; it is read as no selection`, this.element)
     return this.mode === "multiple" ? [] : null
   }
 
@@ -751,15 +751,15 @@ export default class extends Controller {
   }
 
   syncInlineFields() {
-    const field = (kind) => this.element.querySelector(`input[data-shadcn--calendar-field="${kind}"]`)
+    const field = (kind) => this.element.querySelector(`input[data-chadcn--calendar-field="${kind}"]`)
     const serialized = this.serialize()
     if (this.mode === "multiple") {
       const blank = field("blank")
       if (!blank) return
-      this.element.querySelectorAll('input[data-shadcn--calendar-field="item"]').forEach((item) => item.remove())
+      this.element.querySelectorAll('input[data-chadcn--calendar-field="item"]').forEach((item) => item.remove())
       serialized.reduce((anchor, iso) => {
         const item = Object.assign(blank.cloneNode(), { value: iso })
-        item.setAttribute("data-shadcn--calendar-field", "item")
+        item.setAttribute("data-chadcn--calendar-field", "item")
         anchor.after(item)
         return item
       }, blank)
@@ -797,15 +797,15 @@ export default class extends Controller {
   resolveLabel() {
     if (!this.cfg.label) return null
     const label = document.querySelector(this.cfg.label)
-    if (!label) console.error(`shadcn--calendar: label "${this.cfg.label}" matches no element; the selection text is not shown`, this.element)
+    if (!label) console.error(`chadcn--calendar: label "${this.cfg.label}" matches no element; the selection text is not shown`, this.element)
     return label
   }
 
-  // The placeholder is declared by the server (`data-shadcn--calendar-placeholder`: the calendar connects only when the popover opens, so
+  // The placeholder is declared by the server (`data-chadcn--calendar-placeholder`: the calendar connects only when the popover opens, so
   // the label's own text may already be a date). Without the attribute the element's first text becomes the placeholder, stored once.
   storePlaceholder() {
     const label = this.label
-    if (label && !label.hasAttribute("data-shadcn--calendar-placeholder")) label.setAttribute("data-shadcn--calendar-placeholder", label.textContent)
+    if (label && !label.hasAttribute("data-chadcn--calendar-placeholder")) label.setAttribute("data-chadcn--calendar-placeholder", label.textContent)
   }
 
   // `data-empty` always follows the selection; the text changes only after a click (the server rendered the initial text).
@@ -814,7 +814,7 @@ export default class extends Controller {
     if (!label) return
     const text = this.selectionText()
     label.setAttribute("data-empty", String(!text))
-    if (notify) label.textContent = text || label.getAttribute("data-shadcn--calendar-placeholder")
+    if (notify) label.textContent = text || label.getAttribute("data-chadcn--calendar-placeholder")
   }
 
   selectionText() {
@@ -833,7 +833,7 @@ export default class extends Controller {
     const content = complete ? this.element.closest("[data-slot=popover-content]") : null
     if (!content?.id) return
     const trigger = document.querySelector(`[aria-controls="${CSS.escape(content.id)}"]`)
-    if (trigger) this.application.getControllerForElementAndIdentifier(trigger, "shadcn--popover")?.request(false)
+    if (trigger) this.application.getControllerForElementAndIdentifier(trigger, "chadcn--popover")?.request(false)
   }
 
   // ----------------------------------------------------------------------------------------------------------- text

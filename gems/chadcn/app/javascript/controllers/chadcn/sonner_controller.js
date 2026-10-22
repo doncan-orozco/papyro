@@ -1,14 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
-import { ToastStack, toast } from "shadcn/primitives/toast_stack"
+import { ToastStack, toast } from "chadcn/primitives/toast_stack"
 
 // shadcn Toaster (sonner). Spec: dev/port/specs/sonner.md (Behavior). The controller element is the Toaster <section>.
 // Three ways to show a toast, all ending in the shared store of the toast_stack primitive:
 //   1. JS:           window.Toaster.success("Saved", { description: "..." })   (the same function as `toast` of sonner)
-//   2. Server:       <template data-shadcn--sonner-toast ...> children of the section (Sonner::Toast): the flash rendered with the page, or a
+//   2. Server:       <template data-chadcn--sonner-toast ...> children of the section (Sonner::Toast): the flash rendered with the page, or a
 //                    Turbo Stream `append` onto the section's id. The controller turns each template into a toast and removes it.
-//   3. Any element:  dispatch `shadcn--sonner:show` (bubbles to document) with detail { message, type, ...toast options }.
-// Events out (dispatched on the section, bubbling): `shadcn--sonner:dismiss`, `:auto-close`, `:action`, `:cancel` with detail { id, name }.
-const SHOW = "shadcn--sonner:show"
+//   3. Any element:  dispatch `chadcn--sonner:show` (bubbles to document) with detail { message, type, ...toast options }.
+// Events out (dispatched on the section, bubbling): `chadcn--sonner:dismiss`, `:auto-close`, `:action`, `:cancel` with detail { id, name }.
+const SHOW = "chadcn--sonner:show"
 const SHOW_TYPES = ["success", "info", "warning", "error", "loading"]
 const showFor = (type) => (SHOW_TYPES.includes(type) ? toast[type] : toast.message)
 
@@ -63,8 +63,8 @@ export default class extends Controller {
     this.stack = null
   }
 
-  // Stimulus action: `data-action="click->shadcn--sonner#show"` with `data-shadcn--sonner-message-param` (and `-type-param`,
-  // `-description-param`) on a button INSIDE the Toaster; use the `shadcn--sonner:show` event for triggers elsewhere.
+  // Stimulus action: `data-action="click->chadcn--sonner#show"` with `data-chadcn--sonner-message-param` (and `-type-param`,
+  // `-description-param`) on a button INSIDE the Toaster; use the `chadcn--sonner:show` event for triggers elsewhere.
   show({ params }) {
     const { message, type, ...data } = params
     showFor(type)(message, data)
@@ -112,15 +112,15 @@ export default class extends Controller {
 
   // Icons are server-rendered once, as inert templates, so they stay the Phlex icons: `false` = the type has no icon on purpose.
   icon(name) {
-    const template = this.element.querySelector(`:scope > template[data-shadcn--sonner-icon="${CSS.escape(name)}"]`)
+    const template = this.element.querySelector(`:scope > template[data-chadcn--sonner-icon="${CSS.escape(name)}"]`)
     if (!template) return null
     if (template.hasAttribute("data-none")) return false
     return template.content.firstElementChild?.cloneNode(true) ?? null
   }
 
-  // Turns every <template data-shadcn--sonner-toast> child into a toast (flash on page load, Turbo Stream append later).
+  // Turns every <template data-chadcn--sonner-toast> child into a toast (flash on page load, Turbo Stream append later).
   ingest() {
-    this.element.querySelectorAll(":scope > template[data-shadcn--sonner-toast]").forEach((template) => {
+    this.element.querySelectorAll(":scope > template[data-chadcn--sonner-toast]").forEach((template) => {
       template.remove()
       const data = template.dataset
       const title = template.content.querySelector("[data-title]")?.textContent ?? ""
@@ -152,7 +152,7 @@ export default class extends Controller {
       label,
       onClick: (event) => {
         this.dispatch(kind, { detail: { id, name } })
-        if (href && !this.safeHref(href)) console.warn(`shadcn--sonner: ignored the non-http(s) href ${href}`)
+        if (href && !this.safeHref(href)) console.warn(`chadcn--sonner: ignored the non-http(s) href ${href}`)
         if (href && this.safeHref(href)) {
           event.preventDefault() // keeps the toast, the page is leaving
           window.Turbo?.visit ? window.Turbo.visit(href) : (window.location.href = href)
