@@ -40,6 +40,10 @@ class EjectGeneratorTest < Rails::Generators::TestCase
     assert_equal gem_file("button.rb"), Overrides.strip_header(ejected("button.rb"))
   end
 
+  test "eject prints no success line" do
+    refute_match(/jawline|peak condition/, eject("button"))
+  end
+
   test "the header keeps the frozen string literal magic comment effective" do
     path = File.join(destination_root, DIR, "probe.rb")
     FileUtils.mkdir_p(File.dirname(path))

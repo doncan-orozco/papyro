@@ -95,6 +95,42 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     assert_match(%r{identical\s+app/assets/tailwind/application.css}, output)
   end
 
+  test "a clean install ends with the success line, after the next steps" do
+    write("config/importmap.rb", %(pin "application"\n))
+    lines = run_generator.lines.map(&:chomp).reject(&:empty?)
+
+    assert_equal "Installed. Your app just got a jawline.", lines[-1]
+    assert_match(/restart the server/, lines[-2])
+  end
+
+  test "a second clean run says it again: nothing was skipped" do
+    write("config/importmap.rb", %(pin "application"\n))
+    run_generator
+
+    assert_includes run_generator, "Installed. Your app just got a jawline."
+  end
+
+  test "no success line when the generator kept an edited theme file" do
+    write("config/importmap.rb", %(pin "application"\n))
+    write("app/assets/tailwind/theme/theme.css", "/* my own colors */\n")
+
+    refute_includes run_generator, "jawline"
+  end
+
+  test "no success line when the JavaScript pipeline is unknown" do
+    output = run_generator
+
+    assert_includes output, "No importmap or jsbundling esbuild setup found"
+    refute_includes output, "jawline"
+  end
+
+  test "no success line with a theme_dir hint or with --pretend" do
+    write("config/importmap.rb", %(pin "application"\n))
+
+    refute_includes run_generator(%w[--theme-dir config/theme]), "jawline"
+    refute_includes run_generator(%w[--pretend]), "jawline"
+  end
+
   test "keeps the theme the developer edited" do
     run_generator
     write("app/assets/tailwind/theme/theme.css", "/* my own colors */\n")
