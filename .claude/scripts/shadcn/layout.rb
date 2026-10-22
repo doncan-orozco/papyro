@@ -8,9 +8,9 @@
 #   SHADCN_GEM_DIR           root of the gem; every default below derives from it   (default gems/chadcn)
 #   SHADCN_RUBY_DIR          directory of the Ruby components                 (default gems/chadcn/lib/chadcn)
 #   SHADCN_NAMESPACE         Ruby namespace of the components                  (default Chadcn)
-#   SHADCN_CONTROLLER_DIR    directory of the Stimulus controllers             (default gems/chadcn/app/javascript/controllers/shadcn)
-#   SHADCN_PROBE_DIR         directory of the dev-only controllers (parity probes, theme panel)  (default <dummy>/app/javascript/controllers/shadcn)
-#   SHADCN_PRIMITIVES_DIR    directory of the shared JS primitives             (default gems/chadcn/app/javascript/shadcn/primitives)
+#   SHADCN_CONTROLLER_DIR    directory of the Stimulus controllers             (default gems/chadcn/app/javascript/controllers/chadcn)
+#   SHADCN_PROBE_DIR         directory of the dev-only controllers (parity probes, theme panel)  (default <dummy>/app/javascript/controllers/chadcn)
+#   SHADCN_PRIMITIVES_DIR    directory of the shared JS primitives             (default gems/chadcn/app/javascript/chadcn/primitives)
 #   SHADCN_RUBY_TEST_DIR     directory of the Ruby component tests             (default gems/chadcn/test/chadcn)
 #   SHADCN_JS_TEST_DIR       directory of the browser controller tests         (default gems/chadcn/test/javascript)
 #   SHADCN_DEV_DIR           the dev kit (oracle, specs, scenarios, React catalog, golden cases)     (default gems/chadcn/dev)
@@ -19,8 +19,8 @@
 #   SHADCN_DUMMY_DIR         the dummy Rails app the Phlex side is served from                  (default <dev>/dummy)
 #   SHADCN_GOLDEN_DIR        the golden regression cases                                        (default <dev>/golden)
 #   SHADCN_SERVERS_FILE      where servers.rb records the running dev servers                   (default <dev>/tmp/shadcn-port/servers.json)
-#   SHADCN_STIMULUS_PREFIX   Stimulus identifier prefix, `shadcn` => `shadcn--dialog`  (default shadcn). The React twins of
-#                            the parity probes carry the same prefix (`shadcn---probe-*`): change both together.
+#   SHADCN_STIMULUS_PREFIX   Stimulus identifier prefix, `chadcn` => `chadcn--dialog`  (default chadcn). The React twins of
+#                            the parity probes carry the same prefix (`chadcn---probe-*`): change both together.
 module ShadcnLayout
   def self.env_or(name, default)
     value = ENV.fetch(name, "")
@@ -30,11 +30,11 @@ module ShadcnLayout
   GEM_DIR = env_or("SHADCN_GEM_DIR", "gems/chadcn")
   RUBY_DIR = env_or("SHADCN_RUBY_DIR", "#{GEM_DIR}/lib/chadcn")
   NAMESPACE = env_or("SHADCN_NAMESPACE", "Chadcn")
-  CONTROLLER_DIR = env_or("SHADCN_CONTROLLER_DIR", "#{GEM_DIR}/app/javascript/controllers/shadcn")
-  PRIMITIVES_DIR = env_or("SHADCN_PRIMITIVES_DIR", "#{GEM_DIR}/app/javascript/shadcn/primitives")
+  CONTROLLER_DIR = env_or("SHADCN_CONTROLLER_DIR", "#{GEM_DIR}/app/javascript/controllers/chadcn")
+  PRIMITIVES_DIR = env_or("SHADCN_PRIMITIVES_DIR", "#{GEM_DIR}/app/javascript/chadcn/primitives")
   RUBY_TEST_DIR = env_or("SHADCN_RUBY_TEST_DIR", "#{GEM_DIR}/test/chadcn")
   JS_TEST_DIR = env_or("SHADCN_JS_TEST_DIR", "#{GEM_DIR}/test/javascript")
-  STIMULUS_PREFIX = env_or("SHADCN_STIMULUS_PREFIX", "shadcn")
+  STIMULUS_PREFIX = env_or("SHADCN_STIMULUS_PREFIX", "chadcn")
 
   # The dev kit (not packaged). Every path is relative to the repository root, like the ones above.
   DEV_DIR = env_or("SHADCN_DEV_DIR", "#{GEM_DIR}/dev")
@@ -50,7 +50,7 @@ module ShadcnLayout
   GOLDEN_DIR = env_or("SHADCN_GOLDEN_DIR", "#{DEV_DIR}/golden")
   # Dev-only Stimulus controllers (the `_probe_*` parity probes and the theme panel). They are served by the dummy app and must never sit in
   # CONTROLLER_DIR: that tree is packaged and pinned by every consumer.
-  PROBE_DIR = env_or("SHADCN_PROBE_DIR", "#{DUMMY_DIR}/app/javascript/controllers/shadcn")
+  PROBE_DIR = env_or("SHADCN_PROBE_DIR", "#{DUMMY_DIR}/app/javascript/controllers/chadcn")
   # The theme both sides read: the gem's shipped default theme (the dummy app's config.chadcn.theme_dir, the React catalog's
   # @host-theme alias).
   THEME_DIR = "#{GEM_DIR}/app/assets/tailwind/chadcn".freeze
@@ -77,7 +77,7 @@ module ShadcnLayout
 
   def self.controller_file(component) = File.join(CONTROLLER_DIR, "#{ruby_name(component)}_controller.js")
 
-  # `dialog` => `shadcn--dialog`
+  # `dialog` => `chadcn--dialog`
   def self.identifier(component) = "#{STIMULUS_PREFIX}--#{component}"
 
   # `under("/tmp/work", PORT_DIR)` => `/tmp/work/<port dir>`: the same layout inside another root (a golden work dir, a rehearsal repo).
