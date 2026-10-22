@@ -22,7 +22,17 @@ the same behavior as the React originals (Radix, and the libraries shadcn wraps)
 
 ## Why chadcn
 
-Same components, unbothered.
+| The virgin hand-rolled UI | The chad chadcn |
+|---|---|
+| Copies component files into the app, one by one | `bundle add chadcn` and one generator: `bin/rails g chadcn:install` |
+| Re-applies upstream fixes to every copied file by hand | Upgrades are a `bundle update` |
+| Ships a React runtime for one dropdown | Radix behavior as Stimulus controllers, zero React |
+| Eyeballs the dialog and hopes it matches | 54 components checked against the React original in a browser |
+| Pulls in a framework's worth of gems to render a button | Three runtime dependencies: `phlex`, `tailwind_merge`, `zeitwerk` |
+| Re-types the theme colors by hand | Pastes a theme from ui.shadcn.com/themes, unchanged |
+| Greps the app to find out why the styles are missing | `bin/rails chadcn:doctor` says why |
+
+The facts behind the right column:
 
 - **The shadcn markup, verbatim.** Class strings, structure, `data-slot` attributes and variants are copied from the shadcn/ui
   registry, so the HTML follows the React original (each deliberate difference is recorded in `dev/port/DEVIATIONS.md` and

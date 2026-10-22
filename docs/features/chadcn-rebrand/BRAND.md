@@ -3,8 +3,9 @@
 The one source the rebrand items of the `chadcn-rebrand` epic copy from (README, docs intros, demo catalog, doctor and
 generator output). If a wording here and a wording in an item disagree, this file wins; change it here first.
 
-> Status: proposal. The mascot and the tagline need a maintainer's sign-off at the review of the PR that adds this file,
-> before the wave 3 items (#266-#269) start copying from it.
+> Status: the mascot was redrawn in the Chad meme style and the copy moved to "virgin vs chad" comparisons at the
+> maintainer's request (#271, 2026-10-22). The redrawn assets and the comparison table wait for the maintainer's final
+> sign-off in that issue.
 
 ## The name
 
@@ -18,22 +19,24 @@ generator output). If a wording here and a wording in an item disagree, this fil
 
 ## Assets
 
-All originals are in this folder and are hand-written SVG drawn from basic shapes (rectangles, lines and two curves). They
-are original artwork: they copy no meme drawing (in particular not the well-known "Yes Chad" / Nordic Gamer image), trace
-no photo and depict no real person. Keep it that way when editing them: no portraits, no celebrity or streamer features,
-no third-party meme templates.
+All originals are in this folder. The mascot is drawn in the art style of the "virgin vs chad" meme's Chad: a side-on
+bodybuilder with a yellow cone of hair, a huge jaw, a red tank top, green trousers and yellow shoes, one arm reaching
+forward and the other flexed behind, in flat colors with a thick dark outline. It is hand-written SVG drawn from scratch
+(the generator is a list of paths): no meme image is traced, embedded or copied, no photo is traced and no real person is
+depicted. Keep it that way when editing: same style and palette, new paths, no portraits, no celebrity or streamer
+features.
 
 | File | Use on | Notes |
 |---|---|---|
-| `mascot-light.svg` | light backgrounds | dark ink (`#09090b`), light face (`#fafafa`) |
-| `mascot-dark.svg` | dark backgrounds | same figure with a light outline (`#fafafa`) and a light-grey face (`#e4e4e7`) |
-| `wordmark-light.svg` | light backgrounds | mascot at 0.75 scale + `chadcn` set in the system UI sans stack, bold, tight tracking |
+| `mascot-light.svg` | light backgrounds | outline `#1c1917`; skin `#f2c9a8`, hair `#fde047`, tank `#f43f5e`, trousers `#4ade80`, shoes `#facc15` |
+| `mascot-dark.svg` | dark backgrounds | same figure inside a light sticker outline (`#fafafa`) so the dark ink stays readable |
+| `wordmark-light.svg` | light backgrounds | mascot scaled to 96 px + `chadcn` set in the system UI sans stack, bold, tight tracking |
 | `wordmark-dark.svg` | dark backgrounds | same, light ink |
 
 Rules:
 
-- Colors are the neutral shadcn zinc pair (`#09090b` / `#fafafa`, plus `#18181b` and `#e4e4e7`): monochrome, so it sits next
-  to any theme a user pastes from ui.shadcn.com/themes. No brand color, no gradients.
+- The mascot keeps the meme palette above (flat fills, no gradients, no shading); the wordmark text stays in the zinc pair
+  (`#09090b` on light, `#fafafa` on dark) so it sits next to any theme a user pastes from ui.shadcn.com/themes.
 - Pick the variant by background. The packaged README is rendered by rubygems.org and rubydoc, where `dev/` does not
   exist, so the README uses absolute URLs built from the gemspec's `repository`, `gem_path` and `ref` (they change
   together when the gem moves to its own repository):
@@ -99,6 +102,29 @@ check, so the joke always carries information.
 | 4 | "All checks passed. You're in peak condition." | `chadcn:doctor` SUCCESS line | doctor: 0 warnings, 0 failures |
 | 5 | "Installed. Your app just got a jawline." | install generator SUCCESS line | generator finished without errors |
 
+## Virgin vs chad
+
+The meme's two columns, as a table. The left column, "the virgin hand-rolled UI", is a way of working (copying files,
+patching by hand, guessing); the right column is chadcn. Every chad cell is a fact the reader can check, named in the last
+column. The README "Why chadcn" section opens with this table (it replaces one-liner 1 there); other surfaces use at
+most three rows of it.
+
+| # | The virgin hand-rolled UI | The chad chadcn | The fact behind it |
+|---|---|---|---|
+| V1 | Copies component files into the app, one by one | `bundle add chadcn` and one generator: `bin/rails g chadcn:install` | the generator writes the managed CSS block; the components stay in the gem |
+| V2 | Re-applies upstream fixes to every copied file by hand | Upgrades are a `bundle update` | components, controllers and CSS live in the gem |
+| V3 | Ships a React runtime for one dropdown | Radix behavior as Stimulus controllers, zero React | `chadcn--*` controllers on shared primitives |
+| V4 | Eyeballs the dialog and hopes it matches | 54 components checked against the React original in a browser | the parity tests of the dev kit |
+| V5 | Pulls in a framework's worth of gems to render a button | Three runtime dependencies: `phlex`, `tailwind_merge`, `zeitwerk` | the gemspec |
+| V6 | Re-types the theme colors by hand | Pastes a theme from ui.shadcn.com/themes, unchanged | the theme file is shadcn format |
+| V7 | Greps the app to find out why the styles are missing | `bin/rails chadcn:doctor` says why | the doctor checks |
+
+Pending, not used on any surface until its fact exists:
+
+- "Phlex renders it N times faster": needs a published benchmark against the alternative it names (the gem's `bin/bench`
+  measures chadcn alone and "makes no comparison with other libraries"). Add the row with the number and its source once a
+  benchmark is committed.
+
 ## Voice rules
 
 The meme is a seasoning on the docs and the developer experience, not on the product. A user reading an error, a screen
@@ -106,7 +132,7 @@ reader user, a translator or someone who never heard of the meme must lose nothi
 
 ### Allowed surfaces
 
-- README: the hero (wordmark, tagline) and at most one one-liner, in one section intro.
+- README: the hero (wordmark, tagline), the virgin vs chad table in "Why chadcn" and at most one one-liner elsewhere.
 - Docs: the first paragraph of a guide (`docs/*.md` intros) and the docs index.
 - Demo catalog (`dev/dummy`): the page header and the empty/landing state.
 - `chadcn:doctor` and the install generator: the final SUCCESS line only, printed after the factual summary.
@@ -128,12 +154,13 @@ reader user, a translator or someone who never heard of the meme must lose nothi
 
 ### Tone
 
-- Calm confidence, never contempt. The joke is that chadcn is relaxed because the work is done (verbatim markup, browser
-  parity tests), not that other tools or their users are lesser. No "virgin vs Chad" comparisons, no punching at React,
-  shadcn, other Ruby UI libraries or their authors.
-- No body shaming, gender or dating jokes, slurs, gym-bro insults or crude language. The tagline, its alternatives and the
-  approved one-liners are the whole vocabulary ("jawline", "leg day", "unbothered", "no sweat", "built different",
-  "peak condition"); anything new is added here by PR first.
+- Virgin vs chad comparisons are the house joke, in the table above. The virgin side is always a way of working (copying,
+  patching, guessing), never a named tool, library, project, company or person: no React, shadcn, other Ruby UI
+  libraries or their authors on that side.
+- "Virgin" and "chad" name the meme's two columns and nothing else. No body shaming, gender, dating or sexual jokes, slurs,
+  gym-bro insults or crude language. The tagline, its alternatives, the one-liners and the virgin vs chad table are the
+  whole vocabulary ("jawline", "leg day", "unbothered", "no sweat", "built different", "peak condition"); anything new is
+  added here by PR first.
 - Plain English the reader can parse without the meme. If a line only works for people who know the reference, cut it.
 - One line, then facts. A meme line never replaces information and is never longer than one sentence.
 
