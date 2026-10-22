@@ -253,7 +253,7 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     run_generator
 
     assert_file "app/javascript/controllers/chadcn/dialog_controller.js" do |source|
-      assert_includes source, %(from "../../shadcn/primitives/presence")
+      assert_includes source, %(from "../../chadcn/primitives/presence")
       assert_match(%r{\A// Managed by}, source)
       refute_match(%r{from "(chadcn/primitives|controllers/chadcn)/}, source)
     end
@@ -286,7 +286,7 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     source = %(import a from 'chadcn/primitives/x'\nimport "chadcn/primitives/y"\nconst m = await import("controllers/chadcn/z")\n)
     rewritten = Chadcn::JsBundle.send(:relative_specifiers, source, "app/javascript/controllers/chadcn")
 
-    assert_equal %(import a from '../../shadcn/primitives/x'\nimport "../../shadcn/primitives/y"\nconst m = await import("./z")\n), rewritten
+    assert_equal %(import a from '../../chadcn/primitives/x'\nimport "../../chadcn/primitives/y"\nconst m = await import("./z")\n), rewritten
   end
 
   test "pnpm and bun lock files choose their package manager" do

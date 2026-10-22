@@ -251,7 +251,7 @@ specifiers: `controllers/chadcn/<name>_controller` (`alert_dialog_controller` an
 `<gem root>/vendor/javascript/@floating-ui--*.js` imports `@floating-ui/core`, `@floating-ui/utils` and `@floating-ui/utils/dom`
 in turn (or take `@floating-ui/dom` from npm). You have to resolve all of those specifiers yourself, in one of two ways.
 
-1. A browser import map with one entry per file. A prefix entry such as `"shadcn/"` does not work: the specifiers carry no `.js`, so
+1. A browser import map with one entry per file. A prefix entry such as `"chadcn/"` does not work: the specifiers carry no `.js`, so
    the browser would request a URL without an extension. For the Dialog the controller and the primitives it imports (it needs
    no Floating UI) are:
 
@@ -260,14 +260,14 @@ in turn (or take `@floating-ui/dom` from npm). You have to resolve all of those 
    {
      "imports": {
        "@hotwired/stimulus": "/vendor/stimulus.js",
-       "controllers/chadcn/dialog_controller": "/shadcn/controllers/chadcn/dialog_controller.js",
-       "chadcn/primitives/dismissable_layer": "/shadcn/primitives/dismissable_layer.js",
-       "chadcn/primitives/focus_guards": "/shadcn/primitives/focus_guards.js",
-       "chadcn/primitives/focus_scope": "/shadcn/primitives/focus_scope.js",
-       "chadcn/primitives/hide_others": "/shadcn/primitives/hide_others.js",
-       "chadcn/primitives/presence": "/shadcn/primitives/presence.js",
-       "chadcn/primitives/scroll_lock": "/shadcn/primitives/scroll_lock.js",
-       "chadcn/primitives/template_mount": "/shadcn/primitives/template_mount.js"
+       "controllers/chadcn/dialog_controller": "/chadcn/controllers/chadcn/dialog_controller.js",
+       "chadcn/primitives/dismissable_layer": "/chadcn/primitives/dismissable_layer.js",
+       "chadcn/primitives/focus_guards": "/chadcn/primitives/focus_guards.js",
+       "chadcn/primitives/focus_scope": "/chadcn/primitives/focus_scope.js",
+       "chadcn/primitives/hide_others": "/chadcn/primitives/hide_others.js",
+       "chadcn/primitives/presence": "/chadcn/primitives/presence.js",
+       "chadcn/primitives/scroll_lock": "/chadcn/primitives/scroll_lock.js",
+       "chadcn/primitives/template_mount": "/chadcn/primitives/template_mount.js"
      }
    }
    </script>
@@ -276,7 +276,7 @@ in turn (or take `@floating-ui/dom` from npm). You have to resolve all of those 
    Serve the two gem directories at those URLs. For other controllers add one line per file in both directories (and the four
    `@floating-ui--*.js` files for the positioned ones).
 
-2. A bundler alias: map `controllers/chadcn` to `<gem root>/app/javascript/controllers/chadcn` and `shadcn` to
+2. A bundler alias: map `controllers/chadcn` to `<gem root>/app/javascript/controllers/chadcn` and `chadcn` to
    `<gem root>/app/javascript/chadcn`, and install `@floating-ui/dom` from npm.
 
 Rails apps on importmap-rails need none of this (the engine pins everything in `config/importmap.rb`); esbuild apps use the generator, see [JavaScript pipelines](#javascript-pipelines). Then register each

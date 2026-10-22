@@ -93,13 +93,13 @@ class EngineTest::Wiring < Minitest::Test
     pins = imports
 
     assert_equal "/assets/controllers/chadcn/dialog_controller.js", pins["controllers/chadcn/dialog_controller"]
-    assert_equal "/assets/shadcn/primitives/presence.js", pins["chadcn/primitives/presence"]
+    assert_equal "/assets/chadcn/primitives/presence.js", pins["chadcn/primitives/presence"]
     assert_equal "/assets/@floating-ui--dom.js", pins["@floating-ui/dom"]
     assert_equal "/assets/@floating-ui--utils--dom.js", pins["@floating-ui/utils/dom"]
   end
 
   def test_every_pinned_gem_file_exists
-    pins = imports.select { |name, _| name.start_with?("controllers/chadcn/", "shadcn/", "@floating-ui/") }
+    pins = imports.select { |name, _| name.start_with?("controllers/chadcn/", "chadcn/", "@floating-ui/") }
 
     refute_empty pins
     missing = pins.values.reject do |url|
