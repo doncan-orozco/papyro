@@ -136,8 +136,8 @@ class GemCheckTest < ActiveSupport::TestCase
   end
 
   test "require_relative may not leave the gem and host paths may not be hard-coded outside the Rails files" do
-    write(@gem, "lib/chadcn/up.rb", "require_relative '../../../../../app/components/base'\n")
-    write(@gem, "lib/chadcn/ok.rb", "require_relative 'engine'\nrequire_relative '../shadcn'\n")
+    write(@gem, "lib/chadcn/up.rb", "require_relative '../../../../app/components/base'\n")
+    write(@gem, "lib/chadcn/ok.rb", "require_relative 'engine'\nrequire_relative '../chadcn'\n")
     write(@gem, "lib/chadcn/path.rb", "module Chadcn\n  CSS = 'app/assets/tailwind/theme/theme.css'\nend\n")
     codes, _, result = check
     flagged = result["findings"].select { |f| f["code"] == "GEM_ESCAPES_ROOT" }.map { |f| f["file"] }
