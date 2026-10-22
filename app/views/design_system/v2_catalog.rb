@@ -10,12 +10,21 @@ module Views
   module DesignSystem
     # Index of every ported Chadcn component, generated from the scenario files (see Components::Parity::Catalog).
     class V2Catalog < Views::Base
+      include Phlex::Rails::Helpers::ImagePath
+
+      UPSTREAM_URL = "https://ui.shadcn.com"
+      # Wordmark file variant -> classes that show it only in its own theme (the `.dark` class switches).
+      WORDMARK_VARIANTS = { "light" => "h-12 w-auto dark:hidden", "dark" => "hidden h-12 w-auto dark:block" }.freeze
+      # Stands in for the upstream link inside the translated disclaimer, so the sentence stays one key per locale.
+      UPSTREAM_SLOT = "\u0000"
+
       def initialize(entries: Components::Parity::Catalog.entries)
         @entries = entries
         super()
       end
 
       def view_template
+        content_for :page_title, t("design_system.catalog_v2.page_title")
         content_for :head do
           tag(:meta, name: "turbo-cache-control", content: "no-cache")
           tag(:meta, name: "turbo-visit-control", content: "reload")
@@ -27,6 +36,7 @@ module Views
             nav_section
             main(class: "min-w-0 space-y-8") { @entries.each { |entry| entry_card(entry) } }
           end
+          footer_section
         end
       end
 
@@ -36,13 +46,34 @@ module Views
         header(class: "border-b border-border bg-card") do
           div(class: "max-w-7xl mx-auto px-4 py-6 flex items-center justify-between gap-4") do
             div do
-              h1(class: "text-3xl font-bold") { t("design_system.catalog_v2.title") }
+              wordmark
+              p(class: "text-sm font-medium mt-2") { t("design_system.brand.tagline") }
+              h1(class: "text-3xl font-bold mt-4") { t("design_system.catalog_v2.title") }
               p(class: "text-muted-foreground mt-2") { t("design_system.catalog_v2.subtitle", count: @entries.size) }
             end
             div(class: "flex items-center gap-4") do
               link_to(t("design_system.catalog_v2.back"), design_system_path, class: "text-sm underline underline-offset-4")
               render Components::Shared::ThemeToggle.new
             end
+          end
+        end
+      end
+
+      # Light and dark variants of the brand guide's wordmark; the theme's `.dark` class picks one (BRAND.md, Assets).
+      def wordmark
+        alt = t("design_system.brand.wordmark_alt")
+        WORDMARK_VARIANTS.each do |variant, classes|
+          img(src: image_path("brand/wordmark-#{variant}.svg"), alt:, width: 352, height: 96, class: classes)
+        end
+      end
+
+      def footer_section
+        footer(class: "border-t border-border") do
+          p(class: "max-w-7xl mx-auto px-4 py-6 text-xs text-muted-foreground") do
+            before, after = t("design_system.brand.disclaimer", upstream: UPSTREAM_SLOT).split(UPSTREAM_SLOT, 2)
+            plain before
+            a(href: UPSTREAM_URL, class: "underline underline-offset-4") { t("design_system.brand.upstream_name") }
+            plain after
           end
         end
       end

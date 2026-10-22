@@ -673,3 +673,9 @@ es:
       nav: "Componentes V2"
       scenario: "Escenario %{id} de %{count}"
       unavailable: "Vista previa no disponible (%{error})"
+      page_title: "Catálogo chadcn"
+    brand:
+      tagline: "shadcn/ui para Phlex. De otra pasta."
+      disclaimer: "Sin afiliación con shadcn. Basado en %{upstream} (MIT)."
+      wordmark_alt: "chadcn"
+      upstream_name: "shadcn/ui"

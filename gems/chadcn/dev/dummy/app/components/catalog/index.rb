@@ -6,6 +6,13 @@ class Catalog::Index < Phlex::HTML
   include Phlex::Rails::Helpers::StylesheetLinkTag
   include Phlex::Rails::Helpers::JavascriptImportmapTags
   include Phlex::Rails::Helpers::T
+  include Phlex::Rails::Helpers::ImagePath
+
+  UPSTREAM_URL = "https://ui.shadcn.com"
+  # Wordmark file variant -> classes that show it only in its own theme (light unless `.dark`, dark only under `.dark`).
+  WORDMARK_VARIANTS = { "light" => "h-12 w-auto dark:hidden", "dark" => "hidden h-12 w-auto dark:block" }.freeze
+  # Stands in for the upstream link inside the translated disclaimer, so the sentence stays one key.
+  UPSTREAM_SLOT = "\u0000"
 
   def initialize(entries:)
     @entries = entries
@@ -20,6 +27,7 @@ class Catalog::Index < Phlex::HTML
         meta(name: "viewport", content: "width=device-width,initial-scale=1")
         meta(name: "turbo-visit-control", content: "reload")
         title { t("catalog.title") }
+        favicons
         stylesheet_link_tag("tailwind")
         javascript_importmap_tags
       end
@@ -30,6 +38,7 @@ class Catalog::Index < Phlex::HTML
             nav_section
             main(class: "min-w-0 space-y-8") { @entries.each { |entry| entry_card(entry) } }
           end
+          footer_section
         end
       end
     end
@@ -41,10 +50,40 @@ class Catalog::Index < Phlex::HTML
     header(class: "border-b border-border bg-card") do
       div(class: "max-w-7xl mx-auto px-4 py-6 flex items-center justify-between gap-4") do
         div do
-          h1(class: "text-3xl font-bold") { t("catalog.title") }
+          h1 { wordmark }
+          p(class: "text-sm font-medium mt-2") { t("catalog.tagline") }
           p(class: "text-muted-foreground mt-2") { t("catalog.subtitle", count: @entries.size) }
         end
         a(href: "/design-system/theme-panel", class: "text-sm underline underline-offset-4") { t("catalog.theme_panel") }
+      end
+    end
+  end
+
+  # The mascot as favicon, light or dark by the OS color scheme (a favicon cannot follow the `.dark` class).
+  def favicons
+    %w[light dark].each do |scheme|
+      link(
+        rel: "icon", type: "image/svg+xml", href: image_path("brand/mascot-#{scheme}.svg"),
+        media: "(prefers-color-scheme: #{scheme})"
+      )
+    end
+  end
+
+  # Light and dark variants of the brand guide's wordmark; the theme's `.dark` class picks one (BRAND.md, Assets).
+  def wordmark
+    alt = t("catalog.wordmark_alt")
+    WORDMARK_VARIANTS.each do |variant, classes|
+      img(src: image_path("brand/wordmark-#{variant}.svg"), alt:, width: 352, height: 96, class: classes)
+    end
+  end
+
+  def footer_section
+    footer(class: "border-t border-border") do
+      p(class: "max-w-7xl mx-auto px-4 py-6 text-xs text-muted-foreground") do
+        before, after = t("catalog.disclaimer", upstream: UPSTREAM_SLOT).split(UPSTREAM_SLOT, 2)
+        plain before
+        a(href: UPSTREAM_URL, class: "underline underline-offset-4") { t("catalog.upstream_name") }
+        plain after
       end
     end
   end
