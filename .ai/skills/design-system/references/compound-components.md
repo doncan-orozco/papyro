@@ -4,7 +4,7 @@ shadcn exposes compound components as sibling exports (`Dialog`, `DialogTrigger`
 
 > The nested classes below are the canonical API. The legacy-style "parent yields self" helpers (`card.header`, `dropdown.trigger`) exist in V2 too, but as GENERATED sugar over those classes (see "DX helpers"), never hand-written.
 
-## Naming rule (single source: `shadcn-port` references/api-mapping.md)
+## Naming rule (single source: `chadcn: shadcn-port` references/api-mapping.md)
 
 `<Root><Part>` -> `Chadcn::<Root>::<Part>`; strip the root prefix once.
 
@@ -21,7 +21,7 @@ shadcn exposes compound components as sibling exports (`Dialog`, `DialogTrigger`
 ## File layout
 
 ```ruby
-# gems/chadcn/lib/chadcn/dialog.rb  (Zeitwerk: Chadcn::Dialog)
+# lib/chadcn/dialog.rb (chadcn repository)  (Zeitwerk: Chadcn::Dialog)
 module Components
   module V2
     class Dialog < Chadcn::Base
@@ -39,7 +39,7 @@ module Components
 end
 ```
 
-- Every part is a `Chadcn::Base` subclass with its own `initialize(..., **attrs)` and `view_template`. Parts that would push the file past ~250 lines move to `gems/chadcn/lib/chadcn/dialog/content.rb` (still `Dialog::Content`; Zeitwerk reopens the namespace).
+- Every part is a `Chadcn::Base` subclass with its own `initialize(..., **attrs)` and `view_template`. Parts that would push the file past ~250 lines move to `chadcn: lib/chadcn/dialog/content.rb` (still `Dialog::Content`; Zeitwerk reopens the namespace).
 - Parts never reach into the parent's instance. Shared state travels through the DOM (the root renders `data-controller="chadcn--dialog"` and ids; parts use Stimulus targets/outlets and the ids from `aria-*` wiring). Cross-part ids come from the `id:` kwarg or a deterministic helper in the root class (`Dialog.ids(id)` -> `{ trigger:, content:, title:, description: }`), so server-rendered `aria-labelledby/controls` resolve before JS.
 - Parts are order-independent in Ruby; DOM order is the order the caller renders them, as in React.
 
