@@ -99,9 +99,11 @@ class EngineTest::Wiring < Minitest::Test
   end
 
   def test_every_pinned_gem_file_exists
-    pins = imports.select { |name, _| name.start_with?("controllers/chadcn/", "chadcn/", "@floating-ui/") }
+    prefixes = %w[controllers/chadcn/ chadcn/ @floating-ui/]
+    pins = imports.select { |name, _| name.start_with?(*prefixes) }
 
-    refute_empty pins
+    # One check per prefix: a renamed prefix that matches nothing must fail, not shrink the coverage silently.
+    prefixes.each { |prefix| refute_empty(pins.keys.select { |name| name.start_with?(prefix) }, prefix) }
     missing = pins.values.reject do |url|
       logical = url.delete_prefix("/assets/")
       %w[app/javascript vendor/javascript].any? { |dir| GEM_ROOT.join(dir, logical).file? }

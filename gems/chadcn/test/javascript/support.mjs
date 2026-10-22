@@ -1,4 +1,4 @@
-// Browser-driven tests for the shadcn Stimulus controllers: behavior that the parity runner cannot express (touch input,
+// Browser-driven tests for the chadcn Stimulus controllers: behavior that the parity runner cannot express (touch input,
 // cancelable public events, positioner options). They load the real Phlex parity page (real importmap, real controllers)
 // and use the Playwright of react-shadcn-catalog. Run with `bin/rails test:javascript` (starts the dev servers).
 import fs from "node:fs";
