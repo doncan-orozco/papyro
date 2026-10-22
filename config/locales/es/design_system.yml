@@ -668,14 +668,14 @@ es:
 
     catalog_v2:
       title: "Catalogo de componentes V2"
-      subtitle: "%{count} componentes Phlex portados de shadcn/ui, generados desde sus escenarios de paridad"
+      subtitle: "%{count} componentes Phlex portados de %{upstream}, generados desde sus escenarios de paridad"
       back: "Volver al catalogo"
       nav: "Componentes V2"
       scenario: "Escenario %{id} de %{count}"
       unavailable: "Vista previa no disponible (%{error})"
       page_title: "Catálogo chadcn"
     brand:
-      tagline: "%{upstream} para Phlex. De otra pasta."
+      tagline: "chadcn go brrrrrr"
       disclaimer: "Sin afiliación con shadcn. Basado en %{upstream} (MIT)."
       wordmark_alt: "chadcn"
       upstream_name: "shadcn/ui"
