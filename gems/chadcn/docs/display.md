@@ -1,6 +1,6 @@
 # Display components
 
-Static building blocks: no Stimulus controller is needed except for `Avatar` (image loading state) and `Toaster` (toasts). Conventions shared by every
+[chadcn](../README.md) docs, display family. Static building blocks: no Stimulus controller is needed except for `Avatar` (image loading state) and `Toaster` (toasts). Conventions shared by every
 component: [api-conventions.md](api-conventions.md).
 
 | Component | Root kwargs (besides `**attrs`) | Parts (class and generated helper) |

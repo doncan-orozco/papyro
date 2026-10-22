@@ -1,6 +1,7 @@
 # Compatibility
 
-What chadcn supports today, what CI proves, and what happens when Phlex 3 ships.
+Upgrades are a `bundle update`. No sweat. This page says what [chadcn](../README.md) supports today, what CI proves, and what happens
+when Phlex 3 ships.
 
 ## Supported versions
 

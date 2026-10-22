@@ -1,6 +1,6 @@
 # Disclosure and navigation
 
-Accordion, collapsible, tabs, breadcrumb, pagination, navigation menu, sidebar, scroll area and the direction provider. Controllers:
+[chadcn](../README.md) docs, disclosure and navigation family: accordion, collapsible, tabs, breadcrumb, pagination, navigation menu, sidebar, scroll area and the direction provider. Controllers:
 `chadcn--accordion`, `chadcn--collapsible`, `chadcn--tabs`, `chadcn--navigation-menu`, `chadcn--sidebar`, `chadcn--scroll-area`.
 Conventions: [api-conventions.md](api-conventions.md).
 

@@ -1,6 +1,6 @@
 # API conventions
 
-Every component in `Chadcn` follows the same rules, derived mechanically from the React shadcn/ui source. Knowing them once
+Every component in [chadcn](../README.md) (`Chadcn`) follows the same rules, derived mechanically from the React shadcn/ui source. Knowing them once
 is enough to read any family page.
 
 ## One class per React export
