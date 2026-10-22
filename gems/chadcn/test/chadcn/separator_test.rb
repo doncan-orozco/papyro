@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "phlex/test_case"
+require "chadcn/test_case"
 
 class Chadcn::SeparatorTest < Chadcn::TestCase
   def html(**) = Chadcn::Separator.new(**).call

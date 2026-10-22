@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "open3"
-require "phlex/test_case"
+require "chadcn/test_case"
 
 class Chadcn::BaseCacheTest < Chadcn::TestCase
   class Probe < Chadcn::Base
@@ -114,7 +114,7 @@ class Chadcn::BaseCacheTest < Chadcn::TestCase
   RUBY
 
   test "first use from many threads shares one merger and one cache, built at load" do
-    lib = File.expand_path("../../../lib", __dir__)
+    lib = File.expand_path("../../lib", __dir__)
     out, err, status = Open3.capture3(RbConfig.ruby, "-I", lib, "-e", RACE_SCRIPT)
 
     assert_predicate status, :success?, err

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "phlex/test_case"
+require "chadcn/test_case"
 
 class Chadcn::CardTest < Chadcn::TestCase
   PARTS = { header: "card-header", footer: "card-footer", title: "card-title",

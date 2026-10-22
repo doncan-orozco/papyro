@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "phlex/test_case"
+require "chadcn/test_case"
 
 class Chadcn::AccordionTest < Chadcn::TestCase
   Accordion = Chadcn::Accordion

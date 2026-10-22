@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "phlex/test_case"
+require "chadcn/test_case"
 require "json"
 
 # The DatePicker is not a class: it is the Popover + Button + Calendar composition documented in docs/form-controls.md. This renders

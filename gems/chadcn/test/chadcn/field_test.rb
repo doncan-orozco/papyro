@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "phlex/test_case"
+require "chadcn/test_case"
 
 class Chadcn::FieldTest < Chadcn::TestCase
   HELPERS = { label: "field-label", description: "field-description", group: "field-group", legend: "field-legend",

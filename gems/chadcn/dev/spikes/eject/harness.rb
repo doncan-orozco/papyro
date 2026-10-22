@@ -22,9 +22,7 @@ fixture, load_mode, ignore_timing, reload = ARGV
 overrides = fixture == "none" ? nil : File.expand_path("fixtures/#{fixture}", __dir__)
 gem_lib = File.expand_path("../../../lib/chadcn", __dir__)
 
-module Phlex
-  module Shadcn
-  end
+module Chadcn
 end
 
 # Gem files shadowed by the override directory. A top-level file or directory name is a component; nested parts are

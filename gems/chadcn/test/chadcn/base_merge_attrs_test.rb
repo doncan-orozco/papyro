@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "phlex/test_case"
+require "chadcn/test_case"
 
 # `data-controller` is a list of Stimulus identifiers, so a caller's controllers are appended to the component's own ones
 # instead of replacing them (see dev/decisions/data-controller-merge.md).

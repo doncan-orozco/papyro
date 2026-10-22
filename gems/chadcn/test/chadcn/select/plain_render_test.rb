@@ -8,7 +8,7 @@ require "test_helper"
 # a subprocess that loads neither Nokogiri nor Rails; its HTML must equal the output recorded while the Item still used Nokogiri.
 class Chadcn::Select::PlainRenderTest < Minitest::Test
   DIR = File.expand_path(__dir__)
-  LIB = File.expand_path("../../../../lib", __dir__)
+  LIB = File.expand_path("../../../lib", __dir__)
 
   def setup
     @out, @err, @status = Open3.capture3(RbConfig.ruby, "-I", LIB, File.join(DIR, "plain_render.rb"))

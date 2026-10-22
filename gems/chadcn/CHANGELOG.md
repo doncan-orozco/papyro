@@ -112,6 +112,21 @@ positioning with `@floating-ui/dom` 1.8.0 (vendored).
 
 ### Changed
 
+- Renamed from phlex-shadcn (Phlex::Shadcn) to chadcn (Chadcn). The gem is unreleased, so there is no compatibility alias. Every
+  renamed spelling (the Stimulus `shadcn--` prefix is unchanged in this release):
+- Renamed the gem `phlex-shadcn` to `chadcn` (`gem "chadcn"`, `chadcn.gemspec`, `require "chadcn"`).
+- Renamed the module `Phlex::Shadcn` to the top-level `Chadcn` (`Phlex::Shadcn::Dialog::Content` is `Chadcn::Dialog::Content`).
+- Renamed the source paths `lib/phlex/shadcn.rb` and `lib/phlex/shadcn/` to `lib/chadcn.rb` and `lib/chadcn/`.
+- Renamed the Zeitwerk loader `Loader.for_gem_extension(Phlex)` to `Loader.for_gem` (chadcn is a top-level gem).
+- Renamed the generators `phlex:shadcn:install` and `phlex:shadcn:eject` to `chadcn:install` and `chadcn:eject`.
+- Renamed the rake tasks `phlex_shadcn:*` to `chadcn:*` (`chadcn:doctor`, `chadcn:theme:*`; the `theme:*` aliases are unchanged).
+- Renamed the Rails setting `config.phlex_shadcn` to `config.chadcn`.
+- Renamed the environment variables `PHLEX_SHADCN_*` to `CHADCN_*` (for example `CHADCN_OVERRIDE_DIR`).
+- Renamed the managed CSS markers `phlex-shadcn:start` / `phlex-shadcn:end` to `chadcn:start` / `chadcn:end` (re-run
+  `rails g chadcn:install`).
+- Renamed the theme directory `app/assets/tailwind/phlex-shadcn/` to `app/assets/tailwind/chadcn/`.
+- Renamed the engine bundle `builds/tailwind/phlex-shadcn` to `builds/tailwind/chadcn`.
+- Renamed the agent skill `skills/phlex-shadcn/` to `skills/chadcn/`.
 - A caller's `data-controller` no longer replaces a component's own: `merge_attrs` (and `as_child`) appends the caller's controller
   names after the component's and de-duplicates them, so `Calendar.new(data: { controller: "x" })` renders
   `data-controller="shadcn--calendar x"` instead of an inert calendar. The component's controller cannot be removed through `data:`

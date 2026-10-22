@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "phlex/test_case"
+require "chadcn/test_case"
 
 using Chadcn::Values::Refinements
 
@@ -84,8 +84,8 @@ class Chadcn::ValuesTest < Chadcn::TestCase
   test "every library file that calls a helper opts in with using" do
     # The predicates end in "?", which a word boundary can never follow; the bare names still need \b.
     names = /\.(?:blank_value\?|filled\?|(?:unless_blank|reject_blank|merge_deep|snake_case|unqualified)\b)/
-    library = File.expand_path("../../../lib", __dir__)
-    missing = Dir[File.join(library, "**/*.rb")].reject { |file| file.end_with?("shadcn/values.rb", "icons/catalog.rb") }.select do |file|
+    library = File.expand_path("../../lib", __dir__)
+    missing = Dir[File.join(library, "**/*.rb")].reject { |file| file.end_with?("chadcn/values.rb", "icons/catalog.rb") }.select do |file|
       code = File.readlines(file).reject { |line| line.lstrip.start_with?("#") }.join
       code.match?(names) && !code.include?("using Chadcn::Values::Refinements")
     end

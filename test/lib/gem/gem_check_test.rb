@@ -26,11 +26,9 @@ class GemCheckTest < ActiveSupport::TestCase
   RUBY
 
   BASE = <<~RUBY
-    module Phlex
-      module Shadcn
-        class Base < Phlex::HTML
-          def cn(*classes) = TailwindMerge::Merger.new.merge(classes.join(" "))
-        end
+    module Chadcn
+      class Base < Phlex::HTML
+        def cn(*classes) = TailwindMerge::Merger.new.merge(classes.join(" "))
       end
     end
   RUBY
@@ -83,7 +81,7 @@ class GemCheckTest < ActiveSupport::TestCase
 
   test "a constant the gem declares itself is not a host reference even when the host uses the same name" do
     write(@host, "app/models/item.rb", "class Item < ApplicationRecord; end\n")
-    write(@gem, "lib/chadcn/item.rb", "module Chadcn\n  class Item < Base; end\nend\nPhlex::Shadcn::Item\nItem.name\n")
+    write(@gem, "lib/chadcn/item.rb", "module Chadcn\n  class Item < Base; end\nend\nChadcn::Item\nItem.name\n")
 
     assert_not_includes check[0], "GEM_HOST_CONSTANT"
   end

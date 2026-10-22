@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "phlex/test_case"
+require "chadcn/test_case"
 
 class Chadcn::CommandTest < Chadcn::TestCase
   Command = Chadcn::Command
@@ -299,7 +299,7 @@ class Chadcn::CommandTest < Chadcn::TestCase
   end
 
   test "no third-party JavaScript is pinned for cmdk" do
-    root = File.expand_path("../../..", __dir__)
+    root = File.expand_path("../..", __dir__)
     pins = File.read(File.join(root, "config/importmap.rb"))
 
     refute_match(/cmdk|command-score/, pins)

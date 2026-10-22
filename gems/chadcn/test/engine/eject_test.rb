@@ -53,7 +53,7 @@ class EngineTest::Eject < Minitest::Test
       result["main_loader_roots"] = Rails.autoloaders.main.dirs.grep(/chadcn/)
       if scenario == "reload_sonner"
         path = File.join(root, "app/components/chadcn/sonner/toaster.rb")
-        File.write(path, File.read(path) + "\nPhlex::Shadcn::Sonner::Toaster::EDITED = 'yes'\n")
+        File.write(path, File.read(path) + "\nChadcn::Sonner::Toaster::EDITED = 'yes'\n")
         Rails.application.reloader.reload!
         result["toaster_edited"] = Chadcn::Toaster.const_defined?(:EDITED, false)
         result["toaster_same_after"] = Chadcn::Toaster.equal?(Chadcn::Sonner::Toaster)

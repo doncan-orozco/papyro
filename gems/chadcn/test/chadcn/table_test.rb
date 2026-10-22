@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "phlex/test_case"
+require "chadcn/test_case"
 
 class Chadcn::TableTest < Chadcn::TestCase
   PARTS = { header: "table-header", body: "table-body", footer: "table-footer", row: "table-row",
