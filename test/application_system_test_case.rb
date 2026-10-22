@@ -11,20 +11,17 @@ Capybara.add_selector(:testid) do
   css { |value| "[data-testid='#{value}']" }
 end
 
-Capybara.register_driver :cuprite do |app|
-  Capybara::Cuprite::Driver.new(
-    app,
+class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
+  # Options go through driven_by: Rails re-registers :cuprite from them on every test, so a
+  # Capybara.register_driver block here would be replaced and Ferrum would fall back to its
+  # 10s process_timeout (the CI ProcessTimeoutError flake, #278).
+  driven_by :cuprite, screen_size: [ 1400, 1400 ], options: {
     browser_options: {},
     headless: %w[0 false].exclude?(ENV["HEADLESS"]),
-    window_size: [ 1400, 1400 ],
     js_errors: true,
     timeout: 60,
     process_timeout: 60
-  )
-end
-
-class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
-  driven_by :cuprite
+  }
 
   setup do
     I18n.locale = I18n.default_locale
