@@ -31,17 +31,26 @@ class DesignSystemBrandTest < ActionDispatch::IntegrationTest
     assert_select "header img[alt='chadcn']", 2
   end
 
-  test "the tagline names no upstream, so the shadcn/ui link is the footer's" do
-    get design_system_v2_path(locale: :en)
+  %i[en es].each do |locale|
+    test "the #{locale} tagline carries no link and the subtitle links shadcn/ui once" do
+      get design_system_v2_path(locale: locale)
 
-    assert_select "header a[href='https://ui.shadcn.com']", false
-    assert_select "footer a[href='https://ui.shadcn.com']", text: "shadcn/ui", count: 1
+      assert_select "header p", text: "chadcn go brrrrrr" do
+        assert_select "a", false
+      end
+      assert_select "header p a[href='https://ui.shadcn.com']", text: "shadcn/ui", count: 1
+    end
   end
 
-  test "the Spanish page carries the chadcn title and the upstream link" do
+  test "the Spanish page carries the chadcn title" do
     get design_system_v2_path(locale: :es)
 
     assert_select "title", text: /\ACatálogo chadcn/
+  end
+
+  test "the Spanish footer links shadcn/ui once" do
+    get design_system_v2_path(locale: :es)
+
     assert_select "footer a[href='https://ui.shadcn.com']", text: "shadcn/ui", count: 1
   end
 

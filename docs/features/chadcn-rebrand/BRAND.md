@@ -69,8 +69,9 @@ Rules:
 > chadcn go brrrrrr
 
 Always lowercase, no final period, six r's. It names no upstream project, so on pages whose tagline it is, the first
-shadcn/ui mention (and its link) is in the description paragraph or the footer disclaimer. The gemspec summary keeps a
-factual lead: "shadcn/ui for Phlex. chadcn go brrrrrr."
+shadcn/ui mention (and its link) moves to the next line that names it: the description paragraph in the README, the
+subtitle on the host design-system page (`design_system.catalog_v2.subtitle`) and the footer disclaimer in the demo
+catalog. The gemspec summary keeps a factual lead: "shadcn/ui for Phlex. chadcn go brrrrrr."
 
 Retired alternatives: "shadcn/ui for Phlex. Built different." (the first tagline), "The shadcn/ui port that never skips leg
 day.", "shadcn/ui, in Ruby, unbothered."

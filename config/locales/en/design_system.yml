@@ -668,7 +668,7 @@ en:
 
     catalog_v2:
       title: "V2 Component Catalog"
-      subtitle: "%{count} Phlex components ported from shadcn/ui, generated from their parity scenarios"
+      subtitle: "%{count} Phlex components ported from %{upstream}, generated from their parity scenarios"
       back: "Back to the catalog"
       nav: "V2 components"
       scenario: "Scenario %{id} of %{count}"
