@@ -7,7 +7,7 @@ allowed-tools: Agent, Read, Write, Grep, Glob, TodoWrite, Bash(ruby:*), Bash(nod
 # /shadcn-audit: parity audit
 
 Arguments: $ARGUMENTS
-Scope: `all` | comma list | `wave:N` (from state.json) | `changed` (components whose files differ from HEAD: `git diff --name-only` mapped `gems/chadcn/lib/chadcn/<x>.rb`, `gems/chadcn/app/javascript/controllers/shadcn/<x>_controller.js`). Default `changed`.
+Scope: `all` | comma list | `wave:N` (from state.json) | `changed` (components whose files differ from HEAD: `git diff --name-only` mapped `gems/chadcn/lib/chadcn/<x>.rb`, `gems/chadcn/app/javascript/controllers/chadcn/<x>_controller.js`). Default `changed`.
 Flags: `--fix` (remediation loop), `--themes` (G4 on all four themes), `--house` (G5 only/also), `--deep` (always run the auditor agent, not only on failures), `--no-browser` (G1 only).
 
 Read `.ai/skills/shadcn-port/SKILL.md` + `references/parity-gates.md`. You orchestrate and report; you do not audit by reading code yourself.

@@ -58,7 +58,7 @@ Dir[File.join(ShadcnLayout::CONTROLLER_DIR, "*_controller.js")].each do |f|
   add.call(dev_only ? "G5_DEV_CONTROLLER_PACKAGED" : "G5_ORPHAN_CONTROLLER", f)
 end
 # Dev-only controllers live in the dummy app: theme_panel (harness) and _probe_<name> test controllers that have a react twin whose
-# `probe.controller` is shadcn---probe-<name>.
+# `probe.controller` is chadcn---probe-<name>.
 probe_ids = Dir["#{ShadcnLayout::CATALOG_DIR}/src/parity/primitives/*.tsx"].filter_map { |f| File.read(f)[/controller:\s*"(#{Regexp.escape(ShadcnLayout::STIMULUS_PREFIX)}---probe-[^"]+)"/, 1] }
 Dir[File.join(ShadcnLayout::PROBE_DIR, "*_controller.js")].each do |f|
   base = File.basename(f, "_controller.js")

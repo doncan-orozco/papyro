@@ -31,7 +31,7 @@ Repeat until `port_state.rb next` returns `done: true`, or a stop condition fire
 3. **Build:** dispatch one `shadcn-port-builder` per batch item, all in ONE message (parallel). Count every planner, builder and auditor dispatch with `port_state.rb bump <n>` (the global cap is enforced by `checkpoint`). Prompt (self-contained): `COMPONENT`, `SERVERS_UP`, `OWNS` (infra only), paths of spec/scenarios/oracle, `MAX_RUNS=4`, list of DONE dependencies (their Phlex class names). `_primitives` is one task executed by four parallel family builders (overlay, floating, selection, forms); mark it `done` only after its acceptance checks pass.
 4. **Verify yourself (never trust the receipt):** for each returned component run, in this order, and stop at the first red:
    - `ruby .claude/scripts/shadcn/static_gate.rb --component X` (G1)
-   - `bin/rubocop gems/chadcn/lib/chadcn/<x>.rb gems/chadcn/app/javascript/controllers/shadcn` is not required for JS; run rubocop on the Ruby files only.
+   - `bin/rubocop gems/chadcn/lib/chadcn/<x>.rb gems/chadcn/app/javascript/controllers/chadcn` is not required for JS; run rubocop on the Ruby files only.
    - if browser: `cd gems/chadcn/dev/react-shadcn-catalog && node ../../../../.claude/scripts/shadcn/parity_run.mjs --component X > ../../../../tmp/shadcn-port/X/g2.json` (G2+G3), then G2b for components with helpers (`--dx helpers --only <ids starting default, variant- or example__, cap 25>`), then G4: for each `--theme slate|stone|zinc-radius0` with `--only` = the scenarios whose id starts with `variant-` or equals `default*` (cap 12), and once with `--dark`.
    - infra items: the acceptance checks in `references/infra-tasks.md`.
    Green -> `port_state.rb set X done --sha $(git rev-parse --short HEAD) --iteration n`. No browser -> `built`.
@@ -42,7 +42,7 @@ Repeat until `port_state.rb next` returns `done: true`, or a stop condition fire
    - Exhausted -> `port_state.rb set X blocked --note "<top cause, scenario ids>"`; write `tmp/shadcn-port/X/BLOCKED.md` with the last triage. `next` stops returning its dependents by itself; do not mark them.
 6. **After every batch:** `ruby .claude/scripts/shadcn/port_state.rb checkpoint`. If `stop` is true, follow "Stop conditions" below; never continue past it.
 7. **When `next` moves to a new wave:**
-   - regression: `ruby .claude/scripts/shadcn/house_check.rb --static-all`; if any file under `gems/chadcn/app/javascript/shadcn/`, `gems/chadcn/app/assets/tailwind/chadcn/` or `app/components/base.rb` changed this wave (`git diff --name-only` against the wave start sha you recorded) re-run G2 default scenarios (`--only` ids starting `default`) for all `done` components, and treat red ones as new work for the fix loop.
+   - regression: `ruby .claude/scripts/shadcn/house_check.rb --static-all`; if any file under `gems/chadcn/app/javascript/chadcn/`, `gems/chadcn/app/assets/tailwind/chadcn/` or `app/components/base.rb` changed this wave (`git diff --name-only` against the wave start sha you recorded) re-run G2 default scenarios (`--only` ids starting `default`) for all `done` components, and treat red ones as new work for the fix loop.
    - `(cd gems/chadcn && bundle exec rake test)` (the gem suite) and `bin/rails test test/components` (host components, if the dir exists) must stay green.
    - print `port_state.rb summary` (compact).
 
