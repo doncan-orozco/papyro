@@ -1,7 +1,7 @@
 require "test_helper"
 
-# The chadcn brand on the host's V2 design-system page (and the brand copies it and the gem's demo use): wordmark, tagline
-# and disclaimer in EN and ES, sourced only from docs/features/chadcn-rebrand (BRAND.md), never inside component previews.
+# The chadcn brand on the host's V2 design-system page and the brand copies it and the gem's demo use: wordmark,
+# tagline and disclaimer in EN and ES, sourced only from docs/features/chadcn-rebrand (BRAND.md), never in previews.
 class DesignSystemBrandTest < ActionDispatch::IntegrationTest
   BRAND_DIR = Rails.root.join("docs/features/chadcn-rebrand")
   BRAND_FILES = %w[mascot-light.svg mascot-dark.svg wordmark-light.svg wordmark-dark.svg].freeze
@@ -50,7 +50,8 @@ class DesignSystemBrandTest < ActionDispatch::IntegrationTest
         copy = dir.join(name)
 
         assert_predicate copy, :file?, "missing #{copy.relative_path_from(Rails.root)}"
-        assert_equal BRAND_DIR.join(name).binread, copy.binread, "#{copy.relative_path_from(Rails.root)} differs from BRAND.md's"
+        assert_equal BRAND_DIR.join(name).binread, copy.binread,
+                     "#{copy.relative_path_from(Rails.root)} differs from the BRAND.md original"
       end
     end
   end
