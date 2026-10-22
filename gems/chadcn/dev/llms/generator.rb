@@ -22,6 +22,8 @@ module Chadcn
     HOST_DISPATCH = /controller\.dispatch\(\s*["']([a-z][a-z-]*)["']/
     # A method that forwards its first parameter to dispatch (`#forward(name, event) { ... this.dispatch(name, ...) }`); its closing brace sits at 2-space indent.
     FORWARDER = /^\s+(#?[A-Za-z_]\w*)\((\w+)[^)]*\)\s*\{\n(.*?)^  \}/m
+    # Neutral identity line of every generated file (BRAND.md keeps meme copy out of the files agents read).
+    DISCLAIMER = "chadcn is a Ruby gem (RubyGems only). Not affiliated with shadcn. Built on shadcn/ui (MIT)."
 
     # The one place the repository location is written is the gemspec; the links in the generated files derive from its homepage.
     def self.repository = Gem::Specification.load(GEMSPEC).homepage.sub("/tree/", "/blob/")
@@ -191,11 +193,8 @@ module Chadcn
 
     # ---- rendering
 
-    # Every generated file opens with the same neutral identity block: name, summary, short disclaimer (BRAND.md keeps meme copy out of
-    # the files agents read).
+    # Every generated file opens with the same identity block: name, summary, disclaimer.
     def header(title, text) = "# #{title}\n\n> #{text}\n\n#{DISCLAIMER}\n\n"
-
-    DISCLAIMER = "chadcn is a Ruby gem (RubyGems only). Not affiliated with shadcn. Built on shadcn/ui (MIT)."
 
     SUMMARY = "Phlex components that port shadcn/ui 1:1 (same names, same Tailwind classes, same data-slot markup) with Stimulus behavior " \
               "(`chadcn--*` controllers). Compound components nest their parts (`Dialog::Content`) and also yield a root with one helper per part."
