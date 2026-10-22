@@ -41,7 +41,12 @@ class EjectGeneratorTest < Rails::Generators::TestCase
   end
 
   test "eject prints no success line" do
-    refute_match(/jawline|peak condition/, eject("button"))
+    output = eject("button")
+
+    assert_path_exists File.join(destination_root, DIR, "button.rb")
+    assert_includes output, "button.rb"
+    refute_includes output, "Installed. Your app just got a jawline."
+    refute_includes output, "All checks passed. You're in peak condition."
   end
 
   test "the header keeps the frozen string literal magic comment effective" do
