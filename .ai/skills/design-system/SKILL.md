@@ -26,7 +26,7 @@ R10. **Theme in shadcn format, one file.** Colors live only in `app/assets/tailw
 R11. **Catalog.** Every V2 component appears in the design-system catalog (`/design-system`), generated from the scenario files (no hand-written demos that can drift). Catalog copy is localized in `config/locales/{en,es}/design_system.yml`.
 R12. **Generic UI only.** `v2/` has no domain knowledge. Domain composition belongs in `app/components/{public,shared,...}` following `phlex-view-pattern`.
 R13. **Localized defaults.** Default strings shipped by shadcn (e.g. the sr-only "Close") are kwargs whose default equals the React string; app code passes `t(...)` through the kwarg. Components never call `t` themselves.
-R14. **Verified, not eyeballed.** A V2 component is correct only if `/shadcn-audit <name>` passes (G1-G4). Do not edit a V2 file to "look right" without running it.
+R14. **Verified, not eyeballed.** A V2 component is correct only if `/shadcn-audit <name>` passes (G1-G4) in doncan-orozco/chadcn. In Papyro never patch a `Chadcn::*` look locally; change it upstream and bump the lock (`bundle update chadcn`).
 
 ## Using V2 components (what a view looks like)
 
@@ -58,7 +58,7 @@ render Chadcn::Dialog.new do |dialog|
   end
 end
 ```
-Components that are not compound parts (`Button`, `Input`...) are always rendered by their class. Each spec lists its helpers in the derived "DX helpers" section (`.claude/scripts/shadcn/spec_helpers.rb`).
+Components that are not compound parts (`Button`, `Input`...) are always rendered by their class. Each spec lists its helpers in the derived "DX helpers" section (`chadcn: .claude/scripts/shadcn/spec_helpers.rb`).
 
 ## Legacy
 
@@ -68,14 +68,14 @@ Legacy references (read only when touching a legacy file): `references/compound-
 
 ## Companion skills
 
-- `shadcn-port`: the port contract, gates, scenarios, theme.
-- `radix-stimulus`: behavior spec and shared primitives.
+- `shadcn-port` (chadcn repo): the port contract, gates, scenarios, theme.
+- `radix-stimulus` (chadcn repo): behavior spec and shared primitives.
 - `stimulus`: controller lifecycle, targets/values, Turbo.
 - `phlex-view-pattern`: dumb views, presenters, domain components.
 - `accessibility`: WCAG checks beyond Radix parity.
 
 ## Quick commit check
 
-- `/shadcn-audit changed` is green
+- Gem changes: `/shadcn-audit changed` green in doncan-orozco/chadcn and the host lock bumped; host views: `bin/rails test test/integration/chadcn_engine_test.rb test/integration/design_system_brand_test.rb` green
 - No `Components::Ui` reference in new code
 - Catalog regenerated, locale keys present in both languages

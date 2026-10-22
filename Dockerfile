@@ -35,9 +35,8 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Install application gems (the chadcn path gem must exist before Bundler resolves it)
+# Install application gems (git sources: chadcn is public; papyro_studio uses the GITHUB_TOKEN build secret)
 COPY Gemfile Gemfile.lock vendor ./
-COPY gems ./gems
 
 RUN --mount=type=secret,id=GITHUB_TOKEN \
     bundle config set --global github.com "x-access-token:$(cat /run/secrets/GITHUB_TOKEN)" && \

@@ -4,7 +4,7 @@ shadcn exposes compound components as sibling exports (`Dialog`, `DialogTrigger`
 
 > The nested classes below are the canonical API. The legacy-style "parent yields self" helpers (`card.header`, `dropdown.trigger`) exist in V2 too, but as GENERATED sugar over those classes (see "DX helpers"), never hand-written.
 
-## Naming rule (single source: `shadcn-port` references/api-mapping.md)
+## Naming rule (single source: `chadcn: shadcn-port` references/api-mapping.md)
 
 `<Root><Part>` -> `Chadcn::<Root>::<Part>`; strip the root prefix once.
 
