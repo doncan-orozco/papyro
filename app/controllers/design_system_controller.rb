@@ -5,11 +5,6 @@ class DesignSystemController < ApplicationController
 
   def index
     skip_policy_scope
-    render Views::DesignSystem::Index.new
-  end
-
-  def v2
-    skip_authorization
     render Views::DesignSystem::V2Catalog.new
   end
 

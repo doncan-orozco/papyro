@@ -11,7 +11,8 @@ Rails.application.routes.draw do
 
   # Design system catalog (internal tooling)
   get "design-system", to: "design_system#index", as: :design_system
-  get "design-system/v2", to: "design_system#v2", as: :design_system_v2
+  get "design-system/v2", as: :design_system_v2,
+                          to: redirect { |_params, request| [ "/design-system", request.query_string.presence ].compact.join("?") }
   get "design-system-react", to: "design_system#react", as: :design_system_react
   get "design-system-compare", to: "design_system#compare", as: :design_system_compare
 
