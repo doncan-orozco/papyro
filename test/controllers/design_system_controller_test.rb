@@ -86,7 +86,9 @@ class DesignSystemControllerTest < ActionDispatch::IntegrationTest
     english = locale_keys(:en)
 
     assert_equal english, locale_keys(:es)
-    assert_not_includes english, "page.title", "keys only the legacy catalog used must be gone"
+    assert_equal %w[brand catalog_v2 compare overlays pagination react theme],
+      english.map { |key| key.split(".").first }.uniq.sort,
+      "only the V2 catalog, react/compare and shared component namespaces may remain"
   end
 
   private
