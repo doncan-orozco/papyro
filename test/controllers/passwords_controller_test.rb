@@ -78,6 +78,6 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
 
   private
     def assert_notice(text)
-      assert_select "div[role=status]", /#{text}/
+      assert_select "template[data-chadcn--sonner-toast] [data-description]", /#{text}/
     end
 end
