@@ -84,6 +84,25 @@ class Components::Shared::IconTest < ActiveSupport::TestCase
     end
   end
 
+  test "overrides merge the same way on both paths" do
+    svgs = [ :check, :sun ].map do |name|
+      Nokogiri::HTML5.fragment(render_icon(name, stroke_width: 1.5, aria: { label: "x", hidden: "false" })).at_css("svg")
+    end
+
+    svgs.each do |svg|
+      assert_equal "1.5", svg["stroke-width"]
+      assert_equal "false", svg["aria-hidden"]
+      assert_equal "x", svg["aria-label"]
+    end
+    assert_equal svgs.first.attributes.keys.sort, svgs.last.attributes.keys.sort
+  end
+
+  test "an explicit width wins over size" do
+    svg = Nokogiri::HTML5.fragment(render_icon(:camera, size: 16, width: 20)).at_css("svg")
+
+    assert_equal [ "20", "16" ], [ svg["width"], svg["height"] ]
+  end
+
   test "an unknown name raises" do
     assert_raises(ArgumentError) { render_icon(:not_an_icon_anywhere) }
   end

@@ -10,6 +10,7 @@ module Components
   module Shared
     class SocialLink < Components::Base
       PLATFORMS = %w[twitter github linkedin].freeze
+      private_constant :PLATFORMS
 
       def initialize(platform:, url:, **attrs)
         @platform = platform.to_s
@@ -19,14 +20,14 @@ module Components
 
       def view_template
         render Chadcn::Button.new(
+          **@attrs.except(:class, :aria),
           variant: "outline",
           size: "icon-lg",
           as_child: :a,
           href: @url,
           target: "_blank",
           rel: "noopener noreferrer",
-          aria: { label: aria_label },
-          **@attrs,
+          aria: @attrs.fetch(:aria, {}).merge(label: aria_label),
           class: cn("rounded-full", @attrs[:class])
         ) do
           render Icon.new(@platform, class: "size-5") if known_platform?

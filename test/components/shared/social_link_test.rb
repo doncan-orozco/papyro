@@ -9,10 +9,10 @@ class Components::Shared::SocialLinkTest < ActiveSupport::TestCase
     }.each do |platform, name|
       link = render_link(platform: platform, url: "https://example.com/#{platform}")
 
-      assert_equal "https://example.com/#{platform}", link["href"]
-      assert_equal "_blank", link["target"]
-      assert_equal "noopener noreferrer", link["rel"]
-      assert_equal name, link["aria-label"]
+      assert_equal "https://example.com/#{platform}", link["href"], "href for #{platform}"
+      assert_equal "_blank", link["target"], "platform #{platform}"
+      assert_equal "noopener noreferrer", link["rel"], "platform #{platform}"
+      assert_equal name, link["aria-label"], "platform #{platform}"
       assert_equal [ "lucide", "lucide-#{platform}" ], link.at_css("svg")["class"].split.first(2)
     end
   end
@@ -31,6 +31,28 @@ class Components::Shared::SocialLinkTest < ActiveSupport::TestCase
     assert_includes link["class"].split, "rounded-full"
     assert_includes link["class"].split, "size-12"
     assert_equal "gh", link["data-testid"]
+  end
+
+  test "caller aria attributes keep the accessible name" do
+    link = render_link(platform: "github", url: "https://github.com", aria: { describedby: "bio" })
+
+    assert_equal "View GitHub profile", link["aria-label"]
+    assert_equal "bio", link["aria-describedby"]
+  end
+
+  test "caller attributes cannot drop the external-link safety attributes" do
+    link = render_link(platform: "github", url: "https://github.com/papyro", rel: "", href: "https://evil.example")
+
+    assert_equal "https://github.com/papyro", link["href"]
+    assert_equal "noopener noreferrer", link["rel"]
+  end
+
+  test "accessible names are translated in Spanish" do
+    %w[twitter github linkedin].each do |platform|
+      link = I18n.with_locale(:es) { render_link(platform: platform, url: "https://example.com") }
+
+      assert_equal I18n.t("components.ui.social_link.aria.#{platform}", locale: :es), link["aria-label"], platform
+    end
   end
 
   private
