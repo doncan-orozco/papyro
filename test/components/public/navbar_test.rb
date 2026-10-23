@@ -78,6 +78,47 @@ class Components::Public::NavbarTest < ActiveSupport::TestCase
     assert_match(/Spanish/, html)
   end
 
+  test "the mobile menu and the mobile search are chadcn sheets without local look overrides" do
+    [ nil, users(:admin) ].each do |user|
+      header = render_navbar(user:)[%r{<header.*</header>}m]
+      labels = Nokogiri::HTML(header).css('[data-slot="sheet-trigger"]').map { |trigger| trigger["aria-label"] }
+
+      assert_equal [ I18n.t("components.public.navbar.mobile.search_label"), I18n.t("components.public.navbar.mobile.menu_label") ], labels
+      assert_no_match(/data-slot="dialog-trigger"/, header)
+      assert_no_match(/data-\[state=[^\]]+\]:!/, header)
+    end
+  end
+
+  test "the mobile menu sheet hosts chadcn--theme under the papyro-theme key" do
+    [ nil, users(:admin) ].each do |user|
+      header = render_navbar(user:)[%r{<header.*</header>}m]
+      contents = Nokogiri::HTML(header).css('[data-slot="sheet-content"]')
+      menu = contents.find { |content| content.at_css('[data-controller~="chadcn--theme"]') }
+      host = menu&.at_css('[data-controller~="chadcn--theme"]')
+
+      assert host, "expected the mobile menu sheet content to host chadcn--theme"
+      assert_equal "papyro-theme", host["data-chadcn--theme-storage-key-value"]
+      assert_equal %w[setLight setDark setSystem].map { |action| "click->chadcn--theme##{action}" },
+        host.css("button").map { |button| button["data-action"] }
+    end
+  end
+
+  test "the account menu is a chadcn dropdown with link items" do
+    html = render_navbar(user: users(:admin))
+
+    assert_match(/data-slot="dropdown-menu-trigger"[^>]*aria-label="Settings"|aria-label="Settings"[^>]*data-slot="dropdown-menu-trigger"/, html)
+    assert_match(/<a[^>]*data-slot="dropdown-menu-item"/, html)
+    assert_match(/data-variant="destructive"/, html)
+  end
+
+  test "renders no legacy UI when logged out or in" do
+    [ nil, users(:admin) ].each do |user|
+      header = render_navbar(user:)[%r{<header.*</header>}m]
+
+      assert_no_match(/ui--|ui__|Components::Ui/, header)
+    end
+  end
+
   private
 
   def render_navbar(user: nil)
