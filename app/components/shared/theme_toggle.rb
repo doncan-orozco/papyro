@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Global theme toggle rendered in both admin and public navbars.
+# Global theme toggle rendered in the public, article, Studio navbars and the design-system pages.
 #
 # A sun/moon icon button opens a 3-option dropdown:
 #   Light · Dark · System

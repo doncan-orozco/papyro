@@ -89,12 +89,17 @@ class Components::Public::NavbarTest < ActiveSupport::TestCase
     end
   end
 
-  test "the mobile theme buttons drive chadcn--theme under the papyro-theme key" do
+  test "the mobile menu sheet hosts chadcn--theme under the papyro-theme key" do
     [ nil, users(:admin) ].each do |user|
-      html = render_navbar(user:)
+      header = render_navbar(user:)[%r{<header.*</header>}m]
+      contents = Nokogiri::HTML(header).css('[data-slot="sheet-content"]')
+      menu = contents.find { |content| content.at_css('[data-controller~="chadcn--theme"]') }
+      host = menu&.at_css('[data-controller~="chadcn--theme"]')
 
-      %w[setLight setDark setSystem].each { |action| assert_match(/click->chadcn--theme##{action}/, html) }
-      assert_match(/data-chadcn--theme-storage-key-value="papyro-theme"/, html)
+      assert host, "expected the mobile menu sheet content to host chadcn--theme"
+      assert_equal "papyro-theme", host["data-chadcn--theme-storage-key-value"]
+      assert_equal %w[setLight setDark setSystem].map { |action| "click->chadcn--theme##{action}" },
+        host.css("button").map { |button| button["data-action"] }
     end
   end
 
