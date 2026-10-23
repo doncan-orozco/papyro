@@ -4,6 +4,8 @@ es:
       dialog:
         close: "Cerrar"
     pagination:
+      title: "Paginación"
+      more_pages: "Más páginas"
       previous: "Anterior"
       next: "Siguiente"
     theme:
