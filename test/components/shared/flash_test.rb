@@ -21,8 +21,7 @@ class Components::Shared::FlashTest < ActiveSupport::TestCase
   end
 
   test "suppressed keeps the toaster mounted but drops the messages" do
-    html = ApplicationController.render(Components::Shared::Flash.new(flash: { notice: "Hidden" }, suppressed: true), layout: false)
-    toaster = Nokogiri::HTML5.fragment(html).css("section").sole
+    toaster = render_flash({ notice: "Hidden" }, suppressed: true).css("section").sole
 
     assert_empty toast_templates(toaster)
   end
@@ -51,8 +50,8 @@ class Components::Shared::FlashTest < ActiveSupport::TestCase
 
   private
 
-  def render_flash(flash)
-    Nokogiri::HTML5.fragment(ApplicationController.render(Components::Shared::Flash.new(flash: flash), layout: false))
+  def render_flash(flash, **options)
+    Nokogiri::HTML5.fragment(ApplicationController.render(Components::Shared::Flash.new(flash: flash, **options), layout: false))
   end
 
   def part(toast, name)
