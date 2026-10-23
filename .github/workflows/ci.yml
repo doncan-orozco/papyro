@@ -43,22 +43,6 @@ jobs:
       - name: Scan for security vulnerabilities in JavaScript dependencies
         run: bin/importmap audit
 
-  gem_chadcn:
-    runs-on: ubuntu-latest
-    env:
-      BUNDLE_GEMFILE: ${{ github.workspace }}/gems/chadcn/Gemfile
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - name: Gem tests, RuboCop and gem_check
-        run: gems/chadcn/bin/check
-
   lint:
     runs-on: ubuntu-latest
     env:

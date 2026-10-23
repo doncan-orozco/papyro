@@ -1,14 +1,11 @@
 require "test_helper"
 
-# The chadcn brand on the host's V2 design-system page and the brand copies it and the gem's demo use: wordmark,
+# The chadcn brand on the host's V2 design-system page and the brand copies it uses (the gem's demo keeps its own, in doncan-orozco/chadcn): wordmark,
 # tagline and disclaimer in EN and ES, sourced only from docs/features/chadcn-rebrand (BRAND.md), never in previews.
 class DesignSystemBrandTest < ActionDispatch::IntegrationTest
   BRAND_DIR = Rails.root.join("docs/features/chadcn-rebrand")
   BRAND_FILES = %w[mascot-light.svg mascot-dark.svg wordmark-light.svg wordmark-dark.svg].freeze
-  COPIES = {
-    "host" => Rails.root.join("app/assets/images/brand"),
-    "demo" => Rails.root.join("gems/chadcn/dev/dummy/app/assets/images/brand")
-  }.freeze
+  COPIES = { "host" => Rails.root.join("app/assets/images/brand") }.freeze
 
   test "the V2 catalog shows the light and dark wordmark, the tagline and the disclaimer in English" do
     get design_system_v2_path(locale: :en)

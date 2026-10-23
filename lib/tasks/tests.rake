@@ -18,23 +18,6 @@ namespace :test do
     puts "\nAll core and studio tests passed."
   end
 
-  desc "Run the browser-driven Stimulus controller tests (gems/chadcn/test/javascript; needs the Playwright of gems/chadcn/dev/react-shadcn-catalog)"
-  task :javascript do
-    require "json"
-
-    abort("Playwright is not usable here: run ruby .claude/scripts/shadcn/playwright_ensure.rb") unless system("ruby .claude/scripts/shadcn/playwright_ensure.rb --check > /dev/null")
-
-    started = JSON.parse(`ruby .claude/scripts/shadcn/servers.rb start`.then { |out| out[/\{.*\}/m] || "{}" })
-    abort("Could not start the dev servers (see tmp/shadcn-port/rails.log and vite.log)") unless started["rails_ok"]
-
-    begin
-      success = system("node --test --test-timeout=60000 --test-reporter=spec gems/chadcn/test/javascript/*.test.mjs")
-    ensure
-      system("ruby .claude/scripts/shadcn/servers.rb stop > /dev/null") unless started["reused"]
-    end
-
-    abort("\nJavaScript controller tests failed.") unless success
-  end
 
   desc "Run host and PapyroStudio system tests"
   task :system_with_studio do

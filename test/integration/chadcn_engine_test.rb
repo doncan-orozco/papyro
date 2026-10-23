@@ -70,11 +70,10 @@ class ChadcnEngineTest < ActiveSupport::TestCase
     Rake.application, Rake::TaskManager.record_task_metadata = previous
   end
 
-  # The host only consumes the gem's public API. Sanctioned exceptions run the gem's OWN test suite and CI job.
+  # The host only consumes the gem's public API (Chadcn.root, the engine's pins, assets and tasks).
   test "host Ruby does not reach into the gem's internals or repo paths" do
-    internals = /Chadcn::(?:Engine|Loader|Generators)\b|Chadcn::[\w:]+\.send\(|gems\/chadcn\/(?:app|lib|vendor|config)\//
-    skipped = [ File.expand_path(__FILE__), Rails.root.join("lib/tasks/tests.rake").to_s, Rails.root.join("config/ci.rb").to_s ]
-    files = Dir[Rails.root.join("{app,lib,config,test}/**/*.{rb,rake}")].map { |file| File.expand_path(file) } - skipped
+    internals = /Chadcn::(?:Engine|Loader|Generators)\b|Chadcn::[\w:]+\.send\(|gems\/chadcn\//
+    files = Dir[Rails.root.join("{app,lib,config,test}/**/*.{rb,rake}")].map { |file| File.expand_path(file) } - [ File.expand_path(__FILE__) ]
     offenders = files.select { |file| File.read(file).match?(internals) }
 
     assert_empty offenders, "host files reaching into chadcn internals: #{offenders.join(', ')}"

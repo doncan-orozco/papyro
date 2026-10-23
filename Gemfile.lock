@@ -1,18 +1,20 @@
 GIT
+  remote: https://github.com/doncan-orozco/chadcn.git
+  revision: d1bed387cf3689c1cffe61932d74b21c6ee0eba5
+  branch: main
+  specs:
+    chadcn (0.1.0)
+      phlex (~> 2.3)
+      tailwind_merge (~> 1.4)
+      zeitwerk (~> 2.7)
+
+GIT
   remote: https://github.com/doncan-orozco/papyro_studio.git
   revision: f14964fff76e006deed32fe8398c064aa7e382f9
   branch: main
   specs:
     papyro_studio (0.1.0)
       rails (>= 8.1.3)
-
-PATH
-  remote: gems/chadcn
-  specs:
-    chadcn (0.1.0)
-      phlex (~> 2.3)
-      tailwind_merge (~> 1.4)
-      zeitwerk (~> 2.7)
 
 GEM
   remote: https://rubygems.org/
