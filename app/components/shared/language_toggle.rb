@@ -9,12 +9,12 @@ module Components
 
       def view_template
         div(**attrs_without_class) do
-          render Components::Ui::DropdownMenu.new do |menu|
+          render Chadcn::DropdownMenu.new do |menu|
             menu.trigger(
               class: "inline-flex h-10 items-center gap-2 rounded-full border border-border bg-background px-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-foreground/80",
               aria: { label: t("components.shared.language_toggle.toggle_label") }
             ) do
-              render Components::Ui::Icon.new(:globe, class: "size-3.5")
+              render Components::Shared::Icon.new(:globe, class: "size-3.5")
               span(class: "hidden sm:inline") { current_locale_code }
             end
 
@@ -22,9 +22,9 @@ module Components
               menu.label { t("components.shared.language_toggle.menu_label") }
 
               available_locales.each do |locale|
-                menu.item(href: locale_href(locale), aria: { current: active_locale?(locale) ? "true" : nil }) do
+                menu.item(as_child: :a, href: locale_href(locale), aria: { current: active_locale?(locale) ? "true" : nil }) do
                   span { locale_label(locale) }
-                  render Components::Ui::Icon.new(:check, class: checkmark_classes(locale))
+                  render Components::Shared::Icon.new(:check, class: checkmark_classes(locale))
                 end
               end
             end

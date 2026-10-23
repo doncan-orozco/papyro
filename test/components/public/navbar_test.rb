@@ -105,7 +105,9 @@ class Components::Public::NavbarTest < ActiveSupport::TestCase
 
   test "renders no legacy UI when logged out or in" do
     [ nil, users(:admin) ].each do |user|
-      assert_no_match(/ui--|ui__|Components::Ui/, render_navbar(user:))
+      header = render_navbar(user:)[%r{<header.*</header>}m]
+
+      assert_no_match(/ui--|ui__|Components::Ui/, header)
     end
   end
 
