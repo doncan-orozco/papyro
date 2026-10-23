@@ -14,7 +14,8 @@ module Views
             pagination.item do
               pagination.previous(
                 label: t("design_system.pagination.previous"),
-                href: ("/@#{@username}?page=#{@pagy.previous}" if @pagy.previous)
+                href: ("/@#{@username}?page=#{@pagy.previous}" if @pagy.previous),
+                aria: { disabled: ("true" unless @pagy.previous) }
               )
             end
 
@@ -34,7 +35,8 @@ module Views
             pagination.item do
               pagination.next(
                 label: t("design_system.pagination.next"),
-                href: ("/@#{@username}?page=#{@pagy.next}" if @pagy.next)
+                href: ("/@#{@username}?page=#{@pagy.next}" if @pagy.next),
+                aria: { disabled: ("true" unless @pagy.next) }
               )
             end
           end

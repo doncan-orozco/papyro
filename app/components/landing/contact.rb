@@ -9,6 +9,7 @@ module Components
 
             div(class: "flex flex-col sm:flex-row gap-4 justify-center") do
               render Chadcn::Button.new(
+                type: "button",
                 variant: "default",
                 size: "lg"
               ) { t("components.landing.contact.email") }

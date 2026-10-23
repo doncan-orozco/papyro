@@ -26,6 +26,7 @@ module Components
               end
 
               render Chadcn::Button.new(
+                type: "button",
                 variant: "secondary",
                 size: "lg"
               ) { t("components.landing.hero.cta") }
