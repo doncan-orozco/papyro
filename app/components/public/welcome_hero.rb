@@ -25,10 +25,10 @@ module Components
               end
 
               div(class: "mt-8 flex flex-wrap items-center gap-3") do
-                render Components::Ui::Button.new(
-                  as: :a,
+                render Chadcn::Button.new(
+                  as_child: :a,
                   href: sign_up_path,
-                  size: :lg,
+                  size: "lg",
                   data: { turbo_frame: "_top", turbo_action: "advance" }
                 ) do
                   t("components.public.welcome_hero.primary_cta")

@@ -21,7 +21,7 @@ module Components
             class: "w-full"
           ) do
             div(class: "flex h-10 items-center gap-2 rounded-full border border-border bg-card/80 px-4 text-sm shadow-sm") do
-              render Components::Ui::Icon.new(:search, class: "h-4 w-4 shrink-0 text-foreground/80")
+              render Components::Shared::Icon.new(:search, class: "h-4 w-4 shrink-0 text-foreground/80")
               input(
                 data: {
                   search_target: "input",

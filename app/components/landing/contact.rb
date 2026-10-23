@@ -8,21 +8,22 @@ module Components
             p(class: "text-xl text-muted-foreground mb-12") { t("components.landing.contact.description") }
 
             div(class: "flex flex-col sm:flex-row gap-4 justify-center") do
-              render Components::Ui::Button.new(
-                variant: :default,
-                size: :lg
+              render Chadcn::Button.new(
+                type: "button",
+                variant: "default",
+                size: "lg"
               ) { t("components.landing.contact.email") }
 
               div(class: "flex gap-4 justify-center") do
-                render Components::Ui::SocialLink.new(
+                render Components::Shared::SocialLink.new(
                   platform: "twitter",
                   url: "https://twitter.com/YOUR_HANDLE"
                 )
-                render Components::Ui::SocialLink.new(
+                render Components::Shared::SocialLink.new(
                   platform: "github",
                   url: "https://github.com/YOUR_HANDLE"
                 )
-                render Components::Ui::SocialLink.new(
+                render Components::Shared::SocialLink.new(
                   platform: "linkedin",
                   url: "https://linkedin.com/in/YOUR_PROFILE"
                 )

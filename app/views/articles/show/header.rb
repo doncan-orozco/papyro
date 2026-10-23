@@ -13,7 +13,7 @@ module Views
             link_to @back_path,
               class: "inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition",
               data: { turbo_frame: "_top", action: "click->fullscreen#exit" } do
-              render Components::Ui::Icon.new(:arrow_left, class: "w-5 h-5")
+              render Components::Shared::Icon.new(:arrow_left, class: "w-5 h-5")
               span(class: "text-sm font-medium") { t("articles.show.back_to_list") }
             end
 
@@ -26,7 +26,7 @@ module Views
                 class: "inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground",
                 aria: { label: t("articles.show.fullscreen") }
               ) do
-                render Components::Ui::Icon.new(:maximize, class: "h-5 w-5")
+                render Components::Shared::Icon.new(:maximize, class: "h-5 w-5")
                 span { t("articles.show.fullscreen") }
               end
             end
