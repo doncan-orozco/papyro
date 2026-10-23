@@ -78,7 +78,7 @@ class PapyroFormBuilder < ActionView::Helpers::FormBuilder
   end
 
   def component_label(method, text)
-    @template.render Components::Ui::Label.new(for: field_id(method)) { text }
+    @template.render Chadcn::Label.new(html_for: field_id(method)) { text }
   end
 
   def merge_input_options(method, options)
