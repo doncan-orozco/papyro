@@ -105,10 +105,7 @@ module Settings
       fill_in I18n.t("users.settings.profile.display_name_label"), with: "Updated Name"
 
       submit_profile_form
-      unless page.has_selector?("div[role=status]", text: I18n.t("users.operations.update_profile.success"), wait: 3)
-        fill_in I18n.t("users.settings.profile.display_name_label"), with: "Updated Name"
-        submit_profile_form
-      end
+      assert_selector "#toaster li[data-sonner-toast]", text: I18n.t("users.operations.update_profile.success")
 
       @user.reload
 
