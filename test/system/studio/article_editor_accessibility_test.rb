@@ -39,8 +39,13 @@ module Studio
       settings_button = find(:testid, "settings-button")
 
       assert_equal "dialog", settings_button["aria-haspopup"]
+      assert_equal "false", settings_button["aria-expanded"]
+
+      settings_button.click
+
+      assert_selector "[role='dialog']#article-settings-sheet"
+      assert_equal "true", settings_button["aria-expanded"]
       assert_equal "article-settings-sheet", settings_button["aria-controls"]
-      assert_selector "#article-settings-sheet", visible: :all
     end
 
     private
