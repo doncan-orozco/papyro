@@ -4,6 +4,7 @@ module Views
   module Settings
     module Profiles
       class Edit::BioLocaleField < Views::Base
+        BIO_LABEL_ID = "profile-bio-label"
         TAB_BUTTON_CLASS = "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 
         def initialize(profile_form:)
@@ -20,7 +21,7 @@ module Views
           ) do
             div(class: "space-y-1") do
               div(class: "flex items-center justify-between gap-3") do
-                render Chadcn::Label.new { t("users.settings.profile.bio_label") }
+                render Chadcn::Label.new(id: BIO_LABEL_ID) { t("users.settings.profile.bio_label") }
 
                 div(
                   class: "inline-flex items-center rounded-md border border-border p-0.5",
@@ -65,7 +66,7 @@ module Views
                   "settings--profiles--bio-locale-tabs-target": "panel"
                 }
               ) do
-                render Chadcn::Label.new(html_for: bio_input_id(index)) do
+                render Chadcn::Label.new(html_for: bio_input_id(index), id: bio_locale_label_id(index)) do
                   t("language.name", locale: locale)
                 end
                 input(type: "hidden", name: "#{base_name}[id]", value: translation.id)
@@ -75,6 +76,7 @@ module Views
                   name: "#{base_name}[bio]",
                   rows: 3,
                   placeholder: t("users.settings.profile.bio_placeholder"),
+                  aria: { labelledby: "#{BIO_LABEL_ID} #{bio_locale_label_id(index)}" },
                   value: translation.bio.to_s
                 )
               end
@@ -112,6 +114,10 @@ module Views
 
         def panel_id(locale)
           "profile-bio-panel-#{locale}"
+        end
+
+        def bio_locale_label_id(index)
+          "#{bio_input_id(index)}_label"
         end
 
         def bio_input_id(index)

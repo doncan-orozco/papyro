@@ -55,6 +55,7 @@ module Views
       def render_flash_messages
         if alert = view_context.flash[:alert]
           render Chadcn::Alert.new(variant: "destructive", class: "mb-4") do |alert_box|
+            render Components::Shared::Icon.new(:alert_circle)
             alert_box.description { p { alert } }
           end
         end
