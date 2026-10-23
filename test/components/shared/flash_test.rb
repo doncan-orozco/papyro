@@ -27,7 +27,7 @@ class Components::Shared::FlashTest < ActiveSupport::TestCase
   end
 
   test "renders a notice as a success toast with the localized title" do
-    toast = toast_templates(render_flash(notice: "Saved successfully")).sole
+    toast = toast_templates(render_flash({ notice: "Saved successfully" })).sole
 
     assert_equal "success", toast["data-type"]
     assert_equal I18n.t("app.toasts.success"), part(toast, "title")
@@ -35,7 +35,7 @@ class Components::Shared::FlashTest < ActiveSupport::TestCase
   end
 
   test "renders an alert as an error toast in Spanish" do
-    toast = I18n.with_locale(:es) { toast_templates(render_flash(alert: "Algo falló")).sole }
+    toast = I18n.with_locale(:es) { toast_templates(render_flash({ alert: "Algo falló" })).sole }
 
     assert_equal "error", toast["data-type"]
     assert_equal I18n.t("app.toasts.error", locale: :es), part(toast, "title")
@@ -43,7 +43,7 @@ class Components::Shared::FlashTest < ActiveSupport::TestCase
   end
 
   test "renders one toast per notice or alert message and skips blank and other keys" do
-    toasts = toast_templates(render_flash(notice: [ "One", "" ], alert: [ "Two", nil ], success: "Ignored"))
+    toasts = toast_templates(render_flash({ notice: [ "One", "" ], alert: [ "Two", nil ], success: "Ignored" }))
 
     assert_equal %w[One Two], toasts.map { |toast| part(toast, "description") }
   end
