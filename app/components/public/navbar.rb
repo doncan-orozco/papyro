@@ -82,12 +82,12 @@ module Components
       def member_actions
         write_button
         render Navbar::AccountMenu.new(user: Current.user, studio_href: studio_articles_href)
-        render Navbar::MobileMenu.new(guest: false)
+        render Navbar::MobileMenu.new(signed_out: false)
       end
 
       def guest_actions
         guest_desktop_links
-        render Navbar::MobileMenu.new(guest: true)
+        render Navbar::MobileMenu.new(signed_out: true)
       end
 
       def write_button

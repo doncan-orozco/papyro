@@ -12,8 +12,8 @@ module Components
       }.freeze
       private_constant :TOP_LEVEL_NAVIGATION, :SECTION_LABEL_CLASSES, :LANGUAGES
 
-      def initialize(guest:)
-        @guest = guest
+      def initialize(signed_out:)
+        @signed_out = signed_out
       end
 
       def view_template
@@ -32,8 +32,8 @@ module Components
               end
             end
 
-            div(class: cn("mt-6 flex flex-col", @guest ? "gap-3" : "gap-6")) do
-              if @guest
+            div(class: cn("mt-6 flex flex-col", @signed_out ? "gap-3" : "gap-6")) do
+              if @signed_out
                 guest_links
                 render Chadcn::Separator.new
               end
