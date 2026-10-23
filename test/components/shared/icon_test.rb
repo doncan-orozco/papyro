@@ -47,9 +47,16 @@ class Components::Shared::IconTest < ActiveSupport::TestCase
       assert_equal "lucide lucide-#{key}", svg["class"], "icon #{name.inspect}"
       assert_equal "true", svg["aria-hidden"]
       assert_equal "currentColor", svg["stroke"]
-      assert_equal "0 0 24 24", svg["viewbox"]
+      assert_equal "0 0 24 24", svg["viewBox"]
       assert_equal Nokogiri::HTML5.fragment(LucideRails::IconProvider.icon(key)).to_html, svg.inner_html
     end
+  end
+
+  test "both paths render the same svg attributes" do
+    chadcn = Nokogiri::HTML5.fragment(render_icon(:check)).at_css("svg")
+    lucide = Nokogiri::HTML5.fragment(render_icon(:sun)).at_css("svg")
+
+    assert_equal chadcn.attributes.except("class").transform_values(&:value), lucide.attributes.except("class").transform_values(&:value)
   end
 
   test "renders no size class of its own" do

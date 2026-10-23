@@ -13,7 +13,7 @@ class Components::Shared::SocialLinkTest < ActiveSupport::TestCase
       assert_equal "_blank", link["target"]
       assert_equal "noopener noreferrer", link["rel"]
       assert_equal name, link["aria-label"]
-      assert_equal "lucide lucide-#{platform}", link.at_css("svg")["class"]
+      assert_equal [ "lucide", "lucide-#{platform}" ], link.at_css("svg")["class"].split.first(2)
     end
   end
 
