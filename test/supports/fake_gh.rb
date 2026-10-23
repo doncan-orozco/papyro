@@ -157,6 +157,7 @@ class FakeGh
       names |= flag_values(args, "--add-label")
       names -= flag_values(args, "--remove-label")
       i["labels"] = names.map { |n| { "name" => n } }
+      i["body"] = body_of(args) if flag(args, "--body-file") || flag(args, "--body")
     end
   end
 

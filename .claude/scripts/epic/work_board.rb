@@ -8,6 +8,9 @@
 #   work_board.rb session                                  # stable id of this checkout's session (tmp/epic/session)
 #   work_board.rb epic create --slug S --title T --body-file F
 #   work_board.rb item create --epic S --title T --body-file F --wave N --owns a,b [--blocked-by 1,2] [--stage plan] [--priority N]
+#   work_board.rb item edit N --epic S --session ID --blocked-by 1,2 --reason TXT
+#       a maintainer's plan change: replaces the item's blockers in its meta block (`--blocked-by ""` clears them), refuses a blocker
+#       outside the epic, a wave-order violation or a cycle, and logs a plan-edit note with the reason. The prose sections stay as written.
 #   work_board.rb plan-check --file plan.json              # lint a plan BEFORE creating anything (same rules as validate + contract fields)
 #   work_board.rb plan-apply --file plan.json              # create the epic root + all items in dependency order (refuses an existing epic)
 #   work_board.rb validate --epic S                        # plan lint on created issues: deps exist, no cycles, owns present and non-overlapping
@@ -98,7 +101,7 @@ module WorkBoard
 
   # ---- issue model --------------------------------------------------------------------------------------------
   class Item
-    attr_reader :number, :title, :labels, :meta
+    attr_reader :number, :title, :labels, :meta, :body
 
     def initialize(raw)
       @number = raw.fetch("number")
@@ -398,6 +401,14 @@ module WorkBoard
       gh(*args) if args.size > 3
     end
 
+    def edit_body(number, body)
+      Tempfile.create("work-body") do |f|
+        f.write(body)
+        f.flush
+        gh("issue", "edit", number.to_s, "--body-file", f.path)
+      end
+    end
+
     def post_note(number, type:, session:, text:, stage: nil)
       meta = { type: type, session: session, at: WorkBoard.now.iso8601 }
       meta[:stage] = stage if stage
@@ -453,7 +464,12 @@ module WorkBoard
       case cmd
       when "session" then session
       when "epic" then @argv.shift == "create" ? epic_create : usage
-      when "item" then @argv.shift == "create" ? item_create : usage
+      when "item"
+        case @argv.shift
+        when "create" then item_create
+        when "edit" then item_edit
+        else usage
+        end
       when "validate" then validate
       when "plan-check" then plan_check
       when "plan-apply" then plan_apply
@@ -479,7 +495,7 @@ module WorkBoard
       out({ error: e.message }, 2)
     end
 
-    def usage = out({ error: "usage: work_board.rb <session|epic create|item create|validate|status|next|reviews|mergeable|merge|claim|heartbeat|release|advance|block|unblock|comment|digest|reap> ..." }, 2)
+    def usage = out({ error: "usage: work_board.rb <session|epic create|item create|item edit|validate|status|next|reviews|mergeable|merge|claim|heartbeat|release|advance|block|unblock|comment|digest|reap> ..." }, 2)
 
     def need(opts, *keys)
       missing = keys.reject { |k| opts[k] }
@@ -542,6 +558,28 @@ module WorkBoard
       body = "#{body_of(opts)}\n\n<!-- work-item #{JSON.generate(meta)} -->\n"
       url = create_issue(b, opts[:title], body, labels)
       out({ number: url[%r{(\d+)\s*\z}, 1].to_i, url: url, meta: meta })
+    end
+
+    # A maintainer changes the plan (e.g. a blocker moved to another repository): the new blockers go through the same plan rules as
+    # validate, so the edit cannot leave a missing blocker, a wave-order violation or a cycle behind.
+    def item_edit
+      opts, rest = parse("--epic" => :v, "--session" => :v, "--blocked-by" => :v, "--reason" => :v)
+      need(opts, :epic, :session, :blocked_by, :reason)
+      b = board(opts)
+      number = rest.first.to_i
+      item = b.item(number)
+      blockers = opts[:blocked_by].split(",").map(&:strip).reject(&:empty?).map(&:to_i).uniq
+      nodes = b.items.map do |i|
+        { id: i.number, wave: i.wave, owns: i.owns, stage: i.stage, blocked_by: i.number == number ? blockers : i.blocked_by }
+      end
+      findings = Plan.check(nodes).select { |f| f[:item] == number && %w[BLOCKER_MISSING WAVE_ORDER CYCLE].include?(f[:code]) }
+      out({ ok: false, reason: "invalid_blockers", findings: findings }, 1) if findings.any?
+
+      before = item.blocked_by
+      meta = item.meta.merge("blocked_by" => blockers)
+      b.edit_body(number, item.body.sub(META) { "<!-- work-item #{JSON.generate(meta)} -->" })
+      b.post_note(number, type: "plan-edit", session: opts[:session], text: "blocked_by #{before.inspect} -> #{blockers.inspect}: #{opts[:reason]}")
+      out({ ok: true, number: number, blocked_by: blockers, was: before })
     end
 
     def validate
