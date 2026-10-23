@@ -16,14 +16,19 @@ class Components::Shared::ThemeToggleTest < ActiveSupport::TestCase
     assert_match(/data-slot="dropdown-menu-content"[^>]*data-controller="[^"]*chadcn--theme/, html)
   end
 
-  test "the choice persists under the key the layouts' pre-paint script reads" do
-    html = render_toggle
+  test "only the portaled menu content hosts the theme controller, under the key the pre-paint script reads" do
+    hosts = Nokogiri::HTML(render_toggle).css('[data-controller~="chadcn--theme"]')
 
-    assert_operator html.scan('data-chadcn--theme-storage-key-value="papyro-theme"').size, :>=, 2
-    assert_no_match(/storage-key-value="(?!papyro-theme)/, html)
+    assert_equal [ "dropdown-menu-content" ], hosts.map { |host| host["data-slot"] }
+    hosts.each { |host| assert_equal "papyro-theme", host["data-chadcn--theme-storage-key-value"] }
+
+    wrapper = Nokogiri::HTML(render_toggle).at_css("body > div")
+
+    assert_nil wrapper["data-slot"]
+    assert_nil wrapper["data-controller"]
   end
 
-  test "the active choice shows its checkmark through the theme-check classes" do
+  test "marks each choice with the theme-check hook motion.css keys off" do
     html = render_toggle
 
     %w[light dark system].each { |theme| assert_match(/theme-check-#{theme}/, html) }

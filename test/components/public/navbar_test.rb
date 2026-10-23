@@ -78,12 +78,15 @@ class Components::Public::NavbarTest < ActiveSupport::TestCase
     assert_match(/Spanish/, html)
   end
 
-  test "the mobile menu is a chadcn sheet and the mobile search a chadcn dialog" do
-    html = render_navbar
+  test "the mobile menu and the mobile search are chadcn sheets without local look overrides" do
+    [ nil, users(:admin) ].each do |user|
+      header = render_navbar(user:)[%r{<header.*</header>}m]
+      labels = Nokogiri::HTML(header).css('[data-slot="sheet-trigger"]').map { |trigger| trigger["aria-label"] }
 
-    assert_match(/data-controller="chadcn--sheet"/, html)
-    assert_match(/data-slot="sheet-trigger"/, html)
-    assert_match(/data-slot="dialog-trigger"/, html)
+      assert_equal [ I18n.t("components.public.navbar.mobile.search_label"), I18n.t("components.public.navbar.mobile.menu_label") ], labels
+      assert_no_match(/data-slot="dialog-trigger"/, header)
+      assert_no_match(/data-\[state=[^\]]+\]:!/, header)
+    end
   end
 
   test "the mobile theme buttons drive chadcn--theme under the papyro-theme key" do
