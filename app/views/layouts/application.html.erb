@@ -67,7 +67,7 @@
   </head>
 
   <body data-controller="lightbox">
-    <%= content_for(:flash) || render(Components::Shared::Flash.new(flash: flash)) %>
+    <%= render Components::Shared::Flash.new(flash: content_for?(:flash) ? {} : flash) %>
     <main id="main-content">
       <%= yield %>
     </main>
