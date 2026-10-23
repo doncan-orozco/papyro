@@ -8,9 +8,9 @@ module Views
 
       def view_template
         div(class: "min-h-screen bg-background flex items-center justify-center px-4 py-12") do
-          render Components::Ui::Card.new(class: "w-full max-w-md") do |card|
+          render Chadcn::Card.new(class: "w-full max-w-md") do |card|
             card.header do
-              card.title { t("views.passwords.edit.heading") }
+              card.title { h3 { t("views.passwords.edit.heading") } }
               card.description { t("views.passwords.edit.description", default: "Enter your new password") }
             end
 
@@ -54,8 +54,8 @@ module Views
 
       def render_flash_messages
         if alert = view_context.flash[:alert]
-          render Components::Ui::Alert.new(variant: :destructive, class: "mb-4") do
-            p(class: "text-sm") { alert }
+          render Chadcn::Alert.new(variant: "destructive", class: "mb-4") do |alert_box|
+            alert_box.description { p { alert } }
           end
         end
       end

@@ -27,9 +27,9 @@ module Views
               end
             end
 
-            render Components::Ui::Card.new(class: "w-full max-w-md") do |card|
+            render Chadcn::Card.new(class: "w-full max-w-md") do |card|
               card.header do
-                card.title { t("views.sessions.new.heading") }
+                card.title { h3 { t("views.sessions.new.heading") } }
                 card.description { t("views.sessions.new.description") }
               end
 
