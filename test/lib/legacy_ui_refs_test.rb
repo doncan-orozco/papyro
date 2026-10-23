@@ -90,7 +90,7 @@ class LegacyUiRefsTest < ActiveSupport::TestCase
 
   test "the legacy directories themselves are never reported, even when asked for" do
     write(@host, "app/components/ui/button.rb", "class #{CONST}; end\n")
-    write(@host, "app/javascript/controllers/ui/dialog_controller.js", %(import B from "#{IMPORT}"\n))
+    write(@host, File.join("app/javascript", File.dirname(IMPORT), "dialog_controller.js"), %(import B from "#{IMPORT}"\n))
     write(@host, "test/components/ui/button_test.rb", "#{CONST}.new\n")
 
     assert_equal 0, run_cli("app", "test").first
@@ -117,7 +117,7 @@ class LegacyUiRefsTest < ActiveSupport::TestCase
     status, out, = run_cli("--engine", @engine)
 
     assert_equal 1, status
-    assert_equal %W[app/a.rb config/c.rb lib/b.rb test/d_test.rb #{@engine}/app/views/studio/e.rb #{@engine}/test/f_test.rb],
+    assert_equal %W[app/a.rb lib/b.rb config/c.rb test/d_test.rb #{@engine}/app/views/studio/e.rb #{@engine}/test/f_test.rb],
       out.lines(chomp: true).map { |line| line.split(":").first }
   end
 
