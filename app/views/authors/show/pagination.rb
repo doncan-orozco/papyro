@@ -15,7 +15,8 @@ module Views
               pagination.previous(
                 label: t("design_system.pagination.previous"),
                 href: ("/@#{@username}?page=#{@pagy.previous}" if @pagy.previous),
-                aria: { disabled: ("true" unless @pagy.previous) }
+                aria: { disabled: ("true" unless @pagy.previous) },
+                class: ("pointer-events-none opacity-50" unless @pagy.previous)
               )
             end
 
@@ -36,7 +37,8 @@ module Views
               pagination.next(
                 label: t("design_system.pagination.next"),
                 href: ("/@#{@username}?page=#{@pagy.next}" if @pagy.next),
-                aria: { disabled: ("true" unless @pagy.next) }
+                aria: { disabled: ("true" unless @pagy.next) },
+                class: ("pointer-events-none opacity-50" unless @pagy.next)
               )
             end
           end
