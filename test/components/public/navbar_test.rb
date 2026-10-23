@@ -78,6 +78,37 @@ class Components::Public::NavbarTest < ActiveSupport::TestCase
     assert_match(/Spanish/, html)
   end
 
+  test "the mobile menu is a chadcn sheet and the mobile search a chadcn dialog" do
+    html = render_navbar
+
+    assert_match(/data-controller="chadcn--sheet"/, html)
+    assert_match(/data-slot="sheet-trigger"/, html)
+    assert_match(/data-slot="dialog-trigger"/, html)
+  end
+
+  test "the mobile theme buttons drive chadcn--theme under the papyro-theme key" do
+    [ nil, users(:admin) ].each do |user|
+      html = render_navbar(user:)
+
+      %w[setLight setDark setSystem].each { |action| assert_match(/click->chadcn--theme##{action}/, html) }
+      assert_match(/data-chadcn--theme-storage-key-value="papyro-theme"/, html)
+    end
+  end
+
+  test "the account menu is a chadcn dropdown with link items" do
+    html = render_navbar(user: users(:admin))
+
+    assert_match(/data-slot="dropdown-menu-trigger"[^>]*aria-label="Settings"|aria-label="Settings"[^>]*data-slot="dropdown-menu-trigger"/, html)
+    assert_match(/<a[^>]*data-slot="dropdown-menu-item"/, html)
+    assert_match(/data-variant="destructive"/, html)
+  end
+
+  test "renders no legacy UI when logged out or in" do
+    [ nil, users(:admin) ].each do |user|
+      assert_no_match(/ui--|ui__|Components::Ui/, render_navbar(user:))
+    end
+  end
+
   private
 
   def render_navbar(user: nil)
