@@ -73,4 +73,22 @@ class PapyroFormBuilderTest < ActiveSupport::TestCase
 
     assert_includes error.message, "Unsupported field type"
   end
+
+  test "field label renders the chadcn label for the input" do
+    user = User.new(email_address: "one@example.com")
+
+    html = ApplicationController.render(
+      inline: <<~ERB,
+        <%= form_with model: user, url: "/users" do |form| %>
+          <%= form.field :email_address, as: :email_field, label: "Email" %>
+        <% end %>
+      ERB
+      locals: { user: user }
+    )
+    label = Nokogiri::HTML5.fragment(html).at_css("label")
+
+    assert_equal "label", label["data-slot"]
+    assert_equal "user_email_address", label["for"]
+    assert_equal "Email", label.text.strip
+  end
 end
