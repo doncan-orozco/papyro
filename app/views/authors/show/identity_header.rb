@@ -36,11 +36,11 @@ module Views
                 end
 
                 if @presenter.owner?
-                  render Components::Ui::Button.new(
-                    as: :a,
+                  render Chadcn::Button.new(
+                    as_child: :a,
                     href: edit_settings_profile_path,
-                    variant: :outline,
-                    size: :sm,
+                    variant: "outline",
+                    size: "sm",
                     class: "w-fit whitespace-nowrap",
                     data: { turbo_frame: "_top" }
                   ) { t("authors.show.edit_profile") }

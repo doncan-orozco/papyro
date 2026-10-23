@@ -64,7 +64,7 @@ module Views
                           class: "text-foreground/80 transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:underline",
                           aria: { label: t("pages.about.index.engineer_linkedin_label") }
                         ) do
-                          render Components::Ui::Icon.new(:linkedin, class: "h-4 w-4")
+                          render Components::Shared::Icon.new(:linkedin, class: "h-4 w-4")
                         end
                       end
                       p(class: "mt-1 text-sm text-foreground/80") do
@@ -87,7 +87,7 @@ module Views
                           class: "text-foreground/80 transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:underline",
                           aria: { label: t("pages.about.index.designer_linkedin_label") }
                         ) do
-                          render Components::Ui::Icon.new(:linkedin, class: "h-4 w-4")
+                          render Components::Shared::Icon.new(:linkedin, class: "h-4 w-4")
                         end
                       end
                       p(class: "mt-1 text-sm text-foreground/80") do

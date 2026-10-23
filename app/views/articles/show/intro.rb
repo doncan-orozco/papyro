@@ -12,7 +12,7 @@ module Views
           link_to root_path,
             class: "mb-10 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-foreground/80 transition-colors hover:text-foreground hover:underline focus-visible:underline",
             data: { turbo_frame: "_top" } do
-            render Components::Ui::Icon.new(:arrow_left, class: "h-3.5 w-3.5")
+            render Components::Shared::Icon.new(:arrow_left, class: "h-3.5 w-3.5")
             plain t("articles.show.back_to_list")
           end
 
