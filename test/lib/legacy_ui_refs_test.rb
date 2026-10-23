@@ -13,6 +13,8 @@ class LegacyUiRefsTest < ActiveSupport::TestCase
   CONST = [ "Ui", "Button" ].join("::")
   CONTROLLER = [ "ui", "dialog" ].join("--")
   IMPORT = [ "controllers", "ui", "base_controller" ].join("/")
+  DATA_KEY = [ "ui", "_dialog_target" ].join("_")
+  HTML_TARGET = [ "data-ui", "dialog-target" ].join("--")
 
   setup do
     @dir = Dir.mktmpdir("legacy-ui-refs")
@@ -74,12 +76,23 @@ class LegacyUiRefsTest < ActiveSupport::TestCase
       Foo::Ui::Thing
       "build--ui--x"
       # app/controllers/uix/thing.rb
+      "#{[ 'controllers', 'uix' ].join('/')}"
     RUBY
 
     status, out, = run_cli("app")
 
     assert_equal 0, status
     assert_empty out
+  end
+
+  test "root-anchored constants and bare controller directory paths are references" do
+    write(@host, "app/a.rb", "render ::#{CONST}.new\n")
+    write(@host, "config/importmap.rb", %(pin_all_from "app/javascript/#{File.dirname(IMPORT)}"\n))
+
+    status, out, = run_cli("--json", "app", "config")
+
+    assert_equal 1, status
+    assert_equal %w[constant import], JSON.parse(out)["findings"].map { |finding| finding["kind"] }
   end
 
   test "a clean path exits 0 with no output" do
@@ -121,30 +134,129 @@ class LegacyUiRefsTest < ActiveSupport::TestCase
       out.lines(chomp: true).map { |line| line.split(":").first }
   end
 
-  test "the engine directory comes from BUNDLE_LOCAL__PAPYRO_STUDIO, then the host bundle config, then the sibling" do
+  test "the engine directory comes from BUNDLE_LOCAL__PAPYRO_STUDIO in the environment first" do
+    write(@host, "app/a.rb", "clean\n")
+    other = File.join(@dir, "other")
+    write(other, "app/o.rb", "#{CONST}\n")
     write(@engine, "app/e.rb", "#{CONST}\n")
+    write(@host, ".bundle/config", %(---\nBUNDLE_LOCAL__PAPYRO_STUDIO: "#{@engine}"\n))
+
+    assert_equal [ "#{other}/app/o.rb:1:#{CONST}" ], run_cli(env: { "BUNDLE_LOCAL__PAPYRO_STUDIO" => other })[1].lines(chomp: true)
+  end
+
+  test "a padded environment value is stripped before it is used" do
+    write(@host, "app/a.rb", "clean\n")
+    other = File.join(@dir, "other")
+    write(other, "app/o.rb", "#{CONST}\n")
+
+    assert_equal [ "#{other}/app/o.rb:1:#{CONST}" ], run_cli(env: { "BUNDLE_LOCAL__PAPYRO_STUDIO" => "  #{other}  " })[1].lines(chomp: true)
+  end
+
+  test "a blank --engine is treated as absent" do
+    write(@host, "app/a.rb", "#{CONST}\n")
+
+    status, out, err = run_cli("--engine", "")
+
+    assert_equal 1, status
+    assert_equal [ "app/a.rb:1:#{CONST}" ], out.lines(chomp: true)
+    assert_match(/warning: no engine checkout/, err)
+  end
+
+  test "the engine directory comes from the host bundle config before the sibling" do
+    write(@host, "app/a.rb", "clean\n")
+    write(@engine, "app/e.rb", "#{CONST}\n")
+    write(File.join(@dir, "papyro_studio"), "app/s.rb", "#{CONST}\n")
+    write(@host, ".bundle/config", %(---\nBUNDLE_LOCAL__PAPYRO_STUDIO: "#{@engine}"\n))
+
+    assert_equal [ "#{@engine}/app/e.rb:1:#{CONST}" ], run_cli[1].lines(chomp: true)
+  end
+
+  test "the engine directory falls back to the sibling papyro_studio" do
+    write(@host, "app/a.rb", "clean\n")
     sibling = File.join(@dir, "papyro_studio")
     write(sibling, "app/s.rb", "#{CONST}\n")
 
     assert_match(%r{\A#{sibling}/app/s\.rb:}, run_cli[1])
-
-    write(@host, ".bundle/config", %(---\nBUNDLE_LOCAL__PAPYRO_STUDIO: "#{@engine}"\n))
-
-    assert_match(%r{\A#{@engine}/app/e\.rb:}, run_cli[1])
-
-    other = File.join(@dir, "other")
-    write(other, "app/o.rb", "#{CONST}\n")
-
-    assert_match(%r{\A#{other}/app/o\.rb:}, run_cli(env: { "BUNDLE_LOCAL__PAPYRO_STUDIO" => other })[1])
   end
 
-  test "a missing engine directory is skipped in no-path mode, a host-only scan still works" do
+  test "an empty BUNDLE_LOCAL__PAPYRO_STUDIO falls through to the next source" do
+    write(@host, "app/a.rb", "clean\n")
+    write(@engine, "app/e.rb", "#{CONST}\n")
+    write(@host, ".bundle/config", %(---\nBUNDLE_LOCAL__PAPYRO_STUDIO: "#{@engine}"\n))
+
+    assert_equal [ "#{@engine}/app/e.rb:1:#{CONST}" ], run_cli(env: { "BUNDLE_LOCAL__PAPYRO_STUDIO" => "  " })[1].lines(chomp: true)
+  end
+
+  test "an engine that resolves to the host root is bad input" do
+    write(@host, "app/a.rb", "clean\n")
+
+    status, out, err = run_cli("--engine", ".")
+
+    assert_equal 2, status
+    assert_empty out
+    assert_match(/resolves to the host root/, err)
+  end
+
+  test "an explicit engine directory that is missing is bad input" do
     write(@host, "app/a.rb", "#{CONST}\n")
 
-    status, out, = run_cli("--engine", File.join(@dir, "nope"))
+    status, out, err = run_cli("--engine", File.join(@dir, "nope"))
+
+    assert_equal 2, status
+    assert_empty out
+    assert_match(/no engine checkout at .*nope/, err)
+  end
+
+  test "a missing sibling engine warns and scans the host only" do
+    write(@host, "app/a.rb", "#{CONST}\n")
+
+    status, out, err = run_cli
 
     assert_equal 1, status
     assert_equal [ "app/a.rb:1:#{CONST}" ], out.lines(chomp: true)
+    assert_match(/warning: no engine checkout/, err)
+  end
+
+  test "a malformed bundle config is bad input, not a finding" do
+    write(@host, "app/a.rb", "clean\n")
+    write(@host, ".bundle/config", "---\n: : [\n")
+
+    status, out, err = run_cli
+
+    assert_equal 2, status
+    assert_empty out
+    assert_match(/legacy_ui_refs:/, err)
+  end
+
+  test "a bundle config that is not a YAML mapping is bad input" do
+    write(@host, "app/a.rb", "clean\n")
+    write(@host, ".bundle/config", "- a\n- b\n")
+
+    status, out, err = run_cli
+
+    assert_equal 2, status
+    assert_empty out
+    assert_match(/is not a YAML mapping/, err)
+  end
+
+  test "no-path mode outside a host root is bad input, never clean" do
+    FileUtils.mkdir_p(@host)
+
+    status, out, err = run_cli
+
+    assert_equal 2, status
+    assert_empty out
+    assert_match(/run from the host root/, err)
+  end
+
+  test "Phlex data keys and HTML data attributes of legacy controllers are references" do
+    write(@host, "app/a.rb", "data: { #{DATA_KEY}: true }\n")
+    write(@host, "app/b.html", %(<div #{HTML_TARGET}></div>\n))
+
+    status, out, = run_cli("--json", "app")
+
+    assert_equal 1, status
+    assert_equal %w[data_key controller], JSON.parse(out)["findings"].map { |finding| finding["kind"] }
   end
 
   test "--json lists every finding and the count per file" do
@@ -159,6 +271,7 @@ class LegacyUiRefsTest < ActiveSupport::TestCase
     assert_equal 4, report["total"]
     assert_equal({ "app/a.rb" => 3, "app/b.rb" => 1 }, report["files"])
     assert_equal({ "file" => "app/a.rb", "line" => 2, "kind" => "constant", "match" => CONST }, report["findings"][1])
+    assert_equal %w[constant constant namespace controller], report["findings"].map { |finding| finding["kind"] }
   end
 
   test "--json on a clean path exits 0 with an empty report" do
@@ -170,13 +283,20 @@ class LegacyUiRefsTest < ActiveSupport::TestCase
     assert_equal({ "total" => 0, "files" => {}, "findings" => [] }, JSON.parse(out))
   end
 
-  test "bad input exits 2 with a message on stderr" do
+  test "a missing path exits 2 with a message on stderr" do
     status, out, err = run_cli("app/nope")
 
     assert_equal 2, status
     assert_empty out
     assert_match(/no such file or directory: app\/nope/, err)
-    assert_equal 2, run_cli("--frobnicate").first
+  end
+
+  test "an unknown flag exits 2 with a message on stderr" do
+    status, out, err = run_cli("--frobnicate")
+
+    assert_equal 2, status
+    assert_empty out
+    assert_match(/invalid option/, err)
   end
 
   test "the executable runs from the shell with the same exit codes" do
