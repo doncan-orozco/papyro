@@ -1,15 +1,29 @@
 require "test_helper"
 
 class Components::Shared::FlashTest < ActiveSupport::TestCase
-  test "mounts one Sonner toaster with the close label and duration" do
-    toaster = render_flash({}).at_css("section")
+  test "mounts one polite Sonner live region as the toaster turbo streams target" do
+    toaster = render_flash({}).css("section").sole
 
     assert_equal "chadcn--sonner", toaster["data-controller"]
     assert_equal "toaster", toaster["id"]
+    assert_equal "polite", toaster["aria-live"]
+    assert_empty toast_templates(toaster)
+  end
+
+  test "keeps the legacy position, duration and localized close label" do
+    toaster = I18n.with_locale(:es) { render_flash({}).at_css("section") }
+
     assert_equal "bottom-right", toaster["data-chadcn--sonner-position-value"]
+    assert_equal "4000", toaster["data-chadcn--sonner-duration-value"]
     assert_equal "true", toaster["data-chadcn--sonner-close-button-value"]
-    assert_equal Components::Shared::Flash::DURATION_MS.to_s, toaster["data-chadcn--sonner-duration-value"]
-    assert_includes toaster["data-chadcn--sonner-toast-options-value"], I18n.t("app.toasts.close")
+    assert_equal I18n.t("app.toasts.close", locale: :es),
+      JSON.parse(toaster["data-chadcn--sonner-toast-options-value"])["closeButtonAriaLabel"]
+  end
+
+  test "suppressed keeps the toaster mounted but drops the messages" do
+    html = ApplicationController.render(Components::Shared::Flash.new(flash: { notice: "Hidden" }, suppressed: true), layout: false)
+    toaster = Nokogiri::HTML5.fragment(html).css("section").sole
+
     assert_empty toast_templates(toaster)
   end
 
@@ -29,8 +43,8 @@ class Components::Shared::FlashTest < ActiveSupport::TestCase
     assert_equal "Algo falló", part(toast, "description")
   end
 
-  test "renders one toast per message and skips blank ones" do
-    toasts = toast_templates(render_flash(notice: [ "One", "" ], alert: [ "Two" ]))
+  test "renders one toast per notice or alert message and skips blank and other keys" do
+    toasts = toast_templates(render_flash(notice: [ "One", "" ], alert: [ "Two", nil ], success: "Ignored"))
 
     assert_equal %w[One Two], toasts.map { |toast| part(toast, "description") }
   end

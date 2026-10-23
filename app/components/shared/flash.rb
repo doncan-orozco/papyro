@@ -4,16 +4,22 @@
 # toasts with the localized app.toasts.* titles; Turbo Streams can append more
 # toasts to it (`turbo_stream.append "toaster", Chadcn::Sonner::Toast.new(...)`).
 #
-# Usage (once per layout):
-#   render Components::Shared::Flash.new(flash: flash)
+# Usage (once per layout; `suppressed:` keeps the Toaster mounted but drops the
+# messages, for pages that call disable_layout_flash_messages):
+#   render Components::Shared::Flash.new(flash: flash, suppressed: content_for?(:flash))
 module Components
   module Shared
     class Flash < Components::Base
       DURATION_MS = 4000
-      TOAST_TYPES = { notice: { type: :success, title_key: "success" }, alert: { type: :error, title_key: "error" } }.freeze
+      # the gem's flash: option titles toasts with the raw message; these keep the localized titles
+      TOAST_KINDS = {
+        notice: { type: :success, title: "app.toasts.success" },
+        alert: { type: :error, title: "app.toasts.error" }
+      }.freeze
+      private_constant :TOAST_KINDS
 
-      def initialize(flash:, **attrs)
-        @flash = flash
+      def initialize(flash:, suppressed: false, **attrs)
+        @flash = suppressed ? {} : flash
         @attrs = attrs
       end
 
@@ -31,9 +37,9 @@ module Components
       private
 
       def toasts
-        TOAST_TYPES.flat_map do |key, toast|
+        TOAST_KINDS.flat_map do |key, kind|
           Array(@flash[key]).compact_blank.map do |message|
-            { type: toast[:type], title: t("app.toasts.#{toast[:title_key]}"), description: message.to_s }
+            { type: kind[:type], title: t(kind[:title]), description: message.to_s }
           end
         end
       end

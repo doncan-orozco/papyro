@@ -26,7 +26,7 @@
   </head>
 
   <body class="min-h-dvh bg-background text-foreground antialiased">
-    <%= render Components::Shared::Flash.new(flash: content_for?(:flash) ? {} : flash) %>
+    <%= render Components::Shared::Flash.new(flash: flash, suppressed: content_for?(:flash)) %>
     <main id="main-content" class="min-h-[calc(100dvh-3.5rem)]">
       <%= yield %>
     </main>
