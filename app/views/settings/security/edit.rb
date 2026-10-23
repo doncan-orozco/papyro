@@ -12,9 +12,9 @@ module Views
 
         def view_template
           render Views::Settings::Layout.new(active: :security) do
-            render Components::Ui::Card.new do |card|
+            render Chadcn::Card.new do |card|
               card.header do
-                card.title { t("users.settings.security.title") }
+                card.title { h3 { t("users.settings.security.title") } }
                 card.description { t("users.settings.security.description") }
               end
 

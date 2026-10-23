@@ -11,9 +11,9 @@ module Views
           render Components::Public::Navbar.new
 
           main(class: "mx-auto w-full max-w-3xl px-4 py-10") do
-            render Components::Ui::Card.new do |card|
+            render Chadcn::Card.new do |card|
               card.header do
-                card.title { t("users.show.title") }
+                card.title { h3 { t("users.show.title") } }
                 card.description { t("users.show.description") }
               end
 
@@ -22,7 +22,7 @@ module Views
                 p(class: "text-base font-medium") { @user.author_display_name }
 
                 if @viewer_user_id == @user.id
-                  render Components::Ui::Button.new(as: :a, href: edit_settings_profile_path) do
+                  render Chadcn::Button.new(as_child: :a, href: edit_settings_profile_path) do
                     t("users.show.edit_profile")
                   end
                 end
