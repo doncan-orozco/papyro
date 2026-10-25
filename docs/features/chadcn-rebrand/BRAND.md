@@ -39,7 +39,7 @@ Rules:
   (`#09090b` on light, `#fafafa` on dark) so it sits next to any theme a user pastes from ui.shadcn.com/themes.
 - Pick the variant by background. The packaged README is rendered by rubygems.org and rubydoc, where `dev/` does not
   exist, so the README uses absolute URLs built from the gemspec's `repository` and `ref`
-  (`https://raw.githubusercontent.com/doncan-orozco/chadcn/main/dev/brand/...`):
+  (raw.githubusercontent.com, chadcn repository, `main/dev/brand/`):
 
   ```html
   <picture>
