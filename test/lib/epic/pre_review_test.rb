@@ -21,10 +21,10 @@ class PreReviewTest < ActiveSupport::TestCase
     File.chmod(0o755, path)
   end
 
-  def with_fakes(rbenv: "exit 0")
+  def with_fakes(rbenv: "exit 0", gem: "echo built")
     Dir.mktmpdir("pre-review-bin") do |bin|
       fake_bin(bin, "bundle", 'echo "100.00% documented"')
-      fake_bin(bin, "gem", "echo built")
+      fake_bin(bin, "gem", gem)
       fake_bin(bin, "ruby", "exit 0")
       fake_bin(bin, "rbenv", rbenv)
       yield({ "PATH" => "#{bin}:/usr/bin:/bin" })
@@ -64,8 +64,7 @@ class PreReviewTest < ActiveSupport::TestCase
       out, _, code = pre_review("--skip", "rubies", env: env)
 
       assert_equal 0, code
-      assert_match(/ok     yard/, out)
-      assert_match(/ok     build/, out)
+      %w[yard build gate smoke docs].each { |name| assert_match(/ok     #{name}/, out) }
       assert_match(/GREEN/, out)
     end
   end
@@ -77,6 +76,25 @@ class PreReviewTest < ActiveSupport::TestCase
       assert_equal 3, code
       assert_match(/NOT RUN ruby 3\.3/, err)
       assert_match(/GREEN except NOT RUN rubies: 3\.3/, err)
+    end
+  end
+
+  test "an installed ruby runs the plain smoke and counts as green" do
+    with_fakes(rbenv: 'printf "3.3.6\\n3.30.0\\n4.0.1\\n"') do |env|
+      out, err, code = pre_review("--skip", "yard,build,gate,smoke,docs", "--rubies", "3.3", env: env)
+
+      assert_equal 0, code, err
+      assert_match(/ok     rubies 3\.3/, out)
+      assert_no_match(/NOT RUN/, err)
+    end
+  end
+
+  test "a gem build that fails without printing a warning is red" do
+    with_fakes(gem: 'echo "ERROR: invalid gemspec"; exit 1') do |env|
+      _, err, code = pre_review("--skip", "yard,gate,smoke,docs,rubies", env: env)
+
+      assert_equal 1, code
+      assert_match(/FAILED build/, err)
     end
   end
 
