@@ -73,6 +73,7 @@ module WorkBoard
   DEFAULT_LEASE_MIN = 45
   DEFAULT_HEARTBEAT_S = 600 # lease is 45 min: a loop at 10 min survives several missed ticks
   DEFAULT_WATCHDOG_S = 300
+  HEARTBEAT_MAX_FAILURES = 3 # consecutive failed ticks (network blips) before a daemon gives up
   META = /<!--\s*work-item\s*(\{.*?\})\s*-->/m
   NOTE = /<!--\s*work-note\s*(\{.*?\})\s*-->/m
   EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d6a5c65b3dd3d"
@@ -147,7 +148,7 @@ module WorkBoard
     # The Gate commands of the issue body (`## Gates` section, one `- \`cmd\`` per line): what the merge sweep runs on main.
     def gates
       # `## Gates` exactly (an optional parenthetical is allowed): `## Gates and audit routing` is another section.
-      section = @body.split(/^##\s+/).find { |s| s.lines.first.to_s.match?(/\AGates\s*(\(.*\))?\s*\z/) }
+      section = @body.split(/^##\s+/).find { |s| s.lines.first.to_s.match?(/\AGates:?\s*(\(.*\))?\s*\z/) }
       return [] unless section
 
       section.lines.drop(1).filter_map { |l| l[/\A-\s+`([^`]+)`/, 1] || l[/\A-\s+(\S.*)/, 1]&.strip }
@@ -311,6 +312,8 @@ module WorkBoard
   class Board
     include Shell
 
+    attr_reader :slug
+
     def initialize(slug)
       @slug = slug
     end
@@ -431,11 +434,24 @@ module WorkBoard
 
     def register(number, data) = File.write(state_path(number, "json"), JSON.generate(data))
     def unregister(number) = FileUtils.rm_f(state_path(number, "json"))
-    def registrations = Dir.glob(File.join(state_dir, "#{@slug}-*.json")).filter_map { |f| registration(f[/-(\d+)\.json\z/, 1].to_i) }
+    def registrations
+      re = /\A#{Regexp.escape(@slug)}-(\d+)\.json\z/
+      Dir.children(state_dir).filter_map { |f| (m = f.match(re)) && registration(m[1].to_i) }
+    end
 
     def self.alive?(pid)
       pid.to_i.positive? && (Process.kill(0, pid.to_i) && true)
     rescue Errno::ESRCH, Errno::EPERM
+      false
+    end
+
+    # A registered pid is only ours if its command line says so: pids are reused after a crash or reboot.
+    def self.our_daemon?(pid, slug, number)
+      return false unless pid.to_i.positive?
+
+      args, status = Open3.capture2("ps", "-o", "args=", "-p", pid.to_i.to_s)
+      status.success? && args.include?("work_board.rb heartbeat #{number} ") && args.include?("--epic #{slug}") && args.include?("--loop")
+    rescue SystemCallError
       false
     end
 
@@ -445,7 +461,7 @@ module WorkBoard
       return false unless reg
 
       pid = reg["pid"].to_i
-      Process.kill("TERM", pid) if Board.alive?(pid) && pid != Process.pid
+      Process.kill("TERM", pid) if pid != Process.pid && Board.our_daemon?(pid, @slug, number)
       unregister(number)
       true
     rescue Errno::ESRCH, Errno::EPERM
@@ -968,27 +984,38 @@ module WorkBoard
         held_by(b, number, opts[:session])
         b.stop_heartbeat(number)
         data = { "epic" => opts[:epic], "item" => number, "session" => opts[:session], "lease" => lease_of(opts), "interval" => heartbeat_interval(opts), "cwd" => Dir.pwd }
-        data["pid"] = spawn_heartbeat(data)
+        data["pid"] = spawn_heartbeat(b, data)
         b.register(number, data)
         out({ ok: true, daemon: true, pid: data["pid"], interval: data["interval"] })
       end
     end
 
-    def spawn_heartbeat(data)
+    def spawn_heartbeat(b, data)
       return 0 if ENV["WORK_NO_SPAWN"]
 
       args = [ RbConfig.ruby, __FILE__, "heartbeat", data["item"].to_s, "--epic", data["epic"], "--session", data["session"], "--lease", data["lease"].to_s,
                "--interval", data["interval"].to_s, "--loop" ]
-      Process.detach(Process.spawn(*args, chdir: data["cwd"], pgroup: true, in: File::NULL, out: File::NULL, err: File::NULL))
+      pid = File.open(b.state_path(data["item"], "log"), "a") do |log|
+        Process.spawn(*args, chdir: data["cwd"], pgroup: true, in: File::NULL, out: log, err: log)
+      end
+      Process.detach(pid)
+      pid
     end
 
     # Foreground loop (what the daemon runs): renew, sleep, stop when the claim is no longer ours. --max-ticks bounds it for tests.
     def heartbeat_loop(b, number, opts)
-      ticks = 0
+      ticks = failures = 0
       loop do
-        state = b.with_lock(number) { renew(b, number, opts) }
-        unless state == :renewed
-          b.unregister(number)
+        state = begin
+          b.with_lock(number) { renew(b, number, opts) }
+        rescue Failure => e
+          failures += 1
+          warn "[#{WorkBoard.now.iso8601}] heartbeat ##{number}: #{e.message} (#{failures})"
+          failures >= HEARTBEAT_MAX_FAILURES ? :error : :retry
+        end
+        failures = 0 if state == :renewed
+        if %i[gone taken lost error].include?(state)
+          b.with_lock(number) { b.unregister(number) if b.registration(number)&.dig("pid").to_i == Process.pid }
           out({ ok: true, loop_ended: state.to_s, ticks: ticks })
         end
         ticks += 1
@@ -1014,7 +1041,7 @@ module WorkBoard
       b = board(opts)
       ticks = 0
       loop do
-        report = watchdog_pass(b)
+        report = opts[:loop] ? watchdog_safely(b) : watchdog_pass(b)
         ticks += 1
         out({ restarted: report[:restarted], dropped: report[:dropped], alive: report[:alive] }) unless opts[:loop]
         puts(JSON.generate(report))
@@ -1025,24 +1052,33 @@ module WorkBoard
     end
 
     def watchdog_pass(b)
-      claims = b.claims
       report = { restarted: [], dropped: [], alive: [] }
-      b.registrations.each do |reg|
-        n = reg["item"]
+      b.registrations.each do |listed|
+        n = listed["item"]
         b.with_lock(n) do
-          if claims[n].nil? || claims[n][:session] != reg["session"]
+          reg = b.registration(n) or next # advance/release stopped it meanwhile
+          claim = b.claims[n]
+          if claim.nil? || claim[:session] != reg["session"]
             b.stop_heartbeat(n)
             report[:dropped] << n
-          elsif Board.alive?(reg["pid"])
+          elsif Board.our_daemon?(reg["pid"], b.slug, n)
             report[:alive] << n
           else
-            reg["pid"] = spawn_heartbeat(reg)
+            reg["pid"] = spawn_heartbeat(b, reg)
             b.register(n, reg)
             report[:restarted] << n
           end
         end
       end
       report
+    end
+
+    # --loop must survive a failed fetch: one bad pass is reported and the next pass tries again.
+    def watchdog_safely(b)
+      watchdog_pass(b)
+    rescue Failure => e
+      warn "watchdog: #{e.message}"
+      { restarted: [], dropped: [], alive: [], error: e.message }
     end
 
     def release

@@ -1256,24 +1256,66 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_equal [ b ], report["dropped"]
   end
 
-  test "a heartbeat and an advance on one item serialise on the lock" do
+  test "a heartbeat waits for the item lock and renews only after it is released" do
     make_epic
     a = make_item("A", wave: 1, owns: "lib/a/**")
     claim(a, "s1")
-    held = false
+    ref = "refs/claims/demo/#{a}"
+    before = `git -C #{@remote} rev-parse #{ref}`.strip
     FileUtils.mkdir_p(File.join(@work, ".git/work-board"))
     lock = File.open(File.join(@work, ".git/work-board/demo-#{a}.lock"), File::RDWR | File::CREAT)
     lock.flock(File::LOCK_EX)
-    worker = Thread.new { wb_process("heartbeat", a.to_s, "--epic", "demo", "--session", "s1") }
-    sleep 1
-    held = worker.alive?
+    worker = Thread.new { wb_process("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--lease", "50") }
+    sleep 2
+    during = `git -C #{@remote} rev-parse #{ref}`.strip
     lock.flock(File::LOCK_UN)
     result, code = worker.value
 
-    assert held, "the heartbeat waited for the lock holder"
+    assert_equal before, during, "no renewal happened while the lock was held"
     assert_equal 0, code, result.inspect
+    refute_equal before, `git -C #{@remote} rev-parse #{ref}`.strip
   ensure
     lock&.close
+  end
+
+  test "a real heartbeat daemon registers its pid and --stop kills it" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    claim(a, "s1")
+    started, code = wb_process("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--daemon", "--interval", "3600")
+    pid = started["pid"]
+
+    assert_equal 0, code, started.inspect
+    assert_kind_of Integer, pid
+    assert_operator pid, :>, 0
+    assert_equal pid, JSON.parse(File.read(File.join(@work, ".git/work-board/demo-#{a}.json")))["pid"]
+    assert WorkBoard::Board.our_daemon?(pid, "demo", a)
+    wb_process("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--stop")
+    50.times do
+      break unless WorkBoard::Board.alive?(pid)
+
+      sleep 0.1
+    end
+
+    refute WorkBoard::Board.alive?(pid)
+  ensure
+    Process.kill("TERM", pid) if pid.is_a?(Integer) && pid.positive? && WorkBoard::Board.alive?(pid)
+  end
+
+  test "a heartbeat loop survives failed ticks and gives up after three in a row" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    claim(a, "s1")
+    two, = wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--loop", "--max-ticks", "2", "--interval", "0", env: { "WORK_REMOTE" => "nowhere" })
+    three, = wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--loop", "--max-ticks", "9", "--interval", "0", env: { "WORK_REMOTE" => "nowhere" })
+
+    assert_equal "max_ticks", two["loop_ended"]
+    assert_equal "error", three["loop_ended"]
+  end
+
+  test "a pid that is not our daemon is never killed or trusted" do
+    refute WorkBoard::Board.our_daemon?(Process.pid, "demo", 1)
+    refute WorkBoard::Board.our_daemon?(0, "demo", 1)
   end
 
   test "bin/worker-env passes its preflight on a configured machine and is valid shell" do
@@ -1281,7 +1323,7 @@ class WorkBoardTest < ActiveSupport::TestCase
     _, status = Open3.capture2("bash", "-n", script)
 
     assert_predicate status, :success?
-    out, err, status = Open3.capture3("bash", script, "--check", chdir: Rails.root.to_s)
+    out, err, status = Open3.capture3({ "WORKER_ENV_SKIP_GH" => "1" }, "bash", script, "--check", chdir: Rails.root.to_s)
     skip "gh, node or ruby missing on this machine: #{err}" unless status.success?
 
     assert_match(/worker-env: ok/, out)
