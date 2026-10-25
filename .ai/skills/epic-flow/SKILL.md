@@ -61,7 +61,7 @@ ruby .claude/scripts/epic/work_board.rb release N --epic S --session ID
 ruby .claude/scripts/epic/work_board.rb item edit N --epic S --session ID --blocked-by 1,2 --reason "..."   # maintainer plan change only ("" clears)
 ```
 
-`item create` also takes `--gates-file` / `--acceptance-file` (one entry per line, written as `## Gates` / `## Acceptance`) and answers `warnings: [OWNS_OVERLAP]` when its Owns overlap an unfinished item. `gh` calls are retried (3 attempts, backoff) on 401/502/503/504; `mergeable` waits for a PR whose mergeability GitHub is still computing.
+`item create` also takes `--gates-file` / `--acceptance-file` (one entry per line, written as `## Gates` / `## Acceptance`) and answers `warnings: [OWNS_OVERLAP]` when its Owns overlap an unfinished item. `gh` calls are retried (3 attempts, backoff) on 401 always, and on 502/503/504/timeouts only for reads and idempotent edits (`issue create`, `issue comment` and `pr merge` are never repeated on an ambiguous error); `next --item N` answers `not_an_item` or `done` for an unknown or finished N; `mergeable` waits for a PR whose mergeability GitHub is still computing.
 
 Session ids: workers started from one Claude session share `CLAUDE_CODE_SESSION_ID`, so they would look like the same holder and both win a claim. A worker therefore takes its own id with `session --unique` (or the brief sets `WORK_SESSION`) and passes it with every `--session`. Never use `$$`: it changes on every Bash call.
 

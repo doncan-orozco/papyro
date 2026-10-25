@@ -32,9 +32,13 @@ class WorkBoardTest < ActiveSupport::TestCase
     system("git", "init", "-q", @work, exception: true)
     system("git", "-C", @work, "remote", "add", "origin", @remote, exception: true)
     @db = File.join(@dir, "gh.json")
+    ENV["WORK_RETRY_SLEEP"] = "0" # no real sleeping anywhere in this file
   end
 
-  teardown { FileUtils.remove_entry(@dir) }
+  teardown do
+    ENV.delete("WORK_RETRY_SLEEP")
+    FileUtils.remove_entry(@dir)
+  end
 
   # Runs a command in-process like an agent's CLI call would; returns [parsed JSON (or {"raw"=>text}), exit status].
   def wb(*args, now: T0, env: {})
@@ -458,11 +462,21 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_equal "from-env", wb("session", env: { "WORK_SESSION" => "from-env" })[0]["session"]
   end
 
-  test "session --unique returns a fresh one-line id on every call, plain session stays stable" do
-    out = wb("session", "--unique")[0]["session"]
+  test "session prints one line; plain session is stable, --unique is fresh on every call" do
+    out = StringIO.new
+    real = $stdout
+    $stdout = out
+    begin
+      Dir.chdir(@work) { WorkBoard::Cli.new([ "session", "--unique" ]).run }
+    rescue SystemExit
+      nil
+    ensure
+      $stdout = real
+    end
 
-    refute_equal out, wb("session", "--unique")[0]["session"]
-    refute_equal out, wb("session")[0]["session"]
+    assert_equal 1, out.string.lines.size
+    assert_equal wb("session")[0]["session"], wb("session")[0]["session"]
+    refute_equal wb("session", "--unique")[0]["session"], wb("session", "--unique")[0]["session"]
   end
 
   test "next --item offers exactly that item or says why not, never another one" do
@@ -477,7 +491,36 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_nil result["item"]
     assert_equal "claimed_by_others", result["reason"]
     assert_equal [ b ], result["remaining"]
-    refute_equal a, result.dig("item", "number")
+    assert_nil result["item"]
+    assert_operator a, :<, b
+  end
+
+  test "next --item names the reason for a done or unknown item instead of all_done" do
+    make_epic
+    a = make_item("A", wave: 0, owns: "lib/a/**")
+    make_item("B", wave: 1, owns: "lib/b/**")
+    claim(a, "s1")
+    wb("advance", a.to_s, "--epic", "demo", "--session", "s1", "--stage", "done")
+
+    assert_equal "done", wb("next", "--epic", "demo", "--item", a.to_s)[0]["reason"]
+    assert_equal "not_an_item", wb("next", "--epic", "demo", "--item", "999")[0]["reason"]
+    assert_equal "not_an_item", wb("next", "--epic", "demo", "--item", "abc")[0]["reason"]
+  end
+
+  test "item create does not warn about overlap with its own blocker, and has no warnings key without a clash" do
+    make_epic
+    a = make_item("A", wave: 0, owns: "lib/a/**")
+    result, = wb("item", "create", "--epic", "demo", "--title", "B", "--body", "g", "--wave", "1", "--owns", "lib/a/**", "--blocked-by", a.to_s)
+
+    assert_nil result["warnings"]
+  end
+
+  test "a missing gates file fails before anything is written to GitHub" do
+    make_epic
+    before = File.read(@db)
+
+    assert_equal 2, wb("item", "create", "--epic", "demo", "--title", "C", "--wave", "1", "--owns", "docs/**", "--gates-file", "/nope")[1]
+    assert_equal before, File.read(@db)
   end
 
   test "reap accepts --session like every other subcommand" do
@@ -500,29 +543,61 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_equal [ { "code" => "OWNS_OVERLAP", "items" => [ a ] } ], result["warnings"]
     body = wb("show", result["number"].to_s, "--epic", "demo")[0]["body"]
 
-    assert_includes body, "## Gates\n- bin/rails test\n- ruby -c x.rb"
-    assert_includes body, "## Acceptance\n- it works"
+    assert_includes body, "## Gates\n- `bin/rails test`\n- `ruby -c x.rb`"
+    assert_includes body, "## Acceptance\n- [ ] it works"
     assert_equal [ "bin/rails test", "ruby -c x.rb" ], wb("show", result["number"].to_s, "--epic", "demo")[0]["gates"]
     assert_equal 2, wb("item", "create", "--epic", "demo", "--title", "C", "--wave", "1", "--owns", "docs/**", "--gates-file", "/nope")[1]
   end
 
-  test "gh is retried on a transient 401 and a hard failure is not" do
+  test "gh is retried on 401 always, on 5xx only for reads, and never on a hard failure" do
     script = File.join(@dir, "flaky_gh.sh")
     counter = File.join(@dir, "calls")
-    File.write(script, "#!/bin/sh\nn=$(cat #{counter} 2>/dev/null || echo 0); n=$((n+1)); echo $n > #{counter}\n" \
-                       "if [ $n -le 2 ]; then echo 'HTTP 401: Bad credentials' >&2; exit 1; fi\nexec #{RbConfig.ruby} #{FAKE_GH} \"$@\"\n")
+    mode = File.join(@dir, "mode")
+    File.write(script, <<~SH)
+      #!/bin/sh
+      n=$(cat #{counter} 2>/dev/null || echo 0); echo $((n+1)) > #{counter}
+      m=$(cat #{mode})
+      case "$m" in
+        401-twice) if [ $n -lt 2 ]; then echo 'HTTP 401: Bad credentials' >&2; exit 1; fi ;;
+        always-401) echo 'HTTP 401: Bad credentials' >&2; exit 1 ;;
+        404) echo 'HTTP 404: Not Found' >&2; exit 1 ;;
+        502-create) case "$*" in *"issue create"*) echo 'HTTP 502: Bad Gateway' >&2; exit 1 ;; esac ;;
+        502) echo 'HTTP 502: Bad Gateway' >&2; exit 1 ;;
+      esac
+      exec #{RbConfig.ruby} #{FAKE_GH} "$@"
+    SH
     File.chmod(0o755, script)
-    out, _err, status = Open3.capture3({ "WORK_GH" => script, "WORK_FAKE_DB" => @db, "WORK_REMOTE" => "origin", "WORK_NOW" => T0, "WORK_RETRY_SLEEP" => "0" },
-                                       RbConfig.ruby, SCRIPT, "epic", "create", "--slug", "demo", "--title", "T", "--body", "p", chdir: @work)
+    run = lambda do |m, *args|
+      File.write(mode, m)
+      File.write(counter, "0")
+      _out, err, status = Open3.capture3({ "WORK_GH" => script, "WORK_FAKE_DB" => @db, "WORK_REMOTE" => "origin", "WORK_NOW" => T0, "WORK_RETRY_SLEEP" => "0" },
+                                         RbConfig.ruby, SCRIPT, *args, chdir: @work)
+      [ status.exitstatus, File.read(counter).to_i, err ]
+    end
+    make_epic
 
-    assert_equal 0, status.exitstatus, out
-    assert_operator File.read(counter).to_i, :>, 2 # the first two calls failed with 401 and were repeated
-    File.write(counter, "-100") # every call now fails with 401 -> gives up after 3 attempts
-    _out, err, status = Open3.capture3({ "WORK_GH" => script, "WORK_FAKE_DB" => @db, "WORK_REMOTE" => "origin", "WORK_NOW" => T0, "WORK_RETRY_SLEEP" => "0" },
-                                       RbConfig.ruby, SCRIPT, "status", "--epic", "demo", chdir: @work)
+    code, calls, = run.call("401-twice", "status", "--epic", "demo")
 
-    refute_equal 0, status.exitstatus
-    assert_includes err + _out, "Bad credentials"
+    assert_equal 0, code
+    assert_operator calls, :>=, 3
+
+    code, calls, err = run.call("always-401", "status", "--epic", "demo")
+
+    refute_equal 0, code
+    assert_equal 3, calls
+    assert_includes err, "Bad credentials"
+
+    code, calls, = run.call("404", "status", "--epic", "demo")
+
+    refute_equal 0, code
+    assert_equal 1, calls
+    _code, calls, = run.call("502", "status", "--epic", "demo")
+
+    assert_equal 3, calls # a read is repeated on 502
+    code, = run.call("502-create", "epic", "create", "--slug", "other", "--title", "T", "--body", "p")
+
+    refute_equal 0, code
+    assert_empty fake_db["issues"].select { |i| i["title"] == "T" } # issue create raised on the first 502 instead of repeating
   end
 
   test "mergeable waits out an UNKNOWN mergeability that GitHub is still computing" do
@@ -542,9 +617,12 @@ class WorkBoardTest < ActiveSupport::TestCase
       end
     end
     WorkBoard::Board.prepend(settle)
-    Thread.current[:settle_mergeable] = true
-    row = judged(a)
-    Thread.current[:settle_mergeable] = nil
+    begin
+      Thread.current[:settle_mergeable] = true
+      row = judged(a)
+    ensure
+      Thread.current[:settle_mergeable] = nil
+    end
 
     assert_equal "ready", row["verdict"]
     assert_equal 2, calls
