@@ -93,9 +93,6 @@ app/
     game/
       player_card.rb
       move_button.rb
-    ui/
-      button.rb
-      card.rb
     shared/
       navbar.rb
   
@@ -122,8 +119,6 @@ app/
       game/
         connection_controller.js
         player_controller.js
-      ui/
-        modal_controller.js
   
   channels/
     game_channel.rb

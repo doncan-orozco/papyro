@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Finds what still uses the legacy UI library (app/components/ui and its ui-- Stimulus controllers), so a script, not a
-# reading of the diff, judges "this file no longer uses the legacy UI" during the retire-legacy-ui epic.
+# Keeps the deleted legacy UI library (app/components/ui and its ui-- Stimulus controllers) from coming back: bin/ci
+# runs it, and nothing is exempt, so a re-created legacy file is a finding like any other.
 #
 #   legacy_ui_refs.rb [paths...]            # file:line:match per reference; exit 0 clean, 1 found, 2 bad input
 #   legacy_ui_refs.rb --json [paths...]     # { total, files: { path => count }, findings: [...] }
@@ -15,10 +15,9 @@
 # host's app/ lib/ config/ test/ and the papyro_studio engine's, the engine found through --engine, then
 # BUNDLE_LOCAL__PAPYRO_STUDIO (environment, then the host's .bundle/config; blank values are ignored), then
 # ../papyro_studio. An explicit or configured engine that is missing exits 2; a missing sibling only warns on stderr and
-# the host is scanned alone. No-path mode in a directory with none of app/lib/config/test exits 2. The legacy library
-# itself (LEGACY_DIRS) is never reported: it is what the epic deletes last.
+# the host is scanned alone. No-path mode in a directory with none of app/lib/config/test exits 2.
 #
-# #297 should run it in CI with: legacy_ui_refs.rb --engine "$(bundle info --path papyro_studio)"
+# bin/ci runs: legacy_ui_refs.rb --engine "$(bundle info --path papyro_studio)"
 
 require "json"
 require "optparse"
@@ -33,7 +32,6 @@ module LegacyUiRefs
     "import" => %r{\bcontrollers/ui(?:/|\b)}
   }.freeze
   SCAN_DIRS = %w[app lib config test].freeze
-  LEGACY_DIRS = [ "app/components/ui", File.join("app/javascript/controllers", "ui"), "test/components/ui" ].freeze
   ENGINE_KEY = "BUNDLE_LOCAL__PAPYRO_STUDIO"
   SIBLING_ENGINE = File.join("..", "papyro_studio")
   CLEAN = 0
@@ -51,7 +49,6 @@ module LegacyUiRefs
     def initialize(root:)
       @root = File.expand_path(root)
       @root_prefix = File.join(@root, "")
-      @legacy_roots = LEGACY_DIRS.map { File.join(@root, it) }
     end
 
     def scan(paths)
@@ -61,16 +58,11 @@ module LegacyUiRefs
     private
 
     def files_under(path)
-      return [] if legacy?(path)
       return [ path ] if File.file?(path)
 
       Dir.glob("**/*", File::FNM_DOTMATCH, base: path).sort
         .map { |relative| File.join(path, relative) }
-        .select { |file| File.file?(file) && !legacy?(file) }
-    end
-
-    def legacy?(path)
-      @legacy_roots.any? { |dir| path == dir || path.start_with?(File.join(dir, "")) }
+        .select { |file| File.file?(file) }
     end
 
     def scan_file(file)

@@ -24,7 +24,7 @@ R8. **No button inside a trigger part.** `Dialog::Trigger` renders its own `<but
 R9. **Behavior through Stimulus + shared primitives only.** No inline JS, no per-component copies of focus/dismiss/positioning logic. → `radix-stimulus`
 R10. **Theme in shadcn format, one file.** Colors live only in `app/assets/tailwind/theme/theme.css` as `--primary: oklch(...)` in `:root`/`.dark`; `tokens.css` maps them to utilities and is never edited. Change the look with `bin/rails theme:use[preset]`, `theme:import[...]`, `theme:check`; a theme pasted from ui.shadcn.com works unchanged. Never put colors in components or other stylesheets. → `shadcn-port` references/theme-contract.md
 R11. **Catalog.** Every V2 component appears in the design-system catalog (`/design-system`), generated from the scenario files (no hand-written demos that can drift). Catalog copy is localized in `config/locales/{en,es}/design_system.yml`.
-R12. **Generic UI only.** `v2/` has no domain knowledge. Domain composition belongs in `app/components/{public,shared,...}` following `phlex-view-pattern`.
+R12. **Generic UI only.** `Chadcn::*` has no domain knowledge. Domain composition belongs in `app/components/{public,shared,...}` following `phlex-view-pattern`.
 R13. **Localized defaults.** Default strings shipped by shadcn (e.g. the sr-only "Close") are kwargs whose default equals the React string; app code passes `t(...)` through the kwarg. Components never call `t` themselves.
 R14. **Verified, not eyeballed.** A V2 component is correct only if `/shadcn-audit <name>` passes (G1-G4) in doncan-orozco/chadcn. In Papyro never patch a `Chadcn::*` look locally; change it upstream and bump the lock (`bundle update chadcn`).
 

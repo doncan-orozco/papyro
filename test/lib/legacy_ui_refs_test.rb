@@ -14,6 +14,7 @@ class LegacyUiRefsTest < ActiveSupport::TestCase
   CONTROLLER = [ "ui", "dialog" ].join("--")
   IMPORT = [ "controllers", "ui", "base_controller" ].join("/")
   DATA_KEY = [ "ui", "_dialog_target" ].join("_")
+  LIB_CONTROLLER = File.join("app/javascript", File.dirname(IMPORT), "dialog_controller.js")
   HTML_TARGET = [ "data-ui", "dialog-target" ].join("--")
 
   setup do
@@ -101,14 +102,17 @@ class LegacyUiRefsTest < ActiveSupport::TestCase
     assert_equal [ 0, "", "" ], run_cli("app/components/parity")
   end
 
-  test "the legacy directories themselves are never reported, even when asked for" do
+  test "a re-created legacy library is reported" do
     write(@host, "app/components/ui/button.rb", "class #{CONST}; end\n")
     write(@host, File.join("app/javascript", File.dirname(IMPORT), "dialog_controller.js"), %(import B from "#{IMPORT}"\n))
     write(@host, "test/components/ui/button_test.rb", "#{CONST}.new\n")
 
-    assert_equal 0, run_cli("app", "test").first
-    assert_equal 0, run_cli("app/components/ui").first
-    assert_equal 0, run_cli("app/components/ui/button.rb").first
+    status, out, = run_cli("app", "test")
+
+    assert_equal 1, status
+    assert_equal [ "app/components/ui/button.rb", LIB_CONTROLLER, "test/components/ui/button_test.rb" ],
+                 out.lines(chomp: true).map { it.split(":").first }.uniq
+    assert_equal 1, run_cli("app/components/ui").first
   end
 
   test "binary files are skipped" do

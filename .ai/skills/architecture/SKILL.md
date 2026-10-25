@@ -49,11 +49,11 @@ app/
       validator/
         body.rb
   
-  components/        ← Reusable UI components (Phlex)
+  components/        ← Domain UI components (Phlex); generic primitives come from the chadcn gem (Chadcn::*)
     game/
       player_card.rb
-    ui/
-      button.rb
+    shared/
+      icon.rb
   
   views/             ← Page-level views (Phlex)
     games/
