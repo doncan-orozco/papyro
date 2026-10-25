@@ -126,6 +126,20 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_match(/\A#{a} and #{c} can run in parallel/, overlap)
   end
 
+  test "validate and status count the same items of an epic" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    b = make_item("B", wave: 1, owns: "lib/b/**")
+    c = make_item("C", wave: 2, owns: "lib/c/**", blocked_by: [ a, b ])
+    make_item("D", wave: 3, owns: "lib/d/**", blocked_by: [ c ])
+    validated, = wb("validate", "--epic", "demo")
+    status, = wb("status", "--epic", "demo")
+
+    assert_equal 4, validated["items"]
+    assert_equal status["items"].size, validated["items"]
+    assert_equal status["counts"].values.sum, validated["items"]
+  end
+
   test "validate detects dependency cycles" do
     make_epic
     a = make_item("A", wave: 1, owns: "lib/a/**")
