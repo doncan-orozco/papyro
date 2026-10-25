@@ -38,8 +38,8 @@ Rules:
 - The mascot keeps the meme palette above (flat fills, no gradients, no shading); the wordmark text stays in the zinc pair
   (`#09090b` on light, `#fafafa` on dark) so it sits next to any theme a user pastes from ui.shadcn.com/themes.
 - Pick the variant by background. The packaged README is rendered by rubygems.org and rubydoc, where `dev/` does not
-  exist, so the README uses absolute URLs built from the gemspec's `repository`, `gem_path` and `ref` (they change
-  together when the gem moves to its own repository):
+  exist, so the README uses absolute URLs built from the gemspec's `repository` and `ref`
+  (`https://raw.githubusercontent.com/doncan-orozco/chadcn/main/dev/brand/...`):
 
   ```html
   <picture>
@@ -57,7 +57,7 @@ Rules:
 - Minimum size: 32 px tall for the mascot, 24 px tall for the wordmark. Do not recolor, stretch, rotate or add props to it.
 - The wordmark's text is live SVG text; a consumer that needs pixel-identical output (a social preview image) exports a PNG
   from it rather than outlining the glyphs by hand.
-- Item #266 copies these files to `dev/brand/` in the chadcn repository (doncan-orozco/chadcn) (the packaged gem does not ship them, so nothing packaged
+- Item #266 copies these files to `dev/brand/` in the chadcn repository, doncan-orozco/chadcn (the packaged gem does not ship them, so nothing packaged
   links to them relatively); this folder stays the original. Item #269 keeps its own copy for the host in
   `app/assets/images/brand/` (the host never reads the gem's `dev/`). That path is outside #269's Owns today, so the
   item's Owns needs `app/assets/images/brand/**` added before it starts (epic-flow R5).
@@ -214,7 +214,7 @@ Rules:
 ## Checklist for the items that copy from this guide
 
 - [ ] #266 README, gemspec, CHANGELOG: hero with `<picture>` wordmark, primary tagline, one-liner 1 or 2, full disclaimer,
-      short disclaimer in the gemspec, absolute asset URLs in the README, assets copied to `dev/brand/` in the chadcn repository (doncan-orozco/chadcn) (not
+      short disclaimer in the gemspec, absolute asset URLs in the README, assets copied to `dev/brand/` in the chadcn repository, doncan-orozco/chadcn (not
       packaged).
 - [ ] #267 docs and llms files: one-liner 2 or 3 in guide intros only; reference sections and llms files stay neutral;
       disclaimer in the docs index.
