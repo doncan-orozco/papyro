@@ -10,6 +10,9 @@
 # Supported: issue create|list|view|edit|comment|close|reopen, label create, pr list|view|merge, and the two `api` reads the merge
 # policy needs (compare, check-runs on the base branch). Pull requests and base-branch facts are seeded by tests in db["prs"],
 # db["base_checks"], db["base_files"] and db["base_sha"].
+# A second repository (an engine whose PR belongs to an item) is addressed like real gh does, with `-R owner/repo` or an explicit
+# `repos/owner/repo/...` api path; its PRs and base facts live under db["repos"]["owner/repo"] with the same keys, and
+# `api repos/owner/repo/git/refs/heads/NAME -X DELETE` records the branch in that repo's "deleted_branches".
 
 require "json"
 require "time"
@@ -24,6 +27,7 @@ class FakeGh
   end
 
   def call(argv)
+    argv = take_repo(argv)
     group, verb, *args = argv
     return api(verb) if group == "api"
 
@@ -53,6 +57,16 @@ class FakeGh
       result
     end
   end
+
+  # `-R owner/repo` selects the second repository for this call (real gh accepts it anywhere after the subcommand).
+  def take_repo(argv)
+    i = argv.index("-R")
+    @repo = i ? argv[i + 1] : nil
+    i ? argv.each_with_index.reject { |_, j| [ i, i + 1 ].include?(j) }.map(&:first) : argv
+  end
+
+  # Pull requests and base-branch facts of the repository this call addresses: the main one (top level) or db["repos"][name].
+  def store(db) = @repo ? ((db["repos"] ||= {})[@repo] ||= {}) : db
 
   def flag(args, name) = (i = args.index(name)) ? args[i + 1] : nil
   def flag_values(args, name) = args.each_index.flat_map { |i| args[i] == name ? args[i + 1].to_s.split(",") : [] }
@@ -102,25 +116,25 @@ class FakeGh
   # Pull requests are seeded by tests in db["prs"] (number, state OPEN|CLOSED|MERGED, headRefName, mergedAt, url).
   def pr_list(args)
     state = (flag(args, "--state") || "open").downcase
-    rows = locked { |db| Array(db["prs"]).dup }
+    rows = locked { |db| Array(store(db)["prs"]).dup }
     rows = rows.select { |pr| state == "all" || pr["state"].downcase == state }
     JSON.generate(rows)
   end
 
   def find_pr(number)
-    locked { |db| Array(db["prs"]).find { |pr| pr["number"] == number.to_i } } || raise(Error, "no pull requests found for #{number}")
+    locked { |db| Array(store(db)["prs"]).find { |pr| pr["number"] == number.to_i } } || raise(Error, "no pull requests found for #{number}")
   end
 
   # Fields `gh pr view --json` returns that tests may leave out.
   def pr_defaults(pr)
     { "isDraft" => false, "mergeable" => "MERGEABLE", "mergeStateStatus" => "CLEAN", "headRefOid" => "head#{pr['number']}",
-      "baseRefName" => "main", "statusCheckRollup" => [], "mergeCommit" => nil }.merge(pr)
+      "baseRefName" => "main", "statusCheckRollup" => [], "mergeCommit" => nil, "isCrossRepository" => false }.merge(pr)
   end
 
   # Real gh refuses --match-head-commit when the head moved, and merging a PR that is not open.
   def pr_merge(args)
     locked do |db|
-      pr = Array(db["prs"]).find { |p| p["number"] == args.first.to_i } or raise Error, "no pull requests found for #{args.first}"
+      pr = Array(store(db)["prs"]).find { |p| p["number"] == args.first.to_i } or raise Error, "no pull requests found for #{args.first}"
       raise Error, "pull request ##{pr['number']} is not open" unless pr["state"] == "OPEN"
       expected = flag(args, "--match-head-commit")
       raise Error, "head commit #{pr_defaults(pr)['headRefOid']} does not match #{expected}" if expected && expected != pr_defaults(pr)["headRefOid"]
@@ -135,8 +149,15 @@ class FakeGh
 
   # repos/{owner}/{repo}/compare/BASE...HEAD and repos/{owner}/{repo}/commits/BASE/check-runs, the two reads work_board.rb makes.
   def api(path)
-    db = locked { |d| d }
+    @repo = path[/\Arepos\/([^\/{]+\/[^\/]+)\//, 1] || @repo
+    if path.match?(%r{/git/refs/heads/})
+      locked { |db| (store(db)["deleted_branches"] ||= []) << path.split("/git/refs/heads/", 2).last }
+      return ""
+    end
+
+    db = locked { |d| store(d) }
     base = ENV.fetch("WORK_BASE", "main")
+    base = db["base_branch"] if @repo && db["base_branch"]
     case path
     when %r{/commits/#{Regexp.escape(base)}/check-runs}
       JSON.generate({ "check_runs" => Array(db["base_checks"]).map { |c| { "head_sha" => db["base_sha"] || "base0000" }.merge(c) } })

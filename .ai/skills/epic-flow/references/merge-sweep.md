@@ -6,6 +6,8 @@ How an item in `review` becomes `done` once its PR is merged, and how the human-
 
 Merging to `main` is a human act (epic-flow R13). The human delegates it by running `/work-merge`, which merges only through `WB merge N` and only when `WB mergeable` says `ready` (R15). `/work` never merges; the `gh pr merge` command is not in any agent's allowed tools.
 
+The same holds for the item's PR in a sibling repository (the engine that the host mounts and that an item edits together with the host): `WB merge N --repo KEY`, only for a repository listed in `.claude/scripts/epic/companions.json`, only when `mergeable` says that companion is `ready`.
+
 ## Merge policy (`WB mergeable --epic S`)
 
 For every item in `review` with an open PR the script answers one verdict. Facts come from GitHub; the agent does not read a checks page by eye.
@@ -19,11 +21,23 @@ For every item in `review` with an open PR the script answers one verdict. Facts
 | `conflicts` | GitHub reports `CONFLICTING` | `WB claim N` then `WB advance N --stage fix --note "merge conflicts with main: rebase"` |
 | `unknown_mergeability` | GitHub has not computed mergeability yet (right after another merge) | retry a few times, seconds apart |
 | `draft`, `not_audited`, `no_pr` | not the worker's hand-over, or review set by hand | report to the human; touch nothing |
+| `companion_pending` | the host PR would be `ready` but the item's engine PR is still open: the engine merges first | merge the companion if it is `ready` (below), otherwise route the companion by its own verdict |
+| `companion_closed` | the item's engine PR was closed without merging | report to the human; touch nothing |
 | `merged`, `closed_unmerged` | same as `reviews` | sweep (below) |
 
 Checks that fail on the PR AND on `main` are pre-existing: `mergeable` lists them under `checks.preexisting` and `base.failing`; they do not block a merge (the sweep re-runs the item's own Gates on `main`), but the release manager reports them and files one `bug` issue per failing job on `main` (title `CI: <job> fails on main`, deduplicated by title).
 
 Order: lowest wave, then lowest number. After each merge judge the rest again (GitHub recomputes mergeability).
+
+## Companion PRs (the engine half of an item)
+
+An item whose Owns list `../<key>/...` (for example `../papyro_studio/app/views/studio/**`) has a second PR in that repository, on the same branch name `epic/<slug>/<number>-...`. The key must exist in `companions.json` (a committed allow-list of `repo`, `base` and `gem`); board text never names a repository to merge into (R12). `mergeable` reports it under `companions` and judges it with the same policy against that repository's own `main` (a check red on the engine's `main` too is pre-existing there). The item's audit covers the item as a whole; a PR whose head lives in a fork is `foreign_head` and never merges through the board.
+
+Verdicts of a companion are the same as for a host PR, plus `foreign_head`. Procedure:
+
+1. The host row says `companion_pending` while the engine PR is open. `ready_companions` lists the companions that may merge now: `WB merge N --epic S --session ID --repo KEY` (squash, head pinned, branch deleted, a `merge-log` note on the item). It never merges the host PR and never moves the item.
+2. The host PR pins the engine by revision in its lock, so it cannot go green before the lock points at the merged engine commit. The release manager claims the item and sends it to `fix` with the note `engine PR <repo>#<pr> merged (<sha>): bundle update <gem> on the item branch, push, refresh the audit receipt, back to review`; `/work` does that and returns the item to `review`.
+3. The host PR is then judged and merged like any other. The sweep (Gates on `main`) runs after that merge; the engine PR needs no sweep of its own.
 
 ## Sweep (`WB reviews --epic S`, after the merges)
 

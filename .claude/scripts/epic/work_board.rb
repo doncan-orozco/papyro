@@ -20,10 +20,14 @@
 #   work_board.rb reviews --epic S [--item N]               # items in stage review with their PR verdict: merged | open | closed_unmerged | no_pr
 #   work_board.rb mergeable --epic S [--item N]             # reviews + the merge policy on every open PR (CI vs main, audit receipt, conflicts,
 #                                                           # files behind main); verdict ready | ci_pending | ci_failed | behind | conflicts | draft |
-#                                                           # not_audited | unknown_mergeability. Also reports the checks failing on main itself.
-#   work_board.rb merge N --epic S --session ID [--method squash|merge|rebase] [--keep-branch]
+#                                                           # not_audited | unknown_mergeability | companion_pending | companion_closed. Also
+#                                                           # reports the checks failing on main itself. An item that owns files in a sibling
+#                                                           # repository (Owns `../<key>/...`, key in companions.json) gets a `companions` row
+#                                                           # per repository: its PR judged by the same policy against that repository's own main.
+#   work_board.rb merge N --epic S --session ID [--method squash|merge|rebase] [--keep-branch] [--repo KEY]
 #       merges the item's PR only when `mergeable` says ready (head pinned with --match-head-commit), deletes the remote branch, logs a note.
-#       The only merge door; /work never calls it, /work-merge (run by a human) does (epic-flow R13).
+#       --repo KEY merges the item's companion PR in that sibling repository instead, only when that PR is ready; the host PR then waits
+#       (`companion_pending`) until it is merged. The only merge door; /work never calls it, /work-merge (run by a human) does (epic-flow R13).
 #   work_board.rb claim N --epic S --session ID [--lease 45]   # atomic; exit 1 when someone else holds it
 #   work_board.rb heartbeat N --epic S --session ID [--lease 45]
 #       --daemon [--interval 600]: a detached loop that heartbeats every interval seconds, registered under .git/work-board/; it exits when
@@ -43,7 +47,8 @@
 # loop can never interleave with the advance that releases the item. Heartbeat renews an existing claim only; it never creates one.
 #
 # Env: WORK_GH (default `gh`), WORK_REMOTE (default `origin`), WORK_BASE (default `main`), WORK_NOW (ISO time, tests),
-# WORK_SESSION (else CLAUDE_CODE_SESSION_ID, else tmp/epic/session); `session --unique` ignores all three.
+# WORK_SESSION (else CLAUDE_CODE_SESSION_ID, else tmp/epic/session); `session --unique` ignores all three. WORK_COMPANIONS (path of the
+# sibling-repository allow-list; tests, default companions.json next to this script).
 # `next` never offers items in stage `review` unless --stage includes it: a review item waits for a human merge; `reviews` tells which
 # of them were merged, so a worker can verify the gates on main and advance them to done (which unblocks their dependents).
 # Output is always one JSON object on stdout (digest --format md prints markdown). Exit 0 ok, 1 negative answer
@@ -81,6 +86,21 @@ module WorkBoard
   def self.now = ENV["WORK_NOW"] ? Time.parse(ENV["WORK_NOW"]).utc : Time.now.utc
   def self.base = ENV.fetch("WORK_BASE", "main")
   def self.retry_sleep = ENV.fetch("WORK_RETRY_SLEEP", "2").to_f
+
+  # Sibling repositories whose PRs belong to an item, keyed by the directory an item's Owns names as `../<key>/...` (a host that
+  # mounts an engine edited next to it). The list is a committed file and nothing else: board text (issues, comments) never names a
+  # repository to merge into (epic-flow R12).
+  COMPANIONS_FILE = File.expand_path("companions.json", __dir__)
+
+  def self.companions
+    path = ENV.fetch("WORK_COMPANIONS", COMPANIONS_FILE)
+    data = File.exist?(path) ? JSON.parse(File.read(path)) : {}
+    data.to_h do |key, c|
+      raise Failure, "companions.json: #{key}.repo must look like owner/name" unless c["repo"].to_s.match?(%r{\A[\w.-]+/[\w.-]+\z})
+
+      [ key, { repo: c["repo"], base: c["base"] || "main", gem: c["gem"] || key } ]
+    end
+  end
 
   # ---- process helpers ----------------------------------------------------------------------------------------
   module Shell
@@ -162,6 +182,9 @@ module WorkBoard
     def wave = meta.fetch("wave", 0).to_i
     def priority = meta.fetch("priority", 0).to_i
     def owns = Array(meta["owns"])
+
+    # Keys (companions.json) of the sibling repositories this item owns files in: Owns globs `../<key>/...`.
+    def companion_keys = owns.filter_map { |g| g[%r{\A\.\./([^/]+)/}, 1] }.uniq & WorkBoard.companions.keys
     def blocked_by = Array(meta["blocked_by"]).map(&:to_i)
 
     def summary
@@ -344,20 +367,24 @@ module WorkBoard
       prs.select { |pr| pr["headRefName"] == prefix || pr["headRefName"].to_s.start_with?("#{prefix}-") }.max_by { |pr| pr["number"] }
     end
 
-    def pull_requests
-      gh_json("pr", "list", "--state", "all", "--limit", "200", "--json", "number,state,headRefName,mergedAt,url")
+    def pull_requests(repo: nil)
+      gh_json("pr", "list", *repo_flag(repo), "--state", "all", "--limit", "200", "--json", "number,state,headRefName,mergedAt,url")
     end
 
+    # `-R owner/repo` for a sibling repository; nothing for the repository this checkout belongs to.
+    def repo_flag(repo) = repo ? [ "-R", repo ] : []
+    def repo_path(repo) = repo || "{owner}/{repo}"
+
     # -- merge policy facts ------------------------------------------------------------------------------------
-    def pull_request(number)
-      gh_json("pr", "view", number.to_s, "--json", "number,url,state,isDraft,mergeable,mergeStateStatus,headRefOid,headRefName,baseRefName,statusCheckRollup,mergeCommit")
+    def pull_request(number, repo: nil)
+      gh_json("pr", "view", number.to_s, *repo_flag(repo), "--json", "number,url,state,isDraft,mergeable,mergeStateStatus,headRefOid,headRefName,baseRefName,statusCheckRollup,mergeCommit,isCrossRepository")
     end
 
     # GitHub's three-dot compare: files are the changes on `head` since the merge base; base_commit is the tip of `base`.
-    def compare(base, head) = gh_json("api", "repos/{owner}/{repo}/compare/#{base}...#{head}")
+    def compare(base, head, repo: nil) = gh_json("api", "repos/#{repo_path(repo)}/compare/#{base}...#{head}")
 
-    def base_check_runs
-      gh_json("api", "repos/{owner}/{repo}/commits/#{WorkBoard.base}/check-runs?per_page=100").fetch("check_runs", [])
+    def base_check_runs(repo: nil, base: WorkBoard.base)
+      gh_json("api", "repos/#{repo_path(repo)}/commits/#{base}/check-runs?per_page=100").fetch("check_runs", [])
     end
 
     # `advance --stage review` only succeeds with a passing audit receipt and logs it; an item labelled review by hand has no such note.
@@ -365,13 +392,17 @@ module WorkBoard
       comments(number).any? { |c| c[:note] && c[:type] == "stage-log" && c[:body].match?(/-> review: audit min=\d+ verdict=PASS/) }
     end
 
-    def merge_pull_request(number, method:, head:)
-      gh("pr", "merge", number.to_s, "--#{method}", "--match-head-commit", head)
+    def merge_pull_request(number, method:, head:, repo: nil)
+      gh("pr", "merge", number.to_s, *repo_flag(repo), "--#{method}", "--match-head-commit", head)
     end
 
-    def delete_remote_branch(name)
-      ok, = git("push", "-q", WorkBoard.remote, "--delete", name, ok: true)
-      ok
+    def delete_remote_branch(name, repo: nil)
+      return git("push", "-q", WorkBoard.remote, "--delete", name, ok: true).first unless repo
+
+      gh("api", "repos/#{repo}/git/refs/heads/#{name}", "-X", "DELETE")
+      true
+    rescue Failure
+      false
     end
 
     # -- claims (git refs) -----------------------------------------------------------------------------------
@@ -840,17 +871,29 @@ module WorkBoard
       claims = b.claims
       pool = only ? [ b.item(only.to_i) ] : b.items.select { |i| i.stage == "review" && !i.done? }
       prs = pool.empty? ? [] : b.pull_requests
+      companion_prs = {} # one PR list per sibling repository, read only when an item in the pool owns files there
       pool.map do |i|
         pr = b.pull_request_for(i.number, prs)
-        verdict = if pr.nil? then "no_pr"
-        elsif pr["state"] == "MERGED" then "merged"
-        elsif pr["state"] == "OPEN" then "open"
-        else "closed_unmerged"
-        end
         holder = claims[i.number]
-        { number: i.number, title: i.title, stage: i.stage, wave: i.wave, verdict: verdict, gates: i.gates,
-          pr: pr && { number: pr["number"], state: pr["state"], url: pr["url"] }, holder: holder && !holder[:expired] ? holder[:session] : nil }
+        { number: i.number, title: i.title, stage: i.stage, wave: i.wave, verdict: pr_verdict(pr), gates: i.gates,
+          pr: pr && { number: pr["number"], state: pr["state"], url: pr["url"] }, holder: holder && !holder[:expired] ? holder[:session] : nil,
+          companions: i.companion_keys.map { |key| companion_row(b, i, key, companion_prs) } }
       end
+    end
+
+    def pr_verdict(pr)
+      if pr.nil? then "no_pr"
+      elsif pr["state"] == "MERGED" then "merged"
+      elsif pr["state"] == "OPEN" then "open"
+      else "closed_unmerged"
+      end
+    end
+
+    # The item's PR in a sibling repository: same branch convention (`epic/<slug>/<number>-...`), found in that repository's PR list.
+    def companion_row(b, item, key, cache)
+      cfg = WorkBoard.companions.fetch(key)
+      pr = b.pull_request_for(item.number, cache[key] ||= b.pull_requests(repo: cfg[:repo]))
+      { key: key, repo: cfg[:repo], gem: cfg[:gem], verdict: pr_verdict(pr), pr: pr && { number: pr["number"], state: pr["state"], url: pr["url"] } }
     end
 
     # `reviews` plus the merge policy on every open PR. Cheap calls only for the base branch (one check-runs read); per open PR
@@ -860,7 +903,8 @@ module WorkBoard
       need(opts, :epic)
       b = board(opts)
       rows, base = judge_rows(b, opts[:item])
-      out({ epic: opts[:epic], base: base, items: rows, ready: rows.select { |r| r[:verdict] == "ready" }.map { |r| r[:number] } })
+      out({ epic: opts[:epic], base: base, items: rows, ready: rows.select { |r| r[:verdict] == "ready" }.map { |r| r[:number] },
+            ready_companions: rows.flat_map { |r| r[:companions].select { |c| c[:verdict] == "ready" }.map { |c| { number: r[:number], key: c[:key] } } } })
     end
 
     def judge_rows(b, only = nil)
@@ -870,31 +914,67 @@ module WorkBoard
       rows.each do |row|
         next unless row[:verdict] == "open"
 
-        pr = b.pull_request(row[:pr][:number])
-        # GitHub answers UNKNOWN for a moment after the base moved (another merge): wait for the recomputation.
-        2.times do
-          break unless pr["mergeable"] == "UNKNOWN"
-
-          sleep(WorkBoard.retry_sleep)
-          pr = b.pull_request(row[:pr][:number])
-        end
-        cmp = b.compare(pr["baseRefName"] || WorkBoard.base, pr["headRefOid"])
-        base_sha ||= cmp.dig("base_commit", "sha")
-        behind = cmp.fetch("behind_by", 0).to_i
-        pr_files = Array(cmp["files"]).map { |f| f["filename"] }
-        base_files = behind.positive? ? Array(b.compare(cmp.dig("merge_base_commit", "sha"), pr["baseRefName"] || WorkBoard.base)["files"]).map { |f| f["filename"] } : []
         row[:audited] = b.audited?(row[:number])
-        row[:pr].merge!(head: pr["headRefOid"], branch: pr["headRefName"], base: pr["baseRefName"], draft: pr["isDraft"], mergeable: pr["mergeable"], merge_state: pr["mergeStateStatus"])
-        row.merge!(MergePolicy.judge(pr: pr, audited: row[:audited], base_checks: base_checks, behind_by: behind, pr_files: pr_files, base_files: base_files))
+        pr, cmp, judged = judge_open_pr(b, row[:pr][:number], base_checks: base_checks, audited: row[:audited])
+        base_sha ||= cmp.dig("base_commit", "sha")
+        row[:pr].merge!(pr_facts(pr))
+        row.merge!(judged)
       end
+      judge_companions(b, rows)
       base = { branch: WorkBoard.base, sha: base_sha, failing: MergePolicy.failing(base_checks),
                checks: base_checks.map { |c| { name: c["name"], status: c["status"], conclusion: c["conclusion"], url: c["html_url"] } } }
       [ rows, base ]
     end
 
+    # Facts and the MergePolicy verdict of one open PR, in this repository or in a sibling one (`repo:`, its own `base` branch).
+    def judge_open_pr(b, number, base_checks:, audited:, repo: nil, base: WorkBoard.base)
+      pr = b.pull_request(number, repo: repo)
+      # GitHub answers UNKNOWN for a moment after the base moved (another merge): wait for the recomputation.
+      2.times do
+        break unless pr["mergeable"] == "UNKNOWN"
+
+        sleep(WorkBoard.retry_sleep)
+        pr = b.pull_request(number, repo: repo)
+      end
+      cmp = b.compare(pr["baseRefName"] || base, pr["headRefOid"], repo: repo)
+      behind = cmp.fetch("behind_by", 0).to_i
+      pr_files = Array(cmp["files"]).map { |f| f["filename"] }
+      base_files = behind.positive? ? Array(b.compare(cmp.dig("merge_base_commit", "sha"), pr["baseRefName"] || base, repo: repo)["files"]).map { |f| f["filename"] } : []
+      [ pr, cmp, MergePolicy.judge(pr: pr, audited: audited, base_checks: base_checks, behind_by: behind, pr_files: pr_files, base_files: base_files) ]
+    end
+
+    def pr_facts(pr)
+      { head: pr["headRefOid"], branch: pr["headRefName"], base: pr["baseRefName"], draft: pr["isDraft"], mergeable: pr["mergeable"], merge_state: pr["mergeStateStatus"] }
+    end
+
+    # The engine half of an item (epic-flow R13/R15): each open companion PR is judged like the host PR but against its own repository's
+    # main, and the host PR does not become ready while a companion PR is open (the engine merges first, then the host re-pins it).
+    # The item's audit covers the whole item; a PR from a fork is never mergeable through the board.
+    def judge_companions(b, rows)
+      base_cache = {}
+      rows.each do |row|
+        row[:companions].each do |c|
+          next unless c[:verdict] == "open"
+
+          cfg = WorkBoard.companions.fetch(c[:key])
+          base_checks = base_cache[c[:key]] ||= b.base_check_runs(repo: c[:repo], base: cfg[:base])
+          audited = row.fetch(:audited) { b.audited?(row[:number]) }
+          pr, _, judged = judge_open_pr(b, c[:pr][:number], base_checks: base_checks, audited: audited, repo: c[:repo], base: cfg[:base])
+          judged[:verdict] = "foreign_head" if pr["isCrossRepository"]
+          c[:pr].merge!(pr_facts(pr))
+          c.merge!(judged)
+        end
+        next unless row[:verdict] == "ready"
+
+        states = row[:companions].map { |c| c.dig(:pr, :state) }
+        row[:verdict] = "companion_pending" if states.include?("OPEN")
+        row[:verdict] = "companion_closed" if states.include?("CLOSED")
+      end
+    end
+
     # The one place a PR of the board is merged. Re-judges right before merging and pins the head it judged.
     def merge
-      opts, rest = parse("--epic" => :v, "--session" => :v, "--method" => :v, "--keep-branch" => :flag)
+      opts, rest = parse("--epic" => :v, "--session" => :v, "--method" => :v, "--keep-branch" => :flag, "--repo" => :v)
       need(opts, :epic, :session)
       method = opts[:method] || "squash"
       out({ error: "method must be one of #{MERGE_METHODS.join(', ')}" }, 2) unless MERGE_METHODS.include?(method)
@@ -903,6 +983,8 @@ module WorkBoard
       row, = judge_rows(b, number)
       row = row.first
       out({ ok: false, reason: "held", holder: row[:holder], item: row }, 1) if row[:holder]
+      return merge_companion(b, row, opts, method) if opts[:repo]
+
       out({ ok: false, reason: row[:verdict], item: row }, 1) unless row[:verdict] == "ready"
 
       b.merge_pull_request(row[:pr][:number], method: method, head: row[:pr][:head])
@@ -912,6 +994,25 @@ module WorkBoard
       b.post_note(number, type: "merge-log", session: opts[:session], stage: row[:stage],
                   text: "PR ##{row[:pr][:number]} merged into #{WorkBoard.base} (#{method}#{sha ? ", #{sha[0, 10]}" : ''}); the merge sweep verifies the Gates on #{WorkBoard.base} and advances to done")
       out({ ok: true, number: number, pr: row[:pr][:number], method: method, state: merged["state"], merge_commit: sha, branch: row[:pr][:branch], branch_deleted: branch_deleted })
+    end
+
+    # `merge N --repo KEY`: the item's PR in a sibling repository (companions.json), merged on the same terms as a host PR (judged `ready`,
+    # head pinned). The host PR and the item's stage are not touched: the host still has to re-pin the merged revision before its own merge.
+    def merge_companion(b, row, opts, method)
+      comp = row[:companions].find { |c| c[:key] == opts[:repo] }
+      out({ error: "item ##{row[:number]} has no companion repository #{opts[:repo].inspect}" }, 2) unless comp
+      out({ ok: false, reason: comp[:verdict], item: row[:number], companion: comp }, 1) unless comp[:verdict] == "ready"
+
+      pr = comp[:pr]
+      b.merge_pull_request(pr[:number], method: method, head: pr[:head], repo: comp[:repo])
+      merged = b.pull_request(pr[:number], repo: comp[:repo])
+      sha = merged.dig("mergeCommit", "oid")
+      branch_deleted = opts[:keep_branch] ? false : b.delete_remote_branch(pr[:branch], repo: comp[:repo])
+      follow_up = "re-pin #{comp[:gem]} in the host lock, then merge the host PR"
+      b.post_note(row[:number], type: "merge-log", session: opts[:session], stage: row[:stage],
+                  text: "PR #{comp[:repo]}##{pr[:number]} merged into #{pr[:base]} (#{method}#{sha ? ", #{sha[0, 10]}" : ''}); next: #{follow_up}")
+      out({ ok: true, number: row[:number], repo: comp[:key], pr: pr[:number], method: method, state: merged["state"], merge_commit: sha,
+            branch: pr[:branch], branch_deleted: branch_deleted, next: follow_up })
     end
 
     def claim
