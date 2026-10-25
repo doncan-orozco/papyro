@@ -36,6 +36,7 @@ class WorkBoardTest < ActiveSupport::TestCase
   end
 
   teardown do
+    Thread.current[:settle_mergeable] = nil
     ENV.delete("WORK_RETRY_SLEEP")
     FileUtils.remove_entry(@dir)
   end
@@ -481,7 +482,7 @@ class WorkBoardTest < ActiveSupport::TestCase
 
   test "next --item offers exactly that item or says why not, never another one" do
     make_epic
-    a = make_item("A", wave: 0, owns: "lib/a/**")
+    make_item("A", wave: 0, owns: "lib/a/**")
     b = make_item("B", wave: 1, owns: "lib/b/**")
 
     assert_equal b, wb("next", "--epic", "demo", "--session", "s1", "--item", b.to_s)[0].dig("item", "number")
@@ -491,8 +492,10 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_nil result["item"]
     assert_equal "claimed_by_others", result["reason"]
     assert_equal [ b ], result["remaining"]
-    assert_nil result["item"]
-    assert_operator a, :<, b
+    resumed, = wb("next", "--epic", "demo", "--session", "s2", "--item", b.to_s)
+
+    assert_equal b, resumed.dig("item", "number")
+    assert resumed["resumed"]
   end
 
   test "next --item names the reason for a done or unknown item instead of all_done" do
@@ -513,6 +516,23 @@ class WorkBoardTest < ActiveSupport::TestCase
     result, = wb("item", "create", "--epic", "demo", "--title", "B", "--body", "g", "--wave", "1", "--owns", "lib/a/**", "--blocked-by", a.to_s)
 
     assert_nil result["warnings"]
+  end
+
+  test "gate and acceptance lines are normalised, and a gate with an inner backtick is refused" do
+    make_epic
+    gates = File.join(@dir, "g.txt")
+    accept = File.join(@dir, "a.txt")
+    File.write(gates, "`bin/rails test`\nruby -c x.rb\n")
+    File.write(accept, "- [x] done thing\nplain\n")
+    r, code = wb("item", "create", "--epic", "demo", "--title", "G", "--wave", "1", "--owns", "g/**", "--gates-file", gates, "--acceptance-file", accept)
+    body = wb("show", r["number"].to_s, "--epic", "demo")[0]["body"]
+
+    assert_equal 0, code
+    assert_includes body, "## Gates\n- `bin/rails test`\n- `ruby -c x.rb`"
+    assert_includes body, "## Acceptance\n- [ ] done thing\n- [ ] plain"
+    File.write(gates, "run `x` twice\n")
+
+    assert_equal 2, wb("item", "create", "--epic", "demo", "--title", "H", "--wave", "1", "--owns", "h/**", "--gates-file", gates)[1]
   end
 
   test "a missing gates file fails before anything is written to GitHub" do
@@ -553,8 +573,10 @@ class WorkBoardTest < ActiveSupport::TestCase
     script = File.join(@dir, "flaky_gh.sh")
     counter = File.join(@dir, "calls")
     mode = File.join(@dir, "mode")
+    argv = File.join(@dir, "argv")
     File.write(script, <<~SH)
       #!/bin/sh
+      echo "$*" >> #{argv}
       n=$(cat #{counter} 2>/dev/null || echo 0); echo $((n+1)) > #{counter}
       m=$(cat #{mode})
       case "$m" in
@@ -562,6 +584,7 @@ class WorkBoardTest < ActiveSupport::TestCase
         always-401) echo 'HTTP 401: Bad credentials' >&2; exit 1 ;;
         404) echo 'HTTP 404: Not Found' >&2; exit 1 ;;
         502-create) case "$*" in *"issue create"*) echo 'HTTP 502: Bad Gateway' >&2; exit 1 ;; esac ;;
+        502-comment) case "$*" in *"issue comment"*) echo 'HTTP 504: Gateway Timeout' >&2; exit 1 ;; esac ;;
         502) echo 'HTTP 502: Bad Gateway' >&2; exit 1 ;;
       esac
       exec #{RbConfig.ruby} #{FAKE_GH} "$@"
@@ -570,6 +593,7 @@ class WorkBoardTest < ActiveSupport::TestCase
     run = lambda do |m, *args|
       File.write(mode, m)
       File.write(counter, "0")
+      File.write(argv, "")
       _out, err, status = Open3.capture3({ "WORK_GH" => script, "WORK_FAKE_DB" => @db, "WORK_REMOTE" => "origin", "WORK_NOW" => T0, "WORK_RETRY_SLEEP" => "0" },
                                          RbConfig.ruby, SCRIPT, *args, chdir: @work)
       [ status.exitstatus, File.read(counter).to_i, err ]
@@ -597,7 +621,12 @@ class WorkBoardTest < ActiveSupport::TestCase
     code, = run.call("502-create", "epic", "create", "--slug", "other", "--title", "T", "--body", "p")
 
     refute_equal 0, code
-    assert_empty fake_db["issues"].select { |i| i["title"] == "T" } # issue create raised on the first 502 instead of repeating
+    assert_equal 1, File.readlines(argv).count { |l| l.start_with?("issue create") } # raised on the first 502 instead of repeating
+    n = make_item("N", wave: 1, owns: "lib/n/**")
+    code, = run.call("502-comment", "comment", n.to_s, "--epic", "demo", "--session", "s1", "--type", "shared", "--body", "x")
+
+    refute_equal 0, code
+    assert_equal 1, File.readlines(argv).count { |l| l.include?("issue comment") }
   end
 
   test "mergeable waits out an UNKNOWN mergeability that GitHub is still computing" do

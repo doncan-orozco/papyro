@@ -581,8 +581,8 @@ module WorkBoard
       stage = opts[:stage] || "plan"
       out({ error: "unknown stage #{stage}" }, 2) unless STAGES.include?(stage)
       # Local input first: a bad path must not leave labels or anything else behind on GitHub.
-      sections = [ list_section("Gates", opts[:gates_file]) { |l| l.include?("`") ? "- #{l}" : "- `#{l}`" },
-                   list_section("Acceptance", opts[:acceptance_file]) { |l| "- [ ] #{l}" } ].compact
+      sections = [ list_section("Gates", opts[:gates_file]) { |l| gate_line(l) },
+                   list_section("Acceptance", opts[:acceptance_file]) { |l| "- [ ] #{l.sub(/\A\[[ xX]\]\s*/, '')}" } ].compact
       b = board(opts)
       meta = { epic: opts[:epic], wave: opts[:wave].to_i, owns: opts[:owns].split(",").map(&:strip),
                blocked_by: opts[:blocked_by].to_s.split(",").map(&:to_i), priority: opts[:priority].to_i }
@@ -596,6 +596,14 @@ module WorkBoard
                  .select { |i| WorkBoard.owns_overlap?(i.owns, meta[:owns]) }.map(&:number)
       url = create_issue(b, opts[:title], body, labels)
       out({ number: url[%r{(\d+)\s*\z}, 1].to_i, url: url, meta: meta, **(clashes.any? ? { warnings: [ { code: "OWNS_OVERLAP", items: clashes } ] } : {}) })
+    end
+
+    # One command per line, stored as `- `cmd``: a backtick inside a bare command would be cut short when the gate is read back.
+    def gate_line(line)
+      return "- #{line}" if line.match?(/\A`[^`]+`\z/)
+
+      out({ error: "gate line must be one command without backticks: #{line}" }, 2) if line.include?("`")
+      "- `#{line}`"
     end
 
     def list_section(heading, path)
@@ -719,6 +727,7 @@ module WorkBoard
         target = n && b.items.find { |i| i.number == n }
         return out({ item: nil, reason: "not_an_item", remaining: [] }) unless target
         return out({ item: nil, reason: "done", remaining: [] }) if target.done?
+        return out({ item: target.summary, resumed: true }) if opts[:session] && active[n]&.dig(:session) == opts[:session]
 
         pool = [ target ]
       end
