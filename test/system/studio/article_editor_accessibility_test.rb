@@ -44,8 +44,7 @@ module Studio
       settings_button.click
 
       assert_selector "[role='dialog']#article-settings-sheet"
-      assert_equal "true", settings_button["aria-expanded"]
-      assert_equal "article-settings-sheet", settings_button["aria-controls"]
+      assert_selector "[aria-haspopup='dialog'][aria-expanded='true'][aria-controls='article-settings-sheet']"
     end
 
     private
