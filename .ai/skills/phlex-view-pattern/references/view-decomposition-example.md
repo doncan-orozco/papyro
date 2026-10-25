@@ -62,7 +62,7 @@ module Views
           turbo_frame_tag "studio_articles_list" do
             div(class: "bg-background") do
               div(class: "mx-auto max-w-6xl px-4 py-8") do
-                render Components::Ui::Card.new do |card|
+                render Chadcn::Card.new do |card|
                   render_header(card)
                   render_body(card)
                 end
@@ -76,12 +76,12 @@ module Views
         def render_header(card)
           card.header(class: "flex flex-row items-center justify-between space-y-0") do
             div do
-              card.title(as: :h1) { t("studio.articles.index.title") }
+              card.title(class: "text-2xl") { t("studio.articles.index.title") }
               card.description { t("studio.articles.index.subtitle") }
             end
 
-            render Components::Ui::Button.new(
-              as: :a,
+            render Chadcn::Button.new(
+              as_child: :a,
               href: studio_articles_path,
               data: { turbo_method: :post, turbo_frame: "_top", testid: "new-article-button" }
             ) { t("studio.articles.index.new_article") }
@@ -103,7 +103,7 @@ module Views
 
         def render_empty_state
           div(class: "text-center py-12 px-6") do
-            render Components::Ui::Icon.new(:plus, class: "mx-auto h-12 w-12 text-muted-foreground mb-4")
+            render Components::Shared::Icon.new(:plus, class: "mx-auto h-12 w-12 text-muted-foreground mb-4")
             p(class: "text-base font-medium") { t("studio.articles.index.empty_title") }
             p(class: "text-sm text-muted-foreground mt-1") { t("studio.articles.index.empty_description") }
           end
@@ -112,7 +112,7 @@ module Views
         def render_table
           div(class: "space-y-4") do
             div(class: "relative w-full overflow-auto min-h-[560px]") do
-              render Components::Ui::Table.new do |table|
+              render Chadcn::Table.new do |table|
                 table.header { render_table_columns(table) }
                 table.body do
                   # ← row sub-component handles all per-row markup
@@ -136,20 +136,22 @@ module Views
         end
 
         def render_pagination
-          render Components::Ui::Pagination.new do |pagination|
+          render Chadcn::Pagination.new do |pagination|
             pagination.content do
               pagination.item do
                 pagination.previous(
+                  label: t("design_system.pagination.previous"),
                   href: (@pagy.previous ? studio_articles_path(page: @pagy.previous, tab: @current_tab) : nil),
                   data: { turbo_frame: "studio_articles_list" }
-                ) { t("design_system.pagination.previous") }
+                )
               end
               # ... page links
               pagination.item do
                 pagination.next(
+                  label: t("design_system.pagination.next"),
                   href: (@pagy.next ? studio_articles_path(page: @pagy.next, tab: @current_tab) : nil),
                   data: { turbo_frame: "studio_articles_list" }
-                ) { t("design_system.pagination.next") }
+                )
               end
             end
           end
@@ -229,7 +231,7 @@ end
 2. `Row` and `Tabs` are **independently testable** sub-components.
 3. `ArticlePresenter` centralises **all display transforms** — title fallback, badge
    variant, date formatting — keeping views free of conditional logic.
-4. Pagination uses `Components::Ui::Pagination` — never reimplemented inline.
+4. Pagination uses `Chadcn::Pagination` — never reimplemented inline.
 5. The modal placeholder frame (`"article_publish_modal"`) is declared at the **top** of
    `view_template` before any other content.
 6. `turbo_frame: "_top"` is written **explicitly** on the "new article" button because it

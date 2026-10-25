@@ -4,6 +4,8 @@ CI.run do
   step "Setup", "bin/setup --skip-server"
 
   step "Style: Ruby", "bin/rubocop"
+  step "Style: No legacy UI references",
+    %(engine="$(bundle info --path papyro_studio)" && ruby .claude/scripts/ui/legacy_ui_refs.rb --engine "$engine")
 
   step "Security: Gem audit", "bin/bundler-audit"
   step "Security: Importmap vulnerability audit", "bin/importmap audit"

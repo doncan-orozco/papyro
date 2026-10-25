@@ -196,12 +196,12 @@ end
 class ArticlePresenter < SimpleDelegator
   def status_variant
     # View will decide styling
-    published? ? :default : :secondary
+    published? ? "default" : "secondary"
   end
 end
 
 # In view:
-render Components::Ui::Badge.new(variant: @article.status_variant) do
+render Chadcn::Badge.new(variant: @article.status_variant) do
   @article.status_label
 end
 ```

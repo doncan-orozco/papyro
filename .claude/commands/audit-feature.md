@@ -61,9 +61,9 @@ Matrix (`Read` only on match):
 - `presenter-pattern`: `app/concepts/*/presenter/**`; and for any view/component whose body references a `Presenter`.
 - `models`: `app/models/**`, `app/validators/**`, `app/concepts/*/validator/**`; add `i18n` when the model has `translates`/Mobility.
 - `ruby-gem-conventions` (only when `S/ruby-gem-conventions/SKILL.md` exists; for chadcn it lives in doncan-orozco/chadcn): every file of the Gem track (Ruby, JS, gemspec, CSS in the gem), plus `gems/**` House-only files.
-- `phlex-view-pattern`: `app/views/**`, `app/components/**` (except `components/ui/**`, the legacy design system), `app/assets/stylesheets/**` in either repo. Add `accessibility` for views/components.
+- `phlex-view-pattern`: `app/views/**`, `app/components/**`, `app/assets/stylesheets/**` in either repo. Add `accessibility` for views/components.
 - `stimulus`: `app/javascript/**` in either repo (+ `accessibility`).
-- `design-system`: `app/components/ui/**` (legacy) and views composing `Chadcn::*` (the port itself, with `shadcn-port` + `radix-stimulus` and `/shadcn-audit`, lives in doncan-orozco/chadcn).
+- `design-system`: views composing `Chadcn::*` (the port itself, with `shadcn-port` + `radix-stimulus` and `/shadcn-audit`, lives in doncan-orozco/chadcn).
 - `i18n`: any Ruby file matching `/\bt\(|I18n|Mobility|translates/`, all views/components, `config/locales/**`.
 - `seo`: `app/helpers/seo_helper.rb`, `config/sitemap.rb`, or content `/hreflang|canonical|og:|sitemap|friendly_id/`.
 - `sqlite`: `db/migrate/**`, `db/*schema*` (House-only; never Bricks).

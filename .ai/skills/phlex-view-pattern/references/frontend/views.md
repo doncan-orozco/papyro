@@ -19,7 +19,7 @@ When a page uses a Sheet, Dialog, or other fixed overlay, **the overlay's conten
 
 ```ruby
 # CORRECT — trigger stays in sticky toolbar; content is outside it
-render Components::Ui::Sheet.new do |sheet|
+render Chadcn::Sheet.new do |sheet|
   div(class: "sticky top-0 z-20 ...") do   # sticky toolbar
     sheet.trigger { ... }                   # trigger inside toolbar
   end
@@ -29,7 +29,7 @@ end
 
 # WRONG — content rendered inside sticky container creates a stacking conflict
 div(class: "sticky top-0 z-20 ...") do
-  render Components::Ui::Sheet.new do |sheet|
+  render Chadcn::Sheet.new do |sheet|
     sheet.trigger { ... }
     sheet.content(...) { ... }  # ← trapped inside sticky stacking context
   end
@@ -38,34 +38,34 @@ end
 
 ## View Example
 
+Real examples to copy from: `app/views/authors/show/**` (Chadcn Button, Pagination, shared Icon).
+
 ```ruby
 module Views
-  module Admin
-    module Articles
-      class Index < Views::Base
-        def initialize(articles)
-          @articles = articles
-        end
+  module Authors
+    class Index < Views::Base
+      def initialize(authors)
+        @authors = authors
+      end
 
-        def view_template
-          div(class: "bg-background") do
-            div(class: "mx-auto max-w-6xl px-4 py-8") do
-              render Components::Ui::Breadcrumb.new(class: "mb-6") do |breadcrumb|
-                breadcrumb.list do
-                  breadcrumb.item do
-                    breadcrumb.link(href: admin_root_path) { t("admin.articles.breadcrumbs.home") }
-                  end
-                  breadcrumb.separator
-                  breadcrumb.item do
-                    breadcrumb.page { t("admin.articles.breadcrumbs.articles") }
-                  end
+      def view_template
+        div(class: "bg-background") do
+          div(class: "mx-auto max-w-6xl px-4 py-8") do
+            render Chadcn::Breadcrumb.new(class: "mb-6") do |breadcrumb|
+              breadcrumb.list do
+                breadcrumb.item do
+                  breadcrumb.link(href: root_path) { t("authors.index.breadcrumbs.home") }
+                end
+                breadcrumb.separator
+                breadcrumb.item do
+                  breadcrumb.page { t("authors.index.breadcrumbs.authors") }
                 end
               end
+            end
 
-              render Components::Ui::Card.new do
-                render Components::Ui::CardHeader.new do
-                  render Components::Ui::CardTitle.new { t("admin.articles.index.title") }
-                end
+            render Chadcn::Card.new do |card|
+              card.header do
+                card.title { t("authors.index.title") }
               end
             end
           end
@@ -79,9 +79,9 @@ end
 ## Controller Integration
 
 ```ruby
-class Admin::ArticlesController < ApplicationController
+class AuthorsController < ApplicationController
   def index
-    render Views::Admin::Articles::Index.new(Current.user.articles)
+    render Views::Authors::Index.new(policy_scope(User))
   end
 end
 ```

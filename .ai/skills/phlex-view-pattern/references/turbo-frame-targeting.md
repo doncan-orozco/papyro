@@ -23,8 +23,8 @@ def view_template
 end
 
 # Full-page navigation from inside a frame
-render Components::Ui::Button.new(
-  as: :a,
+render Chadcn::Button.new(
+  as_child: :a,
   href: new_studio_article_path,
   data: { turbo_method: :post, turbo_frame: "_top" }
 ) { t("studio.articles.index.new_article") }

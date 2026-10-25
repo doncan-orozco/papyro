@@ -19,7 +19,7 @@ R8. **State in the DOM.** State lives in values, classes or data attributes, not
 R9. **No hardcoded copy.** User-facing strings arrive through values/data attributes rendered from `t(...)` in the view (EN + ES), never literals in JS. → detail: i18n
 R10. **Naming and registration.** `foo_bar_controller.js` ↔ `data-controller="foo-bar"`; nested folders use `--` (`studio/articles/autosave_controller.js` ↔ `studio--articles--autosave`). Registration is by eager loading from the importmap; do not hand-register. → detail: Naming
 R11. **Accessible widgets.** Custom widgets manage focus on open/close, toggle `aria-expanded`/`aria-controls`, and handle Escape/Enter/arrows; no click-only interactions on non-buttons. → detail: `../accessibility/SKILL.md`
-R12. **Reuse existing controllers.** Dialog/overlay/locale/theme behavior already exists (`dialog`, `locale_switcher`, `lightbox`, `search`…); extend it, do not duplicate. → detail: Reuse
+R12. **Reuse existing controllers.** Overlay/dialog/theme behavior comes from the chadcn gem (`chadcn--dialog`, `chadcn--sheet`, `chadcn--theme`…); host behavior already exists (`locale_switcher`, `lightbox`, `search`…); extend it, do not duplicate. → detail: Reuse
 R13. **Wiring is bilateral.** Each `data-controller` in a view resolves to a file, and each target/value/action a controller expects exists in the markup that uses it. → detail: Wiring
 R14. **Engine parity.** Engine controllers live in `papyro_studio/app/javascript/controllers/studio/**`, are pinned by the engine's `config/importmap.rb`, and follow the same rules. → detail: Repos
 

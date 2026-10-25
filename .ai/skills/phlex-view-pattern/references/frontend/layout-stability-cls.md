@@ -44,7 +44,7 @@ When the last page has fewer items (e.g., 4 items on page 3 vs 10 on page 1), th
 ```ruby
 # BAD — table height shrinks when fewer items are shown
 div(class: "space-y-4") do
-  render Components::Ui::Table.new do |table|
+  render Chadcn::Table.new do |table|
     # ...
   end
   render_pagination
@@ -53,7 +53,7 @@ end
 # GOOD — table container locked to min-h for 10 rows (56px each = 560px)
 div(class: "space-y-4") do
   div(class: "relative w-full overflow-auto min-h-[560px]") do
-    render Components::Ui::Table.new do |table|
+    render Chadcn::Table.new do |table|
       # ...
     end
   end
@@ -82,7 +82,7 @@ def render_articles(card)
       div(class: "space-y-4") do
         # Wrapper with fixed min-height prevents pagination jump
         div(class: "relative w-full overflow-auto min-h-[560px]") do
-          render Components::Ui::Table.new do |table|
+          render Chadcn::Table.new do |table|
             table.header do
               table.row do
                 table.head { t("studio.articles.index.columns.article") }
@@ -119,7 +119,7 @@ def render_article_row(table, article)
     end
 
     table.cell do
-      render Components::Ui::Badge.new(variant: status_variant(article)) do
+      render Chadcn::Badge.new(variant: status_variant(article)) do
         article.status
       end
     end
@@ -139,7 +139,7 @@ def render_article_row(table, article)
 
     table.cell(class: "text-right") do
       div(class: "flex justify-end") do
-        render Components::Ui::DropdownMenu.new do |dropdown|
+        render Chadcn::DropdownMenu.new do |dropdown|
           # Actions...
         end
       end
