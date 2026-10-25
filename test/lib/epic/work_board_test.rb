@@ -126,7 +126,7 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_match(/\A#{a} and #{c} can run in parallel/, overlap)
   end
 
-  test "validate counts every item that status lists, including the last item of a wave that has blockers" do
+  test "validate and status count the same items of an epic" do
     make_epic
     a = make_item("A", wave: 1, owns: "lib/a/**")
     b = make_item("B", wave: 1, owns: "lib/b/**")

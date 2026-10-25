@@ -1,17 +1,23 @@
 #!/usr/bin/env bash
 # Local equivalents of the chadcn gem CI checks that are cheap to forget and expensive to find on a PR (YARD 100%, a gem build
-# without warnings, the plain-Phlex smoke, the docs fences, the other Ruby versions and the Phlex 2.3 gemfile of the CI matrix).
+# without warnings, the gem gate, the plain-Phlex smoke, the docs fences, and the plain smoke of the Phlex 2.3 gemfile on other Rubies).
+# Not run here: rake test, rubocop and bundler-audit (run them as usual) and the full per-Ruby matrix of the CI.
 #
 #   bin/pre-review [--gem-dir DIR] [--rubies 3.3,3.4] [--skip STEP,...] [--dry-run]
 #
-# STEP is one of: yard, build, smoke, docs, rubies. A ruby of --rubies that is not installed (rbenv) is reported and skipped, never
-# silently passed. Exit 0 when every step that ran is green, 1 when one is red. --dry-run only prints the steps.
+# STEP is one of: yard, build, gate, smoke, docs, rubies. A ruby of --rubies that is not installed (rbenv) is reported and skipped, never
+# silently passed. Exit 0 all green, 1 a step is red, 2 usage error, 3 green but some Ruby was NOT RUN (an incomplete run is never reported as green).
+# --dry-run only prints the steps.
 # BUNDLE_GEMFILE of the shell is ignored on purpose (a stray one fakes red gates); each step sets its own.
 set -uo pipefail
 
 # The gem is a sibling checkout of the main repository (a worktree lives deeper, so go through the common git dir).
-main_root="$(cd "$(git -C "$(dirname "$0")" rev-parse --git-common-dir)/.." && pwd)"
-gem_dir="${PRE_REVIEW_GEM_DIR:-$main_root/../chadcn}"
+gem_dir="${PRE_REVIEW_GEM_DIR:-}"
+if [ -z "$gem_dir" ]; then
+  common_dir="$(git -C "$(dirname "$0")" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" \
+    || { echo "pre-review: not inside a git checkout; pass --gem-dir" >&2; exit 2; }
+  gem_dir="$(dirname "$common_dir")/../chadcn"
+fi
 rubies="3.3,3.4"
 skip=""
 dry_run=0
@@ -22,7 +28,7 @@ while [ $# -gt 0 ]; do
     --rubies) rubies="${2:?--rubies needs a value}"; shift 2 ;;
     --skip) skip="${2:?--skip needs a value}"; shift 2 ;;
     --dry-run) dry_run=1; shift ;;
-    -h|--help) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "pre-review: unknown option $1" >&2; exit 2 ;;
   esac
 done
@@ -32,6 +38,7 @@ gem_dir="$(cd "$gem_dir" && pwd)"
 unset BUNDLE_GEMFILE
 
 failed=0
+not_run=""
 skipped_step() { case ",$skip," in *",$1,"*) return 0 ;; *) return 1 ;; esac; }
 
 # step NAME DESCRIPTION CMD...: runs CMD in the gem directory with the gem's own Gemfile.
@@ -60,17 +67,18 @@ yard_check() {
 }
 
 build_check() {
-  local log
-  log="$(mktemp)"
-  gem build chadcn.gemspec 2>&1 | tee "$log"
-  ! grep -qi warning "$log"
-  local rc=$?
-  rm -f "$log" chadcn-*.gem
+  local dir rc
+  dir="$(mktemp -d)"
+  gem build chadcn.gemspec --output "$dir/chadcn.gem" 2>&1 | tee "$dir/build.log"
+  ! grep -qi warning "$dir/build.log"
+  rc=$?
+  rm -rf "$dir"
   return $rc
 }
 
 step yard "public API fully documented (YARD 100%)" yard_check
 step build "gem builds without warnings" build_check
+step gate "gem gate (gem_check.rb)" ruby .claude/scripts/gem/gem_check.rb --gem-dir .
 step smoke "plain-Phlex smoke (Rails not loaded)" bundle exec bin/smoke --plain
 step docs "every Ruby fence of README.md and docs/*.md renders" bundle exec bin/smoke --docs
 
@@ -81,12 +89,19 @@ else
   IFS=',' read -r -a versions <<< "$rubies"
   for v in "${versions[@]}"; do
     if [ "$dry_run" -eq 1 ]; then echo "pre-review: would  rubies - plain smoke on ruby $v"; continue; fi
-    if ! command -v rbenv >/dev/null 2>&1 || ! rbenv versions --bare | grep -q "^${v}\."; then
+    if ! command -v rbenv >/dev/null 2>&1; then
+      echo "pre-review: NOT RUN ruby $v (rbenv not found); the CI matrix runs it" >&2
+      not_run="$not_run $v"
+      continue
+    fi
+    installed="$(rbenv versions --bare | grep -E "^${v//./\\.}\." | tail -1)"
+    if [ -z "$installed" ]; then
       echo "pre-review: NOT RUN ruby $v is not installed (rbenv install $v); the CI matrix runs it" >&2
+      not_run="$not_run $v"
       continue
     fi
     echo "pre-review: run    rubies - plain smoke on ruby $v"
-    if (cd "$gem_dir" && RBENV_VERSION="$(rbenv versions --bare | grep "^${v}\." | tail -1)" BUNDLE_GEMFILE="$gem_dir/test/smoke/gemfiles/phlex_2.3.gemfile" \
+    if (cd "$gem_dir" && RBENV_VERSION="$installed" BUNDLE_GEMFILE="$gem_dir/test/smoke/gemfiles/phlex_2.3.gemfile" \
         sh -c 'rm -f "$BUNDLE_GEMFILE.lock"; bundle install --quiet && bundle exec bin/smoke --plain'); then
       echo "pre-review: ok     rubies $v"
     else
@@ -96,4 +111,7 @@ else
   done
 fi
 
-exit "$failed"
+if [ "$failed" -ne 0 ]; then echo "pre-review: RED" >&2; exit 1; fi
+if [ -n "$not_run" ]; then echo "pre-review: GREEN except NOT RUN rubies:$not_run" >&2; exit 3; fi
+[ "$dry_run" -eq 1 ] || echo "pre-review: GREEN"
+exit 0
