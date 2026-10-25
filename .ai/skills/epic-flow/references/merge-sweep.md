@@ -46,6 +46,13 @@ export LC_ALL=en_US.UTF-8
 bin/rails db:prepare && bin/rails tailwindcss:build
 ```
 
+A fresh worktree has none of the untracked state of your main checkout. Add what the gate needs, or it fails for reasons that are not the code:
+
+- `LC_ALL`/`LANG` UTF-8 (a US-ASCII locale shows up as bogus test failures; `ruby -e 'p Encoding.default_external'` must say UTF-8).
+- `npm ci` in every directory with a `package.json` the gate uses (the React catalog, the gem's `dev/`), and `npx playwright install` when a gate drives a browser.
+- Restart any dev or test server started from another checkout: it does not see new Ruby files.
+- `.bundle/config` copied as above, then `bundle check`.
+
 Rules:
 
 1. One worktree per sweep, not per item: several items merged in a row are verified together on the resulting `main`. Run each distinct gate command once; an item is green when every one of its gates is.

@@ -71,6 +71,7 @@ module WorkBoard
 
   def self.now = ENV["WORK_NOW"] ? Time.parse(ENV["WORK_NOW"]).utc : Time.now.utc
   def self.base = ENV.fetch("WORK_BASE", "main")
+  def self.retry_sleep = ENV.fetch("WORK_RETRY_SLEEP", "2").to_f
 
   # ---- process helpers ----------------------------------------------------------------------------------------
   module Shell
@@ -79,11 +80,23 @@ module WorkBoard
       [ out, err, status ]
     end
 
-    def gh(*args)
-      out, err, status = run(Shellwords.split(ENV.fetch("WORK_GH", "gh")) + args)
-      raise Failure, "gh #{args.first(3).join(' ')} failed: #{err.strip}" unless status.success?
+    # Errors GitHub answers before doing anything (expired token right after a restart) or that clear by themselves: safe to repeat.
+    TRANSIENT_GH = /HTTP (401|502|503|504)|Bad credentials|timed out|connection reset/i
+    GH_ATTEMPTS = 3
 
-      out
+    def gh(*args)
+      attempt = 1
+      loop do
+        out, err, status = run(Shellwords.split(ENV.fetch("WORK_GH", "gh")) + args)
+        return out if status.success?
+
+        if attempt < GH_ATTEMPTS && err.match?(TRANSIENT_GH)
+          sleep(WorkBoard.retry_sleep * attempt)
+          attempt += 1
+          next
+        end
+        raise Failure, "gh #{args.first(3).join(' ')} failed: #{err.strip}"
+      end
     end
 
     def gh_json(*args) = JSON.parse(gh(*args))
@@ -512,7 +525,14 @@ module WorkBoard
     def body_of(opts) = opts[:body] || (opts[:body_file] ? File.read(opts[:body_file]) : nil)
     def lease_of(opts) = (opts[:lease] || DEFAULT_LEASE_MIN).to_i
 
+    # One line, so a worker can capture it with a single read. `--unique` always returns a fresh id: workers started from one Claude
+    # session share CLAUDE_CODE_SESSION_ID and would otherwise look like the same holder (claim answers `resumed: true` to both).
     def session
+      opts, = parse("--unique" => :flag)
+      if opts[:unique]
+        puts JSON.generate(session: "#{Socket.gethostname.split('.').first}-#{SecureRandom.hex(4)}")
+        exit 0
+      end
       id = ENV["WORK_SESSION"]
       # One id per Claude Code session: the file fallback below is shared by every session started in this checkout.
       id ||= "#{Socket.gethostname.split('.').first}-#{ENV['CLAUDE_CODE_SESSION_ID'][0, 8]}" if ENV["CLAUDE_CODE_SESSION_ID"].to_s.size >= 8
@@ -522,7 +542,8 @@ module WorkBoard
         File.write(path, "#{Socket.gethostname.split('.').first}-#{SecureRandom.hex(3)}") unless File.exist?(path)
         id = File.read(path).strip
       end
-      out({ session: id })
+      puts JSON.generate(session: id)
+      exit 0
     end
 
     def epic_create
@@ -546,7 +567,7 @@ module WorkBoard
 
     def item_create
       opts, = parse("--epic" => :v, "--title" => :v, "--body-file" => :v, "--body" => :v, "--wave" => :v, "--owns" => :v,
-                    "--blocked-by" => :v, "--stage" => :v, "--priority" => :v)
+                    "--blocked-by" => :v, "--stage" => :v, "--priority" => :v, "--gates-file" => :v, "--acceptance-file" => :v)
       need(opts, :epic, :title, :wave, :owns)
       stage = opts[:stage] || "plan"
       out({ error: "unknown stage #{stage}" }, 2) unless STAGES.include?(stage)
@@ -555,9 +576,17 @@ module WorkBoard
                blocked_by: opts[:blocked_by].to_s.split(",").map(&:to_i), priority: opts[:priority].to_i }
       labels = [ "epic:#{opts[:epic]}", "stage:#{stage}", "wave:#{meta[:wave]}" ]
       b.ensure_labels(labels)
-      body = "#{body_of(opts)}\n\n<!-- work-item #{JSON.generate(meta)} -->\n"
+      sections = { "Gates" => opts[:gates_file], "Acceptance" => opts[:acceptance_file] }.filter_map do |heading, path|
+        lines = File.readlines(path, chomp: true).map(&:strip).reject(&:empty?) if path
+        "## #{heading}\n#{lines.map { |l| l.start_with?('- ') ? l : "- #{l}" }.join("\n")}" if lines&.any?
+      rescue Errno::ENOENT => e
+        out({ error: "cannot read #{heading.downcase} file: #{e.message}" }, 2)
+      end
+      body = [ body_of(opts), *sections ].compact.join("\n\n") + "\n\n<!-- work-item #{JSON.generate(meta)} -->\n"
+      # Overlap is only reported after the fact by validate; flag it now, against work that has not landed yet.
+      clashes = b.items.reject(&:done?).select { |i| WorkBoard.owns_overlap?(i.owns, meta[:owns]) }.map(&:number)
       url = create_issue(b, opts[:title], body, labels)
-      out({ number: url[%r{(\d+)\s*\z}, 1].to_i, url: url, meta: meta })
+      out({ number: url[%r{(\d+)\s*\z}, 1].to_i, url: url, meta: meta, **(clashes.any? ? { warnings: [ { code: "OWNS_OVERLAP", items: clashes } ] } : {}) })
     end
 
     # A maintainer changes the plan (e.g. a blocker moved to another repository): the new blockers go through the same plan rules as
@@ -660,12 +689,14 @@ module WorkBoard
     end
 
     def next_item
-      opts, = parse("--epic" => :v, "--session" => :v, "--stage" => :v)
+      opts, = parse("--epic" => :v, "--session" => :v, "--stage" => :v, "--item" => :v)
       need(opts, :epic)
       b = board(opts)
       active = b.active_claims
       stages = opts[:stage]&.split(",")
       pool = b.items.reject(&:done?)
+      # A worker told to take item N must get N or a reason, never another item.
+      pool = pool.select { |i| i.number == opts[:item].to_i } if opts[:item]
       # Items in review wait for a human merge; they are only offered when the worker asks for that stage (see `reviews`).
       candidates = pool.select { |i| b.ready?(i) && !active.key?(i.number) && (stages.nil? ? i.stage != "review" : stages.include?(i.stage)) }
       candidates = candidates.reject { |i| b.conflicting_claims(i, active).any? }
@@ -727,6 +758,13 @@ module WorkBoard
         next unless row[:verdict] == "open"
 
         pr = b.pull_request(row[:pr][:number])
+        # GitHub answers UNKNOWN for a moment after the base moved (another merge): wait for the recomputation.
+        2.times do
+          break unless pr["mergeable"] == "UNKNOWN"
+
+          sleep(WorkBoard.retry_sleep)
+          pr = b.pull_request(row[:pr][:number])
+        end
         cmp = b.compare(pr["baseRefName"] || WorkBoard.base, pr["headRefOid"])
         base_sha ||= cmp.dig("base_commit", "sha")
         behind = cmp.fetch("behind_by", 0).to_i
@@ -908,7 +946,7 @@ module WorkBoard
     end
 
     def reap
-      opts, = parse("--epic" => :v)
+      opts, = parse("--epic" => :v, "--session" => :v) # --session accepted like everywhere else; reaping needs no identity
       need(opts, :epic)
       b = board(opts)
       freed = b.claims.select { |_, c| c[:expired] }.filter_map do |n, c|

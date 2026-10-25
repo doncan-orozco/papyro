@@ -458,6 +458,98 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_equal "from-env", wb("session", env: { "WORK_SESSION" => "from-env" })[0]["session"]
   end
 
+  test "session --unique returns a fresh one-line id on every call, plain session stays stable" do
+    out = wb("session", "--unique")[0]["session"]
+
+    refute_equal out, wb("session", "--unique")[0]["session"]
+    refute_equal out, wb("session")[0]["session"]
+  end
+
+  test "next --item offers exactly that item or says why not, never another one" do
+    make_epic
+    a = make_item("A", wave: 0, owns: "lib/a/**")
+    b = make_item("B", wave: 1, owns: "lib/b/**")
+
+    assert_equal b, wb("next", "--epic", "demo", "--session", "s1", "--item", b.to_s)[0].dig("item", "number")
+    claim(b, "s2")
+    result, = wb("next", "--epic", "demo", "--session", "s1", "--item", b.to_s)
+
+    assert_nil result["item"]
+    assert_equal "claimed_by_others", result["reason"]
+    assert_equal [ b ], result["remaining"]
+    refute_equal a, result.dig("item", "number")
+  end
+
+  test "reap accepts --session like every other subcommand" do
+    make_epic
+
+    assert_equal 0, wb("reap", "--epic", "demo", "--session", "s1")[1]
+  end
+
+  test "item create reads gates and acceptance from files and warns about overlap with unfinished items" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    gates = File.join(@dir, "gates.txt")
+    acceptance = File.join(@dir, "acceptance.txt")
+    File.write(gates, "bin/rails test\n- ruby -c x.rb\n")
+    File.write(acceptance, "it works\n")
+    result, code = wb("item", "create", "--epic", "demo", "--title", "B", "--body", "goal", "--wave", "1", "--owns", "lib/a/b/**",
+                      "--gates-file", gates, "--acceptance-file", acceptance)
+
+    assert_equal 0, code
+    assert_equal [ { "code" => "OWNS_OVERLAP", "items" => [ a ] } ], result["warnings"]
+    body = wb("show", result["number"].to_s, "--epic", "demo")[0]["body"]
+
+    assert_includes body, "## Gates\n- bin/rails test\n- ruby -c x.rb"
+    assert_includes body, "## Acceptance\n- it works"
+    assert_equal [ "bin/rails test", "ruby -c x.rb" ], wb("show", result["number"].to_s, "--epic", "demo")[0]["gates"]
+    assert_equal 2, wb("item", "create", "--epic", "demo", "--title", "C", "--wave", "1", "--owns", "docs/**", "--gates-file", "/nope")[1]
+  end
+
+  test "gh is retried on a transient 401 and a hard failure is not" do
+    script = File.join(@dir, "flaky_gh.sh")
+    counter = File.join(@dir, "calls")
+    File.write(script, "#!/bin/sh\nn=$(cat #{counter} 2>/dev/null || echo 0); n=$((n+1)); echo $n > #{counter}\n" \
+                       "if [ $n -le 2 ]; then echo 'HTTP 401: Bad credentials' >&2; exit 1; fi\nexec #{RbConfig.ruby} #{FAKE_GH} \"$@\"\n")
+    File.chmod(0o755, script)
+    out, _err, status = Open3.capture3({ "WORK_GH" => script, "WORK_FAKE_DB" => @db, "WORK_REMOTE" => "origin", "WORK_NOW" => T0, "WORK_RETRY_SLEEP" => "0" },
+                                       RbConfig.ruby, SCRIPT, "epic", "create", "--slug", "demo", "--title", "T", "--body", "p", chdir: @work)
+
+    assert_equal 0, status.exitstatus, out
+    assert_operator File.read(counter).to_i, :>, 2 # the first two calls failed with 401 and were repeated
+    File.write(counter, "-100") # every call now fails with 401 -> gives up after 3 attempts
+    _out, err, status = Open3.capture3({ "WORK_GH" => script, "WORK_FAKE_DB" => @db, "WORK_REMOTE" => "origin", "WORK_NOW" => T0, "WORK_RETRY_SLEEP" => "0" },
+                                       RbConfig.ruby, SCRIPT, "status", "--epic", "demo", chdir: @work)
+
+    refute_equal 0, status.exitstatus
+    assert_includes err + _out, "Bad credentials"
+  end
+
+  test "mergeable waits out an UNKNOWN mergeability that GitHub is still computing" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    move_to_review(a)
+    seed_base
+    add_open_pr(a, number: 50, mergeable: "UNKNOWN")
+    calls = 0
+    settle = Module.new do
+      define_method(:pull_request) do |n|
+        pr = super(n)
+        next pr unless Thread.current[:settle_mergeable]
+
+        calls += 1
+        calls < 2 ? pr : pr.merge("mergeable" => "MERGEABLE")
+      end
+    end
+    WorkBoard::Board.prepend(settle)
+    Thread.current[:settle_mergeable] = true
+    row = judged(a)
+    Thread.current[:settle_mergeable] = nil
+
+    assert_equal "ready", row["verdict"]
+    assert_equal 2, calls
+  end
+
   test "the real script and the real gh-shaped executable work end to end as subprocesses" do
     root, code = wb_process("epic", "create", "--slug", "demo", "--title", "Demo", "--body", "plan")
 

@@ -11,7 +11,7 @@ Parse: `--epic` (required), `--stage` (limit to stages; e.g. `audit` for an opti
 Read `.ai/skills/epic-flow/SKILL.md` and `references/stages.md` first. Every rule there (R1-R14) binds you. The board is only touched through `ruby .claude/scripts/epic/work_board.rb` (`WB` below). If the epic does not exist, stop and tell the human to run `/epic-plan`.
 
 ## Phase 0: Identify yourself
-`WB session` -> `SESSION`. Run `WB reap --epic S` once (frees claims whose lease expired). `WB status --epic S` and print the counts.
+`WB session --unique` -> `SESSION` (a fresh id; pass it to every call, a shell variable does not survive between Bash calls). If the brief names an item, use `WB next ... --item N` or `WB claim N` directly, never plain `next`. Run `WB reap --epic S` once (frees claims whose lease expired). `WB status --epic S` and print the counts.
 
 ## Phase 0.5: Merge sweep (at the start of Phase 0 AND at the start of every loop iteration)
 Items in `review` wait for a human to merge their PR (by hand or with `/work-merge`); their dependents stay blocked until the item is `done`. Finish the merged ones yourself, first, following the Sweep and "Verifying the Gates on main" sections of `references/merge-sweep.md`:
