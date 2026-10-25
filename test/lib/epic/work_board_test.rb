@@ -43,7 +43,7 @@ class WorkBoardTest < ActiveSupport::TestCase
 
   # Runs a command in-process like an agent's CLI call would; returns [parsed JSON (or {"raw"=>text}), exit status].
   def wb(*args, now: T0, env: {})
-    saved = ENV.to_h.slice("WORK_NOW", "WORK_FAKE_DB", "WORK_REMOTE", "WORK_SESSION")
+    saved = ENV.to_h.slice("WORK_NOW", "WORK_FAKE_DB", "WORK_REMOTE", "WORK_SESSION", "WORK_COMPANIONS")
     ENV.update({ "WORK_FAKE_DB" => @db, "WORK_REMOTE" => "origin", "WORK_NOW" => now }.merge(env))
     ENV.delete("WORK_SESSION") unless env.key?("WORK_SESSION")
     out = StringIO.new
@@ -58,7 +58,7 @@ class WorkBoardTest < ActiveSupport::TestCase
     [ (JSON.parse(out.string) rescue { "raw" => out.string }), code ]
   ensure
     $stdout, $stderr = real_out, real_err
-    %w[WORK_NOW WORK_FAKE_DB WORK_REMOTE WORK_SESSION].each { |k| saved[k] ? ENV[k] = saved[k] : ENV.delete(k) }
+    %w[WORK_NOW WORK_FAKE_DB WORK_REMOTE WORK_SESSION WORK_COMPANIONS].each { |k| saved[k] ? ENV[k] = saved[k] : ENV.delete(k) }
   end
 
   # Same call as a real subprocess (real `ruby script`, real fake_gh executable): used where true parallelism matters.
@@ -637,8 +637,8 @@ class WorkBoardTest < ActiveSupport::TestCase
     add_open_pr(a, number: 50, mergeable: "UNKNOWN")
     calls = 0
     settle = Module.new do
-      define_method(:pull_request) do |n|
-        pr = super(n)
+      define_method(:pull_request) do |n, **opts|
+        pr = super(n, **opts)
         next pr unless Thread.current[:settle_mergeable]
 
         calls += 1
@@ -1156,5 +1156,168 @@ class WorkBoardTest < ActiveSupport::TestCase
 
     assert_equal 0, code, result.inspect
     refute result["branch_deleted"]
+  end
+
+  # ---- companion repositories: the engine PR of an item merges first, through the same policy (epic-flow R13, R15) ----------
+  ENGINE = "o/engine".freeze
+  COMPANION_OWNS = "lib/a/**,../engine/app/**".freeze
+
+  def companions_env(map = { "engine" => { "repo" => ENGINE, "base" => "main", "gem" => "engine_gem" } })
+    path = File.join(@dir, "companions.json")
+    File.write(path, JSON.generate(map))
+    { "WORK_COMPANIONS" => path }
+  end
+
+  def seed_engine(checks: [ check("lint") ], sha: "engine-base")
+    db = fake_db
+    ((db["repos"] ||= {})[ENGINE] ||= {}).merge!("base_checks" => checks, "base_files" => [], "base_sha" => sha, "prs" => [])
+    File.write(@db, JSON.generate(db))
+  end
+
+  def add_engine_pr(item, number:, state: "OPEN", checks: [ check("lint") ], cross: false, draft: false)
+    db = fake_db
+    db["repos"][ENGINE]["prs"] << { "number" => number, "state" => state, "headRefName" => "epic/demo/#{item}-item", "mergedAt" => (state == "MERGED" ? T0 : nil),
+                                    "url" => "https://github.test/#{ENGINE}/pull/#{number}", "isDraft" => draft, "mergeable" => "MERGEABLE", "headRefOid" => "ehead#{number}",
+                                    "statusCheckRollup" => checks, "isCrossRepository" => cross, "behind_by" => 0, "files" => [ "app/x.rb" ] }
+    File.write(@db, JSON.generate(db))
+  end
+
+  def engine_pr(number) = fake_db["repos"][ENGINE]["prs"].find { |pr| pr["number"] == number }
+  def mergeable_with_engine = wb("mergeable", "--epic", "demo", env: companions_env)[0]
+
+  def update_engine_pr(number, attrs)
+    db = fake_db
+    db["repos"][ENGINE]["prs"].find { |pr| pr["number"] == number }.merge!(attrs)
+    File.write(@db, JSON.generate(db))
+  end
+
+  def reviewed_item_with_engine_pr(engine_checks: [ check("lint") ], engine_base: [ check("lint") ])
+    make_epic
+    a = make_item("A", wave: 1, owns: COMPANION_OWNS)
+    move_to_review(a)
+    seed_base
+    add_open_pr(a, number: 50)
+    seed_engine(checks: engine_base)
+    add_engine_pr(a, number: 7, checks: engine_checks)
+    a
+  end
+
+  test "companions: an item that owns files of a sibling repository gets that repository's PR judged with its own checks and its own base" do
+    a = reviewed_item_with_engine_pr(engine_checks: [ check("lint", "FAILURE") ], engine_base: [ check("lint", "FAILURE") ])
+    result = mergeable_with_engine
+    companion = result["items"].first["companions"].first
+
+    assert_equal "engine", companion["key"]
+    assert_equal ENGINE, companion["repo"]
+    assert_equal "ready", companion["verdict"], "a check that is red on the engine's own main is pre-existing"
+    assert_equal %w[lint], companion["checks"]["preexisting"].map { |c| c["name"] }
+    assert_equal 7, companion["pr"]["number"]
+    assert_equal "ehead7", companion["pr"]["head"]
+    assert_equal [ { "number" => a, "key" => "engine" } ], result["ready_companions"]
+  end
+
+  test "companions: the host PR waits for the engine PR, whatever its own checks say, and is ready once the engine PR is merged" do
+    a = reviewed_item_with_engine_pr
+
+    assert_equal "companion_pending", mergeable_with_engine["items"].first["verdict"]
+    assert_empty mergeable_with_engine["ready"]
+
+    update_engine_pr(7, "state" => "MERGED")
+    row = mergeable_with_engine["items"].first
+
+    assert_equal "ready", row["verdict"]
+    assert_equal "merged", row["companions"].first["verdict"]
+    assert_equal [ a ], mergeable_with_engine["ready"]
+  end
+
+  test "companions: an engine PR with a failing or running check, from a fork, or a draft is never ready" do
+    reviewed_item_with_engine_pr(engine_checks: [ check("lint", "FAILURE") ])
+
+    assert_equal "ci_failed", mergeable_with_engine["items"].first["companions"].first["verdict"]
+
+    update_engine_pr(7, "statusCheckRollup" => [ check("lint", "", status: "IN_PROGRESS") ])
+
+    assert_equal "ci_pending", mergeable_with_engine["items"].first["companions"].first["verdict"]
+
+    update_engine_pr(7, "statusCheckRollup" => [ check("lint") ], "isCrossRepository" => true)
+
+    assert_equal "foreign_head", mergeable_with_engine["items"].first["companions"].first["verdict"]
+
+    update_engine_pr(7, "isCrossRepository" => false, "isDraft" => true)
+
+    assert_equal "draft", mergeable_with_engine["items"].first["companions"].first["verdict"]
+    assert_empty mergeable_with_engine["ready_companions"]
+  end
+
+  test "companions: items without files in a configured sibling repository make no call to it" do
+    make_epic
+    plain = make_item("Plain", wave: 1, owns: "lib/a/**")
+    unknown = make_item("Unknown", wave: 1, owns: "../other/app/**")
+    [ plain, unknown ].each { |n| move_to_review(n) }
+    seed_base
+    add_open_pr(plain, number: 50)
+    add_open_pr(unknown, number: 51)
+    rows = mergeable_with_engine["items"]
+
+    assert_equal [ [], [] ], rows.map { |r| r["companions"] }
+    refute fake_db.key?("repos"), "the sibling repository must not be queried"
+  end
+
+  test "companions: merge --repo squashes the ready engine PR with its judged head, deletes its branch, logs it on the item, and leaves the host PR and the stage alone" do
+    a = reviewed_item_with_engine_pr
+    result, code = wb("merge", a.to_s, "--epic", "demo", "--session", "release", "--repo", "engine", env: companions_env)
+
+    assert_equal 0, code, result.inspect
+    assert_equal({ "ok" => true, "number" => a, "repo" => "engine", "pr" => 7, "method" => "squash", "state" => "MERGED",
+                   "merge_commit" => engine_pr(7)["mergeCommit"]["oid"], "branch" => "epic/demo/#{a}-item", "branch_deleted" => true,
+                   "next" => "re-pin engine_gem in the host lock, then merge the host PR" }, result)
+    assert_equal "--squash", engine_pr(7)["method"]
+    assert_equal [ "epic/demo/#{a}-item" ], fake_db["repos"][ENGINE]["deleted_branches"]
+    assert_equal "OPEN", fake_db["prs"].first["state"], "the host PR is not merged by this call"
+    assert_equal "review", state_of(a)["stage"]
+    note = wb("show", a.to_s, "--epic", "demo")[0]["notes"].last
+
+    assert_equal "merge-log", note["type"]
+    assert_match(%r{o/engine#7 merged into main \(squash, merge7}, note["body"])
+    assert_match(/engine_gem/, note["body"])
+  end
+
+  test "companions: merge refuses an engine PR that is not ready, an unknown repository key and the host PR while the engine PR is open" do
+    a = reviewed_item_with_engine_pr(engine_checks: [ check("lint", "FAILURE") ])
+    result, code = wb("merge", a.to_s, "--epic", "demo", "--session", "release", "--repo", "engine", env: companions_env)
+
+    assert_equal 1, code
+    assert_equal "ci_failed", result["reason"]
+    assert_equal "OPEN", engine_pr(7)["state"]
+
+    assert_equal 2, wb("merge", a.to_s, "--epic", "demo", "--session", "release", "--repo", "nope", env: companions_env)[1]
+
+    host, hcode = wb("merge", a.to_s, "--epic", "demo", "--session", "release", env: companions_env)
+
+    assert_equal 1, hcode
+    assert_equal "companion_pending", host["reason"]
+    assert_equal "OPEN", fake_db["prs"].first["state"]
+  end
+
+  test "companions: merge --repo is refused for an item that does not own files in that repository" do
+    make_epic
+    plain = make_item("Plain", wave: 1, owns: "lib/a/**")
+    move_to_review(plain)
+    seed_base
+    add_open_pr(plain, number: 50)
+    result, code = wb("merge", plain.to_s, "--epic", "demo", "--session", "release", "--repo", "engine", env: companions_env)
+
+    assert_equal 2, code
+    assert_match(/no companion repository/, result["error"])
+  end
+
+  test "companions: the committed allow-list names the engine repository and the docs describe the verdicts" do
+    committed = JSON.parse(File.read(Rails.root.join(".claude/scripts/epic/companions.json")))
+
+    assert_match(%r{\A[\w.-]+/[\w.-]+\z}, committed.fetch("papyro_studio").fetch("repo"))
+    assert_equal "main", committed.fetch("papyro_studio").fetch("base")
+    docs = [ ".claude/commands/work-merge.md", ".ai/skills/epic-flow/references/merge-sweep.md" ].map { |f| File.read(Rails.root.join(f)) }.join
+
+    %w[companion_pending foreign_head --repo].each { |word| assert_includes docs, word }
   end
 end

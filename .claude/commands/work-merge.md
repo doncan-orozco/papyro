@@ -14,14 +14,16 @@ You are the release manager a human would otherwise be. You act with the human's
 ## Phase 0: Identify, free, look
 1. `WB session` -> `SESSION`. `WB reap --epic S`: print what it freed (a stale claim was blocking a worker; it is now claimable).
 2. `WB status --epic S`: print the counts.
-3. `WB mergeable --epic S` -> `J`. Print one table: `#`, title, wave, PR, verdict, failing checks, pre-existing checks, behind/overlap, audited. Then `base`: the `main` sha and the checks failing on it.
+3. `WB mergeable --epic S` -> `J`. Print one table: `#`, title, wave, PR, verdict, failing checks, pre-existing checks, behind/overlap, audited, and its `companions` (the item's PR in a sibling repository such as the engine: repo, PR, verdict). Then `base`: the `main` sha and the checks failing on it.
 With `--dry-run` or `--only`, keep only the rows asked for, print what you would do per row (the table in `merge-sweep.md`), and stop here when `--dry-run`.
 
 ## Phase 1: Judge and prepare (every open PR, lowest wave then lowest number)
 For each row by `verdict`, exactly as `merge-sweep.md` prescribes:
 - `ready`: keep for Phase 2.
 - `ci_pending`: `gh pr checks <pr> --watch --fail-fast` up to `--wait-ci` minutes, then `WB mergeable --epic S --item N` again and re-route.
-- `ci_failed`: once, re-run the failed jobs (`gh run rerun <run-id> --failed`, the run id is in the check url) and wait as above. Still red: `WB claim N --epic S --session SESSION` then `WB advance N --epic S --session SESSION --stage fix --note "CI red on the PR, green on main: <job> <url>"`. This releases the item so `/work` fixes it.
+- `ci_failed`: once, re-run the failed jobs (`gh run rerun <run-id> --failed`, the run id is in the check url) and wait as above. Still red: `WB claim N --epic S --session SESSION` then `WB advance N --epic S --session SESSION --stage fix --note "CI red on the PR, green on main: <job> <url>"`. This releases the item so `/work` fixes it. Exception: when a `companions` entry of the row is already `merged` and the failure is the lock still pinning the old engine, do not re-run (it fails the same way): route it as in Phase 2 (re-pin), not as a CI problem.
+- `companion_pending`: the item's engine PR (`companions[]`, verdict not `merged`) has to merge first. A `ready` companion is merged in Phase 2; otherwise route the companion by its own verdict exactly like a host PR, adding `-R <repo>` to the `gh` calls (`gh pr checks <pr> -R <repo> --watch --fail-fast`, `gh pr update-branch <pr> -R <repo>`, `gh run rerun <run-id> -R <repo> --failed`). A companion that is red after one re-run, behind with overlap or conflicting sends the item to `fix` with a note that names the repository and PR.
+- `companion_closed`, and a companion `foreign_head` or `draft`: do not touch; list them for the human with the reason (a closed or foreign engine PR is a human decision).
 - `behind`: `gh pr update-branch <pr>`, wait for CI, judge again. Conflicts after the update: as `conflicts`.
 - `conflicts`: `WB claim N` then `WB advance N --stage fix --note "merge conflicts with main: rebase branch <branch>"`.
 - `unknown_mergeability`: retry `WB mergeable --item N` up to 5 times, a few seconds apart; then treat as `ci_pending`.
@@ -30,7 +32,9 @@ For each row by `verdict`, exactly as `merge-sweep.md` prescribes:
 A row with `holder` set belongs to another session: skip it and say so.
 
 ## Phase 2: Merge
-For each `ready` item in order: `WB merge N --epic S --session SESSION` (squash; the script re-judges and pins the head it judged; the remote branch is deleted, the PR keeps the history). Exit 1 means the verdict changed under you: print the reason and go back to Phase 1 for that item. After each merge, `WB mergeable --epic S` again for the remaining rows (GitHub recomputes mergeability; a row may turn `behind` or `unknown_mergeability`). Stop merging the moment a merge fails for a reason you cannot route; report it.
+Engine PRs first. For each entry of `J.ready_companions` (`{number, key}`), in order: `WB merge N --epic S --session SESSION --repo KEY` (same terms as a host PR: the script re-judges, pins the head, deletes the branch; the host PR and the item's stage are untouched). Exit 1: print the reason and go back to Phase 1 for that companion. After the engine PR merged, the host PR cannot go green until its lock pins the merged revision, which is the worker's job, so (first `WB unblock N --epic S` when the item was parked as `needs-human` only to wait for this merge) `WB claim N --epic S --session SESSION` then `WB advance N --epic S --session SESSION --stage fix --note "engine PR <repo>#<pr> merged (<sha>): on the item branch run bundle update <gem>, push, refresh the audit receipt (audit_receipt.rb), back to review"`. The item then waits for `/work` and returns to `review`; its host PR is merged by the next run.
+
+Then host PRs. For each `ready` item in order: `WB merge N --epic S --session SESSION` (squash; the script re-judges and pins the head it judged; the remote branch is deleted, the PR keeps the history). Exit 1 means the verdict changed under you: print the reason and go back to Phase 1 for that item. After each merge, `WB mergeable --epic S` again for the remaining rows (GitHub recomputes mergeability; a row may turn `behind` or `unknown_mergeability`). Stop merging the moment a merge fails for a reason you cannot route; report it.
 
 ## Phase 3: Sweep (skip with `--no-sweep`)
 `WB reviews --epic S`: every `merged` row (yours and earlier ones nobody finished) is finished here following the Sweep section of `merge-sweep.md`:
