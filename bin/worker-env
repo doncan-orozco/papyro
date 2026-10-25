@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Environment for epic workers (/work): source it at the start of every shell a worker uses, or run `bin/worker-env` to only check.
+#
+#   source bin/worker-env      # fixes PATH and locale, runs the preflight, returns 1 (never exits your shell) when something is missing
+#   bin/worker-env --check     # the same preflight as a command: exit 0 ok, 1 a tool is missing
+#
+# A restarted session can lack PATH and LANG; a US-ASCII locale makes tests fail in ways that look like real regressions, so this
+# fails loudly instead.
+
+_worker_env_main() {
+  local root dir
+  root="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "worker-env: not inside a git checkout" >&2; return 1; }
+
+  for dir in /opt/homebrew/bin /usr/local/bin "$HOME/.local/share/mise/shims" "$HOME/.rbenv/shims" "$HOME/.asdf/shims"; do
+    [ -d "$dir" ] && case ":$PATH:" in *":$dir:"*) ;; *) PATH="$dir:$PATH" ;; esac
+  done
+  export PATH
+
+  case "${LANG:-}" in *UTF-8*|*utf8*) ;; *) export LANG="${WORKER_LANG:-en_US.UTF-8}" ;; esac
+  case "${LC_ALL:-}" in ""|*UTF-8*|*utf8*) ;; *) export LC_ALL="$LANG" ;; esac
+
+  local failed=0 want have
+  _worker_fail() { echo "worker-env: $1" >&2; failed=1; }
+
+  if command -v ruby >/dev/null 2>&1; then
+    have="$(ruby -e 'print RUBY_VERSION')"
+    want="$(tr -d '[:space:]' < "$root/.ruby-version" 2>/dev/null | sed 's/^ruby-//')"
+    [ -n "$want" ] && [ "${have%.*}" != "${want%.*}" ] && _worker_fail "ruby $have, .ruby-version wants $want"
+  else
+    _worker_fail "ruby not found on PATH"
+  fi
+  command -v gh >/dev/null 2>&1 || _worker_fail "gh not found on PATH"
+  command -v gh >/dev/null 2>&1 && [ -z "${WORKER_ENV_SKIP_GH:-}" ] && ! gh auth status >/dev/null 2>&1 && _worker_fail "gh is not authenticated (gh auth login)"
+  command -v node >/dev/null 2>&1 || _worker_fail "node not found on PATH"
+  [ "$(ruby -e 'print Encoding.default_external' 2>/dev/null)" = "UTF-8" ] || _worker_fail "ruby default external encoding is not UTF-8 (locale ${LANG})"
+
+  unset -f _worker_fail
+  [ "$failed" -eq 0 ] && echo "worker-env: ok (ruby $have, node $(node -v), gh authenticated, LANG=$LANG)"
+  return "$failed"
+}
+
+if (return 0 2>/dev/null); then
+  _worker_env_main
+  _rc=$?
+  unset -f _worker_env_main
+  return "$_rc"
+else
+  _worker_env_main
+  exit $?
+fi
