@@ -23,7 +23,7 @@ class PreReviewTest < ActiveSupport::TestCase
 
   def with_fakes(rbenv: "exit 0", gem: "echo built")
     Dir.mktmpdir("pre-review-bin") do |bin|
-      fake_bin(bin, "bundle", 'echo "100.00% documented"')
+      fake_bin(bin, "bundle", 'echo "100.00% documented ${RBENV_VERSION:-}"')
       fake_bin(bin, "gem", gem)
       fake_bin(bin, "ruby", "exit 0")
       fake_bin(bin, "rbenv", rbenv)
@@ -85,6 +85,8 @@ class PreReviewTest < ActiveSupport::TestCase
 
       assert_equal 0, code, err
       assert_match(/ok     rubies 3\.3/, out)
+      assert_match(/3\.3\.6/, out)
+      assert_no_match(/3\.30\.0/, out)
       assert_no_match(/NOT RUN/, err)
     end
   end
