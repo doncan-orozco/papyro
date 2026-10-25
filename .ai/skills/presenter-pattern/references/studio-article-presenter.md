@@ -205,7 +205,7 @@ module Views
 
         def view_template
           div(class: "space-y-4") do
-            render Components::Ui::Table.new do |table|
+            render Chadcn::Table.new do |table|
               table.header do
                 table.row do
                   table.head { t("studio.articles.index.columns.article") }
@@ -281,7 +281,7 @@ module Views
 
         def render_status_cell
           @table.cell do
-            render Components::Ui::Badge.new(
+            render Chadcn::Badge.new(
               variant: @presenter.status_variant,
               class: "capitalize"
             ) do

@@ -35,7 +35,7 @@ Skills live in `<HOST>/.ai/skills/<name>/SKILL.md` and govern both repos.
 | `app/concepts/*/presenter/**` | display logic (SimpleDelegator over `Core::Presenter::Base`) | `presenter-pattern` | display values |
 | `app/models/**`, validators | schema, associations, simple validations, state predicates; no scopes, no business logic | `models` (+ `i18n` for Mobility) | — |
 | `app/policies/**` | Pundit policies and scopes | `pundit-auth` | boolean / scope |
-| `app/views/**`, `app/components/**` | dumb Phlex views, sub-components, UI vs domain components | `phlex-view-pattern`, `accessibility`, `i18n` (`design-system` for `components/ui`) | HTML |
+| `app/views/**`, `app/components/**` | dumb Phlex views, sub-components, UI vs domain components | `phlex-view-pattern`, `accessibility`, `i18n` (`design-system` for views composing `Chadcn::*`) | HTML |
 | `app/javascript/controllers/**` (host) and `studio:app/javascript/controllers/studio/**` | Stimulus behavior (declared targets/values, cleanup in `disconnect`) | `stimulus`, `accessibility` | — |
 | `app/jobs/**`, `app/mailers/**`, `app/services/**` | thin job shells, mailers with presenter-fed views, external clients | `jobs-and-mailers`, `operation-pattern` | — |
 | `app/channels/**` | Action Cable | `realtime` | — |

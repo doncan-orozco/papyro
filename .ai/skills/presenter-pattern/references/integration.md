@@ -77,7 +77,7 @@ module Views
 
           # Presenter logic is used to make decisions
           if @article.locale_published?(translation)
-            render Components::Ui::Badge.new { "Published" }
+            render Chadcn::Badge.new { "Published" }
           end
         end
       end

@@ -8,7 +8,6 @@ class ChadcnEngineTest < ActiveSupport::TestCase
     assert_includes css, "/* chadcn:start"
     assert_includes css, "/* chadcn:end */"
     assert_includes css, '@import "../builds/tailwind/chadcn";'
-    assert_includes css, '@import "./theme/legacy-compat.css";'
     assert_includes css, '@import "./domains/articles/reader.css";'
   end
 
@@ -19,7 +18,7 @@ class ChadcnEngineTest < ActiveSupport::TestCase
     assert_not_includes css, "./theme/tokens.css"
   end
 
-  # The legacy (frozen) ui controllers import @floating-ui/dom: they depend on the pin that the gem's importmap provides.
+  # The gem's importmap provides the pins its controllers import (@floating-ui/dom, primitives).
   test "importmap resolves the engine pins" do
     imports = JSON.parse(Rails.application.importmap.to_json(resolver: ActionController::Base.helpers))["imports"]
 

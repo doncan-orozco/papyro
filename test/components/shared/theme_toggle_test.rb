@@ -34,10 +34,6 @@ class Components::Shared::ThemeToggleTest < ActiveSupport::TestCase
     %w[light dark system].each { |theme| assert_match(/theme-check-#{theme}/, html) }
   end
 
-  test "renders no legacy UI" do
-    assert_no_match(/ui--|Components::Ui/, render_toggle)
-  end
-
   private
 
   def render_toggle

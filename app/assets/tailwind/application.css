@@ -4,8 +4,6 @@
 @import "../builds/tailwind/chadcn";
 @import "./theme/theme.css";
 /* chadcn:end */
-@import "./theme/legacy-compat.css";
 @import "./foundation/base.css";
-@import "./components/ui-scroll-area.css";
 @import "./domains/articles/reader.css";
 @import "./utilities/motion.css";

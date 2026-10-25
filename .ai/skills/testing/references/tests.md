@@ -98,15 +98,14 @@ end
 ## Phlex Component Test
 
 ```ruby
-# test/components/ui/button_test.rb
+# test/components/shared/theme_toggle_test.rb
 require "test_helper"
 
-class Components::Ui::ButtonTest < ActionView::TestCase
-  test "renders default button" do
-    render Components::Ui::Button.new { "Save" }
+class Components::Shared::ThemeToggleTest < ActiveSupport::TestCase
+  test "renders an accessible trigger" do
+    html = Nokogiri::HTML5.fragment(ApplicationController.render(Components::Shared::ThemeToggle.new, layout: false))
 
-    assert_includes rendered, "Save"
-    assert_includes rendered, "inline-flex"
+    assert html.at_css("button[aria-label]")
   end
 end
 ```
