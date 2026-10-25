@@ -6,6 +6,8 @@
 #
 #   audit_receipt.rb write --scores architecture=9,clean_code=8,scalability=8,security=9,testability=8 \
 #                          --verdict PASS --mandatory-open 0 --iterations 2 --out tmp/audit/<slug>/scorecard.json
+#   audit_receipt.rb write --kind docs --scores structure=9,clarity=8,maintainability=8,accuracy=9,verifiability=8 ...
+#                          (kinds: code (default), gem, tooling, docs; --scores takes the kind's labels or the canonical keys)
 #   audit_receipt.rb check PATH [--min 8] [--dir DIR]     # JSON { ok, reasons, summary }; exit 0 ok, 1 not ok, 2 error
 #   audit_receipt.rb tree [--dir DIR]                      # fingerprint of the code as it is now (see below)
 #
@@ -26,6 +28,16 @@ module AuditReceipt
   SCORES = %w[architecture clean_code scalability security testability].freeze
   DEFAULT_MIN = 8
 
+  # The receipt always stores the five canonical keys (consumers such as work_board.rb rely on them); a kind only changes the
+  # labels a human reads and the labels --scores accepts. A receipt without "kind" is a code receipt.
+  KIND_LABELS = {
+    "code" => SCORES,
+    "gem" => SCORES,
+    "tooling" => %w[design readability robustness safety testability].freeze,
+    "docs" => %w[structure clarity maintainability accuracy verifiability].freeze
+  }.freeze
+  DEFAULT_KIND = "code"
+
   class Error < StandardError; end
 
   module_function
@@ -39,7 +51,18 @@ module AuditReceipt
     end
   end
 
-  def write(path, scores:, verdict:, mandatory_open:, iterations:, dir: Dir.pwd, now: Time.now.utc)
+  def labels_for(kind)
+    KIND_LABELS.fetch(kind) { raise Error, "unknown kind #{kind.inspect}; use #{KIND_LABELS.keys.join(', ')}" }
+  end
+
+  # Maps a kind's labels (or canonical keys) to the canonical keys.
+  def canonical_scores(scores, kind)
+    to_canonical = labels_for(kind).zip(SCORES).to_h.merge(SCORES.zip(SCORES).to_h)
+    scores.transform_keys { |key| to_canonical.fetch(key, key) }
+  end
+
+  def write(path, scores:, verdict:, mandatory_open:, iterations:, dir: Dir.pwd, now: Time.now.utc, kind: DEFAULT_KIND)
+    scores = canonical_scores(scores, kind)
     unknown = scores.keys - SCORES
     missing = SCORES - scores.keys
     raise Error, "unknown score(s): #{unknown.join(', ')}" if unknown.any?
@@ -50,6 +73,7 @@ module AuditReceipt
       "mandatory_open" => mandatory_open, "iterations" => iterations,
       "tree" => tree(dir), "at" => now.iso8601
     }
+    receipt["kind"] = kind unless kind == DEFAULT_KIND
     FileUtils.mkdir_p(File.dirname(path))
     File.write(path, JSON.pretty_generate(receipt))
     receipt
@@ -66,10 +90,13 @@ module AuditReceipt
     end
     scores = data["scores"].is_a?(Hash) ? data["scores"] : {}
     reasons = []
-    SCORES.each do |name|
+    kind = data["kind"] || DEFAULT_KIND
+    return result(false, [ "unknown kind #{kind.inspect}" ]) unless KIND_LABELS.key?(kind)
+
+    SCORES.zip(labels_for(kind)).each do |name, label|
       value = scores[name]
-      if !value.is_a?(Numeric) || value.negative? || value > 10 then reasons << "#{name} score is missing or not a number between 0 and 10"
-      elsif value < min then reasons << "#{name}=#{value} is below #{min}"
+      if !value.is_a?(Numeric) || value.negative? || value > 10 then reasons << "#{label} score is missing or not a number between 0 and 10"
+      elsif value < min then reasons << "#{label}=#{value} is below #{min}"
       end
     end
     reasons << "verdict is #{data['verdict'].inspect}, not PASS" unless data["verdict"] == "PASS"
@@ -102,6 +129,7 @@ if $PROGRAM_NAME == __FILE__
     o.on("--verdict V") { |v| opts[:verdict] = v }
     o.on("--mandatory-open N", Integer) { |v| opts[:mandatory_open] = v }
     o.on("--iterations N", Integer) { |v| opts[:iterations] = v }
+    o.on("--kind KIND") { |v| opts[:kind] = v }
     o.on("--out PATH") { |v| opts[:out] = v }
     o.on("--min N", Float) { |v| opts[:min] = v }
     o.on("--dir DIR") { |v| opts[:dir] = v }
@@ -111,7 +139,7 @@ if $PROGRAM_NAME == __FILE__
     case command
     when "write"
       abort("usage: write --scores a=9,... --verdict PASS --out PATH") unless opts[:scores] && opts[:verdict] && opts[:out]
-      puts JSON.pretty_generate(AuditReceipt.write(opts[:out], scores: opts[:scores], verdict: opts[:verdict], mandatory_open: opts[:mandatory_open], iterations: opts[:iterations], dir: opts[:dir]))
+      puts JSON.pretty_generate(AuditReceipt.write(opts[:out], scores: opts[:scores], verdict: opts[:verdict], mandatory_open: opts[:mandatory_open], iterations: opts[:iterations], dir: opts[:dir], kind: opts[:kind] || AuditReceipt::DEFAULT_KIND))
     when "check"
       abort("usage: check PATH [--min 8]") unless rest.first
       result = AuditReceipt.check(rest.first, min: opts[:min], dir: opts[:dir])
