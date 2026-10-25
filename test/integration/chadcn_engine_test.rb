@@ -71,7 +71,7 @@ class ChadcnEngineTest < ActiveSupport::TestCase
 
   # The host only consumes the gem's public API (Chadcn.root, the engine's pins, assets and tasks).
   test "host Ruby does not reach into the gem's internals or repo paths" do
-    internals = /Chadcn::(?:Engine|Loader|Generators)\b|Chadcn::[\w:]+\.send\(|gems\/chadcn\//
+    internals = /Chadcn::(?:Engine|Loader|Generators)\b|Chadcn::[\w:]+\.send\(|gems\/chadcn\/|ShadcnParity|Chadcn\.root[^\n]*\bdev\//
     files = Dir[Rails.root.join("{app,lib,config,test}/**/*.{rb,rake}")].map { |file| File.expand_path(file) } - [ File.expand_path(__FILE__) ]
     offenders = files.select { |file| File.read(file).match?(internals) }
 
