@@ -57,12 +57,15 @@ module AuditReceipt
 
   # Maps a kind's labels (or canonical keys) to the canonical keys.
   def canonical_scores(scores, kind)
-    to_canonical = labels_for(kind).zip(SCORES).to_h.merge(SCORES.zip(SCORES).to_h)
-    scores.transform_keys { |key| to_canonical.fetch(key, key) }
+    canonical_by_label = labels_for(kind).zip(SCORES).to_h
+    scores.transform_keys { |key| canonical_by_label.fetch(key, key) }
   end
 
   def write(path, scores:, verdict:, mandatory_open:, iterations:, dir: Dir.pwd, now: Time.now.utc, kind: DEFAULT_KIND)
+    submitted = scores.size
     scores = canonical_scores(scores, kind)
+    raise Error, "a score is given under both its #{kind} label and its canonical key" if scores.size < submitted
+
     unknown = scores.keys - SCORES
     missing = SCORES - scores.keys
     raise Error, "unknown score(s): #{unknown.join(', ')}" if unknown.any?
