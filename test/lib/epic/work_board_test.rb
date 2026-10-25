@@ -43,9 +43,10 @@ class WorkBoardTest < ActiveSupport::TestCase
 
   # Runs a command in-process like an agent's CLI call would; returns [parsed JSON (or {"raw"=>text}), exit status].
   def wb(*args, now: T0, env: {})
-    saved = ENV.to_h.slice("WORK_NOW", "WORK_FAKE_DB", "WORK_REMOTE", "WORK_SESSION")
+    saved = ENV.to_h.slice("WORK_NOW", "WORK_FAKE_DB", "WORK_REMOTE", "WORK_SESSION", "WORK_NO_SPAWN")
     ENV.update({ "WORK_FAKE_DB" => @db, "WORK_REMOTE" => "origin", "WORK_NOW" => now }.merge(env))
     ENV.delete("WORK_SESSION") unless env.key?("WORK_SESSION")
+    ENV.delete("WORK_NO_SPAWN") unless env.key?("WORK_NO_SPAWN")
     out = StringIO.new
     code = 0
     real_out, real_err = $stdout, $stderr
@@ -58,7 +59,7 @@ class WorkBoardTest < ActiveSupport::TestCase
     [ (JSON.parse(out.string) rescue { "raw" => out.string }), code ]
   ensure
     $stdout, $stderr = real_out, real_err
-    %w[WORK_NOW WORK_FAKE_DB WORK_REMOTE WORK_SESSION].each { |k| saved[k] ? ENV[k] = saved[k] : ENV.delete(k) }
+    %w[WORK_NOW WORK_FAKE_DB WORK_REMOTE WORK_SESSION WORK_NO_SPAWN].each { |k| saved[k] ? ENV[k] = saved[k] : ENV.delete(k) }
   end
 
   # Same call as a real subprocess (real `ruby script`, real fake_gh executable): used where true parallelism matters.
@@ -1267,6 +1268,8 @@ class WorkBoardTest < ActiveSupport::TestCase
     lock.flock(File::LOCK_EX)
     worker = Thread.new { wb_process("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--lease", "50") }
     sleep 2
+
+    assert_predicate worker, :alive?, "the heartbeat must block on the lock"
     during = `git -C #{@remote} rev-parse #{ref}`.strip
     lock.flock(File::LOCK_UN)
     result, code = worker.value
@@ -1313,6 +1316,43 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_equal "error", three["loop_ended"]
   end
 
+  test "daemon_args? matches only this epic and item, as a loop" do
+    args = "ruby /x/work_board.rb heartbeat 7 --epic demo --session s1 --lease 45 --interval 600 --loop"
+
+    assert WorkBoard::Board.daemon_args?(args, "demo", 7)
+    refute WorkBoard::Board.daemon_args?(args, "dem", 7)
+    refute WorkBoard::Board.daemon_args?(args.sub("--epic demo", "--epic demo2"), "demo", 7)
+    refute WorkBoard::Board.daemon_args?(args, "demo", 77)
+    refute WorkBoard::Board.daemon_args?(args.sub(" --loop", ""), "demo", 7)
+  end
+
+  test "a heartbeat loop treats a rejected push with an unchanged claim as a transient failure" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    claim(a, "s1")
+    hook = File.join(@remote, "hooks/pre-receive")
+    File.write(hook, "#!/bin/sh\nexit 1\n")
+    File.chmod(0o755, hook)
+    ended, = wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--loop", "--max-ticks", "2", "--interval", "0")
+
+    assert_equal "max_ticks", ended["loop_ended"]
+    assert_equal "s1", state_of(a)["holder"]
+  end
+
+  test "the watchdog drops a registration it cannot restart instead of crashing" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    claim(a, "s1")
+    wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--daemon", env: no_spawn)
+    reg = File.join(@work, ".git/work-board/demo-#{a}.json")
+    File.write(reg, JSON.generate(JSON.parse(File.read(reg)).merge("cwd" => "/nonexistent/dir", "pid" => 0)))
+    report, code = wb("watchdog", "--epic", "demo")
+
+    assert_equal 0, code, report.inspect
+    assert_equal [ a ], report["failed"]
+    refute_path_exists reg
+  end
+
   test "a pid that is not our daemon is never killed or trusted" do
     refute WorkBoard::Board.our_daemon?(Process.pid, "demo", 1)
     refute WorkBoard::Board.our_daemon?(0, "demo", 1)
@@ -1324,7 +1364,9 @@ class WorkBoardTest < ActiveSupport::TestCase
 
     assert_predicate status, :success?
     out, err, status = Open3.capture3({ "WORKER_ENV_SKIP_GH" => "1" }, "bash", script, "--check", chdir: Rails.root.to_s)
-    skip "gh, node or ruby missing on this machine: #{err}" unless status.success?
+    skip "ruby, node or gh missing on this machine" unless %w[ruby node gh].all? { |t| system("command -v #{t} >/dev/null 2>&1") }
+
+    assert_predicate status, :success?, err
 
     assert_match(/worker-env: ok/, out)
   end

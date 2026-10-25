@@ -450,9 +450,13 @@ module WorkBoard
       return false unless pid.to_i.positive?
 
       args, status = Open3.capture2("ps", "-o", "args=", "-p", pid.to_i.to_s)
-      status.success? && args.include?("work_board.rb heartbeat #{number} ") && args.include?("--epic #{slug}") && args.include?("--loop")
+      status.success? && daemon_args?(args, slug, number)
     rescue SystemCallError
       false
+    end
+
+    def self.daemon_args?(args, slug, number)
+      args.match?(%r{work_board\.rb heartbeat #{number}\s}) && args.match?(/(?:\A|\s)--epic #{Regexp.escape(slug)}(?:\s|\z)/) && args.match?(/\s--loop(?:\s|\z)/)
     end
 
     # Stops the item's heartbeat daemon (never the calling process itself) and forgets it.
@@ -993,9 +997,9 @@ module WorkBoard
     def spawn_heartbeat(b, data)
       return 0 if ENV["WORK_NO_SPAWN"]
 
-      args = [ RbConfig.ruby, __FILE__, "heartbeat", data["item"].to_s, "--epic", data["epic"], "--session", data["session"], "--lease", data["lease"].to_s,
+      args = [ RbConfig.ruby, File.expand_path(__FILE__), "heartbeat", data["item"].to_s, "--epic", data["epic"], "--session", data["session"], "--lease", data["lease"].to_s,
                "--interval", data["interval"].to_s, "--loop" ]
-      pid = File.open(b.state_path(data["item"], "log"), "a") do |log|
+      pid = File.open(b.state_path(data["item"], "log"), "w") do |log|
         Process.spawn(*args, chdir: data["cwd"], pgroup: true, in: File::NULL, out: log, err: log)
       end
       Process.detach(pid)
@@ -1015,7 +1019,8 @@ module WorkBoard
         end
         failures = 0 if state == :renewed
         if %i[gone taken lost error].include?(state)
-          b.with_lock(number) { b.unregister(number) if b.registration(number)&.dig("pid").to_i == Process.pid }
+          # :error keeps the registration so the watchdog can revive the loop once the remote is back
+          b.with_lock(number) { b.unregister(number) if state != :error && b.registration(number)&.dig("pid").to_i == Process.pid }
           out({ ok: true, loop_ended: state.to_s, ticks: ticks })
         end
         ticks += 1
@@ -1031,7 +1036,13 @@ module WorkBoard
       return :taken unless current[:session] == opts[:session]
 
       sha = b.claim_commit(number, opts[:session], lease_of(opts), parent: current[:sha])
-      b.push_claim(number, sha, current[:sha])[0] ? :renewed : :lost
+      ok, err = b.push_claim(number, sha, current[:sha])
+      return :renewed if ok
+
+      after = b.claims[number] # raises Failure when the remote is unreachable: a transient error, counted as a retry
+      return :lost unless after && after[:session] == opts[:session] && after[:sha] == current[:sha]
+
+      raise Failure, "push failed, claim unchanged: #{err.to_s.strip.lines.last}"
     end
 
     # One pass over the registered daemons: restart the dead ones, forget the registrations whose claim is gone or taken.
@@ -1043,7 +1054,7 @@ module WorkBoard
       loop do
         report = opts[:loop] ? watchdog_safely(b) : watchdog_pass(b)
         ticks += 1
-        out({ restarted: report[:restarted], dropped: report[:dropped], alive: report[:alive] }) unless opts[:loop]
+        out({ restarted: report[:restarted], dropped: report[:dropped], alive: report[:alive], failed: report[:failed] || [] }) unless opts[:loop]
         puts(JSON.generate(report))
         $stdout.flush
         exit 0 if opts[:max_ticks] && ticks >= opts[:max_ticks].to_i
@@ -1064,9 +1075,15 @@ module WorkBoard
           elsif Board.our_daemon?(reg["pid"], b.slug, n)
             report[:alive] << n
           else
-            reg["pid"] = spawn_heartbeat(b, reg)
-            b.register(n, reg)
-            report[:restarted] << n
+            begin
+              reg["pid"] = spawn_heartbeat(b, reg)
+              b.register(n, reg)
+              report[:restarted] << n
+            rescue SystemCallError => e
+              warn "watchdog ##{n}: cannot restart (#{e.message}); dropping registration"
+              b.unregister(n)
+              (report[:failed] ||= []) << n
+            end
           end
         end
       end
