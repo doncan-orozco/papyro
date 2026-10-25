@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/doncan-orozco/chadcn.git
-  revision: d7e95e328a391629ddd4df2b39e1bb8e8219592d
+  revision: 8709706503d0d7623af5a0217aa841f9da374ed4
   branch: main
   specs:
     chadcn (0.1.0)

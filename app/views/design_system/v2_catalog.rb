@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-# Explicit require so this view does not depend on Components::Parity::Catalog having loaded the parity harness first.
-# Dev-kit coupling: the gem's dev/ is not packaged, so this works with the path gem only.
-require Chadcn.root.join("dev/parity/lib/shadcn_parity").to_s
-
 include Phlex::Rails::Helpers::ContentFor
 
 module Views
   module DesignSystem
-    # Index of every ported Chadcn component, generated from the scenario files (see Components::Parity::Catalog).
+    # Index of every ported Chadcn component, read from the gem's packaged catalog (see Components::Parity::Catalog).
     class V2Catalog < Views::Base
       include Phlex::Rails::Helpers::ImagePath
 
@@ -111,7 +107,7 @@ module Views
       end
 
       def preview(entry)
-        render ShadcnParity::TreeRenderer.new(tree: entry.tree, component: entry.component)
+        render Chadcn::Catalog::TreeRenderer.new(tree: entry.tree, component: entry.component)
       rescue StandardError => e
         Rails.logger.error("[design-system v2] #{entry.component}: #{e.class}: #{e.message}")
         p(class: "text-sm text-destructive") { t("design_system.catalog_v2.unavailable", error: e.class.name) }
