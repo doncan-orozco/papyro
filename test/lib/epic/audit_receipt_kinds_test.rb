@@ -79,4 +79,10 @@ class AuditReceiptKindsTest < ActiveSupport::TestCase
   test "a score given under its label and its canonical key is refused, never silently dropped" do
     assert_raises(AuditReceipt::Error) { write_receipt(DOCS_SCORES.merge("architecture" => 3), kind: "docs") }
   end
+
+  test "the summary keeps the shape work_board.rb matches in stage-log notes" do
+    write_receipt(DOCS_SCORES, kind: "docs")
+
+    assert_match(/\Aaudit min=\d+ verdict=PASS /, AuditReceipt.check(@receipt, dir: @repo)["summary"])
+  end
 end
