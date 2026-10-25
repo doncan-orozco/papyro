@@ -26,6 +26,9 @@
 #       The only merge door; /work never calls it, /work-merge (run by a human) does (epic-flow R13).
 #   work_board.rb claim N --epic S --session ID [--lease 45]   # atomic; exit 1 when someone else holds it
 #   work_board.rb heartbeat N --epic S --session ID [--lease 45]
+#       --daemon [--interval 600]: a detached loop that heartbeats every interval seconds, registered under .git/work-board/; it exits when
+#       the claim is gone or taken, and release/advance (without --keep)/block stop it first. --stop stops it, --loop runs it in the foreground.
+#   work_board.rb watchdog --epic S [--loop] [--interval 300]   # restarts the registered heartbeat daemons that died (e.g. after a session restart)
 #   work_board.rb release N --epic S --session ID [--force]   # --force: a human frees an abandoned claim of any session
 #   work_board.rb advance N --epic S --session ID --stage X [--keep] [--note TXT] [--audit-receipt FILE]
 #       --stage review needs --audit-receipt: the scorecard.json /audit-feature wrote (audit_receipt.rb), every score >= 8, verdict PASS,
@@ -35,6 +38,9 @@
 #   work_board.rb comment N --epic S --session ID --type shared|lesson|handoff|blocker|announce (--body TXT | --body-file F)
 #   work_board.rb digest --epic S [--item N] [--format json|md]
 #   work_board.rb reap --epic S [--session ID]             # free claims whose lease expired
+#
+# claim, heartbeat, release, advance and block on one item serialise on a file lock (.git/work-board/<epic>-<n>.lock), so a heartbeat
+# loop can never interleave with the advance that releases the item. Heartbeat renews an existing claim only; it never creates one.
 #
 # Env: WORK_GH (default `gh`), WORK_REMOTE (default `origin`), WORK_BASE (default `main`), WORK_NOW (ISO time, tests),
 # WORK_SESSION (else CLAUDE_CODE_SESSION_ID, else tmp/epic/session); `session --unique` ignores all three.
@@ -65,6 +71,8 @@ module WorkBoard
   CLAIM_NS = "refs/claims"
   LOCAL_NS = "refs/claims-remote"
   DEFAULT_LEASE_MIN = 45
+  DEFAULT_HEARTBEAT_S = 600 # lease is 45 min: a loop at 10 min survives several missed ticks
+  DEFAULT_WATCHDOG_S = 300
   META = /<!--\s*work-item\s*(\{.*?\})\s*-->/m
   NOTE = /<!--\s*work-note\s*(\{.*?\})\s*-->/m
   EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d6a5c65b3dd3d"
@@ -138,7 +146,8 @@ module WorkBoard
 
     # The Gate commands of the issue body (`## Gates` section, one `- \`cmd\`` per line): what the merge sweep runs on main.
     def gates
-      section = @body.split(/^##\s+/).find { |s| s.start_with?("Gates") }
+      # `## Gates` exactly (an optional parenthetical is allowed): `## Gates and audit routing` is another section.
+      section = @body.split(/^##\s+/).find { |s| s.lines.first.to_s.match?(/\AGates\s*(\(.*\))?\s*\z/) }
       return [] unless section
 
       section.lines.drop(1).filter_map { |l| l[/\A-\s+`([^`]+)`/, 1] || l[/\A-\s+(\S.*)/, 1]&.strip }
@@ -395,6 +404,55 @@ module WorkBoard
       ok
     end
 
+    # -- local worker state (lock, heartbeat registry) ------------------------------------------------------
+    def state_dir
+      common = git("rev-parse", "--path-format=absolute", "--git-common-dir").strip
+      dir = File.join(common, "work-board")
+      FileUtils.mkdir_p(dir)
+      dir
+    end
+
+    def state_path(number, ext) = File.join(state_dir, "#{@slug}-#{number}.#{ext}")
+
+    # Serialises every claim mutation of one item between processes of this checkout (heartbeat loop vs advance).
+    def with_lock(number)
+      File.open(state_path(number, "lock"), File::RDWR | File::CREAT, 0o644) do |f|
+        f.flock(File::LOCK_EX)
+        yield
+      end
+    end
+
+    def registration(number)
+      path = state_path(number, "json")
+      File.exist?(path) ? JSON.parse(File.read(path)) : nil
+    rescue JSON::ParserError
+      nil
+    end
+
+    def register(number, data) = File.write(state_path(number, "json"), JSON.generate(data))
+    def unregister(number) = FileUtils.rm_f(state_path(number, "json"))
+    def registrations = Dir.glob(File.join(state_dir, "#{@slug}-*.json")).filter_map { |f| registration(f[/-(\d+)\.json\z/, 1].to_i) }
+
+    def self.alive?(pid)
+      pid.to_i.positive? && (Process.kill(0, pid.to_i) && true)
+    rescue Errno::ESRCH, Errno::EPERM
+      false
+    end
+
+    # Stops the item's heartbeat daemon (never the calling process itself) and forgets it.
+    def stop_heartbeat(number)
+      reg = registration(number)
+      return false unless reg
+
+      pid = reg["pid"].to_i
+      Process.kill("TERM", pid) if Board.alive?(pid) && pid != Process.pid
+      unregister(number)
+      true
+    rescue Errno::ESRCH, Errno::EPERM
+      unregister(number)
+      true
+    end
+
     # -- labels ----------------------------------------------------------------------------------------------
     def ensure_labels(*names)
       names.flatten.uniq.each do |name|
@@ -505,6 +563,7 @@ module WorkBoard
       when "merge" then merge
       when "claim" then claim
       when "heartbeat" then heartbeat
+      when "watchdog" then watchdog
       when "release" then release
       when "advance" then advance
       when "block" then block
@@ -519,7 +578,7 @@ module WorkBoard
       out({ error: e.message }, 2)
     end
 
-    def usage = out({ error: "usage: work_board.rb <session|epic create|item create|item edit|validate|status|next|reviews|mergeable|merge|claim|heartbeat|release|advance|block|unblock|comment|digest|reap> ..." }, 2)
+    def usage = out({ error: "usage: work_board.rb <session|epic create|item create|item edit|validate|status|next|reviews|mergeable|merge|claim|heartbeat|watchdog|release|advance|block|unblock|comment|digest|reap> ..." }, 2)
 
     def need(opts, *keys)
       missing = keys.reject { |k| opts[k] }
@@ -840,6 +899,10 @@ module WorkBoard
       need(opts, :epic, :session)
       number = rest.first.to_i
       b = board(opts)
+      b.with_lock(number) { claim_locked(b, number, opts) }
+    end
+
+    def claim_locked(b, number, opts)
       item = b.item(number)
       out({ claimed: false, reason: "not_ready", detail: "done, blocked or waiting on #{(item.blocked_by - b.done_numbers).inspect}" }, 1) unless b.ready?(item)
       claims = b.claims
@@ -880,10 +943,106 @@ module WorkBoard
     end
 
     def heartbeat
-      opts, rest = parse("--epic" => :v, "--session" => :v, "--lease" => :v)
+      opts, rest = parse("--epic" => :v, "--session" => :v, "--lease" => :v, "--daemon" => :flag, "--loop" => :flag, "--stop" => :flag,
+                         "--interval" => :v, "--max-ticks" => :v)
       need(opts, :epic, :session)
       b = board(opts)
-      refresh(b, rest.first.to_i, opts, held_by(b, rest.first.to_i, opts[:session]))
+      number = rest.first.to_i
+      return heartbeat_stop(b, number) if opts[:stop]
+      return heartbeat_loop(b, number, opts) if opts[:loop]
+      return heartbeat_daemon(b, number, opts) if opts[:daemon]
+
+      b.with_lock(number) { refresh(b, number, opts, held_by(b, number, opts[:session])) }
+    end
+
+    def heartbeat_stop(b, number)
+      b.with_lock(number) { out({ ok: true, stopped: b.stop_heartbeat(number) }) }
+    end
+
+    def heartbeat_interval(opts) = (opts[:interval] || DEFAULT_HEARTBEAT_S).to_i
+
+    # Registers and starts a detached loop that renews the lease until the claim is gone, so a long stage (or a restarted shell) cannot
+    # let it lapse. release/advance/block stop it before they drop the claim.
+    def heartbeat_daemon(b, number, opts)
+      b.with_lock(number) do
+        held_by(b, number, opts[:session])
+        b.stop_heartbeat(number)
+        data = { "epic" => opts[:epic], "item" => number, "session" => opts[:session], "lease" => lease_of(opts), "interval" => heartbeat_interval(opts), "cwd" => Dir.pwd }
+        data["pid"] = spawn_heartbeat(data)
+        b.register(number, data)
+        out({ ok: true, daemon: true, pid: data["pid"], interval: data["interval"] })
+      end
+    end
+
+    def spawn_heartbeat(data)
+      return 0 if ENV["WORK_NO_SPAWN"]
+
+      args = [ RbConfig.ruby, __FILE__, "heartbeat", data["item"].to_s, "--epic", data["epic"], "--session", data["session"], "--lease", data["lease"].to_s,
+               "--interval", data["interval"].to_s, "--loop" ]
+      Process.detach(Process.spawn(*args, chdir: data["cwd"], pgroup: true, in: File::NULL, out: File::NULL, err: File::NULL))
+    end
+
+    # Foreground loop (what the daemon runs): renew, sleep, stop when the claim is no longer ours. --max-ticks bounds it for tests.
+    def heartbeat_loop(b, number, opts)
+      ticks = 0
+      loop do
+        state = b.with_lock(number) { renew(b, number, opts) }
+        unless state == :renewed
+          b.unregister(number)
+          out({ ok: true, loop_ended: state.to_s, ticks: ticks })
+        end
+        ticks += 1
+        out({ ok: true, loop_ended: "max_ticks", ticks: ticks }) if opts[:max_ticks] && ticks >= opts[:max_ticks].to_i
+        sleep(heartbeat_interval(opts))
+      end
+    end
+
+    # Renews an existing claim of ours; never creates one (the race that re-created a released claim).
+    def renew(b, number, opts)
+      current = b.claims[number]
+      return :gone unless current
+      return :taken unless current[:session] == opts[:session]
+
+      sha = b.claim_commit(number, opts[:session], lease_of(opts), parent: current[:sha])
+      b.push_claim(number, sha, current[:sha])[0] ? :renewed : :lost
+    end
+
+    # One pass over the registered daemons: restart the dead ones, forget the registrations whose claim is gone or taken.
+    def watchdog
+      opts, = parse("--epic" => :v, "--loop" => :flag, "--interval" => :v, "--max-ticks" => :v)
+      need(opts, :epic)
+      b = board(opts)
+      ticks = 0
+      loop do
+        report = watchdog_pass(b)
+        ticks += 1
+        out({ restarted: report[:restarted], dropped: report[:dropped], alive: report[:alive] }) unless opts[:loop]
+        puts(JSON.generate(report))
+        $stdout.flush
+        exit 0 if opts[:max_ticks] && ticks >= opts[:max_ticks].to_i
+        sleep((opts[:interval] || DEFAULT_WATCHDOG_S).to_i)
+      end
+    end
+
+    def watchdog_pass(b)
+      claims = b.claims
+      report = { restarted: [], dropped: [], alive: [] }
+      b.registrations.each do |reg|
+        n = reg["item"]
+        b.with_lock(n) do
+          if claims[n].nil? || claims[n][:session] != reg["session"]
+            b.stop_heartbeat(n)
+            report[:dropped] << n
+          elsif Board.alive?(reg["pid"])
+            report[:alive] << n
+          else
+            reg["pid"] = spawn_heartbeat(reg)
+            b.register(n, reg)
+            report[:restarted] << n
+          end
+        end
+      end
+      report
     end
 
     def release
@@ -892,10 +1051,13 @@ module WorkBoard
       need(opts, :session) unless opts[:force]
       b = board(opts)
       number = rest.first.to_i
-      current = opts[:force] ? (b.claims[number] || out({ ok: false, reason: "not_held" }, 1)) : held_by(b, number, opts[:session])
-      out({ ok: false, reason: "lost_lease" }, 1) unless b.delete_claim(number, current[:sha])
-      b.edit_labels(number, remove: [ "claimed" ])
-      out({ ok: true, released: number, was_held_by: current[:session], forced: opts[:force] || false })
+      b.with_lock(number) do
+        current = opts[:force] ? (b.claims[number] || out({ ok: false, reason: "not_held" }, 1)) : held_by(b, number, opts[:session])
+        b.stop_heartbeat(number)
+        out({ ok: false, reason: "lost_lease" }, 1) unless b.delete_claim(number, current[:sha])
+        b.edit_labels(number, remove: [ "claimed" ])
+        out({ ok: true, released: number, was_held_by: current[:session], forced: opts[:force] || false })
+      end
     end
 
     def advance
@@ -904,6 +1066,10 @@ module WorkBoard
       out({ error: "unknown stage #{opts[:stage]}" }, 2) unless STAGES.include?(opts[:stage])
       b = board(opts)
       number = rest.first.to_i
+      b.with_lock(number) { advance_locked(b, number, opts) }
+    end
+
+    def advance_locked(b, number, opts)
       current = held_by(b, number, opts[:session])
       item = b.item(number)
       note = opts[:note]
@@ -920,6 +1086,7 @@ module WorkBoard
         return refresh(b, number, opts, current)
       end
 
+      b.stop_heartbeat(number) # before the claim goes: no loop may renew (re-create) it afterwards
       b.delete_claim(number, current[:sha])
       b.edit_labels(number, remove: [ "claimed" ])
       out({ ok: true, number: number, stage: opts[:stage], released: true })
@@ -930,11 +1097,14 @@ module WorkBoard
       need(opts, :epic, :session, :reason)
       b = board(opts)
       number = rest.first.to_i
-      current = held_by(b, number, opts[:session])
-      b.post_note(number, type: "blocker", session: opts[:session], text: opts[:reason])
-      b.delete_claim(number, current[:sha])
-      b.edit_labels(number, add: [ "needs-human" ], remove: [ "claimed" ])
-      out({ ok: true, number: number, blocked: true })
+      b.with_lock(number) do
+        current = held_by(b, number, opts[:session])
+        b.post_note(number, type: "blocker", session: opts[:session], text: opts[:reason])
+        b.stop_heartbeat(number)
+        b.delete_claim(number, current[:sha])
+        b.edit_labels(number, add: [ "needs-human" ], remove: [ "claimed" ])
+        out({ ok: true, number: number, blocked: true })
+      end
     end
 
     def unblock

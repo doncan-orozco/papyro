@@ -1157,4 +1157,133 @@ class WorkBoardTest < ActiveSupport::TestCase
     assert_equal 0, code, result.inspect
     refute result["branch_deleted"]
   end
+
+  test "Gates are read from the `## Gates` section only, not from `## Gates and audit routing`" do
+    make_epic
+    body = "## Gates and audit routing\n- `wrong command`\n\n## Gates\n- `bin/rails test`\n\n## Acceptance\n- [ ] ok\n"
+    a = wb("item", "create", "--epic", "demo", "--title", "A", "--body", body, "--wave", "1", "--owns", "lib/a/**")[0]["number"]
+    only_routing = wb("item", "create", "--epic", "demo", "--title", "B", "--body", "## Gates and audit routing\n- `x`\n", "--wave", "1", "--owns", "lib/b/**")[0]["number"]
+
+    assert_equal [ "bin/rails test" ], wb("show", a.to_s, "--epic", "demo")[0]["gates"]
+    assert_empty wb("show", only_routing.to_s, "--epic", "demo")[0]["gates"]
+  end
+
+  # ---- heartbeat loops, locks and the watchdog (#311) ------------------------------------------------------------------
+  def no_spawn = { "WORK_NO_SPAWN" => "1" }
+
+  test "heartbeat --loop renews the lease, and ends instead of re-creating a claim that was released" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    claim(a, "s1", lease: 10)
+    ticks, code = wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--lease", "10", "--loop", "--max-ticks", "2", "--interval", "0", now: "2026-10-12T10:08:00Z")
+
+    assert_equal 0, code
+    assert_equal "max_ticks", ticks["loop_ended"]
+    assert_equal "in-progress", wb("status", "--epic", "demo", now: "2026-10-12T10:12:00Z")[0]["items"].first["state"]
+
+    wb("advance", a.to_s, "--epic", "demo", "--session", "s1", "--stage", "build")
+    ended, = wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--loop", "--max-ticks", "3", "--interval", "0")
+
+    assert_equal "gone", ended["loop_ended"]
+    assert_nil state_of(a)["holder"], "the loop must not bring the released claim back"
+  end
+
+  test "a loop whose claim moved to another session ends without touching it" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    claim(a, "s1", lease: 10)
+    claim(a, "s2", now: "2026-10-12T10:30:00Z")
+    ended, = wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--loop", "--max-ticks", "3", "--interval", "0", now: "2026-10-12T10:30:00Z")
+
+    assert_equal "taken", ended["loop_ended"]
+    assert_equal "s2", state_of(a)["holder"]
+  end
+
+  test "heartbeat --daemon registers a loop; advance, release and block stop it before the claim goes" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    b = make_item("B", wave: 1, owns: "lib/b/**")
+    c = make_item("C", wave: 1, owns: "lib/c/**")
+    [ a, b, c ].each { |n| claim(n, "s1") }
+    started, code = wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--daemon", env: no_spawn)
+    wb("heartbeat", b.to_s, "--epic", "demo", "--session", "s1", "--daemon", env: no_spawn)
+    wb("heartbeat", c.to_s, "--epic", "demo", "--session", "s1", "--daemon", env: no_spawn)
+
+    assert_equal 0, code, started.inspect
+    assert_equal 3, Dir.glob(File.join(@work, ".git/work-board/demo-*.json")).size
+    wb("advance", a.to_s, "--epic", "demo", "--session", "s1", "--stage", "build")
+    wb("release", b.to_s, "--epic", "demo", "--session", "s1")
+    wb("block", c.to_s, "--epic", "demo", "--session", "s1", "--reason", "stuck")
+
+    assert_empty Dir.glob(File.join(@work, ".git/work-board/demo-*.json"))
+  end
+
+  test "heartbeat --daemon is refused for an item the session does not hold" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    claim(a, "s1")
+
+    assert_equal 1, wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s2", "--daemon", env: no_spawn)[1]
+  end
+
+  test "heartbeat --stop stops the registered daemon" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    claim(a, "s1")
+    wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--daemon", env: no_spawn)
+    stopped, = wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--stop")
+
+    assert stopped["stopped"]
+    assert_empty Dir.glob(File.join(@work, ".git/work-board/demo-*.json"))
+  end
+
+  test "watchdog restarts a dead daemon and drops registrations whose claim is gone" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    b = make_item("B", wave: 1, owns: "lib/b/**")
+    claim(a, "s1")
+    claim(b, "s1")
+    wb("heartbeat", a.to_s, "--epic", "demo", "--session", "s1", "--daemon", env: no_spawn)
+    wb("heartbeat", b.to_s, "--epic", "demo", "--session", "s1", "--daemon", env: no_spawn)
+    reg = File.join(@work, ".git/work-board/demo-#{b}.json")
+    data = JSON.parse(File.read(reg)).merge("pid" => 0)
+    wb("release", b.to_s, "--epic", "demo", "--session", "s1", "--force") # claim gone, registration deliberately left behind
+    File.write(reg, JSON.generate(data))
+    report, code = wb("watchdog", "--epic", "demo", env: no_spawn)
+
+    assert_equal 0, code
+    assert_equal [ a ], report["restarted"]
+    assert_equal [ b ], report["dropped"]
+  end
+
+  test "a heartbeat and an advance on one item serialise on the lock" do
+    make_epic
+    a = make_item("A", wave: 1, owns: "lib/a/**")
+    claim(a, "s1")
+    held = false
+    FileUtils.mkdir_p(File.join(@work, ".git/work-board"))
+    lock = File.open(File.join(@work, ".git/work-board/demo-#{a}.lock"), File::RDWR | File::CREAT)
+    lock.flock(File::LOCK_EX)
+    worker = Thread.new { wb_process("heartbeat", a.to_s, "--epic", "demo", "--session", "s1") }
+    sleep 1
+    held = worker.alive?
+    lock.flock(File::LOCK_UN)
+    result, code = worker.value
+
+    assert held, "the heartbeat waited for the lock holder"
+    assert_equal 0, code, result.inspect
+  ensure
+    lock&.close
+  end
+
+  test "bin/worker-env passes its preflight on a configured machine and is valid shell" do
+    script = Rails.root.join("bin/worker-env").to_s
+    _, status = Open3.capture2("bash", "-n", script)
+
+    assert_predicate status, :success?
+    out, err, status = Open3.capture3("bash", script, "--check", chdir: Rails.root.to_s)
+    skip "gh, node or ruby missing on this machine: #{err}" unless status.success?
+
+    assert_match(/worker-env: ok/, out)
+  end
 end

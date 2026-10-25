@@ -54,6 +54,8 @@ ruby .claude/scripts/epic/work_board.rb claim N --epic S --session ID
 ruby .claude/scripts/epic/work_board.rb show N --epic S
 ruby .claude/scripts/epic/work_board.rb digest --epic S --item N --format md
 ruby .claude/scripts/epic/work_board.rb heartbeat N --epic S --session ID
+ruby .claude/scripts/epic/work_board.rb heartbeat N --epic S --session ID --daemon [--interval 600]   # detached renewal loop; --stop / --loop; release, advance (no --keep) and block stop it
+ruby .claude/scripts/epic/work_board.rb watchdog --epic S [--loop]   # restart registered heartbeat daemons that died (session restart)
 ruby .claude/scripts/epic/work_board.rb advance N --epic S --session ID --stage build [--keep] --note "what changed"
 ruby .claude/scripts/epic/work_board.rb comment N --epic S --session ID --type shared --body "..."
 ruby .claude/scripts/epic/work_board.rb block N --epic S --session ID --reason "..."
@@ -62,6 +64,8 @@ ruby .claude/scripts/epic/work_board.rb item edit N --epic S --session ID --bloc
 ```
 
 `item create` also takes `--gates-file` / `--acceptance-file` (one entry per line, written as `## Gates` / `## Acceptance`) and answers `warnings: [OWNS_OVERLAP]` when its Owns overlap an unfinished item. `gh` calls are retried (3 attempts, backoff) on 401 always, and on 502/503/504/timeouts only for reads and idempotent edits (`issue create`, `issue comment` and `pr merge` are never repeated on an ambiguous error); `next --item N` answers `not_an_item` or `done` for an unknown or finished N; `mergeable` waits for a PR whose mergeability GitHub is still computing.
+
+Concurrency: `claim`, `heartbeat`, `release`, `advance` and `block` on one item take a file lock (`.git/work-board/<epic>-<n>.lock`) and a heartbeat only renews an existing claim, so a heartbeat loop cannot re-create the claim that `advance --stage review` just released (the merge would then read `held`). Use `heartbeat --daemon`, never a hand-written loop around `claim`. Source `bin/worker-env` in every worker shell (PATH, UTF-8 locale, preflight). Reviews and audits run in the foreground.
 
 Session ids: workers started from one Claude session share `CLAUDE_CODE_SESSION_ID`, so they would look like the same holder and both win a claim. A worker therefore takes its own id with `session --unique` (or the brief sets `WORK_SESSION`) and passes it with every `--session`. Never use `$$`: it changes on every Bash call.
 
