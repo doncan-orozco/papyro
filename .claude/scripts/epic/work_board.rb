@@ -11,6 +11,9 @@
 #   work_board.rb item edit N --epic S --session ID --blocked-by 1,2 --reason TXT
 #       a maintainer's plan change: replaces the item's blockers in its meta block (`--blocked-by ""` clears them), refuses a blocker
 #       outside the epic, a wave-order violation or a cycle, and logs a plan-edit note with the reason. The prose sections stay as written.
+#   work_board.rb item adopt N --epic S --wave N --owns a,b [--blocked-by 1,2] [--stage plan] [--priority N] [--append-file F]
+#       puts an EXISTING issue on the board (labels + work-item meta block); --append-file adds the Owns/Gates/Acceptance sections it lacks.
+#       Refuses an issue that already carries an epic label or meta block. For standalone issues that have no epic yet.
 #   work_board.rb plan-check --file plan.json              # lint a plan BEFORE creating anything (same rules as validate + contract fields)
 #   work_board.rb plan-apply --file plan.json              # create the epic root + all items in dependency order (refuses an existing epic)
 #   work_board.rb validate --epic S                        # plan lint on created issues: deps exist, no cycles, owns present and non-overlapping
@@ -601,6 +604,7 @@ module WorkBoard
         case @argv.shift
         when "create" then item_create
         when "edit" then item_edit
+        when "adopt" then item_adopt
         else usage
         end
       when "validate" then validate
@@ -723,6 +727,27 @@ module WorkBoard
       "## #{heading}\n#{lines.map { |l| yield l }.join("\n")}" if lines.any?
     rescue SystemCallError => e
       out({ error: "cannot read #{heading.downcase} file: #{e.message}" }, 2)
+    end
+
+    def item_adopt
+      opts, rest = parse("--epic" => :v, "--wave" => :v, "--owns" => :v, "--blocked-by" => :v, "--stage" => :v, "--priority" => :v, "--append-file" => :v)
+      need(opts, :epic, :wave, :owns)
+      stage = opts[:stage] || "plan"
+      out({ error: "unknown stage #{stage}" }, 2) unless STAGES.include?(stage)
+      b = board(opts)
+      number = rest.first.to_i
+      raw = b.gh_json("issue", "view", number.to_s, "--json", "number,title,state,labels,body")
+      existing = Item.new(raw)
+      out({ ok: false, reason: "already_on_a_board", labels: existing.labels }, 1) if existing.meta.any? || existing.labels.any? { |l| l.start_with?("epic:") }
+      meta = { epic: opts[:epic], wave: opts[:wave].to_i, owns: opts[:owns].split(",").map(&:strip),
+               blocked_by: opts[:blocked_by].to_s.split(",").map(&:to_i), priority: opts[:priority].to_i }
+      labels = [ "epic:#{opts[:epic]}", "stage:#{stage}", "wave:#{meta[:wave]}" ]
+      b.ensure_labels(labels)
+      extra = opts[:append_file] ? File.read(opts[:append_file]).strip : nil
+      body = [ existing.body.strip, extra, "<!-- work-item #{JSON.generate(meta)} -->" ].compact.join("\n\n") + "\n"
+      b.edit_body(number, body)
+      b.gh("issue", "edit", number.to_s, *labels.flat_map { |l| [ "--add-label", l ] })
+      out({ ok: true, number: number, meta: meta, labels: labels })
     end
 
     # A maintainer changes the plan (e.g. a blocker moved to another repository): the new blockers go through the same plan rules as
