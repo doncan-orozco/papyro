@@ -70,7 +70,7 @@ app/assets/tailwind/
 
 - `Articles::Show` typography belongs in `domains/articles/reader.css`.
 - Shared custom scrollbar rules belong in `components/ui-scroll-area.css`.
-- Theme variables and dark mode belong in `theme/theme.css` (shadcn format; see `shadcn-port` theme-contract). `foundation/` keeps only non-theme globals.
+- Theme variables and dark mode belong in `theme/theme.css` (shadcn format; see `shadcn-port` (chadcn repo, doncan-orozco/chadcn) references/theme-contract.md). `foundation/` keeps only non-theme globals.
 
 ## Companion Skills
 
