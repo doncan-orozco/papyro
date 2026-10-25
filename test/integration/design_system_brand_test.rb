@@ -8,7 +8,7 @@ class DesignSystemBrandTest < ActionDispatch::IntegrationTest
   COPIES = { "host" => Rails.root.join("app/assets/images/brand") }.freeze
 
   test "the V2 catalog shows the light and dark wordmark, the tagline and the disclaimer in English" do
-    get design_system_v2_path(locale: :en)
+    get design_system_path(locale: :en)
 
     assert_response :success
     assert_select "header img[alt='chadcn'][src*='brand/wordmark-light']", 1
@@ -20,7 +20,7 @@ class DesignSystemBrandTest < ActionDispatch::IntegrationTest
   end
 
   test "the V2 catalog brand strings are translated to Spanish" do
-    get design_system_v2_path(locale: :es)
+    get design_system_path(locale: :es)
 
     assert_response :success
     assert_select "header p", text: "chadcn go brrrrrr"
@@ -30,7 +30,7 @@ class DesignSystemBrandTest < ActionDispatch::IntegrationTest
 
   %i[en es].each do |locale|
     test "the #{locale} tagline carries no link and the subtitle links shadcn/ui once" do
-      get design_system_v2_path(locale: locale)
+      get design_system_path(locale: locale)
 
       assert_select "header p", text: "chadcn go brrrrrr" do
         assert_select "a", false
@@ -40,26 +40,26 @@ class DesignSystemBrandTest < ActionDispatch::IntegrationTest
   end
 
   test "the Spanish page carries the chadcn title" do
-    get design_system_v2_path(locale: :es)
+    get design_system_path(locale: :es)
 
     assert_select "title", text: /\ACatálogo chadcn/
   end
 
   test "the Spanish footer links shadcn/ui once" do
-    get design_system_v2_path(locale: :es)
+    get design_system_path(locale: :es)
 
     assert_select "footer a[href='https://ui.shadcn.com']", text: "shadcn/ui", count: 1
   end
 
   test "the light variant hides in dark mode and the dark variant shows only there" do
-    get design_system_v2_path(locale: :en)
+    get design_system_path(locale: :en)
 
     assert_select "header img[src*='wordmark-light'].dark\\:hidden"
     assert_select "header img[src*='wordmark-dark'].hidden.dark\\:block"
   end
 
   test "component previews never carry the brand" do
-    get design_system_v2_path(locale: :en)
+    get design_system_path(locale: :en)
 
     assert_select "section[id^=v2-] img[src*='brand/']", false
   end

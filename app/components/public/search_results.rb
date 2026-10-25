@@ -28,7 +28,7 @@ module Components
 
       def render_empty_state
         div(class: "p-6 text-center") do
-          render Components::Ui::Icon.new(:search, class: "mx-auto h-8 w-8 text-muted-foreground mb-3")
+          render Components::Shared::Icon.new(:search, class: "mx-auto h-8 w-8 text-muted-foreground mb-3")
           p(class: "text-sm font-medium text-foreground") do
             t("search.results.empty_title", query: @query)
           end

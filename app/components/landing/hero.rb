@@ -25,9 +25,10 @@ module Components
                 t("components.landing.hero.description")
               end
 
-              render Components::Ui::Button.new(
-                variant: :secondary,
-                size: :lg
+              render Chadcn::Button.new(
+                type: "button",
+                variant: "secondary",
+                size: "lg"
               ) { t("components.landing.hero.cta") }
             end
           end

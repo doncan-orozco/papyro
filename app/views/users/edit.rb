@@ -12,9 +12,9 @@ module Views
           render Components::Public::Navbar.new
 
           main(class: "mx-auto w-full max-w-3xl px-4 py-10") do
-            render Components::Ui::Card.new do |card|
+            render Chadcn::Card.new do |card|
               card.header do
-                card.title { t("users.edit.title") }
+                card.title { h3 { t("users.edit.title") } }
                 card.description { t("users.edit.description") }
               end
 

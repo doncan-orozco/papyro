@@ -66,11 +66,11 @@ module Views
 
           return unless @presenter.author_username.present?
 
-          render Components::Ui::Button.new(
-            as: :a,
+          render Chadcn::Button.new(
+            as_child: :a,
             href: author_path(@presenter.author_username, locale: I18n.locale),
-            variant: :outline,
-            size: :sm,
+            variant: "outline",
+            size: "sm",
             class: "whitespace-nowrap",
             data: { turbo_frame: "_top" }
           ) { t("articles.show.view_profile") }

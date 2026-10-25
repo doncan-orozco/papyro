@@ -14,9 +14,9 @@ module Views
 
         def view_template
           render Views::Settings::Layout.new(active: :profile) do
-            render Components::Ui::Card.new do |card|
+            render Chadcn::Card.new do |card|
               card.header do
-                card.title { t("users.settings.profile.title") }
+                card.title { h3 { t("users.settings.profile.title") } }
                 card.description { t("users.settings.profile.description") }
               end
 
@@ -53,7 +53,7 @@ module Views
                           end
 
                           div(class: "absolute inset-0 flex flex-col items-center justify-center bg-black/35 opacity-100 transition-opacity duration-300 md:bg-black/55 md:opacity-0 md:group-hover:opacity-100") do
-                            render Components::Ui::Icon.new(:camera, size: 24, class: "mb-2 text-white")
+                            render Components::Shared::Icon.new(:camera, size: 24, class: "mb-2 text-white")
                             span(class: "text-[11px] font-bold uppercase tracking-[0.18em] text-white") do
                               t("users.settings.profile.portrait_change_cta")
                             end
