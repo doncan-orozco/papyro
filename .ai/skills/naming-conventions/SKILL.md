@@ -53,7 +53,7 @@ Code should read like domain discussion. A casual observer should not be able to
 - `enroll(user: user, course: course)` beats `enroll(user, course)` when both are objects.
 
 ### Library exception (gems that mirror an external API)
-R1 (domain vocabulary) does not apply inside a library whose purpose is to reproduce an external, named API: for `chadcn` the shadcn/Radix vocabulary (`Dialog::Content`, `as_child`, `data-slot` names) IS the domain language and is kept 1:1 even where it would not be our choice. R2 (no stuttering), R4 to R12 (outcome-named methods, predicates, bang methods, variables, keyword arguments, casing) still apply. The gem's own helpers and internals follow the normal rules. See `ruby-gem-conventions`.
+R1 (domain vocabulary) does not apply inside a library whose purpose is to reproduce an external, named API: for `chadcn` the shadcn/Radix vocabulary (`Dialog::Content`, `as_child`, `data-slot` names) IS the domain language and is kept 1:1 even where it would not be our choice. R2 (no stuttering), R4 to R12 (outcome-named methods, predicates, bang methods, variables, keyword arguments, casing) still apply. The gem's own helpers and internals follow the normal rules. See `ruby-gem-conventions` (skill of the chadcn repository, doncan-orozco/chadcn, not in this repo).
 
 ### Avoid
 - Abbreviations that are not universal in the domain (`usr`, `cfg`, `mgr`, `tmp`).
