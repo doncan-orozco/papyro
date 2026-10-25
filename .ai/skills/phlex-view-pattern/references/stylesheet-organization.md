@@ -11,7 +11,7 @@ Use this skill when creating or editing styles in Papyro.
 - Do not add domain styles directly to `app/assets/tailwind/application.css`.
 - Keep `app/assets/tailwind/application.css` as an import manifest and shared bootstrap only.
 - Place style rules in bounded-context files under `app/assets/tailwind/domains/`.
-- Place cross-domain UI primitives under `app/assets/tailwind/components/`.
+- Generic UI primitive styles come from the chadcn gem (utility classes in the component, tokens from the theme); add `app/assets/tailwind/components/` only for a genuinely cross-domain Papyro component.
 - Place global theme tokens and base layer rules under `app/assets/tailwind/foundation/`.
 - Place shared animation/behavior utilities under `app/assets/tailwind/utilities/`.
 - Import files explicitly from the manifest in stable order.
@@ -25,10 +25,7 @@ app/assets/tailwind/
     base.css                        # non-theme global rules (smooth scroll, scroll margins)
   theme/
     theme.css                       # shadcn theme: the ONLY file edited to restyle (bin/rails theme:use|import|check)
-    tokens.css                      # @theme inline + base layer; generated mapping, do not edit
-    legacy-compat.css               # shims for frozen legacy components
-  components/
-    ui-scroll-area.css              # cross-domain component styles
+    tokens.css                      # @theme inline + base layer; provided by chadcn, do not edit
   domains/
     articles/
       reader.css                    # article-specific typography/layout
@@ -44,8 +41,8 @@ app/assets/tailwind/
 
 1. Is this token/base reset/theme behavior?
    Put it in `foundation/`.
-2. Is this reusable across many domains (UI primitive)?
-   Put it in `components/`.
+2. Is this a generic UI primitive?
+   It belongs in the chadcn gem (utility classes), not here. A cross-domain Papyro component may get a file in `components/`.
 3. Is this tied to one bounded context (articles/studio/users)?
    Put it in `domains/<context>/`.
 4. Is this a reusable utility animation/state helper?

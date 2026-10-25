@@ -8,10 +8,10 @@ This document summarizes the successful implementation of Writebook's markdown-b
 
 1. **Markdown Editor** - Added H ouse.js Web Component for intuitive markdown editing
 2. **Syntax Highlighting** - Implemented Redcarpet + Rouge for GitHub-style code block coloring
-3. **Article Publishing** - Full admin workflow with draft/published states
+3. **Article Publishing** - Full Studio workflow with draft/published states
 4. **Database Persistence** - ActionText::Markdown model stores markdown as plain text (version control friendly)
 5. **Public Display** - Published articles render markdown to HTML with syntax highlighting
-6. **Admin Interface** - Form component with markdown editor, sync to form submission
+6. **Studio Interface** - Form component with markdown editor, sync to form submission
 
 ## 🏗️ Architecture Overview
 
@@ -53,7 +53,7 @@ action_text_markdowns (polymorphic)
 - **House.js markdown editor**: Visual editing with toolbar
 - **Form sync**: Hidden textarea automatically syncs editor content on blur and form submit
 - **Real-time preview**: Not yet (future enhancement)
-- **Upload integration**: POST /admin/uploads stores files with ActiveStorage slugs
+- **Upload integration**: POST the markdown uploads route stores files with ActiveStorage slugs
 
 ### ✅ Rendering & Display
 - **Markdown to HTML**: Redcarpet converts markdown to semantic HTML
@@ -66,7 +66,7 @@ action_text_markdowns (polymorphic)
 - **Strikethrough**: `~~text~~` supported
 - **Code Fences**: Triple backticks with language specification
 
-### ✅ Admin Controls
+### ✅ Studio Controls
 - **New Article**: Create articles with title, slug, excerpt, markdown content
 - **Edit Article**: Modify existing articles (controller supports slug-based lookup)
 - **Publish/Unpublish**: Change article status and track published_at timestamp
@@ -179,8 +179,8 @@ gem 'dry-validation'          # Contracts (was existing)
 ### Modified Files
 - `Gemfile` - Added redcarpet, rouge
 - `app/models/article.rb` - Changed to has_markdown :body
-- `app/controllers/admin/articles_controller.rb` - Added slug lookup, fixed publish
-- `app/views/admin/articles/form_component.rb` - Use markdown_area helper
+- `PapyroStudio::ArticlesController` (papyro_studio engine) - Added slug lookup, fixed publish
+- `app/views/studio/articles/edit/editor_form_component.rb` (papyro_studio engine) - Use markdown_area helper
 - `app/views/articles/show.rb` - Render markdown to HTML
 - `app/contracts/articles/contract/create.rb` - Validate :body field
 - `app/contracts/articles/contract/update.rb` - Validate :body field
@@ -201,7 +201,7 @@ gem 'dry-validation'          # Contracts (was existing)
 2. **Assets**: Ensure house.min.js copied to vendor/javascript/
 3. **Stylesheets**: All CSS included via asset pipeline
 4. **Environment**: Works with SQLite, PostgreSQL, MySQL (ActionText compatible)
-5. **Turbo Integration**: Frame ID `admin_articles_list` for Turbo updates
+5. **Turbo Integration**: Frame ID `studio_articles_list` for Turbo updates
 
 ## 🔮 Future Enhancements
 
@@ -226,15 +226,14 @@ gem 'dry-validation'          # Contracts (was existing)
 # Dev server
 bin/dev
 
-# Admin login
-http://localhost:3030/admin/login
-admin@papyro.local / password123
+# Sign in on the studio subdomain (use a seeded user from db/seeds)
+http://studio.localhost:3030
 
 # Create article
-/admin/articles/new → Fill form → Save
+Studio → New article → Fill form → Save
 
 # Publish
-/admin/articles → Click Publish button
+Studio → Articles → Click Publish button
 
 # View public
 /articles/article-slug
@@ -247,7 +246,7 @@ admin@papyro.local / password123
 - ✅ Syntax highlighting displays with colors
 - ✅ Articles publish and become publicly accessible
 - ✅ Code blocks receive proper Rouge styling
-- ✅ Admin can manage article lifecycle
+- ✅ Authors can manage article lifecycle
 - ✅ No authentication required for public viewing
 - ✅ Heading anchors auto-generated for deep linking
 

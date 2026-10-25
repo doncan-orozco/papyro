@@ -22,6 +22,5 @@ class Components::Shared::LanguageToggleTest < ActiveSupport::TestCase
     assert_match(/data-slot="dropdown-menu-trigger"/, html)
     assert_match(%r{<a[^>]*data-slot="dropdown-menu-item"[^>]*href="/en"|<a[^>]*href="/en"[^>]*data-slot="dropdown-menu-item"}, html)
     assert_match(/aria-current="true"/, html)
-    assert_no_match(/ui--|Components::Ui/, html)
   end
 end

@@ -8,7 +8,6 @@ This synthesis consolidates UX-relevant findings from existing repository artifa
 - `react-shadcn-catalog/AUDIT_TRACKER.md`
 - `react-shadcn-catalog/PROGRESS.md`
 - `react-shadcn-catalog/THEME_EXTRACTION.md`
-- `docs/RADIX_COMPONENTS_IMPLEMENTATION.md`
 - `.ai/skills/ux/SKILL.md`
 
 ## PDF Investigation Highlights (`docs/Papyro UX.pdf`)
@@ -60,7 +59,7 @@ This synthesis consolidates UX-relevant findings from existing repository artifa
 - UX implication: preserve intentional differences only when they improve legibility or hierarchy.
 
 4. Core component implementation breadth is high.
-- Radix-based implementation summary reports broad component coverage and localization support.
+- The chadcn gem (1:1 shadcn/ui port with Radix behavior, see `design-system`) covers the component catalog with localized defaults.
 - UX implication: quality focus should move from availability to consistency and behavioral polish.
 
 ## Repeated UX Risks

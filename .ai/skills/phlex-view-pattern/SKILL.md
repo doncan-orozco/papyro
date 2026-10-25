@@ -11,8 +11,8 @@ Cite as `phlex-view-pattern R<n>`. Detail and examples follow below / in referen
 
 R1. **Dumb views.** Display logic (fallbacks, sorting, composed strings) lives in a presenter built by the controller; views never instantiate presenters. → detail: RULE 1
 R2. **Decompose big views.** Extract sub-components when helpers exceed ~50 lines; one-page-only parts live in an action folder (`index/`, `edit/`, `shared/`) with `Index::*`/`Edit::*`/`Shared::*` constants. → detail: references/sub-components.md
-R3. **UI vs domain.** `app/components/ui/` holds generic primitives only (no Papyro models, routes or domain locale keys, forwards `**attrs`); domain markup goes in views or domain components. → detail: references/ui-vs-domain-components.md
-R4. **Reuse shared patterns.** Use `Components::Ui::Pagination` and existing components; never inline pagination or re-implement common patterns. → detail: RULE 4
+R3. **UI vs domain.** Generic primitives come from the `Chadcn::*` gem; Papyro components (`app/components/{shared,public,...}`) and views carry the domain markup and locale keys, and forward `**attrs`. → detail: references/ui-vs-domain-components.md
+R4. **Reuse shared patterns.** Use `Chadcn::Pagination` and existing components; never inline pagination or re-implement common patterns. → detail: RULE 4
 R5. **Safe Turbo frame targeting.** Frame ids are explicit and stable (never random/session data), empty placeholder frames sit at the top of `view_template`, and `_top` is written explicitly to break out. → detail: references/turbo-frame-targeting.md
 R6. **Explicit data flow.** Views use only constructor arguments; no `Current.*`, `request`, `params`, `session` or request-bound helpers inside views. → detail: RULE 6
 R7. **Form errors visible.** Forms prefer `form.field`; raw inputs must render `field_errors` explicitly; overlay forms stay open on failure. → detail: references/ui-vs-domain-components.md
@@ -96,7 +96,7 @@ end
 
 # In the Phlex view
 span { @presenter.display_title }
-render Components::Ui::Badge.new(variant: @presenter.status_badge_variant) { ... }
+render Chadcn::Badge.new(variant: @presenter.status_badge_variant) { ... }
 ```
 
 **Data flow rule:** Controllers initialize the presenter and pass it to the view as an
@@ -109,7 +109,7 @@ presenters themselves.
 
 ## RULE 3 — Strict UI vs. Domain Component Separation
 
-`app/components/ui/` = generic shadcn/Phlex primitives (no domain logic); `app/views/` = domain pages; `app/components/shared/` = cross-domain helpers; `app/components/studio/` = Studio layout. Never put domain logic in a UI component. Form errors must always be visible. Details and examples: [references/ui-vs-domain-components.md](references/ui-vs-domain-components.md).
+`Chadcn::*` (gem) = generic shadcn/Phlex primitives (no domain logic); `app/views/` = domain pages; `app/components/shared/` = cross-domain helpers; `app/components/studio/` = Studio layout. Never put domain logic in a UI component. Form errors must always be visible. Details and examples: [references/ui-vs-domain-components.md](references/ui-vs-domain-components.md).
 
 ## RULE 4 — Reuse Shared UI Patterns (No Reinvention)
 
@@ -118,16 +118,17 @@ Reach for the existing component; extract a shared view class if a pattern repea
 
 ### Pagination
 
-Always use `Components::Ui::Pagination`. Never inline pagination markup.
+Always use `Chadcn::Pagination`. Never inline pagination markup.
 
 ```ruby
-render Components::Ui::Pagination.new do |pagination|
+render Chadcn::Pagination.new do |pagination|
   pagination.content do
     pagination.item do
       pagination.previous(
-        href: (@pagy.previous ? path(page: @pagy.previous) : nil),
+        label: t("design_system.pagination.previous"),
+        href: (path(page: @pagy.previous) if @pagy.previous),
         data: { turbo_frame: "studio_articles_list" }
-      ) { t("design_system.pagination.previous") }
+      )
     end
     # ... pages
   end
@@ -168,7 +169,7 @@ constructor arguments.
 ## Workflow
 
 1. Decide the **layer**: page view (`app/views/`), domain component
-   (`app/components/{domain}/`), or UI primitive (`app/components/ui/`).
+   (`app/components/{domain}/`), or a `Chadcn::*` primitive from the gem.
 2. If the view needs formatted or derived data → create or extend a **Presenter** first.
 3. Implement `view_template`. If private helpers grow beyond ~50 lines, extract
    sub-components.
@@ -183,8 +184,8 @@ constructor arguments.
 
 This skill owns **view and component shape**. Load these for adjacent concerns:
 
-- **[../design-system/SKILL.md](../design-system/SKILL.md)** — UI primitive construction
-  in `app/components/ui/`; defers to this skill for how views compose UI components.
+- **[../design-system/SKILL.md](../design-system/SKILL.md)** — the `Chadcn::*` primitives
+  and theme; defers to this skill for how views compose UI components.
 - **[references/frontend-overview.md](references/frontend-overview.md)** — Stimulus controllers, compound
   component wiring, Hotwire integration; load alongside this skill, not instead of it.
 - **[references/stylesheet-organization.md](references/stylesheet-organization.md)** — Domain-driven

@@ -12,13 +12,12 @@ When a form re-renders with an invalid model (`status: :unprocessable_entity`), 
 
 Failure to surface errors is a UX regression and a review blocker.
 
-### `app/components/ui/` — Generic shadcn/Phlex Primitives
+### Generic primitives: the `chadcn` gem
 
-- Ports of shadcn/ui components: Card, Button, Table, Badge, Dialog, Sheet, etc.
-- Must accept `**attrs` and forward all caller HTML attributes without discarding them.
-- Must be **purely generic** — zero knowledge of Papyro models, named routes, or domain
-  locale keys.
-- No domain vocabulary (`article`, `translation`, `studio`) may appear inside a `ui/` component.
+- Card, Button, Table, Badge, Dialog, Sheet, DropdownMenu, Pagination, etc. come from the `chadcn` gem (`Chadcn::*`); the app does not define them.
+- Icons come from `Components::Shared::Icon`.
+- Papyro does not add domain knowledge to gem components: wrap them in a domain or shared component instead (zero use of `article`, `translation`, `studio` vocabulary inside a primitive).
+- Every Papyro component should still accept `**attrs` and forward caller HTML attributes.
 
 ### `app/views/` — Domain Page Views
 
@@ -36,10 +35,10 @@ No model knowledge; no route coupling.
 Layout-level components like `Navbar` that belong to a single domain but are not page
 views. May reference studio-scoped routes and translations.
 
-### ❌ Forbidden — domain logic inside a UI component
+### ❌ Forbidden — domain logic inside a generic primitive
 
 ```ruby
-# Inside Components::Ui::Card — NEVER add domain-specific logic
+# Inside a generic primitive (e.g. a Chadcn::Card wrapper) — NEVER add domain-specific logic
 def render_article_status(article)
   span { article.published? ? t("articles.published") : t("articles.draft") }
 end

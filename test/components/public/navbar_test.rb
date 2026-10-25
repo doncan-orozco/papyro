@@ -111,14 +111,6 @@ class Components::Public::NavbarTest < ActiveSupport::TestCase
     assert_match(/data-variant="destructive"/, html)
   end
 
-  test "renders no legacy UI when logged out or in" do
-    [ nil, users(:admin) ].each do |user|
-      header = render_navbar(user:)[%r{<header.*</header>}m]
-
-      assert_no_match(/ui--|ui__|Components::Ui/, header)
-    end
-  end
-
   private
 
   def render_navbar(user: nil)
