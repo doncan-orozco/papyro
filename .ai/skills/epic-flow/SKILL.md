@@ -45,8 +45,8 @@ R15. **A script judges the merge.** A PR is merged only through `merge`, which r
 See `references/stages.md` for the stage table, `references/plan-format.md` for the plan file and issue body, and `references/merge-sweep.md` for the merge policy and the sweep that finishes merged items.
 
 ```bash
-ruby .claude/scripts/epic/work_board.rb session                 # my session id
-ruby .claude/scripts/epic/work_board.rb next --epic S --session ID [--stage build,fix]
+ruby .claude/scripts/epic/work_board.rb session [--unique]      # my session id, one JSON line; --unique = fresh id per call (several workers in one Claude session)
+ruby .claude/scripts/epic/work_board.rb next --epic S --session ID [--stage build,fix] [--item N]   # --item N: that item or the reason it is not offered, never another
 ruby .claude/scripts/epic/work_board.rb reviews --epic S          # items in review and their PR verdict (the merge sweep reads this)
 ruby .claude/scripts/epic/work_board.rb mergeable --epic S [--item N]   # reviews + merge policy per open PR; checks failing on main (/work-merge)
 ruby .claude/scripts/epic/work_board.rb merge N --epic S --session ID [--method squash] [--keep-branch]   # only when mergeable says ready
@@ -60,6 +60,10 @@ ruby .claude/scripts/epic/work_board.rb block N --epic S --session ID --reason "
 ruby .claude/scripts/epic/work_board.rb release N --epic S --session ID
 ruby .claude/scripts/epic/work_board.rb item edit N --epic S --session ID --blocked-by 1,2 --reason "..."   # maintainer plan change only ("" clears)
 ```
+
+`item create` also takes `--gates-file` / `--acceptance-file` (one entry per line, written as `## Gates` / `## Acceptance`) and answers `warnings: [OWNS_OVERLAP]` when its Owns overlap an unfinished item. `gh` calls are retried (3 attempts, backoff) on 401 always, and on 502/503/504/timeouts only for reads and idempotent edits (`issue create`, `issue comment` and `pr merge` are never repeated on an ambiguous error); `next --item N` answers `not_an_item` or `done` for an unknown or finished N; `mergeable` waits for a PR whose mergeability GitHub is still computing.
+
+Session ids: workers started from one Claude session share `CLAUDE_CODE_SESSION_ID`, so they would look like the same holder and both win a claim. A worker therefore takes its own id with `session --unique` (or the brief sets `WORK_SESSION`) and passes it with every `--session`. Never use `$$`: it changes on every Bash call.
 
 Exit codes: 0 ok, 1 a negative answer you must act on (claim lost, validation findings), 2 error (read stderr; a failing remote is an error, never "nothing is claimed").
 

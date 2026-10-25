@@ -66,8 +66,8 @@ app/assets/tailwind/
 ## Example
 
 - `Articles::Show` typography belongs in `domains/articles/reader.css`.
-- Shared motion keyframes belong in `utilities/motion.css`.
-- Theme variables and dark mode belong in `theme/theme.css` (shadcn format; see `shadcn-port` theme-contract). `foundation/` keeps only non-theme globals.
+- Shared custom scrollbar rules belong in `components/ui-scroll-area.css`.
+- Theme variables and dark mode belong in `theme/theme.css` (shadcn format; see `shadcn-port` (chadcn repo, doncan-orozco/chadcn) references/theme-contract.md). `foundation/` keeps only non-theme globals.
 
 ## Companion Skills
 

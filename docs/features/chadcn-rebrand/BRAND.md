@@ -38,13 +38,13 @@ Rules:
 - The mascot keeps the meme palette above (flat fills, no gradients, no shading); the wordmark text stays in the zinc pair
   (`#09090b` on light, `#fafafa` on dark) so it sits next to any theme a user pastes from ui.shadcn.com/themes.
 - Pick the variant by background. The packaged README is rendered by rubygems.org and rubydoc, where `dev/` does not
-  exist, so the README uses absolute URLs built from the gemspec's `repository`, `gem_path` and `ref` (they change
-  together when the gem moves to its own repository):
+  exist, so the README uses absolute URLs built from the gemspec's `repository` and `ref`
+  (raw.githubusercontent.com, chadcn repository, `main/dev/brand/`):
 
   ```html
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/doncan-orozco/papyro/main/gems/chadcn/dev/brand/wordmark-dark.svg">
-    <img src="https://raw.githubusercontent.com/doncan-orozco/papyro/main/gems/chadcn/dev/brand/wordmark-light.svg" alt="chadcn" width="352" height="96">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/doncan-orozco/chadcn/main/dev/brand/wordmark-dark.svg">
+    <img src="https://raw.githubusercontent.com/doncan-orozco/chadcn/main/dev/brand/wordmark-light.svg" alt="chadcn" width="352" height="96">
   </picture>
   ```
 
@@ -57,7 +57,7 @@ Rules:
 - Minimum size: 32 px tall for the mascot, 24 px tall for the wordmark. Do not recolor, stretch, rotate or add props to it.
 - The wordmark's text is live SVG text; a consumer that needs pixel-identical output (a social preview image) exports a PNG
   from it rather than outlining the glyphs by hand.
-- Item #266 copies these files to `gems/chadcn/dev/brand/` (the packaged gem does not ship them, so nothing packaged
+- Item #266 copies these files to `dev/brand/` in the chadcn repository, doncan-orozco/chadcn (the packaged gem does not ship them, so nothing packaged
   links to them relatively); this folder stays the original. Item #269 keeps its own copy for the host in
   `app/assets/images/brand/` (the host never reads the gem's `dev/`). That path is outside #269's Owns today, so the
   item's Owns needs `app/assets/images/brand/**` added before it starts (epic-flow R5).
@@ -137,7 +137,7 @@ reader user, a translator or someone who never heard of the meme must lose nothi
 
 - README: the hero (wordmark, tagline), the virgin vs chad table in "Why chadcn" and at most one one-liner elsewhere.
 - Docs: the first paragraph of a guide (`docs/*.md` intros) and the docs index.
-- Demo catalog (`dev/dummy`): the page header and the empty/landing state.
+- Demo catalog (`dev/dummy`, lives in the chadcn repository, doncan-orozco/chadcn): the page header and the empty/landing state.
 - `chadcn:doctor` and the install generator: the final SUCCESS line only, printed after the factual summary.
 - CHANGELOG: one line of prose directly under a release heading; the heading itself stays `## [x.y.z] - YYYY-MM-DD`
   (Keep a Changelog) and every entry stays factual.
@@ -214,7 +214,7 @@ Rules:
 ## Checklist for the items that copy from this guide
 
 - [ ] #266 README, gemspec, CHANGELOG: hero with `<picture>` wordmark, primary tagline, one-liner 1 or 2, full disclaimer,
-      short disclaimer in the gemspec, absolute asset URLs in the README, assets copied to `gems/chadcn/dev/brand/` (not
+      short disclaimer in the gemspec, absolute asset URLs in the README, assets copied to `dev/brand/` in the chadcn repository, doncan-orozco/chadcn (not
       packaged).
 - [ ] #267 docs and llms files: one-liner 2 or 3 in guide intros only; reference sections and llms files stay neutral;
       disclaimer in the docs index.
