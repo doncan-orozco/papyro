@@ -25,6 +25,9 @@ repos:
     discover:
       file: .bundle/config
       key: BUNDLE_LOCAL__PAPYRO_STUDIO
+    repo: doncan-orozco/papyro_studio   # companion repository: an item's engine PR is judged and merged by the board (merge --repo studio)
+    base: main
+    gem: papyro_studio                  # the Gemfile.lock entry the host pins; after the engine PR merges the item re-pins it
     owns: "Studio controllers (`app/controllers/papyro_studio/**`), engine routes and importmap, Studio views/components/policies/operations/presenters and their Stimulus controllers, engine tests"
     tests_from_host: true
     never: "migrations, models, locale files, authentication"
@@ -80,6 +83,7 @@ board:
   audit_min: 8
   fix_iterations: 3
   merge: human
+  worker_env: bin/worker-env        # sourced in every worker shell: PATH, UTF-8 locale, preflight (ruby, gh auth, node)
 
 agents:
   builder: senior-rails-dev
