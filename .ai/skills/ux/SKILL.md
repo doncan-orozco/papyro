@@ -7,6 +7,12 @@ description: "UX investigation, synthesis, and review patterns for Papyro interf
 
 Use this skill to define intent and review experience quality before or alongside implementation. Keep the SKILL body as the routing layer and load the references for the actual brief, synthesis, or review artifact.
 
+## Applies to
+- when: always
+- levels: system
+- system-review: never
+- note: Process skill, loaded by name for UX briefs and reviews during planning, not routed per file.
+
 ## Quick Rules
 
 Cite as `ux R<n>`. Detail and examples follow below / in references/.

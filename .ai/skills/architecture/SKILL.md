@@ -5,6 +5,12 @@ description: "Papyro app architecture: where code lives (`app/concepts/*/{operat
 
 # Architecture (Clean Architecture + dry-rb)
 
+## Applies to
+- when: always
+- levels: system
+- system-review: always
+- note: Never routed to a single file; the body is pasted once into the House review. Engine-seam changes additionally load `references/host-coupled-engine-pattern.md`.
+
 ## Quick Rules
 
 Cite as `architecture R<n>`. Detail and examples follow below / in references/.

@@ -5,6 +5,11 @@ description: "Golden archetype for presenters (SimpleDelegator, `Core::Presenter
 
 # Golden Presenter Pattern (Papyro)
 
+## Applies to
+- when: `app/concepts/**/presenter/**/*.rb`
+- when: `app/{views,components}/**/*.rb` matching `/Presenter/`
+- system-review: never
+
 ## Quick Rules
 
 Cite as `presenter-pattern R<n>`. Detail and examples follow below / in references/.

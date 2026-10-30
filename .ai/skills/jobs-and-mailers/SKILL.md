@@ -5,6 +5,16 @@ description: "Background jobs, mailers and external clients in Papyro. Use when 
 
 # Jobs, Mailers and External Clients (Papyro)
 
+## Applies to
+- when: `app/jobs/**/*.rb`
+- when: `app/mailers/**/*.rb`
+- when: `app/views/*_mailer/**/*`
+- when: `app/views/layouts/mailer.*`
+- when: `app/services/**/*.rb`
+- companion: `operation-pattern` when matching `/\.(save|update|create|destroy|update_all|insert_all|upsert_all|transaction)\b/`
+- system-review: never
+- note: The companion fires only when a job, mailer or service writes records itself (R1: writes belong to one operation).
+
 ## Quick Rules
 Cite as `jobs-and-mailers R<n>`. Detail and examples follow below.
 

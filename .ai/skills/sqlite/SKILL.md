@@ -5,6 +5,14 @@ description: "SQLite and Rails 8 stack: safe migrations (strong_migrations), dat
 
 # Database (SQLite + Rails 8)
 
+## Applies to
+- when: `db/migrate/**/*`
+- when: `db/*schema*`
+- when: `config/{database,cable,cache,queue,recurring}.yml`
+- levels: system
+- system-review: when-touched
+- note: Migrations and schemas are House-only (no Bricks or Rooms) and live in the host, never in the engine.
+
 ## Quick Rules
 
 Cite as `sqlite R<n>`. Detail and examples follow below / in references/.

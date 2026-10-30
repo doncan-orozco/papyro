@@ -15,6 +15,12 @@ This skill complements:
 Reference examples:
 - `references/canonical-examples.md` for compact create, update, article state-command, and translation state-command shapes
 
+## Applies to
+- when: `app/concepts/**/operation/**/*.rb`
+- when: `app/concepts/**/contract/**/*.rb`
+- system-review: never
+- note: `**` before the layer folder covers the engine's `app/concepts/studio/<domain>/operation/**` as well as the host's `app/concepts/<domain>/operation/**`.
+
 ## Quick Rules
 
 Cite as `operation-pattern R<n>`. Detail and examples follow below / in references/.

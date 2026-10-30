@@ -5,6 +5,15 @@ description: "Golden archetype for Phlex views, components, Hotwire and styling.
 
 # Golden Phlex View Archetype (Papyro)
 
+## Applies to
+- when: `app/views/**/*`
+- when: `app/components/*.rb`
+- when: `app/components/{admin,landing,parity,public,shared,studio}/**/*`
+- when: `app/assets/stylesheets/**/*`
+- companion: `accessibility` always
+- system-review: never
+- note: `app/components/ui/**` (frozen legacy design system) is deliberately excluded and routes to `design-system`; the glob grammar has no negation, so a new `app/components/<folder>/` must be added to the brace list.
+
 ## Quick Rules
 
 Cite as `phlex-view-pattern R<n>`. Detail and examples follow below / in references/.

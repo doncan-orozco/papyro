@@ -9,6 +9,13 @@ The design system is a **1:1 Phlex port of shadcn/ui (new-york-v4, Radix)**. How
 
 > The gem, its port tooling (`/shadcn-*`) and the skills `shadcn-port`, `radix-stimulus` and `ruby-gem-conventions` live in **doncan-orozco/chadcn** (sibling checkout `../chadcn`). Paths below such as `lib/chadcn/` are inside that repository; component changes are made, audited and released there. In Papyro this skill governs using the components and the theme.
 
+## Applies to
+- when: `app/components/ui/**/*`
+- when: `app/{views,components}/**/*.rb` matching `/Chadcn::/`
+- when: `app/assets/tailwind/**/*`
+- system-review: never
+- note: The port itself (`shadcn-port`, `radix-stimulus`, `/shadcn-audit`) lives in doncan-orozco/chadcn; here the skill governs composing `Chadcn::*` and the theme files.
+
 ## Quick Rules
 
 Cite as `design-system R<n>`.

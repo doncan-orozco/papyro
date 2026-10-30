@@ -5,6 +5,12 @@ description: "Domain-language naming rules for classes, methods and variables. U
 
 # Naming Conventions
 
+## Applies to
+- when: `**/*.rb`
+- when: `**/*.js`
+- system-review: never
+- note: Listed first for every Ruby and JavaScript file in both repos; generic rules, never gated on layer or content.
+
 ## Quick Rules
 
 Cite as `naming-conventions R<n>`. Detail and examples follow below / in references/.

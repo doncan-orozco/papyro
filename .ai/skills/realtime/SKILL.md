@@ -5,6 +5,11 @@ description: "Action Cable channels and broadcasting with dry-rb operations. Use
 
 # Realtime (Action Cable + dry-rb)
 
+## Applies to
+- when: `app/channels/**/*.rb`
+- when: `app/**/*.rb` matching `/ActionCable|\bbroadcast/`
+- system-review: never
+
 ## Quick Rules
 
 Cite as `realtime R<n>`. Detail and examples follow below / in references/.
