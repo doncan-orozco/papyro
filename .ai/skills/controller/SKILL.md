@@ -7,6 +7,13 @@ description: "Golden archetype for Rails controllers in Papyro. Use when creatin
 
 Controllers are the **HTTP boundary only**: parse params, authorize, dispatch one Query (read) or Operation (write), then redirect/render. They are NOT for queries, business logic, display logic, or HTML generation. For workflows in `app/concepts/*/operation/` pair with `../operation-pattern/SKILL.md`.
 
+## Applies to
+- when: `app/controllers/**/*.rb`
+- when: `config/routes.rb`
+- system-review: when-touched
+- note: Engine controllers (`app/controllers/papyro_studio/**`) and any file crossing the mount/session seam also load `architecture/references/host-coupled-engine-pattern.md`.
+- note: `config/routes.rb` has no methods or classes; it reaches only the system-level review (routes touched => controller macro).
+
 ## Quick Rules
 
 Cite as `controller R<n>`. Detail and examples follow below / in references/.

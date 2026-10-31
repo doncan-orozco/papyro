@@ -5,6 +5,12 @@ description: "Stimulus controllers for Papyro (importmap, no bundler). Use when 
 
 # Stimulus Controllers (Papyro)
 
+## Applies to
+- when: `app/javascript/**/*.js`
+- companion: `accessibility` always
+- system-review: never
+- note: Engine controllers live under `app/javascript/controllers/studio/**` (identifiers `studio--*`). `application.js`, `index.js` and vendor files are not controllers; the grammar cannot exclude them, skip them when they route here.
+
 ## Quick Rules
 Cite as `stimulus R<n>`. Detail and examples follow below / in references/.
 

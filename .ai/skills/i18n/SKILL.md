@@ -7,6 +7,15 @@ description: "English/Spanish translations and Mobility content translations. Us
 
 Use this skill whenever code introduces or changes user-facing text. Keep the main body focused on mandatory rules and load the reference file for concrete examples.
 
+## Applies to
+- when: `{app,lib}/**/*.rb` matching `/\bt\(|I18n|Mobility|translates/`
+- when: `app/views/**/*`
+- when: `app/components/**/*`
+- when: `config/locales/**/*.yml`
+- levels: class, system
+- system-review: when-touched
+- note: Views and components route by path alone so hardcoded user-facing strings (files that forgot `t(`) are caught; keys used by engine code are translated in the host `config/locales`.
+
 ## Quick Rules
 
 Cite as `i18n R<n>`. Detail and examples follow below / in references/.

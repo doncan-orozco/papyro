@@ -1,0 +1,93 @@
+# Project manifest for the `flow` plugin (papiroflexia). Every /flow:* command reads this first.
+# Schema and defaults: docs/MANIFEST.md in the plugin repo. Validate with: "${CLAUDE_PLUGIN_ROOT}/bin/flow" manifest check
+version: 1
+name: papyro
+
+stack: >
+  Ruby 4.0 / Rails 8.1 / SQLite (Solid Queue/Cache/Cable), Phlex views (`app/views`, `app/components`), Hotwire (Turbo +
+  Stimulus via importmap), Tailwind, dry-operation/dry-monads/dry-validation in `app/concepts/**`, Pundit, Mobility +
+  route_translator i18n (EN + ES mandatory), Minitest + Capybara/Cuprite, RuboCop omakase, Brakeman. The product is TWO
+  repos that often change together for one feature: the HOST (`papyro`, this repo: public site, auth, models/schema,
+  locales, fixtures, DB) and the Studio ENGINE (`papyro_studio`, a mounted Rails engine on the `studio` subdomain:
+  authoring controllers under `PapyroStudio::`, `Studio::` concepts/components/policies, Stimulus controllers under
+  `app/javascript/controllers/studio/**`, engine routes). The host loads the engine through a local bundle override
+  (`.bundle/config` BUNDLE_LOCAL__PAPYRO_STUDIO). The engine has NO dummy app: its tests boot the host
+  (`bin/rails test ../papyro_studio/test/...` run FROM the host root). The host owns schema, models, auth (`Current.user`,
+  shared-domain session cookie), fixtures and ALL locale files; the engine consumes them. Skills live only in the host
+  (`.ai/skills`) and apply to both repos. The chadcn gem (`Chadcn::*`, `chadcn--*` controllers) is the design system.
+
+repos:
+  - id: host
+    path: .
+    owns: "schema, models, migrations, auth and session, public pages, locales (EN + ES, including keys used by engine UI), fixtures"
+  - id: studio
+    path: ../papyro_studio
+    discover:
+      file: .bundle/config
+      key: BUNDLE_LOCAL__PAPYRO_STUDIO
+    repo: doncan-orozco/papyro_studio   # companion repository: an item's engine PR is judged and merged by the board (merge --repo studio)
+    base: main
+    gem: papyro_studio                  # the Gemfile.lock entry the host pins; after the engine PR merges the item re-pins it
+    owns: "Studio controllers (`app/controllers/papyro_studio/**`), engine routes and importmap, Studio views/components/policies/operations/presenters and their Stimulus controllers, engine tests"
+    tests_from_host: true
+    never: "migrations, models, locale files, authentication"
+
+tracks:
+  ruby:
+    globs: ["app/**/*.rb", "lib/**/*.rb"]
+  templates:
+    globs: ["app/views/**/*.erb"]
+  stimulus:
+    globs: ["app/javascript/**/*.js"]
+    exclude: ["**/importmap*", "**/vendor/**/*"]
+    gem_prefixes: ["chadcn--"]
+  slice: view
+  tests:
+    framework: minitest
+    globs: ["test/**/*.rb"]
+    mirror: "test/{dir}/{base}_test.rb"
+  house_only: ["config/importmap.rb", ".kamal/**/*", "config/sitemap.rb"]
+
+gates:
+  style: "bin/rubocop {files}"
+  security: "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"
+  tests: "bin/rails test {files}"
+  js: null
+  all: "bin/ci"
+  extra: []
+
+checks:
+  test_coverage_map: {}
+  i18n_parity:
+    locales: config/locales
+    langs: [en, es]
+  stimulus_wiring:
+    controllers: ["app/javascript/controllers"]
+
+skills:
+  root: .ai/skills
+  house_note: >
+    Verify the host<->engine seam: the engine touches host models and schema only through their public API, adds no
+    migrations or models, every locale key it uses exists in the HOST for EN and ES, the mount/subdomain constraint and
+    the shared session cookie are respected, and the host Gemfile.lock revision of papyro_studio matches the engine
+    commits in scope (WORKSPACE_WARNINGS).
+
+board:
+  repo: null
+  source: epic
+  base: main
+  branch: "epic/{epic}/{number}-{slug}"
+  pr_title: "{title}"
+  worktrees: "../{repo}-wt"
+  stages: [plan, test-plan, build, gates, audit, fix, review, done]
+  audit_min: 8
+  fix_iterations: 3
+  merge: human
+  worker_env: bin/worker-env        # sourced in every worker shell: PATH, UTF-8 locale, preflight (ruby, gh auth, node)
+
+agents:
+  builder: senior-rails-dev
+  specialised: []
+
+golden:
+  root: .claude/golden

@@ -8,6 +8,14 @@ license: MIT
 
 Pundit provides minimal, explicit authorization through plain Ruby policy classes.
 
+## Applies to
+- when: `app/policies/**/*.rb`
+- when: `app/controllers/**/*.rb`
+- when: `app/**/*.rb` matching `/\b(authorize|policy_scope|policy_class|Pundit)\b/`
+- system-review: when-touched
+- note: Controllers route by path alone (not gated on `authorize`) so a controller that forgot authorization still gets this skill (controller R6).
+- note: Engine policies (`app/policies/studio/**`) are covered by the same glob; paths are repo-relative in both repos.
+
 ## Quick Rules
 
 Cite as `pundit-auth R<n>`. Detail and examples follow below / in references/.

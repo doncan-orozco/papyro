@@ -1,5 +1,14 @@
 {
   "env": {
     "RBENV_VERSION": "4.0.0"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(bin/rubocop:*)",
+      "Bash(bin/brakeman:*)",
+      "Bash(bin/rails test:*)",
+      "Bash(bin/ci:*)",
+      "Bash(git config flow.*)"
+    ]
   }
 }

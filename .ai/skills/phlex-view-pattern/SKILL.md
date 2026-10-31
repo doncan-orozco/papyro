@@ -5,6 +5,15 @@ description: "Golden archetype for Phlex views, components, Hotwire and styling.
 
 # Golden Phlex View Archetype (Papyro)
 
+## Applies to
+- when: `app/views/**/*`
+- when: `app/components/**/*`
+- when: `app/assets/stylesheets/**/*`
+- companion: `accessibility` always
+- companion: `design-system` when matching `/Chadcn::/`
+- system-review: never
+- note: Every component is a Phlex view (the legacy `app/components/ui` library is gone; generic primitives come from the chadcn gem and views composing `Chadcn::*` also load `design-system`).
+
 ## Quick Rules
 
 Cite as `phlex-view-pattern R<n>`. Detail and examples follow below / in references/.

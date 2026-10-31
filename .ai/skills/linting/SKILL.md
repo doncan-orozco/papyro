@@ -5,6 +5,13 @@ description: "RuboCop standards for Papyro. Use when running `bin/rubocop`, fixi
 
 # Linting (RuboCop)
 
+## Applies to
+- when: always
+- when: `.rubocop*.yml`
+- levels: system
+- system-review: never
+- note: Process skill, loaded by name when running `bin/rubocop` or fixing offenses (mechanical checks), not routed per file.
+
 ## Quick Rules
 
 Cite as `linting R<n>`. Detail and examples follow below / in references/.

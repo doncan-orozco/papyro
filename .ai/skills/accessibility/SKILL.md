@@ -5,6 +5,14 @@ description: "WCAG 2.2 AA accessibility for Papyro Phlex views and components. U
 
 # Accessibility (WCAG 2.2 AA)
 
+## Applies to
+- when: `app/views/**/*`
+- when: `app/components/**/*`
+- when: `app/javascript/**/*.js`
+- when: `test/system/**/*.rb` matching `/aria-|focus-visible|haspopup/`
+- system-review: never
+- note: Normally arrives as the companion of `phlex-view-pattern` and `stimulus`; its own globs keep it routable on its own.
+
 ## Quick Rules
 
 Cite as `accessibility R<n>`. Detail and examples follow below / in references/.

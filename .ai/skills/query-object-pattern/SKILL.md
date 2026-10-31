@@ -5,6 +5,12 @@ description: "Golden archetype for read Query Objects. Use when creating or edit
 
 # Application Query Object Pattern
 
+## Applies to
+- when: `app/concepts/**/query/**/*.rb`
+- when: `app/controllers/**/*.rb` matching `/Query|\.call\(.*filters/`
+- when: `app/concepts/**/presenter/**/*.rb` matching `/Query|\.call\(.*filters/`
+- system-review: never
+
 ## Quick Rules
 
 Cite as `query-object-pattern R<n>`. Detail and examples follow below / in references/.

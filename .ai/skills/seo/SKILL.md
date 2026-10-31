@@ -8,6 +8,16 @@ license: MIT
 
 This skill provides a standardized workflow for internationalizing Rails applications without polluting the database schema or compromising search engine rankings.
 
+## Applies to
+- when: `app/helpers/seo_helper.rb`
+- when: `config/sitemap.rb`
+- when: `config/locales/*/routes.yml`
+- when: `config/initializers/{route_translator,friendly_id}.rb`
+- when: `config/routes.rb` matching `/localized/`
+- when: any file matching `/hreflang|canonical|\bog:|sitemap|friendly_id/`
+- system-review: never
+- note: `\bog:` (not bare `og:`) so `dialog:` hash keys do not route a view here.
+
 ## Quick Rules
 
 Cite as `seo R<n>`. Detail and examples follow below / in references/.

@@ -5,6 +5,14 @@ description: "Golden archetype for ActiveRecord models. Use when creating or edi
 
 # Application Active Record Model Pattern
 
+## Applies to
+- when: `app/models/**/*.rb`
+- when: `app/validators/**/*.rb`
+- when: `app/concepts/**/validator/**/*.rb`
+- companion: `i18n` when matching `/translates|Mobility/`
+- system-review: never
+- note: Models and validators live in the host only; an `app/models/**` file in the engine is an architecture violation.
+
 ## Quick Rules
 
 Cite as `models R<n>`. Detail and examples follow below / in references/.

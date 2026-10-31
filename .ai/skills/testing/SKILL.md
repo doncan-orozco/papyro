@@ -5,6 +5,12 @@ description: "Minitest testing for Papyro, including system tests. Use when writ
 
 # Testing (Minitest + dry-rb)
 
+## Applies to
+- when: `test/**/*`
+- levels: class, system
+- system-review: when-touched
+- note: Engine tests live under the engine's `test/{controllers,policies,concepts}/studio/**`; same glob, repo-relative.
+
 ## Quick Rules
 
 Cite as `testing R<n>`. Detail and examples follow below / in references/.
