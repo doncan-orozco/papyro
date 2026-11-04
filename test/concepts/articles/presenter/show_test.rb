@@ -33,6 +33,21 @@ class Articles::ShowPresenterTest < ActiveSupport::TestCase
     assert_includes presenter.content_html, "/u/token123"
   end
 
+  test "sanitizes raw html in content html" do
+    article = build_article(
+      title: "Unsafe Article",
+      slug: "unsafe-article",
+      excerpt: "Excerpt",
+      body: "Safe text\n\n<script>alert(1)</script>\n\n<img src=\"/x.png\" onerror=\"alert(2)\">"
+    )
+    presenter = Articles::Presenter::Show.new(article)
+
+    assert_includes presenter.content_html, "Safe text"
+    refute_includes presenter.content_html, "<script"
+    refute_includes presenter.content_html, "onerror"
+    assert_predicate presenter.content_html, :html_safe?
+  end
+
   private
 
   def build_article(title:, slug:, excerpt:, body:)

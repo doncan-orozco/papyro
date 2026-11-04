@@ -18,7 +18,7 @@ module Articles
       end
 
       def content_html
-        MarkdownRenderer.build.render(content_markdown).html_safe
+        MarkdownRenderer.render(content_markdown)
       end
 
       def json_ld

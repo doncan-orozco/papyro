@@ -4,9 +4,24 @@ require "uri"
 class MarkdownRenderer < Redcarpet::Render::HTML
   include Rouge::Plugins::Redcarpet
 
+  # Every caller that outputs HTML goes through build or render, so the output is always sanitized.
   def self.build
     renderer = MarkdownRenderer.new(ActionText::Markdown::DEFAULT_RENDERER_OPTIONS)
-    Redcarpet::Markdown.new(renderer, ActionText::Markdown::DEFAULT_MARKDOWN_EXTENSIONS)
+    Sanitized.new(Redcarpet::Markdown.new(renderer, ActionText::Markdown::DEFAULT_MARKDOWN_EXTENSIONS))
+  end
+
+  def self.render(markdown)
+    build.render(markdown)
+  end
+
+  class Sanitized
+    def initialize(markdown)
+      @markdown = markdown
+    end
+
+    def render(text)
+      Rails::HTML5::SafeListSanitizer.new.sanitize(@markdown.render(text), scrubber: Scrubber.new).html_safe
+    end
   end
 
   def initialize(*args)
@@ -22,7 +37,10 @@ class MarkdownRenderer < Redcarpet::Render::HTML
 
   def image(url, title, alt_text)
     normalized_url = normalize_upload_url(url)
-    %(<a href="#{normalized_url}" data-action="lightbox#open:prevent" data-lightbox-url-value="#{normalized_url}?disposition=attachment"><img src="#{normalized_url}" alt="#{alt_text}" title="#{title}"></a>)
+    src = ERB::Util.html_escape(normalized_url)
+    lightbox_url = ERB::Util.html_escape("#{normalized_url}?disposition=attachment")
+
+    %(<a href="#{src}" data-action="lightbox#open:prevent" data-lightbox-url-value="#{lightbox_url}"><img src="#{src}" alt="#{ERB::Util.html_escape(alt_text)}" title="#{ERB::Util.html_escape(title)}"></a>)
   end
 
   private
