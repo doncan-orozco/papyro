@@ -16,9 +16,9 @@ This doc decides:
 - what the gem needs to work under a strict Content-Security-Policy with nonces;
 - how the CSS reaches apps with and without Tailwind.
 
-Other areas decide the rest: the install generator and the doctor command (`DX`), the design tokens and theme
-(`THEME`), the Stimulus wrapper's Turbo behaviour and editor features (`EDIT`), server-side diagram SVG and the
-sanitizer (`RENDER`), and Papyro's own adoption (`PAPYRO`).
+Other areas decide the rest: the install generator, the doctor command and the configuration API (`DX`), the design tokens and
+theme (`THEME`), Turbo behaviour of the Stimulus wrapper (`RAILS`), editor features (`EDIT`), server-side diagram SVG, the
+sanitizer and the viewer's diagram mode (`RENDER`), and Papyro's own adoption (`PAPYRO`).
 
 Out of scope (WON'T):
 
@@ -39,7 +39,7 @@ Out of scope (WON'T):
 
 The benchmark report already settles the stack: CodeMirror 6 for the editor, client-side Mermaid 12 (`securityLevel: 'strict'`)
 and KaTeX lazy-loaded by a Stimulus controller, both JS pipelines supported, and importmap pins that resolve to one copy of
-`@codemirror/state` and `@codemirror/view` (`../reports/Markdown editor benchmark.md`, "Editor libraries" and "Gem shape";
+`@codemirror/state` and `@codemirror/view` (`../reports/Markdown editor benchmark.md`, "Source-of-truth libraries beat doc-model editors for an agent-edited corpus" and the "What the gem provides" table with "Both JS pipelines";
 `../research_notes/Markdown editor benchmark/editor_libraries.md` Q3; `rendering_and_syntax.md` §5). That research left one open
 item: "No measured importmap payloads". This doc measures them.
 
@@ -59,17 +59,20 @@ marksmith 0.6.0. Sizes are bytes divided by 1024, compressed with `gzip -9`. The
 | Prior art: Marksmith 0.6.0 controller (`-no-stimulus.esm.js`, textarea) | 1 file in the gem | 1 | 103.7 KiB | 20.8 KiB |
 
 - `@codemirror/lang-markdown` statically imports `@codemirror/lang-html`, which pulls in `lang-css`, `lang-javascript`,
-  `autocomplete` and four more Lezer grammars, so 10 of the 21 pins are grammars for HTML blocks and nested code.
+  `autocomplete`, `streamparser`, the grammars `@lezer/html`, `@lezer/css` and `@lezer/javascript`, and the `@lezer/lr` parser
+  runtime. With `lang-markdown` itself these are 10 of the 21 pins, all there for HTML blocks and nested code.
   `@lezer/javascript` alone is 29 KiB gzipped. A language built directly on `@lezer/markdown` with the GFM extensions keeps
   markdown highlighting and drops those 10 packages: the minified editor goes from 171.6 KiB to 100.5 KiB gzipped (−41%).
 - Every jspm-vendored file imports bare specifiers (`@codemirror/state`, `@lezer/common`, …). The import map has one entry per
   specifier, so the map itself guarantees a single copy of `@codemirror/state` and `@codemirror/view`. The risk the benchmark
   names (two versions of a pin) can come only from a host pinning a second version under the same name, and then the host's pin
-  replaces the gem's.
+  replaces the gem's (importmap-rails 2.2.3 `lib/importmap/engine.rb` appends the app's `config/importmap.rb` after the paths
+  engines add and draws them in order, and a later `pin` of the same name overwrites the earlier one). The doctor check in the
+  DX notes therefore detects a host pin named `@codemirror/state` instead of relying on it.
 - A single prebuilt file is the Lexxy pattern: one pin, nothing for `bin/importmap` to resolve, and the same bytes in every app.
   The cost is that host code can only reuse that copy of CodeMirror through re-exports from the gem's file. Importing
   `@codemirror/view` separately would load a second instance.
-- In the esbuild bundle, `@codemirror/view` is 155 KiB of the 308 KiB raw total. No markdown-only build of CodeMirror goes much below 100 KiB gzipped.
+- The esbuild metafile of the lean build shows `@codemirror/view` as its largest input: 154.9 KiB of the 308.1 KiB raw output.
 
 ### F2. Viewer cost: core, KaTeX and Mermaid
 
@@ -93,8 +96,13 @@ marksmith 0.6.0. Sizes are bytes divided by 1024, compressed with `gzip -9`. The
   (`--bundle --format=esm --splitting --minify --chunk-names='[name]-[hash].digested'`) precompiles correctly: the entry gets
   a digest (`mermaid-75f9435f.js`), the 107 chunks keep their names, and the relative imports resolve. A host can pin it as
   `pin "mermaid", to: "mermaid/mermaid.js", preload: false`.
+- Only Propshaft was measured. Whether Sprockets 4 leaves `.digested` chunks undigested in production is not verified, so it
+  is an acceptance check (ASSETS-11), not a finding. Under Sprockets the 108 Mermaid files also join the precompile list
+  (ASSETS-07).
 - A page with no diagram and no math pays only for the viewer controller, as long as the heavy modules are imported lazily
   (see F3).
+- Viewer cost per page under importmap: a plain article loads the viewer controller only; a math page adds 2 files (78.3 KiB
+  gzipped, plus the fonts it uses); a diagram page adds 26 files (186.9 KiB gzipped).
 
 ### F3. Lazy loading differs per pipeline unless the gem controls it
 
@@ -102,11 +110,14 @@ marksmith 0.6.0. Sizes are bytes divided by 1024, compressed with `gzip -9`. The
   `modulepreload` links, and importmap-rails can also limit preloading to named entry points.
 - The jsbundling-rails default configs **inline dynamic imports**. The esbuild script runs `--format=esm` without `--splitting`,
   the Rollup config sets `inlineDynamicImports: true`, and the webpack config limits output to one chunk (`maxChunks: 1`). In the
-  default esbuild build, a literal `import("katex")` put KaTeX into the main bundle (550 KB raw). An `import(url)` whose
-  argument is a variable is left alone (93 bytes of output).
-- So if the gem loads Mermaid and KaTeX with `import(this.mermaidUrlValue)`, where the URL is rendered server-side with
-  `asset_path`, the lazy load behaves the same in importmap, every jsbundling bundler, Vite Ruby and Shakapacker. Each heavy
-  module is fetched only on pages that need it, and the bundler never sees it.
+  default esbuild build, a literal `import("katex")` put KaTeX into the main bundle (about 550 KB raw, decimal as logged). An
+  `import(url)` whose argument is a variable is left alone (93 bytes of output).
+- So the gem loads Mermaid and KaTeX with `import(/* webpackIgnore: true */ /* @vite-ignore */ this.mermaidUrlValue)`, where
+  the URL is rendered server-side with `asset_path`. Measured: under importmap and the default jsbundling esbuild build the
+  module stays out of the host bundle (93 bytes). Not measured: Rollup, Bun, webpack (jsbundling and Shakapacker) and Vite
+  Ruby. webpack turns a non-literal `import()` into a context module unless `webpackIgnore` is set, and Vite warns about it
+  unless `@vite-ignore` is set, so both comments are part of the loader contract and the per-bundler behaviour is an
+  acceptance check (ASSETS-10), not a finding.
 
 ### F4. CSP: what each library does under a strict policy
 
@@ -152,10 +163,10 @@ counted with a `securitypolicyviolation` listener.
   `manifest.js` cannot link files inside a gem. For esbuild apps, chadcn chose a generator that copies the JavaScript into the
   app and adds the npm dependencies to `package.json`, rather than publishing an npm package: publishing needs a maintainer and
   lockstep versions (chadcn `dev/decisions/js-bundlers.md`, `sprockets.md`).
-- **Lexxy** ships a prebuilt `lexxy.js` in the gem for importmap (the host adds `pin "lexxy", to: "lexxy.js"`) and the npm
+- **Lexxy** ships prebuilt `lexxy.js` and `lexxy.min.js` in the gem for importmap (the host adds `pin "lexxy", to: "lexxy.js"`) and the npm
   package `@37signals/lexxy` for bundlers.
 - **Marksmith** publishes `@avo-hq/marksmith` to npm (also pinnable with `bin/importmap pin`) and ships its CSS in the gem.
-- Vite Ruby compiles only entrypoints under the app's source directory unless `additionalEntrypoints` and
+- Not measured (docs only): Vite Ruby compiles only entrypoints under the app's source directory unless `additionalEntrypoints` and
   `watchAdditionalPaths` are configured. For a gem, an npm package resolved from `node_modules` is the straightforward route,
   and the same goes for Shakapacker (webpack or rspack).
 
@@ -167,8 +178,8 @@ counted with a `securitypolicyviolation` listener.
 |---|---|---|---|
 | importmap + Propshaft | engine pins (no `bin/importmap pin`) | `stylesheet_link_tag "md"` | `bin/rails g md:install` (adds the import and the link tag) |
 | importmap + Sprockets 4 | engine pins; engine adds them to `config.assets.precompile` | `stylesheet_link_tag "md"` | same generator; no `manifest.js` edit |
-| jsbundling (esbuild, Rollup, Bun, webpack) | `@md/rails` from npm, `import "@md/rails"` | `stylesheet_link_tag "md"` (gem) or the package's CSS | generator runs `yarn add @md/rails` at the gem's version, with the app's package manager |
-| Vite Ruby | `@md/rails` from npm | gem stylesheet, or `import "@md/rails/md.css"` | same generator; no `vite.json` change |
+| jsbundling (esbuild, Rollup, Bun, webpack) | `@md/rails` from npm, `import "@md/rails"` | `stylesheet_link_tag "md"` (gem) or the package's CSS | generator adds `@md/rails` at the gem's version with the app's package manager (yarn, pnpm, bun or npm, chosen by the lock file) |
+| Vite Ruby | `@md/rails` from npm | gem stylesheet, or `import "@md/rails/md.css"` | same generator; no `vite.json` change expected (not measured) |
 | Shakapacker | `@md/rails` from npm | gem stylesheet, or the package's CSS | same generator |
 | tailwindcss-rails v4 (CSS only) | n/a | optional `@import "../builds/tailwind/md";` | generator adds the import only when tailwindcss-rails ≥ 4.3.0 is present |
 | cssbundling-rails (CSS only) | n/a | `@import "@md/rails/md.css";` | same generator |
@@ -192,12 +203,14 @@ Grouped by delivery, size, lazy loading, CSP and CSS. Each acceptance check runs
   import `@codemirror/lang-html` or other nested-language grammars. Acceptance: the built editor file contains no
   `@lezer/javascript`, `@lezer/css` or `@lezer/html` code (checked from the esbuild metafile).
 - **ASSETS-04** (MUST) Bundler apps (jsbundling with esbuild, Rollup, Bun or webpack, Vite Ruby, Shakapacker) get the same
-  Stimulus controllers from an npm package that lists CodeMirror as `dependencies`, not bundled, so the host's bundler
-  deduplicates it. Acceptance: a CI smoke with the default jsbundling esbuild config renders the editor, and `npm ls
-  @codemirror/state` shows one version.
-- **ASSETS-05** (MUST) The npm package version always equals the gem version, and both are published from the same tag by one
-  release workflow. Acceptance: the release workflow fails if `package.json` and `Md::VERSION` differ, and the doctor (`DX`)
-  fails with the exact `yarn add` command when the installed package version differs from the gem.
+  Stimulus controllers and identifiers without a machine-specific gem path: from the npm package, or from generator-managed
+  copies until it is published (see Open decisions), with CodeMirror as an npm dependency the host's bundler deduplicates.
+  Acceptance: a CI smoke with the default jsbundling esbuild config renders the editor, and `npm ls @codemirror/state` shows
+  one version.
+- **ASSETS-05** (MUST) The JavaScript a bundler app runs is versioned with the gem: the npm package version equals
+  `Md::VERSION` and both publish from one tag by one release workflow, or each managed copy carries the gem version in its
+  header. Acceptance: the release workflow fails when `package.json` and `Md::VERSION` differ, and the doctor (`DX`) fails
+  with the exact install command when the installed JavaScript version differs from the gem.
 - **ASSETS-06** (SHOULD) Vite Ruby and Shakapacker are supported through the npm package alone, with an install snippet each and
   no gem-side configuration. Acceptance: the README has both snippets, and a Vite Ruby smoke runs in CI before 1.0.
 - **ASSETS-07** (MUST) Under Sprockets 4 the engine declares every pinned and lazily loaded file in `config.assets.precompile`,
@@ -206,9 +219,10 @@ Grouped by delivery, size, lazy loading, CSP and CSS. Each acceptance check runs
 
 ### Size budgets
 
-- **ASSETS-08** (MUST) Gem CI enforces gzip budgets: editor file at most 110 KiB, viewer controller at most 10 KiB, and no
-  growth over 5% between minor releases without a CHANGELOG note. Acceptance: a CI job measures `gzip -9` sizes of the built
-  files and fails above the budget.
+- **ASSETS-08** (MUST) Gem CI enforces gzip budgets: editor file (with the ASSETS-02 re-exports) at most 110 KiB, viewer
+  controller at most 10 KiB, and no growth over 5% between minor releases without a CHANGELOG note. Acceptance: a CI job
+  measures `gzip -9` sizes of the built files, fails above the budget, and fails on growth over 5% against the last release's
+  recorded sizes unless the CHANGELOG names the file.
 - **ASSETS-09** (SHOULD) The editor pin is not `modulepreload`ed on pages that render no editor (public article pages).
   Acceptance: the HTML of a viewer-only page has no `modulepreload` link to the editor file.
 
@@ -216,13 +230,13 @@ Grouped by delivery, size, lazy loading, CSP and CSS. Each acceptance check runs
 
 - **ASSETS-10** (MUST) Mermaid and KaTeX load only when the page has a diagram or math node, through `import(url)` with the
   URL rendered from `asset_path` into a Stimulus value, so bundlers never inline them. Acceptance: a page without diagrams or
-  math makes no request for Mermaid or KaTeX, and enabling math does not change the size of the host's esbuild
-  `application.js`.
+  math makes no request for Mermaid or KaTeX, and in CI smokes for jsbundling esbuild, jsbundling webpack and Vite Ruby a math
+  page renders while the host bundle size is the same with math on or off.
 - **ASSETS-11** (MUST) The vendored Mermaid is a Propshaft-safe build whose chunks are named `[name]-[hash].digested.js`,
   regenerated by a gem rake task on every Mermaid upgrade. Acceptance: after `RAILS_ENV=production bin/rails
   assets:precompile` in Propshaft and Sprockets apps, rendering a flowchart triggers no 404.
-- **ASSETS-12** (SHOULD) A host can point Mermaid and KaTeX at its own URL (including a CDN), or turn either feature off.
-  Acceptance: `Md.configure { _1.mermaid_url = false }` removes the diagram loader from the rendered page, and a custom URL
+- **ASSETS-12** (SHOULD) A host can point Mermaid and KaTeX at its own URL (including a CDN), or turn either feature off
+  (option names are DX's to settle). Acceptance: `Md.configure { it.mermaid_url = false }` removes the diagram loader from the rendered page, and a custom URL
   appears in the Stimulus value.
 
 ### Content-Security-Policy
@@ -232,14 +246,15 @@ Grouped by delivery, size, lazy loading, CSP and CSS. Each acceptance check runs
   'nonce-…'` records zero `securitypolicyviolation` events while the editor loads and the user types.
 - **ASSETS-14** (MUST) Math is typeset with `katex.render` on DOM nodes, never `renderToString` followed by `innerHTML`.
   Acceptance: the strict-CSP system test with a math block records zero violations.
-- **ASSETS-15** (MUST) The gem emits no inline `<script>`, no inline event-handler attributes and no `javascript:` URLs, and any
-  tag it must render inline carries the request nonce. Acceptance: a test renders every gem view and helper and finds no
-  `script` tag without a nonce and no `on*` attribute.
+- **ASSETS-15** (MUST) The gem emits no inline `<script>` without the request nonce, no inline event-handler attributes, no
+  `style` attributes and no `javascript:` URLs. Acceptance: a test renders every gem view and helper and finds no `script`
+  without a nonce, no `on*` or `style` attribute and no `javascript:` URL.
 - **ASSETS-16** (SHOULD) Diagrams offer an image mode (Mermaid's SVG rendered to a string and shown as `<img>` with a blob
   URL) for hosts whose `style-src` forbids inline styles. Acceptance: under the strict test policy a flowchart renders legibly
   in image mode.
 - **ASSETS-17** (MUST) The README lists the CSP directives each feature needs (editor, math, inline diagrams, image diagrams,
-  uploads), and the doctor warns when inline diagrams are enabled under a policy that blocks inline style attributes.
+  uploads), and the doctor warns when inline diagrams are enabled under a policy that blocks inline style attributes, naming the options
+  (`style-src-attr 'unsafe-inline'`, image mode when ASSETS-16 ships, server-side SVG from `RENDER`).
   Acceptance: the README table exists, and a doctor test with a strict policy and inline diagrams prints the warning.
 
 ### CSS
@@ -261,7 +276,7 @@ Grouped by delivery, size, lazy loading, CSP and CSS. Each acceptance check runs
   (`DX`). A newcomer never learns what a pin, a nonce facet or a precompile list is.
 - **ASSETS-02** adds one concept: extensions import CodeMirror from the gem's re-export, not from `@codemirror/*`. That is one
   documented import path, and the doctor can detect the mistake (a host pin named `@codemirror/state`).
-- **ASSETS-04 and 05** add an npm step for bundler apps. The generator runs it with the app's package manager, and the doctor
+- **ASSETS-04 and 05** add an npm step (or managed copies) for bundler apps. The generator runs it with the app's package manager, and the doctor
   catches drift after `bundle update`, the most common upgrade trap (chadcn's copy approach has the same failure mode and solves
   it the same way).
 - **ASSETS-12 and 16** add configuration (`mermaid_url`, `katex_url`, diagram mode). The defaults work, so only CSP-strict or
@@ -276,7 +291,7 @@ Grouped by delivery, size, lazy loading, CSP and CSS. Each acceptance check runs
   by one release workflow. Vendored files serve importmap, which is the Rails default and Papyro's setup, and the lazy
   Mermaid and KaTeX loads in every pipeline. The npm package serves bundlers, where it is what Vite Ruby and Shakapacker users
   expect. If publishing to npm cannot be ready for 0.1, ship chadcn's generator-copy approach for jsbundling first and switch
-  without changing any DOM or identifiers.
+  without changing any DOM or identifiers. ASSETS-04 and ASSETS-05 hold under either answer.
 - Under importmap, deliver CodeMirror as one prebuilt file (1 pin, 100.5 KiB gzipped) or as individual vendored pins
   (11 pins, 127.7 KiB)? Recommendation: one prebuilt file with re-exports (ASSETS-02). It is smaller, it needs no jspm
   resolution at install or upgrade, and the single-copy guarantee becomes a property of the gem.
@@ -285,18 +300,19 @@ Grouped by delivery, size, lazy loading, CSP and CSS. Each acceptance check runs
   diagrams are one Gemfile line away, and Mermaid upgrades ship on their own schedule.
 - Default diagram mode for hosts whose CSP blocks inline styles: inline SVG or image? Recommendation: inline SVG by default
   (selectable text, working links), with the doctor's warning (ASSETS-17) steering strict hosts to image mode or to
-  server-side SVG from `RENDER`.
+  server-side SVG from `RENDER` (shared with `RENDER`, which owns the viewer's diagram mode).
 - Should the default editor highlight code inside fenced blocks (HTML, JS, CSS grammars, +71 KiB gzipped)? Recommendation: no
   for 0.1 (ASSETS-03). Add nested languages later as lazily loaded extensions, so prose writers never pay for them.
 - Budget values in ASSETS-08 (110 KiB editor, 10 KiB viewer). Recommendation: accept them as starting points measured on
-  2026-11-03, and revisit at 1.0 with real controller code.
+  2026-11-03, and revisit at 1.0 with real controller code. The 100.5 KiB build exports only what the editor uses; re-measure
+  with the ASSETS-02 re-exports before fixing the editor budget.
 
 ## Sources
 
 - https://github.com/rails/importmap-rails (accessed 2026-11-03)
 - https://github.com/rails/propshaft (accessed 2026-11-03)
 - https://github.com/rails/tailwindcss-rails (accessed 2026-11-03)
-- https://rubygems.org/gems/jsbundling-rails/versions/1.3.1 (accessed 2026-11-03; the default esbuild, Rollup, Bun and webpack configs in `lib/install`)
+- https://github.com/rails/jsbundling-rails/tree/v1.3.1/lib/install (accessed 2026-11-03; the default esbuild, Rollup, Bun and webpack configs, read from the 1.3.1 gem)
 - https://vite-ruby.netlify.app/guide/development.html (accessed 2026-11-03)
 - https://codemirror.net/docs/ref/ (accessed 2026-11-03; `EditorView.cspNonce`, also in `@codemirror/view` 6.43.15 `dist/index.d.ts`)
 - https://registry.npmjs.org/mermaid (accessed 2026-11-03; mermaid 12.3.0 package measured)
