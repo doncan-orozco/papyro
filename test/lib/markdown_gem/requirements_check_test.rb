@@ -59,6 +59,8 @@ class RequirementsCheckTest < ActiveSupport::TestCase
     assert_match(/\A#{Regexp.escape(template)}:\d+: placeholder "<[^"]+>"$/, out.lines.first)
     assert_match(/:\d+: requirement does not open with "\*\*DX-NN\*\* \(MUST\|SHOULD\|COULD\)"$/, out)
     assert_match(/:\d+: Sources lists 0 distinct URLs, at least 5 required$/, out)
+    assert_includes out, %(placeholder "<One paragraph: what this area covers and why it matters...>")
+    assert(out.scan(/placeholder "([^"]+)"/).flatten.all? { it.length <= MarkdownGemRequirements::MARKER_ECHO })
   end
 
   test "a missing required section is reported by name" do
@@ -106,6 +108,7 @@ class RequirementsCheckTest < ActiveSupport::TestCase
 
     assert_equal 1, status
     shape = 'requirement does not open with "**DX-NN** (MUST|SHOULD|COULD)"'
+
     assert_equal [ "#{line_of(content, 'DX-2**')}: #{shape}", "#{line_of(content, 'DX-03 (WONT)')}: #{shape}" ], out
   end
 
@@ -126,10 +129,11 @@ class RequirementsCheckTest < ActiveSupport::TestCase
   end
 
   test "an Acceptance clause on a continuation line counts, an empty one does not" do
-    assert_equal 0, check_area(broken("Acceptance: a new Rails app", "\n  Acceptance: a new Rails app").first,
-                               "the clause may sit on an indented continuation line")
+    assert_equal 0, check_area(broken("Acceptance: a new Rails app", "\n  Acceptance: a new Rails app")).first,
+                 "the clause may sit on an indented continuation line"
 
     content = broken("Acceptance: every deprecation warning names the new API.", "Acceptance:")
+
     assert_equal [ "#{line_of(content, 'DX-03')}: requirement DX-03 has no \"Acceptance:\" clause" ], check_area(content)[1]
   end
 
@@ -245,6 +249,7 @@ class RequirementsCheckTest < ActiveSupport::TestCase
 
     assert_equal 1, status
     doc = File.join(dir, "developer-experience.md")
+
     assert_equal [
       "#{synthesis}:#{line_of(traceability, '## Traceability')}: DX-02 missing from the traceability table " \
       "(defined at #{doc}:#{line_of(PASSING, '**DX-02**')})",
@@ -274,12 +279,15 @@ class RequirementsCheckTest < ActiveSupport::TestCase
 
   test "the executable runs from the shell with the same exit codes" do
     out, status = Open3.capture2e(RbConfig.ruby, SCRIPT, "--area", "DX", FIXTURE)
+
     assert_equal [ 0, "requirements_check: ok: #{FIXTURE} (area DX, 3 requirements, 5 sources)\n" ], [ status.exitstatus, out ]
 
     _, status = Open3.capture2e(RbConfig.ruby, SCRIPT, "--area", "DX", File.join(REQUIREMENTS_DIR, "TEMPLATE.md"))
+
     assert_equal 1, status.exitstatus
 
     _, status = Open3.capture2e(RbConfig.ruby, SCRIPT, "--help")
+
     assert_equal 0, status.exitstatus
   end
 
