@@ -12,9 +12,9 @@ rebuilding. Developer experience comes first: most of the pain users report in t
 
 This doc decides which lessons from prior art become requirements, and which parts of prior art Md reuses. It leaves the
 design of each layer to its own area: the rendering pipeline and dialect to RENDER, the editing experience to EDIT,
-asset delivery to ASSETS, tokens and overrides to THEME, view and form integration to VIEWS, install and public API to
-DX. Where a lesson lands in another area, the requirement here states the lesson and its acceptance check; the synthesis
-merges duplicates by ID.
+asset delivery to ASSETS, tokens and overrides to THEME, view and form integration to VIEWS, Turbo, Active Storage,
+Action Text and i18n integration to RAILS, install and public API to DX. Where a lesson lands in another area, the
+requirement here states the lesson and its acceptance check; the synthesis merges duplicates by ID.
 
 Out of scope (WON'T):
 
@@ -49,7 +49,7 @@ and download counts that the benchmark already settled are cited from it rather 
 | Marksmith (`marksmith`, `@avo-hq/marksmith`) | Textarea + `markdown-toolbar-element` + server preview tab, Rails engine with Stimulus | Markdown | gem 0.6.0 (2026-08-14); npm 0.5.1 (2026-04-24) | MIT | Active, Avo team, 0.x, README warns the API may change |
 | Lexxy (`lexxy`, `@37signals/lexxy`) | WYSIWYG custom element on Lexical for Action Text | Action Text HTML | 1.0.3 (2026-10-29) | MIT | Very active, 37signals, 82 gem versions in 14 months |
 | Rhino Editor (`rhino-editor`) | TipTap custom element (lit, Shadow DOM) for Action Text | Action Text HTML | npm 0.18.6 (2026-10-29) | MIT | Active, one maintainer, pre-1.0, no Ruby gem |
-| Trix + Action Text | WYSIWYG editor + Rails storage and rendering framework | Action Text HTML | trix 2.1.19 (2026-05-09); actiontext 8.1.4 (2026-09-24) | MIT | Active; being superseded by Lexxy at 37signals |
+| Trix + Action Text | WYSIWYG editor + Rails storage and rendering framework | Action Text HTML | trix 2.1.19 (2026-05-09); actiontext 8.1.4 (2026-09-24) | MIT | Active; Lexxy is 37signals' newer editor |
 | markdown-rails (`sitepress/markdown-rails`) | Action View template handler for `.md` views | None (view files) | 2.2.0 (2025-11-04) | MIT | Low activity; renders with Redcarpet |
 | html-pipeline | Text, convert, sanitize and node filter chain (commonmarker + Selma) | None (string in, HTML out) | 3.2.4 (2026-01-06) | MIT | Low cadence; GitHub no longer uses it |
 | `markdown-toolbar-element` | Custom elements that apply markdown formatting to a textarea | None | 2.2.3 (2024-03-01) | MIT | Low volume but alive: fixes merged in October 2026, unreleased |
@@ -68,9 +68,10 @@ and download counts that the benchmark already settled are cited from it rather 
   (commonmarker, redcarpet or kramdown) and `redcarpet_options`. The commonmarker branch calls `Commonmarker.to_html`
   with no options. Custom rendering means redefining `Marksmith::Renderer` in the host app.
 - **JavaScript.** An npm package with a full bundle (115 KB, which inlines its own copy of Stimulus's `Controller`) and a
-  `/core` build (20 KB, dependencies external). The gem ships no JavaScript of its own, so importmap users pin from the
-  npm CDN, and the two release channels drift: gem 0.6.0 versus npm `latest` 0.5.1. Runtime dependencies are
-  `markdown-toolbar-element`, `paste-markdown`, `hotkey`, `@rails/activestorage` and `@rails/request.js`.
+  `/core` build (20 KB, dependencies external). The gem ships no importmap pins and no general-purpose JavaScript (only
+  no-Stimulus builds for Avo under `app/assets/javascripts`), so importmap users pin from the npm CDN, and the two
+  release channels drift: gem 0.6.0 versus npm `latest` 0.5.1. Runtime dependencies are `markdown-toolbar-element`,
+  `paste-markdown`, `hotkey`, `@rails/activestorage` and `@rails/request.js`.
 - **Theming.** A prebuilt Tailwind v4 stylesheet (44 KB) with an `ms:` prefix and hard-coded neutral and blue colours.
   Dark mode works only through a `.dark` ancestor class. Semantic hook classes (`marksmith-editor-wrapper`,
   `marksmith-preview-pane`, ...) arrived in PR #74 as the override path. The preview uses typography classes that
@@ -84,8 +85,8 @@ and download counts that the benchmark already settled are cited from it rather 
 - **Tests and CI.** Minitest with a full dummy app. The real tests cover renderer output per parser; the preview
   controller test is an empty scaffold and the only system test is the generated Posts CRUD, which CI does not run. There
   are no JavaScript tests and the lint job is commented out.
-- **Releases.** 31 versions since 2025-01-22: a burst of about 25 in early 2025, then one every two to four months. GitHub
-  Releases stop at v0.4.7, so 0.4.8 to 0.6.0 have no changelog.
+- **Releases.** More than 30 versions since 2025-01-22: a burst of about 25 from January to April 2025, then one every
+  two to four months. GitHub Releases stop at v0.4.7, so 0.4.8 to 0.6.0 have no changelog.
 
 ### Lexxy
 
@@ -132,6 +133,9 @@ and download counts that the benchmark already settled are cited from it rather 
   uploads are tested against real S3-compatible storage. 0.18.0 broke APIs when it moved from TipTap 2 to 3.
 - The HTML round trip loses whitespace that users expected to keep (#292, 33 comments). Markdown exists only as input
   shortcuts (PR #225).
+- Releases: 57 npm versions since 2022-12-07, published with changesets; lint is Prettier only. Licence MIT.
+- Behaviour is extended through TipTap: `extensions`/`addExtensions()`, `starterKitOptions` toggles (for example
+  `rhinoGallery: false`), or a `TipTapEditor` subclass registered under its own tag.
 
 ### Trix and Action Text
 
@@ -148,9 +152,13 @@ and download counts that the benchmark already settled are cited from it rather 
   and a fixed stored XSS (rails#58754). The adapter API is `:nodoc:`.
 - Trix refused markdown: "Add markdown support or state that it will not be added" (trix#626, over 100 thumbs-up) was
   closed with no plans to add it, and the `md-input` PR (trix#737) was closed unmerged. In that thread users point at
-  37signals' unreleased House editor as the wanted answer.
+  37signals' unreleased House editor, which DHH said would become a standalone project.
 - Trix's stylesheet uses no CSS custom properties, dark mode is an open request since 2021 (trix#947), and the README
   tells apps to copy the content styles under their own class name, which forks them.
+- Trix ships ESM and UMD builds on npm and as the `action_text-trix` gem; Action Text serves `actiontext.esm.js` from
+  the gem for importmap. Trix CI runs browser tests on web-test-runner and QUnit with ESLint, actionlint and zizmor;
+  Action Text is tested inside the Rails monorepo. Trix releases are patches (2.1.13 on 2025-03-10 to 2.1.19 on
+  2026-05-09); actiontext follows the Rails release train (8.1.0 on 2025-10-22 to 8.1.4 on 2026-09-24).
 
 ### markdown-rails
 
@@ -161,6 +169,9 @@ and download counts that the benchmark already settled are cited from it rather 
   only by subclassing a Redcarpet renderer (#4, PR #5 unmerged), images under Propshaft are unsolved (#3), and the
   default view context is `ApplicationController.new.view_context`, which is brittle in engines and API-only apps. The
   original `joliss/markdown-rails` repository is abandoned; maintenance moved to Brad Gessler (joliss#12).
+- Server-only: no JavaScript and no styles, the output is bare HTML. CI runs RSpec on Ruby 3.1 to 3.3 against a single
+  spec file. Releases: 1.0.0 (2021-01-19), a 2.0.0 alpha series (2022-09 to 2023-01), 2.1.0 (2023-10-13) and 2.2.0
+  (2025-11-04); 1.x rendered with RDiscount, 2.x with Redcarpet.
 
 ### html-pipeline
 
@@ -171,6 +182,10 @@ and download counts that the benchmark already settled are cited from it rather 
   are built in.
 - Risks: v3 lost inline-style sanitization, which blocks GFM table `text-align` (#405); point releases regressed (#413
   "v3.2.1 is badly broken", #407 node filters applied twice); a filter rename is pending (#430).
+- Install is `gem "html-pipeline"` plus an explicit `require` per filter; filter dependencies (commonmarker, rouge,
+  gemoji) are not bundled. Server-only, so no JavaScript or theming. CI calls a shared reusable workflow running
+  Minitest; RuboCop runs in a separate lint workflow. Seven releases from 3.0.0 (2023-12-24, the switch from Nokogiri to
+  Selma) to 3.2.4 (2026-01-06).
 
 ### `markdown-toolbar-element`
 
@@ -197,7 +212,7 @@ Marksmith (40 issues, 11 open; Discussions disabled; low reaction counts, at mos
 | Engine and asset integration | #18, #27, #35, #114, #51 | Eager-load and partial-Rails boot failures, runtime asset compile, Rails 8.2 deprecation, Safari textarea sizing |
 | Editing extras | #4, #81, #82 | Keyboard shortcuts (shipped), mentions, text expander |
 
-No Marksmith issue asks for a live preview; the requests are about integration and parity.
+No Marksmith issue title asks for a live preview (all 40 titles searched); the requests are about integration and parity.
 
 Lexxy (138 issues, 27 open; 81 discussions):
 
@@ -211,15 +226,16 @@ Lexxy (138 issues, 27 open; 81 discussions):
 | Round-trip loss | #1004, #938, #714, #284 | Line breaks lost on save, `s` instead of `del`, dropped empty lines, Trix content migration |
 | Mobile, IME, accessibility, i18n | #1078, #1246, #877, D1258 | iOS capitalization, Korean IME duplication, moving attachments by keyboard, hard-coded English toolbar |
 
-The most-voted Lexxy request is the thing Lexxy will not do: keep markdown. Across both trackers the recurring cost is
-integration with Turbo, CSS frameworks and asset pipelines.
+The top Lexxy discussion (D391, 9 upvotes, unanswered by maintainers) asks for what Lexxy's HTML storage rules out:
+keeping markdown. The top issue (#1097, 10 reactions) asks for more feature switches. Across both trackers the recurring
+cost is integration with Turbo, CSS frameworks and asset pipelines.
 
 ### Adopt and avoid, per project
 
 | Project | Adopt | Avoid |
 |---|---|---|
-| Marksmith | Markdown textarea as the form value; form-builder method with a ViewComponent fallback; `paste-markdown`-style HTML-to-markdown paste; locale files for UI strings; partials apps can override | Generator that only writes config; gem and npm versions released apart; Turbo-only preview with no auth hook; renderer customized by shadowing a class; hard-coded upload path; `textarea.value` writes that kill undo; page-wide hotkeys; prebuilt utility CSS with `.dark`-only dark mode; admin-framework code in the core; CI that skips system tests and lint |
-| Lexxy | Zero-config Rails path; layered config (global, preset, per field) and feature switches; one source, two builds (self-contained ESM in the gem, externals in npm); lazy optional peers; namespaced, low-specificity CSS tokens; namespaced cancelable events; documented upload response contract; three-engine browser tests plus a Rails matrix; docs site and sandbox in the repo | HTML storage and editor-side normalization; monkey-patched Action Text helpers; global sanitizer mutations; a bundle nobody checks against the lockfile; a bundle that cannot take extra plugins; hard-coded English UI; an extension API with no deprecation policy; unprefixed CSS variables |
+| Marksmith | Markdown textarea as the form value; form-builder method with a ViewComponent fallback; `paste-markdown`-style HTML-to-markdown paste; locale files for UI strings; overridable partials kept as a last-resort escape hatch, never the documented customization path (PRIOR-08) | Generator that only writes config; gem and npm versions released apart; Turbo-only preview with no auth hook; renderer customized by shadowing a class; hard-coded upload path; `textarea.value` writes that kill undo; page-wide hotkeys; prebuilt utility CSS with `.dark`-only dark mode; admin-framework code in the core; CI that skips system tests and lint |
+| Lexxy | Zero-config outcome (the form call works after install), reached with Md's own helpers, not by patching Rails; layered config (global, preset, per field) and feature switches; one source, two deliveries (Lexxy's self-contained gem ESM becomes gem-served per-module pins in Md, PRIOR-09; externals in npm); lazy optional peers; namespaced, low-specificity CSS tokens; namespaced cancelable events; documented upload response contract; three-engine browser tests plus a Rails matrix; docs site and sandbox in the repo | HTML storage and editor-side normalization; monkey-patched Action Text helpers; global sanitizer mutations; a bundle nobody checks against the lockfile; a bundle that cannot take extra plugins; hard-coded English UI; an extension API with no deprecation policy; unprefixed CSS variables |
 | Rhino Editor | `before-initialize` hook and `defer-initialize`; namespaced tokens and `::part()`-style hooks; toolbar slots; real-storage upload tests in CI | No Ruby helpers; lit and Shadow DOM transitive dependencies that break importmap; breaking changes in 0.x minors; HTML round trip |
 | Trix + Action Text | Upload URLs defaulted from routes; `DirectUpload` events; one content class shared by editor and display; JavaScript served by the gem for importmap and published to npm | HTML as the source of truth; toolbar as an HTML string in JS config; styles without custom properties or dark mode; copying CSS into apps; relying on the unreleased editor adapter |
 | markdown-rails | App-owned renderer class written by the generator; trusted and untrusted profiles kept apart; safe defaults | Redcarpet; options reachable only by subclassing; `ApplicationController.new.view_context`; no Propshaft image story |
@@ -239,7 +255,7 @@ integration with Turbo, CSS frameworks and asset pipelines.
 | `paste-markdown` | Needs a spike | Converts pasted HTML, links and tables to markdown on textarea paste events; compatibility with CodeMirror's paste handling is unverified. |
 | Lexxy CSS tokens and content styles, Prism token variables | Reference | A checklist of what rendered-markdown typography must cover (headings, lists, tables, code, quotes, focus ring), mapped onto THEME's tokens. |
 | Lexxy's Rollup dual build and Playwright harness, Rhino's MinIO CI service | Reference | Templates for packaging and CI. |
-| Marksmith form-builder extension and locale keys | Reuse the idea | Small and proven; ids from `dom_id` or `SecureRandom`, never `rand`. |
+| Marksmith form-builder extension and locale keys | Reuse the idea | Small and proven; ids from `dom_id` for persisted records and `SecureRandom` for new ones (PRIOR-05), never `rand`. |
 
 ## Requirements
 
@@ -248,10 +264,13 @@ with the area that owns the topic.
 
 ### Storage and fidelity
 
-- **PRIOR-01** (MUST) The editor never rewrites the stored markdown on load or on an unedited save: what the field held is
-  what the form submits, byte for byte (Lexxy #1004, #938, #714, Rhino #292, Trix #626). Acceptance: a fixture corpus
-  of tricky markdown (reference links, footnotes, mixed list markers, escapes, trailing spaces, CRLF) round-trips through
-  open and submit in a system test with no byte changed.
+- **PRIOR-01** (MUST) The editor never rewrites the stored markdown on load or on an unedited save: what the field held
+  is what the model receives, byte for byte once line endings are LF. Browsers submit textarea newlines as CRLF, so the
+  gem ships a newline normalizer for Rails' `normalizes` and the README shows the one line each markdown attribute needs
+  beside the form-builder method (Lexxy #1004, #938, #714, Rhino #292; Trix #626 shows WYSIWYG editors will not keep
+  markdown). Acceptance: a system test on a model that declares the normalizer opens and submits each LF fixture of a
+  tricky-markdown corpus (reference links, footnotes, mixed list markers, escapes, trailing spaces, hard tabs) and the
+  persisted value is byte-identical to the fixture.
 - **PRIOR-02** (MUST) Every edit command (toolbar, shortcut, list continuation, upload insert, paste conversion) goes
   through the editor's transaction API so a single undo reverts it (Marksmith's `textarea.value` writes). Acceptance: a
   browser test runs each command, presses Cmd+Z or Ctrl+Z once and gets the previous text and selection back.
@@ -261,139 +280,159 @@ with the area that owns the topic.
 - **PRIOR-03** (MUST) One generator command finishes the install: JavaScript pins or package, controller registration,
   stylesheet and initializer, with no manual step left (Marksmith's config-only generator, Lexxy's missing generator,
   Rhino's missing gem). Acceptance: in a fresh `rails new` app, `bundle add` plus the generator gives a working editor
-  that submits its value, with no other file edited.
-- **PRIOR-04** (MUST) The gem defines its own form-builder method and view helper and never aliases, prepends or
-  monkey-patches Rails or Action Text helpers (Lexxy's `rich_text_area` override and #296, #234). Acceptance: a grep of
-  the gem finds no `alias_method`, `prepend` or reopened class on Action View or Action Text helpers, and the README shows
-  `f.markdown_field :body` working beside `f.rich_textarea` in the same form.
-- **PRIOR-05** (MUST) Field ids are deterministic and unique per record and attribute, so several editors on one page,
+  that submits its value, with no file edited beyond the form view that calls the form-builder method.
+- **PRIOR-04** (MUST) The gem adds its own form-builder method and view helper and never overrides, aliases or prepends
+  an existing Rails or Action Text method (Lexxy's `rich_text_area` override and #296, #234). Acceptance: a test asserts
+  every pre-existing public method of `ActionView::Helpers::FormBuilder`, `ActionView::Helpers::FormHelper` and the
+  Action Text helpers keeps the same `owner` and `source_location` with and without the gem, and a system test submits
+  `f.markdown_field :body` beside `f.rich_textarea :notes` in one form.
+- **PRIOR-05** (MUST) Every editor id is unique on the page: `dom_id` plus the attribute for a persisted record, a
+  `SecureRandom` suffix for a new record, and an `id:` option that wins over both, so several editors on one page,
   inside frames and in broadcasts never collide (Marksmith #52, #45, `rand(1000..9999)`). Acceptance: a system test
-  renders two editors for the same attribute of two records plus one inside a Turbo Frame, and every editor previews and
-  submits its own value.
-- **PRIOR-06** (MUST) The core has no admin-framework code; integrations such as Avo or ActiveAdmin live in optional files
-  loaded only when that framework is present (Marksmith's Avo field and gallery, #67). Acceptance: the gem boots and its
-  test suite passes in an app without Avo, and a grep of the core finds no reference to an admin framework's constants.
+  renders two persisted records, two new records of one model and one editor inside a Turbo Frame on one page, and every
+  editor previews and submits its own value.
+- **PRIOR-06** (MUST) The core has no admin-framework code; integrations such as Avo or ActiveAdmin live in optional
+  files loaded only when that framework is present (Marksmith's Avo field and gallery, #67). Acceptance: the gem boots
+  and its test suite passes in an app without Avo, and a grep of the core finds no reference to an admin framework's
+  constants.
 - **PRIOR-07** (SHOULD) Options resolve in three layers, global configuration, then a named preset, then per-field
   options, with a feature switch for each optional capability (Lexxy's configure and presets, #1097). Acceptance: a
   test sets tables on globally, off in a preset and on again for one field, and each field shows the expected commands.
-- **PRIOR-08** (SHOULD) The toolbar is declared as a list of button names in the field options or preset, and an app adds a
-  custom button by registering it, without overriding a partial or a JS template (Lexxy D497, D313, Marksmith's action
-  bar partial, Trix's `getDefaultHTML`). Acceptance: the README shows one option that removes two default buttons and one
-  registration that adds a custom button, both covered by a system test.
+- **PRIOR-08** (SHOULD) The toolbar is declared as a list of button names in the field options or preset, and an app
+  adds a custom button by registering it, without overriding a partial or a JS template (Lexxy D497, D313, Marksmith's
+  action bar partial, Trix's `getDefaultHTML`). Acceptance: the README shows one option that removes two default buttons
+  and one registration that adds a custom button, both covered by a system test.
 
 ### JavaScript delivery
 
-- **PRIOR-09** (MUST) The gem serves a self-contained ESM build from its own assets for importmap apps, so pinning never
-  fetches transitive dependencies from a CDN (Marksmith's CDN pins, Rhino #159, #161, #306). Acceptance: an importmap
-  dummy app with network access blocked in CI boots the editor using only files served by the gem.
+- **PRIOR-09** (MUST) The gem serves every JavaScript module the editor needs from its own assets and declares their
+  importmap pins, with the shared cores (`@codemirror/state`, `@codemirror/view`, `@codemirror/language`) as separate
+  pins that resolve to a single copy, so pinning never reaches a CDN and extensions share the cores (Marksmith's CDN
+  pins, Rhino #159, #161, #306, Lexxy #1057; benchmark design rule 2). Acceptance: an importmap dummy app with network
+  access blocked in CI boots the editor from gem-served files only, and `bin/importmap json` lists exactly one URL per
+  shared core.
 - **PRIOR-10** (MUST) The gem and the npm package are released together from the same commit with the same version
   (Marksmith gem 0.6.0 versus npm 0.5.1). Acceptance: the release workflow fails when the gemspec version and
   `package.json` version differ, and publishes both or neither.
-- **PRIOR-11** (MUST) CI rebuilds the vendored JavaScript and fails when it differs from the committed or packaged build,
-  or when a bundled dependency's version differs from the lockfile (Lexxy #1325). Acceptance: a CI job compares the
-  dependency versions embedded in the built file with the lockfile and fails on a mismatch.
+- **PRIOR-11** (MUST) CI rebuilds the vendored JavaScript and fails when it differs from the packaged files or when a
+  vendored dependency's version differs from the lockfile (Lexxy #1325). Acceptance: a CI job rebuilds the vendored
+  files, diffs them against the built gem and compares each embedded dependency version with the lockfile, failing on
+  any difference.
 - **PRIOR-12** (SHOULD) Importmap apps can add editor extensions, such as an extra CodeMirror language, as separate pins
-  without rebuilding the gem's bundle (Lexxy #1057). Acceptance: the importmap dummy app registers one extra language
-  pack through a documented hook and highlights a fenced block in that language.
-- **PRIOR-13** (SHOULD) Optional peers such as `@rails/activestorage` are imported lazily, only when the feature that needs
-  them runs (Lexxy's upload node). Acceptance: an app without Active Storage loads the editor with no module error, and
-  the network panel shows no Active Storage module until a file is dropped.
+  without rebuilding the gem's JavaScript (Lexxy #1057). Acceptance: the importmap dummy app adds one extra language
+  pack as a separate pin, registers it through a documented hook and highlights a fenced block in that language, with
+  the shared cores still resolving to one copy.
+- **PRIOR-13** (SHOULD) Optional peers such as `@rails/activestorage` are imported lazily, only when the feature that
+  needs them runs (Lexxy's upload node). Acceptance: an app without Active Storage loads the editor with no module
+  error, and in an app with Active Storage the network panel shows no Active Storage module until a file is dropped.
 
 ### Preview and rendering
 
-- **PRIOR-14** (MUST) The preview works without Turbo: the endpoint returns HTML over `fetch`, and a Turbo Stream response
-  is an option, not the only path (Marksmith #142). Acceptance: a system test with Turbo not loaded shows the rendered
-  preview, and a request test gets HTML back from the endpoint.
-- **PRIOR-15** (MUST) The preview endpoint runs the same render pipeline and the same content class as the display helper,
-  and the pipeline receives the request context (Marksmith #71, #103, #33). Acceptance: a test renders one document through
-  the preview endpoint and through the view helper and gets identical HTML, and a custom filter that reads the context
-  works in both.
-- **PRIOR-16** (MUST) The preview endpoint passes through an app-supplied authorization hook and the gem documents it;
-  no rendering endpoint is reachable by an unauthenticated visitor unless the app allows it (Marksmith's controller on
-  bare `ActionController::Base`). Acceptance: a request test with the hook denying gets a 403 or 404, and the install
-  generator writes the hook into the initializer.
-- **PRIOR-17** (MUST) Rendering is customized through options and filter hooks around a mandatory sanitize step, never by
-  redefining gem classes, and turning sanitizing off needs an explicit, documented opt-out (html-pipeline's phase model,
-  markdown-rails #4, Marksmith's shadowed renderer). Acceptance: the README adds a node filter through configuration, and a
-  test shows raw HTML is scrubbed unless the opt-out is set.
+- **PRIOR-14** (MUST) The preview works without Turbo: the endpoint returns HTML over `fetch`, and a Turbo Stream
+  response is an option, not the only path (Marksmith #142). Acceptance: a system test with Turbo not loaded shows the
+  rendered preview, and a request test gets HTML back from the endpoint.
+- **PRIOR-15** (MUST) The preview endpoint runs the same render pipeline and the same content class as the display
+  helper, both pass the pipeline the same explicit context (the locale plus app values declared in configuration), and
+  every context value a filter reads is part of the render cache key (Marksmith #71, #103, #33; benchmark render core).
+  Acceptance: a test renders one document through the preview endpoint and the view helper with identical HTML, and a
+  filter reading a declared context value yields distinct cached output for two values.
+- **PRIOR-16** (MUST) The preview endpoint calls an app-supplied authorization hook before rendering, and the install
+  generator writes that hook into the initializer with the default chosen under Open decisions (Marksmith's controller
+  on bare `ActionController::Base`). Acceptance: a request test with the hook returning false gets a 403 and no rendered
+  HTML, and the generated initializer contains the hook.
+- **PRIOR-17** (MUST) Rendering is customized through options and filter hooks around a mandatory sanitize step, never
+  by redefining gem classes, and turning sanitizing off needs an explicit, documented opt-out (html-pipeline's phase
+  model, markdown-rails #4, Marksmith's shadowed renderer). Acceptance: the README adds a node filter through
+  configuration, and a test shows raw HTML is scrubbed unless the opt-out is set.
 - **PRIOR-18** (MUST) The gem keeps its sanitizer configuration local and never mutates global allowlists such as Loofah
   constants or `ActionText::ContentHelper.allowed_tags` (Lexxy's engine initializer). Acceptance: a test captures those
   values before and after the gem boots and finds them unchanged.
-- **PRIOR-19** (SHOULD) The viewer and the preview dispatch a namespaced DOM event after new HTML is in place, so apps can
-  run MathJax, analytics or their own enhancers (Marksmith #138). Acceptance: a system test listens for the event and sees
-  it fire once per preview refresh and once per viewer connect.
+- **PRIOR-19** (SHOULD) The viewer and the preview dispatch a namespaced DOM event after new HTML is in place, so apps
+  can run MathJax, analytics or their own enhancers (Marksmith #138). Acceptance: a system test listens for the event
+  and sees it fire once per preview refresh and once per viewer connect.
 - **PRIOR-20** (SHOULD) The gem offers an optional `.md` template handler backed by its own pipeline, with the untrusted
   profile by default and ERB inside markdown only as an explicit trusted opt-in (markdown-rails' `md` and `markerb`).
-  Acceptance: a dummy app renders an `.html.md` view through the gem pipeline, and ERB tags in it stay literal unless the
-  trusted handler is registered.
+  Acceptance: a dummy app renders an `.html.md` view through the gem pipeline, and ERB tags in it stay literal unless
+  the trusted handler is registered.
 
 ### Turbo lifecycle
 
 - **PRIOR-21** (MUST) The editor survives Turbo Frame navigation, morphing page refreshes, cache snapshots and
   back/forward restores without double mounting, lost content or a stale submitted value (Lexxy #688, #263, #196, #1200,
   #1283, Marksmith #45). Acceptance: a system test suite with two editors covers frame advance, morph refresh,
-  `turbo:before-cache` and history restore, and each submit sends the last typed text.
+  `turbo:before-cache` and history restore, and each submit sends the last typed text, including a new-record editor
+  across a morph refresh.
 
 ### Theming
 
 - **PRIOR-22** (MUST) Editor and viewer styles use namespaced CSS custom properties and zero-specificity selectors, ship
-  light and dark values that follow both `prefers-color-scheme` and an app class, and do not ship prebuilt utility-class
-  CSS (Marksmith's 44 KB Tailwind file and #33, Trix #947, Lexxy's `:where()` and unprefixed variables). Acceptance: a
-  visual test restyles editor and viewer by overriding tokens only, with no `!important`, in light and dark mode under
-  both triggers.
+  light and dark values that follow both `prefers-color-scheme` and an app class, with an explicit app class winning
+  over `prefers-color-scheme`, and do not ship prebuilt utility-class CSS (Marksmith's 44 KB Tailwind file and #33, Trix
+  #947, Lexxy's `:where()` and unprefixed variables). Acceptance: a visual test restyles editor and viewer by
+  overriding tokens only, with no `!important`, in light and dark mode under both triggers, and with the OS in dark mode
+  and the app class set to light, editor and viewer render light.
 - **PRIOR-23** (MUST) The editor's styles hold up inside apps that use Tailwind preflight or Bootstrap resets (Lexxy
   #485, #732). Acceptance: the dummy app has Tailwind and Bootstrap variants and a screenshot comparison of the toolbar
   and editor passes in both.
 
 ### Uploads
 
-- **PRIOR-24** (MUST) Uploads use Active Storage direct upload with the direct-upload and blob URLs generated from the
-  app's routes, a placeholder while the file uploads, a cancelable accept event, progress events and a visible error
-  (Marksmith #8 and its hard-coded path, Action Text `rich_textarea` defaults, Lexxy's upload contract). Acceptance: a
-  system test in an app with a custom Active Storage route prefix inserts the right URL, a cancelled accept event inserts
-  nothing, and a failed upload shows an error message in the editor.
-- **PRIOR-25** (SHOULD) The accepted upload types are configurable and include video and audio, inserted as markdown the
-  viewer renders (Marksmith #20, #80). Acceptance: with video allowed, dropping an MP4 inserts markdown that the viewer
-  renders as a playable video.
+- **PRIOR-24** (MUST) When uploads are enabled, uploads use Active Storage direct upload with the direct-upload and blob
+  URLs generated from the app's routes, a placeholder while the file uploads, a cancelable accept event, progress events
+  and a visible error (Marksmith #8 and its hard-coded path, Action Text `rich_textarea` defaults, Lexxy's upload
+  contract). Acceptance: a system test in an app with a custom Active Storage route prefix inserts the right URL, a
+  cancelled accept event inserts nothing, and a failed upload shows an error message in the editor.
+- **PRIOR-25** (SHOULD) The accepted upload types are configurable and include video and audio, inserted as plain
+  markdown (a link on its own line, never raw HTML, which the benchmark dialect rejects) that the viewer upgrades to a
+  player; RENDER pins the syntax (Marksmith #20, #80). Acceptance: with video allowed, dropping an MP4 inserts a
+  markdown link with no HTML tag, and the viewer renders it as a playable video.
 - **PRIOR-26** (COULD) The CI suite tests uploads end to end against S3-compatible storage, not only the disk service
   (Rhino's MinIO service). Acceptance: one CI job runs the upload system tests against a MinIO service.
 
 ### Editing extras
 
 - **PRIOR-27** (MUST) Keyboard shortcuts are bound to the editor instance, not the page, and Tab never traps focus: a
-  documented key combination moves focus out of the editor (Marksmith's page-wide hotkeys and Tab indent,
-  `markdown-toolbar-element` #15). Acceptance: with two editors on a page, a shortcut acts only in the focused one, and a
-  keyboard-only test can tab into and out of each editor.
+  documented key combination moves focus out of the editor (Marksmith's page-wide hotkeys and Tab indent). Acceptance:
+  with two editors on a page, a shortcut acts only in the focused one, and a keyboard-only test can tab into and out of
+  each editor.
 - **PRIOR-28** (SHOULD) The toolbar's formatting commands reproduce the rules of `markdown-toolbar-element`, ported to
-  editor commands with attribution, and its buttons follow the WAI-ARIA toolbar pattern with accessible names (its #43).
-  Acceptance: unit tests replay that element's formatting cases through the ported commands and get the same text and
-  selection, and an axe check finds no unnamed buttons.
+  editor commands with attribution. Acceptance: unit tests replay that element's formatting cases through the ported
+  commands and get the same text and selection.
 - **PRIOR-29** (SHOULD) Pasting converts HTML, links and tables to markdown, and pasted plain-text markdown is kept as
-  typed whatever else the clipboard holds (Marksmith's `paste-markdown`, Lexxy #914). Acceptance: a browser test pastes an
-  HTML table and gets a GFM table, and pastes markdown with an HTML flavour present and gets the markdown unchanged.
+  typed when the HTML flavour adds no structure the plain text lacks (Lexxy #914); the detection rule comes out of the
+  `paste-markdown` spike and EDIT pins it (Marksmith's `paste-markdown`). Acceptance: a browser test pastes an HTML
+  table and gets a GFM table, and pastes markdown with an HTML flavour present and gets the markdown unchanged.
 - **PRIOR-30** (COULD) Mentions and emoji completion take an app-supplied source (inline list or remote endpoint with a
-  filter parameter), modelled on Lexxy's prompt contract (Marksmith #81, #82). Acceptance: a dummy app registers a remote
-  source and typing `@` followed by letters inserts the chosen item.
+  filter parameter), modelled on Lexxy's prompt contract (Marksmith #81, #82). Acceptance: a dummy app registers a
+  remote source and typing `@` followed by letters inserts the chosen item.
 - **PRIOR-31** (MUST) Every user-facing string in the editor UI goes through the app's I18n, with English and Spanish
   shipped (Lexxy D1258, Marksmith's locale files). Acceptance: switching the dummy app to Spanish shows Spanish toolbar
   labels, tooltips and upload messages, and a check finds no hard-coded English string in the JavaScript or templates.
 
 ### Tests, docs and releases
 
-- **PRIOR-32** (MUST) CI runs, as required checks, browser tests of the editor across Chromium, Firefox and WebKit, Rails
-  system tests of the integration in a matrix of supported Rails versions, and lint for Ruby and JavaScript (Lexxy's
-  suite; Marksmith's skipped system tests and disabled lint). Acceptance: the CI workflow defines those jobs and branch
-  protection lists them as required.
-- **PRIOR-33** (SHOULD) The repository holds a docs site and a live sandbox, deployed by a workflow on changes to the docs
-  (Lexxy's lexxy.dev). Acceptance: a docs workflow publishes the site from the repo and the sandbox page runs the editor
-  from the current build.
+- **PRIOR-32** (MUST) CI runs, as required checks, browser tests of the editor across Chromium, Firefox and WebKit,
+  Rails system tests of the integration in a matrix of supported Rails versions, and lint for Ruby and JavaScript
+  (Lexxy's suite; Marksmith's skipped system tests and disabled lint). Acceptance: the CI workflow defines those jobs
+  and branch protection lists them as required.
+- **PRIOR-33** (SHOULD) The repository holds a docs site and a live sandbox, deployed by a workflow on changes to the
+  docs (Lexxy's lexxy.dev). Acceptance: a docs workflow publishes the site from the repo and the sandbox page runs the
+  editor from the current build.
 - **PRIOR-34** (MUST) Every release has a changelog entry, follows semantic versioning, and any public API marked
   experimental states its deprecation policy (Marksmith's releases without notes after v0.4.7, Lexxy #1031 and its
   experimental extension API). Acceptance: the release workflow fails when `CHANGELOG.md` has no section for the version
-  being released.
-- **PRIOR-35** (MUST) The README credits the prior art Md learns from or ports code from, and every ported file keeps its
-  original MIT notice. Acceptance: the README has a prior-art section naming Marksmith, Lexxy, `markdown-toolbar-element`,
-  html-pipeline and markdown-rails, and each ported file carries the source licence header.
+  being released, and the docs of every API marked experimental state its deprecation policy.
+- **PRIOR-35** (MUST) The README credits the prior art Md learns from or ports code from, and every ported file keeps
+  its original MIT notice. Acceptance: the README has a prior-art section naming Marksmith, Lexxy,
+  Rhino Editor, Trix and Action Text, `markdown-toolbar-element`, html-pipeline and markdown-rails, and each ported file
+  carries the source licence header.
+
+### Accessibility
+
+- **PRIOR-36** (MUST) The toolbar follows the WAI-ARIA toolbar pattern (one tab stop, arrow-key roving focus) and every
+  button, icon-only ones included, has a localized accessible name (`markdown-toolbar-element` #43). Acceptance: an axe
+  check of the editor finds no unnamed button, and a keyboard test reaches every toolbar button with one Tab and the
+  arrow keys.
 
 ## Developer experience notes
 
@@ -402,35 +441,56 @@ with the area that owns the topic.
 - **PRIOR-04, PRIOR-05** add one form-builder method and one helper, the smallest surface that still covers forms and
   standalone tags. Not overriding `rich_textarea` means a newcomer types a different method name, which is clearer than
   silently changing what an existing helper renders.
+- **PRIOR-01** adds one documented line per markdown attribute, a Rails `normalizes` call with the gem's newline
+  normalizer. The generator cannot edit models it does not know, so a newcomer who skips the line still gets a working
+  editor and only the line endings differ; the README puts the line next to `f.markdown_field` so it is met on day one.
 - **PRIOR-07, PRIOR-08** add configuration surface (presets, feature switches, a toolbar list). Each has a default that
   works untouched, so a newcomer never needs them on day one; they exist because the top Lexxy issue asks for them.
-- **PRIOR-16** adds one required decision at install time: who may render previews. The generator writes a default that
-  allows signed-in users of the app's own authentication and explains how to change it, so the cost is reading one
-  commented block.
-- **PRIOR-17, PRIOR-20** add filter and handler APIs that only advanced apps touch. A filter is one class with one method,
-  mirroring html-pipeline's node filter, so developers who know that gem have nothing new to learn.
+- **PRIOR-16** adds one hook and one install-time decision: who may render previews. The gem cannot know the app's
+  authentication, so the generator writes the default chosen in Open decisions as live code with an explanatory
+  comment; the cost is reading and possibly editing those lines.
+- **PRIOR-17, PRIOR-20** add filter and handler APIs that only advanced apps touch. A filter is one class with two
+  methods, `selector` and `handle_element`, the shape of html-pipeline's node filter, so developers who know that gem
+  recognize it.
+- **PRIOR-12** adds one JavaScript registration call for extra CodeMirror extensions. A newcomer never meets it; an
+  advanced app adds one pin and one call, which is cheaper than rebuilding a bundle.
+- **PRIOR-15** adds a declared-context setting. The default context is the locale, so a newcomer configures nothing;
+  apps with context-aware filters declare each value once, which also keeps the cache key honest.
+- **PRIOR-25** adds one option, the list of accepted upload types. Images are the default, so a newcomer meets it only
+  when they want video or audio.
 - **PRIOR-19, PRIOR-24, PRIOR-30** add namespaced DOM events and a source contract; they replace monkey-patching or
   partial overrides, which cost far more to maintain.
-- **PRIOR-22, PRIOR-23** keep theming to CSS variables, the skill every Rails developer with Tailwind or plain CSS already
-  has. Utility-class CSS would have been easier to ship but harder to override.
+- **PRIOR-22, PRIOR-23** keep theming to CSS variables, the skill every Rails developer with Tailwind or plain CSS
+  already has. Utility-class CSS would have been easier to ship but harder to override.
+- **PRIOR-36** costs newcomers nothing; the accessible names come from the shipped locale files.
 - **PRIOR-32 to PRIOR-35** cost newcomers nothing directly; they are what makes upgrades predictable, which Marksmith's
   0.x warning and Lexxy's beta breakages show users care about.
 
 ## Open decisions
 
-- Should the editor's JavaScript API be a Stimulus controller over the real textarea, like Marksmith, or a
-  form-associated custom element, like Lexxy, Rhino and Trix? Recommendation: a Stimulus controller over the real
-  textarea. The textarea is already a native form control, so form association, validation and progressive enhancement
-  come free, Stimulus matches Papyro and most Hotwire apps, and no lit or Shadow DOM dependency can break importmap. Add a
-  thin custom element later only if non-Stimulus apps ask for it.
-- Port `markdown-toolbar-element`'s formatting rules into editor commands, or depend on the element? Recommendation: port
-  with attribution (PRIOR-28). The element only drives a visible textarea and has not had a release since 2024.
+- Confirm the benchmark's choice of a Stimulus controller over the real textarea as the gem's JavaScript API, rather
+  than a form-associated custom element like Lexxy and Trix (Rhino is a custom element that writes to a hand-written
+  hidden field; ElementInternals is still on its 1.0 list, #197)? Recommendation: confirm it; the benchmark's editor
+  layer already assumes it. The textarea is already a native form control, so form association, validation and
+  progressive enhancement come free, Stimulus matches Papyro and most Hotwire apps, and no lit or Shadow DOM dependency
+  can break importmap. Add a thin custom element later only if non-Stimulus apps ask for it.
+- Port `markdown-toolbar-element`'s formatting rules into editor commands, or depend on the element? Recommendation:
+  port with attribution (PRIOR-28). The element only drives a visible textarea and has not had a release since 2024.
 - Which sanitizer engine: Selma (as in html-pipeline, streaming and fast) or `rails-html-sanitizer` and Loofah (as in
   Action Text, familiar to Rails developers)? Recommendation: `rails-html-sanitizer` for 0.1 behind a small interface
   that RENDER owns, with a benchmark spike before 1.0 deciding whether Selma is worth a native dependency.
 - Mirror html-pipeline's filter interface so its existing node filters plug in, or define a smaller interface of Md's
-  own? Recommendation: Md's own interface whose node filter signature matches html-pipeline's (`selector` plus
-  `handle_element`), with no dependency on the gem, so porting a filter is a copy, not an adapter.
+  own? Recommendation: Md's own interface with the same shape (`selector` plus `handle_element`) and no dependency on
+  the gem. A verbatim copy of an html-pipeline filter works only if the sanitizer decision above picks Selma, because
+  those filters receive Selma elements; with `rails-html-sanitizer` they receive Nokogiri nodes and porting is a short
+  rewrite of the element calls.
+- What does the generated preview authorization hook allow by default? Denying until the app edits it is safest but
+  breaks PRIOR-03's working editor in a fresh app; allowing everyone keeps install to one step but exposes a CPU-bound
+  endpoint. Recommendation: the generator writes the hook on Rails 8's `authenticated?` or a `current_user` helper when
+  one exists, otherwise `true` with a warning comment, and the endpoint always sits behind Rails `rate_limit`.
+- Normalize CRLF through an app-declared `normalizes` line, or through a model macro of Md's own (such as
+  `markdown_attribute :body`) that could later carry other per-attribute options? Recommendation: `normalizes` for 0.1;
+  it is Rails-native, adds no macro, and DX can introduce a macro later without breaking it.
 - Contribute the small fixes found here (Turbo-free preview, upload path, undo-safe list continuation) upstream to
   Marksmith? Recommendation: yes, as issues or PRs credited to the research, without making Md's plan wait on them;
   they help Marksmith users and cost little.
@@ -530,10 +590,14 @@ with the area that owns the topic.
 - https://github.com/KonnorRogers/rhino-editor (accessed 2026-11-03)
 - https://github.com/KonnorRogers/rhino-editor/blob/main/docs/src/_documentation/tutorials/01-getting-started.md (accessed 2026-11-03)
 - https://github.com/KonnorRogers/rhino-editor/blob/main/docs/src/_documentation/tutorials/04-usage-with-rails.md (accessed 2026-11-03)
+- https://github.com/KonnorRogers/rhino-editor/blob/main/docs/src/_documentation/tutorials/02-setup.md (accessed 2026-11-03)
 - https://github.com/KonnorRogers/rhino-editor/blob/main/docs/src/_documentation/references/04-modifying-the-editor.md (accessed 2026-11-03)
 - https://github.com/KonnorRogers/rhino-editor/blob/main/src/exports/styles/rhino-editor.css (accessed 2026-11-03)
 - https://github.com/KonnorRogers/rhino-editor/blob/main/.github/workflows/tests.yml (accessed 2026-11-03)
 - https://github.com/KonnorRogers/rhino-editor/blob/main/CHANGELOG.md (accessed 2026-11-03)
+- https://github.com/KonnorRogers/rhino-editor/blob/main/package.json (accessed 2026-11-03)
+- https://github.com/KonnorRogers/rhino-editor/blob/main/docs/src/_documentation/how_tos/01-customizing-the-toolbar.md (accessed 2026-11-03)
+- https://github.com/KonnorRogers/rhino-editor/blob/main/docs/src/_documentation/how_tos/02-styling-the-toolbar.md (accessed 2026-11-03)
 - https://github.com/KonnorRogers/rhino-editor/issues/197 (accessed 2026-11-03)
 - https://github.com/KonnorRogers/rhino-editor/issues/159 (accessed 2026-11-03)
 - https://github.com/KonnorRogers/rhino-editor/issues/161 (accessed 2026-11-03)
@@ -543,6 +607,8 @@ with the area that owns the topic.
 - https://registry.npmjs.org/rhino-editor (accessed 2026-11-03)
 - https://github.com/basecamp/trix (accessed 2026-11-03)
 - https://github.com/basecamp/trix/blob/main/README.md (accessed 2026-11-03)
+- https://github.com/basecamp/trix/blob/main/.github/workflows/ci.yml (accessed 2026-11-03)
+- https://github.com/basecamp/trix/blob/main/package.json (accessed 2026-11-03)
 - https://github.com/basecamp/trix/issues/626 (accessed 2026-11-03)
 - https://github.com/basecamp/trix/pull/737 (accessed 2026-11-03)
 - https://github.com/basecamp/trix/issues/947 (accessed 2026-11-03)
@@ -563,6 +629,7 @@ with the area that owns the topic.
 - https://github.com/sitepress/markdown-rails (accessed 2026-11-03)
 - https://github.com/sitepress/markdown-rails/blob/main/lib/markdown-rails/handler.rb (accessed 2026-11-03)
 - https://github.com/sitepress/markdown-rails/blob/main/lib/markdown-rails/renderer/rails.rb (accessed 2026-11-03)
+- https://github.com/sitepress/markdown-rails/blob/main/.github/workflows/ci.yml (accessed 2026-11-03)
 - https://github.com/sitepress/markdown-rails/issues/3 (accessed 2026-11-03)
 - https://github.com/sitepress/markdown-rails/issues/4 (accessed 2026-11-03)
 - https://github.com/sitepress/markdown-rails/pull/5 (accessed 2026-11-03)
@@ -572,6 +639,7 @@ with the area that owns the topic.
 - https://github.com/gjtorikian/html-pipeline/blob/main/README.md (accessed 2026-11-03)
 - https://github.com/gjtorikian/html-pipeline/blob/main/lib/html_pipeline/sanitization_filter.rb (accessed 2026-11-03)
 - https://github.com/gjtorikian/html-pipeline/blob/main/lib/html_pipeline/convert_filter/markdown_filter.rb (accessed 2026-11-03)
+- https://github.com/gjtorikian/html-pipeline/blob/main/.github/workflows/ci.yml (accessed 2026-11-03)
 - https://github.com/gjtorikian/html-pipeline/issues/405 (accessed 2026-11-03)
 - https://github.com/gjtorikian/html-pipeline/issues/413 (accessed 2026-11-03)
 - https://github.com/gjtorikian/html-pipeline/issues/407 (accessed 2026-11-03)
