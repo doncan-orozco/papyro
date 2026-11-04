@@ -3,8 +3,8 @@
 This doc covers what a Rails developer types, reads and maintains to adopt the Md gem: the install command, the
 generators, the model, form and view API, the configuration object, the extension points, the error messages, the upgrade
 policy and the docs. Developer experience is the gem's first priority (see `README.md` in this folder), and it is where
-the closest prior art falls short. Marksmith needs four manual setup steps and renders through `<%==`, and Lexxy is
-smooth but stores HTML. The benchmark report already settles what the gem does (four layers: render core, viewer,
+the closest prior art falls short. Marksmith leaves three steps to the developer after install (the stylesheet tag, the
+Stimulus controller registration and sanitizing its `<%==` output), and Lexxy is smooth but stores HTML. The benchmark report already settles what the gem does (four layers: render core, viewer,
 editor, optional agent layer). This doc settles how that surface feels from `bundle add` to the third upgrade. `Md` /
 `md:` is the placeholder name until the naming decision lands.
 
@@ -36,7 +36,8 @@ Out of scope (WON'T):
 - React or Vue components;
 - an HTML storage mode: markdown text is the only stored format;
 - a hosted service or any LLM call made by the gem itself;
-- auto-migrating Marksmith, Trix or Lexxy content.
+- a content migration command for Marksmith, Trix or Lexxy in the DX surface (whether to migrate content is PRIOR's and
+  PAPYRO's call).
 
 ## Questions
 
@@ -62,27 +63,32 @@ below was read from each gem's README, guide or source on 2026-11-03.
 
 ### Install flows of eleven gems
 
-"Commands" counts shell commands from a working Rails app to first use. "Lines" counts app code a developer types
-(Gemfile lines excluded). Counts come from each gem's own getting-started page.
+"Commands" counts shell commands from a working Rails app to first use (a Gemfile line and its `bundle install` count as
+one). "Lines" counts app code a developer types to show an editor or the feature and the saved content; Gemfile lines and
+the strong-parameters entry are excluded, because every row needs the same one. Counts come from each gem's own
+getting-started page or source.
 
 | Gem | Commands to first use | What the install generator writes | Lines of app code to first use | Manual steps left after install | Extension mechanism |
 |---|---|---|---|---|---|
 | Devise | 4: `bundle add devise`, `rails g devise:install`, `rails g devise User`, `rails db:migrate` | initializer with every option, model, migration, route | 1: `before_action :authenticate_user!` | mailer `default_url_options` per environment (printed by the generator), restart | modules listed in the `devise` macro; `devise:views` and `devise:controllers` generators copy code to customize |
-| Pagy | 1: Gemfile line and `bundle install`; no generator | none | 3: `include Pagy::Method`, `pagy(:offset, scope)`, `@pagy.series_nav` | none | per-call options; extras chosen by keyword (`jsonapi: true`, `:calendar`) |
+| Pagy | 1: Gemfile line and `bundle install`; no generator | none | 3: `include Pagy::Method`, `pagy(:offset, scope)`, `@pagy.series_nav` | none | options passed to `pagy` per call; the paginator chosen by its first argument (`:offset`) |
 | Pundit | 1: `bundle add pundit` (`pundit:install` is optional) | `ApplicationPolicy` | about 13: `include Pundit::Authorization`, a policy class, `authorize @post` | none | policy classes found by naming convention; `verify_authorized` as a development safety net |
-| Action Text | 2: `bin/rails action_text:install`, `bin/rails db:migrate` | migrations, JavaScript imports, CSS, partials | 3: `has_rich_text :content`, `form.rich_textarea :content`, the permitted param; plus `<%= @article.content %>` to show it | none | swap the editor (Lexxy) |
-| Lexxy | 1 on top of Action Text (Gemfile line and `bundle install`); importmap apps add 2 pins and 1 import | none | 0 on Rails 8.0/8.1: `form.rich_text_area` renders Lexxy once the gem is installed | the pins and the import | layered options: default, then preset, then HTML attribute (`Lexxy.configure`); prompts; extensions |
-| Marksmith | 2: `bundle add marksmith commonmarker`, `bin/importmap pin @avo-hq/marksmith`; `marksmith:install` only writes the config | initializer | `form.marksmith :body`, a stylesheet tag, the controller registration, `<%== marksmithed post.body %>` | stylesheet tag, Stimulus controller registration, sanitizing the raw output | override `Marksmith::Renderer` by defining the same class in the app; choose the parser |
-| ViewComponent | 1: Gemfile line; `view_component:component` generator per component | per component: class, template, test | 1: `render(ExampleComponent.new(title:))` | none | subclassing; previews served in development by default |
-| phlex-rails 2.4 | 2: `bundle add phlex-rails`, `bin/rails g phlex:install` | `config/initializers/phlex.rb`, `app/components/base.rb`, `app/views/base.rb` | 1: `render Components::Thing.new` | none | subclassing the generated bases; `phlex:component` and `phlex:view` generators |
+| Action Text | 2: `bin/rails action_text:install`, `bin/rails db:migrate` | migrations, JavaScript imports, CSS, partials | 3: `has_rich_text :content`, `form.rich_textarea :content`, `<%= @article.content %>` | none | swap the editor (Lexxy) |
+| Lexxy | 1 on top of Action Text (Gemfile line and `bundle install`); importmap apps add 2 pins and 1 import | none | 0 beyond Action Text's on Rails 8.0/8.1: `form.rich_text_area` renders Lexxy once the gem is installed | the pins and the import | layered options: default, then preset, then HTML attribute (`Lexxy.configure`); prompts |
+| Marksmith | 2: `bundle add marksmith commonmarker`, `bin/importmap pin @avo-hq/marksmith`; `marksmith:install` only writes the config | initializer | 2: `form.marksmith :body`, `<%== marksmithed post.body %>` | stylesheet tag, Stimulus controller registration, sanitizing the raw output | override `Marksmith::Renderer` by defining the same class in the app; choose the parser |
+| ViewComponent | 2: Gemfile line and `bundle install`, then `bin/rails g view_component:component Example title`; no install generator | per component: class, template, test | 1: `render(ExampleComponent.new(title:))` | none | subclassing; previews served in development by default |
+| phlex-rails 2.4 | 3: `bundle add phlex-rails`, `bin/rails g phlex:install`, `bin/rails g phlex:component Thing` | `config/initializers/phlex.rb`, `app/components/base.rb`, `app/views/base.rb` | 1: `render Components::Thing.new` | none | subclassing the generated bases; `phlex:component` and `phlex:view` generators |
 | simple_form | 2: `bundle install`, `rails g simple_form:install` (`--bootstrap`, `--foundation`) | initializer with wrappers for the chosen CSS framework | 1 per field: `f.input :username` | include the CSS framework | a class in `app/inputs/*_input.rb`, used with `as: :currency`; no registration |
-| Avo | 1 with the app template, or 3: gem, `bundle install`, `bin/rails g avo:install` | initializer, `/avo` mount in routes | a resource per model, made by the resource generator | authentication, authorization, licence | resources and fields, generators |
+| Avo | 1 with the app template, or 2: Gemfile line and `bundle install`, then `bin/rails g avo:install` | initializer, `/avo` mount in routes | a resource per model, made by the resource generator | authentication, authorization, licence | resources and fields, generators |
 | chadcn | 3: `bundle add chadcn`, `bin/rails g chadcn:install`, `bin/rails tailwindcss:build` | managed CSS block, theme files copied once | 1: `render Chadcn::Button.new` | `tailwindcss-rails` must be installed first | eject one component; `chadcn:doctor` explains a broken setup |
+
+The research notes record `config.action_text.editor = :lexxy` for Lexxy; its current docs say installing the gem is
+enough on Rails 8.0/8.1 and that the setting is needed only on Rails versions that include Lexxy.
 
 What the table shows:
 
 1. **The best installs are one generator that finishes the job and says what is left.** Devise's installer prints the
-   per-environment mailer settings it cannot write itself. Avo's app template does the whole install in one command.
+   per-environment mailer settings it cannot write itself. Avo's app template does the install in one command and leaves authentication, authorization and licensing as documented next steps.
    chadcn's generator writes a managed block that is the same on every machine. Marksmith is the counter-example for
    this gem: its generator writes only a config file, so the developer adds the pin, registers the controllers and adds
    the stylesheet tag by hand, and Stimulus and Turbo must already be set up.
@@ -103,7 +109,7 @@ What the table shows:
 6. **Upgrades are trusted when nothing is copied into the app and breaking changes are announced first.** The Rails
    maintenance policy pairs breaking changes with deprecation notices in the previous release. chadcn upgrades are a
    `bundle update` because the components stay in the gem. Pagy's upgrade guide to version 43 has search-and-replace
-   tables, which is good, but it removed helpers and options with no deprecation period. Pagy's own quick start then
+   tables, which is good, but it discontinued helpers with no transition period. Pagy's own quick start then
    recommends pinning the minor version (`~> 43.8`) "to avoid breaking changes". The gem should not train its users to
    pin minors.
 7. **A live demo shortens evaluation.** Lexxy has a sandbox at lexxy.dev, Pagy a dev-tools sandbox, ViewComponent serves
@@ -119,13 +125,13 @@ From a Rails 8 app with Stimulus, Turbo and a `posts.body` text column:
 
 | Path | Commands | Lines of app code | Manual edits beyond the lines |
 |---|---|---|---|
-| Action Text with Trix | 2 | 3 (+1 to render) | none |
-| Action Text with Lexxy | 3 (adds `bundle install`) | 3 (+1), plus 2 pins and 1 import under importmap | the pins |
+| Action Text with Trix | 2 | 3 (model, form, render) | none |
+| Action Text with Lexxy | 3 (adds `bundle install`) | 3 (model, form, render), plus 2 pins and 1 import under importmap | the pins and the import |
 | Marksmith | 2 (+1 optional generator) | 2 (form, render) | stylesheet tag, controller registration, sanitizing |
 | **Md target** | **2**: `bundle add md`, `bin/rails generate md:install` | **2**: `form.markdown_field :body`, `markdown_view @post.body` | **none** |
 
 The target needs no model change, because the core works on any text column (design rule 3 in the benchmark report).
-The permitted parameter is ordinary Rails form work and is the same for every row.
+The permitted parameter is ordinary Rails form work, the same for every row, so no row counts it.
 
 ### Defaults that must be right
 
@@ -139,18 +145,21 @@ renderer version.
 
 ### Extension points without a framework
 
-Three mechanisms cover the known needs, and each is something a Rails developer already knows:
+Three mechanisms (data, DOM events and Ruby callables) cover the known needs for custom syntax, toolbar buttons and
+upload handlers, and each is something a Rails developer already knows:
 
 - **Data in the initializer** for the toolbar: a list of symbols, and custom buttons that insert a markdown template
   around the selection. No JavaScript.
 - **DOM events** for behaviour: the editor dispatches `md:change`, `md:upload`, `md:command` and `md:preview`, and the
-  app's own Stimulus controllers listen to them (the pattern Trix and Lexxy use for attachments and toolbars).
-- **Plain Ruby callables** for rendering: a render pass is any object that responds to `call(document)` on the
-  commonmarker AST, appended to a list in the configuration. Its output still goes through the sanitizer.
+  app's own Stimulus controllers listen to them.
+- **Plain Ruby callables** for rendering and uploads: a render pass is any object that responds to `call(node)` on the
+  root node of the commonmarker AST, appended to a list in the configuration, and its output still goes through the
+  sanitizer; `config.uploads.url_for` maps an uploaded blob to the URL written into the markdown, and
+  `uploads: { url: }` swaps the endpoint per field.
 
 ### Draft README quick start
 
-This is the quick start the README opens with: 15 lines of code, from install to viewer.
+This is the quick start the README opens with: 13 lines of code from install to viewer (10 without the comment lines).
 
 ```bash
 bundle add md
@@ -176,8 +185,8 @@ end
 ```
 
 `body` is any `text` column, and the controller permits it as usual (`params.expect(post: [:title, :body])`). The
-generator wires the JavaScript and the stylesheet for importmap or jsbundling, mounts the preview endpoint, and writes
-`config/initializers/md.rb` with every option commented out. Phlex apps render `Md::Editor` and `Md::Viewer` with the
+generator wires the JavaScript and the stylesheet for importmap or jsbundling and writes `config/initializers/md.rb` with
+every option commented out; the engine mounts the preview endpoint itself, with no route edit (DX-15). Phlex apps render `Md::Editor` and `Md::Viewer` with the
 same options.
 
 ## Requirements
@@ -188,8 +197,9 @@ Grouped by the developer's journey: install, everyday API, defaults, extension, 
 
 - **DX-01** (MUST) Two commands take an existing Rails app with a text column to a working editor and viewer:
   `bundle add md` and `bin/rails generate md:install`, with no manual edit afterwards. Acceptance: a CI job runs the two
-  commands and the quick start lines in a fresh `rails new` app (importmap and Propshaft), and a system test saves a post
-  through the editor and sees formatted output on the show page.
+  commands in a fresh `rails new` app (importmap and Propshaft), adds `form.markdown_field :body` and
+  `markdown_view @post.body` to a scaffold, and a system test saves a post through the editor and sees formatted output
+  on the show page.
 - **DX-02** (MUST) The install generator detects the JavaScript pipeline (importmap, or jsbundling with a
   `package.json`) and the CSS setup, wires each one inside marked, managed blocks, and is idempotent. The mechanisms per
   pipeline are ASSETS requirements. Acceptance: running the generator twice in the importmap and esbuild dummy apps
@@ -220,8 +230,9 @@ Grouped by the developer's journey: install, everyday API, defaults, extension, 
   code never writes `raw`, `html_safe` or the `<%==` tag to show markdown. Acceptance: the README and docs contain no
   `<%==` and no `raw` around gem output, and the RENDER XSS corpus rendered through the helper contains no script, event
   handler or `javascript:` URL.
-- **DX-10** (MUST) `Md.render(text, locale:)` is the Ruby entry point and returns an `Md::Document` (`html`, `toc`,
-  `headings`, `word_count`, `reading_time`) with the same HTML the helper and the preview show. Acceptance: a test
+- **DX-10** (MUST) `Md.render(text, locale: I18n.locale)` is the Ruby entry point (the locale is optional and defaults to
+  `I18n.locale`, as in `markdown_view`) and returns an `Md::Document` (`html`, `toc`, `headings`, `word_count`,
+  `reading_time`) with the same HTML the helper and the preview show. Acceptance: a test
   asserts `Md.render(text).html` equals the inner HTML of `markdown_view(text)` and of the preview response for the
   fixture corpus.
 - **DX-11** (SHOULD) An optional model macro `has_markdown :body` adds `body_document` (a memoized `Md::Document`, cached
@@ -229,7 +240,8 @@ Grouped by the developer's journey: install, everyday API, defaults, extension, 
   test lists the public methods the macro adds and fails on any other, and the macro creates no migration.
 - **DX-12** (MUST) One option vocabulary everywhere: the form-builder method, the tag helper, the Phlex components
   (VIEWS) and the initializer use the same option names (`modes:`, `toolbar:`, `uploads:`, `preview:`), and a per-call
-  option overrides the initializer default. Acceptance: a test iterates the editor options of `Md::Configuration` and
+  option overrides the initializer default. Each per-call option maps to one initializer key: `modes:` and `toolbar:` to
+  `config.editor`, `uploads:` to `config.uploads`, `preview:` to `config.preview`. Acceptance: a test iterates the editor options of `Md::Configuration` and
   passes each one to the helper and the component, and the docs have one options table.
 - **DX-13** (MUST) The quick start adds at most two public names to learn for the editor and viewer
   (`markdown_field`, `markdown_view`); every other public name is optional. Acceptance: the README quick start uses no
@@ -239,18 +251,19 @@ Grouped by the developer's journey: install, everyday API, defaults, extension, 
 
 - **DX-14** (MUST) The defaults listed in Findings ("Defaults that must be right") ship as the out-of-box behaviour,
   with an empty initializer. Acceptance: a default-behaviour system test in the dummy app with an empty initializer
-  asserts each listed default (sanitized output, Source mode, toolbar, uploads on with Active Storage and off without,
-  dark styles, Spanish strings under `I18n.locale = :es`, textarea fallback, cache hit on the second render).
+  asserts each listed default except uploads, which DX-16 checks (sanitized output, Source mode, toolbar, dark styles,
+  Spanish strings under `I18n.locale = :es`, textarea fallback, cache hit on the second render).
 - **DX-15** (MUST) The preview endpoint is mounted automatically, renders only the text it receives (it never loads a
   record), is CSRF-protected and rate-limited, and can be turned off with one option. Acceptance: the editor preview
-  works with no route edit, and `config.preview.mount = false` removes the route in a routing test.
+  works with no route edit; `config.preview.mount = false` removes the route in a routing test; request tests show that a
+  POST without a CSRF token is rejected, that the rate limit answers 429, and that a `record_id` parameter is ignored.
 - **DX-16** (SHOULD) Uploads default to Active Storage direct uploads when the app has Active Storage, and the editor
   shows no upload control when it does not. Acceptance: the default-behaviour test runs in an app with and an app
   without Active Storage and checks the toolbar.
 
 ### Extension points
 
-- **DX-17** (MUST) The toolbar is declared as data (`toolbar: %i[bold italic link | heading quote code | image table]`),
+- **DX-17** (SHOULD) The toolbar is declared as data (`toolbar: %i[bold italic link | heading quote code | image table]`),
   and a custom button that inserts a markdown template is defined in Ruby with no JavaScript, for example
   `config.editor.button :callout, label: "Note", icon: "info", insert: "> [!NOTE]\n> {selection}"`. Acceptance: a system
   test defines a button only in the initializer and sees its template inserted around the selection.
@@ -263,7 +276,7 @@ Grouped by the developer's journey: install, everyday API, defaults, extension, 
   (`config.uploads.url_for`). Acceptance: tests cover the default, a custom endpoint, a custom URL mapper and
   `uploads: false`.
 - **DX-20** (MUST) Custom syntax is added with plain Ruby callables appended to the render pipeline
-  (`config.render.passes << EmojiPass`, each responding to `call(document)`) and allowlist additions
+  (`config.render.passes << EmojiPass`, each responding to `call(node)`) and allowlist additions
   (`config.sanitizer.allow tags: [...], attributes: [...]`); pass output still goes through the sanitizer. Acceptance:
   the docs' ten-line example pass works in a test, and an attribute the pass adds without an allowlist entry is stripped.
 - **DX-21** (SHOULD) An app can replace the whole renderer with `config.renderer = MyRenderer`, an object that responds
@@ -293,10 +306,11 @@ Grouped by the developer's journey: install, everyday API, defaults, extension, 
   CHANGELOG removal names the release that deprecated it, and a public-API snapshot test fails when a public method
   disappears without a deprecation entry.
 - **DX-27** (MUST) An upgrade is `bundle update md` (plus the npm package for jsbundling apps): the gem copies nothing
-  into the app except the initializer and files the app chose to eject. Acceptance: a CI job upgrades a dummy app from
-  the previous minor release with no change beyond the lockfiles and its system tests stay green.
+  into the app except the initializer and files the app chose to eject. Acceptance: from the second release on, a CI job
+  upgrades a dummy app from the previous minor release with no change beyond the lockfiles, and its system tests stay
+  green.
 - **DX-28** (MUST) Changes to rendered output are versioned: any change bumps `Md::RENDERER_VERSION` (part of the cache
-  key), the dialect never changes in a patch release, and the CHANGELOG has an "Output changes" section. Acceptance: a
+  key), the dialect never changes in a patch release, and the CHANGELOG has an "Output changes" section. The dialect itself is RENDER's. Acceptance: a
   snapshot test over the fixture corpus fails when output changes and the renderer version does not.
 - **DX-29** (SHOULD) Every release with a breaking change ships an upgrade guide with search-and-replace tables (the
   Pagy precedent), and each deprecation message links to its entry. Acceptance: a CI check finds an upgrade-guide entry
@@ -325,9 +339,9 @@ What a newcomer has to learn, by group:
 | Group | New public surface | Cost to a newcomer |
 |---|---|---|
 | Install (DX-01 to DX-06) | 1 generator, 1 initializer they may ignore, optional generators | 2 commands. The cost is on the gem: pipeline detection and managed blocks must be tested on every supported setup (ASSETS). |
-| Everyday API (DX-07 to DX-13) | `markdown_field`, `markdown_view`; optional `has_markdown`, `Md.render`, `markdown_field_tag` | 2 names to start. `has_markdown` is the only macro, and it is optional, so it adds nothing to the first day. |
+| Everyday API (DX-07 to DX-13) | `markdown_field`, `markdown_view`; optional `has_markdown`, `Md.render`, `markdown_field_tag` | 2 names to start. `has_markdown` is the only macro and it is optional: the quick start shows it as a skippable step, and DX-01 and DX-07 pass without it. |
 | Defaults (DX-14 to DX-16) | none | Zero. Each default removes a configuration line most apps would otherwise copy. Automatic upload detection can surprise; the generator output (DX-03) says which way it went. |
-| Extension (DX-17 to DX-21) | toolbar data, `config.editor.button`, 4 DOM events, `config.render.passes`, `config.sanitizer.allow`, `config.uploads.url_for`, `config.renderer` | Paid only by apps that extend. Each mechanism is a Rails idiom (initializer data, Stimulus events, callables). Seven names in total is the ceiling; a new extension point must replace one or justify its cost in this table. |
+| Extension (DX-17 to DX-21) | toolbar data, `config.editor.button`, 4 DOM events, `config.render.passes`, `config.sanitizer.allow`, `config.uploads.url_for`, `config.renderer` | Paid only by apps that extend. Each mechanism is a Rails idiom (initializer data, Stimulus events, callables). Seven extension points is the ceiling (toolbar data, `config.editor.button`, the DOM events counted as one, `config.render.passes`, `config.sanitizer.allow`, `config.uploads.url_for`, `config.renderer`); a new one must replace one or justify its cost in this table. |
 | Errors (DX-22 to DX-25) | `md:doctor` | Negative cost: these shorten debugging. Messages are API too, and DX-22 and DX-25 test them. |
 | Upgrades (DX-26 to DX-30) | `Md.deprecator` warnings | Paid by the maintainers. Developers get `bundle update` without pinning minors. |
 | Docs (DX-31 to DX-34) | gallery route, llms.txt | None for the app. CI-run docs keep the quick start from going stale the way Lexxy's version pin did. |
@@ -347,8 +361,8 @@ inside the extension budget above.
   `config/application.rb`. Recommendation: the initializer block generated with every option commented out (Devise
   style). It is one place, it is greppable, and DX-05 can test it.
 - Install generator behaviour: edit the layout and JavaScript entry point in managed blocks, or print instructions only.
-  Recommendation: edit inside managed blocks (chadcn style) and print what changed. Printed instructions are how
-  Marksmith ends up with four manual steps.
+  Recommendation: edit inside managed blocks (chadcn style) and print what changed. Marksmith's generator writes only a
+  config file, so its README leaves the stylesheet tag, the controller registration and sanitizing to the developer.
 - Upload default: on when Active Storage is present, or always off until configured. Recommendation: on when present
   (DX-16). Paste and drag uploads are the GitHub baseline writers expect (benchmark report), and an app without Active
   Storage sees no upload control.
@@ -361,9 +375,10 @@ inside the extension budget above.
 - Docs site and sandbox timing: README only for 0.1, a docs site and sandbox before 1.0. Recommendation: README plus the
   CI-run quick start for 0.1, with the docs site and sandbox (DX-32) as a 1.0 gate together with the second, non-Papyro
   app the benchmark report requires.
-- Gem name and namespace: `Md` is a placeholder. Recommendation: decide it in the maintainer sign-off. The constraint
-  from this doc is that the name works as a short Ruby constant and a generator namespace (`name:install`,
-  `name:doctor`).
+- Gem name and namespace: `Md` is a placeholder. Recommendation: pick a name that is free on both RubyGems and npm and
+  works unchanged as the gem, the npm package, the Ruby constant and the generator namespace (`name:install`,
+  `name:doctor`), short enough that `Name.render` reads as easily as `Md.render`; reject any candidate that needs a
+  suffix in one of those four places.
 
 ## Sources
 
