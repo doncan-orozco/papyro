@@ -31,6 +31,13 @@ repos:
     owns: "Studio controllers (`app/controllers/papyro_studio/**`), engine routes and importmap, Studio views/components/policies/operations/presenters and their Stimulus controllers, engine tests"
     tests_from_host: true
     never: "migrations, models, locale files, authentication"
+  - id: md
+    path: ../papyro-md
+    repo: doncan-orozco/papyro-md       # companion repository (DECISIONS.md D-13): companion during 0.x, standalone from 1.0
+    base: main
+    gem: papyro-md                      # the Gemfile.lock entry the host pins once the host depends on the gem
+    owns: "the papyro-md gem: renderer (PapyroMd), CodeMirror editor and Stimulus controllers, generators, assets, the gem's own tests and release workflow"
+    never: "Papyro models, migrations, locale files, authentication"
 
 tracks:
   ruby:
