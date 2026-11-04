@@ -47,8 +47,8 @@ sections, all required: **Scope**, **Questions**, **Findings**, **Requirements**
 
 ### Requirement format
 
-Every top-level list item under `## Requirements` is a requirement, written on one list item (continuation lines
-indented under it):
+Every top-level list item under `## Requirements` is a requirement, written as one list item: continuation lines sit
+directly under it (indented), and a blank line or a heading ends it, so keep the `Acceptance:` clause before any blank line:
 
 ```markdown
 - **DX-01** (MUST) `bin/rails generate md:install` sets up the gem in one command. Acceptance: a new Rails app renders
@@ -61,7 +61,8 @@ indented under it):
 - **Priority** (MoSCoW): `MUST` (the gem fails its priorities without it, so it belongs in a release plan),
   `SHOULD` (expected, may come after the first release), `COULD` (nice to have). WON'T items go to the Scope section as
   out of scope, not to Requirements.
-- **Acceptance**: `Acceptance:` followed by a one-line check a reviewer or a test can run.
+- **Acceptance**: `Acceptance:` in prose (not inside backticks or a code block) followed by a one-line check a reviewer
+  or a test can run.
 
 Put intro prose before the first item and group with H3 headings if it helps; do not use other top-level lists in this
 section (nest them under a requirement instead).
@@ -76,13 +77,15 @@ research notes are welcome as well but do not count.
 
 The checker fails on `TODO`, `TBD` and on template markers (`<...>` spans such as `<AREA>` or `<one-line check>`).
 Lowercase HTML tags (`<kbd>`, `<br/>`), autolinks (`<https://...>`) and anything inside code spans or fenced code
-blocks are not markers, so ERB and HTML examples belong in backticks. A marker is caught only when it opens and closes
-on one line, which is how the template writes them.
+blocks are not markers, so ERB and HTML examples belong in backticks; keep such a code span on one line (only inside a
+requirement does the checker follow a span onto the next line). A marker is caught only when it opens and closes on
+one line, which is how the template writes them.
 
 ## The synthesis traceability table
 
 `../REQUIREMENTS.md` has a `## Traceability` section with a table that lists every requirement ID of the area docs,
-one per row. Only table rows inside that section count; IDs mentioned elsewhere do not.
+one per row, the ID in the first cell (bare or in backticks). Only that first cell of table rows inside that section
+counts: an ID mentioned in another cell (a note such as "merged with DX-04") or elsewhere in the file does not.
 
 ```markdown
 ## Traceability

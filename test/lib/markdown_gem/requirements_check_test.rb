@@ -1,4 +1,5 @@
 require "test_helper"
+require "fileutils"
 require "tmpdir"
 require "open3"
 require "rbconfig"
@@ -137,6 +138,24 @@ class RequirementsCheckTest < ActiveSupport::TestCase
     assert_equal [ "#{line_of(content, 'DX-03')}: requirement DX-03 has no \"Acceptance:\" clause" ], check_area(content)[1]
   end
 
+  test "an Acceptance clause inside a code span on a continuation line does not count" do
+    content = broken("Acceptance: a new Rails app renders the\n  editor after",
+                     "A new Rails app renders the\n  `Acceptance: editor` after")
+    status, out, = check_area(content)
+
+    assert_equal 1, status
+    assert_equal [ "#{line_of(content, 'DX-01')}: requirement DX-01 has no \"Acceptance:\" clause" ], out
+  end
+
+  test "an Acceptance clause inside a code span that wraps onto the next line does not count" do
+    content = broken("Acceptance: a new Rails app renders the\n  editor after",
+                     "A new Rails app renders `the Acceptance:\n  editor` after")
+    status, out, = check_area(content)
+
+    assert_equal 1, status
+    assert_equal [ "#{line_of(content, 'DX-01')}: requirement DX-01 has no \"Acceptance:\" clause" ], out
+  end
+
   test "a repeated ID names both lines" do
     content = broken("**DX-03**", "**DX-01**")
     status, out, = check_area(content)
@@ -177,6 +196,14 @@ class RequirementsCheckTest < ActiveSupport::TestCase
 
     assert_equal 1, status
     assert_includes out, "#{line_of(content, '## Open decisions')}: missing required section \"## Sources\""
+  end
+
+  test "a fence line with an info string inside an open fence does not close it" do
+    content = broken("## Sources\n", "```\n```ruby\n## Sources\n```\n")
+    status, out, = check_area(content)
+
+    assert_equal 1, status
+    assert_equal [ "#{line_of(content, '## Open decisions')}: missing required section \"## Sources\"" ], out
   end
 
   test "an unknown area code, a missing file and a bad --min-sources are bad input" do
@@ -258,6 +285,19 @@ class RequirementsCheckTest < ActiveSupport::TestCase
       "#{synthesis}:#{line_of(traceability, '## Traceability')}: EDIT-01 missing from the traceability table " \
       "(defined at #{File.join(dir, 'editor-ux.md')}:3)"
     ], out.lines(chomp: true)
+  end
+
+  test "--synthesis traces an ID by the first cell of its row only" do
+    dir = research_dir
+    content = traceability("DX-01", "`DX-03`", "EDIT-01")
+      .sub("| DX-01 | Requirement |", "| DX-01 | Merged with DX-02 |")
+    synthesis = write("REQUIREMENTS.md", content)
+    status, out, = run_cli("--synthesis", synthesis, dir)
+
+    assert_equal 1, status
+    assert_equal [ "#{synthesis}:#{line_of(content, '## Traceability')}: DX-02 missing from the traceability table " \
+                   "(defined at #{File.join(dir, 'developer-experience.md')}:#{line_of(PASSING, '**DX-02**')})" ],
+                 out.lines(chomp: true)
   end
 
   test "--synthesis without a Traceability section fails" do
