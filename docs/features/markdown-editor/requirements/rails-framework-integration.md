@@ -74,33 +74,34 @@ Release numbers and Ruby floors come from the RubyGems versions API and the Rail
 [rails.gemspec](https://raw.githubusercontent.com/rails/rails/main/rails.gemspec)). Ruby's branch page lists 4.0
 (released 2025-12-25) and 3.4 in normal maintenance, 3.3 in security maintenance until 2027-03-31, and 3.2 end of life
 since 2026-04-01 ([ruby-lang.org branches](https://www.ruby-lang.org/en/downloads/branches/)). commonmarker, the render
-core's only native dependency, requires Ruby `>= 3.2, < 5`
+core's native dependency beyond the Nokogiri that Rails already brings, requires Ruby `>= 3.2, < 5`
 ([commonmarker.gemspec](https://raw.githubusercontent.com/gjtorikian/commonmarker/main/commonmarker.gemspec)).
 
 Consequences:
 
 - Rails 8.0 leaves security support four days after this doc's date, long before gem 0.1. Supporting it would add a CI
   column for a series nobody patches.
-- Rails 7.2 is still in many apps (and got a 7.2.4 in September 2026), but it is off the maintenance page. Supporting
-  it means a second code path wherever 8.x changed an API the gem touches. For example, the 8.1 Action Text guide uses
-  only `form.rich_textarea` ([Action Text guide](https://guides.rubyonrails.org/action_text_overview.html)), and the
-  Solid Cache default arrived with 8.0. The adoption gain is real, but it lands on an unpatched framework.
+- Rails 7.2 is still in many apps (and got a 7.2.4 in September 2026), but it is off the maintenance page. Supporting it
+  means a second code path wherever 8.x changed an API the gem touches (an inference: this doc did not diff the 7.2 and
+  8.1 APIs). One known difference is the cache default: the Caching guide names Solid Cache as the default store of new
+  Rails 8 apps ([Caching guide](https://guides.rubyonrails.org/caching_with_rails.html)). The adoption gain is real, but
+  it lands on an unpatched framework.
 - Ruby 3.2 is end of life, and the next Rails already requires 3.3.5. A `>= 3.3` floor costs nothing on Rails 8.1 and
-  matches Rails `main`.
+  is looser than Rails `main`'s 3.3.5.
 - Ruby 3.4 and 4.0 are what new apps run. Papyro runs Ruby 4.0.0 with Rails 8.1.4 (`.ruby-version`, `Gemfile.lock`).
 
 #### Support matrix (proposed)
 
 | Rails \ Ruby | 3.2 | 3.3 | 3.4 | 4.0 | Reason |
 |---|---|---|---|---|---|
-| 7.2 | no | no | no | no | Off the maintenance page; renamed helpers and older defaults would need a second code path |
+| 7.2 | no | no | no | no | Off the maintenance page; older defaults (no Solid Cache) and unaudited API differences would need a second code path |
 | 8.0 | no | no | no | no | Security support ends 2026-11-07, before gem 0.1 |
 | 8.1 | no | **CI** | **CI** | **CI** | Supported series until 2027-10-10; Ruby 3.2 is end of life |
 | 8.2 (when released) | n/a | **CI** | **CI** | **CI** | Rails `main` requires Ruby >= 3.3.5 |
 | main (edge) | n/a | allowed failure | allowed failure | allowed failure | Early warning for `to_markdown` and the Action Text editor changes |
 
-The matrix costs six required CI cells (two Rails series by three Rubies) plus an edge row. Each extra Rails series
-adds three cells and the conditional code its API differences need.
+The matrix costs three required CI cells today (Rails 8.1 by three Rubies) and six once 8.2 ships, plus an edge row.
+Each extra Rails series adds three cells and the conditional code its API differences need.
 
 ### 2. Active Record: column, macro, dirty tracking, caching
 
@@ -110,19 +111,20 @@ Two storage shapes exist in the wild:
   ([Marksmith](https://github.com/avo-hq/marksmith)). Dirty tracking (`body_changed?`, `saved_change_to_body?`),
   validations, `normalizes` and JSON serialization work unchanged, because the attribute is a String.
 - **A separate polymorphic record.** This is the Writebook pattern that Papyro copied. `has_markdown :body` declares
-  `has_one :markdown_body, class_name: "ActionText::Markdown", as: :record, autosave: true, dependent: :destroy` plus
-  `with_markdown_body` preload scopes. `ActionText::Markdown < ActionText::Record` stores `content`, `name` and the
-  polymorphic `record` in `action_text_markdowns`, with `touch: true` (`lib/rails_ext/action_text_has_markdown.rb`,
+  `has_one :markdown_body, class_name: "ActionText::Markdown", as: :record, autosave: true, dependent: :destroy`
+  (abridged: the real declaration carries more options) plus `with_markdown_body` preload scopes.
+  `ActionText::Markdown < ActionText::Record` stores `content`, `name` and the polymorphic `record` in
+  `action_text_markdowns`, with `touch: true` (`lib/rails_ext/action_text_has_markdown.rb`,
   `lib/rails_ext/action_text_markdown.rb` and `db/schema.rb` on Papyro's `main`). The parent's `body` reader always
-  returns a record (it builds one when none exists), dirty state lives on that child
-  (`markdown_body.content_changed?`), and every list view must preload or pay one query per row. Papyro runs Bullet
-  for that reason. The research notes trace the pattern to Writebook (`publishing_platforms.md`, "Writebook").
+  returns a record (it builds one when none exists), dirty state lives on that child (`markdown_body.content_changed?`),
+  and every list view must preload or pay one query per row. Papyro runs Bullet for that reason. The research notes
+  trace the pattern to Writebook (`publishing_platforms.md`, "Writebook").
 
 Two findings shape the macro:
 
 - **Name clashes are real.** Papyro already defines `has_markdown` on every Active Record model (through
   `ActiveSupport.on_load :active_record`) and `markdown_area` on `FormBuilder`. A gem that added the same names
-  globally would silently replace its first consumer's code at boot.
+  globally would silently replace its first consumer's code at boot, or be replaced by it, depending on load order.
 - **Browsers submit textarea values with CRLF line breaks.** The HTML standard normalizes a textarea's API value to LF
   ([HTML standard, textarea](https://html.spec.whatwg.org/multipage/form-elements.html#the-textarea-element)). When it
   builds the submitted form data it then replaces every lone LF or CR with CR LF, for both URL-encoded and multipart
@@ -132,8 +134,9 @@ Two findings shape the macro:
   `normalizes` is the documented place to fix it on assignment.
 
 The benchmark settles the rendered-HTML cache key: content digest + locale + `RENDERER_VERSION`, with the Studio
-preview skipping the cache. The research notes record that Papyro renders on every request with no cache today
-(`rendering_and_syntax.md`). The Rails options are:
+preview skipping the cache. This doc adds the dialect and a digest of the app's render configuration (RAILS-08), so an
+app that tightens its sanitizer does not keep serving HTML cached under the old allowlist. The research notes record
+that Papyro renders on every request with no cache today (`rendering_and_syntax.md`). The Rails options are:
 
 | Option | Rails API | Cost | When it fits |
 |---|---|---|---|
@@ -160,14 +163,18 @@ with a future Rails constant.
 
 Rails is adding the migration tool itself. PR #56858, "Add `to_markdown` to Action Text, mirroring `to_plain_text`",
 was merged into `main` on 2026-02-24. It converts headings, inline formatting, block quotes, code blocks, nested lists,
-links, tables and `details`/`summary`, and checks link schemes against Loofah's allowed protocols. Every attachable
-supplies `attachable_markdown_representation`, and an `ActiveStorage::Blob` becomes a link with its caption or filename.
-The author tested it by hand against Trix and Lexxy markup
-([rails/rails#56858](https://github.com/rails/rails/pull/56858)). The entry sits in the unreleased section of
-`actiontext/CHANGELOG.md` on `main`, next to "Deprecate Trix-specific classes, modules, and methods" and editor-element
-changes for Lexxy ([Action Text CHANGELOG](https://raw.githubusercontent.com/rails/rails/main/actiontext/CHANGELOG.md)).
-So it ships with Rails 8.2, not 8.1. On Rails 8.1 the common converter is `reverse_markdown` 3.0.2 (2026-01-20, 106M
-downloads, depends on Nokogiri, **WTFPL** licence) ([RubyGems](https://rubygems.org/api/v1/gems/reverse_markdown.json)).
+links, tables and `details`/`summary`, and checks link schemes against Loofah's allowed protocols. The built-in
+attachables (`RemoteImage`, `ContentAttachment`, `ActiveStorage::Blob`, `MissingAttachable`) implement
+`attachable_markdown_representation`; an `ActiveStorage::Blob` becomes a link with its caption or filename, and an app's
+own attachables (mentions, embeds) are not covered, so the migration reports them. The author tested it by hand against
+Trix and Lexxy markup ([rails/rails#56858](https://github.com/rails/rails/pull/56858)). The entry sits in the unreleased
+section of `actiontext/CHANGELOG.md` on `main`, next to "Deprecate Trix-specific classes, modules, and methods" and
+editor-element changes for Lexxy
+([Action Text CHANGELOG](https://raw.githubusercontent.com/rails/rails/main/actiontext/CHANGELOG.md)). The PR has no
+milestone, so the inference is that it ships with the next release cut from `main` (8.2.0.alpha today), not in an
+8.1.x patch; RAILS-15's feature check does not depend on which release that is. On Rails 8.1 the common converter is
+`reverse_markdown` 3.0.2 (2026-01-20, 106M downloads, depends on Nokogiri, **WTFPL** licence)
+([RubyGems](https://rubygems.org/api/v1/gems/reverse_markdown.json)).
 
 A migration for an existing app therefore looks like this:
 
@@ -181,7 +188,8 @@ A migration for an existing app therefore looks like this:
 4. Write a report per record: elements that do not survive (colours, alignment, galleries, mentions) and a rendered
    diff count. The original rich text stays untouched.
 5. Switch reads and forms to the markdown attribute. Drop `has_rich_text` and purge the rich text rows only in a later,
-   separate step, after someone has reviewed the report.
+   separate step, after someone has reviewed the report. The purge removes the rich text's `embeds` attachments, so it
+   must leave the blobs that step 3 attached to the record untouched.
 
 ### 4. Active Storage: uploads on any service
 
@@ -204,13 +212,19 @@ Points that decide the design:
 - **What goes into the text matters more than how the file got there.** `url_for(blob)` gives
   `/rails/active_storage/blobs/redirect/:signed_id/:filename`. That URL is permanent and redirects to a service URL
   valid for five minutes. Proxy mode (`rails_storage_proxy_path`, or `resolve_model_to_route = :rails_storage_proxy`)
-  streams the file through the app and suits CDNs. `public: true` services serve permanent bucket URLs (same guide).
-  The app's key signs every signed id, so stored markdown full of signed-id URLs breaks when that key changes or the
-  content moves to another app. A public bucket URL ties the text to one host. Papyro already avoids both. Its upload
-  endpoint (`ActionText::Markdown::UploadsController`) finds the record by signed GlobalID, authorizes it with Pundit,
-  attaches the file to `has_many_attached :uploads`, and writes a stable `/u/:slug` URL that resolves to the blob
-  redirect at request time. It sends a one-year public cache header (Papyro `main`), which makes every upload public.
-  An app with private records cannot accept that.
+  streams the file through the app and suits CDNs. `public: true` services serve permanent bucket URLs (same guide). The
+  guide calls signed ids permanent. The inference is that they stay valid only while the secret that signs them stays
+  the same, so stored markdown full of signed-id URLs would break when that secret changes or the content moves to
+  another app (RAILS-19 tests this). A public bucket URL ties the text to one host. Papyro keeps signed ids out of the
+  text but not the app's host. Its upload endpoint (`ActionText::Markdown::UploadsController#create`) finds the record
+  by signed GlobalID, authorizes `update?` with Pundit, and attaches the file, sent as a server-proxied multipart post
+  and offered only on persisted records, to `has_many_attached :uploads` on the `ActionText::Markdown` child. Its JSON
+  returns an absolute URL on `config.x.public_host` (`<public_host>/u/<slug>`), which the editor writes into the text,
+  and `MarkdownRenderer#normalize_upload_url` strips the host back to `/u/<slug>` at render time. The `show` action
+  skips authentication and authorization (`allow_unauthenticated_access only: :show`, `skip_authorization`) and
+  redirects to the permanent stock `/rails/active_storage/blobs/redirect/:signed_id/...` URL with a one-year public
+  cache header. Anyone with a slug can read any upload, and the redirect hands out a signed-id URL that never expires
+  (Papyro `main`). An app with private records cannot accept that.
 - **Ownership needs attachments.** Attaching the blob to the record (`has_many_attached`) gives purge on destroy, a way
   to find what a text references, and Rails' own preloading. Uploads from abandoned forms stay unattached. The guide's
   cleanup is a task over `ActiveStorage::Blob.unattached`, and it warns that the query is slow on big tables.
@@ -241,8 +255,9 @@ Points that decide the design:
   writer types would morph the server's older value into the textarea, and morphing the editor's own DOM would
   desynchronize CodeMirror from its state.
 - **Frames and streams.** An editor rendered into a frame or by `turbo_stream.replace` gets only Stimulus callbacks:
-  `turbo:load` and `DOMContentLoaded` do not fire for it (handbook above). Viewer enhancements (Mermaid, KaTeX, heading
-  links, lightbox) run again on reconnect and after a morph, so they must be idempotent.
+  `turbo:load` and `DOMContentLoaded` do not fire for it (an inference from the Stimulus lifecycle page and Turbo's
+  page-level `turbo:load`; RAILS-28 tests it). Viewer enhancements (Mermaid, KaTeX, heading links, lightbox) run again
+  on reconnect and after a morph, so they must be idempotent.
 
 ### 6. Engine, Zeitwerk, routes, I18n, Action Cable
 
@@ -291,6 +306,13 @@ Points that decide the design:
 | Engine | `Rails::Engine`, `isolate_namespace`, route proxy, `main_app` | Public, stable |
 | Reloading | `config.to_prepare`, `Zeitwerk::Loader.for_gem`, `zeitwerk:check` | Public, stable |
 | I18n | engine `config/locales`, `I18n.t` | Public, stable |
+| Migration and maintenance tasks | `ActiveRecord::Batches#find_each`, Rake tasks in the engine's `lib/tasks` | Public, stable |
+| Orphan cleanup job | `ActiveJob::Base`, `ActiveStorage::Blob.unattached` | Public, documented; the app picks the queue adapter |
+| Morph refresh broadcasts | `broadcasts_refreshes`, `turbo_stream_from` (turbo-rails), Action Cable | Public, in the page-refreshes handbook; the app's choice, not the core's |
+| Generators | `Rails::Generators::Base`, `railties:install:migrations` | Public, stable (Engines guide) |
+
+The "since" versions in this table (7.1, Rails 6, Turbo 8) come from the frameworks' release history and were not
+re-fetched for this doc; the CI matrix (RAILS-01) is what verifies them.
 
 ## Requirements
 
@@ -301,17 +323,19 @@ placeholder gem name; DX owns the final names.
 
 - **RAILS-01** (MUST) The gem supports Rails 8.1 and every later released minor series on Ruby 3.3, 3.4 and 4.0, and
   its gemspec says so (`required_ruby_version` `>= 3.3`, `railties` `>= 8.1`). Acceptance: CI runs the dummy-app suite
-  on the six required cells of the support matrix, every cell is green, and the gemspec bounds match the matrix.
+  on every required cell of the support matrix for each released Rails series (three cells while 8.1 is the only one),
+  every cell is green, and the gemspec bounds match the matrix.
 - **RAILS-02** (SHOULD) CI also runs the suite against Rails `main` on every Ruby of the matrix as an allowed failure.
   Acceptance: the CI config has an edge job on Rails `main` that reports its result without blocking merges.
 - **RAILS-03** (MUST) The README states the support policy: a Rails series is dropped when rubyonrails.org ends its
   security support and a Ruby branch when ruby-lang.org marks it end of life, only in a minor release, announced in the
-  CHANGELOG. Acceptance: the README has a "Supported versions" section with the matrix and this policy, and the
-  CHANGELOG entry of every release that drops a version names it.
-- **RAILS-04** (MUST) Active Record, Active Storage, Action Text and Action Cable are optional: the gem depends only on
-  `railties`, `actionpack` and `actionview`, and enables each integration from that framework's load hook when the app
-  loads it. Acceptance: an app booted with only `action_controller/railtie` can call `Md.render` and render the editor
-  field, and its boot loads none of the optional frameworks.
+  CHANGELOG. Its first screen names the minimum Rails and Ruby, so an app on Rails 7.2 or 8.0 learns it before Bundler
+  fails. Acceptance: the README has a "Supported versions" section with the matrix and this policy, its opening
+  section names the minimum Rails and Ruby, and the CHANGELOG entry of every release that drops a version names it.
+- **RAILS-04** (MUST) Active Record, Active Storage, Action Text and Action Cable are optional Rails frameworks: the
+  gem depends only on `railties`, `actionpack` and `actionview`, and enables each integration from that framework's
+  load hook when the app loads it. Acceptance: an app booted with only `action_controller/railtie` can call
+  `Md.render` and render the editor field, and its boot loads none of the optional frameworks.
 
 ### Active Record
 
@@ -327,9 +351,10 @@ placeholder gem name; DX owns the final names.
   CRLF line breaks stores LF only, and saving through the editor form then reloading produces no diff against the
   editor's text.
 - **RAILS-08** (MUST) Rendered HTML is cached through `Rails.cache` with no schema change, under a key made of the
-  content digest, the locale, the dialect and the renderer version, never the record's cache key; the preview path
-  skips the cache. Acceptance: rendering the same text twice performs one render, changing the renderer version or the
-  locale misses the cache, and a test with the null store still renders.
+  content digest, the locale, the dialect, the renderer version and a digest of the app's render configuration
+  (sanitizer allowlist, filters, options; RENDER owns which settings exist), never the record's cache key. The preview
+  path skips the cache. Acceptance: rendering the same text twice performs one render; changing the renderer version,
+  the locale or the sanitizer allowlist misses the cache; and a test with the null store still renders.
 - **RAILS-09** (SHOULD) Every render emits an `ActiveSupport::Notifications` event (`render.md`) carrying the byte
   size, the locale and whether the cache hit. Acceptance: a subscriber in the dummy app receives one event per render
   with those payload keys.
@@ -357,35 +382,50 @@ placeholder gem name; DX owns the final names.
   the report, the real run fills the markdown attribute, a second run changes nothing, and the rich text rows are still
   there afterwards.
 - **RAILS-15** (MUST) The migration converts with `ActionText::Content#to_markdown` when the running Rails defines it,
-  and on Rails 8.1 with a fallback converter that is not a runtime dependency of the gem. Acceptance: the task's tests
-  pass on Rails 8.1 and on Rails `main`, and the gemspec's runtime dependencies list no HTML-to-markdown converter.
+  and on Rails 8.1 with a fallback converter that is not a runtime dependency of the gem. When neither is available it
+  stops before any write and prints the exact Gemfile line to add. Acceptance: the task's tests pass on Rails 8.1 and
+  on Rails `main`, on Rails 8.1 without the fallback the task exits non-zero and prints that line, and the gemspec's
+  runtime dependencies list no HTML-to-markdown converter.
 - **RAILS-16** (MUST) The migration turns image attachments into markdown images that point at stable upload URLs and
   attaches their blobs to the record's uploads, instead of the plain link that Rails' default blob representation
   gives. Acceptance: an image `action-text-attachment` in the fixture corpus becomes image syntax whose URL serves the
-  same blob, and the blob is attached to the migrated record.
+  same blob, the blob is attached to the migrated record, and after the separate purge step the image URL still serves
+  the blob.
 
 ### Active Storage
 
 - **RAILS-17** (MUST) Uploads go from the browser to the storage service through Active Storage direct uploads
-  (`DirectUpload` from `@rails/activestorage`) and work on Disk, S3, GCS and Azure with no gem setting beyond the
-  service's CORS rule, which the README shows per service. A server-proxied upload stays available for services without
-  CORS. Acceptance: a system test uploads an image on the Disk service, and the release checklist records a manual
-  upload on S3 (or a MinIO container in CI) and on GCS.
-- **RAILS-18** (MUST) The gem's upload endpoint authorizes before it creates a blob: it calls an app-supplied hook with
-  the user, the record (found by signed GlobalID) and the attribute, and it enforces a configurable content-type
-  allowlist and byte limit. The editor never posts to the unauthenticated stock `rails_direct_uploads_url`.
-  Acceptance: a request the hook rejects gets 403 and creates no blob, and a file over the limit or of a type outside
-  the allowlist gets 422.
+  (`DirectUpload` from `@rails/activestorage`, pointed at the gem's endpoint of RAILS-18) and work on Disk, S3, GCS and
+  Azure with no gem setting beyond the service's CORS rule, which the README shows per service. A server-proxied
+  upload stays available for services without CORS. Acceptance: a system test uploads an image on the Disk service,
+  and the release checklist records an upload on S3 (or a MinIO container in CI), on GCS and on Azure (or an Azurite
+  container in CI).
+- **RAILS-18** (MUST) The gem's direct-upload endpoint authorizes before it creates a blob. It calls one app-supplied
+  hook with the user, the record (found by signed GlobalID when persisted, or a new instance of the signed record
+  class on a new-record form), the attribute and the action (`:upload` here, `:read` in RAILS-21). It enforces a
+  configurable content-type allowlist and byte limit on the declared metadata, rechecks the content type after the
+  upload (a blob that fails the recheck is purged and never attached), and with no hook configured it refuses every
+  upload with 403 and logs a message that shows the block to add. The editor never posts to the unauthenticated stock
+  `rails_direct_uploads_url`. Acceptance: a request the hook rejects gets 403 and creates no blob, an app with no hook
+  gets 403 and that log line, a file over the limit or of a declared type outside the allowlist gets 422, and a file
+  declared as `image/png` whose bytes are HTML is purged and never attached.
 - **RAILS-19** (MUST) The markdown text stores a stable, app-relative upload URL served by a gem route. The URL embeds
-  no signed id, service hostname or expiring token, and the route resolves it to the blob in redirect or proxy mode as
-  `resolve_model_to_route` says. Acceptance: after rotating the key that signs blob ids, and after moving blobs from
-  Disk to S3 with a mirror service, every image URL in the stored fixture texts still serves its file.
-- **RAILS-20** (MUST) Uploaded blobs are attached to the owning record, including uploads made on the form of a record
-  that is not saved yet (attached when it is created), and are purged when the record is destroyed. Acceptance: an
-  upload on a new-record form is attached after the first save, and destroying the record enqueues its purge.
-- **RAILS-21** (MUST) Reading an upload goes through the same authorization hook as the record, so uploads of private
-  records stay private; the long public cache header is sent only when the hook says the record is public.
-  Acceptance: a signed-out visitor gets 404 for an image of a private record, and the image of a public record carries
+  no signed id, host, service hostname or expiring token. The route answers with the blob's expiring service URL
+  (redirect mode) or streams the file (proxy mode) as `resolve_model_to_route` says, and never redirects to the
+  permanent stock `/rails/active_storage/blobs/...` routes. Acceptance: after changing the secret that signs blob ids,
+  and after moving blobs from Disk to S3 with a mirror service, every image URL in the stored fixture texts still
+  serves its file, and no response's `Location` header is a `/rails/active_storage/` URL.
+- **RAILS-20** (MUST) Uploaded blobs are attached to the owning record and purged when it is destroyed. On a new-record
+  form, which has no GlobalID yet, the endpoint returns the blob's signed id, the form carries it in a hidden field,
+  and the record attaches it on create only if the same user uploaded it (Papyro today offers uploads only on
+  persisted records). Acceptance: an upload on a new-record form is attached after the first save, a signed id from
+  another user's upload is rejected on save, and destroying the record enqueues its purge.
+- **RAILS-21** (MUST) Reading an upload calls the authorization hook with the `:read` action (RAILS-18), so uploads of
+  private records stay private: their responses carry `Cache-Control: private` and never expose a permanent signed-id
+  URL. A long public cache header is sent only when the hook allows a signed-out `:read` and the response does not
+  point at an expiring URL (proxy mode or a public service); a redirect to an expiring service URL is never cached
+  longer than that URL lives. Acceptance: a signed-out visitor gets 404 for an image of a private record, a signed-in
+  reader's response is `private` and any `Location` it has expires, and a public record's image in proxy mode carries
   a public cache header.
 - **RAILS-22** (SHOULD) A provided job purges blobs that the gem's upload endpoint created and that are still
   unattached after a configurable age (two days by default). An optional reconciliation detaches uploads that the saved
@@ -425,11 +465,11 @@ placeholder gem name; DX owns the final names.
 - **RAILS-30** (MUST) Configuration is reload-safe: settings that name app code take strings or callables resolved at
   call time, and no initializer caches a reloadable constant. Acceptance: in development, an edit to the app's upload
   authorization hook or custom render filter takes effect on the next request without a server restart.
-- **RAILS-31** (MUST) The gem adds no generically named method to `ActiveRecord::Base`, `FormBuilder` or the helpers
-  that an app may already define (Papyro defines `has_markdown` and `markdown_area`). When such a method already
-  exists, it refuses at boot to overwrite it, with a message that names the method and the fix. Acceptance: the gem
-  loads into Papyro with its current `has_markdown` and `markdown_area` untouched, and a dummy app that predefines the
-  gem's macro name gets the boot error.
+- **RAILS-31** (MUST) Every method the gem adds to `ActiveRecord::Base`, `FormBuilder` or the view helpers carries
+  the gem's prefix (DX picks it), so it never takes a name an app may already define (Papyro defines `has_markdown`
+  and `markdown_area`). If a method with the gem's name already exists, the gem refuses at boot to overwrite it, with
+  a message that names the method and the fix. Acceptance: the gem loads into Papyro with its current `has_markdown`
+  and `markdown_area` untouched, and a dummy app that predefines the gem's macro name gets the boot error.
 - **RAILS-32** (SHOULD) The engine mounts itself at a configurable path with an opt-out for manual mounting, and every
   URL the gem's helpers build uses the engine's route proxy, so they work from host views, from inside another mounted
   engine and under subdomain constraints. Acceptance: the upload and preview URLs are correct when the field renders
@@ -441,37 +481,46 @@ placeholder gem name; DX owns the final names.
   engine's `config/locales`, in English and Spanish. The JavaScript gets its strings from the server's I18n through
   data attributes, not from a second translation file. Acceptance: a test finds every key in both locales, and
   switching `I18n.locale` to Spanish changes the toolbar labels and the upload errors.
-- **RAILS-35** (MUST) `Md.render` takes the locale explicitly and defaults to `I18n.locale`, so background jobs and
-  translations render with the article's locale rather than the request's. Acceptance: rendering Spanish text with
-  `locale: :es` inside an English request applies the Spanish typography pass and caches under the Spanish key.
-- **RAILS-36** (SHOULD) The core works without Action Cable. Only morph refreshes and the agent layer use it, and each
-  documents that it needs it. Acceptance: in the dummy-app suite, an app that does not load `action_cable/engine`
-  edits, uploads and previews.
+- **RAILS-35** (MUST) `Md.render` takes the content locale as `locale:`. When it is omitted it falls back to
+  `I18n.locale`, and the README warns that this is the request's UI locale, so background jobs and translation views
+  must pass the content's locale. Acceptance: rendering with `locale: :es` inside an English request passes `:es` to
+  the render core's locale hook and caches under the Spanish key.
+- **RAILS-36** (SHOULD) Each gem feature that relies on Action Cable (morph refreshes through `broadcasts_refreshes`,
+  the agent layer's live suggestion updates) says so in the README, and the editor degrades to request-only behaviour
+  when no cable consumer exists (RAILS-04 already makes Action Cable optional for the core). Acceptance: the README's
+  Action Cable section names every such feature, and the editor page of a dummy app without `action_cable/engine`
+  loads with no JavaScript error.
 
 ## Developer experience notes
 
 What a newcomer pays for each group, from cheapest to most expensive:
 
-- **Versions (RAILS-01 to RAILS-04).** Nothing to learn. The cost falls on the maintainers: six CI cells and an edge
-  job. An app on Rails 7.2 or 8.0 cannot install the gem at all, so the README must say so on its first screen instead
-  of leaving Bundler to report a resolution error.
+- **Versions (RAILS-01 to RAILS-04).** Nothing to learn. The cost falls on the maintainers: three CI cells (six once
+  8.2 ships) and an edge job. An app on Rails 7.2 or 8.0 cannot install the gem at all, so RAILS-03 puts that on the
+  README's first screen instead of leaving Bundler to report a resolution error.
 - **Active Record (RAILS-05 to RAILS-12).** The default path needs no model code: a `text` column and a form field.
   The macro is one line and changes nothing about the attribute; its only new surface is the `body_document` reader.
   The association adapter is for apps that already keep the text in a separate record (Papyro, Writebook-style apps),
-  and it costs a configuration block, not a migration. Caching is invisible. The persisted column (RAILS-12) would
-  cost a migration and a re-render task, so it stays a COULD.
+  and it costs a configuration block, not a migration. Caching is invisible, but RAILS-09's `render.md` event name and
+  payload keys are public API from 0.1, so renaming them later is a breaking change. The persisted column (RAILS-12)
+  would cost a migration and a re-render task, so it stays a COULD.
 - **Action Text (RAILS-13 to RAILS-16).** Coexistence costs nothing. The migration costs one command, with a dry run
-  first. The error a developer will meet is "Rails 8.1 needs a converter", and the task must answer it with the exact
-  Gemfile line to add.
+  first. The error a developer will meet is "Rails 8.1 needs a converter", and RAILS-15 makes the task answer it with
+  the exact Gemfile line to add.
 - **Active Storage (RAILS-17 to RAILS-23).** The authorization hook (RAILS-18, RAILS-21) is the one piece of app code
-  the gem requires, because the gem cannot guess who may upload. It is a block with three arguments that a Pundit,
-  Action Policy or plain-Ruby app fills in. Without it the endpoint must refuse with a message that shows the block to
-  add, never fail silently. The CORS rule is a copy-paste per service. Stable URLs (RAILS-19) add one gem route that
-  the developer never calls directly.
+  the gem requires, because the gem cannot guess who may upload. It is a block with four arguments (user, record,
+  attribute, action): the agent layer's `|user, record, action|` hook (benchmark design rule 4) plus the attribute, so a
+  Pundit, Action Policy or plain-Ruby app fills both in the same way. Without it the endpoint refuses with a message
+  that shows the block to add (RAILS-18), never silently. The CORS rule is a copy-paste per service. Stable URLs
+  (RAILS-19) add one gem route that the developer never calls directly. RAILS-22 adds one job and one age setting with a
+  default, so a newcomer only schedules the job.
 - **Turbo (RAILS-24 to RAILS-28).** No API at all: a developer should never have to write `turbo:before-cache` code
   for the editor. The whole cost sits in the gem's system tests.
 - **Engine conventions (RAILS-29 to RAILS-36).** Invisible when they work. RAILS-31's boot error is the only message a
-  developer may see, and it must name the clashing method and how to rename it or opt out.
+  developer may see, and it names the clashing method and how to rename it or opt out. RAILS-32 adds a mount-path
+  setting and an opt-out that most apps never touch. RAILS-34's `md.` keys are overridable surface, so their names are
+  a semver promise. RAILS-35's `locale:` keyword is the one trap: omitting it renders with the UI locale, so the
+  README's first `Md.render` example passes it.
 
 ## Open decisions
 
